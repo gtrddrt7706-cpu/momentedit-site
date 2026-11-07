@@ -14,15 +14,18 @@ const C = require(P('MID17_CUE', 'assets/ritual-cue.js')); const O = require(pat
 const seq = (S) => C.build(Object.assign({ course: 'open', on: { prevideo: 1, declare: 1, free: 1, song: 1 }, freeWhat: 'video', freeLen: '4' }, S), { mode: 'console' }).cues
   .filter((c) => c.k === 'free').map((c) => c.slug + (c.live ? '+live' : ''));
 const J = (x) => JSON.stringify(x);
-ok('a ① 감사 영상(기본) = 58 + 감사 → 영상 → 감사 받는 말 + 104 박수', J(seq({})) === J(['narr-free-in', 'midvideo-in-thanks+live', 'midvideo-out-thanks', 'narr-free-out-clap+live']), seq({}));
-ok('a ② 두 사람 이야기', J(seq({ mvEx: 1 })) === J(['midvideo-in-story+live', 'midvideo-out-story', 'narr-free-out-clap+live']), seq({ mvEx: 1 }));
-ok('a ③ 어떤 영상이든', J(seq({ mvEx: 2 })) === J(['midvideo-in-plain+live', 'midvideo-out-story', 'narr-free-out-clap+live']), seq({ mvEx: 2 }));
+ok('a ① 감사 영상(기본) = 351(58 글을 품은 여는 말 · 영상) → 354 받는 말 · 박수 [MID17_CLIPS_1107]', J(seq({})) === J(['midvideo-in-thanks+live', 'midvideo-out-thanks+live']), seq({}));
+ok('a ② 두 사람 이야기 = 352 → 355', J(seq({ mvEx: 1 })) === J(['midvideo-in-story+live', 'midvideo-out-story+live']), seq({ mvEx: 1 }));
+ok('a ③ 어떤 영상이든 = 353 → 355', J(seq({ mvEx: 2 })) === J(['midvideo-in-plain+live', 'midvideo-out-story+live']), seq({ mvEx: 2 }));
 ok('a 모르는 값은 기본 ①', J(seq({ mvEx: 9 })) === J(seq({})), seq({ mvEx: 9 }));
 ok('c 129(식전 영상 문장)는 식중 영상에 없다 · 식전 영상 129 와 상관없이 같은 줄', ![0, 1, 2].some((n) => seq({ mvEx: n }).some((s) => /prevideo-in-ex3/.test(s))) && J(seq({ pvEx: 2 })) === J(seq({})));
 ok('c 축사 갈래는 그대로(103 + 박수)', seq({ freeWhat: 'speech' })[0] === 'narr-free-in-speech+live', seq({ freeWhat: 'speech' }));
 const bl = C.build({ course: 'open', on: { free: 1, song: 1 }, freeWhat: 'video' }, { mode: 'console' }).cues;
-const i104 = bl.findIndex((c) => c.k === 'free' && c.slug === 'narr-free-out-clap');
-ok('b 104 박수 뒤 다음 순간은 디렉터 GO', i104 > 0 && bl[i104].live && bl[i104].live.applause && bl[i104 + 1] && bl[i104 + 1].fire === 'manual', bl[i104 + 1] && bl[i104 + 1].fire);
+const i104 = bl.findIndex((c) => c.k === 'free' && /^midvideo-out-/.test(c.slug));
+ok('b 받는 말(박수를 청한다) 뒤 박수 → 다음 순간은 디렉터 GO', i104 > 0 && bl[i104].live && bl[i104].live.applause && bl[i104 + 1] && bl[i104 + 1].fire === 'manual', bl[i104 + 1] && bl[i104 + 1].fire);
+const vc = bl.find((c) => c.k === 'free' && /^midvideo-in-/.test(c.slug));
+ok('c [MID17_CONSOLE] 디렉터 메모 · [재생 안 됨]은 영상 사람 순간을 든 여는 말에 · 길이 n분', !!vc && !!vc.rescue && /D-7/.test(vc.note) && /길이 3분/.test(vc.note) && vc.live && vc.live.doing === 'watch', vc && vc.note);
+ok('c 소리 파일 351 ~ 355 가 있다', ['351_midvideo-in-thanks', '352_midvideo-in-story', '353_midvideo-in-plain', '354_midvideo-out-thanks', '355_midvideo-out-story'].every((f) => fs.existsSync(path.join(ROOT, 'assets/audio/narration', f + '.mp3'))));
 ok('a 이름 셋 · 기본 ①', J(O.MV_EX_NAMES) === J(['감사 영상', '두 사람 이야기', '어떤 영상이든']) && O.midPlan({}).n === 0);
 const op = fs.readFileSync(P('MID17_OP', 'order-preview.html'), 'utf8'), con = fs.readFileSync(P('MID17_CON', 'console.html'), 'utf8'), lk = fs.readFileSync(path.join(ROOT, 'assets/ritual-preview-link.js'), 'utf8');
 ok('d 식순 화면 «소개 멘트» 줄(식전 영상 소개 멘트와 같은 모양)', /_exRowG\('exMvNar','소개 멘트',R\.MV_EX_NAMES,R\.midPlan\(S\)\.n,'mkMvNarEx'/.test(op) && /window\.mkMvNarEx=function/.test(op));

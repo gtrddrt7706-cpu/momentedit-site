@@ -37,6 +37,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { selectClips, selectSents } from './clip-select.mjs';
+import { loadTempo, tempoOf, applyTempo } from './lib/tempo.mjs';   // ★[TEMPO_1107] 말빠르기 표 — 이어 붙인 뒤 말소리만 늦춘다(쉼 그대로)
 
 const root = path.join(path.dirname(new URL(import.meta.url).pathname), '..');
 const MAN = path.join(root, 'docs/plans/식순연구/타입캐스트/manifest.json');
@@ -52,6 +53,7 @@ const OUT_OVERRIDE = arg('--out', '');            // 주면 clip.dir을 무시�
 
 if (!fs.existsSync(MAN)) { console.error('✗ manifest.json이 없습니다. node scripts/build-typecast-import.mjs 먼저 돌리세요.'); process.exit(1); }
 const man = JSON.parse(fs.readFileSync(MAN, 'utf8'));
+const TEMPO = loadTempo(root);   // ★[TEMPO_1107] assets/audio/_src/tempo.json — 숫자만 고치면 다음 조립부터 그 속도
 
 // ── ★[VOW_CHORUS 2026-08-04] 합성 클립(mix)은 여기서 만들지 않는다.
 //   26_vow-both 는 타입캐스트에서 받는 소리가 아니라 24·25 mp3를 겹쳐 만든 결과물이다
@@ -654,18 +656,28 @@ for (const w of work) {
     const joined = path.join(TMP, `j${tag}.wav`);
     execFileSync('ffmpeg', ['-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', lst, '-c', 'copy', joined]);
 
-    const total = dur(joined);
+    /* ★★[TEMPO_1107] 말빠르기 — 원본에서 이어 붙인 joined 에 «말소리만» 표의 배속을 입힌다(쉼 −34 dBFS · 0.25초 이상은 샘플 그대로).
+       늘 원본 문장에서 다시 만드니 두 번 입히지 않는다. 우성인데 표에 순간 키가 없으면 멈춘다 — 표에 적고 다시 돌릴 것. */
+    const _key = `${c.no}_${c.file}`;
+    const _cl = man.clips.find((x) => String(x.no).padStart(2, '0') + '_' + x.file === _key) || c;
+    const _voice = (man.voice || {})[String(_cl.role).split('|')[0]] || null;
+    const _tempo = tempoOf(TEMPO, _key, _voice);
+    if (_tempo == null) { console.error(`✗ [TEMPO_1107] ${_key}(${_voice}) — assets/audio/_src/tempo.json 에 순간 키가 없습니다. woosung 에 적고 다시 조립하세요.`); process.exit(1); }
+    let _src = joined;
+    if (Math.abs(_tempo - 1) > 1e-6) { _src = path.join(TMP, `t${tag}.wav`); applyTempo(joined, _src, _tempo, TEMPO); }
+
+    const total = dur(_src);
     const outDir = dirOf(c);
     fs.mkdirSync(outDir, { recursive: true });
     outDirs.add(outDir);
     const dst = path.join(outDir, `${c.no}_${c.file}.mp3`);
-    execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', joined,
+    execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', _src,
       '-af', `loudnorm=I=-16:TP=-1.5:LRA=11,afade=t=in:st=0:d=0.015,afade=t=out:st=${Math.max(0, total - 0.04).toFixed(3)}:d=0.04`,
       '-ar', '48000', '-b:a', '192k', dst]);
     made++;
-    _recWritten.push({ dir: outDir, key: `${c.no}_${c.file}`, text: c.sents.map((s) => s.text).join(' ') });
+    _recWritten.push({ dir: outDir, key: `${c.no}_${c.file}`, text: c.sents.map((s) => s.text).join(' '), tempo: _tempo });
     const pn = c.sents.filter((s, si) => patchMap.has(`${c.file}#${si}`)).length;
-    console.log(`  ${c.no}_${c.file}.mp3  ${total.toFixed(1)}초  (문장 ${c.sents.length}${pn ? ` · 갈아 낀 자리 ${pn}` : ''})`);
+    console.log(`  ${c.no}_${c.file}.mp3  ${total.toFixed(1)}초  (문장 ${c.sents.length}${pn ? ` · 갈아 낀 자리 ${pn}` : ''}${Math.abs(_tempo - 1) > 1e-6 ? ` · 말빠르기 ×${_tempo}` : ''})`);
 
     // parents.html은 번호 없는 경로를 부른다 — 사본을 둔다 (★PARENTS_DUAL_PATH)
     if (c.file === 'parents-letter') {
@@ -697,7 +709,7 @@ if (_recWritten.length) {
     for (const w of ws) {
       const cl = man.clips.find((c) => String(c.no).padStart(2, '0') + '_' + c.file === w.key);
       const v = cl && ((man.voice || {})[String(cl.role).split('|')[0]]);
-      j.clips[w.key] = v ? { text: w.text, voice: v } : w.text;
+      j.clips[w.key] = v ? Object.assign({ text: w.text, voice: v }, (w.tempo != null && Math.abs(w.tempo - 1) > 1e-6) ? { tempo: w.tempo } : {}) : w.text;   // ★[TEMPO_1107] 입힌 배속을 클립마다 적는다(검사가 표와 대조)
     }
     /* ★[WHEN_KEEP_MARKS 2026-10-09] 옛 «_언제» 의 [표식]은 이어 붙인다 — merge-guard 가 이 줄의 표식(NAR_1007 등)을 chk 한다.
        덮어쓰면 녹음 하나 받을 때마다 가드가 «역전 의심»으로 붉는다(2026-10-09 #1160 에서 실제로 붉었다). */

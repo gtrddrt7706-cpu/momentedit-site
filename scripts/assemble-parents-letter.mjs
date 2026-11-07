@@ -18,6 +18,7 @@
 //   타입캐스트가 이 파트에 붙여 준 무음이 앞 0.40초·뒤 0.36초로 가장 두꺼웠다.
 
 import { keepWhen } from './lib/when-keep.mjs';   // [WHEN_KEEP_MARKS]
+import { loadTempo, tempoOf, applyTempo } from './lib/tempo.mjs';   // ★[TEMPO_1107] 편지도 말빠르기 표를 따른다(말소리만 · 쉼 그대로)
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -37,6 +38,12 @@ for (const f of [MAN, SRC]) if (!fs.existsSync(f)) { console.error(`✗ 없습�
 const man = JSON.parse(fs.readFileSync(MAN, 'utf8'));
 const clip = man.clips.find((c) => c.file === CLIP_FILE);
 if (!clip) { console.error(`✗ manifest에 ${CLIP_FILE} 클립이 없습니다.`); process.exit(1); }
+/* ★★[TEMPO_1107 2026-11-07 대본 판정 «편지 = 13»] 통낭독 · 문단 조립 두 길 모두 표(assets/audio/_src/tempo.json)의 배속을 «원본에서» 입힌다. */
+const TEMPO = loadTempo(root);
+const TKEY = `${String(clip.no).padStart(2, '0')}_${clip.file}`;
+const TP = tempoOf(TEMPO, TKEY, (man.voice || {})[String(clip.role).split('|')[0]] || null);
+if (TP == null) { console.error(`✗ [TEMPO_1107] ${TKEY} — tempo.json 에 순간 키가 없습니다.`); process.exit(1); }
+const tempoed = (wav, dir) => { if (Math.abs(TP - 1) <= 1e-6) return wav; const o = path.join(dir, 'tempo_' + path.basename(wav)); applyTempo(wav, o, TP, TEMPO); return o; };
 
 /* ★★[LETTER_WHOLE_TAKE 2026-09-19] 통낭독 한 파일을 그대로 입히는 길.
    사장님이 45문장을 «한 호흡»으로 받아 파일 하나로 주신다. 문단 10개로 쪼개 주시던 길과 다르다.
@@ -54,9 +61,12 @@ if (WHOLE) {
   const dst = path.join(outDir, `${clip.no}_${clip.file}.mp3`);
   const alt = path.join(path.dirname(outDir), 'parents-letter.mp3');
   fs.mkdirSync(outDir, { recursive: true });
+  const WT = fs.mkdtempSync('/tmp/letterw-'); const pre = path.join(WT, 'whole.wav');
   execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', WHOLE, '-af',
     `silenceremove=start_periods=1:start_silence=0:start_threshold=-50dB,adelay=${LEAD_IN * 1000}|${LEAD_IN * 1000}`,
-    '-ar', '48000', '-ac', '1', '-b:a', '192k', dst]);
+    '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s24le', pre]);
+  execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', tempoed(pre, WT), '-ar', '48000', '-ac', '1', '-b:a', '192k', dst]);   // ★[TEMPO_1107] 앞 2초 · 쉼은 그대로
+  fs.rmSync(WT, { recursive: true, force: true });
   fs.copyFileSync(dst, alt);
   const dur = +spawnSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', dst],
     { encoding: 'utf8' }).stdout.trim();
@@ -67,7 +77,7 @@ if (WHOLE) {
   /* [RECORDED_TRUTH] «실제로 녹음된 글»을 남긴다 — 이걸 안 쓰면 cast-text-audio 가 영영 빨갛다 */
   const rp = path.join(outDir, '_recorded.json');
   const rec = JSON.parse(fs.readFileSync(rp, 'utf8'));
-  rec.clips[`${clip.no}_${clip.file}`] = { text: clip.sents.map((x) => x.text).join(' '), voice: man.voice[clip.role] || null };
+  rec.clips[`${clip.no}_${clip.file}`] = Object.assign({ text: clip.sents.map((x) => x.text).join(' '), voice: man.voice[clip.role] || null }, Math.abs(TP - 1) > 1e-6 ? { tempo: TP } : {});   // ★[TEMPO_1107]
   rec._언제 = keepWhen(rec._언제, `${new Date().toISOString().slice(0, 10)} · assemble-parents-letter --whole 이 편지 1클립 갱신`);
   fs.writeFileSync(rp, JSON.stringify(rec, null, 2));
   console.log(`✓ ${path.relative(root, dst)}  ${(+dur).toFixed(1)}초 · 앞 무음 ${head}초 (설계 ${LEAD_IN}초)`);
@@ -248,12 +258,13 @@ const lst = path.join(TMP, 'list.txt');
 fs.writeFileSync(lst, seq.map((f) => `file '${f.replace(/'/g, "'\\''")}'`).join('\n'));
 const joined = path.join(TMP, 'joined.wav');
 execFileSync('ffmpeg', ['-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', lst, '-c', 'copy', joined]);
-const total = dur(joined);
+const joinedT = tempoed(joined, TMP);   // ★[TEMPO_1107] 문단 조립 길도 같은 표
+const total = dur(joinedT);
 
 const outDir = path.resolve(root, clip.dir || 'assets/audio/narration');
 fs.mkdirSync(outDir, { recursive: true });
 const dst = path.join(outDir, `${clip.no}_${clip.file}.mp3`);
-execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', joined,
+execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', joinedT,
   '-af', `loudnorm=I=-16:TP=-1.5:LRA=11,afade=t=in:st=0:d=0.015,afade=t=out:st=${Math.max(0, total - 0.04).toFixed(3)}:d=0.04`,
   '-ar', '48000', '-b:a', '192k', dst]);
 
