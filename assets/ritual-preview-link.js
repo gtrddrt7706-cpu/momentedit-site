@@ -96,7 +96,7 @@
     'guide',
     /* ★[PHOTO_PRE_PICK_1030 PAUSE_PREF_1030 · 대본 섹션 10/30] 사진 전 안내 266(«식사는 안내된 예약 시간에 …»)을 고르는 두 값 — ★INJECT · 식순 S 에는 없다 · 유무 boolean 뿐
        mealFull = 모일 곳이 식사 자리(카페 · 다과만이 아님) · resv = 식사 예약 시각이 적혀 있다(다이닝 값 우선 · 키 없을 때만 하객 안내 옛 저장분) */
-    'mealFull', 'resv'
+    'mealFull', 'resv', 'dining', 'dineName'   /* [MEAL_NOTE_1107] 식사 장소 상태 한 줄(mealStateOf)이 읽는다 */
   ];
 
   /* ★INJECT = 엔진은 읽는데 식순 초안 S 에는 없는 키 [PREVIEW_DIGITAL]
