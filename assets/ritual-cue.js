@@ -529,6 +529,22 @@
   function closingOf(S) { S = S || {}; var b = (S.meal && S.mealFull) ? (S.resv ? 'narr-closing-mealr' : 'narr-closing-mealnr') : 'narr-closing';   /* ★[INFO_SPLIT_200] 식사 날(식사 자리) × 예약 시각 · 하객 안내 갈래 없음 · 카페 · 다과만은 식사 없는 판 */
     var ex = ''; try { ex = (O.narExCue && O.narExCue(S, 'narr-close-bow')) || ''; } catch (e) { ex = ''; } var k = CLOSE_THANKS_EX[ex] ? b + (CLOSE_CHEER_EX[ex] ? '-nt-nc' : '-nt') : b; if (k === 'narr-closing-soft-nt-nc') k = 'narr-closing-nt-nc';   /* ★[END_FLOW_200] 186 + 카페만 + 하객 안내 없음 = 모이기 두 문장뿐(325 와 같은 글) — 판이 없어 모이기 말이 빠지던 자리 */
     return (RETIRED[k] || !CLOSING_PARTS[k]) ? '' : k; }   /* [CLOSING_CHEER_195] 186 + 카페만 + 하객 안내 없음 = 판 없음(남는 문장 0) */   /* [CLOSING_NO_CREW_1031] 쉬는 판(294 · 남는 문장 0)은 '' = 마무리 멘트 큐 없음 */
+  /* ★★[MEAL_NOTE_1107 덧 8 · 사장님 «식당 예약 시 멘트가 달라지잖아 · 고객 입장에서 모를 것 같은데»] 식사 경로(meal · mealFull · resv)로 판이 갈리는 줄인가 · 지금 상태 이름 —
+       바뀌는 줄은 판 고르기(guestPick 넷 · afterPhotoOf · closingOf)를 식사 네 상태로 다시 돌려 판이 갈리면 참(손으로 줄 목록을 적지 않는다) ·
+       상태 이름은 판 고르기와 같은 조건(식사 자리 = meal + mealFull × 예약 시각 · meal 만 = 카페 · 다과) · 식사 없는 판에서만 마이페이지 식사 상태(S.dining)로 미정 · 없음 · 확인 필요를 가른다 ·
+       식당 이름은 S.dineName 이 있을 때만(지금 마이페이지는 장소 이름을 보내지 않는다 · 없으면 «식당 예약») */
+  var MEAL_STATES = [{ meal: false, mealFull: false, resv: false }, { meal: true, mealFull: false, resv: false }, { meal: true, mealFull: true, resv: false }, { meal: true, mealFull: true, resv: true }];
+  var MEAL_PICKS = [function (s) { return guestPick(s, 0); }, function (s) { return guestPick(s, 1); }, function (s) { return guestPick(s, 2); }, function (s) { return guestPick(s, 3); }, afterPhotoOf, closingOf];
+  function mealStateOf(S) { S = S || {}; var mF = !!(S.meal && S.mealFull), k = mF ? (S.resv ? 'resv' : 'meal') : (S.meal ? 'cafe' : 'none'), d = S.dining || '';
+    var nm = String(S.dineName || '').trim();
+    var name = k === 'resv' ? (nm ? nm + ' 예약' : '식당 예약') : k === 'meal' ? (nm || '식당') + ' · 예약 시각 미정' : k === 'cafe' ? '카페 · 다과' : d === 'none' ? '식사 없음' : d === 'needs-confirmation' ? '식사 여부 확인 필요' : '식사 장소 미정';
+    return { k: k, name: name, open: k === 'none' && d !== 'none' && d !== 'needs-confirmation' }; }
+  function mealVaries(S, slug) { S = S || {}; if (!slug) return false;
+    for (var i = 0; i < MEAL_PICKS.length; i++) { var p = MEAL_PICKS[i], cur = ''; try { cur = p(S); } catch (e) { cur = ''; } if (cur !== slug) continue;
+      var seen = {}, n = 0; MEAL_STATES.forEach(function (m) { var t = {}, v = ''; for (var x in S) t[x] = S[x]; t.meal = m.meal; t.mealFull = m.mealFull; t.resv = m.resv; try { v = p(t); } catch (e) { v = ''; } if (!seen['@' + v]) { seen['@' + v] = 1; n++; } });
+      if (n > 1) return true; }
+    return false; }
+  function mealNoteOf(S, slug) { return mealVaries(S, slug) ? mealStateOf(S) : null; }   /* [MEAL_NOTE_1107] 화면 · 대본이 이 하나를 부른다 */
 
   // ── 유틸
   function syl(s) { return (String(s || '').match(/[가-힣]/g) || []).length; }
@@ -2251,6 +2267,6 @@
   return {
     moodFit: moodFit, moodClash: moodClash, seamFit: seamFit, MOOD_SHIFT: MOOD_SHIFT,
     build: build, norm: norm, seqOf: seqOf, PARAM: PARAM, FILES: FILES, EXTRA: EXTRA,
-    COURSE_DEF: COURSE_DEF, sylSec: sylSec, fileOf: fileOf, noOf: noOf, RETIRED: RETIRED, CLOSING_PARTS: CLOSING_PARTS, closingOf: closingOf, GUEST_PARTS: GUEST_PARTS, guestPick: guestPick, guestMinOf: guestMinOf, guestShort: guestShort, afterPhotoOf: afterPhotoOf, version: 'cue-v1'
+    COURSE_DEF: COURSE_DEF, sylSec: sylSec, fileOf: fileOf, noOf: noOf, RETIRED: RETIRED, CLOSING_PARTS: CLOSING_PARTS, closingOf: closingOf, GUEST_PARTS: GUEST_PARTS, guestPick: guestPick, guestMinOf: guestMinOf, guestShort: guestShort, afterPhotoOf: afterPhotoOf, mealStateOf: mealStateOf, mealVaries: mealVaries, mealNoteOf: mealNoteOf /* [MEAL_NOTE_1107] */, version: 'cue-v1'
   };
 });

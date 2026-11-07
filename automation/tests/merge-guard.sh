@@ -23070,3 +23070,16 @@ nochk "(sp.pm?'온라인 인사까지':(sp.tm?'셋을':'본식과'))" order-prev
 # ★[FLOW_BOTTOM_1107] 곡선 아래 빈칸 = 카드 안쪽 · 곡선 바닥 = 단추 바닥(곡선 모양은 그대로 · FLOW_PLAIN)
 chk 'FLOW_BOTTOM_1107' order-preview.html 4
 chk 'FLOW_BOTTOM_1107' assets/ritual-open.js 1
+# ★[MEAL_NOTE_1107 덧 8 · 사장님 «식당 예약 시 멘트가 달라지잖아 · 고객 입장에서 모를 것 같은데»] 식사 경로로 판이 갈리는 줄 아래 «식사 장소에 맞춰 바뀌는 안내예요 · 지금: …» —
+#   바뀌는 줄 · 상태 이름은 엔진 mealNoteOf 하나(판 고르기와 같은 조건) · 전체 순서 · 하나씩 만들기 · 연습 · 대본 복사 · 다른 판 펼침 · «다른 경우 보기» 없음
+node scripts/audit/meal-note.mjs >/dev/null 2>&1 && echo 'ok [MEAL_NOTE_1107] 식사 경로 안내 한 줄(엔진)' || { echo 'FAIL [MEAL_NOTE_1107] node scripts/audit/meal-note.mjs'; fail=1; }
+chk 'MEAL_NOTE_1107' assets/ritual-cue.js 3
+chk 'MEAL_NOTE_1107' order-preview.html 12
+chk "function _mnTxt(n){ return '식사 장소에 맞춰 바뀌는 안내예요 · 지금: '+n.name; }" order-preview.html 1
+chk "var MN_HOW='마이페이지 애프터 웨딩에서 식사 장소를 정하면 이 안내가 맞춰 바뀌어요'" order-preview.html 1
+chk "+(x.tx?_mnHtml(x.mn):'')" order-preview.html 1
+chk "+(x.own?'':_mnHtml(x.slug))+'</span></li>'; }" order-preview.html 1
+chk "+((!st.own&&st.slug)?(_mnHowLeft=true,_mnHtml(st.slug)):'')+'</p>';" order-preview.html 1
+chk "lines.splice(_mnAt,0,'식사 장소: '+_mnN.name.replace(/^식사 장소 /,'')+' · 식사 장소에 맞춰 바뀌는 안내는 이 기준이에요');" order-preview.html 1
+chk "EMBED?'<'+tag+' class=\"meal-nt meal-how\"><button type=\"button\" class=\"meal-go\" data-fk=\"clgo:dining\" onclick=\"clGo(" order-preview.html 1
+nochk '다른 경우 보기' order-preview.html
