@@ -1333,7 +1333,7 @@ function handleRitualFileGet(body) { _gsr_();
    ★파일은 서버가 직접 받는다(아래 REC_PUT_1013 · 10/13 사장님 «드라이브 너가 저장 따로 해») — 사장님이 폴더를 올리지 않는다 · 공개 주소를 만들지 않고 로그인한 두 분(handleRitualFileGet key 'rec')과 당일 콘솔(adminRitualFileGet 'rec:<키>')에게만 base64 로 건넨다.
    · 폴더는 이름으로 찾되 songs.json 이 든 것만(여러 개면 목록이 가장 새것) · 찾은 id 는 REC_FID 에 적어 둔다 — 폴더를 지우고 다시 올려도 다음 요청이 다시 찾는다
    · 곡 목록은 10분 캐시(REC_MF) — 목록을 고친 뒤 10분 안에는 옛 목록이 나갈 수 있다
-   · 두 분 쪽 곡 받기는 한 예식에 한 시간 REC_HOUR_MAX(60)번까지(넘으면 L1 «잠시 뒤») — 미리 듣기마다 곡 하나를 받는다 · 콘솔은 상한 없음 */
+   · 두 분 쪽 곡 받기는 한 예식에 한 시간 REC_HOUR_MAX(200)번까지(시각 칸 · HOUR_BUCKET_1107)(넘으면 L1 «잠시 뒤») — 미리 듣기마다 곡 하나를 받는다 · 콘솔은 상한 없음 */
 var REC_ROOT_FOLDER = 'ME_추천곡', REC_MANIFEST = 'songs.json', REC_HOUR_MAX = 200;   // [HOUR_BUCKET_1107] 60 → 200 · 셈은 시각 칸(_hourKey_)
 function _recFolder_() {
   var props = PropertiesService.getScriptProperties(), fid = props.getProperty('REC_FID');
@@ -1379,7 +1379,7 @@ function _recGet_(code, id, admin) {
    ★[BGM_FIX_1030 2026-10-30] 번호 = 곡마다 하나(B01 ~ B27 · 새 곡 B28 …) — 한 파일이 여러 구간에서 쓰인다 · 옛 구간 번호(M2_1_…) 파일은 목록에 안 든다
    · id 'list' = 폴더에 있는 곡 번호들(10분 캐시 BED_LS · 파일을 올린 뒤 10분 안에는 옛 목록일 수 있다)
    · 곡 번호 = 그 곡의 앞부분(BED_CLIP_MB) — 앞의 ID3 태그(앨범 사진)는 건너뛴다 · 미리 듣기용 짧은 판을 따로 만들지 않는다 · MP3 가 아니면 곡 전체(20MB 까지)
-   · 로그인한 두 분만(handleRitualFileGet) · 한 예식 한 시간 BED_HOUR_MAX(80)번까지(넘으면 L1) · 당일 콘솔은 종전대로 그 기기에 넣은 파일(이 길을 쓰지 않는다) */
+   · 로그인한 두 분만(handleRitualFileGet) · 한 예식 한 시간 BED_HOUR_MAX(300)번까지(시각 칸)(넘으면 L1) · 당일 콘솔은 종전대로 그 기기에 넣은 파일(이 길을 쓰지 않는다) */
 var BED_ROOT_FOLDER = 'ME_구간곡', BED_HOUR_MAX = 300, BED_CLIP_MB = 2.5, BED_K_RE = /^(B\d{2,3})(?=[_ .\-(]|$)/i;
 function _bedFolder_() {
   var props = PropertiesService.getScriptProperties(), fid = props.getProperty('BED_FID');
