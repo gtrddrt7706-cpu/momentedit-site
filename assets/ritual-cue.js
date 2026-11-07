@@ -283,7 +283,9 @@
        «약 십 분간 진행되고» 대신 길이를 말하지 않는 새 문장 하나(진희 · 녹음 대기 · 화면 글 먼저) · 10분 이상은 299 ~ 313 · 345 ~ 347 그대로 */
     'guest-w-10m-n10-short', 'guest-w-10m-n10-short-meal',
     /* ★[SEAM_WORD_1107 J06 · 대본 11/07] 350 — 맞절 → 감사 인사 기본 첫머리(215#1 «신랑 신부는 하객을 향해 서주시기 바랍니다.» → 돌아서는 1.0초 → 260#2 «이제 두 사람의 감사 인사를 듣겠습니다.» · 새 녹음 0) · 11 은 두고 쓰지 않는다 */
-    'narr-welcome-in-face'
+    'narr-welcome-in-face',
+    /* ★[W5M_FIX_1107 대본 22:25 · 사장님 «이게 말이 안 되잖아»] 351 · 352 — 5분 전 식사 날(329 · 330 · 334 · 335 대신): 03#0 «시작 오 분 전입니다.» → 321#4 «식사 장소 확인과 사진 올리기는 …» (± 314#1 온라인) · 새 녹음 0 */
+    'guest-w5-meal', 'guest-w5-meal-online'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -509,6 +511,10 @@
          식사 장소 경로(하객 안내 / 현장 디렉터)는 종전대로 gOn 이 고른다(gOn 을 늘 참으로 바꾸지 않는다) */
   var G5 = { '-mgr': [GW.mgr, GW.upThere], '-mg': [GW.mg, GW.upThere], '-mr': [GW.mr, GW.pUp], '-m': [GW.m, GW.pUp], '-g': [GW.pUp] };
   Object.keys(G5).forEach(function (x) { GUEST_PARTS['guest-w-5m' + x] = [GW.five].concat(G5[x]); GUEST_PARTS['guest-w-5m' + x + '-online'] = [GW.five].concat(G5[x], [GW.online5]); });
+  /* ★[W5M_FIX_1107 대본 22:25 · 사장님 «이게 말이 안 되잖아»] 5분 전은 본식 «전» — «장소와 예약 시각은 …»은 무엇의 장소인지가 없어 예식 장소로 들리고(10분 전 판엔 앞에 «식사는 …»이 있었다) ·
+       «오늘 찍으신 · 담으신 사진»은 아직 안 찍은 때라 시제가 어긋난다 → 식사 날은 «식사 장소 확인과 사진 올리기는 …»(321#4 · 받은 소리) · 식사 없는 날은 «시작 오 분 전입니다.»만(03 · 314 와 글이 같다 — 그 클립을 쓴다) ·
+       사진 올리기는 닫는 인사(288 · 326 등 · 본식 뒤라 «찍으신» 그대로)가 다시 말한다 · G5 판(329 ~ 338)은 파일을 두고 쓰지 않는다 */
+  GUEST_PARTS['guest-w5-meal'] = [GW.five, GW.oMealUp]; GUEST_PARTS['guest-w5-meal-online'] = [GW.five, GW.oMealUp, GW.online5];
   Object.keys(GUEST_PARTS).forEach(function (k) { EXTRA[k] = GUEST_PARTS[k].map(function (x) { return x[1]; }).join(' '); });
   /* 본식 길이(5분 단위 · 녹음 판 십 · 십오 · 이십) — 테이블 인사 · 축배까지(닫는 인사 앞에 선다) · 넉넉 합의 가운데 · 6천 조합 실측 10 ~ 20(검토 191) */
   /* ★[K3_SHORT_1106] 예상 본식(넉넉 합 가운데 · guestMinOf 와 같은 자)이 10분 미만인가 — 그날은 «약 십 분간»(299 · 345)을 말하지 않는다 · 길이를 모르면(옛 판) 아니다 */
@@ -518,8 +524,7 @@
   function guestPick(S, i) { S = S || {}; var mF = !!(S.meal && S.mealFull);
     if (i === 0) return 'guest-w-arrival-guide';   /* [PHOTO_ALWAYS_NI02] 입장 때 사진 방법은 늘(298) — 297 은 새 코스에서 안 쓴다(소리는 남김) */
     if (i === 1) return (guestShort(S) ? 'guest-w-10m-n10-short' : 'guest-w-10m-n' + guestMinOf(S)) + (mF ? '-meal' : '');   /* [INFO_SPLIT_200] 식사 줄만 · 경로는 5분 전 · [K3_SHORT_1106] 10분 미만 본식은 길이 없는 판(299s · 345s) */
-    if (i === 2) { var r5 = mF ? (S.resv ? '-mgr' : '-mg') : (gOn(S) ? '-g' : '');   /* ★[MEAL_NODIR_1107 사장님 11/07 «하객은 청첩장을 받고 온 사람 · 모바일 청첩장 안내로»] 식사 날은 하객 안내를 껐어도 mg · mgr(«…하객 안내에서 확인해 주세요») — «현장 디렉터에게 여쭤 주세요»(-m · -mr · 331 · 332 · 336 · 337)는 쓰지 않는다(파일은 둔다) */   /* [INFO_SPLIT_200] 경로 · 사진은 5분 전 */
-      return 'guest-w-5m' + (r5 || '-g') + (S.digital ? '-online' : ''); }   /* [PHOTO_ALWAYS_NI02] 식사 없는 날은 하객 안내와 상관없이 사진 판(333 · 334) — 03 · 314 는 이 자리에 안 쓴다 */
+    if (i === 2) return mF ? 'guest-w5-meal' + (S.digital ? '-online' : '') : (S.digital ? 'guest-w-5m-online' : 'guest-3-5min');   /* ★[W5M_FIX_1107] 식사 날 351 · 352 · 식사 없는 날 03 · 314(사진 줄 없이) · 옛 판 고르기(MEAL_NODIR_1107 mgr · mg · PHOTO_ALWAYS_NI02 -g)는 걷었다 */
     return S.digital ? 'guest-w-1m-online' : 'guest-w-1m'; }
   /* ★★[GUIDE_ALWAYS_202 검토 202 · 사장님 17:30 «사진 올리기는 그냥 안내해도 되는 거 아니야?»] 모바일 청첩장 하객 안내(사진 올리기 단추)는 모든 예식에 나간다 —
        하객 안내 줄은 기본 켜짐 · S.guide 를 «없음»(false · 0)으로 분명히 준 예외 예식만 끈다(관리자 당일 콘솔 «하객 안내» 칩) · 식사 경로 줄은 종전대로 식사 · 예약 조건 */
@@ -693,6 +698,7 @@
     'narr-closing-guide-nt-nc': 1, 'narr-closing-soft-guide-nt-nc': 1, 'narr-closing-meal': 1, 'narr-closing-meal-nt': 1, 'narr-closing-meal-nt-nc': 1,
     'guest-w-10m-n10-m': 1, 'guest-w-10m-n15-m': 1, 'guest-w-10m-n20-m': 1,
     'after-photo-guide': 1, 'after-photo-cafe-guide': 1, 'after-photo-resv-guide': 1, 'after-photo-resv': 1, 'after-photo-meal-guide': 1,
+    'guest-w-5m-mgr': 1, 'guest-w-5m-mg': 1, 'guest-w-5m-g': 1, 'guest-w-5m-mgr-online': 1, 'guest-w-5m-mg-online': 1, 'guest-w-5m-g-online': 1,   /* ★[W5M_FIX_1107] 329 · 330 · 333 · 334 · 335 · 338 — 본식 전 «장소» · «찍으신 사진» 판(파일은 둔다) */
     'guest-w-5m-mr': 1, 'guest-w-5m-m': 1, 'guest-w-5m-mr-online': 1, 'guest-w-5m-m-online': 1,   /* ★[MEAL_NODIR_1107] 331 · 332 · 336 · 337 «현장 디렉터에게 여쭤 주세요» — 식사 날은 늘 mg · mgr(파일은 둔다) */
     'guest-w-10m-n10-mgr': 1, 'guest-w-10m-n10-mg': 1, 'guest-w-10m-n10-mr': 1, 'guest-w-10m-n15-mgr': 1, 'guest-w-10m-n15-mg': 1, 'guest-w-10m-n15-mr': 1, 'guest-w-10m-n20-mgr': 1, 'guest-w-10m-n20-mg': 1, 'guest-w-10m-n20-mr': 1,
     /* ★[CLOSING_CHEER_195 검토 195] 294 narr-closing-soft-nt 는 응원 한 문장 판으로 다시 쓴다(옛 판: 44 를 빼 남는 문장 0 이라 쉬었다 · CLOSING_NO_CREW_1031) */
@@ -971,8 +977,8 @@
                종전에는 하객 안내가 열린 날 264 하나뿐이라 식사 경로가 빠지고 guide=false 날은 사진 안내가 하루 어디에도 없었다 · 옛 코스는 아래 종전 그대로 */
           if (_openG) { var g5 = guestPick(S, 2);
             out.push(cue({
-              k: 'guest', blockN: '하객 맞이', slug: g5, name: '하객 맞이 · ' + D.GUEST[2][0], text: EXTRA[g5] || '', duck: PARAM.duckSpeech, fire: 'clock', atMin: at[2],
-              note: '예식 5분 전 시각에 · 식사 날은 장소 확인 경로 · 사진 올리기 안내는 늘(하객 안내를 끈 날도)'
+              k: 'guest', blockN: '하객 맞이', slug: g5, name: '하객 맞이 · ' + D.GUEST[2][0], text: EXTRA[g5] || (g5 === 'guest-3-5min' ? D.GUEST[2][1] : ''), duck: PARAM.duckSpeech, fire: 'clock', atMin: at[2],
+              note: '예식 5분 전 시각에 · 식사 날은 식사 장소 확인 · 사진 올리기 경로(하객 안내) · 식사 없는 날은 시작 예고만(W5M_FIX_1107 · 사진 올리기는 닫는 인사가 말한다)'
             }));
             continue; }
           if (_openG && gOn(S)) out.push(cue({
