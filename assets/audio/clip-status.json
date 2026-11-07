@@ -40,7 +40,11 @@
   },
   "narration/104_narr-free-out-clap": {
    "s": "retired",
-   "why": "준비한 순서 박수 맺는 말 — CLAP_FEW(우리 글의 박수 자리 셋)"
+   "why": "준비한 순서 박수 맺는 말 — CLAP_FEW · 식중 영상 받는 말(354 · 355)이 이 글을 품었다(MID17_CLIPS_1107)"
+  },
+  "narration/11_narr-welcome-in": {
+   "s": "retired",
+   "why": "[SEAM_WORD_1107 J06 대본 11/07] 맞절 → 감사 인사 기본 첫머리는 350(215#1 + 260#2) — 11 은 파일을 두고 쓰지 않는다"
   },
   "narration/61_narr-round-open": {
    "s": "retired",

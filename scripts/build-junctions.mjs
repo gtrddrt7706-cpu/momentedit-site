@@ -104,4 +104,44 @@ Object.entries(prob).sort((a, b) => b[1] - a[1]).slice(0, 20).forEach(([k, p], i
   L.push('```'); cues.forEach((c) => { if (!BODY_END[c.k] || c.text || SILENT[c.actId]) L.push('  ' + (c.k ? NAME(c.k) + ' · ' : '') + cueLine(c)); }); L.push('```', '');
 });
 fs.writeFileSync(OUT, L.join('\n') + '\n');
+/* ★★[LISTEN_SEAM_1107 2026-11-07 사장님 «이음매 = 어떤 이벤트를 고르든 순간과 순간을 잇는 멘트가 매끄럽게» · 대본 «junctions.md 85개 그대로가 목록»]
+   --json <경로> — 실청판 «이음매 듣기» 탭이 읽는 판. 목록 · 번호 · 대표 코스는 위 md 와 같은 값(같은 list)이고, 여기서 더하는 것은 둘:
+   ① 줄마다 소리 파일 · 쉼(gapMs) · 사람 구간(live) · 부르는 방식(fire)
+   ② 갈래 — 대표 코스에 한 가지씩만 바꿔(식사 · 누가 선언 · 식중 영상 · 두 분 목소리 · 화촉 · 편지 · 인사 · 축배 · 입장 판 · 서약 · 축가) 엔진을 다시 돌려,
+      이음매 줄(앞 2줄 · 뒤 줄)이 달라지는 것만 갈래로 남긴다 · 같은 소리면 하나로 묶고 어떤 고름에서 나오는지 적는다. 예시 멘트 칩은 기본값 그대로(md 와 같은 약속). */
+const JI = process.argv.indexOf('--json');
+if (JI > 0) {
+  const JOUT = process.argv[JI + 1];
+  const fileOf = (c) => { if (!c.file) return ''; for (const d of ['narration', 'cast']) { const r = `assets/audio/${d}/${c.file}.mp3`; if (fs.existsSync(path.join(ROOT, r))) return r; } return ''; };
+  const lineOf = (c) => ({ no: c.no || '', slug: c.slug || '', f: fileOf(c), t: c.text || '', g: +c.gapMs || 0, fire: c.fire || '',
+    live: c.live && c.live.t ? { t: c.live.t, est: +c.live.est || 0 } : null, silent: !c.text && SILENT[c.actId] ? SILENT[c.actId] : '' });
+  const VAR = [['기본', () => {}]];
+  [['식사 없음', {}], ['카페 · 다과', { meal: 1 }], ['식사 · 예약 없음', { meal: 1, mealFull: 1 }], ['식사 · 예약', { meal: 1, mealFull: 1, resv: 1 }]]
+    .forEach(([n, o]) => VAR.push([n, (S) => { delete S.meal; delete S.mealFull; delete S.resv; Object.assign(S, o); }]));
+  [['gdad', '신랑 아버님'], ['bdad', '신부 아버님'], ['gmom', '신랑 어머님'], ['bmom', '신부 어머님'], ['other', '그 밖의 분']].forEach(([t, n]) => ['yes', 'no'].forEach((y) =>
+    VAR.push([`선언 ${n}${y === 'yes' ? ' · 첫 덕담도' : ' · 덕담 따로'}`, (S) => { S.declTitle = t; S.declBless = y; if (O.declBlessKey) S.declBlessKey = O.declBlessKey(S); }])));
+  ['speech', 'video', 'gift', 'etc'].forEach((v) => VAR.push([`축사 자리 · ${(O.CHIPS.free.find((x) => x[0] === v) || [v, v])[1]}`, (S) => { O.setChip(S, 'free', v); }]));
+  VAR.push(['두 분 목소리', (S) => { S.guestVoice = 'couple'; S.entryVoice = 'couple'; S.pvVoice = 'couple'; }]);
+  ['mothers', 'fathers', 'others'].forEach((w) => VAR.push([`화촉 ${{ mothers: '어머님', fathers: '아버님', others: '다른 두 분' }[w]}`, (S) => { S.candleWho = w; }]));
+  Object.keys(O.CHIPS).filter((k) => ['letter', 'tribute', 'toast', 'entryScene'].includes(k)).forEach((k) => O.CHIPS[k].forEach(([v, n]) => VAR.push([`${{ letter: '편지', tribute: '부모님께 인사', toast: '축배', entryScene: '입장 뒤' }[k]} · ${n}`, (S) => { O.setChip(S, k, v); }])));
+  ['A', 'B', 'C', 'D', 'E', 'F'].forEach((e) => VAR.push([`입장 멘트 ${e}`, (S) => { S.entry = e; }]));
+  VAR.push(['서약 · 감사 서약', (S) => { S.vowKind = 'thanks'; }]);
+  VAR.push(['축가 · 두 분이 직접', (S) => { S.songBy = 'self'; }]);
+  const seamOf = (on, fx) => { const S = stateOf(on); try { fx(S); } catch (e) { return null; }
+    const r = C.build(C.norm ? C.norm(S) : S, { mode: 'console' }); return Array.isArray(r) ? r : (r.cues || []); };
+  const out = list.map((j, i) => {
+    const id = 'J' + String(i + 1).padStart(2, '0'); const groups = new Map();
+    VAR.forEach(([nm, fx]) => { const cues = seamOf(j.rep, fx); if (!cues) return; const ia = []; const ib = [];
+      cues.forEach((c, x) => { if (c.k === j.a) ia.push(x); }); if (!ia.length) return;
+      const after = ia[ia.length - 1]; for (let x = after + 1; x < cues.length && ib.length < 2; x++) { if (cues[x].k === j.b) ib.push(x); else break; }
+      if (!ib.length) return;   // 이 고름에선 두 순간이 붙지 않는다
+      const left = ia.slice(-2).map((x) => lineOf(cues[x])), right = ib.map((x) => lineOf(cues[x]));
+      const sig = JSON.stringify([left, right].map((s) => s.map((l) => [l.slug, l.g, l.f, l.t])));
+      const g = groups.get(sig); if (g) g.lab.push(nm); else groups.set(sig, { lab: [nm], left, right }); });
+    return { id, a: j.a, b: j.b, an: NAME(j.a), bn: NAME(j.b), p: +(j.p * 100).toFixed(1), n: j.n, music: `${slotTxt(j.a)} → ${slotTxt(j.b)}`,
+      url: link(j.rep, j.b === 'guest' ? '' : j.b), br: [...groups.values()] };
+  });
+  fs.writeFileSync(JOUT, JSON.stringify({ courses: courses.length, n: out.length, vars: VAR.length, list: out }));
+  console.log(`JSON ${JOUT} · 이음매 ${out.length} · 갈래 ${out.reduce((a, x) => a + x.br.length, 0)}(고름 ${VAR.length}가지를 한 가지씩 바꿔 봄)`);
+}
 console.log(`OK ${path.relative(ROOT, OUT)} · 코스 ${courses.length} · 이음매 ${list.length}`);

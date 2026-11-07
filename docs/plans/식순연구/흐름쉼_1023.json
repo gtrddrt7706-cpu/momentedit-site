@@ -14,7 +14,7 @@
   "A": "기다림 — 순서 알림 뒤 행동 요청 · 행동 요청 뒤 · 구호 앞 · 선언 앞",
   "K": "특수 — 일부러 둔 0.6 · 3 · 4초(그대로)"
  },
- "count": 340,
+ "count": 341,
  "changes": [
   {
    "file": "guest-1",
@@ -2282,10 +2282,20 @@
    "kind": "A"
   },
   {
+   "file": "narr-welcome-in-face",
+   "key": "350_narr-welcome-in-face",
+   "i": 0,
+   "text": "신랑 신부는 하객을 향해 서주시기 바랍니다.",
+   "next": "이제 두 사람의 감사 인사를 듣겠습니다.",
+   "after_now": 1,
+   "after_new": 1.0,
+   "kind": "C"
+  },
+  {
    "file": "narr-entry-bow",
    "key": "160_narr-entry-bow",
    "i": 0,
-   "text": "다음은 여러 하객과 가족 앞에서 부부의 예를 드리는 신랑 신부 맞절이 있겠습니다.",
+   "text": "이어서 신랑 신부의 맞절이 있겠습니다.",
    "next": "맞절은 부부로서의 첫 예를 올리는 인사인데요.",
    "after_now": 1,
    "after_new": 1.0,
