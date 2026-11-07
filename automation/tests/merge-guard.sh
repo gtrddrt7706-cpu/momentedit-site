@@ -23047,3 +23047,5 @@ nochk '저희가 검증한' api/_kb.js
 nochk '프라이버시까지 확인해 추천' index.html
 nochk '검증한 인근 식당' index.html
 chk 'ESD_DAY_1106' scripts/audit/entry-scene-day.mjs 2   # [ESD_DAY_1106] 맞절 큐 −90(ENTRY_SETTLE) 기대 · 갈래 칩 390 · 360 폭 확인
+# ★[FIT_BEFORE_ACCT_1107] 닫는 멘트 · 이음새 맞추기는 계정 확인(ACCT_KEYS) 앞 — 뒤로 가면 계정 확인 전 화면에서 칩 ≠ 글(close-seam 화면이 잰다)
+chk 'FIT_BEFORE_ACCT_1107' order-preview.html 1
