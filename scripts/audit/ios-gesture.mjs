@@ -128,15 +128,24 @@ try {
   { const { ctx, pg, f, errs } = await open(390, true, IOS);
     await pg.evaluate(() => { H.sdelay = 4000; }); await f.evaluate((mu) => { S.mu = mu; _persist(); render(); }, MU('r5')); await go(f, 'entry');
     await f.waitForFunction(() => !!document.querySelector('.em-scene [data-fk="emscene"]'), null, { timeout: 15000 }).catch(() => {});
+    await f.evaluate(() => { window.__toasts = []; const o = window._noteToast; window._noteToast = function (m) { window.__toasts.push(String(m)); return o && o.apply(this, arguments); }; });
     await f.tap('.em-scene [data-fk="emscene"]'); await wait(f, 2500); await f.evaluate(() => window.__ios.ctxs.forEach((a) => a.suspend()));   /* 옛 파일(깨 보기)은 __ME_AC 가 없다 — 만든 컨텍스트 전부 */
     const o = await f.evaluate(async () => { const r = [], t0 = performance.now(); await new Promise((res) => { const iv = setInterval(() => { const s = EntryMusic._t.scene(), b = document.querySelector('.em-scene [data-fk="emscene"]');
       r.push({ t: Math.round(performance.now() - t0), lab: b ? b.textContent.trim() : '', run: s.run, pend: s.pend, pause: s.pause, x: s.x }); if (performance.now() - t0 > 5000) { clearInterval(iv); res(); } }, 200); }); return r; });
     const stuck = o.filter((x) => x.lab === '멈춤'), last = o[o.length - 1];
-    ok('5 곡이 왔을 때 엔진이 서 있으면 «멈춤»(시계 정지) 0 · 시작 전 자리에 «이어 듣기»', !stuck.length && last && last.lab === '이어 듣기' && last.pause === 0 && !last.run, { stuck: stuck.slice(0, 2), last });
+    const tz = await f.evaluate(() => window.__toasts.slice());
+    ok('5 곡이 왔을 때 엔진이 서 있으면 «멈춤»(시계 정지) 0 · 시작 전 자리에 «이어 듣기» · 알림 «한 번 더 누르면 들려요»(세워 두기 · 재생 중 정지 가드와 구분)', !stuck.length && last && last.lab === '이어 듣기' && last.pause === 0 && !last.run && tz.includes('한 번 더 누르면 들려요'), { stuck: stuck.slice(0, 2), last, tz });
     await f.tap('.em-scene [data-fk="emscene"]'); await wait(f, 3000);
     const s2 = await f.evaluate(() => ({ s: EntryMusic._t.scene(), st: window.__ios.ctxs.map((a) => a.state).join(), lab: document.querySelector('.em-scene [data-fk="emscene"]').textContent.trim() }));
     ok('5 다음 탭 — 소리 엔진을 깨워 0초(음악 먼저)부터 · 시계가 간다', s2.st === 'running' && s2.s.run && s2.lab === '멈춤' && s2.s.x > 1.5 && s2.s.x < 4, s2);
     ok('5 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); }
+  /* ⑥ [검토 G] 마이크가 열려 있으면(녹음 중) 탭이 소리 세션을 «재생»으로 바꾸지 않는다 — 닫혀 있으면 바꾼다 */
+  { const { ctx, pg, f, errs } = await open(390, true, IOS);
+    await f.evaluate(() => { try { Object.defineProperty(navigator, 'audioSession', { value: { type: 'play-and-record' }, configurable: true }); } catch (e) {} window._micLive = () => true; });
+    await f.tap('h1, .mk-sec, body'); await wait(f, 200); const t1 = await f.evaluate(() => navigator.audioSession.type);
+    await f.evaluate(() => { window._micLive = () => false; }); await f.tap('h1, .mk-sec, body'); await wait(f, 200); const t2 = await f.evaluate(() => navigator.audioSession.type);
+    ok('6 녹음 중 탭 — 세션 그대로(play-and-record) · 마이크를 닫으면 탭에 «재생»', t1 === 'play-and-record' && t2 === 'playback', { t1, t2 });
+    ok('6 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); }
 } catch (e) { console.log('못 쟀다 — ' + (e && e.stack || e)); await br.close(); srv.close(); process.exit(2); }
 await br.close(); srv.close();
 console.log(fail ? `IOS GESTURE FAIL ${fail}` : 'IOS GESTURE OK'); process.exit(fail ? 1 : 0);

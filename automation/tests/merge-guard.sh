@@ -22776,8 +22776,13 @@ chk "function meUnlock()" assets/entry-music.js 1
 chk "function meUnlock()" assets/bgm-bed.js 1
 chk "z.buffer=b; z.connect(a.destination); z.start(0);" assets/entry-music.js 1
 chk "z.buffer=b; z.connect(a.destination); z.start(0);" assets/bgm-bed.js 1
-chk "D.addEventListener(t,function(){ meUnlock(); },true);" assets/entry-music.js 1   # touchend · click 잡기 단계(둘 중 먼저 읽힌 파일이 건다)
-chk "D.addEventListener(t,function(){ meUnlock(); },true);" assets/bgm-bed.js 1
+chk "if(window.parent===window) return; }catch(x){} meUnlock(); },true);" assets/entry-music.js 1   # touchend · click 잡기 단계 · 마이페이지 안에서만(둘 중 먼저 읽힌 파일이 건다)
+chk "if(window.parent===window) return; }catch(x){} meUnlock(); },true);" assets/bgm-bed.js 1
+chk "!(typeof _micLive==='function'&&_micLive())) ss.type='playback'" assets/entry-music.js 1   # [IOS_GESTURE_1107 검토 G] 마이크가 열려 있으면 세션을 «재생»으로 안 바꾼다(_asPlay 와 같은 규칙)
+chk "!(typeof _micLive==='function'&&_micLive())) ss.type='playback'" assets/bgm-bed.js 1
+chk "busy?(PW.slow?'연결이 느려요 · 잠시만요':'불러오는 중…')" assets/entry-music.js 1
+chk "if(AC&&AC.state!=='running'&&!D.hidden){ scHalt();" assets/entry-music.js 1
+chk "if (!(this.buffer && this.buffer.length <= 1)) window.__aud.push" scripts/audit/rec-song-ui.mjs 1
 chk "if(ch){ save(); if(!PEND) scReset(); }" assets/entry-music.js 1
 chk "PAUSE={x:from,whole:!!whole,fresh:true}" assets/entry-music.js 1
 nochk "D.addEventListener('click',function(){ if(!emb()) return; var a=ctx(); try{ if(a&&a.state==='suspended') a.resume(); }catch(x){} },true);" assets/bgm-bed.js   # ★[IOS_GESTURE_1107] 옛 «탭에 resume 만» — 되살리지 말 것

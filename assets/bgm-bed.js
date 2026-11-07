@@ -175,9 +175,9 @@
        입장 장면(entry-music.js)과 컨텍스트 하나(window.__ME_AC)를 같이 쓰고 · 화면을 누를 때마다(touchend · click · 잡기 단계) resume + 무음 한 칸을 실제로 start 해 길을 풀어 둔다(곡은 늦게 와도 그 길로).
        종전 «탭에 resume 만»(무음 start 없음 · 마이페이지 안에서만)은 걷었다 — 두 파일에 같은 두 함수 · 먼저 읽힌 쪽이 잡기를 건다 */
   function meAC(){ var w=window, a=w.__ME_AC; if(a&&a.state!=='closed') return a; var C=w.AudioContext||w.webkitAudioContext; if(!C) return null; try{ a=new C({latencyHint:'playback'}); }catch(x){ try{ a=new C(); }catch(y){ return null; } } w.__ME_AC=a; return a; }
-  function meUnlock(){ try{ var ss=navigator.audioSession; if(ss&&ss.type!=='playback') ss.type='playback'; }catch(x){} var a=meAC(); if(!a) return null;
+  function meUnlock(){ try{ var ss=navigator.audioSession; if(ss&&ss.type!=='playback'&&!(typeof _micLive==='function'&&_micLive())) ss.type='playback'; }catch(x){} var a=meAC(); if(!a) return null;   /* ★[IOS_GESTURE_1107 검토 G] 마이크가 열려 있으면 세션을 «재생»으로 바꾸지 않는다(집 규칙 _asPlay · IOS_PLAY_SESSION — 녹음 중 스크롤 · «멈추기» 탭이 녹음을 자르지 않게) */
     try{ if(a.state!=='running'){ var r=a.resume(); if(r&&r.catch) r.catch(function(){}); } }catch(x){} try{ var b=a.createBuffer(1,1,22050), z=a.createBufferSource(); z.buffer=b; z.connect(a.destination); z.start(0); }catch(x){} return a; }
-  if(!window.__ME_TAP){ window.__ME_TAP=1; ['touchend','click'].forEach(function(t){ D.addEventListener(t,function(){ meUnlock(); },true); }); }
+  if(!window.__ME_TAP){ window.__ME_TAP=1; ['touchend','click'].forEach(function(t){ D.addEventListener(t,function(){ try{ if(window.parent===window) return; }catch(x){} meUnlock(); },true); }); }   /* [IOS_GESTURE_1107 검토 G] 마이페이지 안(식순 화면을 품은 쪽)에서만 — 공개 미리보기는 첫 탭에 세션을 바꾸지 않는다(▶ 를 누를 때 wake) */
   function ctx(){ if(AC) return AC; sess(); AC=meAC(); return AC; }
   function Voice(){ return { src:null, g:null, f:'', t0:0, off:0, want:-90 }; }
   function sgOfStart(f){ try{ var q=(typeof LP!=='undefined'&&LP.q)?LP.q:[], i=(typeof LP!=='undefined')?LP.i:-1, c=[curStep(), q[i+1], q[i-1]], pl=planOf(AV.st==='ok');
