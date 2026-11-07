@@ -1327,7 +1327,7 @@
         if (fk !== 'video') return [_fc];
         /* ★★[MID17_NAR_1107 MID17-6 · 대본 11/07 정정] 식중 영상 = 여는 말(예시 ① 58 + 감사 · ② 두 사람 이야기 · ③ 어떤 영상이든) → 영상(디렉터가 튼다) → 받는 말 + 104 박수 → 다음 순간은 디렉터 GO([CLAP_GO]).
            «58 → 129»는 걷었다(129 는 식전 영상 문장 · 사장님 반려) · 글 · 번호는 음성 쉼 방 PR(그 전엔 키 이름 자리 · 소리 없음). 경로 한 곳 = O.midPlan */
-        var _mp = O.midPlan({ mvEx: S.mvEx }),   /* [MID17_NAR_1107] S.mvEx = 식중 영상 여는 말 예시(미리듣기 KEYS) */ _mvTx = function (sl) { return EXTRA[sl] || ''; }, _mv = [];
+        var _mp = O.midPlan({ mvEx: S.mvEx }),   /* [MID17_NAR_1107] S.mvEx = 식중 영상 여는 말 예시(미리듣기 KEYS) */ _mvTx = function (sl) { return sl === 'narr-free-in' ? D.NARR.freeIn : (EXTRA[sl] || ''); }, _mv = [];
         _mp.inn.forEach(function (sl, i) { var last = i === _mp.inn.length - 1;
           _mv.push(cue({ k: 'free', blockN: '식중 영상', slug: sl, name: last ? '식중 영상 시작 · ' + len + '분' : '식중 영상 여는 말', text: _mvTx(sl) || ('«' + sl + '» 녹음 자리'), duck: i ? PARAM.duckSpeech : PARAM.duckMusic, pick: O.MV_EX_NAMES[_mp.n],
             live: last ? _fc.live : null, rescue: last ? _fc.rescue : null })); });

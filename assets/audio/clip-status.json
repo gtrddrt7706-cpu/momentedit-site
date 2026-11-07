@@ -38,10 +38,6 @@
    "s": "retired",
    "why": "준비한 순서 «공연» 여는 말 — free 칩에 stage 없음(옛 값도 norm 이 갈래로 옮긴다)"
   },
-  "narration/104_narr-free-out-clap": {
-   "s": "retired",
-   "why": "준비한 순서 박수 맺는 말 — CLAP_FEW(우리 글의 박수 자리 셋)"
-  },
   "narration/61_narr-round-open": {
    "s": "retired",
    "why": "테이블 돌기 여는 말 — NO_TABLE_ROUND"
