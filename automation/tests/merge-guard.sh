@@ -21937,6 +21937,8 @@ chk "'Group Photos','전체 단체 사진 → 촬영 후 안내 → 가족 사�
 chk "row('20분','정리','Farewell','옷을 갈아입고 하루를 정리해요','dim')" order-preview.html 1   # [FAREWELL_NAME_204] 정리 Farewell 그대로 · 옅게
 nochk "'Group Record','전체 단체 사진" order-preview.html
 chk 'DAY40_BLOCK_1107' order-preview.html 2
+chk '\[DAY40_CALC\]' order-preview.html 1   # [DAY40_CALC 2026-11-07] 계산 표 표식 — 빠지면 140분 시간표 검사가 손 숫자를 찾아 빨강
+chk 'DAY40_CALC' scripts/check-source-drift.mjs 2
 chk 'PICK_CENTER_1107' order-preview.html 2
 chk 'PICK_SPACE_1107' order-preview.html 3
 nochk "'Farewell','남은 사진을 마치고 옷을 갈아입어요'" order-preview.html

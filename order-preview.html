@@ -4103,7 +4103,7 @@ function renderIntro(){
     +'<div class="op-leg" aria-hidden="true"><span>본식'+(_pk?' '+_bT:'')+'</span><span>단체 사진'+(_pk?' '+_pT:'')+'</span></div>';
   var rng='<div class="dm40-r"><span class="nw">본식이 짧으면 사진이 길어져요</span> · <span class="nw">본식 '+_rg.body[0]+'~'+_rg.body[1]+'분</span> · <span class="nw">단체 사진 '+_rg.photo[0]+'~'+_rg.photo[1]+'분</span></div>';   /* 덩이 사이에서만 줄이 갈린다 */
   var head='<div class="dm40-h"><span class="dm40-t">두 분이 여기서 만드는 '+R.DAYMIN+'분</span><span class="sq-here">지금 만드는 부분</span></div>';
-  h+=row('20분','준비','Getting Ready','','dim')+row('60분','단독 스냅','Private Snap','캔들존 · 화이트존 촬영 55분 · 입장 준비 5분','dim');   /* [SNAP_55_DAY] */
+  h+=row('20분','준비','Getting Ready','','dim')+row('60분','단독 스냅','Private Snap','캔들존 · 화이트존 촬영 55분 · 입장 준비 5분','dim');   /* [SNAP_55_DAY] */   /* [DAY40_CALC] 본식 · 단체 사진 칸은 RitualOpen.span 에서 계산 — check-source-drift 는 준비 · 스냅 · 정리만 본다 */
   if(_iv==='B') h+='<div class="dm40 dm40-b">'+head+bar+rB+rP+rng+'</div>';
   else if(_iv==='C'){ var tl=function(n,en,v,d,w,c){ return '<div class="dm40-tile '+c+'" style="flex:'+w.toFixed(2)+' 1 0"><div class="sq-n">'+esc(n)+'<small>'+esc(en)+'</small></div><div class="dm40-v">'+esc(v)+'</div></div>'; };
     h+='<div class="dm40 dm40-c">'+head+'<div class="dm40-tiles">'+tl('본식','The Ceremony',_bT,'',Math.max(36,_bwp),'c')+tl('단체 사진','Group Photos',_pT,'',Math.max(36,100-_bwp),'p')+'</div>'
