@@ -23194,6 +23194,7 @@ nochk "qk = 'BEDQ_' + code," automation/platform/80_production.gs
 chk 'RULE_AUDIT_1107' scripts/audit/rule-audit-1107.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/rule-audit-1107.mjs >/dev/null 2>&1; _ra7=$?; if [ "$_ra7" != 0 ]; then echo "FAIL rule-audit-1107($_ra7): 보관 만료 통지 · 하객 사진 · 시간당 셈 · AI 상담 잘림 · 하객 사진 알림 중 하나가 깨졌다 · 2 = 재지 못함 — node scripts/audit/rule-audit-1107.mjs"; fail=1; else echo "ok rule-audit-1107"; fi; fi   # [RULE_AUDIT_1107]
 # ★[SEAM_WORD_1107 2026-11-07 대본 이음매 85개 판정 · 2곳 교체(자료집 원문 · 새 녹음 0) · 사장님 실청 승인 뒤 병합 NARR_APPROVE_1107]
+chk "FACE_LEAD_1107" assets/ritual-cue.js 1   # 350 이 맞절 바로 뒤면 b8 이 하던 «무음에서 감사 인사 곡을 뜸(6초 · −8 · 정적 1초)»을 받는다 — meaning-r1 4 가 동작을 잰다
 # J01 입장 → 맞절: 160#0 = 132#0 «이어서 신랑 신부의 맞절이 있겠습니다.» · J06 맞절 → 감사 인사: 기본 첫머리 = 350(215#1 → 1.0초 → 260#2) · 11 은 두고 쓰지 않는다
 chk 'SEAM_WORD_1107' assets/ritual-cue.js 5
 chk 'SEAM_WORD_1107' assets/ritual-data.js 1
