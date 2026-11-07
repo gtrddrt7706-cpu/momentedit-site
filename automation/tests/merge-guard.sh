@@ -22793,6 +22793,23 @@ nochk '예식은 하루 3타임 운영(오전 9시 · 오후 12시 20분 · 늦�
 chk 'B3_FACTS' scripts/audit/ritual-kb-facts.mjs 1
 chk 'CREW_44_OFF_1106' assets/ritual-cue.js 3   # [대본 11/06] 옛 코스도 44 «작가님이 안내» 안 튼다
 chk 'BGM_VOL_ONE_1106' console.html 4   # [BGM_VOL_ONE_1106 검토 D] Web Audio 로 이은 배경 재생기 볼륨 1 — 콘솔 첫 «시작» 무음 막기
+chk 'IOS_GESTURE_1107' assets/entry-music.js 5   # [IOS_GESTURE_1107] 아이폰 — 탭마다 공유 컨텍스트 resume + 무음 start · 늦은 곡 · «멈춤»에 시계 정지 0 · recSync 가 준비 중 장면을 안 걷음
+chk 'IOS_GESTURE_1107' assets/bgm-bed.js 2
+chk "function meUnlock()" assets/entry-music.js 1
+chk "function meUnlock()" assets/bgm-bed.js 1
+chk "z.buffer=b; z.connect(a.destination); z.start(0);" assets/entry-music.js 1
+chk "z.buffer=b; z.connect(a.destination); z.start(0);" assets/bgm-bed.js 1
+chk "if(window.parent===window) return; }catch(x){} meUnlock(); },true);" assets/entry-music.js 1   # touchend · click 잡기 단계 · 마이페이지 안에서만(둘 중 먼저 읽힌 파일이 건다)
+chk "if(window.parent===window) return; }catch(x){} meUnlock(); },true);" assets/bgm-bed.js 1
+chk "!(typeof _micLive==='function'&&_micLive())) ss.type='playback'" assets/entry-music.js 1   # [IOS_GESTURE_1107 검토 G] 마이크가 열려 있으면 세션을 «재생»으로 안 바꾼다(_asPlay 와 같은 규칙)
+chk "!(typeof _micLive==='function'&&_micLive())) ss.type='playback'" assets/bgm-bed.js 1
+chk "busy?(PW.slow?'연결이 느려요 · 잠시만요':'불러오는 중…')" assets/entry-music.js 1
+chk "if(AC&&AC.state!=='running'&&!D.hidden){ scHalt();" assets/entry-music.js 1
+chk "if (!(this.buffer && this.buffer.length <= 1)) window.__aud.push" scripts/audit/rec-song-ui.mjs 1
+chk "if(ch){ save(); if(!PEND) scReset(); }" assets/entry-music.js 1
+chk "PAUSE={x:from,whole:!!whole,fresh:true}" assets/entry-music.js 1
+nochk "D.addEventListener('click',function(){ if(!emb()) return; var a=ctx(); try{ if(a&&a.state==='suspended') a.resume(); }catch(x){} },true);" assets/bgm-bed.js   # ★[IOS_GESTURE_1107] 옛 «탭에 resume 만» — 되살리지 말 것
+chk 'clear-head bgm-vol ios-gesture' .github/workflows/merge-guard.yml 1
 chk 'function volOne()' console.html 1
 chk 'wired = true; volOne();' console.html 1
 chk 'T01 새로 연 콘솔 첫' scripts/audit/bgm-vol.mjs 1

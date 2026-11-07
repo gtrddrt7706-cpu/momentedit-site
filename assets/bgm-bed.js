@@ -171,9 +171,14 @@
   var AC=null;
   /* ★[BED_LOAD_1101 사장님 «노래가 안 흐르는데?» · 아이폰] iOS 는 Web Audio 가 벨소리 무음 스위치를 따른다 — 나레이션(HTMLAudio)은 나오는데 곡만 안 나올 수 있다 · 소리 길을 열 때 재생 세션으로(iOS 17+ · 없으면 그대로) */
   function sess(){ try{ var s=navigator.audioSession; if(s&&s.type!=='playback') s.type='playback'; }catch(x){} }
-  function ctx(){ if(AC) return AC; sess(); try{ var C=window.AudioContext||window.webkitAudioContext; if(C) AC=new C(); }catch(x){ AC=null; } return AC; }
-  /* 탭 안에서 소리 문을 연다(아이폰 · 카톡) — 마이페이지 안에서만 */
-  D.addEventListener('click',function(){ if(!emb()) return; var a=ctx(); try{ if(a&&a.state==='suspended') a.resume(); }catch(x){} },true);
+  /* ★★[IOS_GESTURE_1107 2026-11-07 사장님 아이폰 실청 «하객 맞이 이 순간 전체 듣기 — 나레이션은 나오는데 곡이 안 들림»] 첫 방문은 곡이 탭 6 ~ 7초 뒤에 와서 그때 start 하면 아이폰이 막는다 —
+       입장 장면(entry-music.js)과 컨텍스트 하나(window.__ME_AC)를 같이 쓰고 · 화면을 누를 때마다(touchend · click · 잡기 단계) resume + 무음 한 칸을 실제로 start 해 길을 풀어 둔다(곡은 늦게 와도 그 길로).
+       종전 «탭에 resume 만»(무음 start 없음 · 마이페이지 안에서만)은 걷었다 — 두 파일에 같은 두 함수 · 먼저 읽힌 쪽이 잡기를 건다 */
+  function meAC(){ var w=window, a=w.__ME_AC; if(a&&a.state!=='closed') return a; var C=w.AudioContext||w.webkitAudioContext; if(!C) return null; try{ a=new C({latencyHint:'playback'}); }catch(x){ try{ a=new C(); }catch(y){ return null; } } w.__ME_AC=a; return a; }
+  function meUnlock(){ try{ var ss=navigator.audioSession; if(ss&&ss.type!=='playback'&&!(typeof _micLive==='function'&&_micLive())) ss.type='playback'; }catch(x){} var a=meAC(); if(!a) return null;   /* ★[IOS_GESTURE_1107 검토 G] 마이크가 열려 있으면 세션을 «재생»으로 바꾸지 않는다(집 규칙 _asPlay · IOS_PLAY_SESSION — 녹음 중 스크롤 · «멈추기» 탭이 녹음을 자르지 않게) */
+    try{ if(a.state!=='running'){ var r=a.resume(); if(r&&r.catch) r.catch(function(){}); } }catch(x){} try{ var b=a.createBuffer(1,1,22050), z=a.createBufferSource(); z.buffer=b; z.connect(a.destination); z.start(0); }catch(x){} return a; }
+  if(!window.__ME_TAP){ window.__ME_TAP=1; ['touchend','click'].forEach(function(t){ D.addEventListener(t,function(){ try{ if(window.parent===window) return; }catch(x){} meUnlock(); },true); }); }   /* [IOS_GESTURE_1107 검토 G] 마이페이지 안(식순 화면을 품은 쪽)에서만 — 공개 미리보기는 첫 탭에 세션을 바꾸지 않는다(▶ 를 누를 때 wake) */
+  function ctx(){ if(AC) return AC; sess(); AC=meAC(); return AC; }
   function Voice(){ return { src:null, g:null, f:'', t0:0, off:0, want:-90 }; }
   function sgOfStart(f){ try{ var q=(typeof LP!=='undefined'&&LP.q)?LP.q:[], i=(typeof LP!=='undefined')?LP.i:-1, c=[curStep(), q[i+1], q[i-1]], pl=planOf(AV.st==='ok');
     for(var j=0;j<c.length;j++){ var st=c[j]; if(!st) continue; var sg=st._base||segAt(st.k); if(!sg) continue; if(effHas(sg)===f) return sg; if(pl&&pl[sg]&&pl[sg].list&&pl[sg].list.indexOf(f)>-1&&P.loopy&&P.loopy(sg)) return sg; }
@@ -489,7 +494,7 @@
        ② 누르자마자 ▶ 가 차오름(다른 ▶ 와 같은 wfill · ld) · 1.5초 넘으면 아래 «곡을 불러오는 중이에요» · 받으면 ■ · 못 받으면 알림 + ▶
        ③ 곡 칸이 화면에 들어오면 그 구간 첫 곡(고른 곡 · 없으면 1순위)을 조용히 받아 둔다(한 번에 하나 · 받았으면 안 받음 · 데이터 절약이면 안 받음) · 손가락이 닿는 순간(pointerdown)에도
        ④ 받는 중에 다른 ▶ 를 누르면 앞 결과는 버리고 새 곡만(tk) */
-  function unlock(){ sess(); var a=ctx(); if(!a) return; try{ if(a.state!=='running'){ var r=a.resume(); if(r&&r.catch) r.catch(function(){}); } var b=a.createBuffer(1,1,22050), s=a.createBufferSource(); s.buffer=b; s.connect(a.destination); s.start(0); }catch(x){} }
+  function unlock(){ sess(); meUnlock(); AC=AC||meAC(); }   /* [IOS_GESTURE_1107] 입장 장면과 같은 풀린 길 */
   var LOAD_MS=1500, WAIT_D=4;
   function card(f,k,sg){ var tk=++CARD.tk; unlock();
     CARD.f=f; CARD.sg=sg||''; CARD.st='load'; CARD.at=Date.now(); CARD.slow=false; repaint();
