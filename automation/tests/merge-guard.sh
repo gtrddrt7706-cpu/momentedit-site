@@ -4826,6 +4826,10 @@ chk "h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode=\"upload\"'));   //
 nochk '<b>준비한 영상 올리기</b>' mypage.html
 nochk '<b>필메이커에서 만들기</b><span>' mypage.html
 nochk '필메이커에서 만들거나 준비한 영상을' mypage.html
+# ★[DN_GATE_SAME_1107 · DN_GATE_FX_1107 2026-11-07 사장님 «여기 너무 허하지 않아?»] 애프터 웨딩 입구 — 두 칸 같은 모양(회색 '안 함' 걷음) · 고르면 바뀌는 것(사실만 · 계약서 v1.16 제3조②와 같은 뜻) · 기한 줄 없음(시스템 기한 없음)
+chk 'DN_GATE_FX_1107' mypage.html 2
+chk '스튜디오는 식당 정보와 예상 비용을 안내하고, 예약과 식사 비용은 두 분이 식당에 직접 해요' mypage.html 1
+nochk 'class="dn-gate-card dn-gate-skip"' mypage.html
 # ★[PV_STATE_1106 2026-11-06 4차 묶음 M04 · M05 · M06 · M07 · M08 · M09 · M16 · M21 · 대본 판정 «채택»] 식전 영상 상태 한 벌 —
 #   «사용하지 않기»가 옛 확정본보다 먼저 · 식순과 확실히 부딪힐 때만 한 줄 · 다시 확인(조회만) · 고치는 화면에도 기한 · 기한 지남(locked)은 다시 저장을 권하지 않는다 · 템플릿 비용과 추가 옵션 구분
 chk 'PV_STATE_1106' mypage.html 29
