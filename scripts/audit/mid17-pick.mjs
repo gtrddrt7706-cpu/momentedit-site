@@ -150,7 +150,7 @@ try {
     ok(W + ' [MID17_TILE] 식중 영상 ✓ → 빼기(두 칸 다 꺼짐)', !r.rmSt.on && !r.mv4.on && !r.sp4.on, r.rmSt);
     ok(W + ' [MID17_TILE] 정석(6개 · 축사) + 식중 영상 = 바꿔 담기(개수 6/6 그대로 · 창 없음)', r.stdSt.on && r.stdSt.w === 'video' && r.stdCnt[0] === r.stdCnt[1] && !r.stdAsk, { st: r.stdSt, c: r.stdCnt, a: r.stdAsk });
     ok(W + ' [MID17_TILE] 가족(6개 · 축사 없음) + 식중 영상 = 막힘 «본식 순간은 6개까지예요»', !r.famSt.on && /본식 순간은 6개까지예요/.test(r.famAsk), { st: r.famSt, a: r.famAsk });
-    ok(W + ' [MID17_TILE] 미리 보기 창 = 식중 영상 판(이름 · 설명 · 대표 나레이션 58 · 장면 영상 free.mp4)', !!r.pv && r.pv.t === '식중 영상' && /영상/.test(r.pv.q) && !/축하의 말/.test(r.pv.q) && !!r.pv.line && r.pv.line.text === FREE_IN && /\/free\.mp4/.test(r.pv.vid), r.pv);
+    ok(W + ' [MID17_TILE] 미리 보기 창 = 식중 영상 판(이름 · 설명 · 대표 나레이션 58 · 장면 영상 free.mp4)', !!r.pv && r.pv.t === '식중 영상' && /영상/.test(r.pv.q) && !/축하의 말/.test(r.pv.q) && !!r.pv.line && (r.pv.line.text === FREE_IN || /^다음은 오늘 예식에서 두 사람이 가장 마음을 쏟아 준비한 순서입니다. 두 사람이 부모님께/.test(r.pv.line.text)) /* [MID17_CLIPS_1107] 대표 줄 = 351(58 글을 품은 여는 말) */ && /\/free\.mp4/.test(r.pv.vid), r.pv);
     ok(W + ' [MID17_TILE] 창 «이 순간 담기» → 식중 영상 담김 · 창이 «✓ 담겨 있어요»', r.pvAddSt.on && r.pvAddSt.w === 'video' && /담겨 있어요/.test(r.pvAct2 || ''), { st: r.pvAddSt, a: r.pvAct2 });
     ok(W + ' [MID17_TILE] 영상 날 축사 칸 창 = 축사 판(안 담김 · 대표 나레이션은 축사 여는 말)', !!r.pvSp && r.pvSp.t === '축사' && /이 순간 담기/.test(r.pvSp.act || '') && !!r.pvSp.line && r.pvSp.line.text !== FREE_IN, r.pvSp);
     ok(W + ' [MID17_FREE_BACK] 옛 기타(이름 «형제 깜짝 영상편지»)를 빼고 축사 칸으로 다시 담으면 기타 그대로(이름 «준비한 순서»)', !r.fbOff.on && r.fbEtc.on && r.fbEtc.w === 'etc' && r.fbEtc.etc === '형제 깜짝 영상편지' && r.fbEtc.n === '준비한 순서', { off: r.fbOff, back: r.fbEtc });

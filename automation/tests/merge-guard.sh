@@ -23159,29 +23159,37 @@ nochk '저희가 검증한' api/_kb.js
 nochk '프라이버시까지 확인해 추천' index.html
 nochk '검증한 인근 식당' index.html
 chk 'ESD_DAY_1106' scripts/audit/entry-scene-day.mjs 2   # [ESD_DAY_1106] 맞절 큐 −90(ENTRY_SETTLE) 기대 · 갈래 칩 390 · 360 폭 확인
-# ★★[MID17_ENGINE 2026-11-07 사장님 결정 · 식중 영상 · midvideo-17 줄 3 · 4 · 6] 영상 갈래 = 58 여는 말 → 129(식전 영상 소개 예시 3 녹음 그대로 · 사슬 1.25초) → 영상 · 같은 날 식전 소개가 129 면 58 하나 · 새 녹음 0
-chk 'MID17_ENGINE' assets/ritual-cue.js 3
-chk 'function pvSlugOf(S)' assets/ritual-cue.js 1          # 식전 영상 · 식중 영상이 같은 슬러그 셈을 본다
-chk "slug: 'narr-prevideo-in-ex3', name: '식중 영상 소개'" assets/ritual-cue.js 1
-chk "pvSlugOf(S) === 'narr-prevideo-in-ex3')) return \[cue(o)\];" assets/ritual-cue.js 1   # 129 겹친 날 58 하나
-chk 'MID17_ENGINE' assets/ritual-story.js 2                # 블록 «식중 영상» 설명(STORY_COVER)
+# ★[MID17_ENGINE 2026-11-07 임시(11/07 14:21 병합 · 전용 대본 승인 전까지) — «사장님 결정»이 아니었다(12:4x 대본이 취소한 판 · 129 는 식전 영상 문장 · 사장님 반려)] 58 → 129 판은 [MID17_NAR_1107] 전용 대본으로 바뀌었다 · 검사는 mid17-nar.mjs
+chk 'function pvSlugOf(S)' assets/ritual-cue.js 1          # 식전 영상 소개 슬러그 셈(식전 전용 · 129 는 식전 영상에만)
+nochk "slug: 'narr-prevideo-in-ex3', name: '식중 영상 소개'" assets/ritual-cue.js   # [MID17_NAR_1107] 129 를 식중 영상에 붙이지 않는다(사장님 반려)
 chk "'식중 영상': {" assets/ritual-story.js 1
-chk 'MID17_ENGINE' scripts/audit/open-course.mjs 2         # 블록 · [재생 안 됨] 기대값(의도한 변화 · 옛 값 주석)
 chk 'MID17_PRACTICE' order-preview.html 1                  # 연습 · 미리 듣기 카드 «식중 영상이 흐르는 자리»
-chk 'MID17_SCRIPT' order-preview.html 2                    # 줄 이름(129 = 이어서 · 칩 «식중 영상 · n분» = 여는 말)
-chk "'식중 영상 소개':'이어서'" order-preview.html 1
 nochk "what=fk==='video'?'준비한 영상이 흘러요'" order-preview.html   # 옛 카드 글 — 되살리지 말 것
+# [MID17_NAR_1107] mid17-engine.mjs(58 → 129 임시판 검사)는 merge-guard 에서 뺐다 — 파일은 기록으로 남김 · 새 판은 mid17-nar.mjs
 chk 'MID17_ENGINE' scripts/audit/mid17-engine.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/mid17-engine.mjs >/dev/null 2>&1; _m17e=$?; node scripts/audit/mid17-engine.mjs --selftest >/dev/null 2>&1; _m17es=$?; if [ "$_m17e" = 2 ]; then echo 'ok mid17-engine — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_m17e" != 0 ] || [ "$_m17es" != 0 ]; then echo "REVERT? mid17-engine: 식중 영상 엔진 58 + 129 · 전체 대본 · 연습 카드가 어긋났습니다 ($_m17e/$_m17es) — node scripts/audit/mid17-engine.mjs"; fail=1; else echo 'ok mid17-engine'; fi; fi
 # ★★[MID17_CONSOLE 2026-11-07 사장님 결정 · 식중 영상 · midvideo-17 줄 10 · 11] 당일 콘솔 — 식중 영상 디렉터 메모(식전 영상 메모와 같은 꼴 · 영상 사람 순간을 든 큐에) · 재생 순서 기록 · 디지털 날 같음
 chk 'MID17_CONSOLE' assets/ritual-cue.js 2
 chk "note: fk === 'video' ? '영상 링크는 D-7 까지 받는다(마이페이지 «식중 영상» 확정 기한과 같다" assets/ritual-cue.js 1
-chk "live: o.live, note: o.note };" assets/ritual-cue.js 1          # 두 줄 날 메모는 129(영상 사람 순간)로
+chk "note: last ? _fc.note : '' }));" assets/ritual-cue.js 1          # [MID17_CONSOLE · MID17_NAR_1107] 메모는 영상 사람 순간(여는 말 마지막 줄)과 함께
 chk 'MID17_CONSOLE' console.html 1                                   # 재생 순서 기록(window.__playLog · 점검이 켰을 때만)
 chk 'MID17_CONSOLE' scripts/audit/mid17-console.mjs 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/mid17-console.mjs >/dev/null 2>&1; _m17c=$?; node scripts/audit/mid17-console.mjs --selftest >/dev/null 2>&1; _m17cs=$?; if [ "$_m17c" = 2 ]; then echo 'ok mid17-console — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_m17c" != 0 ] || [ "$_m17cs" != 0 ]; then echo "REVERT? mid17-console: 식중 영상 당일 콘솔(메모 · 재생 순서 · 재생 안 됨 · 디지털 같음)이 어긋났습니다 ($_m17c/$_m17cs) — node scripts/audit/mid17-console.mjs"; fail=1; else echo 'ok mid17-console'; fi; fi
+# [MID17_CLIPS_1107] mid17-console.mjs(58 → 129 임시판 콘솔 검사)는 merge-guard 에서 뺐다 — 파일은 기록 · 메모 · [재생 안 됨] · 영상 뒤 GO 는 mid17-nar.mjs 가 잰다
 # ★[FIT_BEFORE_ACCT_1107] 닫는 멘트 · 이음새 맞추기는 계정 확인(ACCT_KEYS) 앞 — 뒤로 가면 계정 확인 전 화면에서 칩 ≠ 글(close-seam 화면이 잰다)
 chk 'FIT_BEFORE_ACCT_1107' order-preview.html 1
+# ★[MID17_NAR_1107 2026-11-07 대본 정정] 식중 영상 전용 대본 — 여는 말 예시 셋(① 58 + 감사 · ② 이야기 · ③ 어떤 영상이든) → 영상 → 받는 말 + 104 · «58 → 129» 걷음(사장님 반려) · 콘솔 재생 순서 기록
+if command -v node >/dev/null 2>&1; then _m17o=$(node scripts/audit/mid17-nar.mjs 2>&1); _m17r=$?
+  case "$_m17r" in
+    0) echo 'ok mid17-nar: 식중 영상 전용 대본 — 여는 말 셋 · 받는 말 · 재생 순서 기록' ;;
+    *) echo 'FAIL mid17-nar: 식중 영상 대본 자리가 어긋났다 — node scripts/audit/mid17-nar.mjs'; printf '%s\n' "$_m17o" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
+  esac
+fi
+chk 'MID17_NAR_1107' assets/ritual-open.js 2
+chk 'MID17_NAR_1107' assets/ritual-cue.js 2
+chk 'MID17_NAR_1107' order-preview.html 4
+chk 'MID17_NAR_1107' assets/ritual-story.js 2
+chk 'PLAY_LOG_1107' console.html 3
+chk 'NARR_APPROVE_1107' docs/rules/나레이션.md 1   # 사장님 11/07 — «새 녹음 줄이기» 폐지 · 나레이션 바꿈은 «지금 · 바뀐 뒤» 실청 승인 뒤 병합
 
 # ★[RULE_AUDIT_1107 2026-11-07 대본 규칙 감사 · 서버 몸] ① 통지는 메일이 나갔을 때만 · ② 하객 사진도 통지 뒤 7일 · ③ 시간당 셈 시각 칸 · ④ AI 상담 잘린 답 · ⑤ 하객 사진 가득 알림
 chk 'NOTICE_REACHED_1107' automation/platform/70_journey.gs 1

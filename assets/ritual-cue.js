@@ -889,7 +889,7 @@
   /* [BGM_INFO_1023] 두 분이 이 음악 칸에 «음악과 함께»를 골랐나 — 저장 꼴은 { S5:{m:'bed'}, S6:{m:'bed'} } 만(assets/bgm-slots.js) · 옛 값(own · studio · warm · none)은 아니다 */
   function bgmBed(S, id) { return !!(S && S.bgm && S.bgm[id] && S.bgm[id].m === 'bed'); }
   /* [MID17_ENGINE 2026-11-07] 식전 영상 소개 슬러그 한 곳 — 두 분 목소리 판은 90 자리(두 분 소리 · 없으면 90 나레이션) · 스튜디오 나레이션 판만 예시(S.pvEx 1 · 2 → 128 · 129 · [PV_EX_NAR]) ·
-       식전 영상(prevideo)과 식중 영상(free 영상 갈래 · 129 겹침)이 같은 값을 본다 */
+       식전 영상 전용 — ★[MID17_NAR_1107] 식중 영상 129 겹침(11/07 14:21 임시판)은 걷었다 · 129 는 식전 영상 문장(사장님 반려) */
   function pvSlugOf(S) { var px = (S && S.pvVoice === 'couple') ? 0 : (+(S && S.pvEx) || 0); return px ? 'narr-prevideo-in-ex' + (px + 1) : 'narr-prevideo-in'; }
   function cue(o) {
     var c = {
@@ -1025,7 +1025,7 @@
       /* ★[PV_INTRO 2026-10-02 사장님 «식전 영상에 두 분이 소개글을 적어서 AI 목소리로도 할 수 있게 · 예시도»] S.pvVoice==='couple' 이면
          이 큐는 두 분 목소리 자리다(own) — 콘솔이 두 분이 만든 소리(pv)를 같은 슬러그에 물린다 · 소리가 없으면 스튜디오 나레이션 그대로(아래 글).
          소개글 자체는 엔진이 읽지 않는다(글칸은 미리듣기 주소에 싣지 않는다 · PREVIEW_KEYS) — 빌더가 화면에 보여 준다. */
-      var own = !!(S && S.pvVoice === 'couple'), pslug = pvSlugOf(S);   // [MID17_ENGINE] 고르는 셈은 pvSlugOf 한 곳(식중 영상 129 겹침도 같은 값을 본다)   // [PV_EX_NAR] 스튜디오 나레이션 판만 예시를 따른다(두 분 목소리 판은 같은 슬러그에 두 분 소리를 물린다)
+      var own = !!(S && S.pvVoice === 'couple'), pslug = pvSlugOf(S);   // [MID17_ENGINE] 고르는 셈은 pvSlugOf 한 곳(식전 전용)   // [PV_EX_NAR] 스튜디오 나레이션 판만 예시를 따른다(두 분 목소리 판은 같은 슬러그에 두 분 소리를 물린다)
       return [cue({
         k: 'prevideo', blockN: '식전 영상', slug: pslug, name: '식전 영상 소개',
         text: EXTRA[pslug], duck: PARAM.duckSpeech, own: own, pick: own ? '두 분 소개글 · AI 두 분 목소리' : '',
@@ -1338,26 +1338,29 @@
         var play = (fk === 'video' || fk === 'stage');   // 파일을 트는 판만 «재생 안 됨»이 있다
         var LT = { video: '준비한 영상 상영 (영상은 디렉터가 튼다)', stage: '준비한 무대 (음원은 디렉터가 튼다 · 설 자리 미리 비움)', etc: '두 분이 준비한 것 (디렉터는 필요한 것만 건넨다)',   // [FREE_ETC] 기타 = 옛 «자유 한 칸» 지문(장면 설명 열쇠 그대로)
           gift: '준비한 선물 건네기 (건넬 분이 앞으로 · 디렉터가 자리를 맞춘다)', speech: '준비한 축사 (디렉터가 마이크 전달 · 원고 큰 글씨 사본이 디렉터에게도 있다)' };
-        var o = {
-          k: 'free', blockN: fk === 'speech' ? '축사' : fk === 'video' ? '식중 영상' : '준비한 순서', slug: fk === 'speech' ? 'narr-free-in-speech' : 'narr-free-in',   /* ★[FREE_IN_RR_1023 검토 151-1 3)] 영상 · 선물 · 기타 = 여는 말 하나(58 · RR 109) · 100 · 102 는 쉰다 */ name: (fk === 'speech' ? '축사 시작 · ' + len + '분' : fk === 'video' ? '식중 영상 시작 · ' + len + '분' : '준비한 순서 시작 · ' + nm),   /* ★[SPEECH_TILE_1012] 축사 칸(옛 준비한 순서) — 영상 · 선물 · 기타는 옛 초안에만 */   /* ★[FREE_ETC 2026-10-06] 기타는 무엇이 올지 모르는 판 — 지목하지 않는 옛 여는 말(58 · 녹음 있음) */
-          text: fk === 'speech' ? EXTRA['narr-free-in-speech'] : D.NARR.freeIn, duck: fk === 'speech' ? PARAM.duckSpeech : PARAM.duckMusic, pick: nm,
-          /* ★[MID17_CONSOLE 2026-11-07 MID17-10 당일 콘솔] 식중 영상 디렉터 메모 — 식전 영상 큐의 note(D-7 · 상영 중 배경음)와 같은 꼴 · 영상 사람 순간을 든 큐에 싣는다(아래 둘로 나눌 때 129 로 옮긴다).
-               콘솔에 영상 파일 · 길이를 미리 여는 장치는 식전 영상에도 없다 — 새로 만들지 않고 이 한 줄로(상영본 자리 = 89_prevideo «개인코드_예식일_식중» 폴더 «미리보기…» · 식전 영상과 같다) · 불 낮추기는 식전 영상만(식중은 사장님 결정 전) */
-          note: fk === 'video' ? '영상 링크는 D-7 까지 받는다(마이페이지 «식중 영상» 확정 기한과 같다 · 길이 ' + len + '분 · 상영본은 드라이브 «ME_식전영상» 안 «개인코드_예식일_식중» 폴더의 «미리보기…» 파일 · 식전 영상과 같다) · 소개 말이 끝나면 영상을 튼다 · 상영 중 배경음은 끈다' : '',   /* ★[BGM_TIMING_1101] 축사 여는 말(약 10초 긴 안내 · -ex 판 포함) −8 → −16 · 축가 여는 말(짧다)은 −8 그대로 */
+        var _fc = cue({
+          k: 'free', blockN: fk === 'speech' ? '축사' : fk === 'video' ? '식중 영상' : '준비한 순서', slug: fk === 'speech' ? 'narr-free-in-speech' : 'narr-free-in',   /* ★[FREE_IN_RR_1023 검토 151-1 3)] 영상 · 선물 · 기타 = 여는 말 하나(58 · RR 109) · 100 · 102 는 쉰다 */ name: (fk === 'speech' ? '축사 시작 · ' + len + '분' : '준비한 순서 시작 · ' + nm),   /* ★[SPEECH_TILE_1012] 축사 칸(옛 준비한 순서) — 영상 · 선물 · 기타는 옛 초안에만 */   /* ★[FREE_ETC 2026-10-06] 기타는 무엇이 올지 모르는 판 — 지목하지 않는 옛 여는 말(58 · 녹음 있음) */
+          text: fk === 'speech' ? EXTRA['narr-free-in-speech'] : D.NARR.freeIn, duck: fk === 'speech' ? PARAM.duckSpeech : PARAM.duckMusic, pick: nm,   /* ★[BGM_TIMING_1101] 축사 여는 말(약 10초 긴 안내 · -ex 판 포함) −8 → −16 · 축가 여는 말(짧다)은 −8 그대로 */
+          /* ★[MID17_CONSOLE 2026-11-07 MID17-10 당일 콘솔] 식중 영상 디렉터 메모 — 식전 영상 큐의 note 와 같은 꼴 · 영상 사람 순간을 든 큐에 싣는다(전용 대본은 여는 말 마지막 줄로 옮긴다) */
+          note: fk === 'video' ? '영상 링크는 D-7 까지 받는다(마이페이지 «식중 영상» 확정 기한과 같다 · 길이 ' + len + '분 · 상영본은 드라이브 «ME_식전영상» 안 «개인코드_예식일_식중» 폴더의 «미리보기…» 파일 · 식전 영상과 같다) · 소개 말이 끝나면 영상을 튼다 · 상영 중 배경음은 끈다' : '',
           rescue: play ? { slug: '', name: '재생 안 됨 · 사진 시간으로 미룸', text: '' } /* ★[FREE_FAIL_VOICE_OFF_1023 검토 151-1 4)] 녹음 한 줄(105)은 쉰다 — 안 나온 순간은 디렉터가 말로 알린다(자료 대본에 없는 글) · 단추는 남아 미룬 순서를 사진 시간에 적는다 */ : null,
           /* live.t 는 장면 설명(ritual-story LIVE)의 열쇠라 갈래마다 **고정 문장**이다 — 무엇을 · 길이는 pick · est 가 나른다. */
           live: { t: LT[fk], est: fk === 'speech' ? 60 * len + 20 : 60 * len + 8,   /* ★[EST_TRUE_1031] 축사 +6 → +20(축사하는 분이 자리에서 나와 마이크를 받는 판 · 본식 합 TIME free 걸음 12 → 26) */ duck: (fk === 'speech' && bgmBed(S, 'S5')) ? PARAM.duckRead : fk === 'gift' ? -12 : PARAM.duckOff, self: true,   /* ★[MEANING_R1_1102 6] 선물 전달 = 이동 · 전달을 받쳐 −12 · 영상 · 무대는 정적 그대로 */   /* [BGM_INFO_1023] 축사 «음악과 함께» = 낭독 아래 −20 · 아니면 무음 그대로 */
             doing: fk === 'video' ? 'watch' : fk === 'speech' ? 'say' : 'move',
             fallback: play ? '영상 · 음원이 안 나오면 [재생 안 됨] · 디렉터가 «사진 시간에 함께 보겠습니다» 한 줄로 알리고 곧장 다음 순간으로'
               : fk === 'speech' ? len + '분을 넘기면 디렉터가 곁으로 가 마무리를 청한다' : '' }   // ★[SPEECH_FB_LEN_R7_1016 라운드 7] 늘 «3분»이던 것을 고른 길이로(큐 이름 · 진행 막대 · 고객 안심 «정해 두신 시간»과 같은 값) · ritual-story fbSrc 는 기본 3분 판
-        };
-        /* ★★[MID17_ENGINE 2026-11-07 사장님 결정 · 식중 영상 · 새 녹음 0] 영상 갈래 = 58 여는 말 → 129 «한 장면씩 … 영상 함께 감상하시겠습니다.»(식전 영상 소개 예시 3 녹음을 그대로) → 영상(사람 순간 · [재생 안 됨]도 이 큐).
-             58 → 129 는 한 소개라 사슬 1.25초([CHAIN_GAP_1014] 원고 «사슬 1.25초» · 말끝 → 말머리 · 콘솔 · 미리 듣기가 파일 앞뒤 무음을 뺀다) · 크기는 58 과 같다.
-             같은 날 식전 영상 소개로 129 가 나가면(스튜디오 나레이션 판 · pvEx 예시 3) 58 하나만 — 같은 말 두 번 금지 · 130(시선 명령 [B2_GEUL_01]) · 261(식전 영상 받는 말)은 쓰지 않는다 · 축사 · 선물 · 기타는 종전 그대로 */
-        if (fk !== 'video' || (seq && seq.indexOf('prevideo') > -1 && pvSlugOf(S) === 'narr-prevideo-in-ex3')) return [cue(o)];
-        var o2 = { k: 'free', blockN: o.blockN, slug: 'narr-prevideo-in-ex3', name: '식중 영상 소개', text: EXTRA['narr-prevideo-in-ex3'], duck: o.duck, fire: 'chain', gapMs: 1250, rescue: o.rescue, live: o.live, note: o.note };   // [MID17_CONSOLE] 메모는 영상 사람 순간과 함께 129 로
-        o.rescue = null; o.live = null; o.note = '';
-        return [cue(o), cue(o2)];
+        });
+        if (fk !== 'video') return [_fc];
+        /* ★★[MID17_NAR_1107 MID17-6 · 대본 11/07 정정] 식중 영상 = 여는 말(예시 ① 58 + 감사 · ② 두 사람 이야기 · ③ 어떤 영상이든) → 영상(디렉터가 튼다) → 받는 말 + 104 박수 → 다음 순간은 디렉터 GO([CLAP_GO]).
+           «58 → 129»는 걷었다(129 는 식전 영상 문장 · 사장님 반려) · 글 · 번호는 음성 쉼 방 PR(그 전엔 키 이름 자리 · 소리 없음). 경로 한 곳 = O.midPlan */
+        var _mp = O.midPlan({ mvEx: S.mvEx }),   /* [MID17_NAR_1107] S.mvEx = 식중 영상 여는 말 예시(미리듣기 KEYS) */ _mvTx = function (sl) { return sl === 'narr-free-in' ? D.NARR.freeIn : (EXTRA[sl] || ''); }, _mv = [];
+        _mp.inn.forEach(function (sl, i) { var last = i === _mp.inn.length - 1;
+          _mv.push(cue({ k: 'free', blockN: '식중 영상', slug: sl, name: last ? '식중 영상 시작 · ' + len + '분' : '식중 영상 여는 말', text: _mvTx(sl) || ('«' + sl + '» 녹음 자리'), duck: i ? PARAM.duckSpeech : PARAM.duckMusic, pick: O.MV_EX_NAMES[_mp.n],
+            live: last ? _fc.live : null, rescue: last ? _fc.rescue : null, note: last ? _fc.note : '' })); });   // [MID17_CONSOLE] 메모는 영상 사람 순간과 함께
+        /* ★[MID17_CLIPS_1107 대본 19:20 사장님 승인] 받는 말은 새 녹음 한 클립(«… 따뜻한 박수 부탁드립니다.»까지 · 104 소리를 품었다) → 박수 → 다음 순간은 디렉터 GO([CLAP_GO]) */
+        _mv.push(cue({ k: 'free', blockN: '식중 영상', slug: _mp.out[0], name: '식중 영상 받는 말 · 박수', text: _mvTx(_mp.out[0]), duck: PARAM.duckOff, hint: '영상이 끝나고 화면이 꺼지면',
+          live: clapUp(applause('하객 박수 · 영상을 준비한 두 분께', PARAM.declare.applauseMs / 1000)) }));
+        return _mv;
         /* ★[CLAP_FEW 2026-09-26 사장님 · 코워크 회신5 3-1] 104 narr-free-out-clap(«따뜻한 박수 부탁드립니다»)은 흐름에서 뺐다.
            클립 · 번호 · EXTRA 는 둔다(되살리려면 박수 자리 셋이 넷이 된다 — 사장님 결정이 먼저). 다음 큐는 앞 live 로 GO. */
       }
