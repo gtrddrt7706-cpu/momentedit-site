@@ -126,6 +126,7 @@ const html = `<!doctype html>
 body{margin:0;background:var(--bg);color:var(--text);font-family:'Noto Serif KR',serif;font-size:15px;line-height:1.7}
 .wrap{max-width:820px;margin:0 auto;padding:18px 16px 190px}
 .btn.big{display:block;width:100%;font-size:16px;min-height:52px;margin:0 0 14px}
+.btn.huge{font-size:17.5px;min-height:60px;background:var(--seal)}
 h1{font-size:19px;margin:0 0 6px}
 .note{font-size:13px;color:var(--sub);background:var(--bg2);border-radius:10px;padding:10px 12px;margin:0 0 12px}
 .sum b{color:var(--accent)}
@@ -154,7 +155,9 @@ details summary{cursor:pointer;font-size:13px;color:var(--sub);padding:8px 13px;
 .bar .in{max-width:820px;margin:0 auto;display:flex;gap:8px;align-items:center}
 .bar .btn{flex:0 0 auto;white-space:nowrap;padding:8px 11px}
 .bar #bRe:disabled{opacity:.45}
-@media (max-width:420px){.bar .in{gap:6px}.bar .btn{padding:8px 9px}}
+.bar #bOk:disabled{opacity:.45}
+@media (max-width:420px){.bar .in{gap:6px;flex-wrap:wrap}.bar .btn{padding:8px 9px}.bar .nm{flex-basis:100%;order:-1}}
+.wrap{padding-bottom:230px}
 .bar .nm{flex:1 1 auto;min-width:0;font-size:13px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .bar .nm small{display:block;color:var(--light);font-size:11.5px}
 .bar .pg{height:4px;background:var(--bg3);border-radius:99px;overflow:hidden;max-width:820px;margin:6px auto 0}
@@ -165,12 +168,14 @@ details summary{cursor:pointer;font-size:13px;color:var(--sub);padding:8px 13px;
 <div class="note sum">순간 <b>${SUM.moments}</b>개 · 판 <b>${SUM.pans}</b>개 · 클립 <b>${SUM.clips}</b>개 · 엔진이 내보내는 클립 중 페이지에 빠진 것 <b>${SUM.missing.length}</b>개${SUM.missing.length ? ' — ' + esc(SUM.missing.join(' · ')) : ''}
 <br><span class="lab">이 가지 엔진의 최종 소리만 실었습니다(지금 · 바뀐 뒤 비교 아님). 판 = 기본 + 고름 ${SUM.sel}가지 × 예시 칩 ${SUM.ex}가지 조합으로 줄이 달라지는 경우 · 같은 소리는 하나로 묶었습니다. 빠진 것은 만들 수 있는 코스 ${SUM.courses.toLocaleString()}가지 × 식사 · 온라인 · 하객 안내 ${SUM.glob}가지 · 예시 코스 넷 · 위 고름에서 엔진이 낸 소리 ${SUM.engine}개와 맞대어 셉니다. 사람 구간은 1초로 줄여 넘깁니다.${SUM.liveNot.length ? '<br>참고 · 녹음 상태표가 «나는 소리»로 두지만 이 엔진이 어떤 고름으로도 내지 않는 ' + SUM.liveNot.length + '개(싣지 않음): ' + esc(SUM.liveNot.join(' · ')) : ''}</span></div>
 <div class="note"><div id="vSum"></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px"><button class="btn sm" id="reCopy">다시 목록 복사</button><span class="lab" id="reCopyMsg">클립 번호 · 문장 · 이유가 한 줄씩 복사됩니다</span></div><textarea id="reBox" readonly></textarea></div>
+<button class="btn main big huge" id="uniqPlay">중복 빼고 전체 듣기</button>
+<label class="lab" style="display:flex;gap:6px;align-items:center;margin:-6px 0 12px;font-size:13px"><input type="checkbox" id="onlyLeft"> 남은 것만 듣기(좋아요 · 다시를 누른 클립은 건너뜀)</label>
 <button class="btn main big" id="allPlay">전체 듣기 · 판 ${SUM.pans}개 처음부터</button>
 <div class="ph">전체 이어 듣기 · 예시 코스 넷</div>
 <div class="top4" id="top4"></div>
 <div id="list"></div>
 </div>
-<div class="bar"><div class="in"><button class="btn" id="bPrev" aria-label="이전 판">&#9198;</button><button class="btn main" id="bPlay" aria-label="재생">&#9654;</button><button class="btn" id="bNext" aria-label="다음 판">&#9197;</button><button class="btn" id="bRe" disabled aria-label="지금 줄 다시">다시</button><div class="nm" id="bNm">전체 듣기 · 판 ${SUM.pans}개<small id="bSub">▶ 를 누르면 처음부터 · 판마다 «여기부터 전체 듣기»</small></div></div><div class="pg"><i id="bFill"></i></div></div>
+<div class="bar"><div class="in"><button class="btn" id="bPrev" aria-label="이전 판">&#9198;</button><button class="btn main" id="bPlay" aria-label="재생">&#9654;</button><button class="btn" id="bNext" aria-label="다음 판">&#9197;</button><button class="btn" id="bOk" disabled aria-label="지금 줄 좋아요">좋아요</button><button class="btn" id="bRe" disabled aria-label="지금 줄 다시">다시</button><div class="nm" id="bNm">전체 듣기 · 판 ${SUM.pans}개<small id="bSub">▶ 를 누르면 처음부터 · 판마다 «여기부터 전체 듣기»</small></div></div><div class="pg"><i id="bFill"></i></div></div>
 <script>
 var D = ${JSON.stringify(DATA)};
 var $ = function (i) { return document.getElementById(i); };
@@ -219,7 +224,7 @@ function vSum() { var n = 0, re = 0, ok = 0; Object.keys(CLIPS).forEach(function
 function reList() { var out = []; Object.keys(CLIPS).forEach(function (k) { if (VS.v[k] !== 're') return; var l = CLIPS[k];
   out.push((l.no ? '[' + l.no + '] ' : '') + l.slug + ' · ' + String(l.t || '').replace(/\s+/g, ' ') + ' · 이유: ' + (VS.w[k] || '(이유 없음)')); }); return out; }
 function curK() { var it = typeof cur === 'function' ? cur() : null; return it && Q && Q.i >= 0 ? kOf(it.lines[Q.i]) : ''; }
-function barRe() { var b = $('bRe'); if (!b) return; var k = curK(); b.disabled = !k; b.classList.toggle('re', !!k && VS.v[k] === 're'); b.textContent = k && VS.v[k] === 're' ? '다시 ✓' : '다시'; }
+function barRe() { var b = $('bRe'); if (!b) return; var k = curK(); var o = $('bOk'); if (o) { o.disabled = !k; o.classList.toggle('ok', !!k && VS.v[k] === 'ok'); } b.disabled = !k; b.classList.toggle('re', !!k && VS.v[k] === 're'); b.textContent = k && VS.v[k] === 're' ? '다시 ✓' : '다시'; }
 document.addEventListener('click', function (e) {
   var b = e.target.closest('button'); if (!b) return;
   if (b.dataset.v && b.dataset.k) { setV(b.dataset.k, b.dataset.v); return; }
@@ -237,6 +242,15 @@ var PA = null, Q = null, T = null;
 var ALL = []; D.moms.forEach(function (m, mi) { m.pans.forEach(function (p, pi) { ALL.push({ nm: m.name + ' · ' + labOf(p), lines: p.lines, idp: 'p' + mi + '_' + pi, mi: mi }); }); });
 function lineSec(l, prev) { return (l.f ? (l.d || 3) : 1) + (prev ? (prev.live ? 1 : (l.g || 600) / 1000) : 0); }
 ALL.forEach(function (it) { it.sec = it.lines.reduce(function (a, l, i) { return a + lineSec(l, i ? it.lines[i - 1] : null); }, 0); });
+/* ★★[LISTEN_ORDER_UNIQ_1107 2026-11-07 사장님 «중복되는 나레이션은 제외해서 들을 수 있게»] 클립(같은 소리 파일)이 처음 나오는 자리에서 한 번만 · 식순 순서 그대로 */
+var UNIQ = [], _seen = {};
+ALL.forEach(function (it) { it.lines.forEach(function (l, li) { var k = kOf(l); if (!k || _seen[k]) return; _seen[k] = 1;
+  UNIQ.push({ nm: (l.no ? '[' + l.no + '] ' : '') + l.slug, from: it.nm, lines: [l], idp: it.idp, li: li, mi: it.mi, sec: lineSec(l, null) }); }); });
+D.courses.forEach(function (c) { c.lines.forEach(function (l) { var k = kOf(l); if (!k || _seen[k]) return; _seen[k] = 1;
+  UNIQ.push({ nm: (l.no ? '[' + l.no + '] ' : '') + l.slug, from: c.nm + ' 코스', lines: [l], idp: '', li: 0, mi: -1, sec: lineSec(l, null) }); }); });
+var ONLY = false;   /* «남은 것만 듣기» — 좋아요 · 다시를 이미 누른 클립은 건너뛴다 */
+function judged(l) { var k = kOf(l); return !!(k && VS.v[k]); }
+function itemLeft(it) { return !ONLY || it.lines.some(function (l) { return kOf(l) && !VS.v[kOf(l)]; }); }
 function fmt(s) { s = Math.max(0, Math.round(s)); var h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + '시간 ' : '') + (h || m ? m + '분 ' : '') + x + '초'; }
 function cur() { return Q && Q.items[Q.ii]; }
 function remain() {
@@ -248,7 +262,7 @@ function remain() {
 }
 function ui() {
   var it = cur(); if (!it) return; var l = it.lines[Q.i];
-  $('bNm').firstChild.nodeValue = it.nm;
+  $('bNm').firstChild.nodeValue = it.nm + (it.from ? ' · 처음 나온 곳: ' + it.from : '');
   $('bSub').textContent = (Q.items.length > 1 ? (Q.ii + 1) + ' / ' + Q.items.length : (Math.max(Q.i, 0) + 1) + ' / ' + it.lines.length + '줄') + ' · 남은 ' + fmt(remain())
     + (l ? ' · ' + (l.no ? '[' + l.no + '] ' : '') + (l.slug || l.act || '') : '');
   $('bPlay').innerHTML = Q.on ? '&#10074;&#10074;' : '&#9654;'; $('bPlay').setAttribute('aria-label', Q.on ? '멈춤' : '재생');
@@ -257,15 +271,17 @@ function el() { if (PA) return PA; PA = new Audio(); PA.preload = 'auto';
   PA.addEventListener('ended', next); PA.addEventListener('error', function () { if (!Q || !Q.on) return; $('bSub').textContent = '이 소리를 못 열어 다음으로 넘어갑니다'; T = setTimeout(next, 600); });
   PA.addEventListener('timeupdate', function () { if (PA.duration) $('bFill').style.width = (PA.currentTime / PA.duration * 100) + '%'; if (Q && Q.on && Math.floor(PA.currentTime * 2) % 2 === 0) ui(); }); return PA; }
 function enter() { var o = document.querySelectorAll('.card.on'); for (var i = 0; i < o.length; i++) o[i].classList.remove('on'); var it = cur(); var c = it && it.idp ? $(it.idp) : null; if (c) c.classList.add('on'); }
-function startQ(items, ii) { clearTimeout(T); if (PA) PA.pause(); el(); Q = { items: items, ii: ii || 0, i: -1, on: true, blocked: false }; enter(); ui(); next(); }
+function startQ(items, ii) { clearTimeout(T); if (PA) PA.pause(); el(); ii = ii || 0; while (ii < items.length - 1 && !itemLeft(items[ii])) ii++; Q = { items: items, ii: ii, i: -1, on: true, blocked: false }; enter(); ui(); next(); }
 function mark() { var o = document.querySelectorAll('.ln.cur'); for (var i = 0; i < o.length; i++) o[i].classList.remove('cur');
-  var it = cur(), e = it && it.idp ? $(it.idp + '_' + Q.i) : null; if (e) { e.classList.add('cur'); try { e.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (x) {} } }
+  var it = cur(), e = it && it.idp ? $(it.idp + '_' + ((it.li || 0) + Q.i)) : null; if (e) { e.classList.add('cur'); try { e.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (x) {} } }
 function next() {
   clearTimeout(T); if (!Q || !Q.on) return;
   var it = cur(), prev = it.lines[Q.i]; Q.i++;
+  while (ONLY && Q.i < it.lines.length && it.lines[Q.i].f && judged(it.lines[Q.i])) Q.i++;   /* 남은 것만 — 표시한 줄은 쉼 없이 건너뛴다 */
   if (Q.i >= it.lines.length) {
-    if (Q.ii + 1 >= Q.items.length) { Q.on = false; Q.i = it.lines.length - 1; ui(); $('bSub').textContent = '끝까지 들었어요'; return; }
-    var gap = Q.items[Q.ii + 1].mi !== it.mi ? 1500 : 800; Q.ii++; Q.i = -1; enter(); ui();
+    var nx = Q.ii + 1; while (nx < Q.items.length && !itemLeft(Q.items[nx])) nx++;
+    if (nx >= Q.items.length) { Q.on = false; Q.i = it.lines.length - 1; ui(); $('bSub').textContent = '끝까지 들었어요'; return; }
+    var gap = Q.items[nx].mi !== it.mi ? 1500 : 800; Q.ii = nx; Q.i = -1; enter(); ui();
     T = setTimeout(next, document.hidden ? 0 : gap); return;
   }
   var l = it.lines[Q.i], wait = Q.i === 0 ? 0 : (prev && prev.live ? 1000 : (l.g || 600));
@@ -288,6 +304,10 @@ function step(d) { if (!Q) { startQ(ALL, 0); return; }
 $('bPlay').onclick = function () { if (!Q) { startQ(ALL, 0); return; } if (Q.on) pause(); else resume(); };
 $('bPrev').onclick = function () { step(-1); }; $('bNext').onclick = function () { step(1); };
 $('allPlay').onclick = function () { startQ(ALL, 0); };
+$('uniqPlay').onclick = function () { startQ(UNIQ, 0); };
+$('onlyLeft').onchange = function () { ONLY = this.checked; };
+$('bOk').onclick = function () { var k = curK(); if (k) setV(k, 'ok'); };
+$('uniqPlay').textContent = '중복 빼고 전체 듣기 · 클립 ' + UNIQ.length + '개';
 /* 자동 재생이 막혔으면 화면 어디든 처음 누르는 것으로 다시 연다(그 누름 안에서 play) */
 document.addEventListener('pointerdown', function (e) { if (Q && Q.blocked && !e.target.closest('#bPlay')) resume(); }, true);
 document.addEventListener('click', function (e) {
