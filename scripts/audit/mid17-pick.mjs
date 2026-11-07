@@ -125,6 +125,21 @@ try {
       await tap('midvid'); await tap('free'); out.fbSp = fw();
       await tap('free'); await tap('midvid'); await tap('midvid'); try { lsAdd('free'); } catch (e) { out.fbErr = e.message; } await w(200); out.fbLs = fw();
       try { opGoStep('pick'); } catch (e) {} window._freeWas = null; S.on = {}; S.freeWhat = 'video'; opSync(); await w(200); await tap('free'); out.fbFirst = fw();
+      /* [MID17_FREE_BACK] 누르기 전 보인 이름 = 담긴 뒤 이름(세 경우) */
+      const nmNow = () => R.onOf(S, 'free') ? R.nameOf('free', S) : '';
+      // ① 옛 기타 → ✓ 빼기 → 빈 축사 칸 이름 → ＋
+      window._freeWas = null; S.on = { free: 1 }; S.freeWhat = 'etc'; S.freeEtc = '형제 깜짝 영상편지'; opSync(); await w(150);
+      await tap('free'); const e0 = (tile('free') || {}).n; await tap('free'); out.nmEtc = { before: e0, after: nmNow(), tile: (tile('free') || {}).n, w: S.freeWhat };
+      // ② 흐름 줄 — 식중 영상 빼기 → 빈 줄 이름 → 다시 담기
+      window._freeWas = null; R.applyExample(S, 'brief'); S.on.free = 1; S.freeWhat = 'video'; S.freeLen = '3'; opSync(); await w(150);
+      try { opGoStep('listen'); mkGo('_intro'); } catch (e) { out.nmErr = e.message; } await w(600);
+      const rowNm = () => { const li = document.querySelector('li.cf-r[data-k="free"]'); return li ? ((li.querySelector('.cf-nm') || {}).textContent || '') : null; };
+      try { mkFlowTgl('free'); } catch (e) { out.nmErr = e.message; } await w(400); const v0 = rowNm(), v0on = !!(S.on && S.on.free);
+      try { mkFlowTgl('free'); } catch (e) { out.nmErr = e.message; } await w(400); out.nmVid = { before: v0, offOk: !v0on, after: nmNow(), row: rowNm(), w: S.freeWhat };
+      // ② 담지 않은 순간 — 옛 선물 lsRemove → 빈 줄 이름(_lName) · 알림 → lsAdd
+      window._freeWas = null; S.on.free = 1; S.freeWhat = 'gift'; opSync(); await w(150);
+      try { lsRemove('free'); } catch (e) { out.nmErr = e.message; } await w(150); const g0 = _lName('free'), gMsg = LS.msg || '';
+      try { lsAdd('free'); } catch (e) { out.nmErr = e.message; } await w(150); out.nmGift = { before: g0, msg: gMsg, after: nmNow(), w: S.freeWhat };
       return out; });
     ok(W + ' [MID17_TILE] 마음의 순간 = 덕담 · 축사 · 식중 영상 · 축가 · 편지', JSON.stringify(r.heart) === JSON.stringify(['부모님 덕담', '축사', '식중 영상', '축가', '편지 낭독']), r.heart);
     ok(W + ' [MID17_TILE] 식중 영상 칸 이름 · 칸 글 두 줄 안(잘림 없음)', !!r.mv0 && r.mv0.n === '식중 영상' && /영상/.test(r.mv0.s) && r.mv0.lines >= 1 && r.mv0.lines <= 2 && r.mv0.clip <= 1, r.mv0);
@@ -141,6 +156,10 @@ try {
     ok(W + ' [MID17_FREE_BACK] 옛 기타(이름 «형제 깜짝 영상편지»)를 빼고 축사 칸으로 다시 담으면 기타 그대로(이름 «준비한 순서»)', !r.fbOff.on && r.fbEtc.on && r.fbEtc.w === 'etc' && r.fbEtc.etc === '형제 깜짝 영상편지' && r.fbEtc.n === '준비한 순서', { off: r.fbOff, back: r.fbEtc });
     ok(W + ' [MID17_FREE_BACK] 칸을 지정하면 그 칸 갈래 — 기타를 빼고 식중 영상 칸 = video · 식중 영상을 빼고 축사 칸 = speech', r.fbMv.on && r.fbMv.w === 'video' && r.fbSp.on && r.fbSp.w === 'speech', { mv: r.fbMv, sp: r.fbSp });
     ok(W + ' [MID17_FREE_BACK] 식중 영상을 빼고 ② «담지 않은 순간»에서 다시 담으면 식중 영상 그대로', !r.fbErr && r.fbLs.on && r.fbLs.w === 'video', { ls: r.fbLs, e: r.fbErr });
+    ok(W + ' [MID17_FREE_BACK] 누르기 전 이름 = 담긴 이름 · ① 옛 기타를 빼면 빈 칸이 «준비한 순서» → ＋ = «준비한 순서»(기타)', r.nmEtc.before === '준비한 순서' && r.nmEtc.after === '준비한 순서' && r.nmEtc.tile === '준비한 순서' && r.nmEtc.w === 'etc', r.nmEtc);
+    ok(W + ' [MID17_FREE_BACK] 누르기 전 이름 = 담긴 이름 · ② 흐름에서 식중 영상을 빼면 빈 줄 «식중 영상» → 다시 담기 = 식중 영상', !r.nmErr && r.nmVid.offOk && r.nmVid.before === '식중 영상' && r.nmVid.after === '식중 영상' && r.nmVid.row === '식중 영상' && r.nmVid.w === 'video', { v: r.nmVid, e: r.nmErr });
+    ok(W + ' [MID17_FREE_BACK] 누르기 전 이름 = 담긴 이름 · ② 옛 선물을 빼면 빈 줄 «준비한 순서»(알림도 «준비한 순서»·«담지 않은 순간») → 담기 = 선물', r.nmGift.before === '준비한 순서' && /«준비한 순서»를 뺐어요/.test(r.nmGift.msg) && /담지 않은 순간/.test(r.nmGift.msg) && r.nmGift.after === '준비한 순서' && r.nmGift.w === 'gift', r.nmGift);
+    ok(W + ' [MID17_FREE_BACK] 식중 영상을 뺀 날 ① 축사 칸은 «축사»로 보이고 «축사»로 담긴다(칸 지정이 이긴다)', r.fbSp.n === '축사' && r.fbSp.w === 'speech', r.fbSp);
     ok(W + ' [MID17_FREE_BACK] 이번 방문에 뺀 적 없으면 축사 칸은 늘 축사(SPEECH_TILE_1012 · 남은 freeWhat video 무시)', r.fbFirst.on && r.fbFirst.w === 'speech', r.fbFirst);
     if (SHOT) { await pg.evaluate(async () => { S.on = { bless: 1, free: 1, song: 1 }; S.freeWhat = 'video'; opSync(); }); await wait(400);
       const h = await pg.$('.pk-act:nth-of-type(3)'); fs.mkdirSync(SHOT, { recursive: true }); if (h) { await h.scrollIntoViewIfNeeded(); await wait(500); await h.screenshot({ path: path.join(SHOT, `pick-heart-${W}.png`) }); } }
