@@ -1439,8 +1439,8 @@ done
 #   ★그래서 새 판을 낼 때 옛 판을 «지운다». 남겨 두면 링크가 살아 있어 누군가 그걸 연다.
 #   ★위 --light 목록도 이름을 박지 않고 glob 으로 받는다 — 박아 두면 판 이름이 바뀔 때마다 게이트가 거짓으로 붉는다.
 #   ★[LISTEN_COMPARE_1107] 실청 전용 비교 판(listen-speed-1107.html · 지금 / 바뀐 뒤)은 세지 않는다 — 판정 판이 아니라 두 소리를 견주는 판이고, 승인 뒤 병합 전에 지운다(지울 때 이 거름도 뺀다)
-_plates=$(ls listen-*.html 2>/dev/null | grep -vE '^listen-(speed|changed)-1107\.html$' | wc -l | tr -d ' ')
-_plate=$(ls listen-*.html 2>/dev/null | grep -vE '^listen-(speed|changed)-1107\.html$' | head -1)
+_plates=$(ls listen-*.html 2>/dev/null | grep -vE '^listen-(speed|changed|order)-1107\.html$' | wc -l | tr -d ' ')
+_plate=$(ls listen-*.html 2>/dev/null | grep -vE '^listen-(speed|changed|order)-1107\.html$' | head -1)
 if [ "$_plates" = 1 ]; then echo "ok PLATE_ONE: 실청판 1개 ($(ls listen-*.html))"
 else echo "REVERT? PLATE_ONE: 실청판이 ${_plates}개다 — 낡은 판은 지운다(옛 글 + 새 소리로 들린다): $(ls listen-*.html 2>/dev/null | tr '\n' ' ')"; fail=1; fi
 chk '\-\-light:#6E6959' shared/tokens.css 1
@@ -23096,6 +23096,7 @@ chk 'LISTEN_COMPARE_1107' scripts/build-listen-all.mjs 5                      # 
 chk 'LISTEN_PLAYALL_1107' scripts/build-listen-all.mjs 3                      # 비교 판 «전체 듣기» 재생바(지금 · 바뀐 뒤 · 번갈아 · 칸 누르면 거기서부터 · 잠금 화면 이전/다음)
 chk 'LISTEN_SEAM_1107' scripts/build-listen-all.mjs 4                         # «이음매 듣기» 탭 = junctions.md 이음매 그대로(생성기 --json · 손으로 안 적음)
 chk 'LISTEN_SEAM_1107' scripts/build-junctions.mjs 1
+chk 'LISTEN_ORDER_1107' scripts/build-listen-order.mjs 1                      # 식순 순서 실청판(나레이션 전부 · 실청 전용 · 병합 전에 판 · 이 줄 · PLATE_ONE 거름을 함께 지운다)
 if command -v node >/dev/null 2>&1; then node scripts/audit/seam-listen.mjs >/dev/null 2>&1; _sml=$?; if [ "$_sml" = 1 ]; then echo 'REVERT? seam-listen: 실청판 이음매 탭 칸 수 · 번호가 junctions.md 와 다릅니다 — node scripts/audit/seam-listen.mjs [LISTEN_SEAM_1107]'; fail=1; else echo "ok seam-listen ($_sml) [LISTEN_SEAM_1107]"; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/tempo-check.mjs >/dev/null 2>&1; _tmp7=$?; if [ "$_tmp7" = 1 ]; then echo 'REVERT? tempo-check: 나레이션 mp3 배속이 tempo.json 과 다르거나 표에 없는 우성 클립이 있습니다 — node scripts/audit/tempo-check.mjs [TEMPO_1107]'; fail=1; else echo "ok tempo-check ($_tmp7) [TEMPO_1107]"; fi; fi
 chk 'ST12_02_LATE_FILE' order-preview.html 5   # ★[ST12_02_LATE_FILE 2026-11-06] 늦게 온 옛 파일 결과(다듬기 · 이 기기 찾기 · 받기 실패)가 새 선택을 덮지 않는다
