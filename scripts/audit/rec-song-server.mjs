@@ -13,8 +13,8 @@
    9a 이름만 오면 «없다(need)» · 폴더가 없으면 만든다 9b 표에 없는 이름 = 거절 9c 지문(SHA-256)이 다르면 거절 · 아무것도 안 쓴다
    9d 지문이 같으면 저장 · 설명 칸에 지문 9e 다시 오면 «있다(same)» · 받은 내용을 풀지 않는다 9f songs.json 이 들어가면 목록이 열린다(REC_FID · 캐시 비움)
    9g 지문 없는 같은 이름 파일(손으로 올린 것)은 새 파일로 바꾸고 옛것은 휴지통 9h 한 시간 120번 넘으면 U1 9i key 가 rec 가 아니면 종전대로 로그인을 본다
-   ★[REC_CLIP_1013 2026-10-13 사장님 «기다림 완전 짧게»] 미리 듣기용 짧은 판 — 표는 17개(곡 8 · 짧은 판 8 · 목록) · 곡마다 짧은 판이 짝으로 있다
-   9-1 ★[ENTRY_BGM_1019] 문서 저장소가 곁에 있으면 표의 지문 17개 = 그 파일의 지문(다시 자른 판 · 목록과 표가 함께 바뀌었나) · 없으면 건너뛴다
+   ★[REC_CLIP_1013 2026-10-13 사장님 «기다림 완전 짧게»] 미리 듣기용 짧은 판 — 표는 19개(곡 9 · 짧은 판 9 · 목록 · r10 은 [NEWSONG_LNOE_1107]) · 곡마다 짧은 판이 짝으로 있다
+   9-1 ★[ENTRY_BGM_1019] 문서 저장소가 곁에 있으면 표의 지문 19개 = 그 파일의 지문(다시 자른 판 · 목록과 표가 함께 바뀌었나) · 없으면 건너뛴다
    10a '<키>-p' = 목록 pf 파일(짧은 판) 10b 목록에 pf 가 없으면(옛 목록) L3 — 화면이 곡 전체로 10c 짧은 판도 한 시간 60번 셈에 든다
    10d 콘솔(rec:<키>)은 종전대로 곡 전체 10e 이상한 꼬리(-px · -p 만) = 찾지 않는다
    종료 코드 0 통과 · 1 실패 */
@@ -97,7 +97,7 @@ try {
     const real = Object.assign({}, G.REC_PUT_HASH), SJ = JSON.stringify(SONGS);
     const nm = Object.keys(real), songs8 = nm.filter((n) => /^r\d+\.mp3$/.test(n)), clips8 = nm.filter((n) => /^r\d+p\.mp3$/.test(n));   // [NEWSONG_LNOE_1107] r10 — 두 자리 번호
     ok('9 · 진짜 표는 파일 19개(곡 9 + 짧은 판 9 [REC_CLIP_1013] + songs.json) · 곡마다 짧은 판이 짝 · 지문은 64자리 · songs.json = r10 을 더한 목록 [NEWSONG_LNOE_1107 · 그 앞 ENTRY_BGM_1019 · LY_REALIGN_1014]', real['songs.json'] === 'b61c1f59a9d6a1ae963525b9c8d2ffe99e5b9f5592f427893e2f3b6c62b3761b' && nm.length === 19 && songs8.length === 9 && clips8.length === 9 && !!real['r10.mp3'] && !!real['r10p.mp3'] && songs8.every((n) => real[n.replace('.mp3', 'p.mp3')]) && real['songs.json'] && Object.values(real).every((h) => /^[0-9a-f]{64}$/.test(h)) && new Set(Object.values(real)).size === 19, nm);
-    /* 9-1 ★[ENTRY_BGM_1019] 문서 저장소(operations/rec-songs/files)가 곁에 있으면 표의 지문 17개 = 그 파일들의 지문 — 판을 다시 자르고 표를 안 바꾸면(또는 반대) 서버가 새 판을 거절해 옛 판이 남는다.
+    /* 9-1 ★[ENTRY_BGM_1019] 문서 저장소(operations/rec-songs/files)가 곁에 있으면 표의 지문 19개 = 그 파일들의 지문 — 판을 다시 자르고 표를 안 바꾸면(또는 반대) 서버가 새 판을 거절해 옛 판이 남는다.
        CI 에는 비공개 문서 저장소가 없어 건너뛴다(REC_DOCS 로 자리를 줄 수 있다) */
     { const DOC = process.env.REC_DOCS || new URL('../../../momentedit-docs/operations/rec-songs/files/', import.meta.url).pathname;
       const fs = await import('node:fs');
