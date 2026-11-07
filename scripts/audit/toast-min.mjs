@@ -75,7 +75,8 @@ export function scan(file, s) {
   }
   const nt = /var NOTE_TOAST=\{([^}]*)\}/.exec(s); if (nt) for (const t of literals(nt[1])) add('NOTE_TOAST', t);
   const off = /var AI_OFF_NEED='([^']*)', AI_OFF_PREP='([^']*)'/.exec(s); if (off) { add('AI_OFF_NEED', off[1]); add('AI_OFF_PREP', off[2]); }
-  for (const nm of ['_playOffWho', '_refToast']) { const b = block(s, new RegExp('function ' + nm + '\\(')); for (const t of literals(b)) add(nm, t); }
+  for (const nm of ['_playOffWho', '_refToast', '_tblMsg'])   /* [RA5_TABLE_NOTE 2026-11-07] 테이블 인사 줄임 알림 글이 _tblMsg 로 옮겼다 */
+   { const b = block(s, new RegExp('function ' + nm + '\\(')); for (const t of literals(b)) add(nm, t); }
   const nx = /_mpNextToast=([^;]*);/g; while ((m = nx.exec(s))) for (const t of literals(m[1])) add('_mpNextToast', t);
   const wm = /var msg = '([^']*)';/.exec(file.endsWith('advisor-widget.js') ? s : ''); if (wm) add('shareFail', wm[1]);
   return found;
