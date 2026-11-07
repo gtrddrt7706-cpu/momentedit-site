@@ -97,7 +97,9 @@ const K4 = ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter', 'son
   ok('20 영상 없는 날도 박수를 청하는 개식사면 박수 live(사람이 GO)', !!(o2.live && o2.live.applause) || !/박수/.test(o2.text || ''), { live: !!o2.live, text: String(o2.text || '').slice(0, 30) });
   /* 4 · 5 · 7 · 8 · 9 · 11 · 12 */
   const b8 = by(A, 'bridge-b8-face-guests'), b3 = by(A, 'bridge-b3-clap-thanks'), b9 = A.find((c) => /^bridge-b9-declare-seat-end/.test(c.slug || '')) || {};
-  ok('4 맞절 → 감사 인사 이음말 정적(MEANING_R2_1102 ENTRY_SETTLE · 종전 −16 · 줄 끝에서 감사 인사 곡이 무음에서)', b8.duck === -90, { b8: b8.duck });
+  /* ★[SEAM_WORD_1107 J06 · FACE_LEAD_1107] 맞절 바로 뒤 b8 은 없다(350 첫머리가 «향해 서») — 그때는 감사 인사 첫 큐가 무음에서 곡을 뜬다(6초 앞서 −8 · 정적 1초) */
+  const w4 = A[bi(A, 'narr-entry-bow') + 1] || {};
+  ok('4 맞절 → 감사 인사 — 이음말 정적 · 또는 350 첫 큐가 무음에서 곡을 뜸(MEANING_R2_1102 ENTRY_SETTLE · FACE_LEAD_1107)', b8.slug ? b8.duck === -90 : (w4.k === 'welcome' && /향해 서/.test(w4.text || '') && w4.goLeadMs >= 6000 && w4.leadDb === -8 && w4.gapMs >= 1000), { b8: b8.duck, w4: [w4.slug, w4.goLeadMs, w4.leadDb, w4.gapMs] });
   ok('5 선언 박수 뒤 b3 · b9 −16(0.8초 미리 낮춤)', b3.duck === -16 && b3.fadeMs === 800 && b9.duck === -16 && b9.fadeMs === 800, { b3: [b3.duck, b3.fadeMs], b9: [b9.duck, b9.fadeMs] });
   const L1 = B2({ on: { welcome: 1, free: 1 }, freeWhat: 'speech' }), L2 = B2({ on: { welcome: 1, free: 1 }, freeWhat: 'speech', bgm: { S5: { m: 'bed' } } }), s1 = L1.filter((c) => c.slug === 'bridge-b10-speech-clap'), s2 = L2.filter((c) => c.slug === 'bridge-b10-speech-clap');
   ok('7 축사가 마지막인 날 b10 — «음악 없이»면 부탁 문장 · 박수 정적(NO_RELIFT_1102 · 박수 소리가 채운다 · 종전 박수 −8) · «음악과 함께»면 −16', s1.length && s1.every((c) => c.duck === -90 && c.live && c.live.duck === -90) && s2.length && s2.every((c) => c.duck === -16), { none: s1.map((c) => [c.duck, c.live && c.live.duck]), bed: s2.map((c) => c.duck) });
