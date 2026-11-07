@@ -107,7 +107,7 @@
      이 목록이 있어야 [PREVIEW_KEYS] 검사가 "엔진은 읽는데 아무도 값을 안 만드는 키"를 잡을 수 있다.
      (2026-08-02 실제 사고: digital 이 KEYS 에만 있고 값을 넣는 곳이 없어, 디지털 참석 예식도 미리듣기는
       늘 오프라인 배웅으로 흘렀다. 검사는 '목록에 있나'만 봤고 '값이 오나'는 안 봤다.) */
-  var INJECT = ['digital', 'photoShare', 'meal', 'guide', 'mealFull', 'resv', 'photoN', 'photoWishN'];   // [PHOTO_PRE_PICK_1030] mealFull · resv 도 밖에서   // [GUIDE_ON_1019] guide 도 밖에서   // [GROUP_PHOTO 2026-09-26] photoN(가족 구도 수)은 단체 사진 트랙 값 — 관리자 «당일 콘솔»이 얹는다   // [PHOTO_ASK] 사진 링크 유무 · [MEAL_GUIDE] 모일 식당 유무도 밖에서 받아 얹는다
+  var INJECT = ['digital', 'photoShare', 'meal', 'guide', 'mealFull', 'resv', 'photoN', 'photoWishN', 'dining', 'dineName'];   // [MEAL_NOTE_1107] 식사 장소 상태는 마이페이지가 얹는다   // [PHOTO_PRE_PICK_1030] mealFull · resv 도 밖에서   // [GUIDE_ON_1019] guide 도 밖에서   // [GROUP_PHOTO 2026-09-26] photoN(가족 구도 수)은 단체 사진 트랙 값 — 관리자 «당일 콘솔»이 얹는다   // [PHOTO_ASK] 사진 링크 유무 · [MEAL_GUIDE] 모일 식당 유무도 밖에서 받아 얹는다
 
   /* [BGM_INFO_1023] 음악 칸 — 축사(S5) · 편지(S6)의 'bed' 만 남긴다(assets/bgm-slots.js clean 과 같은 규칙 · 이 파일은 그 파일 없이도 돈다) */
   /* ★[PREVIEW_LINK_SONGS_1101] 구간 곡 선택도 싣는다 — 구간(M1 …)은 { k } · 축사 · 편지(S5 · S6)는 { m:'bed', k } · 곡 번호(B01 꼴)만 ·
