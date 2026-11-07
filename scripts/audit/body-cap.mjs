@@ -67,7 +67,11 @@ try {
       set(['candle', 'bless', 'song']); out.tbl = add('table');
       /* 규칙 안 · 넘는 조합 → 테이블 인사 자동 맞춤 + 한 줄 알림 */
       set(['candle', 'welcome', 'vow', 'ring', 'table']); document.querySelectorAll('.note-toast,#noteToast').forEach((e) => e.remove()); out.fit = add('bless'); await w(400);
-      out.fitCut = R.tableCut(S); out.toast = [...document.querySelectorAll('body *')].filter((e) => e.children.length === 0 && /테이블 인사를 약 \d+분으로 맞췄어요/.test(e.textContent)).map((e) => e.textContent)[0] || '';
+      out.fitCut = R.tableCut(S); out.fitSame = Math.round(R.tableSecOf(S) / 60) === Math.round(R.tableFull(S) / 60); out.toast = [...document.querySelectorAll('body *')].filter((e) => e.children.length === 0 && /테이블 인사를 약 \d+분으로 맞췄어요/.test(e.textContent)).map((e) => e.textContent)[0] || '';
+      /* ★[RA5_TABLE_NOTE 2026-11-07] 1분 넘게 줄이는 담기 — _capNo 알림이 실제로 뜬다(글 · 분 값 = 엔진 tableSecOf) */
+      set(['candle', 'bless', 'free', 'table']); try { _TBL.said = null; } catch (e) {} document.querySelectorAll('#lsToast').forEach((e) => { e.hidden = true; e.innerHTML = ''; });
+      out.big = add('vow'); await w(400); out.bigCut = R.tableCut(S); out.bigMn = Math.round(R.tableSecOf(S) / 60); out.bigFull = Math.round(R.tableFull(S) / 60);
+      out.bigToast = [...document.querySelectorAll('body *')].filter((e) => e.children.length === 0 && /테이블 인사를 약 \d+분으로 맞췄어요/.test(e.textContent)).map((e) => e.textContent)[0] || '';
       /* 규칙 안 · 짧은 순간 담기는 된다 */
       set(['candle', 'vow']); out.free = add('ring');
       /* 길이 칩 — 축사 길게(테이블 인사로 메우지 않는다) · 할 일을 말한다 */
@@ -84,7 +88,8 @@ try {
     ok(W + ' 7번째 담기 → 막힘 «본식 순간은 6개까지예요»', !r.seven.added && /본식 순간은 6개까지예요/.test(r.seven.t) && !/덜어 주세요/.test(r.seven.t), JSON.stringify(r.seven));
     ok(W + ' 긴 순간 넷째 → 막힘 «긴 순간은 3개까지예요»', !r.long4.added && /긴 순간은 3개까지예요/.test(r.long4.t), JSON.stringify(r.long4));
     ok(W + ' 긴 둘 + 테이블 인사(= 2) → 막힘 «긴 순간은 3개까지예요 … 테이블 인사는 2개로»', !r.tbl.added && /긴 순간은 3개까지예요/.test(r.tbl.t) && /테이블 인사는 2개로/.test(r.tbl.t), JSON.stringify(r.tbl));
-    ok(W + ' 규칙 안인데 넘는 조합 → 담김 · 테이블 인사 자동 맞춤 · 한 줄 «테이블 인사를 약 n분으로 맞췄어요»', r.fit.added && !r.fit.t && r.fitCut > 0 && !!r.toast, JSON.stringify({ fit: r.fit, cut: r.fitCut, toast: r.toast }));
+    ok(W + ' 규칙 안인데 넘는 조합 → 담김 · 테이블 인사 자동 맞춤 · 한 줄 «테이블 인사를 약 n분으로 맞췄어요»', r.fit.added && !r.fit.t && r.fitCut > 0 && (r.fitSame ? !r.toast : !!r.toast), JSON.stringify({ fit: r.fit, cut: r.fitCut, same: r.fitSame, toast: r.toast }));   /* ★[RA5_TABLE_NOTE 2026-11-07] 반올림한 분이 원래 분과 같으면(30초만 줄어 «약 9분») 알림 없음 · 옛 기대: 늘 알림 */
+    ok(W + ' [RA5_TABLE_NOTE] 1분 넘게 줄이는 담기(화촉 · 덕담 · 축사 · 테이블 + 서약) → 알림 «테이블 인사를 약 ' + r.bigMn + '분으로 맞췄어요»(원래 ' + r.bigFull + '분)', r.big.added && !r.big.t && r.bigCut > 60 && r.bigMn !== r.bigFull && r.bigToast === '테이블 인사를 약 ' + r.bigMn + '분으로 맞췄어요', JSON.stringify({ big: r.big, cut: r.bigCut, mn: r.bigMn, toast: r.bigToast }));
     ok(W + ' 규칙 안 짧은 순간 담기는 된다(창 없음)', r.free.added && !r.free.t, JSON.stringify(r.free));
     ok(W + ' 길이 칩(축사 10분)이 넘으면 막고 할 일을 말한다 «이 길이로 하려면 다른 순간을 하나 빼거나 부모님 덕담을 짧게 해 주세요»', r.len.v === '3' && /이 길이로 하려면 다른 순간을 하나 빼거나 부모님 덕담을 짧게 해 주세요/.test(r.len.t) && !/분 덜어/.test(r.len.t), JSON.stringify(r.len));
     ok(W + ' 카운터 «고른 본식 순간 6/6 · 긴 순간 3/3»(① · ③ · 분 숫자 없음 · B2_NA_49)', r.cntPk === '고른 본식 순간 6/6 · 긴 순간 3/3' && r.cntSum === r.cntPk, JSON.stringify([r.cntPk, r.cntSum]));

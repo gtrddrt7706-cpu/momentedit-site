@@ -1224,10 +1224,14 @@ function segSel(id, cur){ var d = segDef(id), L = segSongs(id), v = SEGST.sel[id
 function segPlan(id, cur){ var s = segSel(id, cur), d0 = segDef(id);
   /* ★★[DAYLONG_1101] 감사 인사 ~ 덕담(M4) · 닫는 인사(M6) = 고른 곡(이 기기 · 두 분 · 앞 곡 잇기 · 없으면 1순위) → 나머지 → (M6) fill 이어 트는 목록 · 끝 3초 전 타이머가 다음 곡으로 겹쳐 넘긴다 */
   if (d0 && d0.loop && s && !Array.isArray(s) && BP && BP.order) { var lo = [s].concat(segListOf(id, cur).filter(function(x){ return x !== s; })).filter(function(x){ return !!SEGF[x]; });   /* [DETAIL_R5_1101] */ return lo.length ? lo : null; }
-  var L = (Array.isArray(s) ? s : (s ? [s] : [])).filter(function(x){ return !!SEGF[x]; }); if (L.length) return L;
+  var L = (Array.isArray(s) ? s : (s ? [s] : [])).filter(function(x){ return !!SEGF[x]; });
+  if (L.length === 1 && !Array.isArray(s) && !(d0 && (d0.multi || d0.loop))) { var _pa = segPlanAll(), _al = (_pa && _pa[id] && _pa[id].alt) || []; L = L.concat(_al.filter(function(x){ return !!SEGF[x] && x !== L[0]; })); }   /* ★[REPEAT_RULE_1107 ④] 한 곡 칸(화촉 · 부모님께 인사 · 축배)이 곡보다 길면 같은 곡 처음 대신 같은 칸 다음 곡으로 겹쳐 넘긴다(BgmPicks.plan alt) */
+  if (L.length) return L;
   /* ★[GHIBLI_ADD_1101] 한 곡 칸 — 고른 곡(없으면 1순위)의 파일이 이 기기에 없으면 그 구간 목록에서 파일이 있는 다음 곡(식순 화면 미리 듣기와 같은 차례) · 그것도 없으면 null(앞 곡이 이어진다) */
   if (s && !Array.isArray(s) && BP && BP.order) { var o = BP.order(S, id, cur), i = o.indexOf(s), c = i < 0 ? o : o.slice(i + 1).concat(o.slice(0, i)); for (var j = 0; j < c.length; j++) { if (SEGF[c[j]]) return [c[j]]; } }
   return null; }
+/* ★[REPEAT_RULE_1107 ②③] 같은 곡을 다시 이을 자리 — 이 예식에서 적은 강조 시작(SEGST.start) > 곡 성질 강조 자리(SONGS.start) > 곡 길이 40%(전주부터 다시 들리지 않게 · 미리 듣기 reHook 과 같은 BgmPicks.hookAt) · 앞 무음(head)보다 앞으로 가지 않는다 */
+function reHookC(id){ var m = SEGST.meta[id] || {}, st = segStartOf(id); if (st != null) return Math.max(+st, m.head || 0); var d = +m.end || +m.dur || 0, h = (BP && BP.hookAt) ? BP.hookAt(id, d) : 0; return Math.max(h || 0, m.head || 0); }
 function segStartOf(sid){ var v = SEGST.start[sid]; if (v != null && v !== '' && isFinite(+v)) return +v; var p = null; if (BP) BP.SEGS.some(function(s){ var q = BP.list(s.id).filter(function(x){ return x.id === sid; })[0]; if (q) { p = q; return true; } return false; }); return p && p.start != null ? p.start : null; }
 
 /* ── 이 기기 보관(IndexedDB) — 못 쓰는 브라우저면 이 탭에서만(종전과 같다) ── */
@@ -1339,14 +1343,20 @@ setInterval(function(){ if (BED.lfWant && !talkNow()) BED.lfGo = 1;   /* ★[LF_
   var _X = segXf(); if (isFinite(end) && !(end > _X * 2 + 1)) _X = SEG_XF;   /* [ONE_FLOW_1106 ②] 아주 짧은 곡은 3초 겹침 그대로 */ if (!isFinite(end) || !(end > _X + 1) || el.paused) return;
   if (end - el.currentTime <= 20 && BED.pre !== BED.id + '>' + BED.li) { BED.pre = BED.id + '>' + BED.li; listProbe(); }   /* [DETAIL_R5_1101 규칙 5] 끝 20초 전 — 다음 곡 파일을 미리 열어 본다 */
   if (BED.lfWant && (BED.lfGo || !talkNow())) { BED.lfWant = 0; BED.lfGo = 0; listGo(1); return; }   /* [MEANING_R1_1102 19] 말하는 줄이 끝나고 다음 나레이션 · 박수 · 이동 줄에서 다음 곡으로 */
-  if (el.currentTime >= end - _X) { if (talkNow() && BED.list.length > 1) { BED.lfWant = 1; BED.lfGo = 0; var _m19 = SEGST.meta[BED.id] || {}; bedPlay(BED.id, _X, _m19.head || 0); return; } listGo(1); } }, 250);
+  if (el.currentTime >= end - _X) { if (talkNow() && BED.list.length > 1) { BED.lfWant = 1; BED.lfGo = 0; bedPlay(BED.id, _X, reHookC(BED.id)); return; } if (BED.seg === 'M4' && BED.list.length > 1 && hushSoonC(HUSH_NEAR)) { bedPlay(BED.id, _X, reHookC(BED.id)); return; } listGo(1); } }, 250);   /* [REPEAT_RULE_1107 ③] 말하는 동안 · 60초 안 무음 앞 = 같은 곡을 강조 자리(없으면 40%)부터 */
 /* ★[MEANING_R1_1102 19] 두 분 · 손님이 직접 말하는 자리(live doing 'say' · 서약 · 덕담 · 낭독) — 곡 끝 3초 전에 다음 곡으로 넘기면 새 멜로디가 말 한가운데 들어온다 ·
      그 자리 동안은 같은 곡을 강조 자리부터 3초 겹쳐 잇고, 말이 끝난 뒤 줄에서 넘긴다(미리 듣기 bgm-bed listArm 과 같은 규칙) */
 function talkNow(){ var c = cur >= 0 ? cueAt(cur) : null; return !!(phase === 'live' && c && c.live && (c.live.doing === 'say' || c.live.doing === 'sing' || (BED.seg === 'M4' && c.live.doing === 'move'))); }   /* ★[MEANING_R2_1102 LIST_HOLD] 본식 곡 목록(M4)에선 두 분의 행동(반지 · 포옹 · 인사 …)도 GO 까지 같은 곡 — 곡은 장면 경계(GO 뒤 줄)에서만 넘긴다 · 테이블 · 사진 목록은 그대로 돈다 */
-window.__talkNow = talkNow;   /* [MEANING_R1_1102 19] 검사 창구 — talkNow 는 전역이 아니라 검사가 늘 «안 말함»으로 읽었다 */
+window.__talkNow = talkNow;
+/* ★[REPEAT_RULE_1107 ③ · ONE_FLOW_1106 ④] 60초 안에 의도적 무음(크기 −60 이하 · 축가 MR · «조용히» · 선언)이 오면 본식 곡 목록을 넘기지 않는다 — 미리 듣기 hushSoon 과 같은 규칙(HUSH_NEAR) ·
+     다음 큐부터 세어(나레이션 est · 사람 구간 live.est · 없으면 30초) 다른 구간 순간이 먼저 오면 아니다 */
+var HUSH_NEAR = 60;
+function hushSoonC(sec){ if (!R || cur < 0) return false; var t = 0; for (var j = cur + 1; j < R.cues.length; j++) { var c = cueAt(j); if (!c) continue; var sg = segOfCue(c); if (sg && sg !== 'M4') return false;
+  if ((c.duck != null && c.duck <= -60) || (c.live && c.live.duck !== undefined && c.live.duck <= -60)) return t <= sec; t += (+c.est || 3) + (c.live ? (+c.live.est || 30) : 0); if (t > sec) return false; } return false; }
+window.__hushSoonC = hushSoonC;   /* [MEANING_R1_1102 19] 검사 창구 — talkNow 는 전역이 아니라 검사가 늘 «안 말함»으로 읽었다 */
 /* ★★[DETAIL_R5_1101 규칙 5] 목록 다음 곡 — 파일이 있고 못 연 적 없는 곡만 · 열다 실패하면 그다음 곡 · 틀 곡이 하나도 없으면 지금 곡을 처음부터 이어 틀고 상태 한 줄(곡 끝 처리는 이 한 곳 · DAYLONG 판 그대로) */
 function listNext(from){ var L = BED.list, n = L.length, bad = BED.bad || {}; for (var k = 1; k < n; k++) { var j = (from + k) % n, s = L[j]; if (s && SEGF[s] && !bad[s] && s !== BED.id) return j; } return -1; }
-function listGo(step){ var j = listNext(BED.li); if (j < 0) { if (BED.list.length > 1) { BED.keepErr = '다음 곡을 열지 못해 지금 곡을 이어 틀어요'; bedErr(BED.keepErr); } BED.onFail = null; var cur = BED.id, m = SEGST.meta[cur] || {}; bedPlay(cur, segXfFor(cur), m.head || 0); return; }
+function listGo(step){ var j = listNext(BED.li); if (j < 0) { if (BED.list.length > 1) { BED.keepErr = '다음 곡을 열지 못해 지금 곡을 이어 틀어요'; bedErr(BED.keepErr); } BED.onFail = null; var cur = BED.id; bedPlay(cur, segXfFor(cur), reHookC(cur)); return; }   /* [REPEAT_RULE_1107 ③] */
   BED.li = j; BED.onFail = function(){ listGo(step); }; bedPlay(BED.list[j], segXfFor(BED.list[j])); }   /* [ONE_FLOW_1106 ②] */
 function listProbe(){ var j = listNext(BED.li); if (j < 0) return; var sid = BED.list[j]; try { var a = new Audio(); a.preload = 'auto'; a.muted = true; var t = setTimeout(function(){ a.removeAttribute('src'); }, 8000);
   a.addEventListener('error', function(){ clearTimeout(t); (BED.bad = BED.bad || {})[sid] = 1; }); a.addEventListener('canplay', function(){ clearTimeout(t); a.removeAttribute('src'); }); a.src = SEGF[sid]; a.load(); } catch (e) {} }   /* 열지 못하면 이번 순환에서 건너뛴다 */
@@ -1379,7 +1389,7 @@ function segCheer(){ if ((MODE === 'preview' || GUEST) && !pvsOn()) return; var 
 function segLive(c){ if (c && c.slug === 'narr-close-bow') segGo('M6');
   /* ★[MEANING_R2_1102 DECLARE_LIFT] 선언 뒤 축하 박수 = 새 곡 — 목록 다음 곡을 강조 자리(BgmPicks start)에서 0.6초에(앞 곡을 멈춘 자리부터 되살리지 않는다 · 크기는 아래 duckTo live −8 · upMs 600) */
   if (c && c.live && c.live.newSong && BED.mode === 'seg' && BED.seg === 'M4' && BED.list && BED.list.length) { var _hz = BED.hushId || BED.id, _j = -1, _c = BED.li; for (var _n = 0; _n < BED.list.length; _n++) { _c = listNext(_c); if (_c < 0) break; if (BED.list[_c] !== _hz) { _j = _c; break; } } if (_j < 0 && BED.id !== _hz) _j = BED.li;   /* 선언 전에 들리던 곡이 아닌 목록 다음 곡(없으면 지금 곡을 강조 자리부터 · 엄숙 → 기쁨 · 새 곡) */
-    if (_j >= 0) { var _sid = BED.list[_j], _sg = BP && BP.song ? BP.song(_sid) : null; BED.cut = null;   /* [ONE_FLOW_1106 ⑥] 선언 뒤 = 새 곡(끊긴 곡 잇기 예외) */ BED.li = _j; BED.onFail = null; bedPlay(_sid, 0.6, (_sg && _sg.start != null) ? +_sg.start : ((SEGST.meta[_sid] || {}).head || 0)); } }
+    if (_j >= 0) { var _sid = BED.list[_j], _sg = BP && BP.song ? BP.song(_sid) : null; BED.cut = null;   /* [ONE_FLOW_1106 ⑥] 선언 뒤 = 새 곡(끊긴 곡 잇기 예외) */ BED.li = _j; BED.onFail = null; bedPlay(_sid, 0.6, reHookC(_sid)); } }   /* [REPEAT_RULE_1107 ②] 강조 자리(이 예식 값 > 곡 성질 SONGS.start > 40%) */
   /* ★[ONE_FLOW_1106 · 옛 BGM_TIMING2_1101 걷음] «음악과 함께» 축사 · 편지 — 따로 곡을 걸지 않는다(옛 M4S5 · M4S6 로 3초 겹침 걷음) · 흐르던 본식 곡(M4)이 사람 구간 크기(live −20)로 그대로 잇는다 · 되살리지 말 것 */ }
 /* [BGM_FIX_1030] 지금 깔린 곡이 가사가 있는 곡인가(assets/bgm-picks.js vocal) — duckTo 가 나레이션 · 사람 구간을 vocalExtra 만큼 더 낮춘다 */
 function bedVocal(){ if (!BP || !BP.song || BED.mode !== 'seg' || !BED.id) return false; var s = BP.song(BED.id); return !!(s && s.vocal); }
@@ -2061,6 +2071,8 @@ function gBlock(bn){
 
 function render(){
   if (!R) return;
+  /* [MID17_CONSOLE 2026-11-07 MID17-10] 재생 순서 기록 — 점검이 window.__playLog 를 켰을 때만 적는다(__bgmLog 와 같은 꼴 · 화면 · 동작은 그대로) · 순서마다 «소리 → 사람 순간» 바뀔 때 한 줄 */
+  if (window.__playLog && cur >= 0 && R.cues[cur]) { var _plc = R.cues[cur], _plk = cur + '|' + phase; if (window.__playLog.k !== _plk) { window.__playLog.k = _plk; window.__playLog.push({ i: cur, slug: _plc.slug || '', name: _plc.name || '', blockN: _plc.blockN || '', phase: phase }); } }
   gWhyPaint();   // [GUEST_WHY] 지금 순서의 까닭 한 줄만(다음 순서로 가면 걷힌다)
   // [FREE_RESCUE] 사람 구간이 «재생 안 됨»을 가진 큐(식전 영상 · 준비한 순서의 영상 · 음원)에서만 이 단추가 눌린다.
   // ★[WAIT_CLIP_OFF_1016 라운드 6] 그 밖에서 틀던 대기 클립(49 «잠시 이대로 두겠습니다»)은 9/6 사장님 결정(WAIT_BRIDGE_RETIRED · 감정 멈춤엔 목소리 없음)으로 폐지됐는데 단추가 남아 있었다 — 판을 걷고 흐리게 둔다(자리 · 크기 그대로 · 화면이 흔들리지 않게).

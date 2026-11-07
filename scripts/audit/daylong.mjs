@@ -88,7 +88,7 @@ try {
   /* a 데이터 */
   { ok('a M4 · M6 는 고르는 칸 그대로(custK) · 이어 트는 목록(loopy)', P.custK({ bgm: { M4: { k: 'B11' } } }, 'M4') === 'B11' && P.custK({ bgm: { M6: { k: 'B34' } } }, 'M6') === 'B34' && typeof P.loopy === 'function' && P.loopy('M4') && P.loopy('M6') && !P.loopy('M2') && P.loopy('M4S5') === P.loopy('M4'));   /* [ONE_FLOW_1106] 옛 M4S5 는 M4 로 읽는다 */
     const a = P.order({ bgm: { M4: { k: 'B11' } } }, 'M4'), b = P.order({ bgm: { M6: { k: 'B34' } } }, 'M6'), c = P.order({ bgm: { M2: { k: 'B07' } } }, 'M6'), d = P.order({}, 'M6', 'B19');
-    ok('a M4 = 고른 곡(B11) → 나머지(B09 · B10) · fill 없음', a.join() === 'B11,B09,B10', a);
+    ok('a M4 = 고른 곡(B11) → 나머지(B09 · B10) → 배경 곡(B12 · B14 · REPEAT_RULE_1107 ①)', a.join() === 'B11,B09,B10,B12,B14', a);
     ok('a M6 = 고른 곡(B34) → 나머지 → fill(B07 · B16) · 화촉에서 고른 B07 은 건너뜀 · 앞 곡(B19) 잇기는 맨 앞', b.join() === 'B34,B17,B19,B07,B16' && c.join() === 'B17,B34,B19,B16' && d.join() === 'B19,B17,B34,B07,B16', { b, c, d });
     ok('a 축사 · 편지 «음악과 함께»(옛 M4S5 · M4S6) 칸은 없다 — 본식 M4 목록으로 읽는다(ONE_FLOW_1106)', P.order({}, 'M4S5').join() === P.order({}, 'M4').join() && P.order({}, 'M4S6').join() === P.order({}, 'M4').join() && !P.SEGS.some((x) => /^M4S/.test(x.id)) && !(P.FILL.M4S5 || P.FILL.M4S6)); }
   /* b 고객 화면 · d 미리 듣기 */
@@ -134,7 +134,7 @@ try {
   { const S0 = base({ welcome: 1, vow: 1, free: 1, letter: 1, song: 0 }, { M4: { k: 'B11' }, M6: { k: 'B34' } });
     const c = await con(S0, [['M4', 1, 300], ['M4', 2, 350], ['M4', 3, 400], ['M6', 1, 500], ['M6', 2, 550], ['M6', 3, 600], ['M6', 4, 650], ['M6', 5, 700]], 9);
     const pl = await c.pg.evaluate(() => ({ m4: window.__segPlan('M4'), m6: window.__segPlan('M6'), s4: window.__segSel('M4') }));
-    ok('c 콘솔 M4 재생 목록 = B11 → B09 → B10 · M6 = B34 → B17 → B19 → B07 → B16(배경 곡 줄) · 고른 곡은 하나(설정 화면 칩)', (pl.m4 || []).join() === 'B11,B09,B10' && (pl.m6 || []).join() === 'B34,B17,B19,B07,B16' && pl.s4 === 'B11', pl);
+    ok('c 콘솔 M4 재생 목록 = B11 → B09 → B10(이 기기 파일) · M6 = B34 → B17 → B19 → 계획 차례 · 화촉 곡(B07 · 의미 곡)은 없다 · 같은 곡 두 번 0 · 고른 곡은 하나(설정 화면 칩) [REPEAT_RULE_1107]', (pl.m4 || []).join() === 'B11,B09,B10' && (pl.m6 || []).slice(0, 3).join() === 'B34,B17,B19' && !(pl.m6 || []).includes('B07') && new Set(pl.m6 || []).size === (pl.m6 || []).length && pl.s4 === 'B11', pl);
     const iW = c.Rq.findIndex((x) => x.k === 'welcome' && !/^bridge-/.test(x.slug || '')); await c.pg.evaluate((i) => window.__bgmGo.fire(i), iW); await c.pg.waitForTimeout(1500); const a1 = await c.pg.evaluate(() => window.__seg.st()); await c.pg.waitForFunction(() => !!(window.__talkNow && window.__talkNow()), null, { timeout: 20000 }).catch(() => {}); const aL = await c.pg.evaluate(() => window.__seg.st()); await c.pg.waitForTimeout(6500); const a2 = await c.pg.evaluate(() => window.__seg.st()), tk = await c.pg.evaluate(() => !!(window.__talkNow && window.__talkNow()));   /* aL = 말하는 자리가 시작될 때 흐르던 곡 */
     /* ★[MEANING_R1_1102 19] 두 분이 말하는 자리(감사 인사 live 'say') 도중엔 다음 곡으로 넘기지 않는다 — 같은 곡을 잇고, 다음 줄(GO)에서 넘긴다 */
     let a3 = a2; if (tk) { await c.pg.evaluate(() => window.__bgmGo.tap()); await c.pg.waitForTimeout(4200);   /* 같은 곡 3초 겹쳐 잇기(xing)가 끝난 뒤 넘긴다 */ a3 = await c.pg.evaluate(() => window.__seg.st()); }

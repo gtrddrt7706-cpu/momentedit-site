@@ -68,7 +68,10 @@
     goodbye: { outroHoldMs: 90000, outroFadeMs: 20000 },
     guestRepeatMs: 120000,   // [GUEST_WELCOME_191] 입장 때 안내 — 2분마다 다시(10분 전 안내가 시작되면 멈춘다 · 콘솔)
     previewLiveCap: 10,    // 미리듣기에서 사람 구간을 이 초 이상 끌지 않는다(듣는 사람이 기다릴 이유가 없다)
-    previewWaitMs: 1200,   // 뒤처리의 침묵·페이드도 같은 이유로 줄인다(폐식 뒤 30초 대기 등)
+    previewWaitMs: 1200,   // 뒤처리의 침묵(wait)만 이 길이로 줄인다(폐식 뒤 30초 대기 등)
+    /* ★[RA5_PREVIEW_FADE 2026-11-07 규칙 감사 · 재검증 재수정] 음악 페이드(post 의 ms · 곡선 길이)는 줄이지 않고 이 값까지만 —
+         종전엔 페이드도 1.2초로 잘라 편지 뒤 오르기 4초 · 선언 앞 내리기 4초가 툭 끊겨 미리 듣기가 실제와 다르게 들렸다(사장님 실청) · 4초 넘는 것만 4초로 · 콘솔은 그대로 */
+    previewFadeMs: 4000,
     clipDir: '/assets/audio/narration/'
   };
 
@@ -1324,7 +1327,10 @@
           gift: '준비한 선물 건네기 (건넬 분이 앞으로 · 디렉터가 자리를 맞춘다)', speech: '준비한 축사 (디렉터가 마이크 전달 · 원고 큰 글씨 사본이 디렉터에게도 있다)' };
         var o = {
           k: 'free', blockN: fk === 'speech' ? '축사' : fk === 'video' ? '식중 영상' : '준비한 순서', slug: fk === 'speech' ? 'narr-free-in-speech' : 'narr-free-in',   /* ★[FREE_IN_RR_1023 검토 151-1 3)] 영상 · 선물 · 기타 = 여는 말 하나(58 · RR 109) · 100 · 102 는 쉰다 */ name: (fk === 'speech' ? '축사 시작 · ' + len + '분' : fk === 'video' ? '식중 영상 시작 · ' + len + '분' : '준비한 순서 시작 · ' + nm),   /* ★[SPEECH_TILE_1012] 축사 칸(옛 준비한 순서) — 영상 · 선물 · 기타는 옛 초안에만 */   /* ★[FREE_ETC 2026-10-06] 기타는 무엇이 올지 모르는 판 — 지목하지 않는 옛 여는 말(58 · 녹음 있음) */
-          text: fk === 'speech' ? EXTRA['narr-free-in-speech'] : D.NARR.freeIn, duck: fk === 'speech' ? PARAM.duckSpeech : PARAM.duckMusic, pick: nm,   /* ★[BGM_TIMING_1101] 축사 여는 말(약 10초 긴 안내 · -ex 판 포함) −8 → −16 · 축가 여는 말(짧다)은 −8 그대로 */
+          text: fk === 'speech' ? EXTRA['narr-free-in-speech'] : D.NARR.freeIn, duck: fk === 'speech' ? PARAM.duckSpeech : PARAM.duckMusic, pick: nm,
+          /* ★[MID17_CONSOLE 2026-11-07 MID17-10 당일 콘솔] 식중 영상 디렉터 메모 — 식전 영상 큐의 note(D-7 · 상영 중 배경음)와 같은 꼴 · 영상 사람 순간을 든 큐에 싣는다(아래 둘로 나눌 때 129 로 옮긴다).
+               콘솔에 영상 파일 · 길이를 미리 여는 장치는 식전 영상에도 없다 — 새로 만들지 않고 이 한 줄로(상영본 자리 = 89_prevideo «개인코드_예식일_식중» 폴더 «미리보기…» · 식전 영상과 같다) · 불 낮추기는 식전 영상만(식중은 사장님 결정 전) */
+          note: fk === 'video' ? '영상 링크는 D-7 까지 받는다(마이페이지 «식중 영상» 확정 기한과 같다 · 길이 ' + len + '분 · 상영본은 드라이브 «ME_식전영상» 안 «개인코드_예식일_식중» 폴더의 «미리보기…» 파일 · 식전 영상과 같다) · 소개 말이 끝나면 영상을 튼다 · 상영 중 배경음은 끈다' : '',   /* ★[BGM_TIMING_1101] 축사 여는 말(약 10초 긴 안내 · -ex 판 포함) −8 → −16 · 축가 여는 말(짧다)은 −8 그대로 */
           rescue: play ? { slug: '', name: '재생 안 됨 · 사진 시간으로 미룸', text: '' } /* ★[FREE_FAIL_VOICE_OFF_1023 검토 151-1 4)] 녹음 한 줄(105)은 쉰다 — 안 나온 순간은 디렉터가 말로 알린다(자료 대본에 없는 글) · 단추는 남아 미룬 순서를 사진 시간에 적는다 */ : null,
           /* live.t 는 장면 설명(ritual-story LIVE)의 열쇠라 갈래마다 **고정 문장**이다 — 무엇을 · 길이는 pick · est 가 나른다. */
           live: { t: LT[fk], est: fk === 'speech' ? 60 * len + 20 : 60 * len + 8,   /* ★[EST_TRUE_1031] 축사 +6 → +20(축사하는 분이 자리에서 나와 마이크를 받는 판 · 본식 합 TIME free 걸음 12 → 26) */ duck: (fk === 'speech' && bgmBed(S, 'S5')) ? PARAM.duckRead : fk === 'gift' ? -12 : PARAM.duckOff, self: true,   /* ★[MEANING_R1_1102 6] 선물 전달 = 이동 · 전달을 받쳐 −12 · 영상 · 무대는 정적 그대로 */   /* [BGM_INFO_1023] 축사 «음악과 함께» = 낭독 아래 −20 · 아니면 무음 그대로 */
@@ -1336,8 +1342,8 @@
              58 → 129 는 한 소개라 사슬 1.25초([CHAIN_GAP_1014] 원고 «사슬 1.25초» · 말끝 → 말머리 · 콘솔 · 미리 듣기가 파일 앞뒤 무음을 뺀다) · 크기는 58 과 같다.
              같은 날 식전 영상 소개로 129 가 나가면(스튜디오 나레이션 판 · pvEx 예시 3) 58 하나만 — 같은 말 두 번 금지 · 130(시선 명령 [B2_GEUL_01]) · 261(식전 영상 받는 말)은 쓰지 않는다 · 축사 · 선물 · 기타는 종전 그대로 */
         if (fk !== 'video' || (seq && seq.indexOf('prevideo') > -1 && pvSlugOf(S) === 'narr-prevideo-in-ex3')) return [cue(o)];
-        var o2 = { k: 'free', blockN: o.blockN, slug: 'narr-prevideo-in-ex3', name: '식중 영상 소개', text: EXTRA['narr-prevideo-in-ex3'], duck: o.duck, fire: 'chain', gapMs: 1250, rescue: o.rescue, live: o.live };
-        o.rescue = null; o.live = null;
+        var o2 = { k: 'free', blockN: o.blockN, slug: 'narr-prevideo-in-ex3', name: '식중 영상 소개', text: EXTRA['narr-prevideo-in-ex3'], duck: o.duck, fire: 'chain', gapMs: 1250, rescue: o.rescue, live: o.live, note: o.note };   // [MID17_CONSOLE] 메모는 영상 사람 순간과 함께 129 로
+        o.rescue = null; o.live = null; o.note = '';
         return [cue(o), cue(o2)];
         /* ★[CLAP_FEW 2026-09-26 사장님 · 코워크 회신5 3-1] 104 narr-free-out-clap(«따뜻한 박수 부탁드립니다»)은 흐름에서 뺐다.
            클립 · 번호 · EXTRA 는 둔다(되살리려면 박수 자리 셋이 넷이 된다 — 사장님 결정이 먼저). 다음 큐는 앞 live 로 GO. */
@@ -1732,6 +1738,10 @@
       live: { t: '두 분이 함께 테이블을 돌며 하객께 인사 · 테이블마다 1분 30초쯤 · 다 돌면 GO → ' + (seq.indexOf('toast') > -1 ? '축배' : '닫는 인사'), est: (O.tableSecOf ? O.tableSecOf(S) : O.TABLE_SEC * O.tableN(S)), self: true,   /* ★[EVENT_COUNT_CAP 검토 183] 시간표 · 빌더와 같은 값(본식 상한을 넘는 드문 조합이면 그만큼 짧게) */ doing: 'move', duck: -12,
         fallback: '시간이 다 되면 디렉터 GO → ' + (seq.indexOf('toast') > -1 ? '축배' : '닫는 인사') + ' · 못 들른 테이블은 닫는 인사(목례)에서 함께' }   /* [CLOSE_WORDS_1013] 배웅 줄은 9/26 PHOTO_THANKS 로 없앴다 */   /* [TABLE_GREET_1008] 사장님 «두 분 자유 · 시간 다 되면 안내 한 줄» — 디렉터가 테이블을 넘기지 않는다 */
     }));
+    /* ★[RA5_TABLE_EACH 2026-11-07 규칙 감사 · 재검증 재수정] live.t 는 장면 열쇠(ritual-story LIVE)라 그대로 · 보여 줄 글(tv · 콘솔 #nName)만 실제 초로 —
+         본식이 길어 줄었으면 «테이블마다 약 45초»(ritual-open tableEachTxt = tableSecOf 와 같은 원천) · 안 줄었으면 tv 없음(종전 글) */
+    if (_openC && seq.indexOf('table') > -1 && O.tableEachTxt) { var _tq = cues[cues.length - 1], _te = O.tableEachTxt(S);
+      if (_tq && _tq.k === 'table' && _tq.live && _te !== '1분 30초쯤') _tq.live.tv = _tq.live.t.replace('테이블마다 1분 30초쯤', '테이블마다 ' + _te); }
     if (_openC && seq.indexOf('toast') > -1 && O.onOf(S, 'toast')) cues.push(cue({ k: 'toast', blockN: '축배', slug: 'bridge-b13-toast-stay',   /* ★[END_FLOW_1030] 축배 앞이라 축배 쪽(빌더 ② · 대본이 축배 순간에 싣는다) */ name: '이음말 · 축배 앞 자리 지키기',
       text: EXTRA['bridge-b13-toast-stay'], duck: PARAM.duckSpeech /* ★[MEANING_R1_1102 12] 말 −16 → 잔 나누는 40초 −8(live) */, note: '이음말 · 잔을 나눠 드리는 동안(BRIDGE_MORE_1018 · END_FLOW_1030 축배 앞)',
       live: { t: '잔을 나눠 드리는 동안 · 하객은 자리에서 기다림', est: 40, self: false, doing: 'move', duck: PARAM.duckMusic, consoleOnly: true, hintNext: '두 분 손에 잔이 들어가고 «잔 됨» 신호가 오면', previewPost: [] } }));
@@ -2148,10 +2158,11 @@
            «미리 듣기는 그대로»(코워크 회신5). 종전에 post 로 기다리던 자리는 previewPost 로 되돌린다(아래에서 같이 줄인다). */
         if (cues[m].live && cues[m].live.consoleOnly) { cues[m].liveDuck = cues[m].live.duck;   /* ★[NO_RELIFT_1102] 걷어도 크기는 남긴다 — 빌더의 박수 행동 줄이 콘솔과 같은 값(정적 뒤 −90)을 읽는다(없으면 기본 −8 로 되살아났다) */ cues[m].post = (cues[m].post || []).concat(cues[m].live.previewPost || []); cues[m].live = null; }
         if (cues[m].live) { cues[m].live.fullEst = cues[m].live.est; cues[m].live.est = Math.min(cues[m].live.est, PARAM.previewLiveCap); }
-        // 침묵·페이드도 같이 줄인다. 안 줄이면 폐식 뒤 30초 대기 같은 자리에서 듣는 사람이 앱을 닫는다.
+        // 침묵은 줄인다. 안 줄이면 폐식 뒤 30초 대기 같은 자리에서 듣는 사람이 앱을 닫는다.
+        /* ★[RA5_PREVIEW_FADE] 페이드(ms)는 실제 곡선 그대로 · 4초(previewFadeMs) 넘는 것만 4초로 — 옛 Math.min(st.ms, previewWaitMs) 로 되돌리지 말 것 */
         (cues[m].post || []).forEach(function (st) {
           if (st.wait) { st.fullWait = st.wait; st.wait = Math.min(st.wait, PARAM.previewWaitMs); }
-          if (st.ms) { st.fullMs = st.ms; st.ms = Math.min(st.ms, PARAM.previewWaitMs); }
+          if (st.ms) { st.fullMs = st.ms; st.ms = Math.min(st.ms, PARAM.previewFadeMs); }
         });
       }
       if (cues[0]) cues[0].fire = 'manual';   // 첫 재생만 사람이 시작(브라우저 자동재생 정책)

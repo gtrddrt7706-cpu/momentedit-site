@@ -2463,7 +2463,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1107m3"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1106wk"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1107ig"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1106of2"></script><script src="/assets/bgm-picks.js?v=1106of2"></script><script src="/assets/narration-pad.js?v=1107g4"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1107ig"></script><script src="/assets/bgm-form.js?v=1106b3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1107r5"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1106wk"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1107ig"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1106of2"></script><script src="/assets/bgm-picks.js?v=1107rr"></script><script src="/assets/narration-pad.js?v=1107g4"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1107rr"></script><script src="/assets/bgm-form.js?v=1106b3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3308,7 +3308,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={}, gen=++ENG_GEN, ac=null, tm=0; try{ ac=new AbortController(); }catch(e){ ac=null; }
-  var ASSET_V='1107m3';   /* [MID17_NAME · MID17_ENGINE] ritual-open 식중 영상 이름 · ritual-cue 58 → 129 */   // [ASSET_V] 위 주석 · [ONE_FLOW_1106] ritual-open · ritual-cue · bgm-picks · bgm-slots · bgm-bed · [B2_FIX_R1 · B2_FIX_R2] ritual-open · ritual-cue 를 바꿨다 · #1619 와 합침
+  var ASSET_V='1107r5';   /* [MID17_NAME · MID17_ENGINE · MID17_CONSOLE] ritual-open 식중 영상 이름 · ritual-cue 58 → 129 · 식중 영상 디렉터 메모 */   // [ASSET_V] 위 주석 · [ONE_FLOW_1106] ritual-open · ritual-cue · bgm-picks · bgm-slots · bgm-bed · [B2_FIX_R1 · B2_FIX_R2] ritual-open · ritual-cue 를 바꿨다 · #1619 와 합침
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,ac?{credentials:'same-origin',signal:ac.signal}:{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })), _to=new Promise(function(_ok,no){ tm=setTimeout(function(){ var _e5=new Error('engine'); _e5.meN=5; no(_e5); try{ if(ac) ac.abort(); }catch(e){} },ENG_TO_MS); });
@@ -4382,7 +4382,7 @@ function _capNo(mut,add,k){ var R=RitualOpen; if(!R||!R.capOver||!isOpen()) retu
      길이 칩 — 줄이기 전 값(raw)으로 재서 넘으면 «다른 순간을 하나 빼거나 ○○을 짧게» 창 */
   if(add&&R.countNo){ var cn=R.countNo(S,t); if(cn){ try{ ordTell({title:R.COUNT_MSG[cn].title, body:R.COUNT_MSG[cn].body}); }catch(e){} return true; } }
   if(R.capOver(S,t,!add)){ try{ var cm=R.capMsg?R.capMsg(t,add,k):R.CAP_MSG; ordTell({title:cm.title, body:cm.body}); }catch(e){} return true; }
-  if(R.tableCut&&R.tableCut(t)>R.tableCut(S)){ var mn=Math.round(R.tableSecOf(t)/60); setTimeout(function(){ _noteToast('테이블 인사를 약 '+mn+'분으로 맞췄어요'); },120); }
+  if(R.tableCut&&R.tableCut(t)>R.tableCut(S)){ var mn=Math.round(R.tableSecOf(t)/60), _say=true; try{ if(!R.tableCut(S)) _TBL.said=null; _say=_tblSay(mn,t); if(_say) _TBL.said=mn; }catch(e){} if(_say) setTimeout(function(){ _noteToast(_tblMsg(mn)); },120); }   /* [RA5_TABLE_NOTE] 글로 줄인 알림과 같은 문구 · 같은 값이면 글 쪽이 다시 띄우지 않게 기억 */
   return false; }   /* [CAP_NEED_1031] add = 순간 담기 · 아니면 칩 · 길이(k = 그 순간) */
 /* [EVENT_COUNT_CAP] 카운터 한 줄 — 남은 개수만(분 숫자 없음) · ① 순간 더하고 빼기 · ② 모든 순간 보기 · ③ 한눈에 보기 */
 function _cntLine(cls){ var R=RitualOpen; if(!R||!R.countOf||!isOpen()) return ''; var c=R.countOf(S);
@@ -4745,7 +4745,7 @@ function _lSum(k){
   if(k==='prevideo') return (S.pvVoice==='couple'&&_vcOn()&&_recNeed('pv')&&!_vcToNar('pv')?'두 분 소개글 · 두 분 목소리':'나레이션 소개')   /* [R7-04] 목소리를 다 쓴 빈 줄은 나레이션(VC_TO_NAR) */+' → 두 분의 영상';   /* [ONEMIN_FIRST] 1분 전 안내는 영상 앞(하객 맞이) */   /* [R6-03] 하객 맞이 · 입장처럼 목소리를 보인다 · 판정은 ② own 과 같다(소개글이 비면 스튜디오 한 줄) */   // [PREVIDEO_FREE]
   if(k==='ring') return '말없이 반지를 끼워요 · 앞뒤로 나레이션';
   if(k==='_close') return '끝 인사와 박수 · 이어서 단체 사진';   /* [POST_FLOW_200 C] */   // [CLOSE_WORDS_1013] 축배 · 테이블 인사를 담은 날 «→ 그 자리에서 단체 사진»은 차례와 다르다
-  if(k==='table') return '두 분이 함께 테이블을 돌며 인사 · 테이블마다 1분 30초쯤';   /* [CARD_ORDER_1031] 끝에 «단체 사진으로 간다»는 말을 붙이지 않는다 — 테이블 인사 뒤는 축배 · 닫는 인사다(END_FLOW_1030) */   /* [TABLE_GREET_1008] */
+  if(k==='table') return '두 분이 함께 테이블을 돌며 인사 · 테이블마다 '+(R&&R.tableEachTxt?R.tableEachTxt(S):'1분 30초쯤');   /* [RA5_TABLE_EACH 2026-11-07] 줄었으면 실제 초(콘솔 지문과 같은 원천) */   /* [CARD_ORDER_1031] 끝에 «단체 사진으로 간다»는 말을 붙이지 않는다 — 테이블 인사 뒤는 축배 · 닫는 인사다(END_FLOW_1030) */   /* [TABLE_GREET_1008] */
   if(k==='song') return '노래 한 곡 · 반주는 MR';   /* [SONG_BACK_1011] · [SONG_SELF_1011] 부르는 분은 가족 · 친구 · 두 분 누구든 */
   if(k==='candle') return _candleWho();
   if(k==='entry') return '멘트 «'+ENTRY[S.entry].d+'» · '+(S.entryVoice==='couple'&&!_vcToNar('entry')?'두 분 목소리':'나레이션');   /* [R7-04] */   /* [ENTRY_OUT_OFF] 맞절 없음 · [MATJEOL_SPLIT_1013] 맞절은 다음 순간 */
@@ -5303,10 +5303,23 @@ function _mkCnt(id,v,lim){ var n=String(v||'').length; return '<span class="mk-c
    신랑 폰에서 신랑 칸 · 신부 폰에서 신부 칸을 따로 저장해도 서버가 칸마다 더 나중 것을 골라 합친다(80_production · _ritualTxMerge).
    ★체크를 풀 때 키를 지우지 않고 0 으로 둔다 — 지우면 서버가 «없는 칸»으로 읽고 다른 기기 값으로 되살린다. */
 function _fAt(key){ if(!S.fAt) S.fAt={}; S.fAt[key]=Math.max(Date.now(),(+S.fAt[key]||0)+1); try{ _fAtMine[key]=S.fAt[key]; }catch(e){} }   /* [B2_NA_11] 이 기기 시계가 늦어도 고친 칸은 불러온 판보다 뒤 */
+/* ★★[RA5_TABLE_NOTE 2026-11-07 규칙 감사 · 재검증 재수정] 서약 · 편지 글을 길게 써서 본식 상한에 닿으면 테이블 인사가 말없이 줄었다(ritual-open tableSecOf · 9분 → 4.5분까지) —
+     입력이 멈춘 뒤(0.9초) 또는 칸을 떠날 때 한 번 알린다 · 순간 담기 · 길이 칩(_capNo)과 같은 문구(_tblMsg) · 같은 값이면 다시 띄우지 않는다 · 다시 늘면 말없이(지금 관례) */
+var _TBL={from:null,said:null,t:0};   // said = 알린 분 — 줄인 시간(cut)이 0 으로 돌아왔을 때만 지운다(지우고 다시 쓰기를 되풀이해도 같은 분은 한 번)
+function _tblMsg(mn){ return '테이블 인사를 약 '+mn+'분으로 맞췄어요'; }
+function _tblCut(){ var R=RitualOpen; try{ return (R&&R.tableCut&&isOpen())?R.tableCut(S):0; }catch(e){ return 0; } }
+function _tblFire(){ if(_TBL.t){ clearTimeout(_TBL.t); _TBL.t=0; } var from=_TBL.from, cut=_tblCut(), R=RitualOpen; _TBL.from=null; if(from==null) return;
+  if(!from) _TBL.said=null; if(!cut){ _TBL.said=null; return; } if(cut<=from) return;
+  var mn=Math.round(R.tableSecOf(S)/60); if(!_tblSay(mn,S)) return; _TBL.said=mn; _noteToast(_tblMsg(mn)); }
+/* [RA5_TABLE_NOTE] 띄울 분인가 — 이미 알린 분이거나, 반올림하면 원래 분(30초만 줄어 «약 9분»)과 같으면 말하지 않는다(_capNo 도 같은 규칙) */
+function _tblSay(mn,T){ var R=RitualOpen; if(mn===_TBL.said) return false; try{ if(R.tableFull&&mn===Math.round(R.tableFull(T)/60)) return false; }catch(e){} return true; }
+function _tblWatch(from){ if(_TBL.from==null) _TBL.from=from; if(_TBL.t) clearTimeout(_TBL.t); _TBL.t=setTimeout(_tblFire,900); }
+document.addEventListener('focusout',function(){ if(_TBL.t) _tblFire(); },true);
 window.mkTx=function(id,t){ var _w=document.getElementById('mkw_'+id.replace('.','_')); if(_w) _w.textContent=_exWarn(id,t.value);   // [EX_NAMES]
+  var _tb0=_TBL.t?null:_tblCut();   // [RA5_TABLE_NOTE] 쓰기 시작 전 줄인 초(멈춘 뒤 다시 잰다)
   var kind=id.split('.')[0], k=TX_KIND[kind]; if(!S.tx) S.tx={}; S.tx[id]=t.value; if(S.txLn) delete S.txLn[id]; _fAt('tx.'+id); _txLeg(kind);   // [VOW_FORM] 칸에 적은 글은 줄 표시를 걷는다(번갈아 판은 문장으로 다시 나눠 보여 준다)
   var c=document.getElementById('mkc_'+id.replace('.','_')); if(c){ var n=t.value.length; c.textContent=_mkCntT(n,k.lim); c.style.color=n>k.lim?'var(--seal)':''; }
-  _taGrow(t); _persist(); _mkStripRepaint(); };
+  _taGrow(t); _persist(); _mkStripRepaint(); _tblWatch(_tb0); };
 /* [TX_MERGE] 서버가 다른 기기의 더 나중 칸을 돌려주면(pull) 이 화면에도 채운다 — 안 채우면 다음 저장 때 이 기기가 옛 글을 들고 간다
    (서버가 칸마다 시각으로 다시 고르니 지워지지는 않지만, 화면이 서버와 다르게 보인다). 지금 쓰고 있는 칸은 건드리지 않는다. */
 /* ★[B2_NA_10 · B2_NA_11 2026-11-06 BATCH2 나10 · 나11] 다른 기기 글을 합칠 때 «지금 쓰는 칸»은 줄 아이디가 아니라 그 칸이 맡은 원고(vow.g · vow.b · bless.p …)로 지킨다 —
@@ -5379,7 +5392,7 @@ function _vowRows(){ var f=_vowFirst(), sc=f==='g'?'b':'g', A=_vowSplit('vow.'+f
   for(var i=0;i<n;i++){ if(i<A.length) out.push({w:f,j:i,t:A[i]}); if(i<B.length) out.push({w:sc,j:i,t:B[i]}); }
   if(!A.length) out.unshift({w:f,j:0,t:''}); if(!B.length) out.splice(1,0,{w:sc,j:0,t:''});   // 빈 분은 첫 줄 자리를 비워 둔다(번갈아 차례가 보이게)
   return out; }
-function _vowPut(w,L){ S.tx=S.tx||{}; S.txLn=S.txLn||{}; var id='vow.'+w; S.tx[id]=L.join('\n'); S.txLn[id]=1; _fAt('tx.'+id); _txLeg('vow'); _persist(); }
+function _vowPut(w,L){ var _tb0=_TBL.t?null:_tblCut(); S.tx=S.tx||{}; S.txLn=S.txLn||{}; var id='vow.'+w; S.tx[id]=L.join('\n'); S.txLn[id]=1; _fAt('tx.'+id); _txLeg('vow'); _persist(); _tblWatch(_tb0); }   /* [RA5_TABLE_NOTE] 번갈아 줄 칸도 같은 알림 */
 function _txFirstSel(kind){ if(kind==='vow') return _vowHow()==='alt'?'[data-fk="mkvw:'+_vowFirst()+':0"]':'#mkt_vow_'+_vowFirst(); return '#mkt_'+kind+'_g'; }   // [VOW_FORM] «채우기» · 예시 뒤 초점 = 먼저 읽는 분의 첫 칸
 function _vowAllN(){ return _vowSplit('vow.g').concat(_vowSplit('vow.b')).join('').length; }
 window.mkVowLn=function(w,j,el){ var L=_vowSplit('vow.'+w); while(L.length<=j) L.push(''); L[j]=String(el.value||'').replace(/\n+/g,' '); _vowPut(w,L); _taGrow(el); var _lm=document.getElementById('mkvw_lim'); if(_lm) _lm.textContent=_vowLimT(L[j].length);   /* [B2_GEUL_31] 경계에 닿으면 그 줄 글자 수 */

@@ -269,9 +269,13 @@ const DOING_OK = new Set(['say', 'move', 'sing']);
   else ok(`preview 사람 구간 ${C.PARAM.previewLiveCap}초 압축`);
 
   // 침묵·페이드가 안 줄면 폐식 뒤 30초 대기 같은 자리에서 미리듣기가 끊긴 것처럼 보인다.
-  const slow = p.cues.filter((c) => (c.post || []).some((s) => (s.wait || 0) > C.PARAM.previewWaitMs || (s.ms || 0) > C.PARAM.previewWaitMs));
-  if (slow.length) no(`preview 뒤처리 대기가 ${C.PARAM.previewWaitMs}ms를 넘는다 (${slow.map((c) => c.no).join(',')})`);
-  else ok(`preview 뒤처리 ${C.PARAM.previewWaitMs}ms 압축`);
+  /* ★[RA5_PREVIEW_FADE 2026-11-07] 정적(wait)만 previewWaitMs 로 · 페이드(ms)는 previewFadeMs(4초)까지 실제 값 그대로
+     (옛 기대: ms 도 previewWaitMs 이하 — 편지 뒤 오르기 · 선언 앞 내리기가 툭 끊겼다) */
+  const slow = p.cues.filter((c) => (c.post || []).some((s) => (s.wait || 0) > C.PARAM.previewWaitMs || (s.ms || 0) > C.PARAM.previewFadeMs));
+  const cutFade = p.cues.filter((c) => (c.post || []).some((s) => s.fullMs && s.ms !== Math.min(s.fullMs, C.PARAM.previewFadeMs)));
+  if (slow.length) no(`preview 뒤처리 정적 ${C.PARAM.previewWaitMs}ms · 페이드 ${C.PARAM.previewFadeMs}ms 를 넘는다 (${slow.map((c) => c.no).join(',')})`);
+  else if (cutFade.length) no(`preview 페이드를 실제보다 짧게 잘랐다 (${cutFade.map((c) => c.no).join(',')})`);
+  else ok(`preview 뒤처리 정적 ${C.PARAM.previewWaitMs}ms 압축 · 페이드는 ${C.PARAM.previewFadeMs}ms 까지 실제 값`);
 
   // console 모드는 반대로 원래 길이를 지켜야 한다(리허설의 목적이 타이밍 체감이라서).
   const cc = C.build({ course: 'damback', bless: 'on' }, { mode: 'console' });
