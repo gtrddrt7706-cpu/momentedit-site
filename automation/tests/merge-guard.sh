@@ -22150,7 +22150,7 @@ chk 'LIST_HOLD' assets/bgm-bed.js 2
 chk 'TRIBUTE_WALK' assets/bgm-bed.js 1
 chk 'MEANING_R2_1102' console.html 3
 chk '축하 박수와 함께 새 곡이 시작돼요' assets/bgm-slots.js 1
-chk '두 분이 앞에 서시면 음악이 잦아들고' assets/bgm-slots.js 1
+chk '두 분이 앞에 서시면 입장 곡이 잦아들고' assets/bgm-slots.js 1   # [LINE_NOW_ONLY_1107]
 chk 'MEANING_R2_1102' scripts/audit/meaning-r2.mjs 1
 chk "turn-table meaning-r2" .github/workflows/merge-guard.yml 1
 :   # [GUARD_LAST_LINE] 마지막 줄은 늘 0

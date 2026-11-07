@@ -27,12 +27,13 @@ const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 const MOD = process.env.BF_MOD || '', RCM = process.env.RC_MOD || '', BSM = process.env.BS_MOD || '', OPM = process.env.OP_MOD || '', SHOT = process.env.SHOT || '';
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || d === undefined ? '' : ' → ' + JSON.stringify(d).slice(0, 700)}`); if (!c) fail++; };
+const S4ONE = '이 순간부터 피아노가 아주 작게 흘러요';   /* [LINE_NOW_ONLY_1107] 감사 인사를 뺀 날 서약이 받는 S4 첫 줄(감사 인사가 담긴 날은 ONE.welcome) */
 const G = (t) => String(t).replace(/[«»]/g, '');   /* 화면은 «» 를 글꼴로 바꿔 글에서 지운다(GUIL_OFF) */
 
 /* 명세 표 — 순간마다 흐름 줄 하나 · 자리 [BGM_R1_1023] */
 const CONT = '감사 인사부터 피아노가 조용히 이어져요';   /* [BGM_R2_1023] */
 const ONE = { guest: '하객이 앉는 동안 잔잔한 연주가 흘러요', candle: '화촉을 밝히는 동안 밝고 우아한 곡이 흘러요', matjeol: '두 분이 앞에 서시면 입장 곡이 잦아들고, 맞절은 음악 없이 조용히 해요' /* [PIANO_WORD_1106] 옛 «감사 인사 곡이 시작돼요» */ /* ★[MEANING_R2_1102] */,
-  welcome: '하객을 향해 서시면 본식 피아노가 잔잔하게 시작돼요' /* [LINE_NOW_ONLY_1107] */, vow: CONT, ring: CONT, declare: '선언문을 읽는 동안은 음악 없이, 축하 박수와 함께 새 곡이 시작돼요' /* ★[MEANING_R1_1102 5] · [MEANING_R2_1102 DECLARE_LIFT] */, bless: CONT,
+  welcome: '하객을 향해 서시면 본식 피아노가 흘러요' /* [LINE_NOW_ONLY_1107] */, vow: CONT, ring: CONT, declare: '선언문을 읽는 동안은 음악 없이, 축하 박수와 함께 새 곡이 시작돼요' /* ★[MEANING_R1_1102 5] · [MEANING_R2_1102 DECLARE_LIFT] */, bless: CONT,
   song: '여는 말과 박수 때는 피아노가 작게 이어지고, 노래하는 동안은 보내 주신 MR 만 흘러요' /* ★[SCREEN_SOUND_1102] 소리가 나면 화면에 쓴다 */,
   tribute: '인사드리는 동안 밝고 따뜻한 곡이 흘러요', _close: '박수와 함께 힘 있는 곡이 시작돼요', toast: '«위하여!»에 맞춰 신나는 곡이 시작돼요', table: '테이블 인사 동안 재즈가 흘러요' /* ★[MEANING_R1_1102 11] */ };
 const AT = { guest: 'top', candle: 'top', matjeol: 'top', welcome: 'top', vow: 'top', ring: 'top', declare: 'top', bless: 'top', song: 'top', tribute: 'top', _close: 'bow', toast: 'cheers', table: 'top' };
@@ -85,7 +86,7 @@ const RC = require(RCM || path.join(ROOT, 'assets/ritual-cue.js')), RO = require
   ok('0 [BGM_R4_1023] 축사 · 편지 아래 한 줄 여섯(안 누름 «고르지 않으시면 …» · 음악 없이 · 음악과 함께 «… 동안 잔잔한 연주곡이 아주 작게 흘러요») · «아래 · 깔려요 · 오르골» 없음', ['S5', 'S6'].every((id) => ['none', 'bed', 'unset'].every((m) => B.lineOf(B.slot(id), m) === NOTE[id][m])) && !B.SLOTS.some((x) => /아래 밝은|깔려요|오르골|걸음에 맞춰|목소리 뒤로|«인사!»와|울려 퍼져요/.test(JSON.stringify([x.one, x.lines]))));
   ok('0 옛 «영상» 축사 = 흐름 줄 «영상에 입힌 소리로 흘러요»(영상 줄 앞) · 옛 선물 · 기타 = 줄 없음 · 감사 인사를 빼면 서약이 첫 줄을 받고 반지는 «혼인 서약부터…»',
     V('free', { freeKind: 'video' }).kind === 'flow' && V('free', { freeKind: 'video' }).t === '영상에 입힌 소리로 흘러요' && V('free', { freeKind: 'video' }).at === 'video' && V('free', { freeKind: 'gift' }) === null && V('free', { freeKind: 'etc' }) === null
-    && V('vow', { onOf: (k) => k !== 'welcome' }).t === ONE.welcome && V('ring', { onOf: (k) => k !== 'welcome' }).t === '혼인 서약부터 피아노가 조용히 이어져요');
+    && V('vow', { onOf: (k) => k !== 'welcome' }).t === S4ONE && V('ring', { onOf: (k) => k !== 'welcome' }).t === '혼인 서약부터 피아노가 조용히 이어져요');
   const r4 = B.slot('S4').ref, cl = B.SLOTS.flatMap((s) => (s.ref.clap || []).map((c) => c.no)).join();
   /* [BGM_CONSOLE1_1023] 131 박수 줄은 걷었다(대본 157 로 «큰 박수로 맞이해 주십시오»가 빠졌다) · 108 은 «목례 · 박수 뒤 힘 있게 시작»(엔진 narr-close-bow live 와 같은 차례) */
   ok('0 참고 값 그대로 — S4 크기 단계 둘 · 박수 줄 57 · 108(목례 · 박수 뒤) · S2 이음말(263) · 개식 인사(137)',
@@ -260,7 +261,7 @@ try {
     /* 3 감사 인사 빼기 */
     await pg.evaluate(() => { delete S.on.welcome; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); }); await go(pg, 'vow'); const v3 = await look(pg); await go(pg, 'ring'); const r3 = await look(pg);
     await pg.evaluate(() => { S.on.welcome = 1; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); });
-    ok(`${W} 3 감사 인사를 빼면 혼인 서약이 첫 줄(«이 순간부터 피아노가 아주 작게 흘러요»)을 받고 반지는 «혼인 서약부터 피아노가 조용히 이어져요»`, v3.ftxt === ONE.welcome && r3.ftxt === '혼인 서약부터 피아노가 조용히 이어져요', { v3, r3 });
+    ok(`${W} 3 감사 인사를 빼면 혼인 서약이 첫 줄(«이 순간부터 피아노가 아주 작게 흘러요»)을 받고 반지는 «혼인 서약부터 피아노가 조용히 이어져요»`, v3.ftxt === G(S4ONE) && r3.ftxt === '혼인 서약부터 피아노가 조용히 이어져요', { v3, r3 });
     /* 6 옛 «영상» 축사 */
     await pg.evaluate(() => { S.freeWhat = 'video'; S.bgm = { S5: { m: 'bed' } }; _persist(); }); await go(pg, '_sum'); await go(pg, 'free'); const v6 = await look(pg), e6 = await eng(pg); await go(pg, '_sum'); const s6 = await sumLook(pg);
     await pg.evaluate(() => { S.freeWhat = 'speech'; delete S.bgm; _persist(); });
