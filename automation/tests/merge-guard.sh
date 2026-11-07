@@ -1438,8 +1438,9 @@ done
 #     옛 판에 적힌 옛 글 + 새 소리 = 화면과 소리가 다른 자리다. 이 저장소가 계속 싸워 온 그 병이다.
 #   ★그래서 새 판을 낼 때 옛 판을 «지운다». 남겨 두면 링크가 살아 있어 누군가 그걸 연다.
 #   ★위 --light 목록도 이름을 박지 않고 glob 으로 받는다 — 박아 두면 판 이름이 바뀔 때마다 게이트가 거짓으로 붉는다.
-_plates=$(ls listen-*.html 2>/dev/null | wc -l | tr -d ' ')
-_plate=$(ls listen-*.html 2>/dev/null | head -1)
+#   ★[LISTEN_COMPARE_1107] 실청 전용 비교 판(listen-speed-1107.html · 지금 / 바뀐 뒤)은 세지 않는다 — 판정 판이 아니라 두 소리를 견주는 판이고, 승인 뒤 병합 전에 지운다(지울 때 이 거름도 뺀다)
+_plates=$(ls listen-*.html 2>/dev/null | grep -v '^listen-speed-1107\.html$' | wc -l | tr -d ' ')
+_plate=$(ls listen-*.html 2>/dev/null | grep -v '^listen-speed-1107\.html$' | head -1)
 if [ "$_plates" = 1 ]; then echo "ok PLATE_ONE: 실청판 1개 ($(ls listen-*.html))"
 else echo "REVERT? PLATE_ONE: 실청판이 ${_plates}개다 — 낡은 판은 지운다(옛 글 + 새 소리로 들린다): $(ls listen-*.html 2>/dev/null | tr '\n' ' ')"; fail=1; fi
 chk '\-\-light:#6E6959' shared/tokens.css 1
