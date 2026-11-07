@@ -11,6 +11,8 @@
 import fs from 'node:fs'; import path from 'node:path'; import { createRequire } from 'node:module';
 import { statusOf, LISTEN_OUT } from './lib/clip-status.mjs';
 import { durOf } from './lib/sent-bounds.mjs';
+import { loadTempo, tempoOf, applyTempo } from './lib/tempo.mjs';
+import { createHash } from 'node:crypto'; import { execFileSync } from 'node:child_process';
 const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..');   // [LISTEN_ORDER_1107] #1635(식중 영상 새 녹음)와 합친 상태는 임시 작업 폴더에서 이 스크립트를 돌려 판만 가져온다
 const OUT = path.join(ROOT, 'listen-order-1107.html');
@@ -113,7 +115,45 @@ const nSel = VAR.filter((v) => !v[2]).length, nEx = VAR.filter((v) => v[2]).leng
 const SUM = { moments: moms.length, pans: nPan, clips: PAGE.size, engine: ENGINE.size, missing: MISSING, courses: nCourse, sel: nSel, ex: nEx, glob: GLOB.length, liveNot: LIVE_NOT };
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-const DATA = { moms, courses: COURSES.map((c) => ({ nm: c.nm, lines: c.lines })), sum: SUM };
+/* ★★[LISTEN_ORDER_SENT_1107 2026-11-07 사장님 «중복 나레이션 하나도 없게 만든 거 맞아?» · 대본 문장 단위] 문장 한 줄 = 문장 녹음(_src/<클립>/<n>.flac) 하나.
+   같은 녹음(내용 지문)은 식순 순서상 처음 나오는 자리에서 한 번만 · 글은 같은데 녹음이 다르면 둘 다(«같은 문장 · 다른 녹음»).
+   문장 소리는 그 자리 엔진 빠르기(클립의 단계 × global)로 미리보기 폴더에 따로 만든다 — 가장자리 무음 깎기 · 말소리만 늦추기 · loudnorm(조립기와 같은 값). */
+const TEMPO = loadTempo(ROOT), SDIR = 'assets/audio/preview/order-1107-sent';
+fs.mkdirSync(path.join(ROOT, SDIR), { recursive: true });
+const MANC = new Map(MAN.clips.map((c) => [`${String(c.no).padStart(2, '0')}_${c.file}`, c]));
+const SENT = {}, CLIPS_S = {}; let nSentAll = 0, nMade = 0; const noSrc = [];
+const keyOfF = (f) => (f ? f.split('/').pop().replace(/\.mp3$/, '') : '');
+function sentsOf(f) { const key = keyOfF(f); if (!key) return null; if (CLIPS_S[key]) return CLIPS_S[key]; const c = MANC.get(key); if (!c || !(c.sents || []).length) { noSrc.push(key); return (CLIPS_S[key] = []); }
+  const voice = (MAN.voice || {})[c.role] || c.role || ''; const tp = tempoOf(TEMPO, key, voice) || 1;
+  const hs = c.sents.map((x) => { const src = path.join(ROOT, 'assets/audio/_src', key, x.i + '.flac'); if (!fs.existsSync(src)) { noSrc.push(key + '#' + x.i); return ''; }
+    const h = createHash('sha1').update(fs.readFileSync(src)).digest('hex').slice(0, 12);
+    const S0 = SENT[h] || (SENT[h] = { t: String(x.text || '').trim(), clips: [], f: `${SDIR}/${h}.mp3`, tp: tp, src: path.relative(ROOT, src) });
+    const no = String(c.no); if (!S0.clips.includes(no)) S0.clips.push(no);
+    return h; }).filter(Boolean);
+  return (CLIPS_S[key] = hs); }
+moms.forEach((m) => m.pans.forEach((p) => p.lines.forEach((l) => { if (l.f) l.ss = sentsOf(l.f) || []; })));
+COURSES.forEach((c) => c.lines.forEach((l) => { if (l.f) l.ss = sentsOf(l.f) || []; }));
+Object.values(CLIPS_S).forEach((hs) => { nSentAll += hs.length; });
+/* 문장 소리 만들기(없을 때만) */
+const TMP = fs.mkdtempSync('/tmp/lo-sent-');
+for (const [h, S0] of Object.entries(SENT)) { const out = path.join(ROOT, S0.f); if (fs.existsSync(out)) continue;
+  const a = path.join(TMP, h + '_a.wav'), b = path.join(TMP, h + '_b.wav');
+  execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', path.join(ROOT, S0.src), '-af', 'silenceremove=start_periods=1:start_threshold=-50dB:start_silence=0.05,areverse,silenceremove=start_periods=1:start_threshold=-50dB:start_silence=0.05,areverse', '-ac', '1', '-ar', '48000', a]);
+  let src = a; if (Math.abs(S0.tp - 1) > 1e-6) { applyTempo(a, b, S0.tp, TEMPO); src = b; }
+  const tot = +durOf(src) || 1;
+  execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', src, '-af', `loudnorm=I=-16:TP=-1.5:LRA=11,afade=t=in:st=0:d=0.015,afade=t=out:st=${Math.max(0, tot - 0.04).toFixed(3)}:d=0.04`, '-ac', '1', '-ar', '48000', '-b:a', '96k', out]);
+  nMade++; }
+fs.rmSync(TMP, { recursive: true, force: true });
+/* 이 판에 쓰지 않는 옛 문장 소리는 지운다(폴더 안 · 지문 이름만) */
+fs.readdirSync(path.join(ROOT, SDIR)).forEach((f) => { if (/^[0-9a-f]{12}\.mp3$/.test(f) && !SENT[f.slice(0, 12)]) fs.rmSync(path.join(ROOT, SDIR, f)); });
+/* ★[LISTEN_ORDER_SENT_1107 대본 22:55 바로잡기 · 사장님 «한 번 들었던 문장은 다시 안 나오게»] 중복 기준은 글 — 앞뒤 공백 · 문장부호를 정리한 글이 같으면 녹음이 달라도 한 번 */
+const normT = (t) => String(t || '').replace(/\s+/g, ' ').trim().replace(/^[\s.,!?…·"'«»“”‘’~\-]+|[\s.,!?…·"'«»“”‘’~\-]+$/g, '');
+const byText = {}; Object.entries(SENT).forEach(([h, S0]) => { const n = normT(S0.t); S0.tk = createHash('sha1').update(n).digest('hex').slice(0, 10); (byText[n] = byText[n] || []).push(h); S0.d = +(+durOf(path.join(ROOT, S0.f)) || 0).toFixed(2); delete S0.src; });
+const TEXTS = {}; Object.values(byText).forEach((hs) => { const tk = SENT[hs[0]].tk; const cl = []; hs.forEach((h) => SENT[h].clips.forEach((c) => { if (!cl.includes(c)) cl.push(c); }));
+  TEXTS[tk] = { t: SENT[hs[0]].t, clips: cl, recs: hs.length }; if (hs.length > 1) hs.forEach((h) => { SENT[h].diff = 1; }); });
+SUM.sent = { all: nSentAll, texts: Object.keys(byText).length, recs: Object.keys(SENT).length, diff: Object.values(byText).filter((hs) => hs.length > 1).length, noSrc: [...new Set(noSrc)] };
+console.log(`  [LISTEN_ORDER_SENT_1107] 문장 ${nSentAll} · 서로 다른 글 ${SUM.sent.texts} · 녹음 ${SUM.sent.recs} · 글 같고 녹음 다름 ${SUM.sent.diff} · 새로 만든 소리 ${nMade}${SUM.sent.noSrc.length ? ' · 문장 녹음 없음 ' + SUM.sent.noSrc.join(' · ') : ''}`);
+const DATA = { moms, courses: COURSES.map((c) => ({ nm: c.nm, lines: c.lines })), sum: SUM, sent: SENT, texts: TEXTS };
 const html = `<!doctype html>
 <html lang="ko"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -141,8 +181,10 @@ h1{font-size:19px;margin:0 0 6px}
 .ln{padding:8px 13px;border-top:1px solid var(--bg3);font-size:14px}
 .ln .mi{font-size:12px;color:var(--light)}
 .ln.live{color:var(--light);font-size:12.5px;background:var(--bg)}
-.ln.cur{background:#fbf6ee}
-.ln.re{background:#fdf3f2}
+.ln.cur,.st.cur{background:#fbf6ee}
+.ln.re,.st.re{background:#fdf3f2}
+.st{padding:6px 0 8px;border-top:1px dashed var(--bg3)}
+.st:first-of-type{border-top:0}
 .ops{display:flex;gap:6px;margin-top:6px}
 .btn.sm{font-size:13px;min-height:40px;padding:6px 12px}
 .btn.ok{background:#3B6E4F;color:#fff;border-color:transparent}
@@ -165,7 +207,7 @@ details summary{cursor:pointer;font-size:13px;color:var(--sub);padding:8px 13px;
 </style></head><body><div class="wrap">
 <h1>식순 순서 실청 · 나레이션 전부</h1>
 <div class="note" id="canDo"><b>목록이 비어 있다면 미리보기 화면이라 그렇습니다.</b> 사파리 · 크롬에서 이 주소를 직접 열어 주세요.</div>
-<div class="note sum">순간 <b>${SUM.moments}</b>개 · 판 <b>${SUM.pans}</b>개 · 클립 <b>${SUM.clips}</b>개 · 엔진이 내보내는 클립 중 페이지에 빠진 것 <b>${SUM.missing.length}</b>개${SUM.missing.length ? ' — ' + esc(SUM.missing.join(' · ')) : ''}
+<div class="note sum">순간 <b>${SUM.moments}</b>개 · 판 <b>${SUM.pans}</b>개 · 클립 <b>${SUM.clips}</b>개 · 문장 <b>${SUM.sent.all}</b>개 중 서로 다른 문장 <b>${SUM.sent.texts}</b>개 · 다른 녹음 <b>${SUM.sent.diff}</b>개 · 엔진이 내보내는 클립 중 페이지에 빠진 것 <b>${SUM.missing.length}</b>개${SUM.missing.length ? ' — ' + esc(SUM.missing.join(' · ')) : ''}
 <br><span class="lab">이 가지 엔진의 최종 소리만 실었습니다(지금 · 바뀐 뒤 비교 아님). 판 = 기본 + 고름 ${SUM.sel}가지 × 예시 칩 ${SUM.ex}가지 조합으로 줄이 달라지는 경우 · 같은 소리는 하나로 묶었습니다. 빠진 것은 만들 수 있는 코스 ${SUM.courses.toLocaleString()}가지 × 식사 · 온라인 · 하객 안내 ${SUM.glob}가지 · 예시 코스 넷 · 위 고름에서 엔진이 낸 소리 ${SUM.engine}개와 맞대어 셉니다. 사람 구간은 1초로 줄여 넘깁니다.${SUM.liveNot.length ? '<br>참고 · 녹음 상태표가 «나는 소리»로 두지만 이 엔진이 어떤 고름으로도 내지 않는 ' + SUM.liveNot.length + '개(싣지 않음): ' + esc(SUM.liveNot.join(' · ')) : ''}</span></div>
 <div class="note"><div id="vSum"></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px"><button class="btn sm" id="reCopy">다시 목록 복사</button><span class="lab" id="reCopyMsg">클립 번호 · 문장 · 이유가 한 줄씩 복사됩니다</span></div><textarea id="reBox" readonly></textarea></div>
 <button class="btn main big huge" id="uniqPlay">중복 빼고 전체 듣기</button>
@@ -183,7 +225,8 @@ var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { retu
 function lineHtml(l, id) {
   var k = kOf(l);
   return '<div class="ln' + (k && VS.v[k] === 're' ? ' re' : '') + '" id="' + id + '"' + (k ? ' data-k="' + esc(k) + '"' : '') + '><div class="mi">' + (l.no ? '[' + esc(l.no) + '] ' : '') + esc(l.slug || l.act || '') + (l.g ? ' · 앞 줄 뒤 쉼 ' + (l.g / 1000).toFixed(1) + '초' : '') + (l.f ? '' : ' · 소리 없음') + '</div>'
-    + (l.t ? '<div>' + esc(l.t) + '</div>' : '') + (k ? '<div class="jd">' + opsHtml(k) + '</div>' : '') + '</div>' + (l.live ? '<div class="ln live">사람 구간 · 1초로 줄임 · ' + esc(l.live) + '</div>' : '');
+    + (l.ss && l.ss.length ? l.ss.map(function (h) { var S0 = D.sent[h] || {}, sk = 's:' + S0.tk; return '<div class="st' + (VS.v[sk] === 're' ? ' re' : '') + '" data-k="' + sk + '"><div>' + esc(S0.t || '') + (S0.diff ? ' <span class="lab">· 같은 글 · 다른 녹음</span>' : '') + '</div><div class="jd">' + opsHtml(sk) + '</div></div>'; }).join('')
+       : ((l.t ? '<div>' + esc(l.t) + '</div>' : '') + (k ? '<div class="jd">' + opsHtml(k) + '</div>' : ''))) + '</div>' + (l.live ? '<div class="ln live">사람 구간 · 1초로 줄임 · ' + esc(l.live) + '</div>' : '');
 }
 function labOf(p) { var n = p.n || p.lab.length; return p.lab[0] + (n > 1 ? (p.lab[0] === '기본' ? ' · 같은 소리 고름 ' + n + '가지' : ' 외 ' + (n - 1)) : ''); }
 function draw() {
@@ -215,20 +258,26 @@ function opsHtml(k) { var v = VS.v[k];
   return '<div class="ops"><button class="btn sm' + (v === 'ok' ? ' ok' : '') + '" data-v="ok" data-k="' + esc(k) + '">좋아요</button>'
     + '<button class="btn sm' + (v === 're' ? ' re' : '') + '" data-v="re" data-k="' + esc(k) + '">다시</button></div>'
     + (v === 're' ? '<div class="why"><input data-w="' + esc(k) + '" value="' + esc(VS.w[k] || '') + '" placeholder="왜 다시 받나요? (예: 너무 빨라요 · 쉼이 길어요 · 글과 소리가 달라요)"></div>' : ''); }
-function paintK(k) { var ls = document.querySelectorAll('.ln[data-k="' + k.replace(/"/g, '') + '"]');
+function paintK(k) { var ls = document.querySelectorAll('[data-k="' + k.replace(/"/g, '') + '"]');
   for (var i = 0; i < ls.length; i++) { var o = ls[i].querySelector('.jd'); if (o) o.innerHTML = opsHtml(k); ls[i].classList.toggle('re', VS.v[k] === 're'); }
   vSum(); barRe(); }
 function setV(k, val) { if (!k) return; if (VS.v[k] === val) delete VS.v[k]; else VS.v[k] = val; vSave(); paintK(k); }
-function vSum() { var n = 0, re = 0, ok = 0; Object.keys(CLIPS).forEach(function (k) { n++; if (VS.v[k] === 're') re++; else if (VS.v[k] === 'ok') ok++; });
-  var e = $('vSum'); if (e) e.innerHTML = '다시 <b>' + re + '</b>개 · 좋아요 <b>' + ok + '</b>개 · 아직 <b>' + (n - re - ok) + '</b>개 <span class="lab">(클립 ' + n + '개 기준 · 이 기기에만 저장)</span>'; }
-function reList() { var out = []; Object.keys(CLIPS).forEach(function (k) { if (VS.v[k] !== 're') return; var l = CLIPS[k];
-  out.push((l.no ? '[' + l.no + '] ' : '') + l.slug + ' · ' + String(l.t || '').replace(/\s+/g, ' ') + ' · 이유: ' + (VS.w[k] || '(이유 없음)')); }); return out; }
-function curK() { var it = typeof cur === 'function' ? cur() : null; return it && Q && Q.i >= 0 ? kOf(it.lines[Q.i]) : ''; }
+/* [LISTEN_ORDER_SENT_1107] 판정은 문장(녹음 지문) 열쇠 s:<지문> · 클립 단위로 이미 누른 것은 그 클립의 문장들로 옮긴다(옛 열쇠는 그대로 둔다) */
+(function () { var C2S = {}; function add(l) { var k = kOf(l); if (k && l.ss) C2S[k] = l.ss; } D.moms.forEach(function (m) { m.pans.forEach(function (p) { p.lines.forEach(add); }); }); D.courses.forEach(function (c) { c.lines.forEach(add); });
+  var ch = false; Object.keys(VS.v).forEach(function (k) { if (/^s:/.test(k) || !C2S[k]) return; C2S[k].forEach(function (h) { var sk = 's:' + (D.sent[h] || {}).tk; if (!VS.v[sk]) { VS.v[sk] = VS.v[k]; ch = true; } if (VS.w[k] && !VS.w[sk]) { VS.w[sk] = VS.w[k]; ch = true; } }); }); if (ch) vSave(); })();
+function vSum() { var n = 0, re = 0, ok = 0; Object.keys(D.texts).map(function (tk) { return 's:' + tk; }).concat(WHOLE_KS()).forEach(function (k) { n++; if (VS.v[k] === 're') re++; else if (VS.v[k] === 'ok') ok++; });
+  var e = $('vSum'); if (e) e.innerHTML = '다시 <b>' + re + '</b>개 · 좋아요 <b>' + ok + '</b>개 · 아직 <b>' + (n - re - ok) + '</b>개 <span class="lab">(서로 다른 문장 ' + Object.keys(D.texts).length + '개' + (WHOLE_KS().length ? ' + 클립 통째 ' + WHOLE_KS().length + '개' : '') + ' 기준 · 이 기기에만 저장)</span>'; }
+function WHOLE_KS() { var o = []; Object.keys(CLIPS).forEach(function (k) { if (!(CLIPS[k].ss && CLIPS[k].ss.length)) o.push(k); }); return o; }
+function reList() { var out = [];
+  WHOLE_KS().forEach(function (k) { if (VS.v[k] !== 're') return; var l = CLIPS[k]; out.push(String(l.t || '').replace(/\\s+/g, ' ') + ' · 이유: ' + (VS.w[k] || '(이유 없음)') + ' · 들어간 클립: ' + (l.no || k) + ' (문장 녹음 없음 · 클립 통째)'); }); Object.keys(D.texts).forEach(function (tk) { var k = 's:' + tk; if (VS.v[k] !== 're') return; var T0 = D.texts[tk];
+  out.push(T0.t + ' · 이유: ' + (VS.w[k] || '(이유 없음)') + ' · 들어간 클립: ' + T0.clips.join(', ') + (T0.recs > 1 ? ' (다른 녹음 ' + T0.recs + '개 포함)' : '')); }); return out; }
+function curKs() { var it = typeof cur === 'function' ? cur() : null; if (!it || !Q || Q.i < 0) return []; if (it.tk) return ['s:' + it.tk]; if (it.ck) return [it.ck]; var l = it.lines[Q.i]; return l && l.ss && l.ss.length ? l.ss.map(function (h) { return 's:' + (D.sent[h] || {}).tk; }) : (kOf(l) ? [kOf(l)] : []); }
+function curK() { return curKs()[0] || ''; }
 function barRe() { var b = $('bRe'); if (!b) return; var k = curK(); var o = $('bOk'); if (o) { o.disabled = !k; o.classList.toggle('ok', !!k && VS.v[k] === 'ok'); } b.disabled = !k; b.classList.toggle('re', !!k && VS.v[k] === 're'); b.textContent = k && VS.v[k] === 're' ? '다시 ✓' : '다시'; }
 document.addEventListener('click', function (e) {
   var b = e.target.closest('button'); if (!b) return;
   if (b.dataset.v && b.dataset.k) { setV(b.dataset.k, b.dataset.v); return; }
-  if (b.id === 'bRe') { var k = curK(); if (k) { if (VS.v[k] !== 're') setV(k, 're'); else setV(k, 're'); } return; }
+  if (b.id === 'bRe') { var ks = curKs(), on = ks.length && VS.v[ks[0]] === 're'; ks.forEach(function (k) { if (on) { delete VS.v[k]; } else VS.v[k] = 're'; }); vSave(); ks.forEach(paintK); return; }   /* 클립을 트는 중이면 그 클립 문장 전부 */
   if (b.id === 'reCopy') { var t = reList().join('\\n'); var box = $('reBox');
     if (!t) { box.style.display = 'block'; box.value = '«다시»로 표시한 줄이 없습니다.'; return; }
     var done = function (ok) { $('reCopyMsg').textContent = ok ? '복사했어요 · ' + reList().length + '줄' : '복사가 막혔어요 · 아래 칸을 길게 눌러 복사해 주세요'; box.style.display = ok ? 'none' : 'block'; box.value = t; if (!ok) { box.focus(); box.select(); } };
@@ -243,14 +292,21 @@ var ALL = []; D.moms.forEach(function (m, mi) { m.pans.forEach(function (p, pi) 
 function lineSec(l, prev) { return (l.f ? (l.d || 3) : 1) + (prev ? (prev.live ? 1 : (l.g || 600) / 1000) : 0); }
 ALL.forEach(function (it) { it.sec = it.lines.reduce(function (a, l, i) { return a + lineSec(l, i ? it.lines[i - 1] : null); }, 0); });
 /* ★★[LISTEN_ORDER_UNIQ_1107 2026-11-07 사장님 «중복되는 나레이션은 제외해서 들을 수 있게»] 클립(같은 소리 파일)이 처음 나오는 자리에서 한 번만 · 식순 순서 그대로 */
-var UNIQ = [], _seen = {};
-ALL.forEach(function (it) { it.lines.forEach(function (l, li) { var k = kOf(l); if (!k || _seen[k]) return; _seen[k] = 1;
-  UNIQ.push({ nm: (l.no ? '[' + l.no + '] ' : '') + l.slug, from: it.nm, lines: [l], idp: it.idp, li: li, mi: it.mi, sec: lineSec(l, null) }); }); });
-D.courses.forEach(function (c) { c.lines.forEach(function (l) { var k = kOf(l); if (!k || _seen[k]) return; _seen[k] = 1;
-  UNIQ.push({ nm: (l.no ? '[' + l.no + '] ' : '') + l.slug, from: c.nm + ' 코스', lines: [l], idp: '', li: 0, mi: -1, sec: lineSec(l, null) }); }); });
+var UNIQ = [], _seen = {};   /* ★[LISTEN_ORDER_SENT_1107] 문장 녹음(지문) 하나 = 한 칸 · 처음 나오는 자리에서 한 번만 */
+function _uAdd(l, li, it, from) {
+  if (l.f && !(l.ss && l.ss.length)) { var ck = kOf(l); if (ck && !_seen['c:' + ck]) { _seen['c:' + ck] = 1;   /* 문장 녹음이 없는 클립(예: #1635 식중 영상 351 ~ 355)은 클립 통째로 한 번 */
+    UNIQ.push({ ck: ck, nm: l.t || ck, from: from + (l.no ? ' · 클립 ' + l.no : ''), nclip: 1, skip: 0, whole: 1, lines: [l], idp: it ? it.idp : '', li: li, mi: it ? it.mi : -1, sec: l.d || 3 }); } return; }
+  (l.ss || []).forEach(function (h) { var S0 = D.sent[h] || {}, tk = S0.tk; if (!tk || _seen[tk]) return; _seen[tk] = 1; var T0 = D.texts[tk] || {};
+  UNIQ.push({ h: h, tk: tk, nm: S0.t || '', from: from + (l.no ? ' · 클립 ' + l.no : ''), nclip: (T0.clips || []).length, skip: (T0.recs || 1) - 1,
+    lines: [{ f: S0.f, d: S0.d, t: S0.t, slug: '', no: '', g: 0 }], idp: it ? it.idp : '', li: li, mi: it ? it.mi : -1, sec: (S0.d || 3) }); }); }
+ALL.forEach(function (it) { it.lines.forEach(function (l, li) { _uAdd(l, li, it, it.nm); }); });
+D.courses.forEach(function (c) { c.lines.forEach(function (l) { _uAdd(l, 0, null, c.nm + ' 코스'); }); });
+var U_W = UNIQ.filter(function (u) { return u.whole; }).length, U_N = UNIQ.length - U_W, U_X = 0;
+UNIQ.forEach(function (u, i) { u.pos = i; });
+UNIQ.forEach(function (u, i) { u.pos = i; });
 var ONLY = false;   /* «남은 것만 듣기» — 좋아요 · 다시를 이미 누른 클립은 건너뛴다 */
-function judged(l) { var k = kOf(l); return !!(k && VS.v[k]); }
-function itemLeft(it) { return !ONLY || it.lines.some(function (l) { return kOf(l) && !VS.v[kOf(l)]; }); }
+function judged(l) { if (l.ss && l.ss.length) return l.ss.every(function (h) { return !!VS.v['s:' + (D.sent[h] || {}).tk]; }); var k = kOf(l); return !!(k && VS.v[k]); }
+function itemLeft(it) { if (!ONLY) return true; if (it.tk) return !VS.v['s:' + it.tk]; if (it.ck) return !VS.v[it.ck]; return it.lines.some(function (l) { return l.f && !judged(l); }); }
 function fmt(s) { s = Math.max(0, Math.round(s)); var h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + '시간 ' : '') + (h || m ? m + '분 ' : '') + x + '초'; }
 function cur() { return Q && Q.items[Q.ii]; }
 function remain() {
@@ -262,6 +318,9 @@ function remain() {
 }
 function ui() {
   var it = cur(); if (!it) return; var l = it.lines[Q.i];
+  if (it.tk || it.ck) { $('bNm').firstChild.nodeValue = it.nm + (it.whole ? ' (문장 녹음 없음 · 클립 통째)' : '');
+    $('bSub').textContent = '문장 ' + (it.pos + 1) + ' / ' + (U_N + U_W) + ' · 남은 ' + fmt(remain()) + ' · 처음 나온 곳: ' + it.from + ' · 이 문장이 나오는 클립 ' + it.nclip + '개' + (it.skip ? ' · 같은 글 · 다른 녹음 ' + it.skip + '개는 건너뜀' : '');
+    $('bPlay').innerHTML = Q.on ? '&#10074;&#10074;' : '&#9654;'; return; }
   $('bNm').firstChild.nodeValue = it.nm + (it.from ? ' · 처음 나온 곳: ' + it.from : '');
   $('bSub').textContent = (Q.items.length > 1 ? (Q.ii + 1) + ' / ' + Q.items.length : (Math.max(Q.i, 0) + 1) + ' / ' + it.lines.length + '줄') + ' · 남은 ' + fmt(remain())
     + (l ? ' · ' + (l.no ? '[' + l.no + '] ' : '') + (l.slug || l.act || '') : '');
@@ -272,12 +331,13 @@ function el() { if (PA) return PA; PA = new Audio(); PA.preload = 'auto';
   PA.addEventListener('timeupdate', function () { if (PA.duration) $('bFill').style.width = (PA.currentTime / PA.duration * 100) + '%'; if (Q && Q.on && Math.floor(PA.currentTime * 2) % 2 === 0) ui(); }); return PA; }
 function enter() { var o = document.querySelectorAll('.card.on'); for (var i = 0; i < o.length; i++) o[i].classList.remove('on'); var it = cur(); var c = it && it.idp ? $(it.idp) : null; if (c) c.classList.add('on'); }
 function startQ(items, ii) { clearTimeout(T); if (PA) PA.pause(); el(); ii = ii || 0; while (ii < items.length - 1 && !itemLeft(items[ii])) ii++; Q = { items: items, ii: ii, i: -1, on: true, blocked: false }; enter(); ui(); next(); }
-function mark() { var o = document.querySelectorAll('.ln.cur'); for (var i = 0; i < o.length; i++) o[i].classList.remove('cur');
-  var it = cur(), e = it && it.idp ? $(it.idp + '_' + ((it.li || 0) + Q.i)) : null; if (e) { e.classList.add('cur'); try { e.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (x) {} } }
+function mark() { var o = document.querySelectorAll('.ln.cur,.st.cur'); for (var i = 0; i < o.length; i++) o[i].classList.remove('cur');
+  var it = cur(), e = it && it.idp ? $(it.idp + '_' + ((it.li || 0) + (it.tk ? 0 : Q.i))) : null;
+  if (e && it.tk) { var st = e.querySelector('.st[data-k="s:' + it.tk + '"]'); if (st) e = st; } if (e) { e.classList.add('cur'); try { e.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (x) {} } }
 function next() {
   clearTimeout(T); if (!Q || !Q.on) return;
   var it = cur(), prev = it.lines[Q.i]; Q.i++;
-  while (ONLY && Q.i < it.lines.length && it.lines[Q.i].f && judged(it.lines[Q.i])) Q.i++;   /* 남은 것만 — 표시한 줄은 쉼 없이 건너뛴다 */
+  while (ONLY && !it.tk && !it.ck && Q.i < it.lines.length && it.lines[Q.i].f && judged(it.lines[Q.i])) Q.i++;   /* 남은 것만 — 표시한 줄은 쉼 없이 건너뛴다 */
   if (Q.i >= it.lines.length) {
     var nx = Q.ii + 1; while (nx < Q.items.length && !itemLeft(Q.items[nx])) nx++;
     if (nx >= Q.items.length) { Q.on = false; Q.i = it.lines.length - 1; ui(); $('bSub').textContent = '끝까지 들었어요'; return; }
@@ -306,8 +366,8 @@ $('bPrev').onclick = function () { step(-1); }; $('bNext').onclick = function ()
 $('allPlay').onclick = function () { startQ(ALL, 0); };
 $('uniqPlay').onclick = function () { startQ(UNIQ, 0); };
 $('onlyLeft').onchange = function () { ONLY = this.checked; };
-$('bOk').onclick = function () { var k = curK(); if (k) setV(k, 'ok'); };
-$('uniqPlay').textContent = '중복 빼고 전체 듣기 · 클립 ' + UNIQ.length + '개';
+$('bOk').onclick = function () { var ks = curKs(), on = ks.length && VS.v[ks[0]] === 'ok'; ks.forEach(function (k) { if (on) delete VS.v[k]; else VS.v[k] = 'ok'; }); vSave(); ks.forEach(paintK); };
+$('uniqPlay').textContent = '중복 빼고 전체 듣기 · 문장 ' + U_N + '개' + (U_W ? ' + 클립 통째 ' + U_W + '개' : '');
 /* 자동 재생이 막혔으면 화면 어디든 처음 누르는 것으로 다시 연다(그 누름 안에서 play) */
 document.addEventListener('pointerdown', function (e) { if (Q && Q.blocked && !e.target.closest('#bPlay')) resume(); }, true);
 document.addEventListener('click', function (e) {
