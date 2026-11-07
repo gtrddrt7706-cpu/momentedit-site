@@ -134,7 +134,7 @@ try {
     console.log(`note R 연습 걷기 크기 = ${fe.join(' ')} (엔진 0 dB · _prWaitLv 고침 뒤 0 이어야 한다)`);
     /* S 화면 글 */
     const SLx = await f.evaluate(() => ({ m: BgmSlots && BgmSlots.LINE ? BgmSlots.LINE.matjeol : '', d: BgmSlots && BgmSlots.LINE ? BgmSlots.LINE.declare : '' }));
-    ok('S 화면 글 — 맞절 · 선언', SLx.m === '두 분이 앞에 서시면 음악이 잦아들고, 맞절은 조용히 · 하객을 향해 서시면 본식 피아노가 잔잔하게 깔려요' /* [PIANO_WORD_1106] 옛 «감사 인사 곡이 시작돼요» */ && SLx.d === '선언문을 읽는 동안은 음악 없이, 축하 박수와 함께 새 곡이 시작돼요', SLx);
+    ok('S 화면 글 — 맞절 · 선언', SLx.m === '두 분이 앞에 서시면 입장 곡이 잦아들고, 맞절은 음악 없이 조용히 해요' /* [PIANO_WORD_1106] 옛 «감사 인사 곡이 시작돼요» */ && SLx.d === '선언문을 읽는 동안은 음악 없이, 축하 박수와 함께 새 곡이 시작돼요', SLx);
 
     ok('쪽 오류 0(부모님께 · 연습)', !errs.length, errs.slice(0, 3)); await ctx.close(); };
   await Promise.all([A(), Bq()]);

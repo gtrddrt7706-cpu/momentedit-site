@@ -4,7 +4,7 @@
    1 맞절 «이 순간 전체 듣기 · 음악과 함께» — 두 분이 고른 입장 곡(추천 곡 key rec)을 묻고 '@ENT' 로 깐다 · 시작 = 도착(문 열림 + 60초) · 곡 판이 거기까지 못 담으면 판 안에서 25초 남는 가장 늦은 자리
    2 크기 = 입장 엔진 체계(곡 gain × intro/under + BED_TRIM · 구간 곡 +7 없음) · 뜸(큐 사이) → 멘트 아래 → 맞절 행동 줄(큐 사이) → 여운 5초 → 3초에 잦아듦
    3 이어 듣기(입장 → 맞절 → 감사 인사) — 입장 곡이 같은 소리 그대로 맞절로 이어진다(다시 시작 없음) · 감사 인사 뜸에서 구간 곡(M4)으로 넘긴다(play · 3초 겹침)
-   4 입장 곡을 안 골랐으면 — 나레이션만 · «입장 곡이 이어져요» 아래 «입장 곡을 고르시면 함께 들려요» · 공개 미리보기는 그 줄 없음 · 오류 0
+   4 입장 곡을 안 골랐으면 — 나레이션만 · «입장 곡이 이어져요» 아래 «입장 곡을 고르시면 두 분이 앞에 서실 때까지 흘러요» · 공개 미리보기는 그 줄 없음 · 오류 0
    5 알약 — 듣기에 들어가는 줄(나레이션 · 행동 · 말하는 차례)이 둘 이상인 순간마다 «이 순간 전체 듣기» · 한 줄이면 없음
    BP_BED=<bgm-bed.js 경로> · BP_OP=<order-preview.html 경로>(깨 보기)  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
@@ -126,7 +126,7 @@ try {
     await f.evaluate(() => { delete S.mu; _persist(); render(); }); await go(f, 'matjeol'); await wait(f, 400);
     const n4 = await f.evaluate(() => ({ note: [...document.querySelectorAll('.mk-flow li.q[data-bgm] .ent-none')].map((x) => x.textContent.trim()), l: (document.querySelector('.mk-hbtn[data-mp="matjeol"]') || {}).textContent || '' }));
     const r4 = await trace(f, ['matjeol'], 6000, false);
-    ok(`${W} 4 입장 곡을 안 골랐으면 «입장 곡이 이어져요» 아래 «입장 곡을 고르시면 함께 들려요» · 알약 «이 순간 전체 듣기» · 나레이션만`, n4.note.join() === '입장 곡을 고르시면 함께 들려요' && /^이 순간 전체 듣기/.test(n4.l.trim()) && !/음악과 함께/.test(n4.l) && !r4.some((x) => x.src), { n4, src: r4.filter((x) => x.src).length });
+    ok(`${W} 4 입장 곡을 안 골랐으면 «입장 곡이 이어져요» 아래 «입장 곡을 고르시면 두 분이 앞에 서실 때까지 흘러요» · 알약 «이 순간 전체 듣기» · 나레이션만`, n4.note.join() === '입장 곡을 고르시면 두 분이 앞에 서실 때까지 흘러요' && /^이 순간 전체 듣기/.test(n4.l.trim()) && !/음악과 함께/.test(n4.l) && !r4.some((x) => x.src), { n4, src: r4.filter((x) => x.src).length });
     /* 5 알약 — 줄 둘 이상이면 있다 · 한 줄이면 없다 */
     const P = [], ks = await f.evaluate(() => _lRows());
     for (const k of ks) { await go(f, k); P.push(await f.evaluate((k) => { const n = _lSteps(ENG, [k]).filter((x) => !x.skip && !x.talk2).length; return { k, n, pill: !!document.querySelector('.mk-hbtn[data-mp="' + k + '"],.em-scene [data-fk="emscene"]') }; }, k)); }
