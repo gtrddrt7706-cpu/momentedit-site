@@ -150,7 +150,7 @@
     /* [DETAIL_0925 E] 여섯 → 넷(FREE_KIND 네 갈래와 같게). 옛 값 dance · show · hand 는 chipOf · norm 이 갈래로 옮긴다 */
     /* ★★[FREE_ETC 2026-10-06 사장님 «기타 칸 만들자 · 직접 적을 수 있게 · 길이도 직접 · 춤 공연은 빼고»] 춤 · 공연(stage) 걷음 → 기타(etc) — 무엇을 글칸(S.freeEtc) · 길이 분 칸(S.freeLen 1~10).
        옛 값 stage · dance · show 는 기타로 읽는다(FREE_OLD) · ★«춤 · 공연» 칩 되살리지 말 것 */
-    free: [['video', '영상'], ['gift', '깜짝 선물 · 전달'], ['speech', '축사'], ['etc', '기타']],   // ★[R2_SPEECH_LABEL_1014] «친구 · 가족의 축사» → «축사»(칸 이름과 같게 · TERM_BY_SPEAKER_1013 덕담 = 부모님 · 콘솔 배지 «여기는 고를 수 있어요 · 축사 · 3분»)
+    free: [['video', '식중 영상'], ['gift', '깜짝 선물 · 전달'], ['speech', '축사'], ['etc', '기타']],   /* ★[MID17_NAME 2026-11-07 재검증 재수정 · 사장님 «식중 영상» 타일] 영상 갈래 이름 = «식중 영상»(nameOf · chipLabel · 띠가 같은 말) */   // ★[R2_SPEECH_LABEL_1014] «친구 · 가족의 축사» → «축사»(칸 이름과 같게 · TERM_BY_SPEAKER_1013 덕담 = 부모님 · 콘솔 배지 «여기는 고를 수 있어요 · 축사 · 3분»)
     freeLen: [['3', '3분'], ['2', '2분'], ['1', '1분']],
     /* ★[ENTRY_SCENE 2026-09-25 코워크 회신 4-3 · 추가 전달 B7] 입장의 «첫 모습»(새 키 하나) — 서로 바라보기 · 맞절.
        소리는 같다(모습 · 영상만 달라진다) · 시간표 그대로. 새 코스에만 · 옛 코스는 norm 이 look 으로 둔다. */
@@ -751,9 +751,11 @@
     _close: '두 분이 인사하고 본식을 마쳐요',
     table: '두 분이 테이블을 돌며 하객께 인사해요'   // [TABLE_GREET_1008]
   };
+  /* ★[MID17_NAME 2026-11-07 재검증 재수정] 식중 영상 = free 한 칸의 영상 갈래(S.on.free + S.freeWhat 'video' · 길이 S.freeLen) — 이름 · 칸 글 · ② 머리 한 줄은 여기 한 곳(nameOf · tileOf · oneOf) */
+  var MID_NAME = '식중 영상', MID_TILE = '두 분이 준비한 영상을 함께 봐요', MID_ONE = '두 분이 준비한 영상을 함께 봐요.';
   var TILE_CANDLE = { parents: '양가 부모님이 초에 불을 밝혀요', fathers: '양가 아버님이 초에 불을 밝혀요', others: '두 분이 부탁한 분들이 촛불을 밝혀요' };
   for (var _tk in TILE) if (CARDS[_tk]) CARDS[_tk].tile = TILE[_tk];
-  function tileOf(k, S) { if (k === 'candle') { var w = candleWhoOf(S); if (TILE_CANDLE[w]) return TILE_CANDLE[w]; if (w === 'mothers' && S && S.candleWho === 'mothers') return '양가 어머님이 초에 불을 밝혀요'; } return TILE[k] || ''; }   /* ★[NARROW_170_1030 검토 170] 고르기 전 카드는 «양가 대표 두 분»(169) · 어머님을 고르면 고른 분 호칭 */
+  function tileOf(k, S) { if (k === 'candle') { var w = candleWhoOf(S); if (TILE_CANDLE[w]) return TILE_CANDLE[w]; if (w === 'mothers' && S && S.candleWho === 'mothers') return '양가 어머님이 초에 불을 밝혀요'; } if (k === 'free' && FREE_KIND[chipOf('free', S)] === 'video') return MID_TILE;   /* ★[MID17_NAME 2026-11-07] 식중 영상 칸 글 */ return TILE[k] || ''; }   /* ★[NARROW_170_1030 검토 170] 고르기 전 카드는 «양가 대표 두 분»(169) · 어머님을 고르면 고른 분 호칭 */
 
   /* ══ [SAMPLE_CUT 2026-09-26 코워크 최종판 4장] 대표 한 줄 — 칸 · 미리 보기 창에서 순간마다 고정(판 칩과 상관없이 · 화촉만 서는 분을 따라)
      짧은 여는 말(10초 안)은 클립을 통째로 · 긴 다섯은 **같은 부모 클립**을 처음부터 틀다 둘째 문장 끝에서 멈춘다(새 녹음 0).
@@ -826,7 +828,7 @@
         return tr.concat(goodsPrep('tribute', S)); }
       case 'free': {   // [FREE_WHAT] 무엇을 · 길이가 곧장 반영된다
         var fk = FREE_KIND[chipOf('free', S)], n = chipOf('freeLen', S);
-        if (fk === 'video') return [['couple', '준비한 순서 영상(휴대폰으로 가로로 찍은 영상 · ' + n + '분 안)', 'send', 3]];   // [SEND_WORDS 2-8] 이름 없이 붙던 «영상 파일»
+        if (fk === 'video') return [];   /* ★★[MID17_PREP 2026-11-07 재검증 재수정 · 사장님 식중 영상 결정] 식중 영상은 마이페이지 «식중 영상»이 링크로 받는다 — 식전 영상 [PV_MYPAGE_1102] 와 같은 결정(같은 것을 두 번 세지 않게) · 옛 할 일 [SEND_WORDS 2-8] «준비한 순서 영상(휴대폰으로 가로로 찍은 영상 · n분 안)» 되살리지 말 것 */
         if (fk === 'etc') return [['couple', '준비한 순서 알려 주기 · ' + (String(S.freeEtc || '').trim() || '무엇을 할지') + ' · ' + n + '분 · 필요한 것(음악 · 마이크 · 화면)', 'send', 7]];   // [FREE_ETC]
         if (fk === 'speech') return [['couple', '축사 원고 · 1분에 300자쯤 · 받으면 큰 글씨 카드로 돌려드려요 · 전 연인 · 술자리 이야기는 빼 주세요'   /* [LINE_R1_1014] «부탁드리기»로 열면 사흘 전 마감이 «사흘 전에 부탁해도 된다»로 읽힌다 · 덕담 줄과 같은 꼴 */   /* [SPEECH_WORDS_1013] «분당» → «1분에» · 다른 순간과 같은 «큰 글씨 카드» */, 'ask', 3]];
         return [['couple', '무엇을 누가 건넬지 알려 주기(저희가 자리를 맞춰요)', 'send', 7]];
@@ -1691,9 +1693,10 @@
   function secTxt(x) { return x < 55 ? ('약 ' + Math.max(10, Math.round(x / 10) * 10) + '초') : ('약 ' + Math.round(x / 60) + '분'); }
   /* [THANKS_IN_VOW] 순간 설명 한 줄 — 서약 카드에서 감사문을 고르면 감사문 설명(CARDS.vow.oneT) · 그 밖은 CARDS[k].one */
   function oneOf(k, S) { var c = CARDS[k]; if (!c) return ''; if (k === 'tribute' && hugOff(S)) return '부부가 되어 처음 부모님께 고마움을 전해요.';   /* [TRIB_NO_HUG_1030] 인사만 */
+    if (k === 'free' && FREE_KIND[chipOf('free', S)] === 'video') return MID_ONE;   /* ★[MID17_NAME 2026-11-07] ② 머리 한 줄 — 축사 설명이 영상 날에 나오지 않게 */
     return (k === 'vow' && S && S.vowKind === 'thanks' && c.oneT) ? c.oneT : (c.one || ''); }
   /* [SPEECH_TILE_1012] 칸 이름 — 축사 칸(free)에 옛 초안의 영상 · 선물 · 기타가 켜져 있으면 옛 이름 «준비한 순서»(새로 담으면 늘 축사 · 빌더 opTgl) */
-  function nameOf(k, S) { if (k === 'free' && S && onOf(S, 'free') && FREE_KIND[chipOf('free', S)] !== 'speech') return '준비한 순서'; return CARDS[k] ? CARDS[k].n : k; }
+  function nameOf(k, S) { if (k === 'free' && S && onOf(S, 'free') && FREE_KIND[chipOf('free', S)] !== 'speech') return FREE_KIND[chipOf('free', S)] === 'video' ? MID_NAME : '준비한 순서'; return CARDS[k] ? CARDS[k].n : k; }   /* ★[MID17_NAME 2026-11-07 재검증 재수정] 영상 갈래 = «식중 영상»(빌더 ① 식중 영상 칸 · 축사와 같은 한 칸) · 선물 · 기타(옛 초안)는 «준비한 순서» 그대로 */
   function talkOf(k, S) {
     var fk, n, p = 0;
     try { p = (partsOf(k, S) || [])[1] || 0; } catch (e) { p = 0; }
@@ -1723,6 +1726,7 @@
     ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, LATE_ORDER: LATE_ORDER, POST_SEC: POST_SEC, setPost: setPost, postSec: postSec, capEx: capEx, capSec: capSec, capOver: capOver, capLeft: capLeft, capNeed: capNeed, capMsg: capMsg, CAP_MSG: CAP_MSG, APART: APART, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, WALK: WALK /* [WALK_HALF_1106] */, TOAST_SEC: TOAST_SEC /* [TOAST_EST60_1106] */, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, countOf: countOf, countNo: countNo, COUNT_MSG: COUNT_MSG, CNT_PICK: CNT_PICK, CNT_LONG: CNT_LONG, CNT_MAX: CNT_MAX, CNT_LONG_MAX: CNT_LONG_MAX, bodyRaw: bodyRaw, tableSecOf: tableSecOf, tableFull: tableFull, tableCut: tableCut, PSCENE: PSCENE, SCENE_SHOW: SCENE_SHOW, sceneShow: sceneShow, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneImgs: sceneImgs, SCENE_AT: SCENE_AT, SCENE_N: SCENE_N, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
+    MID_NAME: MID_NAME,   /* [MID17_NAME] 빌더 ① 식중 영상 칸 · 알림이 같은 이름을 쓴다 */
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, textSec: textSec, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, POST_FLOW: POST_FLOW, postOf: postOf, postDur: postDur, postLine: postLine, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
