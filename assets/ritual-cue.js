@@ -284,7 +284,9 @@
     'guest-w-10m-n10-short', 'guest-w-10m-n10-short-meal',
     /* ★[SEAM_WORD_1107 J06 · 대본 11/07] 350 — 맞절 → 감사 인사 기본 첫머리(215#1 «신랑 신부는 하객을 향해 서주시기 바랍니다.» → 돌아서는 1.0초 → 260#2 «이제 두 사람의 감사 인사를 듣겠습니다.» · 새 녹음 0) · 11 은 두고 쓰지 않는다 */
     'narr-welcome-in-face',
-    /* ★[W5M_FIX_1107 대본 22:25 · 사장님 «이게 말이 안 되잖아»] 351 · 352 — 5분 전 식사 날(329 · 330 · 334 · 335 대신): 03#0 «시작 오 분 전입니다.» → 321#4 «식사 장소 확인과 사진 올리기는 …» (± 314#1 온라인) · 새 녹음 0 */
+    /* ★[MID17_CLIPS_1107 대본 19:20 사장님 승인] 351 ~ 355 — 식중 영상 전용 대본(음성 쉼 MIDVIDEO_NARR_1107 새 녹음 · 우성 · 감사 단계 13 · 이야기 단계 8) */
+    'midvideo-in-thanks', 'midvideo-in-story', 'midvideo-in-plain', 'midvideo-out-thanks', 'midvideo-out-story',
+    /* ★[W5M_FIX_1107 대본 22:25 · 사장님 «이게 말이 안 되잖아»] 356 · 357 — 5분 전 식사 날(329 · 330 · 334 · 335 대신 · 351 ~ 355 는 식중 영상 #1635 · 대본 23:17 번호 옮김): 03#0 «시작 오 분 전입니다.» → 321#4 «식사 장소 확인과 사진 올리기는 …» (± 314#1 온라인) · 새 녹음 0 */
     'guest-w5-meal', 'guest-w5-meal-online'
   ];
   var SLUG = {};
@@ -403,6 +405,11 @@
     'narr-table-in': D.NARR.tableIn,   // [TABLE_GREET_1008]
     'narr-entry-bow': D.NARR.entryBow,   // [MATJEOL_1011]
     'narr-welcome-in-face': D.NARR.welcome.face,   // [SEAM_WORD_1107 J06]
+    'midvideo-in-thanks': "다음은 오늘 예식에서 두 사람이 가장 마음을 쏟아 준비한 순서입니다. 두 사람이 부모님께 드리는 영상 편지를 준비했습니다. 말로는 다 전하지 못한 마음, 함께 보시겠습니다.",   // [MID17_CLIPS_1107]
+    'midvideo-in-story': "두 사람이 오늘을 위해 정성스레 준비한 영상이 있습니다. 두 사람이 함께 걸어온 이야기, 함께 보시겠습니다.",   // [MID17_CLIPS_1107]
+    'midvideo-in-plain': "오늘의 특별한 순간을 더 특별하게 만들어 줄 영상을 두 사람이 준비했습니다. 함께 보시겠습니다.",   // [MID17_CLIPS_1107]
+    'midvideo-out-thanks': "두 사람의 마음이 부모님께 잘 전해졌으리라 생각합니다. 따뜻한 박수 부탁드립니다.",   // [MID17_CLIPS_1107]
+    'midvideo-out-story': "두 사람이 얼마나 정성스럽게 오늘을 준비했는지 알 수 있었던 시간이었습니다. 따뜻한 박수 부탁드립니다.",   // [MID17_CLIPS_1107]
     'narr-thanks-in': D.NARR.thanksIn,   // [THANKS_IN_VOW]
     'narr-declare-in-friend': D.NARR.declareIn   // [DECLARE_BY_PERSON] · [DECLARE_ANYONE] 여는 말은 하나(이름은 옛 판 그대로 · 134 · 135 는 RETIRED)
   };
@@ -524,7 +531,7 @@
   function guestPick(S, i) { S = S || {}; var mF = !!(S.meal && S.mealFull);
     if (i === 0) return 'guest-w-arrival-guide';   /* [PHOTO_ALWAYS_NI02] 입장 때 사진 방법은 늘(298) — 297 은 새 코스에서 안 쓴다(소리는 남김) */
     if (i === 1) return (guestShort(S) ? 'guest-w-10m-n10-short' : 'guest-w-10m-n' + guestMinOf(S)) + (mF ? '-meal' : '');   /* [INFO_SPLIT_200] 식사 줄만 · 경로는 5분 전 · [K3_SHORT_1106] 10분 미만 본식은 길이 없는 판(299s · 345s) */
-    if (i === 2) return mF ? 'guest-w5-meal' + (S.digital ? '-online' : '') : (S.digital ? 'guest-w-5m-online' : 'guest-3-5min');   /* ★[W5M_FIX_1107] 식사 날 351 · 352 · 식사 없는 날 03 · 314(사진 줄 없이) · 옛 판 고르기(MEAL_NODIR_1107 mgr · mg · PHOTO_ALWAYS_NI02 -g)는 걷었다 */
+    if (i === 2) return mF ? 'guest-w5-meal' + (S.digital ? '-online' : '') : (S.digital ? 'guest-w-5m-online' : 'guest-3-5min');   /* ★[W5M_FIX_1107] 식사 날 356 · 357 · 식사 없는 날 03 · 314(사진 줄 없이) · 옛 판 고르기(MEAL_NODIR_1107 mgr · mg · PHOTO_ALWAYS_NI02 -g)는 걷었다 */
     return S.digital ? 'guest-w-1m-online' : 'guest-w-1m'; }
   /* ★★[GUIDE_ALWAYS_202 검토 202 · 사장님 17:30 «사진 올리기는 그냥 안내해도 되는 거 아니야?»] 모바일 청첩장 하객 안내(사진 올리기 단추)는 모든 예식에 나간다 —
        하객 안내 줄은 기본 켜짐 · S.guide 를 «없음»(false · 0)으로 분명히 준 예외 예식만 끈다(관리자 당일 콘솔 «하객 안내» 칩) · 식사 경로 줄은 종전대로 식사 · 예약 조건 */

@@ -36,6 +36,11 @@ const G = [
   { n: 3, t: '고정 순간 진행 나레이션 (블록 시작·마무리)', tone: '차분하고 유려한 진행체', items: [
     ['G3-1', '환영 시작', 'narr-welcome-in', D.NARR.welcome.nar],
     ['G3-1F', '감사 인사 시작 · 맞절 뒤 기본 (215#1 + 260#2 · SEAM_WORD_1107 J06)', 'narr-welcome-in-face', RC.EXTRA['narr-welcome-in-face']],
+    ['G3-MV1', '식중 영상 여는 말 ① 감사 영상(기본) (MID17_CLIPS_1107)', 'midvideo-in-thanks', RC.EXTRA['midvideo-in-thanks']],
+    ['G3-MV2', '식중 영상 여는 말 ② 두 사람 이야기 (MID17_CLIPS_1107)', 'midvideo-in-story', RC.EXTRA['midvideo-in-story']],
+    ['G3-MV3', '식중 영상 여는 말 ③ 어떤 영상이든 (MID17_CLIPS_1107)', 'midvideo-in-plain', RC.EXTRA['midvideo-in-plain']],
+    ['G3-MV4', '식중 영상 받는 말 · 감사(① 뒤) (MID17_CLIPS_1107)', 'midvideo-out-thanks', RC.EXTRA['midvideo-out-thanks']],
+    ['G3-MV5', '식중 영상 받는 말 · 이야기(②③ 뒤) (MID17_CLIPS_1107)', 'midvideo-out-story', RC.EXTRA['midvideo-out-story']],
     ['G3-2', '환영 마무리', 'narr-welcome-out', D.NARR.welcome.end],
     ['G3-3', '혼인 서약 시작', 'narr-vow-in', D.NARR.vow.nar],
     ['G3-4', '혼인 서약 마무리', 'narr-vow-out', D.NARR.vow.end],

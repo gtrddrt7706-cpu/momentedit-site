@@ -48,7 +48,9 @@
   "close": 5,
   "etc": 8,
   "keep": 0,
-  "_왜": "순간 키 → 단계. open 여는 멘트 · prevideo 식전 영상 소개 · midvideo 식중 영상 소개(58 여는 말 + 식중 영상 전용 새 녹음 — 대본 11/07) · candle 화촉 · entry 입장 멘트 · matjeol 맞절 · welcome 감사 인사 · vow 혼인 서약 · thanks 감사 인사 여는 말(narr-thanks-in 228/229/260 · 대본 11/07 «감사 인사 = 8») · ring 반지 교환 · declare 성혼 선언 · bless 부모님 덕담 · speech 축사 · song 축가 · letter 편지 낭독 · tribute 부모님께 인사 · table 테이블 인사 · toast 축배 · close 닫는 인사 · etc 위에 없는 순간(준비한 순서 · 사진 · 효과 등 · 애매하면 8) · keep 0 = 속도 안 입힘(대본 판정 자리 · 지금은 쓰는 클립 없음 — 43 편지 통낭독은 대본 11/07 «편지 = 13» 으로 letter)"
+  "_왜": "순간 키 → 단계. open 여는 멘트 · prevideo 식전 영상 소개 · midvideo 식중 영상 소개(58 여는 말 + 식중 영상 전용 새 녹음 — 대본 11/07) · candle 화촉 · entry 입장 멘트 · matjeol 맞절 · welcome 감사 인사 · vow 혼인 서약 · thanks 감사 인사 여는 말(narr-thanks-in 228/229/260 · 대본 11/07 «감사 인사 = 8») · ring 반지 교환 · declare 성혼 선언 · bless 부모님 덕담 · speech 축사 · song 축가 · letter 편지 낭독 · tribute 부모님께 인사 · table 테이블 인사 · toast 축배 · close 닫는 인사 · etc 위에 없는 순간(준비한 순서 · 사진 · 효과 등 · 애매하면 8) · keep 0 = 속도 안 입힘(대본 판정 자리 · 지금은 쓰는 클립 없음 — 43 편지 통낭독은 대본 11/07 «편지 = 13» 으로 letter)",
+  "midvideo-thanks": 13,
+  "midvideo-story": 8
  },
  "woosung": {
   "05_entry-A": "entry",
@@ -285,6 +287,11 @@
   "284_bridge-b9-declare-seat-end-bdad": "declare",
   "285_bridge-b9-declare-seat-end-gmom": "declare",
   "286_bridge-b9-declare-seat-end-bmom": "declare",
-  "350_narr-welcome-in-face": "welcome"
+  "350_narr-welcome-in-face": "welcome",
+  "351_midvideo-in-thanks": "midvideo-thanks",
+  "352_midvideo-in-story": "midvideo-story",
+  "353_midvideo-in-plain": "midvideo-story",
+  "354_midvideo-out-thanks": "midvideo-thanks",
+  "355_midvideo-out-story": "midvideo-story"
  }
 }
