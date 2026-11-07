@@ -23135,6 +23135,20 @@ nochk '저희가 검증한' api/_kb.js
 nochk '프라이버시까지 확인해 추천' index.html
 nochk '검증한 인근 식당' index.html
 chk 'ESD_DAY_1106' scripts/audit/entry-scene-day.mjs 2   # [ESD_DAY_1106] 맞절 큐 −90(ENTRY_SETTLE) 기대 · 갈래 칩 390 · 360 폭 확인
+# ★★[MID17_ENGINE 2026-11-07 사장님 결정 · 식중 영상 · midvideo-17 줄 3 · 4 · 6] 영상 갈래 = 58 여는 말 → 129(식전 영상 소개 예시 3 녹음 그대로 · 사슬 1.25초) → 영상 · 같은 날 식전 소개가 129 면 58 하나 · 새 녹음 0
+chk 'MID17_ENGINE' assets/ritual-cue.js 3
+chk 'function pvSlugOf(S)' assets/ritual-cue.js 1          # 식전 영상 · 식중 영상이 같은 슬러그 셈을 본다
+chk "slug: 'narr-prevideo-in-ex3', name: '식중 영상 소개'" assets/ritual-cue.js 1
+chk "pvSlugOf(S) === 'narr-prevideo-in-ex3')) return \[cue(o)\];" assets/ritual-cue.js 1   # 129 겹친 날 58 하나
+chk 'MID17_ENGINE' assets/ritual-story.js 2                # 블록 «식중 영상» 설명(STORY_COVER)
+chk "'식중 영상': {" assets/ritual-story.js 1
+chk 'MID17_ENGINE' scripts/audit/open-course.mjs 2         # 블록 · [재생 안 됨] 기대값(의도한 변화 · 옛 값 주석)
+chk 'MID17_PRACTICE' order-preview.html 1                  # 연습 · 미리 듣기 카드 «식중 영상이 흐르는 자리»
+chk 'MID17_SCRIPT' order-preview.html 2                    # 줄 이름(129 = 이어서 · 칩 «식중 영상 · n분» = 여는 말)
+chk "'식중 영상 소개':'이어서'" order-preview.html 1
+nochk "what=fk==='video'?'준비한 영상이 흘러요'" order-preview.html   # 옛 카드 글 — 되살리지 말 것
+chk 'MID17_ENGINE' scripts/audit/mid17-engine.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/mid17-engine.mjs >/dev/null 2>&1; _m17e=$?; node scripts/audit/mid17-engine.mjs --selftest >/dev/null 2>&1; _m17es=$?; if [ "$_m17e" = 2 ]; then echo 'ok mid17-engine — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_m17e" != 0 ] || [ "$_m17es" != 0 ]; then echo "REVERT? mid17-engine: 식중 영상 엔진 58 + 129 · 전체 대본 · 연습 카드가 어긋났습니다 ($_m17e/$_m17es) — node scripts/audit/mid17-engine.mjs"; fail=1; else echo 'ok mid17-engine'; fi; fi
 # ★[FIT_BEFORE_ACCT_1107] 닫는 멘트 · 이음새 맞추기는 계정 확인(ACCT_KEYS) 앞 — 뒤로 가면 계정 확인 전 화면에서 칩 ≠ 글(close-seam 화면이 잰다)
 chk 'FIT_BEFORE_ACCT_1107' order-preview.html 1
 
