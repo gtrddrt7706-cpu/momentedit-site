@@ -52,7 +52,7 @@ pvCheck(C, '① [PV_LEAD_NOCLAP_1106] 박수 없는 개식(칩 1 ~ 5) → 식전
 }
 /* 콘솔 셈이 이 검사의 모델과 같은가 — 줄이 바뀌면 여기를 다시 맞춘다 */
 { const con = fs.readFileSync(P('console.html'), 'utf8');
-  ok('① 콘솔 셈 = 사슬 gapMs 뒤 · 뜸 max(내림 필요 ? fadeMs : 0, goLeadMs)', con.includes('var _lead = Math.max(_need ? _dms : 0, c.goLeadMs || 0);') && con.includes('_gap = nx ? (nx.gapNone ? 0 : (nx.gapMs || PARAM.gapMs)) : 0;') && con.includes('if (_lead) later(_run, _lead); else _run();')); }
+  ok('① 콘솔 셈 = 사슬 gapMs 뒤 · 뜸 max(내림 필요 ? 내림 + 0.4초(LAYER7_DUCK_1108) : 0, goLeadMs)', con.includes('var _lead = Math.max(_need ? _dms + _aft : 0, c.goLeadMs || 0);') && con.includes('_gap = nx ? (nx.gapNone ? 0 : (nx.gapMs || PARAM.gapMs)) : 0;') && con.includes('if (_lead) later(_run, _lead); else _run();')); }
 /* 깨 보기 — 뜸 조건을 지우면(옛 판) 칩 1 ~ 5 가 빨강 · 박수 글 조건을 지우면 미리 듣기 칩 0 이 빨강 */
 { const m1 = CUE_SRC.replace('if (!_pvNoClap) _pc.goLeadMs', '_pc.goLeadMs');
   const m2 = CUE_SRC.replace("_pc.fire === 'chain' && !(_pp.live && _pp.live.applause) && _pp.duck <= -60;", '_pp.duck <= -60;');
