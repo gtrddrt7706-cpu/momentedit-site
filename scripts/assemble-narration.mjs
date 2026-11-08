@@ -49,6 +49,8 @@ const ONLY = arg('--part', '');                   // '3' 또는 '3,5' — 이 �
 const CLIPS = arg('--clip', '');                  // 'entry-' 또는 'entry-D,narr-song' — 이 클립만 (부분 재더빙)
 const SENTS = arg('--sent', '');                  // '신랑 신부, 입장!' — 이 문장 자리만 (문장 재더빙 · 구분자는 |)
 const PATCH = arg('--patch', '');                 // 새로 받은 그 문장 wav가 있는 폴더
+const HL_PLAN = process.env.HL_PLAN ? JSON.parse(fs.readFileSync(process.env.HL_PLAN, 'utf8')) : null;
+const HL_LOG = HL_PLAN && process.env.HL_LOG ? [] : null;   // [HUMANLIKE_1108] 쉼 원래 → 사람처럼 기록   // [HUMANLIKE_1108] 시험판 전용
 const OUT_OVERRIDE = arg('--out', '');            // 주면 clip.dir을 무시하고 전부 여기로
 
 if (!fs.existsSync(MAN)) { console.error('✗ manifest.json이 없습니다. node scripts/build-typecast-import.mjs 먼저 돌리세요.'); process.exit(1); }
@@ -637,6 +639,10 @@ for (const w of work) {
     // 문장 wav를 먼저 다 만든다 — 사이 여백은 「앞 문장 after + 뒤 문장 before」가 한 자리이므로
     //   따로따로 넣으면 GAP_NET이 한 자리를 두 번 깎는다. 합쳐 놓고 한 번만 판단한다.
     const norms = c.sents.map((s, si) => norm(patchMap.get(`${c.file}#${si}`) || w.files[at + si]));
+    /* ★[HUMANLIKE_1108 시험판 · 미리보기 가지 전용 · 엔진 반영 금지] HL_PLAN(json) 이 있을 때만 — 문장별 빠르기 곱(atempo · 클립 단계 빠르기 위에) · 흐름 쉼 흔들림(초 · 고정 씨앗) */
+    const _hlT = HL_PLAN ? (tempoOf(TEMPO, `${c.no}_${c.file}`, (man.voice || {})[String((man.clips.find((x) => String(x.no).padStart(2, '0') + '_' + x.file === `${c.no}_${c.file}`) || c).role).split('|')[0]] || null) || 1) : 1;   // 말소리 길이 = 붙이기 전 길이 ÷ 클립 빠르기
+    const _hlKey = `${c.no}_${c.file}`, _hl = HL_PLAN ? { m: (HL_PLAN.mult || {})[_hlKey] || [], j: (HL_PLAN.jit || {})[_hlKey] || [] } : null;
+    if (_hl) _hl.m.forEach((mv, si) => { if (norms[si] && mv && Math.abs(mv - 1) > 1e-6) { const o = path.join(TMP, `hl${c.no}_${si}.wav`); execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', norms[si], '-af', `atempo=${mv}`, '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s24le', o]); norms[si] = o; } });
     const headSec = +(c.head + (c.sents[0]?.before || 0)).toFixed(3);          // 클립 가장자리 — 차감 없음
     const tailSec = +(c.tail + (c.sents[c.sents.length - 1]?.after || 0)).toFixed(3);
     const seq = [sil(headSec)];
@@ -644,7 +650,11 @@ for (const w of work) {
       seq.push(norms[i]);
       if (i + 1 >= norms.length) continue;
       const raw = c.sents[i].after + c.sents[i + 1].before;
-      const g = GAP_NET(raw);
+      let g = GAP_NET(raw);
+      /* [HUMANLIKE_1108] 흔들림 ± 문장 길이(앞 문장 말소리 > 4.5초 +0.12 · < 1.5초 −0.08) · 합쳐 원래 값 ±0.20 안 · HL_PLAN.jit[i] 가 null 이면 이 자리는 그대로(기다림 · 특수) */
+      if (_hl && _hl.j[i] != null) { const _g0 = g, _spk = dur(norms[i]) / (_hlT || 1), _len = _spk > 4.5 ? 0.12 : (_spk < 1.5 ? -0.08 : 0);
+        const _d = Math.max(-0.20, Math.min(0.20, (+_hl.j[i] || 0) + _len)); g = Math.max(0, +(g + _d).toFixed(3));
+        if (HL_LOG) HL_LOG.push({ key: _hlKey, i, spk: +_spk.toFixed(2), jit: +_hl.j[i] || 0, len: _len, before: +_g0.toFixed(3), after: g }); }
       trimStat.net += raw - g;
       if (g > 0) seq.push(sil(g));
     }
@@ -749,3 +759,4 @@ if (blind.length) {
   console.log(`    다른 클립이 잘못 들어와도 안 걸립니다 — 이 자리들은 **귀로** 확인해 주세요.`);
 }
 console.log(`  마지막으로 식장 스피커로 실청하세요. 헤드폰에서 괜찮아도 홀 울림에서 BGM에 묻힐 수 있습니다.`);
+if (HL_LOG) fs.writeFileSync(process.env.HL_LOG, JSON.stringify(HL_LOG));   // [HUMANLIKE_1108]
