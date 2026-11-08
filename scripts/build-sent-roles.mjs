@@ -26,8 +26,8 @@ const roleOf = (t) => { t = String(t).trim(); if (chars(t) <= 7) return 'short';
   if (g) return 'guide';
   if (RU.emotion && new RegExp(RU.emotion).test(t)) return 'slow';
   return 'base'; };
-/* 말소리 길이 — −34 dBFS · 0.12초 이상 무음(가장자리 · 문장 안 쉼)을 뺀다 */
-const speechSec = (f) => { const r = spawnSync('ffmpeg', ['-hide_banner', '-i', f, '-af', 'silencedetect=n=-34dB:d=0.12', '-f', 'null', '-'], { encoding: 'utf8' });
+/* 말소리 길이 — −30 dB · 0.12초 이상 무음(앞뒤 · 문장 안 쉼)을 뺀다 [대본 14:12 측정 정의] */
+const speechSec = (f) => { const r = spawnSync('ffmpeg', ['-hide_banner', '-i', f, '-af', 'silencedetect=n=-30dB:d=0.12', '-f', 'null', '-'], { encoding: 'utf8' });
   const e = r.stderr || ''; const d = +((e.match(/Duration: (\d+):(\d+):([\d.]+)/) || []).slice(1).reduce((a, x, i) => a + (+x) * [3600, 60, 1][i], 0));
   let sil = 0; for (const m of e.matchAll(/silence_duration: ([\d.]+)/g)) sil += +m[1];
   const st = [...e.matchAll(/silence_start: ([\d.]+)/g)].map((m) => +m[1]), en = [...e.matchAll(/silence_end: ([\d.]+)/g)].map((m) => +m[1]);
@@ -44,18 +44,23 @@ for (const c of man.clips) { if ((c.dir || 'assets/audio/narration') !== 'assets
 /* 목소리 표준 = 원본 중앙값 × 0.97 (7글자 이하 · 원본 없음 · 대상 아님 제외) */
 const med = (a) => { const b = a.slice().sort((x, y) => x - y); return b.length ? (b.length % 2 ? b[(b.length - 1) / 2] : (b[b.length / 2 - 1] + b[b.length / 2]) / 2) : 0; };
 const VOICE = {}; for (const v of [...new Set(rows.map((r) => r.voice))]) { const a = rows.filter((r) => r.voice === v && r.src && r.role !== 'short' && r.role !== 'skip').map((r) => r.src); if (a.length) VOICE[v] = { n: a.length, median: +med(a).toFixed(2), standard: +(med(a) * 0.97).toFixed(2) }; }
-const mult = { base: 1, cheer: 1, info: 1, guide: 1.015, slow: SLOW / 0.97 };
-rows.forEach((r) => { const V = VOICE[r.voice]; if (!V || !r.src || r.role === 'short' || r.role === 'skip') return; r.target = +(V.standard * mult[r.role]).toFixed(2); r.speed = +(r.src / r.target).toFixed(4); });
+/* ★[대본 14:12] 느린 말 임시 목표 = 우성 6.44(사장님이 감정 문장 7개를 듣고 «97%»로 고른 소리를 같은 정의로 잰 값 · 965판 6.38 · 980판 6.49) · 진희 = 같은 비율(6.44 ÷ 우성 표준) · 확정은 새 녹음 뒤 */
+const SLOW_WS = 6.44, slowRatio = VOICE['우성'] ? SLOW_WS / VOICE['우성'].standard : 0.95 / 0.97;
+const mult = { base: 1, cheer: 1, info: 1, guide: 1.015, slow: slowRatio };
+rows.forEach((r) => { const V = VOICE[r.voice]; if (!V || !r.src || r.role === 'short' || r.role === 'skip') return; r.target = +(r.role === 'slow' && r.voice === '우성' ? SLOW_WS : V.standard * mult[r.role]).toFixed(2); r.speed = +(r.src / r.target).toFixed(4);
+  /* ★[REC_NEAR_TARGET_1108 대본 14:12] 녹음은 Typecast 속도를 목표에 가장 가깝게 받아 조립 보정을 문장마다 ±5% 안으로 — 지금 소리로 10% 넘게 바꿔야 하는 문장은 «다시 녹음 후보» */
+  if (Math.abs(r.speed - 1) > 0.10) r.rerec = true; });
 /* 실제 배속으로 바꾸면: 배속 < 1 = 늘림(느리게) · 원본보다 빠르게 해야 하는 문장(speed > 1)도 있다 */
 const out = { _왜: '[NARR_RESET_SPEC_1108] 문장별 역할 · 목표 글자/초 — 생성물(scripts/build-sent-roles.mjs) · 엔진 반영은 사장님 사다리 확정 뒤 · speed = 원본 글자/초 ÷ 목표(조립이 말소리에 입힐 배속 · 1 보다 작으면 늘림)',
-  slow: { now: SLOW, recommend: SLOW_REC, pending: !!S.emotionPending }, voice: VOICE, roles: NAME, rows };
+  slow: { now: SLOW, recommend: SLOW_REC, pending: !!S.emotionPending, targetTemp: { 우성: SLOW_WS, 진희: VOICE['진희'] ? +(VOICE['진희'].standard * slowRatio).toFixed(2) : null }, why: '[대본 14:12] 임시 · 확정은 사장님이 새 녹음으로 고른 뒤' }, rule: '[REC_NEAR_TARGET_1108] 녹음은 Typecast 속도를 목표에 가깝게 · 조립 보정 문장마다 ±5% 안 · 10% 넘는 문장 = rerec(다시 녹음 후보)', voice: VOICE, roles: NAME, rows };
 fs.writeFileSync(path.join(ROOT, 'assets/audio/_src/_roles.json'), JSON.stringify(out, null, 1) + '\n');
 const cnt = {}; rows.forEach((r) => { cnt[r.voice] = cnt[r.voice] || {}; cnt[r.voice][r.role] = (cnt[r.voice][r.role] || 0) + 1; });
 const sp = rows.filter((r) => r.speed), q = (p) => { const a = sp.map((r) => r.speed).sort((x, y) => x - y); return a[Math.floor((a.length - 1) * p)]; };
 const md = `# 문장 역할표 · NARR_RESET_SPEC_1108
 
 > 생성물 — \`node scripts/build-sent-roles.mjs\` → \`assets/audio/_src/_roles.json\`(엔진 · 검사용) · 이 문서는 대본 검토용
-> 표준 글자/초 = 목소리마다 원본 중앙값 × 0.97 · 안내 +1.5% · 정보 안내 · 기본 · 구호 = 표준 · 느린 말 = ${S.emotionPending ? '사장님 값 대기(지금 97.0% · 추천 95.0%)' : (SLOW * 100).toFixed(1) + '%'} · 7글자 이하 = 녹음대로 · 글자/초는 말소리만(문장 안 쉼 뺌)
+> 표준 글자/초 = 목소리마다 원본 중앙값 × 0.97 · 안내 +1.5% · 정보 안내 · 기본 · 구호 = 표준 · 느린 말 = 임시 목표 우성 6.44 · 진희 같은 비율(대본 14:12 · 확정은 새 녹음 뒤) · 7글자 이하 = 녹음대로(맞춤 없음) · 글자/초는 말소리만(−30 dB · 0.12초 이상 쉼 뺌)
+> [REC_NEAR_TARGET_1108] 녹음은 Typecast 속도를 목표에 가깝게 받아 조립 보정을 ±5% 안으로 · 10% 넘게 바꿔야 하는 문장 = «다시 녹음 후보»
 
 ## 목소리 표준
 | 목소리 | 문장 | 원본 중앙 글자/초 | 표준(× 0.97) |
@@ -66,12 +71,13 @@ ${Object.entries(VOICE).map(([v, x]) => `| ${v} | ${x.n} | ${x.median} | ${x.sta
 ${Object.entries(cnt).map(([v, x]) => `- ${v}: ${Object.entries(x).map(([k, n]) => (NAME[k] || '대상 아님') + ' ' + n).join(' · ')}`).join('\n')}
 
 ## 맞춤 배속 분포(원본 → 목표)
+- 다시 녹음 후보(10% 넘음) ${rows.filter((r) => r.rerec).length}문장 · ±5% 안 ${sp.filter((r) => Math.abs(r.speed - 1) <= 0.05).length}
 - ${sp.length}문장 · 10% ${q(0.1)} · 중앙 ${q(0.5)} · 90% ${q(0.9)} · 가장 늘림 ${q(0)} · 가장 줄임 ${q(1)}
 
 ## 문장 전부
-| 자리 | 목소리 | 역할 | 글자 | 원본 글자/초 | 목표 | 배속 | 문장 |
-|---|---|---|---|---|---|---|---|
-${rows.map((r) => `| ${r.id} | ${r.voice} | ${NAME[r.role] || '대상 아님'} | ${r.n} | ${r.src ?? '-'} | ${r.target ?? '-'} | ${r.speed ?? (r.note || '-')} | ${String(r.text).replace(/\|/g, '\\|')} |`).join('\n')}
+| 자리 | 목소리 | 역할 | 글자 | 원본 글자/초 | 목표 | 배속 | 다시 녹음 후보 | 문장 |
+|---|---|---|---|---|---|---|---|---|
+${rows.map((r) => `| ${r.id} | ${r.voice} | ${NAME[r.role] || '대상 아님'} | ${r.n} | ${r.src ?? '-'} | ${r.target ?? '-'} | ${r.speed ?? (r.note || '-')} | ${r.rerec ? '후보' : ''} | ${String(r.text).replace(/\|/g, '\\|')} |`).join('\n')}
 `;
 fs.writeFileSync(path.join(ROOT, 'docs/plans/식순연구/문장역할_1108.md'), md);
 console.log(`✓ _roles.json · 문장 ${rows.length} · 목소리 ${JSON.stringify(VOICE)} · 역할 ${JSON.stringify(cnt)} · 배속 10/50/90% ${q(0.1)} / ${q(0.5)} / ${q(0.9)} · 범위 ${q(0)} ~ ${q(1)}`);
