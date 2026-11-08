@@ -643,6 +643,7 @@ for (const w of work) {
     const _hlT = HL_PLAN ? (tempoOf(TEMPO, `${c.no}_${c.file}`, (man.voice || {})[String((man.clips.find((x) => String(x.no).padStart(2, '0') + '_' + x.file === `${c.no}_${c.file}`) || c).role).split('|')[0]] || null) || 1) : 1;   // 말소리 길이 = 붙이기 전 길이 ÷ 클립 빠르기
     const _hlKey = `${c.no}_${c.file}`, _hl = HL_PLAN ? { m: (HL_PLAN.mult || {})[_hlKey] || [], j: (HL_PLAN.jit || {})[_hlKey] || [] } : null;
     if (_hl) _hl.m.forEach((mv, si) => { if (norms[si] && mv && Math.abs(mv - 1) > 1e-6) { const o = path.join(TMP, `hl${c.no}_${si}.wav`); execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', norms[si], '-af', `atempo=${mv}`, '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s24le', o]); norms[si] = o; } });
+    if (_hl && HL_LOG) norms.forEach((f, si) => HL_LOG.push({ key: _hlKey, s: si, spk: +(dur(f) / (_hlT || 1)).toFixed(2) }));   // [HUMANLIKE_1108] 문장 말소리 길이(줄 사이 쉼 보정용)
     const headSec = +(c.head + (c.sents[0]?.before || 0)).toFixed(3);          // 클립 가장자리 — 차감 없음
     const tailSec = +(c.tail + (c.sents[c.sents.length - 1]?.after || 0)).toFixed(3);
     const seq = [sil(headSec)];

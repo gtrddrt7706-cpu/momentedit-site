@@ -55,7 +55,19 @@ const files = [...new Set(MOM.flatMap((m) => m.cues.map((c) => c.file)))];
 const st = path.join(TMP, 'stage'); fs.mkdirSync(st);
 execFileSync('node', ['scripts/sent-lib.mjs', '--stage', st, '--clip', files.map((f) => '=' + f).join(',')], { cwd: ROOT, stdio: 'ignore' });
 execFileSync('node', ['scripts/assemble-narration.mjs', '--in', st, '--clip', files.map((f) => '=' + f).join(','), '--out', path.join(OUTA, 'hl')], { cwd: ROOT, stdio: 'ignore', env: Object.assign({}, process.env, { HL_PLAN: path.join(TMP, 'plan.json'), HL_LOG: path.join(TMP, 'log.json') }) });
-const LOG = JSON.parse(fs.readFileSync(path.join(TMP, 'log.json'), 'utf8'));
+const LOGALL = JSON.parse(fs.readFileSync(path.join(TMP, 'log.json'), 'utf8')), LOG = LOGALL.filter((x) => x.i != null), SPK = LOGALL.filter((x) => x.s != null);
+/* ★[HUMANLIKE_1108 대본 12:03] 줄과 줄 사이(클립 사이) 쉼에도 같은 규칙 — 흔들림 ±0.10(고정 씨앗) + 앞 줄 끝 문장 길이(>4.5초 +0.12 · <1.5초 −0.08) · 합쳐 ±0.20 안
+   그대로: 사람 구간 뒤(동작 · 박수 · 디렉터 GO = 1초로 줄임) · 시각 큐(10분 전 · 5분 전 · 1분 전 = 실제로는 몇 분 떨어짐) · 구호 앞 · 특수(0.6 · 3 · 4초)
+   원래 쉼 = 앞 클립 꼬리 + 큐 gapMs + 뒤 클립 머리(manifest 값) · 줄이면 앞 클립 꼬리 무음을 그만큼 깎는다(말소리는 건드리지 않는다) */
+const JX = [];
+MOM.forEach((m) => m.cues.forEach((c, i) => { const n = m.cues[i + 1]; if (!n) return; const ma = manOf(c.file), mb = manOf(n.file); if (!ma || !mb) return;
+  const base = +((ma.tail || 0) + (ma.sents[ma.sents.length - 1].after || 0) + (n.gapMs || 0) / 1000 + (mb.head || 0) + (mb.sents[0].before || 0)).toFixed(2);
+  const why0 = c.live ? '사람 구간 뒤' : (n.fire === 'clock' ? '시각 큐(몇 분 뒤)' : (roleOf(mb.sents[0].text) === 'cheer' ? '구호 앞' : (SPECIAL.some((x) => Math.abs(((n.gapMs || 0) / 1000) - x) < 0.02) ? '특수 쉼' : '')));
+  if (why0) { JX.push({ m: m.id, a: c.file, b: n.file, base, d: 0, why: why0 }); return; }
+  const sp = (SPK.find((x) => x.key === c.file && x.s === ma.sents.length - 1) || {}).spk || 0;
+  const jit = +((rnd(c.file + '>' + n.file) * 2 - 1) * 0.10).toFixed(2), len = sp > 4.5 ? 0.12 : (sp < 1.5 ? -0.08 : 0);
+  const d = +Math.max(-0.20, Math.min(0.20, jit + len)).toFixed(2);
+  JX.push({ m: m.id, a: c.file, b: n.file, base, d, jit, len, sp, cut: Math.abs(d - (jit + len)) > 0.005 }); }));
 const gapCell = (r) => { if (r.last) return '<span class="nt">줄 끝</span>'; const g = LOG.find((x) => x.key === r.file && x.i === r.i); if (!g) return '<span class="nt">그대로</span>';
   const why = [g.jit ? '흔들림 ' + (g.jit > 0 ? '+' : '') + g.jit.toFixed(2) : '', g.len ? (g.len > 0 ? '긴 문장 +' : '짧은 문장 ') + g.len.toFixed(2) + ' (말소리 ' + g.spk.toFixed(1) + '초)' : '', Math.abs((g.after - g.before) - (g.jit + g.len)) > 0.005 ? '±0.20 자름' : ''].filter(Boolean).join(' · ');
   return g.before.toFixed(2) + ' → <b>' + g.after.toFixed(2) + '</b>초' + (why ? ' <span class="nt">' + why + '</span>' : ''); };
@@ -66,20 +78,33 @@ const sil = (sec, n) => { const f = path.join(TMP, `s${n}.wav`); execFileSync('f
 const S1 = sil(1.0, 'one'), S2 = sil(2.0, 'two');
 const cat = (out, list) => { const a = [], fl = []; list.forEach((f, i) => { a.push('-i', f); fl.push(`[${i}:a]aresample=48000,aformat=channel_layouts=mono[a${i}]`); });
   execFileSync('ffmpeg', ['-loglevel', 'error', '-y', ...a, '-filter_complex', fl.join(';') + ';' + list.map((_, i) => `[a${i}]`).join('') + `concat=n=${list.length}:v=0:a=1[o]`, '-map', '[o]', '-c:a', 'libmp3lame', '-b:a', '160k', path.join(OUTA, out)]); };
-const seqOf = (m, hl) => { const L = []; m.cues.forEach((c, i) => { if (i && c.gapMs) L.push(sil(c.gapMs / 1000, `g${m.id}${i}`)); L.push(hl ? path.join(OUTA, 'hl', c.file + '.mp3') : path.join(NAR, c.file + '.mp3')); if (c.live) L.push(S1); }); return L; };
+const durS = (f) => parseFloat(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f], { encoding: 'utf8' }));
+const trimEnd = (f, sec, n) => { const o = path.join(TMP, `t${n}.wav`); execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-i', f, '-af', `atrim=end=${(durS(f) - sec).toFixed(3)}`, '-ar', '48000', '-ac', '1', o]); return o; };
+const seqOf = (m, hl) => { const L = []; m.cues.forEach((c, i) => { if (i && c.gapMs) L.push(sil(c.gapMs / 1000, `g${m.id}${i}`));
+  let f = hl ? path.join(OUTA, 'hl', c.file + '.mp3') : path.join(NAR, c.file + '.mp3');
+  const j = hl ? JX.find((x) => x.m === m.id && x.a === c.file) : null;
+  if (j && j.d < 0) f = trimEnd(f, -j.d, `${m.id}${i}`);
+  L.push(f); if (c.live) L.push(S1); if (j && j.d > 0) L.push(sil(j.d, `j${m.id}${i}`)); }); return L; };
 MOM.forEach((m) => { cat(`${m.id}-now.mp3`, seqOf(m, false)); cat(`${m.id}-hl.mp3`, seqOf(m, true)); });
 const all = (hl) => MOM.flatMap((m, i) => (i ? [S2] : []).concat(seqOf(m, hl)));
 cat('all-now.mp3', all(false)); cat('all-hl.mp3', all(true));
 fs.rmSync(TMP, { recursive: true, force: true });
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const nSpeed = table.filter((r) => Math.abs(r.mult - 1) > 1e-6).length, nGuide = table.filter((r) => r.mult > 1 + 1e-6).length, nHeart = table.filter((r) => r.mult < 1 - 1e-6).length;
+const nGapIn = LOG.filter((g) => Math.abs(g.after - g.before) > 0.005).length, nGapJx = JX.filter((x) => x.d).length;
+const jxCell = (x) => x.d ? `${x.base.toFixed(2)} → <b>${(x.base + x.d).toFixed(2)}</b>초 <span class="nt">${[x.jit ? '흔들림 ' + (x.jit > 0 ? '+' : '') + x.jit.toFixed(2) : '', x.len ? (x.len > 0 ? '긴 문장 +' : '짧은 문장 ') + x.len.toFixed(2) + ' (말소리 ' + x.sp.toFixed(1) + '초)' : '', x.cut ? '±0.20 자름' : ''].filter(Boolean).join(' · ')}</span>` : `<span class="nt">그대로 · ${esc(x.why || '0초')}</span>`;
 const btn = (src, t) => `<button type="button" data-src="${OUT}/${src}">${t}</button>`;
 const html = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>사람처럼 들리기 · 실청</title>
-<style>:root{--ink:#2b2522;--light:#7a706a;--line:#e5ddd5;--seal:#6B2A24;--bg:#faf8f5}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,-apple-system,sans-serif}main{max-width:760px;margin:0 auto;padding:16px}h1{font-size:20px;margin:8px 0 4px}h2{font-size:16px;margin:24px 0 8px}.nt{color:var(--light);font-size:13px}.bt{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}button{font:inherit;min-height:44px;padding:8px 14px;border:1px solid var(--seal);background:#fff;color:var(--seal);border-radius:8px;cursor:pointer}button.on{background:var(--seal);color:#fff}.rl{list-style:none;margin:0;padding:0}.rl li{border-bottom:1px solid var(--line);padding:10px 0}.rl .h{font-size:13px;color:var(--light)}.rl .h b{color:var(--ink)}.rl .t{margin:2px 0}.rl .g{font-size:13px}</style></head><body><main>
+<style>:root{--ink:#2b2522;--light:#7a706a;--line:#e5ddd5;--seal:#6B2A24;--bg:#faf8f5}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,-apple-system,sans-serif}main{max-width:760px;margin:0 auto;padding:16px}h1{font-size:20px;margin:8px 0 4px}h2{font-size:16px;margin:24px 0 8px}.nt{color:var(--light);font-size:13px}.bt{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}button{font:inherit;min-height:44px;padding:8px 14px;border:1px solid var(--seal);background:#fff;color:var(--seal);border-radius:8px;cursor:pointer}button.on{background:var(--seal);color:#fff}.sum{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:12px 0}.rl{list-style:none;margin:0;padding:0}.rl li{border-bottom:1px solid var(--line);padding:10px 0}.rl .h{font-size:13px;color:var(--light)}.rl .h b{color:var(--ink)}.rl .t{margin:2px 0}.rl .g{font-size:13px}</style></head><body><main>
 <h1>사람처럼 들리기 · 지금 / 사람처럼</h1>
 <p class="nt">시험판(HUMANLIKE_1108) · 새 녹음 0 · 문장별 빠르기 곱(안내 ×1.015 · 기본 ×1.000 · 감정·핵심 ×0.985 · 구호 ×1.000 · 이웃 문장 3% 안) · 문장 사이 쉼 ±0.10초 흔들림(고정 씨앗) + 문장 길이(앞 문장 말소리 4.5초 넘으면 +0.12초 · 1.5초 안 되면 −0.08초) · 합쳐 원래 값 ±0.20초 안 · 기다림(구호 · 선언 앞)과 특수(0.6 · 3 · 4초)는 그대로 · 사람 구간은 1초로 줄임 · 엔진에는 아직 반영하지 않았어요.</p>
+<p class="sum"><b>바뀐 쉼 ${nGapIn + nGapJx}곳</b>(줄 사이 ${nGapJx} · 문장 사이 ${nGapIn}) · <b>바뀐 빠르기 ${nSpeed}문장</b>(안내 ×1.015 쪽 ${nGuide} · 감정 ×0.985 쪽 ${nHeart} · 전체 ${table.length}문장)</p>
 <h2>3순간 이어 듣기</h2><div class="bt">${btn('all-now.mp3', '지금 3순간 이어 듣기')}${btn('all-hl.mp3', '사람처럼 3순간 이어 듣기')}</div>
 ${MOM.map((m) => `<h2>${esc(m.name)}</h2><p class="nt">${m.cues.map((c) => esc(c.file.split('_')[0])).join(' → ')}</p><div class="bt">${btn(m.id + '-now.mp3', '지금')}${btn(m.id + '-hl.mp3', '사람처럼')}</div>`).join('\n')}
+<h2>줄 사이 쉼</h2><p class="nt">원래 쉼 = 앞 줄 끝 여백 + 엔진 큐 사이 + 뒤 줄 앞 여백 · 사람 구간 · 시각 큐 · 구호 앞 · 특수 쉼은 그대로</p><ul class="rl">
+${JX.map((x) => `<li><div class="h"><b>${esc(x.a.split('_')[0])} → ${esc(x.b.split('_')[0])}</b> · ${esc(MOM.find((m) => m.id === x.m).name)}</div><div class="g">쉼: ${jxCell(x)}</div></li>`).join('\n')}
+</ul>
 <h2>역할 분류표</h2><p class="nt">줄마다 · 클립 · 역할 · 빠르기 곱 / 문장 / 쉼: 원래 → 사람처럼(그 문장 뒤)</p><ul class="rl">
 ${table.map((r) => `<li><div class="h"><b>${esc(r.file.split('_')[0])}</b> · ${esc(r.role)} · ×${r.adj ? r.mult.toFixed(4) : r.mult.toFixed(3)}${r.adj ? ' · ' + esc(r.adj) : ''}</div><div class="t">${esc(r.text)}</div><div class="g">쉼: ${gapCell(r)}</div></li>`).join('\n')}
 </ul></main>
@@ -87,4 +112,4 @@ ${table.map((r) => `<li><div class="h"><b>${esc(r.file.split('_')[0])}</b> · ${
 </body></html>
 `;
 fs.writeFileSync(path.join(ROOT, 'listen-humanlike-1108.html'), html);
-console.log(`✓ listen-humanlike-1108.html · 순간 ${MOM.length} · 클립 ${files.length} · 문장 ${table.length} · 바뀐 쉼 ${LOG.length} · ` + LOG.map((g) => `${g.key.split('_')[0]}#${g.i} ${g.before}→${g.after}(흔들림 ${g.jit} · 길이 ${g.len} · 말 ${g.spk}초)`).join(' | '));
+console.log(`✓ listen-humanlike-1108.html · 바뀐 쉼 ${nGapIn + nGapJx}(줄 사이 ${nGapJx} · 문장 사이 ${nGapIn}) · 바뀐 빠르기 ${nSpeed}/${table.length} · 줄 사이 ` + JX.map((x) => `${x.a.split('_')[0]}>${x.b.split('_')[0]} ${x.d || x.why}`).join(' | ') + ' · ' + LOG.map((g) => `${g.key.split('_')[0]}#${g.i} ${g.before}→${g.after}(흔들림 ${g.jit} · 길이 ${g.len} · 말 ${g.spk}초)`).join(' | '));
