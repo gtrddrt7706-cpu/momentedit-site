@@ -1,0 +1,2066 @@
+[
+ {
+  "k": "01_guest-1-arrival",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "02_guest-2-10min",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "03_guest-3-5min",
+  "use": true,
+  "where": "직접 부름 · console.html",
+  "status": ""
+ },
+ {
+  "k": "04_guest-4-1min",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "05_entry-A",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "06_entry-B",
+  "use": true,
+  "where": "엔진 · minimal · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "07_entry-C",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "08_entry-D",
+  "use": true,
+  "where": "엔진 · gamdong · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "09_entry-E",
+  "use": true,
+  "where": "엔진 · damback · course=family · console",
+  "status": ""
+ },
+ {
+  "k": "100_narr-free-in-video",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "101_narr-free-in-stage",
+  "use": false,
+  "where": "",
+  "status": "retired"
+ },
+ {
+  "k": "102_narr-free-in-gift",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "103_narr-free-in-speech",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "104_narr-free-out-clap",
+  "use": false,
+  "where": "",
+  "status": "retired"
+ },
+ {
+  "k": "105_narr-free-fail",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "106_tribute-bow-groom",
+  "use": false,
+  "where": "",
+  "status": "retired"
+ },
+ {
+  "k": "107_toast-both-pour-b",
+  "use": true,
+  "where": "직접 부름 · order-preview.html",
+  "status": "retired"
+ },
+ {
+  "k": "108_narr-close-bow",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "109_fx-free",
+  "use": false,
+  "where": "",
+  "status": "manual_off"
+ },
+ {
+  "k": "10_entry-F",
+  "use": true,
+  "where": "엔진 · damback · course=record · console",
+  "status": ""
+ },
+ {
+  "k": "110_end-1c-thanks-nomeal",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "111_bridge-b3-clap-thanks",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "112_bridge-b4-breath",
+  "use": false,
+  "where": "",
+  "status": "dormant"
+ },
+ {
+  "k": "113_bridge-b5-video-out",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "114_bridge-b6-lighter",
+  "use": false,
+  "where": "",
+  "status": "retired"
+ },
+ {
+  "k": "115_guest-ex2-1-arrival",
+  "use": true,
+  "where": "엔진 · damback · guestEx=1 · console",
+  "status": ""
+ },
+ {
+  "k": "116_guest-ex2-2-10min",
+  "use": true,
+  "where": "엔진 · damback · guestEx=1 · console",
+  "status": ""
+ },
+ {
+  "k": "117_guest-ex2-3-5min",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "118_guest-ex2-4-1min",
+  "use": true,
+  "where": "엔진 · damback · guestEx=1 · console",
+  "status": ""
+ },
+ {
+  "k": "119_guest-ex3-1-arrival",
+  "use": true,
+  "where": "엔진 · damback · guestEx=2 · console",
+  "status": ""
+ },
+ {
+  "k": "11_narr-welcome-in",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "120_guest-ex3-2-10min",
+  "use": true,
+  "where": "엔진 · damback · guestEx=2 · console",
+  "status": ""
+ },
+ {
+  "k": "121_guest-ex3-3-5min",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "122_guest-ex3-4-1min",
+  "use": true,
+  "where": "엔진 · damback · guestEx=2 · console",
+  "status": ""
+ },
+ {
+  "k": "123_guest-ex4-1-arrival",
+  "use": true,
+  "where": "엔진 · damback · guestEx=3 · console",
+  "status": ""
+ },
+ {
+  "k": "124_guest-ex4-2-10min",
+  "use": true,
+  "where": "엔진 · damback · guestEx=3 · console",
+  "status": ""
+ },
+ {
+  "k": "125_guest-ex4-3-5min",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "126_guest-ex4-4-1min",
+  "use": true,
+  "where": "엔진 · damback · guestEx=3 · console",
+  "status": ""
+ },
+ {
+  "k": "127_narr-vow-in-b",
+  "use": true,
+  "where": "엔진 · damback · vowFirst=b · console",
+  "status": ""
+ },
+ {
+  "k": "128_narr-prevideo-in-ex2",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "129_narr-prevideo-in-ex3",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "12_narr-welcome-out",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "130_narr-prevideo-in-ex4",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "131_narr-table-in",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "132_narr-entry-bow-ex2",
+  "use": true,
+  "where": "엔진 · open · 칩 맞절 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "133_narr-thanks-in",
+  "use": true,
+  "where": "엔진 · damback · vowKind=thanks · console",
+  "status": ""
+ },
+ {
+  "k": "136_narr-declare-in-friend",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "137_narr-open",
+  "use": true,
+  "where": "엔진 · damback · course=open · console",
+  "status": ""
+ },
+ {
+  "k": "138_narr-candle-bow",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "139_narr-candle-bow-four",
+  "use": true,
+  "where": "직접 부름 · order-preview.html",
+  "status": ""
+ },
+ {
+  "k": "13_narr-vow-in",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "140_narr-candle-out-formal",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "141_narr-tribute-name",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "142_narr-tribute-pair",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "143_tribute-call",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "144_narr-entry-arrive",
+  "use": true,
+  "where": "엔진 · damback · course=open · console",
+  "status": ""
+ },
+ {
+  "k": "145_tribute-call-say",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "146_narr-candle-bow-fathers",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "147_narr-candle-bow-others",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "148_narr-open-ex2",
+  "use": true,
+  "where": "엔진 · open · 칩 예식 시작 안내 1 · console",
+  "status": ""
+ },
+ {
+  "k": "149_narr-open-ex3",
+  "use": true,
+  "where": "엔진 · open · 칩 예식 시작 안내 2 · console",
+  "status": ""
+ },
+ {
+  "k": "14_narr-vow-out",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "150_narr-open-ex4",
+  "use": true,
+  "where": "엔진 · open · 칩 예식 시작 안내 3 · console",
+  "status": ""
+ },
+ {
+  "k": "151_narr-candle-in-mothers",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "152_narr-candle-in-mothers-ex3",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 화촉 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "153_narr-candle-in-mothers-ex4",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 화촉 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "154_narr-candle-in-fathers-ex2",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 화촉 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "155_narr-candle-in-fathers-ex3",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 화촉 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "156_narr-candle-in-parents-ex2",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "157_narr-candle-in-parents-ex3",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "158_narr-candle-in-parents-ex4",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "159_narr-candle-in-others-ex3",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 화촉 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "15_narr-ring-in",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "160_narr-entry-bow",
+  "use": true,
+  "where": "엔진 · damback · course=open · console",
+  "status": ""
+ },
+ {
+  "k": "161_narr-entry-bow-ex3",
+  "use": true,
+  "where": "엔진 · open · 칩 맞절 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "162_narr-entry-bow-ex4",
+  "use": true,
+  "where": "엔진 · open · 칩 맞절 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "163_narr-vow-in-ex2",
+  "use": true,
+  "where": "엔진 · damback · 칩 서약 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "164_narr-vow-in-ex3",
+  "use": true,
+  "where": "엔진 · damback · 칩 서약 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "165_narr-vow-in-ex4",
+  "use": true,
+  "where": "엔진 · damback · 칩 서약 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "166_narr-vow-in-b-ex2",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"vowFirst\":\"b\"} · 칩 서약 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "167_narr-vow-in-b-ex3",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"vowFirst\":\"b\"} · 칩 서약 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "168_narr-vow-in-b-ex4",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"vowFirst\":\"b\"} · 칩 서약 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "169_narr-ring-in-ex2",
+  "use": true,
+  "where": "엔진 · damback · 칩 반지 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "16_narr-ring-out",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "170_narr-ring-in-ex3",
+  "use": true,
+  "where": "엔진 · damback · 칩 반지 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "171_narr-declare-family-out-ex2",
+  "use": true,
+  "where": "엔진 · damback · 칩 선언 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "172_narr-bless-mid-ex2",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 덕담 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "173_narr-bless-mid-ex3",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 덕담 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "174_narr-free-in-speech-ex2",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 축사 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "175_narr-free-in-speech-ex3",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 축사 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "176_letter-each-ex2",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 편지 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "177_letter-each-ex3",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 편지 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "178_narr-letter-end-ex2",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 편지 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "179_narr-tribute-name-ex2",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 인사 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "17_narr-valley-wine",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "180_narr-tribute-name-ex3",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 인사 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "181_narr-tribute-name-ex4",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 인사 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "182_tribute-in-ex3",
+  "use": true,
+  "where": "엔진 · damback · 칩 인사 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "183_tribute-call-ex3",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 인사 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "184_tribute-out-ex4",
+  "use": true,
+  "where": "엔진 · damback · 칩 인사 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "185_narr-close-bow-ex2",
+  "use": true,
+  "where": "엔진 · damback · 칩 닫는 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "186_narr-close-bow-ex3",
+  "use": true,
+  "where": "엔진 · damback · 칩 닫는 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "187_narr-close-bow-ex4",
+  "use": true,
+  "where": "엔진 · damback · 칩 닫는 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "188_toast-toast-ex2",
+  "use": true,
+  "where": "엔진 · damback · 칩 축배 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "189_toast-toast-ex3",
+  "use": true,
+  "where": "엔진 · damback · 칩 축배 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "18_narr-valley-cake",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "190_narr-table-in-ex2",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "191_narr-candle-in-fathers-ex4",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 화촉 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "192_narr-candle-in-others-ex2",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 화촉 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "193_narr-ring-in-ex4",
+  "use": true,
+  "where": "엔진 · damback · 칩 반지 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "194_narr-bless-mid-ex4",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 덕담 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "195_narr-bless-end-ex4",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 덕담 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "196_narr-free-in-speech-ex4",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 축사 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "197_narr-declare-family-out-ex3",
+  "use": true,
+  "where": "엔진 · damback · 칩 선언 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "198_narr-declare-family-out-ex4",
+  "use": true,
+  "where": "엔진 · damback · 칩 선언 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "199_letter-each-ex4",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 편지 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "19_narr-song",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "200_narr-letter-end-ex4",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 편지 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "202_narr-song-ex2",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 축가 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "203_narr-table-in-ex3",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 테이블 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "204_narr-song-ex3",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "205_narr-song-ex4",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 축가 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "206_narr-bless-end-ex3",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 덕담 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "207_toast-toast-ex4",
+  "use": true,
+  "where": "엔진 · damback · 칩 축배 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "208_narr-welcome-in-ex2",
+  "use": true,
+  "where": "엔진 · damback · 칩 감사 인사 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "209_narr-song-ex5",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 축가 멘트 4 · console",
+  "status": ""
+ },
+ {
+  "k": "20_narr-letter-end",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "210_narr-song-end",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "211_narr-candle-out-ex2",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 화촉 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "212_narr-candle-out-ex3",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 화촉 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "213_narr-candle-out-ex4",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 화촉 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "214_narr-welcome-in-ex3",
+  "use": true,
+  "where": "엔진 · damback · 칩 감사 인사 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "215_narr-welcome-in-ex4",
+  "use": true,
+  "where": "엔진 · damback · 칩 감사 인사 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "216_narr-ring-out-ex2",
+  "use": true,
+  "where": "엔진 · damback · 칩 반지 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "217_narr-ring-out-ex3",
+  "use": true,
+  "where": "엔진 · damback · 칩 반지 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "218_narr-declare-in-friend-ex2",
+  "use": true,
+  "where": "엔진 · damback · 칩 선언 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "219_narr-close-ex2",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "21_narr-declare-family-intro",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "220_narr-close-ex3",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "221_narr-close-ex4",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "222_narr-table-in-ex4",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 테이블 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "223_narr-table-in-ex5",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 테이블 멘트 4 · console",
+  "status": ""
+ },
+ {
+  "k": "224_narr-candle-in-others-ex4",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 화촉 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "225_narr-vow-out-ex2",
+  "use": true,
+  "where": "엔진 · damback · 칩 서약 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "226_narr-vow-out-ex3",
+  "use": true,
+  "where": "엔진 · damback · 칩 서약 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "227_narr-vow-out-ex4",
+  "use": true,
+  "where": "엔진 · damback · 칩 서약 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "228_narr-thanks-in-ex2",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"vowKind\":\"thanks\"} · 칩 감사문 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "229_narr-thanks-in-ex3",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"vowKind\":\"thanks\"} · 칩 감사문 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "22_narr-bless-open",
+  "use": true,
+  "where": "엔진 · damback · course=family · console",
+  "status": "manual_off"
+ },
+ {
+  "k": "230_narr-declare-in-friend-ex3",
+  "use": true,
+  "where": "엔진 · damback · 칩 선언 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "231_narr-declare-in-friend-ex4",
+  "use": true,
+  "where": "엔진 · damback · 칩 선언 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "232_narr-bless-end-ex2",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 덕담 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "233_letter-parent-ex2",
+  "use": true,
+  "where": "엔진 · damback · 칩 편지 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "234_letter-parent-ex3",
+  "use": true,
+  "where": "엔진 · damback · 칩 편지 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "235_letter-parent-ex4",
+  "use": true,
+  "where": "엔진 · damback · 칩 편지 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "236_tribute-in-ex2",
+  "use": true,
+  "where": "엔진 · damback · 칩 인사 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "237_tribute-in-ex4",
+  "use": true,
+  "where": "엔진 · damback · 칩 인사 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "238_tribute-call-ex2",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 인사 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "239_tribute-call-ex4",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 인사 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "23_narr-bless-mid",
+  "use": true,
+  "where": "엔진 · damback · bless=on · console",
+  "status": ""
+ },
+ {
+  "k": "240_tribute-call-say-ex2",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 인사 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "241_tribute-call-say-ex3",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 인사 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "242_tribute-call-say-ex4",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 인사 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "243_bridge-b7-entry-ready",
+  "use": true,
+  "where": "엔진 · damback · course=open · console",
+  "status": ""
+ },
+ {
+  "k": "244_bridge-b8-face-guests",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "245_bridge-b9-declare-seat",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "246_bridge-b10-speech-clap",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "248_bridge-b12-tribute-calm",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "249_bridge-b13-toast-stay",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "24_narr-bless-end",
+  "use": true,
+  "where": "엔진 · damback · course=family · console",
+  "status": ""
+ },
+ {
+  "k": "250_narr-song-end-friend",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "251_narr-open-ex5",
+  "use": true,
+  "where": "엔진 · open · 칩 예식 시작 안내 4 · console",
+  "status": ""
+ },
+ {
+  "k": "252_narr-entry-bow-ex5",
+  "use": true,
+  "where": "엔진 · open · 칩 맞절 멘트 4 · console",
+  "status": ""
+ },
+ {
+  "k": "253_narr-ring-out-ex9",
+  "use": true,
+  "where": "엔진 · damback · 칩 반지 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "254_narr-tribute-name-ex5",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 인사 멘트 4 · console",
+  "status": ""
+ },
+ {
+  "k": "255_bridge-b9-declare-seat-end",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "256_tribute-hug",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "257_narr-open-ex6",
+  "use": true,
+  "where": "엔진 · open · 칩 예식 시작 안내 5 · console",
+  "status": ""
+ },
+ {
+  "k": "258_narr-entry-bow-ex6",
+  "use": true,
+  "where": "엔진 · open · 칩 맞절 멘트 5 · console",
+  "status": ""
+ },
+ {
+  "k": "259_narr-tribute-name-ex6",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 인사 멘트 5 · console",
+  "status": ""
+ },
+ {
+  "k": "25_narr-bless-end-long",
+  "use": true,
+  "where": "엔진 · damback · course=family · console",
+  "status": ""
+ },
+ {
+  "k": "260_narr-thanks-in-ex4",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"vowKind\":\"thanks\"} · 칩 감사문 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "261_narr-prevideo-out",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "262_narr-photo-free",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "263_bridge-b14-candle-name",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 화촉 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "264_narr-photo-upload",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "265_narr-photo-pre",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "266_narr-photo-pre-meal",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "267_narr-declare-in-friend-gdad",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"declTitle\":\"gdad\"} · console",
+  "status": ""
+ },
+ {
+  "k": "268_narr-declare-in-friend-bdad",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "269_narr-declare-in-friend-gmom",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"declTitle\":\"gmom\"} · console",
+  "status": ""
+ },
+ {
+  "k": "26_narr-close",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": "legacy"
+ },
+ {
+  "k": "270_narr-declare-in-friend-bmom",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"declTitle\":\"bmom\"} · console",
+  "status": ""
+ },
+ {
+  "k": "271_narr-declare-in-friend-ex2-gdad",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"declTitle\":\"gdad\"} · 칩 선언 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "272_narr-declare-in-friend-ex2-bdad",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 선언 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "273_narr-declare-in-friend-ex2-gmom",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"declTitle\":\"gmom\"} · 칩 선언 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "274_narr-declare-in-friend-ex2-bmom",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"declTitle\":\"bmom\"} · 칩 선언 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "275_narr-declare-in-friend-ex3-gdad",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"declTitle\":\"gdad\"} · 칩 선언 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "276_narr-declare-in-friend-ex3-bdad",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 선언 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "277_narr-declare-in-friend-ex3-gmom",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"declTitle\":\"gmom\"} · 칩 선언 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "278_narr-declare-in-friend-ex3-bmom",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"declTitle\":\"bmom\"} · 칩 선언 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "279_narr-declare-in-friend-ex4-gdad",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"declTitle\":\"gdad\"} · 칩 선언 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "27_letter-parent",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "280_narr-declare-in-friend-ex4-bdad",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 선언 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "281_narr-declare-in-friend-ex4-gmom",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"declTitle\":\"gmom\"} · 칩 선언 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "282_narr-declare-in-friend-ex4-bmom",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"declTitle\":\"bmom\"} · 칩 선언 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "283_bridge-b9-declare-seat-end-gdad",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"declTitle\":\"gdad\"} · console",
+  "status": ""
+ },
+ {
+  "k": "284_bridge-b9-declare-seat-end-bdad",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "285_bridge-b9-declare-seat-end-gmom",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"declTitle\":\"gmom\"} · console",
+  "status": ""
+ },
+ {
+  "k": "286_bridge-b9-declare-seat-end-bmom",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · {\"declTitle\":\"bmom\"} · console",
+  "status": ""
+ },
+ {
+  "k": "287_narr-closing",
+  "use": true,
+  "where": "엔진 · damback · course=open · console",
+  "status": ""
+ },
+ {
+  "k": "288_narr-closing-guide",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "289_narr-closing-soft",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "28_letter-each",
+  "use": true,
+  "where": "엔진 · damback · letter=each · console",
+  "status": ""
+ },
+ {
+  "k": "290_narr-closing-soft-guide",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "291_narr-closing-meal",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "292_narr-closing-nt",
+  "use": true,
+  "where": "엔진 · open · 칩 닫는 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "293_narr-closing-guide-nt",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "294_narr-closing-soft-nt",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "295_narr-closing-soft-guide-nt",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "296_narr-closing-meal-nt",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "297_guest-w-arrival",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "298_guest-w-arrival-guide",
+  "use": true,
+  "where": "엔진 · damback · course=open · console",
+  "status": ""
+ },
+ {
+  "k": "299_guest-w-10m-n10",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "29_letter-both",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": "legacy"
+ },
+ {
+  "k": "300_guest-w-10m-n10-mgr",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "301_guest-w-10m-n10-mg",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "302_guest-w-10m-n10-mr",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "303_guest-w-10m-n10-m",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "304_guest-w-10m-n15",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "305_guest-w-10m-n15-mgr",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "306_guest-w-10m-n15-mg",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "307_guest-w-10m-n15-mr",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "308_guest-w-10m-n15-m",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "309_guest-w-10m-n20",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "30_declare-1-solemn",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "310_guest-w-10m-n20-mgr",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "311_guest-w-10m-n20-mg",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "312_guest-w-10m-n20-mr",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "313_guest-w-10m-n20-m",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "314_guest-w-5m-online",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "315_guest-w-1m",
+  "use": true,
+  "where": "엔진 · damback · course=open · console",
+  "status": ""
+ },
+ {
+  "k": "316_guest-w-1m-online",
+  "use": true,
+  "where": "엔진 · damback · course=open · console",
+  "status": ""
+ },
+ {
+  "k": "317_after-photo",
+  "use": true,
+  "where": "엔진 · damback · course=open · console",
+  "status": ""
+ },
+ {
+  "k": "318_after-photo-guide",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "319_after-photo-cafe",
+  "use": true,
+  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":1,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "31_declare-2-warm",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "320_after-photo-cafe-guide",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "321_after-photo-resv-guide",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "322_after-photo-resv",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "323_after-photo-meal-guide",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "324_after-photo-meal",
+  "use": true,
+  "where": "엔진 · damback · course=open · console",
+  "status": ""
+ },
+ {
+  "k": "325_narr-closing-nt-nc",
+  "use": true,
+  "where": "엔진 · open · 칩 닫는 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "326_narr-closing-guide-nt-nc",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "327_narr-closing-soft-guide-nt-nc",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "328_narr-closing-meal-nt-nc",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "329_guest-w-5m-mgr",
+  "use": true,
+  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":1,\"mealFull\":1,\"digital\":0,\"resv\":1,\"guide\":1} · console",
+  "status": ""
+ },
+ {
+  "k": "32_declare-family",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "330_guest-w-5m-mg",
+  "use": true,
+  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":1,\"mealFull\":1,\"digital\":0,\"resv\":0,\"guide\":1} · console",
+  "status": ""
+ },
+ {
+  "k": "331_guest-w-5m-mr",
+  "use": true,
+  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":1,\"mealFull\":1,\"digital\":0,\"resv\":1,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "332_guest-w-5m-m",
+  "use": true,
+  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":1,\"mealFull\":1,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "333_guest-w-5m-g",
+  "use": true,
+  "where": "엔진 · damback · course=open · console",
+  "status": ""
+ },
+ {
+  "k": "334_guest-w-5m-mgr-online",
+  "use": true,
+  "where": "엔진 · damback · course=open · console",
+  "status": ""
+ },
+ {
+  "k": "335_guest-w-5m-mg-online",
+  "use": true,
+  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":1,\"mealFull\":1,\"digital\":1,\"resv\":0,\"guide\":1} · console",
+  "status": ""
+ },
+ {
+  "k": "336_guest-w-5m-mr-online",
+  "use": true,
+  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":1,\"mealFull\":1,\"digital\":1,\"resv\":1,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "337_guest-w-5m-m-online",
+  "use": true,
+  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":1,\"mealFull\":1,\"digital\":1,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "338_guest-w-5m-g-online",
+  "use": true,
+  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":1,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "339_narr-closing-mealnr",
+  "use": true,
+  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":1,\"mealFull\":1,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "33_declare-ask-a",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "340_narr-closing-mealnr-nt",
+  "use": true,
+  "where": "엔진 · open · 칩 닫는 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "341_narr-closing-mealnr-nt-nc",
+  "use": true,
+  "where": "엔진 · open · 칩 닫는 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "342_narr-closing-mealr",
+  "use": true,
+  "where": "엔진 · damback · course=open · console",
+  "status": ""
+ },
+ {
+  "k": "343_narr-closing-mealr-nt",
+  "use": true,
+  "where": "엔진 · open · 칩 닫는 멘트 3 · console",
+  "status": ""
+ },
+ {
+  "k": "344_narr-closing-mealr-nt-nc",
+  "use": true,
+  "where": "엔진 · open · 칩 닫는 멘트 2 · console",
+  "status": ""
+ },
+ {
+  "k": "345_guest-w-10m-n10-meal",
+  "use": true,
+  "where": "엔진 · 코스 이야기 상태 open · 조건 {\"meal\":1,\"mealFull\":1,\"resv\":0,\"digital\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "346_guest-w-10m-n15-meal",
+  "use": true,
+  "where": "엔진 · 코스 이야기 상태 open · 조건 {\"meal\":1,\"mealFull\":1,\"resv\":0,\"digital\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "347_guest-w-10m-n20-meal",
+  "use": true,
+  "where": "엔진 · 코스 이야기 상태 open · 조건 {\"meal\":1,\"mealFull\":1,\"resv\":0,\"digital\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "348_guest-w-10m-n10-short",
+  "use": true,
+  "where": "엔진 · damback · course=open · console",
+  "status": ""
+ },
+ {
+  "k": "349_guest-w-10m-n10-short-meal",
+  "use": true,
+  "where": "엔진 · damback · course=open · console",
+  "status": ""
+ },
+ {
+  "k": "34_declare-ask-b",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "35_declare-ask-c",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "36_ringwarm-family",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "37_ringwarm-all",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "38_tribute-in",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "39_tribute-out",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "40_toast-toast",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "41_toast-cake",
+  "use": false,
+  "where": "",
+  "status": "retired"
+ },
+ {
+  "k": "42_toast-both",
+  "use": true,
+  "where": "직접 부름 · order-preview.html",
+  "status": "retired"
+ },
+ {
+  "k": "43_parents-letter",
+  "use": true,
+  "where": "직접 부름 · parents.html(parents-letter.mp3 사본)",
+  "status": "manual_off"
+ },
+ {
+  "k": "44_end-0-photo",
+  "use": true,
+  "where": "직접 부름 · console.html",
+  "status": "retired"
+ },
+ {
+  "k": "45_end-1a-farewell",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":1,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "46_end-1b-farewell-online",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "47_end-2-goodbye",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": "legacy"
+ },
+ {
+  "k": "48_online-3-welcome",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":1,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "49_bridge-4-wait-emotion",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "50_bridge-5-wait-setup",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "51_bridge-6-resume",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "52_narr-entry-out",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": "legacy"
+ },
+ {
+  "k": "54_narr-valley-out",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "55_narr-song-out",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "56_narr-toast-out",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": "legacy"
+ },
+ {
+  "k": "57_narr-declare-family-out",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "58_narr-free-in",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "59_narr-free-out",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": "legacy"
+ },
+ {
+  "k": "60_narr-photo-split",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": "legacy"
+ },
+ {
+  "k": "61_narr-round-open",
+  "use": false,
+  "where": "",
+  "status": "retired"
+ },
+ {
+  "k": "62_narr-online-in",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":1,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "63_narr-final-warn",
+  "use": false,
+  "where": "",
+  "status": "retired"
+ },
+ {
+  "k": "64_narr-final-call",
+  "use": false,
+  "where": "",
+  "status": "retired"
+ },
+ {
+  "k": "65_narr-photo-out",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": "legacy"
+ },
+ {
+  "k": "66_call-family-all",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "67_call-parents",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "68_fx-seatrow",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "69_fx-vshape",
+  "use": false,
+  "where": "",
+  "status": "manual_off"
+ },
+ {
+  "k": "70_fx-clink",
+  "use": false,
+  "where": "",
+  "status": "manual_off"
+ },
+ {
+  "k": "71_fx-wave",
+  "use": false,
+  "where": "",
+  "status": "manual_off"
+ },
+ {
+  "k": "72_fx-surround",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "73_fx-lean",
+  "use": false,
+  "where": "",
+  "status": "manual_off"
+ },
+ {
+  "k": "74_fx-clap",
+  "use": false,
+  "where": "",
+  "status": "manual_off"
+ },
+ {
+  "k": "75_fx-selfie",
+  "use": false,
+  "where": "",
+  "status": "manual_off"
+ },
+ {
+  "k": "76_toast-both-b",
+  "use": true,
+  "where": "직접 부름 · order-preview.html",
+  "status": "retired"
+ },
+ {
+  "k": "77_narr-cake-out",
+  "use": false,
+  "where": "",
+  "status": "retired"
+ },
+ {
+  "k": "78_fx-count",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "79_narr-entry-out-B",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "80_narr-entry-out-C",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": "legacy"
+ },
+ {
+  "k": "81_narr-entry-out-D",
+  "use": true,
+  "where": "엔진 · gamdong · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": "legacy"
+ },
+ {
+  "k": "82_narr-entry-out-E",
+  "use": true,
+  "where": "엔진 · damback · course=family · console",
+  "status": "legacy"
+ },
+ {
+  "k": "83_narr-entry-out-F",
+  "use": true,
+  "where": "엔진 · damback · course=record · console",
+  "status": "legacy"
+ },
+ {
+  "k": "84_narr-photo-ask",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":1,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "85_narr-photo-send",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":1,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": "legacy"
+ },
+ {
+  "k": "86_narr-round-mid",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "87_narr-toast-none",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": "legacy"
+ },
+ {
+  "k": "88_guide-meal",
+  "use": false,
+  "where": "",
+  "status": "retired"
+ },
+ {
+  "k": "89_guest-4-1min-pre",
+  "use": true,
+  "where": "직접 부름 · console.html",
+  "status": ""
+ },
+ {
+  "k": "90_narr-prevideo-in",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "91_narr-candle-in-mothers-ex2",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · 칩 화촉 멘트 1 · console",
+  "status": ""
+ },
+ {
+  "k": "92_narr-candle-in-parents",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "93_narr-candle-in-fathers",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "94_narr-candle-in-others",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "95_narr-candle-out",
+  "use": true,
+  "where": "엔진 · build-course-story",
+  "status": ""
+ },
+ {
+  "k": "96_declare-clap-a",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "97_declare-clap-b",
+  "use": false,
+  "where": "",
+  "status": ""
+ },
+ {
+  "k": "98_toast-pour-mix",
+  "use": false,
+  "where": "",
+  "status": "retired"
+ },
+ {
+  "k": "99_toast-pour-family",
+  "use": true,
+  "where": "직접 부름 · order-preview.html",
+  "status": "retired"
+ }
+]

@@ -23219,3 +23219,4 @@ chk 'LAYER_PLAN_1108' scripts/assemble-narration.mjs 2
 chk 'LAYER_PLAN_1108' scripts/audit/layer-same.mjs 1
 chk 'LAYER_PLAN_1108' scripts/audit/layer-targets.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/layer-targets.mjs >/dev/null 2>&1 && echo 'ok layer-targets' || { echo "REVERT? layer-targets: 층 대상 목록에서 빠진 나레이션이 있습니다 — node scripts/audit/layer-targets.mjs"; fail=1; }; fi
+chk 'LAYER_PLAN_1108' scripts/audit/layer-used.mjs 1   # 실제로 트는 클립(엔진 훑기) — 결과는 docs/plans/식순연구/층_씀목록_1108.json

@@ -15,11 +15,11 @@ const idx = JSON.parse(fs.readFileSync(P('assets/audio/_src/_index.json'), 'utf8
 const RET = createRequire(import.meta.url)(P('assets/ritual-cue.js')).RETIRED || {};
 const st = JSON.parse(fs.readFileSync(P('assets/audio/clip-status.json'), 'utf8')).clips || {};
 const pad2 = (n) => String(n).padStart(2, '0');
-/* 만들 클립 = 나레이션 폴더 · 우성/진희 · 쓰는 클립 · 안 쓰는 클립 · 문장 자리가 창고에 다 있고 글이 같은 것(편지 43 은 창고가 없다 — 층에서 따로) */
+/* 만들 클립 = 실제로 트는 클립 중 나레이션 폴더 · 우성/진희 · 문장 자리가 창고에 다 있고 글이 같은 것(편지 43 은 창고가 없다 — 층에서 따로) */
+const USED = new Set(JSON.parse(fs.readFileSync(P('docs/plans/식순연구/층_씀목록_1108.json'), 'utf8')).filter((x) => x.use).map((x) => x.k));   // 실제로 트는 클립(scripts/audit/layer-used.mjs · 사장님 11/08 20:20 «안 쓰는 건 버려»)
 export function layerClips() {
-  return man.clips.filter((c) => { const key = pad2(c.no) + '_' + c.file, v = (man.voice || {})[String(c.role).split('|')[0]];
+  return man.clips.filter((c) => { const key = pad2(c.no) + '_' + c.file, v = (man.voice || {})[String(c.role).split('|')[0]]; if (!USED.has(key)) return false;
     if (c.mix || (c.dir || 'assets/audio/narration') !== 'assets/audio/narration' || (v !== '우성' && v !== '진희')) return false;
-    /* 안 쓰는 클립도 대상(사장님 11/08 20:08 «지금 안 쓰는 것도 손질해 두면 나중에 켜도 같음») — 대상 목록 = scripts/audit/layer-targets.mjs */
     return c.sents.every((s) => { const e = idx[key + '#' + s.i]; return e && e.text === s.text && fs.existsSync(P('assets/audio/_src', key, s.i + '.flac')); }); })
     .map((c) => '=' + pad2(c.no) + '_' + c.file); }
 const list = arg('--clip') || layerClips().join(',');
