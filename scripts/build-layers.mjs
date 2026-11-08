@@ -4,10 +4,10 @@
    0층 = 지금 조립기 그대로(main 소리) · 1층 = 내용 바꾸기(162 맨 앞 «신랑 신부,» A3 · 160 · 350 · 356 · 357 새 _src 는 창고에 그대로)
    2층 이상은 조립기(assemble-narration --layer)에 넣은 만큼만 — 아직 없는 층을 달라면 멈춘다(LAYER_DONE)
    쓰기: node scripts/build-layers.mjs --layer <0~6> [--clip =키,…] [--out <폴더>] [--list] */
-import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url'; import { execFileSync } from 'node:child_process'; import { createRequire } from 'node:module'; import { applyTempo } from './lib/tempo.mjs';
+import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url'; import { execFileSync } from 'node:child_process'; import { createRequire } from 'node:module'; import { applyTempo } from './lib/tempo.mjs'; import { quietRuns, pcm } from './lib/cps.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), P = (...a) => path.join(ROOT, ...a);
 const arg = (k, d = '') => { const i = process.argv.indexOf(k); return i > -1 ? process.argv[i + 1] : d; };
-export const LAYER_DONE = 3;   // 조립기에 들어간 마지막 층 — 층을 넣는 커밋에서 같이 올린다
+export const LAYER_DONE = 4;   // 조립기에 들어간 마지막 층 — 층을 넣는 커밋에서 같이 올린다
 const L = Number(arg('--layer', '0'));
 /* 문장 빠르기(원래 녹음 대비 합계) — 2층 말빠르기 0.97 · 3층 강약은 그 층 커밋에서 · 편지 43 은 창고가 없어 여기 안 온다 */
 /* 3층 강약(대본 11/08 21:55 · 원래 녹음 대비 합계) — 역할표(_layers/_roles.json · #1636 역할표 사본) · 감정 · 엄숙(slow) 0.96 · 일반 안내(guide) 0.9894 · 그 밖(기본 · 정보 · 구호 · 짧은) 0.97
@@ -16,7 +16,8 @@ export const ROLE_SPEED = { slow: 0.96, guide: 0.9894 };
 /* ★[LAYER_PLAN_1108 · 대본 11/09 00:05] 역할은 뜻으로 나눈 대본 표(_layers/강약_역할표_대본_1108.tsv · docs cc7f4fe · 519문장) — #1636 _roles.json 은 예전 빠르기 맞춤용이라 쓰지 않는다
    slow = 감정 · 엄숙(회상 · 의미 · 축복 · 다짐 · 부모님께 드리는 마음) · guide = 사람에게 하는 행동 안내 · 박수 요청 · 사진 · 좌석 · 이동 · 서약 읽기 · base = 인사 · 감사 · 정보 · 순서 알림 · 구호 · 마무리 */
 const ROLES = Object.fromEntries(fs.readFileSync(P('assets/audio/_src/_layers/강약_역할표_대본_1108.tsv'), 'utf8').trim().split('\n').slice(1).map((l) => l.split('\t')).map((r) => [r[0], { id: r[0], role: r[2], text: r[3] }]));
-let TEXT = null;   // 대장 글(아래 man 을 읽은 뒤 처음 부를 때 만든다)
+let TEXT = null;
+const TEXT_OF = (id) => { roleOf(id); return TEXT[id] || ''; };   // 대장 글(아래 man 을 읽은 뒤 처음 부를 때 만든다)
 export function roleOf(id) { TEXT = TEXT || Object.fromEntries(man.clips.flatMap((c) => c.sents.map((s) => [pad2(c.no) + '_' + c.file + '#' + s.i, s.text]))); const r = ROLES[id]; return r && r.text === TEXT[id] ? r.role : ''; }
 function speedOf(layer, id) { if (layer < 2) return 1; if (layer < 3) return 0.97; return ROLE_SPEED[roleOf(id)] || 0.97; }
 const LOG = process.env.LAYER_LOG || '';   // 문장마다 { id, fac, talkIn, quietIn, inSec, outSec } — 비율 검사(layer-speed)
@@ -65,7 +66,22 @@ if (L >= 2) for (const f of fs.readdirSync(D).filter((x) => x.endsWith('.flac') 
   if (Math.abs(fac - 1) < 1e-4) continue; const src = path.join(D, f), w = path.join(SCR, 'sp.wav'), t = path.join(SCR, 'sp_t.wav');
   execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', src, '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s24le', w]); const inSec = durOf(w), r = applyTempo(w, t, fac, SIL);
   logOne({ id, fac, role: roleOf(id) || '', ...(r1 && !r1.take && r1.match ? { take: 1, want: fac } : {}), talkIn: r.talkIn, quietIn: r.quietIn, inSec, outSec: durOf(t) }); execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', t, '-c:a', 'flac', src]); }
+/* 4층 · 구호 안 부르는 말 뒤 쉼(대본 11/09 00:35) — 3층까지 만든 문장(깔린 파일)에서 «신랑 신부 · 양가 ○○님» 뒤 무음(−30 dB · 0.12초 넘음)을 찾아 가운데에서 늘리거나 줄여 0.38초 · 원래 틈이 없으면 손대지 않고 기록 */
+const R4 = L >= 4 ? JSON.parse(fs.readFileSync(P('assets/audio/_src/_layers/층4_쉼.json'), 'utf8')) : null;
+if (R4) for (const id of R4.calls) { const [key, i] = id.split('#'), f = fs.readdirSync(D).find((x) => new RegExp('^\\d+_' + key.replace(/[-]/g, '\\-') + '_' + i + '(_JOINED_)?\\.flac$').test(x)); if (!f) continue;
+  const src = path.join(D, f), x = pcm(src), { runs, dur } = quietRuns(x, -30, 0.12), txt = TEXT_OF(id), m = [...txt.matchAll(/신랑 신부|양가 [가-힣]+님/g)].pop();
+  const hc = (t) => (t.match(/[가-힣]/g) || []).length, ratio = m ? hc(txt.slice(0, m.index + m[0].length)) / Math.max(1, hc(txt)) : 1;
+  const h = (runs.find((r) => r.head) || { b: 0 }).b, t = (runs.find((r) => r.tail) || { a: dur }).a, at = h + ratio * (t - h);
+  const inner = runs.filter((r) => !r.head && !r.tail).map((r) => ({ ...r, d: Math.abs((r.a + r.b) / 2 - at) })).sort((p, q) => p.d - q.d)[0];
+  if (!inner || inner.d > 0.6) { logOne({ id, call: 'none', at: +at.toFixed(3) }); continue; }
+  const want = +(R4.call + ((R4.callAdj || {})[id] || 0)).toFixed(4), len = inner.b - inner.a, mid = (inner.a + inner.b) / 2, o = path.join(SCR, 'call.flac');
+  const cut = len - want, fc = want <= len ? `[0:a]atrim=0:${(mid - cut / 2).toFixed(4)},asetpts=N/SR/TB[a];[0:a]atrim=start=${(mid + cut / 2).toFixed(4)},asetpts=N/SR/TB[b];[a][b]concat=n=2:v=0:a=1[o]`
+    : `[0:a]atrim=0:${mid.toFixed(4)},asetpts=N/SR/TB[a];[0:a]atrim=start=${mid.toFixed(4)},asetpts=N/SR/TB[b];anullsrc=r=48000:cl=mono,atrim=0:${(want - len).toFixed(4)}[z];[a][z][b]concat=n=3:v=0:a=1[o]`;
+  execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', src, '-filter_complex', fc, '-map', '[o]', '-ar', '48000', '-ac', '1', '-c:a', 'flac', o]); fs.copyFileSync(o, src);
+  logOne({ id, call: +len.toFixed(3), want, at: +((inner.a + inner.b) / 2).toFixed(3) }); }
+/* 4층 · 자리별 쉼 목표(대본 표 «새 목표» · 빈 칸 그대로) — 조립기 --seat-targets */
+const SEATS = L >= 4 ? fs.readFileSync(P('assets/audio/_src/_layers/쉼자리표_대본값_1108.tsv'), 'utf8').trim().split('\n').slice(1).map((l) => l.split('\t')).filter((r) => r[4] && r[4].trim()).map((r) => `${r[0]}#${r[1]}=${(+r[4] + ((R4.seatAdj || {})[r[0] + '#' + r[1]] || 0)).toFixed(4)}`).join(',') : '';
 const LOUD = L >= 1 ? Object.entries(JSON.parse(fs.readFileSync(P('assets/audio/_src/_layers/층1_재료.json'), 'utf8')).loud || {}).map(([k, v]) => k + '=' + v.dB).join(',') : '';
 const GF = P('assets/audio/_src/_layers/층2_쉼맞춤.json'), GAPS = L >= 2 && fs.existsSync(GF) ? Object.entries(JSON.parse(fs.readFileSync(GF, 'utf8')).gaps || {}).map(([k, v]) => k + '=' + v.sec).join(',') : '';
-execFileSync('node', [P('scripts/assemble-narration.mjs'), '--in', D, '--clip', list, '--layer', String(L), ...(LOUD ? ['--loud-adj', LOUD] : []), ...(GAPS ? ['--gap-adj', GAPS] : []), ...(arg('--out') ? ['--out', arg('--out')] : [])], { stdio: 'inherit' });
+execFileSync('node', [P('scripts/assemble-narration.mjs'), '--in', D, '--clip', list, '--layer', String(L), ...(LOUD ? ['--loud-adj', LOUD] : []), ...(GAPS ? ['--gap-adj', GAPS] : []), ...(SEATS ? ['--seat-targets', SEATS] : []), ...(arg('--out') ? ['--out', arg('--out')] : [])], { stdio: 'inherit' });
 fs.rmSync(SCR, { recursive: true, force: true });
