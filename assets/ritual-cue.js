@@ -2295,13 +2295,13 @@
   }
 
   /* ★★[LAYER7_DUCK_1108] 낮춤 · 올림 곡선 한 원천 — dB 가 (1 − cos πu) / 2 로 움직인다(시작 · 끝이 부드럽다 · 층설정표 7층 «dB 코사인»).
-     당일 콘솔 duckTo · 식순 화면 미리 듣기(bgm-bed ramp) · 연습이 같이 쓴다 · 지금 크기(prm.value)에서 이어 받는다 · 0.1초 미만 · 0.05 dB 미만 · 곡선이 안 되는 브라우저는 종전 지수 오름(dB 직선) */
+     당일 콘솔 duckTo · 식순 화면 미리 듣기(bgm-bed ramp) · 연습이 같이 쓴다 · 지금 크기(prm.value)에서 이어 받는다 · 0.1초 미만 · 곡선이 안 되는 브라우저는 종전 지수 오름(dB 직선) */
   function dbRamp(prm, ac, to, sec) {
     if (!prm || !ac) return '';
     var now = ac.currentTime, g0 = Math.max(1e-5, +prm.value || 1e-5), g1 = Math.max(1e-5, +to || 1e-5), s = Math.max(0.02, +sec || 0);
     try { if (prm.cancelAndHoldAtTime) prm.cancelAndHoldAtTime(now); else prm.cancelScheduledValues(now); } catch (e) { try { prm.cancelScheduledValues(now); } catch (e2) {} }
     var exp = function () { try { prm.cancelScheduledValues(now); prm.setValueAtTime(g0, now); prm.exponentialRampToValueAtTime(g1, now + s); } catch (e) {} return 'exp'; };
-    if (s < 0.1 || Math.abs(20 * Math.log10(g1 / g0)) < 0.05) return exp();
+    if (s < 0.1) return exp();   /* 같은 크기여도 곡선으로(앞 곡선을 이 자리에서 끊고 그 크기에 머문다) */
     var n = Math.max(16, Math.min(128, Math.round(s * 40))), a = new Float32Array(n), d0 = 20 * Math.log10(g0), d1 = 20 * Math.log10(g1);
     for (var i = 0; i < n; i++) { var w = (1 - Math.cos(Math.PI * i / (n - 1))) / 2; a[i] = Math.pow(10, (d0 + (d1 - d0) * w) / 20); }
     try { prm.setValueAtTime(g0, now); prm.setValueCurveAtTime(a, now + 0.003, s); return 'cos'; } catch (e) { return exp(); }
