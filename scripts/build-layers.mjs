@@ -36,7 +36,7 @@ execFileSync('node', [P('scripts/sent-lib.mjs'), '--stage', D, '--clip', list], 
 const R1 = JSON.parse(fs.readFileSync(P('assets/audio/_src/_layers/층1_재료.json'), 'utf8')).slots;
 export const MATCH = Object.fromEntries(Object.entries(R1).map(([id, r]) => [id, r.match || 1]));   // 2층부터 층 빠르기와 곱해 한 번에(LAYER_PLAN_1108)
 const DONE = new Set();   // 빠르기를 이미 입힌 자리(새 테이크) — 아래 일괄에서 건너뛴다
-if (L >= 1) for (const [id, r] of Object.entries(R1)) { const [key, i] = id.split('#'), f = fs.readdirSync(D).find((x) => new RegExp('^\\d+_' + key.replace(/[-]/g, '\\-') + '_' + i + '(_JOINED_)?\\.flac$').test(x));
+if (L >= 1) for (const [id, r] of Object.entries(R1)) { if (!r.take && !r.splice) continue; /* 맞춤만 있는 자리(160#0)는 아래 일괄에서 */ const [key, i] = id.split('#'), f = fs.readdirSync(D).find((x) => new RegExp('^\\d+_' + key.replace(/[-]/g, '\\-') + '_' + i + '(_JOINED_)?\\.flac$').test(x));
   if (!f) continue;   // 이번에 안 까는 클립
   const o = path.join(SCR, 'r1_' + key + '_' + i + '.flac');
   if (r.splice) console.log('[LAYER 1] ' + id + ' A3 ' + execFileSync('node', [P('scripts/splice-162-1108.mjs'), P('assets/audio/_src', key, i + '.flac'), P('assets/audio/_src/_layers', r.splice), o]).toString().trim());
@@ -53,10 +53,10 @@ if (L >= 1) for (const [id, r] of Object.entries(R1)) { const [key, i] = id.spli
     console.log(`[LAYER 1] ${id} ← ${r.take}${r.cut ? ' ' + JSON.stringify(keep) : ''} · 빠르기 ×${fac}`); }
   fs.copyFileSync(o, path.join(D, f)); }
 /* 2층부터 · 깔린 문장 전부(새 테이크 말고) 원래 녹음에서 한 번만 빠르기 — 162 는 A3 를 끼운 문장에 */
-if (L >= 2) for (const f of fs.readdirSync(D).filter((x) => x.endsWith('.flac') && !DONE.has(x))) { const m = f.match(/^\d+_(.+)_(\d+)(?:_JOINED_)?\.flac$/), id = m[1] + '#' + m[2], fac = speedOf(L, id);
+if (L >= 2) for (const f of fs.readdirSync(D).filter((x) => x.endsWith('.flac') && !DONE.has(x))) { const m = f.match(/^\d+_(.+)_(\d+)(?:_JOINED_)?\.flac$/), id = m[1] + '#' + m[2], r1 = R1[id], fac = +(speedOf(L, id) * (r1 && !r1.take && r1.match && L >= (r1.from || 1) ? r1.match : 1)).toFixed(4);   // 창고 원본이 새 녹음인 자리(160#0)는 main 빠르기 맞춤을 곱해 한 번
   if (Math.abs(fac - 1) < 1e-4) continue; const src = path.join(D, f), w = path.join(SCR, 'sp.wav'), t = path.join(SCR, 'sp_t.wav');
   execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', src, '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s24le', w]); const inSec = durOf(w), r = applyTempo(w, t, fac, SIL);
-  logOne({ id, fac, talkIn: r.talkIn, quietIn: r.quietIn, inSec, outSec: durOf(t) }); execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', t, '-c:a', 'flac', src]); }
+  logOne({ id, fac, ...(r1 && !r1.take && r1.match ? { take: 1, want: fac } : {}), talkIn: r.talkIn, quietIn: r.quietIn, inSec, outSec: durOf(t) }); execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', t, '-c:a', 'flac', src]); }
 const LOUD = L >= 1 ? Object.entries(JSON.parse(fs.readFileSync(P('assets/audio/_src/_layers/층1_재료.json'), 'utf8')).loud || {}).map(([k, v]) => k + '=' + v.dB).join(',') : '';
 const GF = P('assets/audio/_src/_layers/층2_쉼맞춤.json'), GAPS = L >= 2 && fs.existsSync(GF) ? Object.entries(JSON.parse(fs.readFileSync(GF, 'utf8')).gaps || {}).map(([k, v]) => k + '=' + v.sec).join(',') : '';
 execFileSync('node', [P('scripts/assemble-narration.mjs'), '--in', D, '--clip', list, '--layer', String(L), ...(LOUD ? ['--loud-adj', LOUD] : []), ...(GAPS ? ['--gap-adj', GAPS] : []), ...(arg('--out') ? ['--out', arg('--out')] : [])], { stdio: 'inherit' });
