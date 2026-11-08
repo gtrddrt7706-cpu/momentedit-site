@@ -8163,7 +8163,7 @@ chk 'CANDLE_FF_1014' assets/ritual-open.js 1          # 화촉 여는 말 앞 �
 chk 'ENTRY_ARRIVE_1014' assets/ritual-cue.js 3         # 입장 받는 말(144 · 두 분이 앞에 서고 박수가 잦아들면 GO) → 맞절 1.25초 사슬
 chk "slug: 'narr-entry-arrive'" assets/ritual-cue.js 1
 nochk "slug: 'entry-arrive'" assets/ritual-cue.js       # /^entry-/ 가 두 분 목소리 입장 줄로 읽는다(order-preview · console) — narr- 로 시작
-chk "fire: 'chain', gapMs: 1250,   // ★\[ENTRY_ARRIVE_1014\]" assets/ritual-cue.js 1
+chk "fire: 'chain', gapMs: 2000,   // ★\[LAYER7_DUCK_1108\] 1.25 → 2초" assets/ritual-cue.js 1
 chk 'MATJEOL_4_1014' assets/ritual-data.js 1          # 맞절 4판(순서 안내 → 마주 보기 3초 → 뜻 → 구호)
 chk 'MATJEOL_4_1014' assets/ritual-open.js 1
 chk 'MATJEOL_HOLD_1014' scripts/build-typecast-import.mjs 1
@@ -20552,7 +20552,7 @@ chk 'var TUNE_MAX=160;' order-preview.html 1
 #   깨 보고 믿음: bgm-slots.js 를 옛 판으로 되돌리면 bgm-form 0번이 빨강
 chk 'BGM_CONSOLE1_1023' assets/bgm-slots.js 2
 chk 'BGM_CONSOLE1_1023' assets/ritual-cue.js 3
-chk "var DUCK_ENV = { downMs: 400, holdMs: " assets/ritual-cue.js 1   # [BGM_CONSOLE1_1023] 낮춤 모양 한 원천 · 값은 라운드 2 에서 holdMs 3500 · leadMs 400(아래 BGM_CONSOLE2_1023 줄이 값을 잰다)
+chk "var DUCK_ENV = { downMs: 1600, holdMs: " assets/ritual-cue.js 1   # [BGM_CONSOLE1_1023] 낮춤 모양 한 원천 · 값은 라운드 2 에서 holdMs 3500 · leadMs 400(아래 BGM_CONSOLE2_1023 줄이 값을 잰다)
 chk '    duck: DUCK_ENV,' assets/ritual-cue.js 1
 chk "up: '목례 · 박수 뒤 힘 있게 시작'" assets/bgm-slots.js 1
 nochk "up: 'S8 이 힘 있게 시작한다'" assets/bgm-slots.js   # [BGM_CONSOLE1_1023] «인사!» 순간처럼 읽혔다
@@ -20572,7 +20572,7 @@ nochk '영상이 없으면 보낸 사진으로' api/_ritual-kb.js 0
 #   깨 보고 믿음: 콘솔에서 넷을 하나씩 되돌리면(BC_CON) bgm-console2 의 그 칸이 빨강
 chk 'BGM_CONSOLE2_1023' console.html 8
 chk 'BGM_CONSOLE2_1023' assets/ritual-cue.js 3
-chk "var DUCK_ENV = { downMs: 400, holdMs: 3500, upMs: 1200, leadMs: 800 };" assets/ritual-cue.js 1   # [BGM_FIX_1030] 미리 낮추기 0.4 → 0.8초(GPT③ R1-3)
+chk "var DUCK_ENV = { downMs: 1600, holdMs: 3500, upMs: 2000, afterMs: 400, leadMs: 2000, curve: 'dbcos' };" assets/ritual-cue.js 1   # [BGM_FIX_1030] 미리 낮추기 0.4 → 0.8초(GPT③ R1-3)
 chk "cheer: { level: PARAM.toastLevel, upMs: PARAM.toastUpMs }" assets/ritual-cue.js 2
 nochk "live: { t: t.cue, est: t.est, duck: 0, self: true" assets/ritual-cue.js   # [TOAST_GO] «위하여» 사람 구간이 클립 끝에 0 dB 로 오르던 자리
 nochk "live: { t: t.cue2, est: t.est2, duck: 0, self: true" assets/ritual-cue.js
@@ -21895,7 +21895,7 @@ chk "LP.tgGap=_tgk?_gap:0;" order-preview.html 1   # [TIME_GAP_1102] 이벤트 �
 chk "if(tg&&pv&&pv.k===nx.k&&BED.cur.want>-60&&lvOf(nx)>-60){" assets/bgm-bed.js 1   # [TIME_GAP_1102] 쉼 동안 −8 · −12 · 정적은 그대로
 chk "_pc.duck = PARAM.duckOff; _pc.fadeMs = 2000; if (!_pvNoClap) _pc.goLeadMs = Math.max(_pc.goLeadMs || 0, 3000);" assets/ritual-cue.js 1   # [PREVIDEO_AFTER_1101] 소개 앞 2초 내림 + 정적 1초 · 음악 없이
 chk "_pn.goLeadMs = Math.max(_pn.goLeadMs || 0, 6000); _pn.leadDb = PARAM.duckMusic;" assets/ritual-cue.js 1   # [PREVIDEO_AFTER_1101] 화촉 곡 무음에서 6초 앞서
-chk "var _ldb = (c.leadDb != null && _lead > 800) ? c.leadDb : null;" console.html 1   # [PREVIDEO_AFTER_1101] 콘솔이 leadDb 를 읽는다
+chk "var _ldL = PARAM.fadeDownMs + _aft, _ldb = (c.leadDb != null && _lead > _ldL) ? c.leadDb : null;" console.html 1   # [PREVIDEO_AFTER_1101] 콘솔이 leadDb 를 읽는다
 chk "ramp(BED.cur,-90,2000); return; }   /\\* ★\\[PREVIDEO_AFTER_1101\\]" assets/bgm-bed.js 1   # [PREVIDEO_AFTER_1101] 이어 듣기 소개 앞 2초
 chk "if(st.after){ var _f8=lastF(); if(_f8) return _f8; }" assets/bgm-bed.js 1   # [MEANING_R1_1102 16] 촬영 후 안내 = 마지막 곡(M8L 목록 차례)
 chk 'if(pv&&nx&&nx.after&&!pv.after){ if(BED.cur.want>-60) ramp(BED.cur,-90,2000); return; }' assets/bgm-bed.js 1   # [MEANING_R1_1102 16] 앞 곡 2초 내림 · 마지막 곡은 무음에서
@@ -23236,6 +23236,16 @@ chk 'RA5_TABLE_NOTE' order-preview.html 4
 chk '_tblWatch(_tb0); };' order-preview.html 1
 chk 'RA5_TABLE_NOTE' scripts/audit/toast-min.mjs 1
 chk 'RA5_RULES' scripts/audit/ra5-rules.mjs 1
+# ★[LAYER7_DUCK_1108] 7층 음악 낮추기 — 말 아래 −15 · 내림 1.6초 · 올림 2.0초 dB 코사인 · 첫 말 0.4초 뒤 · 콘솔 · 미리 듣기 한 원천(RitualCue.dbRamp)
+chk "    duckSpeech: -15,       // 말이 주인공" assets/ritual-cue.js 1
+chk "    vocalExtra: -6," assets/ritual-cue.js 1   # 보컬 곡 말 아래 = −15 − 6 = −21(대본 확정)
+chk "  function dbRamp(prm, ac, to, sec) {" assets/ritual-cue.js 1
+chk "PARAM: PARAM, dbRamp: dbRamp," assets/ritual-cue.js 1
+chk "if (RitualCue.dbRamp && PARAM.duck && PARAM.duck.curve === 'dbcos' && RitualCue.dbRamp(gBgm.gain, AC," console.html 1
+chk "var _lead = Math.max(_need ? _dms + _aft : 0, c.goLeadMs || 0);" console.html 1
+chk "later(function(){ if (duckWant > nx.duck + 0.5) duckTo(nx.duck, F); }, Math.max(0, gap - F - A)); }" console.html 1
+chk "if(_rc&&_rc.dbRamp&&PR().cos&&_rc.dbRamp(g,a,Math.max(0.00003,_to),Math.max(0.05,ms/1000))) return;" assets/bgm-bed.js 1
+chk "ramp(v,db,p.down); },Math.max(0,ms-p.down-p.aft)); };" assets/bgm-bed.js 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/ra5-rules.mjs >/dev/null 2>&1; _ra5=$?; node scripts/audit/ra5-rules.mjs --selftest >/dev/null 2>&1; _ra5s=$?; if [ "$_ra5" = 2 ]; then echo 'ok ra5-rules — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_ra5" != 0 ] || [ "$_ra5s" != 0 ]; then echo "REVERT? ra5-rules: 미리 듣기 페이드 · 테이블 인사 지문 · 줄임 알림이 어긋났습니다 ($_ra5/$_ra5s) — node scripts/audit/ra5-rules.mjs"; fail=1; else echo 'ok ra5-rules'; fi; fi
 # ★★[LAYER_PLAN_1108 2026-11-08 사장님 «기본부터 층층이 · 층마다 검토» · «식순 안 모든 나레이션 적용 · 빼먹으면 안 돼»] 층 조립기 · 대상 목록(347 = mp3 344 + 1층 새 3)
 chk 'LAYER_PLAN_1108' scripts/build-layers.mjs 1

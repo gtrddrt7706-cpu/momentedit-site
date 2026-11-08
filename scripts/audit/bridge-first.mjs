@@ -2,7 +2,7 @@
 /* ★★[BRIDGE_FIRST_1101 2026-11-01 사장님 «이어듣기 누르면 노래가 먼저 나오는데 순서가 맞아?»] 이음말이 먼저, 새 곡은 그 뒤
    다음 순간 몫으로 붙은 이음말(b8 하객 쪽으로 · b12 경건하게 · b14 화촉 순서 알림)은 앞 장면을 닫는 말 — 화면 음악 줄(«이 순간부터 …»)이 그 뒤에 서는 것과 같게 소리도:
    a 그 순간만 듣기 — 첫 소리 = 이음말(음악 없이) · 새 곡 뜸(6초)은 이음말 뒤 · 다음 멘트 앞
-   b 이어 듣기(맞절 → 감사 인사) — 이음말 동안 입장 곡이 말 아래 크기(≤ −16) · 새 곡(피아노)은 이음말 뒤에 시작
+   b 이어 듣기(맞절 → 감사 인사) — 이음말 동안 입장 곡이 말 아래 크기(≤ −15) · 새 곡(피아노)은 이음말 뒤에 시작
    c 화촉(b14) · 부모님께 인사(b12)도 같은 규칙 · d 이음말 없는 순간은 맨 앞 뜸 그대로
    e 당일 콘솔 segOfCue — b8 · b12 · b14 큐 = ''(앞 곡이 잇는다) · 그다음 큐 = M4 · M5 · M2
    f 코스 · 조합마다 «화면 음악 줄 자리» == «미리 듣기 뜸 자리»(위에 서는 칸 · top)
@@ -104,7 +104,7 @@ try {
     /* b 이어 듣기 맞절 → 감사 인사 */
     { await go(f, 'matjeol'); const r = await trace(f, ['matjeol', 'welcome'], 34000, true), q = r.q, i0 = q.findIndex((x) => x.k === 'welcome');
       const onB = r.o.filter((x) => x.i === i0 && !x.lead), bEnd = (r.o.find((x) => x.i > i0) || {}).t, nf = r.o.find((x) => x.src && x.f && x.f !== '@ENT'), late = onB.slice(Math.floor(onB.length / 2));
-      ok(`${W} b 이어 듣기 맞절 → 감사 인사 — 이음말(${(q[i0] || {}).slug}) 동안 입장 곡이 말 아래 크기(≤ −16)`, i0 > 0 && PRE.test(q[i0].slug) && late.length > 1 && late.every((x) => x.src && x.f === '@ENT' && x.want <= -16), { i0, q: q[i0], late: late.slice(0, 3) });
+      ok(`${W} b 이어 듣기 맞절 → 감사 인사 — 이음말(${(q[i0] || {}).slug}) 동안 입장 곡이 말 아래 크기(≤ −15)`, i0 > 0 && PRE.test(q[i0].slug) && late.length > 1 && late.every((x) => x.src && x.f === '@ENT' && x.want <= -15), { i0, q: q[i0], late: late.slice(0, 3) });
       ok(`${W} b 피아노(감사 인사 곡)는 이음말 뒤에 시작 · 뜸이 그 사이`, !!nf && bEnd != null && nf.t >= bEnd - 50 && r.o.some((x) => x.i === i0 + 1 && x.lead), { nf: nf && { t: Math.round(nf.t), i: nf.i, f: nf.f }, bEnd }); }
     /* c 이어 듣기 축가 → 부모님께 인사 · 식전 영상 → 화촉 — 새 곡은 이음말 뒤 */
     for (const [a, b] of [['song', 'tribute'], ['prevideo', 'candle']]) { await go(f, b); const r = await trace(f, [a, b], a === 'song' ? 28000 : 20000, true), q = r.q, i0 = q.findIndex((x) => x.k === b);   /* [DETAIL_R2_1101 ⑤] 축가 뒤 박수 줄 3초가 더해졌다 · [TIME_GAP_1102] 이벤트 줄 사이 쉼 2.5초 */
@@ -115,7 +115,7 @@ try {
       await go(f, 'vow'); solo(W, 'vow', await trace(f, ['vow'], 11000, false));
       await go(f, 'matjeol'); const r = await trace(f, ['matjeol', 'vow'], 34000, true), q = r.q, i0 = q.findIndex((x) => x.k === 'vow');
       const onB = r.o.filter((x) => x.i === i0 && !x.lead), bEnd = (r.o.find((x) => x.i > i0) || {}).t, nf = r.o.find((x) => x.src && x.f && x.f !== '@ENT'), late = onB.slice(Math.floor(onB.length / 2));
-      ok(`${W} b 이어 듣기 맞절 → 감사 인사형 서약 — 이음말(${(q[i0] || {}).slug}) 동안 입장 곡 ≤ −16 · 피아노는 이음말 뒤`, i0 > 0 && PRE.test(q[i0].slug) && late.length > 1 && late.every((x) => x.src && x.f === '@ENT' && x.want <= -16) && !!nf && bEnd != null && nf.t >= bEnd - 50, { i0, q: q[i0], late: late.slice(0, 2), nf: nf && Math.round(nf.t), bEnd });
+      ok(`${W} b 이어 듣기 맞절 → 감사 인사형 서약 — 이음말(${(q[i0] || {}).slug}) 동안 입장 곡 ≤ −15 · 피아노는 이음말 뒤`, i0 > 0 && PRE.test(q[i0].slug) && late.length > 1 && late.every((x) => x.src && x.f === '@ENT' && x.want <= -15) && !!nf && bEnd != null && nf.t >= bEnd - 50, { i0, q: q[i0], late: late.slice(0, 2), nf: nf && Math.round(nf.t), bEnd });
       await f.evaluate(() => { S.on.welcome = 1; delete S.vowKind; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }); }
     /* f 코스 · 조합마다 화면 음악 줄 자리 == 미리 듣기 뜸 자리 */
     { const bad = [], seen = []; const COMBO = [{}, { welcome: 0 }, { prevideo: 0 }, { song: 0 }, { candle: 0 }];
