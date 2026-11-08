@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
-import { loadTempo, tempoOf, speedOfStep, sentSpeed, stdOn } from '../lib/tempo.mjs';
+import { loadTempo, tempoOf, speedOfStep, sentSpeed, stdOn, flatOn } from '../lib/tempo.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const man = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/타입캐스트/manifest.json'), 'utf8'));
@@ -26,11 +26,19 @@ function check(T, quiet) {
   if (!(F.a === 0.98 && F.b === 0.035 && F.c === 19)) bad.push('① 공식이 0.98 − 0.035 × (n − 1) / 19 가 아님');
   /* ★★[SPEED97_1108 사장님 11/08 «97%는 표준» · 1안] 표준 방식 — 순간 단계 차이 없음 · 기본 = 구호 = 0.970 · 안내 = 0.985 · 감정은 사장님 선택(정하기 전 0.970 · 정한 뒤 0.940 ~ 0.965) · global 은 쓰지 않음(1) */
   const S = T.standard || {}, R = S.roles || {};
+  /* ★★[SPEED3_1108 사장님 11/08 «3%가 적절»] 한 값 방식이 먼저 — 우성 · 진희 전부 0.970 · 43 은 1 · standard(역할별)는 꺼져 있어야 함(보관만) */
+  if (flatOn(T)) { const F = T.flat;
+    if (+F.speed !== 0.97) bad.push(`① [SPEED3_1108] flat.speed ${F.speed} ≠ 0.97`);
+    if (T.standard && T.standard.on) bad.push('① [SPEED3_1108] standard(역할별 빠르기)는 취소 — on 이 켜져 있음');
+    if (!(F.skip || []).includes('43_parents-letter')) bad.push('① [SPEED3_1108] 편지 통낭독 43 이 skip 에 없음');
+    if (+T.global !== 1) bad.push('① [SPEED3_1108] global 은 1');
+  } else {
   if (!stdOn(T)) bad.push('① [SPEED97_1108] standard.on 이 꺼져 있음');
   if (R.base !== 0.97 || R.cheer !== 0.97) bad.push(`① [SPEED97_1108] 기본 · 구호 배속이 0.970 이 아님(${R.base} · ${R.cheer})`);
   if (R.guide !== 0.985) bad.push(`① [SPEED97_1108] 안내 배속이 0.985(표준 +1.5%)가 아님(${R.guide})`);
   if (S.emotionPending ? R.emotion !== 0.97 : !(R.emotion >= 0.94 && R.emotion <= 0.965)) bad.push(`① [SPEED97_1108] 감정 배속 ${R.emotion} — 정하기 전에는 0.970 · 정한 뒤(emotionPending false)에는 0.940 ~ 0.965`);
   if (+T.global !== 1) bad.push('① [SPEED97_1108] 표준 방식에서 global 은 1 이어야 함(옛 0.96 · 취소된 1.0125 금지)');
+  }
   const okStep = (v) => Number.isInteger(v) && v >= 0 && v <= 20;
   if (!okStep((T.voice || {})['진희']?.step)) bad.push('① 진희 단계가 0 ~ 20 정수가 아님');
   for (const [m, v] of Object.entries(T.moments || {})) if (!m.startsWith('_') && !okStep(v)) bad.push(`① 순간 ${m} 단계 ${v}`);
@@ -66,13 +74,13 @@ const b1 = check(t1, true).some((b) => b.startsWith('② 우성 ' + k1));
 console.log((b1 ? 'ok  ' : 'FAIL') + ' ④ 깨 보기 — 우성 열쇠 하나를 지우면 ② 빨강');
 const t2 = JSON.parse(JSON.stringify(T)); const mk = Object.keys(t2.moments).find((m) => !m.startsWith('_') && m !== 'keep' && Object.values(t2.woosung).includes(m) && Object.keys(rec).some((rk) => t2.woosung[rk] === m));
 if (mk) t2.moments[mk] = t2.moments[mk] === 1 ? 2 : 1;
-if (stdOn(T)) t2.standard.roles.base = 0.96;   // [SPEED97_1108] 표준 방식에선 순간 단계 대신 표준 값을 바꿔 깬다
+if (flatOn(T)) t2.flat.speed = 0.95; else if (stdOn(T)) t2.standard.roles.base = 0.96;   // [SPEED97_1108] 표준 방식에선 순간 단계 대신 표준 값을 바꿔 깬다
 const b2 = !mk || check(t2, true).some((b) => b.startsWith('③'));
 console.log((b2 ? 'ok  ' : 'FAIL') + ' ④ 깨 보기 — 순간 단계(표준 방식에선 표준 값)를 바꾸면 ③ 빨강');
 
-const t3 = JSON.parse(JSON.stringify(T)); t3.standard.roles.guide = 0.99;
-const b3 = check(t3, true).some((b) => b.startsWith('③') && /#\d/.test(b)) && check(t3, true).some((b) => b.startsWith('①'));
-console.log((b3 ? 'ok  ' : 'FAIL') + ' ④ 깨 보기 — 안내 배속을 바꾸면 ① · ③(문장) 빨강 [SPEED97_1108]');
+const t3 = JSON.parse(JSON.stringify(T)); let b3;
+if (flatOn(T)) { t3.flat.speed = 0.96; b3 = check(t3, true).some((b) => b.startsWith('③')) && check(t3, true).some((b) => b.startsWith('①')); console.log((b3 ? 'ok  ' : 'FAIL') + ' ④ 깨 보기 — 한 값(0.97)을 바꾸면 ① · ③ 빨강 [SPEED3_1108]'); }
+else { t3.standard.roles.guide = 0.99; b3 = check(t3, true).some((b) => b.startsWith('③') && /#\d/.test(b)) && check(t3, true).some((b) => b.startsWith('①')); console.log((b3 ? 'ok  ' : 'FAIL') + ' ④ 깨 보기 — 안내 배속을 바꾸면 ① · ③(문장) 빨강 [SPEED97_1108]'); }
 const t4 = JSON.parse(JSON.stringify(T)); t4.global = 1.0125;
 const b4 = check(t4, true).some((b) => b.includes('global'));
 console.log((b4 ? 'ok  ' : 'FAIL') + ' ④ 깨 보기 — 취소된 global 1.0125 를 되살리면 ① 빨강 [SPEED97_1108]');

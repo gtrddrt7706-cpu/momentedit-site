@@ -668,7 +668,8 @@ for (const w of work) {
     const _tempo = tempoOf(TEMPO, _key, _voice);
     if (_tempo == null) { console.error(`✗ [TEMPO_1107] ${_key}(${_voice}) — assets/audio/_src/tempo.json 에 순간 키가 없습니다. woosung 에 적고 다시 조립하세요.`); process.exit(1); }
     let _src = joined;
-    if (Math.abs(_tempo - 1) > 1e-6) { _src = path.join(TMP, `t${tag}.wav`); applyTempo(joined, _src, _tempo, TEMPO); }
+    if (Math.abs(_tempo - 1) > 1e-6) { _src = path.join(TMP, `t${tag}.wav`); const _at = applyTempo(joined, _src, _tempo, TEMPO);
+      if (process.env.SPEED3_LOG) fs.appendFileSync(process.env.SPEED3_LOG, JSON.stringify({ key: `${c.no}_${c.file}`, tempo: _tempo, talkIn: _at.talkIn, quietIn: _at.quietIn, inSec: dur(joined), outSec: dur(_src) }) + '\n'); }   // [SPEED3_1108] 검사 기록(wav 단계 · 정확)
 
     const total = dur(_src);
     const outDir = dirOf(c);

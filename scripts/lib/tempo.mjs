@@ -32,7 +32,11 @@ export function withGlobal(T, v) {
 /* 클립 열쇠(«번호_파일») · 목소리 → 배속(단계 배속 × global). 우성인데 표에 없으면 null(조립이 멈춘다 — 순간 키를 표에 적게) */
 /* ★★[SPEED97_1108 사장님 11/08 «97%는 표준»] 표준 방식 — 순간(단계) 차이 없이 한 값(base 0.970) · 문장 역할로만 바꾼다(안내 0.985 · 구호 · 기본 0.970 · 감정은 사장님 선택 뒤)
    진희 = 클립 전체 안내(voiceRole) · 우성 = 문장마다 rules(구호 → 안내 → 감정 → 기본 차례 · 첫 일치) */
-export function stdOn(T) { return !!(T.standard && T.standard.on); }
+export function stdOn(T) { return !!(T.standard && T.standard.on) && !flatOn(T); }
+/* ★★[SPEED3_1108 사장님 11/08 «3%가 적절»] 한 값 방식 — 우성 · 진희 나레이션 클립 전부 말소리만 flat.speed(0.97) · skip(편지 통낭독 43) · 배역은 1 · 문장 역할 배속 없음
+   TEMPO_FLAT_SPEED(환경 변수)는 검사가 «지금(1.0) 판»을 같은 조립으로 다시 만들 때만 쓴다 */
+export function flatOn(T) { return !!(T.flat && T.flat.on); }
+export function flatSpeed(T) { const e = process.env.TEMPO_FLAT_SPEED; return e ? +e : +T.flat.speed; }
 export function sentRole(T, text, voice) {
   const S = T.standard || {}; if (!stdOn(T)) return null;
   if ((S.voiceRole || {})[voice]) return S.voiceRole[voice];
@@ -46,6 +50,7 @@ export function sentSpeed(T, text, voice) { const r = sentRole(T, text, voice); 
 export function tempoOf(T, key, voice) {
   const V = (T.voice || {})[voice];
   if (!V) return 1;                                   // 배역 · 그 밖 목소리는 그대로
+  if (flatOn(T)) return (T.flat.voices || []).includes(voice) && !(T.flat.skip || []).includes(key) ? flatSpeed(T) : 1;   // [SPEED3_1108]
   if (stdOn(T)) { const r = (T.standard.voiceRole || {})[voice] || 'base'; return +(+T.standard.roles[r]).toFixed(4); }   // [SPEED97_1108] 클립 바탕 = 그 목소리의 역할(진희 안내) · 우성 기본
   if (V.step != null) return withGlobal(T, speedOfStep(T, V.step));
   if (V.by === 'moment') {
@@ -85,9 +90,12 @@ export function applyTempo(inWav, outWav, factor, T) {
   if (cur < x.length) segs.push({ s: cur, e: x.length, talk: true });
   const n = segs.length;
   const fc = `[0:a]aresample=${SR},asplit=${n}${segs.map((_, k) => `[s${k}]`).join('')};`
-    + segs.map((g, k) => `[s${k}]atrim=start_sample=${g.s}:end_sample=${g.e},asetpts=N/SR/TB${g.talk && Math.abs(factor - 1) > 1e-6 ? `,atempo=${factor}` : ''}[k${k}]`).join(';')
+    /* ★[SPEED3_1108 검사에서 드러남] atempo 는 구간 끝 몇 ms 를 흘린다(구간이 많은 클립일수록 실제 배속이 0.973 ~ 0.99 로 밀렸다) — 말 구간 뒤에 0.2초 무음을 덧대 늘린 뒤 «정확한 길이(샘플)»로 자른다 · atempo 는 한 번 */
+    + segs.map((g, k) => `[s${k}]atrim=start_sample=${g.s}:end_sample=${g.e},asetpts=N/SR/TB${g.talk && Math.abs(factor - 1) > 1e-6 ? `,apad=pad_dur=0.2,atempo=${factor},atrim=end_sample=${Math.round((g.e - g.s) / factor)},asetpts=N/SR/TB` : ''}[k${k}]`).join(';')
     + `;${segs.map((_, k) => `[k${k}]`).join('')}concat=n=${n}:v=0:a=1[o]`;
   execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', inWav, '-filter_complex', fc, '-map', '[o]',
     '-ar', String(SR), '-ac', '1', '-c:a', 'pcm_s24le', outWav]);
-  return { segs: n, quiet: segs.filter((g) => !g.talk).length };
+  /* [SPEED3_1108] 검사용 — 말소리(늘린 구간) · 쉼(그대로 둔 구간) 길이(초) */
+  const talkIn = segs.filter((g) => g.talk).reduce((a, g) => a + (g.e - g.s), 0) / SR, quietIn = segs.filter((g) => !g.talk).reduce((a, g) => a + (g.e - g.s), 0) / SR;
+  return { segs: n, quiet: segs.filter((g) => !g.talk).length, talkIn, quietIn };
 }
