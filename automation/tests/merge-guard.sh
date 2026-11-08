@@ -23267,3 +23267,4 @@ chk "|| _cLast.k === 'ring') && !O.onOf(S, 'table')) _cSeam = 'bridge-b8-face-gu
 chk 'LAYER_PLAN_1108' scripts/audit/layer-short-loud.mjs 1   # 짧은 클립(3초 미만) 말소리 크기 main 대비 1 dB 표시(대본 11/08 21:55)
 chk 'LOUD_ADJ' scripts/assemble-narration.mjs 2   # 3초 미만은 loudnorm 이 목표 I 를 못 쓴다 — 뒤에서 올리고 리미터
 chk 'LAYER_PLAN_1108' scripts/audit/layer-speed.mjs 1   # 2층부터 문장 빠르기 = 목표 ±0.5%(조립 기록으로)
+chk 'GAP_ADJ' scripts/assemble-narration.mjs 2   # [LAYER_PLAN_1108] 층이 바뀌어도 문장 사이 들리는 쉼 그대로(층2_쉼맞춤.json)

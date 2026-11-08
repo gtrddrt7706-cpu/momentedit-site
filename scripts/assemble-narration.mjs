@@ -53,6 +53,8 @@ const OUT_OVERRIDE = arg('--out', '');            // 주면 clip.dir을 무시�
    0층 = 이 조립기 그대로(main 소리 · 11/08 238클립 길이 · 크기 · 파형 같음) · 1층 = 내용(창고 · 162 A3 는 build-layers 가 깔 때) · 2층부터 여기서 처리 */
 const LAYER = arg('--layer', '') === '' ? null : Number(arg('--layer'));
 /* [LAYER_PLAN_1108 · 대본 21:55] 클립 크기 맞춤 — 짧은 클립은 loudnorm 이 말소리를 낮게 잡는다 · 'key=dB,…' 만큼 loudnorm 뒤에 올리고 −1.5 dBFS 리미터로 최고를 지킨다(3초 미만은 loudnorm 이 목표 I 를 못 쓴다 — 실측 그대로였다) */
+/* [LAYER_PLAN_1108 · 대본 22:55] 문장 사이 쉼 맞춤 — 'key#i=초,…' 를 i 번째 문장 뒤 쉼에 더한다(층이 바뀌어도 들리는 쉼은 그대로 · loudnorm 이 말끝 크기를 바꿔 −30 dB 쉼이 흔들린 자리) */
+const GAP_ADJ = Object.fromEntries(String(arg('--gap-adj', '') || '').split(',').filter(Boolean).map((x) => { const [k, v] = x.split('='); return [k, Number(v) || 0]; }));
 const LOUD_ADJ = Object.fromEntries(String(arg('--loud-adj', '') || '').split(',').filter(Boolean).map((x) => { const [k, v] = x.split('='); return [k, Number(v) || 0]; }));
 
 if (!fs.existsSync(MAN)) { console.error('✗ manifest.json이 없습니다. node scripts/build-typecast-import.mjs 먼저 돌리세요.'); process.exit(1); }
@@ -647,7 +649,7 @@ for (const w of work) {
       seq.push(norms[i]);
       if (i + 1 >= norms.length) continue;
       const raw = c.sents[i].after + c.sents[i + 1].before;
-      const g = GAP_NET(raw);
+      const g = Math.max(0, GAP_NET(raw) + (GAP_ADJ[`${c.no}_${c.file}#${i}`] || 0));   // [LAYER_PLAN_1108] GAP_ADJ
       trimStat.net += raw - g;
       if (g > 0) seq.push(sil(g));
     }
