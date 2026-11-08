@@ -33,6 +33,7 @@
 //   이름이 틀려도 내용이 이긴다. zip은 알아서 풀어서 본다.
 
 import { keepWhen } from './lib/when-keep.mjs';   // [WHEN_KEEP_MARKS]
+import { loadTempo, tempoOf, applyTempo } from './lib/tempo.mjs';   // ★[SPEED3_1108] 말빠르기 — 이어 붙인 뒤 말소리만 ×0.97(쉼 · 높낮이 그대로)
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -48,6 +49,7 @@ const ONLY = arg('--part', '');                   // '3' 또는 '3,5' — 이 �
 const CLIPS = arg('--clip', '');                  // 'entry-' 또는 'entry-D,narr-song' — 이 클립만 (부분 재더빙)
 const SENTS = arg('--sent', '');                  // '신랑 신부, 입장!' — 이 문장 자리만 (문장 재더빙 · 구분자는 |)
 const PATCH = arg('--patch', '');                 // 새로 받은 그 문장 wav가 있는 폴더
+const TEMPO = loadTempo(root);   // ★[SPEED3_1108] assets/audio/_src/tempo.json
 const OUT_OVERRIDE = arg('--out', '');            // 주면 clip.dir을 무시하고 전부 여기로
 
 if (!fs.existsSync(MAN)) { console.error('✗ manifest.json이 없습니다. node scripts/build-typecast-import.mjs 먼저 돌리세요.'); process.exit(1); }
@@ -654,16 +656,22 @@ for (const w of work) {
     const joined = path.join(TMP, `j${tag}.wav`);
     execFileSync('ffmpeg', ['-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', lst, '-c', 'copy', joined]);
 
-    const total = dur(joined);
+    /* ★★[SPEED3_1108 사장님 11/08 «3%가 적절» · 승인 16:53] 원본에서 이어 붙인 joined 에 말소리만 배속을 입힌다(우성 · 진희 × 0.97 · 43 · 배역 빼고) — 늘 원본 문장에서 다시 만드니 두 번 입히지 않는다 */
+    const _key = `${c.no}_${c.file}`, _cl = man.clips.find((x) => String(x.no).padStart(2, '0') + '_' + x.file === _key) || c;
+    const _tempo = tempoOf(TEMPO, _key, (man.voice || {})[String(_cl.role).split('|')[0]] || null);
+    let _src = joined;
+    if (Math.abs(_tempo - 1) > 1e-6) { _src = path.join(TMP, `t${tag}.wav`); const _at = applyTempo(joined, _src, _tempo, TEMPO);
+      if (process.env.SPEED3_LOG) fs.appendFileSync(process.env.SPEED3_LOG, JSON.stringify({ key: _key, tempo: _tempo, talkIn: _at.talkIn, quietIn: _at.quietIn, inSec: dur(joined), outSec: dur(_src) }) + '\n'); }   // [SPEED3_1108] 검사 기록(wav 단계 · 정확)
+    const total = dur(_src);
     const outDir = dirOf(c);
     fs.mkdirSync(outDir, { recursive: true });
     outDirs.add(outDir);
     const dst = path.join(outDir, `${c.no}_${c.file}.mp3`);
-    execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', joined,
+    execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', _src,
       '-af', `loudnorm=I=-16:TP=-1.5:LRA=11,afade=t=in:st=0:d=0.015,afade=t=out:st=${Math.max(0, total - 0.04).toFixed(3)}:d=0.04`,
       '-ar', '48000', '-b:a', '192k', dst]);
     made++;
-    _recWritten.push({ dir: outDir, key: `${c.no}_${c.file}`, text: c.sents.map((s) => s.text).join(' ') });
+    _recWritten.push({ dir: outDir, key: `${c.no}_${c.file}`, text: c.sents.map((s) => s.text).join(' '), tempo: _tempo });   // [SPEED3_1108]
     const pn = c.sents.filter((s, si) => patchMap.has(`${c.file}#${si}`)).length;
     console.log(`  ${c.no}_${c.file}.mp3  ${total.toFixed(1)}초  (문장 ${c.sents.length}${pn ? ` · 갈아 낀 자리 ${pn}` : ''})`);
 
@@ -697,7 +705,7 @@ if (_recWritten.length) {
     for (const w of ws) {
       const cl = man.clips.find((c) => String(c.no).padStart(2, '0') + '_' + c.file === w.key);
       const v = cl && ((man.voice || {})[String(cl.role).split('|')[0]]);
-      j.clips[w.key] = v ? { text: w.text, voice: v } : w.text;
+      j.clips[w.key] = v ? Object.assign({ text: w.text, voice: v }, (w.tempo != null && Math.abs(w.tempo - 1) > 1e-6) ? { tempo: w.tempo } : {}) : w.text;   // [SPEED3_1108] 입힌 배속을 남긴다(tempo-check 가 대조)
     }
     /* ★[WHEN_KEEP_MARKS 2026-10-09] 옛 «_언제» 의 [표식]은 이어 붙인다 — merge-guard 가 이 줄의 표식(NAR_1007 등)을 chk 한다.
        덮어쓰면 녹음 하나 받을 때마다 가드가 «역전 의심»으로 붉는다(2026-10-09 #1160 에서 실제로 붉었다). */
