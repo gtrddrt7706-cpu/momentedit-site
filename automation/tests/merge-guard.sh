@@ -23213,3 +23213,9 @@ chk '_tblWatch(_tb0); };' order-preview.html 1
 chk 'RA5_TABLE_NOTE' scripts/audit/toast-min.mjs 1
 chk 'RA5_RULES' scripts/audit/ra5-rules.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/ra5-rules.mjs >/dev/null 2>&1; _ra5=$?; node scripts/audit/ra5-rules.mjs --selftest >/dev/null 2>&1; _ra5s=$?; if [ "$_ra5" = 2 ]; then echo 'ok ra5-rules — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_ra5" != 0 ] || [ "$_ra5s" != 0 ]; then echo "REVERT? ra5-rules: 미리 듣기 페이드 · 테이블 인사 지문 · 줄임 알림이 어긋났습니다 ($_ra5/$_ra5s) — node scripts/audit/ra5-rules.mjs"; fail=1; else echo 'ok ra5-rules'; fi; fi
+# ★★[LAYER_PLAN_1108 2026-11-08 사장님 «기본부터 층층이 · 층마다 검토» · «식순 안 모든 나레이션 적용 · 빼먹으면 안 돼»] 층 조립기 · 대상 목록(347 = mp3 344 + 1층 새 3)
+chk 'LAYER_PLAN_1108' scripts/build-layers.mjs 1
+chk 'LAYER_PLAN_1108' scripts/assemble-narration.mjs 2
+chk 'LAYER_PLAN_1108' scripts/audit/layer-same.mjs 1
+chk 'LAYER_PLAN_1108' scripts/audit/layer-targets.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/layer-targets.mjs >/dev/null 2>&1 && echo 'ok layer-targets' || { echo "REVERT? layer-targets: 층 대상 목록에서 빠진 나레이션이 있습니다 — node scripts/audit/layer-targets.mjs"; fail=1; }; fi
