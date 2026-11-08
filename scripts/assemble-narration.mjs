@@ -37,7 +37,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { selectClips, selectSents } from './clip-select.mjs';
-import { loadTempo, tempoOf, applyTempo } from './lib/tempo.mjs';   // ★[TEMPO_1107] 말빠르기 표 — 이어 붙인 뒤 말소리만 늦춘다(쉼 그대로)
+import { loadTempo, tempoOf, applyTempo, sentSpeed, stdOn } from './lib/tempo.mjs';   // ★[TEMPO_1107] 말빠르기 표 — 이어 붙인 뒤 말소리만 늦춘다(쉼 그대로)
 
 const root = path.join(path.dirname(new URL(import.meta.url).pathname), '..');
 const MAN = path.join(root, 'docs/plans/식순연구/타입캐스트/manifest.json');
@@ -639,6 +639,10 @@ for (const w of work) {
     // 문장 wav를 먼저 다 만든다 — 사이 여백은 「앞 문장 after + 뒤 문장 before」가 한 자리이므로
     //   따로따로 넣으면 GAP_NET이 한 자리를 두 번 깎는다. 합쳐 놓고 한 번만 판단한다.
     const norms = c.sents.map((s, si) => norm(patchMap.get(`${c.file}#${si}`) || w.files[at + si]));
+    /* ★★[SPEED97_1108] 표준 방식 — 문장 역할 배속(안내 0.985 · 기본 · 구호 0.970 · 감정 사장님 선택)을 그 문장 말소리에만(클립 배속 위에 비율로 · 쉼 그대로) */
+    const _sk = `${c.no}_${c.file}`, _sv = (man.voice || {})[String((man.clips.find((x) => String(x.no).padStart(2, '0') + '_' + x.file === _sk) || c).role).split('|')[0]] || null;
+    const _sCt = tempoOf(TEMPO, _sk, _sv), _sSp = stdOn(TEMPO) && _sCt != null && _sCt !== 1 ? c.sents.map((s) => sentSpeed(TEMPO, s.text, _sv)) : null;
+    if (_sSp) _sSp.forEach((v, si) => { const r = +(v / _sCt).toFixed(5); if (norms[si] && Math.abs(r - 1) > 1e-6) { const o = path.join(TMP, `sp${c.no}_${si}.wav`); applyTempo(norms[si], o, r, TEMPO); norms[si] = o; } });
     /* ★[HUMANLIKE_1108 시험판 · 미리보기 가지 전용 · 엔진 반영 금지] HL_PLAN(json) 이 있을 때만 — 문장별 빠르기 곱(atempo · 클립 단계 빠르기 위에) · 흐름 쉼 흔들림(초 · 고정 씨앗) */
     const _hlT = HL_PLAN ? (tempoOf(TEMPO, `${c.no}_${c.file}`, (man.voice || {})[String((man.clips.find((x) => String(x.no).padStart(2, '0') + '_' + x.file === `${c.no}_${c.file}`) || c).role).split('|')[0]] || null) || 1) : 1;   // 말소리 길이 = 붙이기 전 길이 ÷ 클립 빠르기
     const _hlKey = `${c.no}_${c.file}`, _hl = HL_PLAN ? { m: (HL_PLAN.mult || {})[_hlKey] || [], j: (HL_PLAN.jit || {})[_hlKey] || [] } : null;
@@ -675,7 +679,8 @@ for (const w of work) {
     const _tempo = tempoOf(TEMPO, _key, _voice);
     if (_tempo == null) { console.error(`✗ [TEMPO_1107] ${_key}(${_voice}) — assets/audio/_src/tempo.json 에 순간 키가 없습니다. woosung 에 적고 다시 조립하세요.`); process.exit(1); }
     let _src = joined;
-    if (Math.abs(_tempo - 1) > 1e-6) { _src = path.join(TMP, `t${tag}.wav`); applyTempo(joined, _src, _tempo, TEMPO); }
+    if (Math.abs(_tempo - 1) > 1e-6) { _src = path.join(TMP, `t${tag}.wav`); const _at = applyTempo(joined, _src, _tempo, TEMPO);
+      if (process.env.SPEED3_LOG) fs.appendFileSync(process.env.SPEED3_LOG, JSON.stringify({ key: `${c.no}_${c.file}`, tempo: _tempo, talkIn: _at.talkIn, quietIn: _at.quietIn, inSec: dur(joined), outSec: dur(_src) }) + '\n'); }   // [SPEED3_1108] 검사 기록(wav 단계 · 정확)
 
     const total = dur(_src);
     const outDir = dirOf(c);
@@ -686,7 +691,7 @@ for (const w of work) {
       '-af', `loudnorm=I=-16:TP=-1.5:LRA=11,afade=t=in:st=0:d=0.015,afade=t=out:st=${Math.max(0, total - 0.04).toFixed(3)}:d=0.04`,
       '-ar', '48000', '-b:a', '192k', dst]);
     made++;
-    _recWritten.push({ dir: outDir, key: `${c.no}_${c.file}`, text: c.sents.map((s) => s.text).join(' '), tempo: _tempo });
+    _recWritten.push({ dir: outDir, key: `${c.no}_${c.file}`, text: c.sents.map((s) => s.text).join(' '), tempo: _tempo, sent: _sSp && _sSp.some((v) => Math.abs(v - _tempo) > 1e-6) ? _sSp : null });   // [SPEED97_1108] 문장 배속(클립 배속과 다른 문장이 있을 때만)
     const pn = c.sents.filter((s, si) => patchMap.has(`${c.file}#${si}`)).length;
     console.log(`  ${c.no}_${c.file}.mp3  ${total.toFixed(1)}초  (문장 ${c.sents.length}${pn ? ` · 갈아 낀 자리 ${pn}` : ''}${Math.abs(_tempo - 1) > 1e-6 ? ` · 말빠르기 ×${_tempo}` : ''})`);
 
@@ -720,7 +725,7 @@ if (_recWritten.length) {
     for (const w of ws) {
       const cl = man.clips.find((c) => String(c.no).padStart(2, '0') + '_' + c.file === w.key);
       const v = cl && ((man.voice || {})[String(cl.role).split('|')[0]]);
-      j.clips[w.key] = v ? Object.assign({ text: w.text, voice: v }, (w.tempo != null && Math.abs(w.tempo - 1) > 1e-6) ? { tempo: w.tempo } : {}) : w.text;   // ★[TEMPO_1107] 입힌 배속을 클립마다 적는다(검사가 표와 대조)
+      j.clips[w.key] = v ? Object.assign({ text: w.text, voice: v }, (w.tempo != null && Math.abs(w.tempo - 1) > 1e-6) ? { tempo: w.tempo } : {}, w.sent ? { sent: w.sent } : {}) : w.text;   // ★[TEMPO_1107] 입힌 배속을 클립마다 적는다(검사가 표와 대조)
     }
     /* ★[WHEN_KEEP_MARKS 2026-10-09] 옛 «_언제» 의 [표식]은 이어 붙인다 — merge-guard 가 이 줄의 표식(NAR_1007 등)을 chk 한다.
        덮어쓰면 녹음 하나 받을 때마다 가드가 «역전 의심»으로 붉는다(2026-10-09 #1160 에서 실제로 붉었다). */
