@@ -12,4 +12,6 @@ if (arg('--md')) fs.writeFileSync(arg('--md'), md + '\n');
 const r = rows.map((x) => x.got / x.fac).sort((a, b) => a - b);
 console.log(`${bad.length ? 'FAIL' : 'ok  '} layer-speed — 클립 ${clips.size} · 문장 ${rows.length} · 목표 ±0.5% 밖 ${bad.length} · 5% 상한 ${caps.length}${caps.length ? '(' + caps.map((x) => x.id).join(' · ') + ')' : ''} · 실제/목표 ${r[0].toFixed(4)} ~ ${r[r.length - 1].toFixed(4)}`);
 for (const x of bad) console.log('  실패', x.id, x.fac, x.got);
+if (process.argv.includes('--roles')) { const rc = {}; for (const x of rows) rc[x.role || '(없음 · 0.97)'] = (rc[x.role || '(없음 · 0.97)'] || 0) + 1;
+  console.log('  역할별 문장 ' + JSON.stringify(rc)); console.log('  역할 없음(0.97): ' + rows.filter((x) => 'role' in x && !x.role).map((x) => x.id).join(' ')); }
 process.exit(bad.length ? 1 : 0);

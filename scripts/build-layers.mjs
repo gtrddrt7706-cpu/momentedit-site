@@ -7,10 +7,16 @@
 import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url'; import { execFileSync } from 'node:child_process'; import { createRequire } from 'node:module'; import { applyTempo } from './lib/tempo.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), P = (...a) => path.join(ROOT, ...a);
 const arg = (k, d = '') => { const i = process.argv.indexOf(k); return i > -1 ? process.argv[i + 1] : d; };
-export const LAYER_DONE = 2;   // 조립기에 들어간 마지막 층 — 층을 넣는 커밋에서 같이 올린다
+export const LAYER_DONE = 3;   // 조립기에 들어간 마지막 층 — 층을 넣는 커밋에서 같이 올린다
 const L = Number(arg('--layer', '0'));
 /* 문장 빠르기(원래 녹음 대비 합계) — 2층 말빠르기 0.97 · 3층 강약은 그 층 커밋에서 · 편지 43 은 창고가 없어 여기 안 온다 */
-function speedOf(layer, id) { return layer >= 2 ? 0.97 : 1; }
+/* 3층 강약(대본 11/08 21:55 · 원래 녹음 대비 합계) — 역할표(_layers/_roles.json · #1636 역할표 사본) · 감정 · 엄숙(slow) 0.96 · 일반 안내(guide) 0.9894 · 그 밖(기본 · 정보 · 구호 · 짧은) 0.97
+   역할표에 없거나 글이 바뀐 문장은 0.97(목록 = scripts/audit/layer-speed.mjs --roles) · 감정 값은 대본 지시로 0.9506 → 0.96 */
+export const ROLE_SPEED = { slow: 0.96, guide: 0.9894 };
+const ROLES = Object.fromEntries((JSON.parse(fs.readFileSync(P('assets/audio/_src/_layers/_roles.json'), 'utf8')).rows || []).map((r) => [r.id, r]));
+let TEXT = null;   // 대장 글(아래 man 을 읽은 뒤 처음 부를 때 만든다)
+export function roleOf(id) { TEXT = TEXT || Object.fromEntries(man.clips.flatMap((c) => c.sents.map((s) => [pad2(c.no) + '_' + c.file + '#' + s.i, s.text]))); const r = ROLES[id]; return r && r.text === TEXT[id] ? r.role : ''; }
+function speedOf(layer, id) { if (layer < 2) return 1; if (layer < 3) return 0.97; return ROLE_SPEED[roleOf(id)] || 0.97; }
 const LOG = process.env.LAYER_LOG || '';   // 문장마다 { id, fac, talkIn, quietIn, inSec, outSec } — 비율 검사(layer-speed)
 const durOf = (f) => +execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f]).toString();
 const SIL = { silence: { db: -34, win_sec: 0.01, min_sec: 0.25 } };   // 0.25초 넘는 문장 안 쉼은 길이 그대로(SPEED3 와 같은 자)
@@ -47,7 +53,7 @@ if (L >= 1) for (const [id, r] of Object.entries(R1)) { if (!r.take && !r.splice
     const fc = keep.map(([ka, kb], j) => `[0:a]atrim=start=${ka}${kb != null ? ':end=' + kb : ''},asetpts=N/SR/TB[k${j}]`).join(';') + ';' + keep.map((_, j) => `[k${j}]`).join('') + `concat=n=${keep.length}:v=0:a=1,aresample=48000[o]`;
     execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', src, '-filter_complex', fc, '-map', '[o]', '-ac', '1', '-c:a', 'pcm_s24le', w]);
     const want = MATCH[id] * speedOf(L, id), fac = +want.toFixed(4);   // 원래 빠르기 맞춤 × 층 빠르기 — 한 번만 · 5% 상한은 원래 녹음 대비(층 빠르기 쪽 · 대본 22:55)
-    if (Math.abs(fac - 1) > 1e-4) { const t = w.replace(/\.wav$/, '_t.wav'), inSec = durOf(w), r = applyTempo(w, t, fac, SIL); logOne({ id, fac, want: +want.toFixed(4), cap: fac !== +want.toFixed(4), talkIn: r.talkIn, quietIn: r.quietIn, inSec, outSec: durOf(t), take: 1 }); fs.renameSync(t, w); }
+    if (Math.abs(fac - 1) > 1e-4) { const t = w.replace(/\.wav$/, '_t.wav'), inSec = durOf(w), r = applyTempo(w, t, fac, SIL); logOne({ id, fac, role: roleOf(id) || '', want: +want.toFixed(4), cap: fac !== +want.toFixed(4), talkIn: r.talkIn, quietIn: r.quietIn, inSec, outSec: durOf(t), take: 1 }); fs.renameSync(t, w); }
     DONE.add(f);
     execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', w, '-c:a', 'flac', o]);
     console.log(`[LAYER 1] ${id} ← ${r.take}${r.cut ? ' ' + JSON.stringify(keep) : ''} · 빠르기 ×${fac}`); }
@@ -56,7 +62,7 @@ if (L >= 1) for (const [id, r] of Object.entries(R1)) { if (!r.take && !r.splice
 if (L >= 2) for (const f of fs.readdirSync(D).filter((x) => x.endsWith('.flac') && !DONE.has(x))) { const m = f.match(/^\d+_(.+)_(\d+)(?:_JOINED_)?\.flac$/), id = m[1] + '#' + m[2], r1 = R1[id], fac = +(speedOf(L, id) * (r1 && !r1.take && r1.match && L >= (r1.from || 1) ? r1.match : 1)).toFixed(4);   // 창고 원본이 새 녹음인 자리(160#0)는 main 빠르기 맞춤을 곱해 한 번
   if (Math.abs(fac - 1) < 1e-4) continue; const src = path.join(D, f), w = path.join(SCR, 'sp.wav'), t = path.join(SCR, 'sp_t.wav');
   execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', src, '-ar', '48000', '-ac', '1', '-c:a', 'pcm_s24le', w]); const inSec = durOf(w), r = applyTempo(w, t, fac, SIL);
-  logOne({ id, fac, ...(r1 && !r1.take && r1.match ? { take: 1, want: fac } : {}), talkIn: r.talkIn, quietIn: r.quietIn, inSec, outSec: durOf(t) }); execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', t, '-c:a', 'flac', src]); }
+  logOne({ id, fac, role: roleOf(id) || '', ...(r1 && !r1.take && r1.match ? { take: 1, want: fac } : {}), talkIn: r.talkIn, quietIn: r.quietIn, inSec, outSec: durOf(t) }); execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', t, '-c:a', 'flac', src]); }
 const LOUD = L >= 1 ? Object.entries(JSON.parse(fs.readFileSync(P('assets/audio/_src/_layers/층1_재료.json'), 'utf8')).loud || {}).map(([k, v]) => k + '=' + v.dB).join(',') : '';
 const GF = P('assets/audio/_src/_layers/층2_쉼맞춤.json'), GAPS = L >= 2 && fs.existsSync(GF) ? Object.entries(JSON.parse(fs.readFileSync(GF, 'utf8')).gaps || {}).map(([k, v]) => k + '=' + v.sec).join(',') : '';
 execFileSync('node', [P('scripts/assemble-narration.mjs'), '--in', D, '--clip', list, '--layer', String(L), ...(LOUD ? ['--loud-adj', LOUD] : []), ...(GAPS ? ['--gap-adj', GAPS] : []), ...(arg('--out') ? ['--out', arg('--out')] : [])], { stdio: 'inherit' });
