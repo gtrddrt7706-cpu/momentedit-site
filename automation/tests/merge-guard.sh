@@ -23092,6 +23092,10 @@ chk 'TEMPO_1107' CLAUDE.md 1
 chk 'NARR_APPROVE_1107' CLAUDE.md 1                                              # 나레이션 바꿈은 사장님 «지금 · 바뀐 뒤» 실청 승인 뒤에만 병합 · 새 녹음 줄이기 폐지(새 순간 = 전용 대본)
 chk 'GLOBAL_SLOW_1107' assets/audio/_src/tempo.json 1                         # [GLOBAL_SLOW_1107] 사장님 «4%로 하자» · 단계 배속 × global
 chk 'GLOBAL_SLOW_1107' scripts/lib/tempo.mjs 1
+chk 'SPEED97_1108' assets/audio/_src/tempo.json 1                          # ★[SPEED97_1108] 사장님 11/08 «97퍼센트» — global 1.0125 · 13단계 0.970
+chk '"global": 1.0125,' assets/audio/_src/tempo.json 1
+nochk '"global": 0.96,' assets/audio/_src/tempo.json
+chk 'SPEED97_1108' scripts/audit/tempo-check.mjs 3
 chk 'LISTEN_COMPARE_1107' scripts/build-listen-all.mjs 5                      # «지금 · 바뀐 뒤» 비교 판은 실청 생성기의 판 하나(손으로 만든 페이지 아님)
 chk 'LISTEN_PLAYALL_1107' scripts/build-listen-all.mjs 3                      # 비교 판 «전체 듣기» 재생바(지금 · 바뀐 뒤 · 번갈아 · 칸 누르면 거기서부터 · 잠금 화면 이전/다음)
 chk 'LISTEN_SEAM_1107' scripts/build-listen-all.mjs 4                         # «이음매 듣기» 탭 = junctions.md 이음매 그대로(생성기 --json · 손으로 안 적음)
