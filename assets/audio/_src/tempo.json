@@ -1,0 +1,5 @@
+{
+ "_왜": "★★[SPEED3_1108] 사장님 11/08 16:12 «3%가 적절» · 16:53 승인 — 지금 main 소리에서 말소리만 ×0.97. 근거: 실제 결혼식 사회자 릴스 37개 중앙 5.39글자/초 · 우리 main 6.04 ~ 6.30(사람보다 빠름) · 쉼은 우리가 이미 더 길어 그대로. 조립(assemble-narration)이 원본(_src)에서 한 번만 입힌다 · 쉼(−34 dBFS · 0.25초 이상) · 문장 사이 쉼 · 높낮이 그대로. 검사 scripts/audit/tempo-check.mjs · speed3-check.mjs",
+ "flat": { "on": true, "speed": 0.97, "voices": ["우성", "진희"], "skip": ["43_parents-letter"], "_skip": "편지 통낭독 43 · 배역 낭독은 빼요(대본 16:14)" },
+ "silence": { "db": -34, "min_sec": 0.25, "win_sec": 0.01, "_왜": "이 길이 이상 무음은 손대지 않는다(check_gaps 와 같은 자 −34 dBFS · 10 ms 창)" }
+}

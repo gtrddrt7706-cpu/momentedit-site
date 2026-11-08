@@ -537,6 +537,19 @@ chk 'SEL_THIN' .claude/skills/momentedit-design/SKILL.md 1
 chk 'SEL_THIN' scripts/audit/sel-thin.mjs 2
 chk '.ex-chip.on,.seg-b.on{border-color:var(--gold-deep);color:var(--accent);background:#F3ECDF;font-weight:600}' order-preview.html 1
 chk '.dk-chip.on{border-color:var(--gold-deep);background:var(--gold-bg,#FAF6EF);color:var(--accent);font-weight:600}' mypage.html 1
+# ★★[SPEED3_1108 사장님 11/08 16:12 «3%가 적절» · 16:53 승인] 나레이션 말빠르기 −3% — 우성 · 진희 말소리만 ×0.97 · 편지 통낭독 43 · 배역 · 쓰지 않는 클립 빼고 · 원본에서 한 번
+chk 'SPEED3_1108' assets/audio/_src/tempo.json 1
+chk '"speed": 0.97,' assets/audio/_src/tempo.json 1
+chk 'SPEED3_1108' scripts/lib/tempo.mjs 2
+chk 'apad=pad_dur=0.2,atempo=' scripts/lib/tempo.mjs 1                    # atempo 구간 끝 흘림 보정(실제 배속 0.973 ~ 0.99 → 0.970)
+chk 'SPEED3_1108' scripts/assemble-narration.mjs 3
+if command -v node >/dev/null 2>&1; then node scripts/audit/tempo-check.mjs >/dev/null 2>&1; _tc=$?
+  case "$_tc" in
+    0) echo 'ok tempo-check: 우성 · 진희 나레이션 말빠르기 ×0.97 = 표(SPEED3_1108)' ;;
+    *) echo 'FAIL tempo-check: 입힌 말빠르기가 표(assets/audio/_src/tempo.json)와 다릅니다 — node scripts/audit/tempo-check.mjs'; fail=1 ;;
+  esac
+fi
+
 if command -v node >/dev/null 2>&1; then node scripts/audit/sel-thin.mjs >/dev/null 2>&1; _st=$?
   case "$_st" in
     0) echo 'ok sel-thin: 고른 표시 = 짙은 금 테 한 겹(식순 화면 · 마이페이지)' ;;
