@@ -4778,6 +4778,9 @@ if command -v node >/dev/null 2>&1; then _mvo=$(node scripts/audit/midvideo.mjs 
   esac
 fi
 chk 'MID_VIDEO_1106' mypage.html 35
+# ★[HONJU_SEAT_1107 · SPACE_HYPO_1107 가설] 새 좌석 배치 맨 앞 줄 = 혼주석(좌 = 신랑 측 · 우 = 신부 측) · 저장된 배치는 그대로
+chk 'HONJU_SEAT_1107' mypage.html 2
+chk "var HONJU_SEAT_NAMES={ L:'혼주석 · 신랑 측', R:'혼주석 · 신부 측' };" mypage.html 1
 chk 'MID_VIDEO_1106' automation/platform/89_prevideo.gs 19
 # ★[MID_FEEL_1107 2026-11-07 대본] 식중 영상의 필메이커 안내 — 쿠폰 걸음 대신 «비용 확인»(두 분 부담 · 쿠폰은 식전에만) · 길이는 식순 분 · 켜진 첫 화면에 «필메이커에서 만들기»
 chk 'MID_FEEL_1107' mypage.html 3

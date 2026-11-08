@@ -9822,9 +9822,14 @@ function seatUrl(token){ var o=''; try{ o=window.location.origin; }catch(e){} re
 // 초기 테이블 자동 배치 — 기본 6개 테이블(좌3·우3) · 한 테이블 5명. 테이블당 최대 5명.
 // ★[SEAT_PER5 2026-09-14 대표 확인 「5명이 맞다」] 종전 기본값은 4명이었다. 6×4=24명이라
 //   30명 예식은 부부가 자리를 여섯 번 더 눌러야 채워졌다. 실제 세팅이 5명이니 처음부터 5명으로 둔다.
+/* ★[HONJU_SEAT_1107 2026-11-07 사장님(오프라인 공간 설계) «단상 가까운 두 테이블(버진로드 양쪽 맨 앞) = 혼주석» · 대본]
+   새로 만드는 배치만 — 맨 앞 줄 = 좌측 첫 테이블(행 순서 번호 1) · 우측 첫 테이블(번호 2) · seat.html · 관리자 프린트와 같은 번호.
+   어느 쪽이 신랑 측인가: 좌석 화면에 신랑 · 신부 좌우 기준이 없어 «하객이 단상을 볼 때 왼쪽 = 신랑 측»(화면은 단상이 위 · 좌측 열 = 하객의 왼쪽).
+   이미 저장된 배치(seatDraft.tables)는 건드리지 않는다 · 이름은 «테이블 N» 꼴이 아니라 seat.html · 프린트에서 «이름 · N번 테이블»로 보인다(번호 중복 제거 규칙과 안 부딪힘) */
+var HONJU_SEAT_NAMES={ L:'혼주석 · 신랑 측', R:'혼주석 · 신부 측' };
 function autoSeatTables(headcount){
   var cnt=6, per=5, lc=Math.floor(cnt/2);   // [SEAT_PER5] 6테이블 · 5석 기본 · 좌측 3 = 30명
-  var out=[]; for(var i=0;i<cnt;i++){ var seats=[],drinks=[]; for(var k=0;k<per;k++){ seats.push(''); drinks.push(''); } out.push({ name:'테이블 '+(i+1), side:(i<lc)?'L':'R', seats:seats, drinks:drinks }); }
+  var out=[]; for(var i=0;i<cnt;i++){ var seats=[],drinks=[]; for(var k=0;k<per;k++){ seats.push(''); drinks.push(''); } out.push({ name:(i===0?HONJU_SEAT_NAMES.L:(i===lc?HONJU_SEAT_NAMES.R:'테이블 '+(i+1))), side:(i<lc)?'L':'R', seats:seats, drinks:drinks }); }   // [HONJU_SEAT_1107]
   return out;
 }
 // 음료 배열을 좌석 배열과 항상 같은 길이로 정규화(값은 '' 미정 · 'C'샴페인 · 'R'레드와인 · 'N'논알코올 스파클링). 구 데이터(A알코올·J주스·없음)는 ''로 — 대표음료 마이그레이션(startSeatFlow)이 먼저 채움.
