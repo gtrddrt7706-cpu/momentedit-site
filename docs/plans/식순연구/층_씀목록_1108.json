@@ -145,8 +145,8 @@
  },
  {
   "k": "114_bridge-b6-lighter",
-  "use": false,
-  "where": "",
+  "use": true,
+  "where": "애매 → 씀(대본 22:35) · ritual-cue «bc.k === letter && bn.k === cake → bridge-b6-lighter» 경로 있음(케이크 순간 RETIRED · dormant)",
   "status": "retired"
  },
  {
@@ -1735,8 +1735,8 @@
  },
  {
   "k": "41_toast-cake",
-  "use": false,
-  "where": "",
+  "use": true,
+  "where": "애매 → 씀(대본 22:35) · ritual-cue 걸러내기 «^toast-(both|cake)$» 에 이름이 있음",
   "status": "retired"
  },
  {
@@ -1945,8 +1945,8 @@
  },
  {
   "k": "77_narr-cake-out",
-  "use": false,
-  "where": "",
+  "use": true,
+  "where": "애매 → 씀(대본 22:35) · ritual-cue «t.out === cakeOut ? narr-cake-out» 경로 있음",
   "status": "retired"
  },
  {
