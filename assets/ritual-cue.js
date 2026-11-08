@@ -24,11 +24,13 @@
 })(typeof self !== 'undefined' ? self : this, function (D, O) {
 
   // ── 튜닝 상수 (큐시트·런북 §11-C 이관 · 숫자를 코드 본문에 흩지 않는다)
-  var DUCK_ENV = { downMs: 400, holdMs: 3500, upMs: 1200, leadMs: 800 };   // ★[BGM_FIX_1030] leadMs 0.4 → 0.8초(GPT③ R1-3 · 음성은 실제 내림이 끝난 뒤에 · 박수 뒤 큐는 fadeMs 1.5초가 그 자리)   // [BGM_CONSOLE1_1023] 아래 PARAM.duck · fadeDownMs · fadeUpMs 의 한 원천 · [BGM_CONSOLE2_1023] holdMs = 이음 보호(다음 이음 큐의 음성이 이 안에 시작하면 −8 로 올리지 않는다) · leadMs = 음성보다 먼저 내리는 시간
+  /* ★★[LAYER7_DUCK_1108 대본 확정 · 층설정표_1108 7층] 내림 1.6초 · 올림(말 끝난 뒤) 2.0초 — 둘 다 dB 코사인(dbCos) · 첫 말은 다 낮아진 뒤 0.4초(afterMs) → leadMs = downMs + afterMs = 2.0초 ·
+       현장 콘솔 · 미리 듣기 · 연습 같은 값(연습 ≠ 당일 방지) · 음악 → 말 자리마다 약 1.2초 늘어남(대본 수용) · 종전 0.4 · 1.2 · 0.8초 */
+  var DUCK_ENV = { downMs: 1600, holdMs: 3500, upMs: 2000, afterMs: 400, leadMs: 2000, curve: 'dbcos' };   // ★[BGM_FIX_1030] leadMs 0.4 → 0.8초(GPT③ R1-3 · 음성은 실제 내림이 끝난 뒤에 · 박수 뒤 큐는 fadeMs 1.5초가 그 자리)   // [BGM_CONSOLE1_1023] 아래 PARAM.duck · fadeDownMs · fadeUpMs 의 한 원천 · [BGM_CONSOLE2_1023] holdMs = 이음 보호(다음 이음 큐의 음성이 이 안에 시작하면 −8 로 올리지 않는다) · leadMs = 음성보다 먼저 내리는 시간
   var PARAM = {
     spm: 300,              // 낭독 속도(음절/분) — build-dubbing-script.mjs와 같은 값이어야 한다
     gapMs: 2000,           // 클립 간 침묵 1.5~2.5초의 가운데
-    duckSpeech: -16,       // 말이 주인공(서약·편지·안내) — 큐시트 -15~-18dB
+    duckSpeech: -15,       // 말이 주인공(서약·편지·안내) — 큐시트 -15~-18dB · ★[LAYER7_DUCK_1108] −16 → −15(보컬 곡은 vocalExtra −6 그대로 = −21)
     duckMusic: -8,         // 음악이 주인공(입장·축배) — 큐시트 -6~-10dB
     duckOff: -90,          // 사실상 무음
     duckRead: -20,         // 낭독 아래 — 축사 · 편지에서 두 분이 «음악과 함께»를 고른 날만(S.bgm.S5 · S6 = 'bed') · 아니면 지금처럼 duckOff [BGM_INFO_1023]
@@ -1136,7 +1138,7 @@
     matjeol: function (S) {
       return [cue({
         k: 'matjeol', blockN: '신랑·신부 맞절', slug: 'narr-entry-bow', name: '맞절', text: D.NARR.entryBow, duck: -12,
-        fire: 'chain', gapMs: 1250,   // ★[ENTRY_ARRIVE_1014] 입장 받는 말(144)에 이어 사슬 · 옛 «두 분이 앞에 나란히 서면» 디렉터 GO 는 받는 말이 맡는다
+        fire: 'chain', gapMs: 2000,   // ★[LAYER7_DUCK_1108] 1.25 → 2초(대본 확정 · #1636 맞절 뒤 환영 goLeadMs 6000 · leadDb 와는 나레이션 층 가지 위에서 하나로) · ★[ENTRY_ARRIVE_1014] 입장 받는 말(144)에 이어 사슬 · 옛 «두 분이 앞에 나란히 서면» 디렉터 GO 는 받는 말이 맡는다
         live: { t: '두 분이 마주 보고 무도회 맞절 (신랑은 가슴에 손 얹고 숙이고 · 신부는 치맛자락 잡고 무릎 굽혀 · 서로 눈맞춤)', est: 12, self: true, doing: 'move', duck: -12, hintNext: '두 분이 다시 앞을 보면' }
       })];   // [MATJEOL_1011] 의 큐 그대로 · k 와 blockN 만 맞절
     },
