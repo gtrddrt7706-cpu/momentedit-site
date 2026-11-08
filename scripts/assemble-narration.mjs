@@ -49,6 +49,9 @@ const CLIPS = arg('--clip', '');                  // 'entry-' 또는 'entry-D,na
 const SENTS = arg('--sent', '');                  // '신랑 신부, 입장!' — 이 문장 자리만 (문장 재더빙 · 구분자는 |)
 const PATCH = arg('--patch', '');                 // 새로 받은 그 문장 wav가 있는 폴더
 const OUT_OVERRIDE = arg('--out', '');            // 주면 clip.dir을 무시하고 전부 여기로
+/* ★★[LAYER_PLAN_1108] 층 번호 — 층설정표(assets/audio/_src/_layers/층설정표_1108.json)의 그 층까지 누적 적용 · scripts/build-layers.mjs 가 넘긴다
+   0층 = 이 조립기 그대로(main 소리 · 11/08 238클립 길이 · 크기 · 파형 같음) · 1층 = 내용(창고 · 162 A3 는 build-layers 가 깔 때) · 2층부터 여기서 처리 */
+const LAYER = arg('--layer', '') === '' ? null : Number(arg('--layer'));
 
 if (!fs.existsSync(MAN)) { console.error('✗ manifest.json이 없습니다. node scripts/build-typecast-import.mjs 먼저 돌리세요.'); process.exit(1); }
 const man = JSON.parse(fs.readFileSync(MAN, 'utf8'));
@@ -697,7 +700,7 @@ if (_recWritten.length) {
     for (const w of ws) {
       const cl = man.clips.find((c) => String(c.no).padStart(2, '0') + '_' + c.file === w.key);
       const v = cl && ((man.voice || {})[String(cl.role).split('|')[0]]);
-      j.clips[w.key] = v ? { text: w.text, voice: v } : w.text;
+      j.clips[w.key] = v ? { text: w.text, voice: v, ...(LAYER != null ? { layer: LAYER } : {}) } : w.text;   // [LAYER_PLAN_1108] 몇 층으로 만든 소리인지
     }
     /* ★[WHEN_KEEP_MARKS 2026-10-09] 옛 «_언제» 의 [표식]은 이어 붙인다 — merge-guard 가 이 줄의 표식(NAR_1007 등)을 chk 한다.
        덮어쓰면 녹음 하나 받을 때마다 가드가 «역전 의심»으로 붉는다(2026-10-09 #1160 에서 실제로 붉었다). */
