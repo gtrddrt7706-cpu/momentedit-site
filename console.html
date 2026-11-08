@@ -1478,9 +1478,11 @@ function duckTo(db, ms, xf){   /* [EAR_D_1106 ①] xf = 입장 곡 인계 — �
   var g = dbGain(db + (MODE === 'preview' ? BED_TRIM_DB : 0)); duckG = g;   // ★PREVIEW_BED · [DETAIL_R4_1101 ③]
   if (gBgm && AC) {
     if (xf) xfCurve(gBgm.gain, Math.max(0.0001, g), Math.max(.02, (ms||400)/1000)); else {
+    if (RitualCue.dbRamp && PARAM.duck && PARAM.duck.curve === 'dbcos') RitualCue.dbRamp(gBgm.gain, AC, Math.max(0.0001, g), Math.max(.02, (ms||400)/1000));   /* ★[LAYER7_DUCK_1108] dB 코사인(내림 1.6초 · 올림 2.0초 · 미리 듣기와 한 원천) */
+    else {
     gBgm.gain.cancelScheduledValues(AC.currentTime);
     gBgm.gain.setValueAtTime(Math.max(0.0001, gBgm.gain.value), AC.currentTime);
-    gBgm.gain.exponentialRampToValueAtTime(Math.max(0.0001, g), AC.currentTime + Math.max(.02, (ms||400)/1000)); }
+    gBgm.gain.exponentialRampToValueAtTime(Math.max(0.0001, g), AC.currentTime + Math.max(.02, (ms||400)/1000)); } }
   } else {
     bedVolFb();   // [DETAIL_R4_1101 ③] 두 재생기 모두
   }
@@ -1913,12 +1915,12 @@ function fire(i, opt){
   /* ★[BGM_CONSOLE2_1023 PRE_DUCK] 음악을 내려야 하는 큐는 음성보다 leadMs(0.4초) 먼저 내린다 — 종전엔 음성과 동시에 0.4초 동안 내려 첫 음절이 큰 음악 위에 놓였다.
      이어지는 큐는 사이 끝 0.4초 전에 이미 내려 두어(아래 preDuck) 여기서 기다리지 않는다 · 입장 장면은 제 시계(10초 앞 음악)가 맡아 빼고 · 고객 미리 듣기는 종전 그대로 */
   /* ★[BGM_FIX_1030 GPT③ R1-3] 미리 낮추기 = 보통 0.8초(leadMs) · 박수 뒤 큐는 1.5초(fadeMs) · 이미 그 크기 이하면 낮추지 않는다 · 음성은 실제 내림이 끝난 뒤에(대기 = 내림 시간) */
-  var _need = (MODE !== 'preview' && !esdMain(c) && !c.fadeWith && duckWant > c.duck + 0.5),   /* [MEANING_R2_1102 ENTRY_SETTLE] fadeWith = 멘트와 함께 잦아듦(도착 멘트 4.5초 · 음성은 기다리지 않는다) */ _dms = c.fadeMs || (PARAM.duck && PARAM.duck.leadMs) || PARAM.fadeDownMs;
-  var _lead = Math.max(_need ? _dms : 0, c.goLeadMs || 0); if (c.fadeWith && MODE !== 'preview') _lead = Math.max(_lead, ARRIVE_LEAD_MS);   /* ★[EAR_D_1106 ②] 도착 멘트 — 잦아듦(4.5초)은 GO 에서 바로 · 멘트는 1초 뒤(첫 단어가 입장 곡에 묻히지 않게 · −18 dB 아래) · 나머지 R2 그대로 */   // ★[PHOTO_PRE_GAP_1030] goLeadMs = 손으로 연 큐를 그만큼 쉬고 튼다(디지털 참석 날 온라인 인사 끝 → 사진 전 안내 2초)
+  var _need = (MODE !== 'preview' && !esdMain(c) && !c.fadeWith && duckWant > c.duck + 0.5),   /* [MEANING_R2_1102 ENTRY_SETTLE] fadeWith = 멘트와 함께 잦아듦(도착 멘트 4.5초 · 음성은 기다리지 않는다) */ _dms = c.fadeMs || PARAM.fadeDownMs, _aft = (PARAM.duck && PARAM.duck.afterMs != null) ? +PARAM.duck.afterMs : 0;   /* ★[LAYER7_DUCK_1108] 내리는 시간(1.6초 · 박수 뒤 큐는 fadeMs) + 다 낮아진 뒤 0.4초에 첫 말 */
+  var _lead = Math.max(_need ? _dms + _aft : 0, c.goLeadMs || 0); if (c.fadeWith && MODE !== 'preview') _lead = Math.max(_lead, ARRIVE_LEAD_MS);   /* ★[EAR_D_1106 ②] 도착 멘트 — 잦아듦(4.5초)은 GO 에서 바로 · 멘트는 1초 뒤(첫 단어가 입장 곡에 묻히지 않게 · −18 dB 아래) · 나머지 R2 그대로 */   // ★[PHOTO_PRE_GAP_1030] goLeadMs = 손으로 연 큐를 그만큼 쉬고 튼다(디지털 참석 날 온라인 인사 끝 → 사진 전 안내 2초)
   cheerAt = -1;   // [TOAST_GO] 축배 오름은 그 큐에서 한 번
-  var _ldb = (c.leadDb != null && _lead > 800) ? c.leadDb : null;   // ★[PREVIDEO_AFTER_1101] 무음에서 새 곡을 먼저 −8 로 올리고(goLeadMs 동안) 멘트 0.8초 앞에서 말 아래로
+  var _ldL = PARAM.fadeDownMs + _aft, _ldb = (c.leadDb != null && _lead > _ldL) ? c.leadDb : null;   /* [LAYER7_DUCK_1108] 말 크기로 내리는 끝 구간 = 내림 1.6초 + 0.4초(종전 0.8초) */   // ★[PREVIDEO_AFTER_1101] 무음에서 새 곡을 먼저 −8 로 올리고(goLeadMs 동안) 멘트 0.8초 앞에서 말 아래로
   duckTo(PRE_HOLD === i ? -90 : (_ldb != null ? _ldb : c.duck), _ldb != null ? (PARAM.fadeUpMs || 1200) : (_need ? _dms : (c.fadeMs || PARAM.fadeDownMs)));   // [BRIDGE_FIRST_1101] PRE_HOLD · [CLAP_GO] 박수(사람 순간) 뒤 큐는 1.5초에 걸쳐 내린다(엔진이 fadeMs 를 싣는다)
-  if (_ldb != null) later(function(){ duckTo(c.duck, 800); }, _lead - 800);   // [BRIDGE_FIRST_1101] PRE_HOLD · [CLAP_GO] 박수(사람 순간) 뒤 큐는 1.5초에 걸쳐 내린다(엔진이 fadeMs 를 싣는다)
+  if (_ldb != null) later(function(){ duckTo(c.duck, PARAM.fadeDownMs); }, _lead - _ldL);   // [BRIDGE_FIRST_1101] PRE_HOLD · [CLAP_GO] 박수(사람 순간) 뒤 큐는 1.5초에 걸쳐 내린다(엔진이 fadeMs 를 싣는다)
 
   var _run = function(){ playClip(c, function(){
     phase = 'post';
@@ -1966,7 +1968,9 @@ function holdLink(c, nx, gap){ var H = PARAM.duck && PARAM.duck.holdMs || 0;
   return !!(MODE !== 'preview' && H && c && nx && nx.fire === 'chain' && gap <= H && !esdMain(nx) && nx.k !== 'toast' && !(c.post || []).some(function(p){ return p && p.music; })); }
 /* [BGM_CONSOLE2_1023 PRE_DUCK] 이어지는 큐 — 사이 끝 leadMs 전에 그 큐 크기로 미리 내린다(내려야 할 때만 · 입장 장면은 빼고) */
 function preDuck(nx, gap){ var L = (PARAM.duck && PARAM.duck.leadMs) || 0; if (MODE === 'preview' || !L || !nx || esdMain(nx)) return;
-  later(function(){ if (duckWant > nx.duck + 0.5) duckTo(nx.duck, Math.min(L, gap)); }, Math.max(0, gap - L)); }
+  /* ★[LAYER7_DUCK_1108] 사이 끝 2초 전(내림 1.6초 + 0.4초)부터 내려 첫 말 0.4초 앞에 다 낮아지게 · 사이가 짧으면(1.25초 사슬 등) 사이 − 0.4초 동안(최소 0.3초) · 사이 길이는 그대로 */
+  var A = (PARAM.duck.afterMs != null) ? +PARAM.duck.afterMs : 0, F = Math.min(PARAM.fadeDownMs || L, Math.max(300, gap - A));
+  later(function(){ if (duckWant > nx.duck + 0.5) duckTo(nx.duck, F); }, Math.max(0, gap - F - A)); }
 /* [BGM_CONSOLE2_1023 TOAST_GO] 지금 «위하여» 사람 구간이고 아직 축배 음악을 안 올렸나 */
 var cheerAt = -1;
 function cheerPending(){ var c = cur >= 0 ? cueAt(cur) : null; return !!(MODE !== 'preview' && !GUEST && phase === 'live' && c && c.live && c.live.cheer && cheerAt !== cur); }
