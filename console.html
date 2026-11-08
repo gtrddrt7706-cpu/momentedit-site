@@ -1478,7 +1478,7 @@ function duckTo(db, ms, xf){   /* [EAR_D_1106 ①] xf = 입장 곡 인계 — �
   var g = dbGain(db + (MODE === 'preview' ? BED_TRIM_DB : 0)); duckG = g;   // ★PREVIEW_BED · [DETAIL_R4_1101 ③]
   if (gBgm && AC) {
     if (xf) xfCurve(gBgm.gain, Math.max(0.0001, g), Math.max(.02, (ms||400)/1000)); else {
-    if (RitualCue.dbRamp && PARAM.duck && PARAM.duck.curve === 'dbcos') RitualCue.dbRamp(gBgm.gain, AC, Math.max(0.0001, g), Math.max(.02, (ms||400)/1000));   /* ★[LAYER7_DUCK_1108] dB 코사인(내림 1.6초 · 올림 2.0초 · 미리 듣기와 한 원천) */
+    if (RitualCue.dbRamp && PARAM.duck && PARAM.duck.curve === 'dbcos' && RitualCue.dbRamp(gBgm.gain, AC, Math.max(0.0001, g), Math.max(.02, (ms||400)/1000))) {}   /* ★[LAYER7_DUCK_1108] dB 코사인(내림 1.6초 · 올림 2.0초 · 미리 듣기와 한 원천) */
     else {
     gBgm.gain.cancelScheduledValues(AC.currentTime);
     gBgm.gain.setValueAtTime(Math.max(0.0001, gBgm.gain.value), AC.currentTime);
