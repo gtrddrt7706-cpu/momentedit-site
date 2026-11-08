@@ -23269,3 +23269,4 @@ chk 'LOUD_ADJ' scripts/assemble-narration.mjs 2   # 3초 미만은 loudnorm 이 
 chk 'LAYER_PLAN_1108' scripts/audit/layer-speed.mjs 1   # 2층부터 문장 빠르기 = 목표 ±0.5%(조립 기록으로)
 chk 'GAP_ADJ' scripts/assemble-narration.mjs 2   # [LAYER_PLAN_1108] 층이 바뀌어도 문장 사이 들리는 쉼 그대로(층2_쉼맞춤.json)
 chk 'ROLE_SPEED = { slow: 0.96, guide: 0.9894 }' scripts/build-layers.mjs 1   # [LAYER_PLAN_1108] 3층 강약 — 원래 녹음 대비 합계(대본 11/08 21:55)
+chk "강약_역할표_대본_1108.tsv" scripts/build-layers.mjs 1   # [LAYER_PLAN_1108] 3층 역할 = 대본이 뜻으로 나눈 표(11/09 00:05) · #1636 _roles.json 은 쓰지 않는다

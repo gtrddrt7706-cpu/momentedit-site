@@ -11,9 +11,11 @@ export const LAYER_DONE = 3;   // 조립기에 들어간 마지막 층 — 층�
 const L = Number(arg('--layer', '0'));
 /* 문장 빠르기(원래 녹음 대비 합계) — 2층 말빠르기 0.97 · 3층 강약은 그 층 커밋에서 · 편지 43 은 창고가 없어 여기 안 온다 */
 /* 3층 강약(대본 11/08 21:55 · 원래 녹음 대비 합계) — 역할표(_layers/_roles.json · #1636 역할표 사본) · 감정 · 엄숙(slow) 0.96 · 일반 안내(guide) 0.9894 · 그 밖(기본 · 정보 · 구호 · 짧은) 0.97
-   역할표에 없거나 글이 바뀐 문장은 0.97(목록 = scripts/audit/layer-speed.mjs --roles) · 감정 값은 대본 지시로 0.9506 → 0.96 */
+   역할표에 없거나 글이 바뀐 문장은 0.97(목록 = scripts/audit/layer-speed.mjs --roles) · 감정 값 0.96 */
 export const ROLE_SPEED = { slow: 0.96, guide: 0.9894 };
-const ROLES = Object.fromEntries((JSON.parse(fs.readFileSync(P('assets/audio/_src/_layers/_roles.json'), 'utf8')).rows || []).map((r) => [r.id, r]));
+/* ★[LAYER_PLAN_1108 · 대본 11/09 00:05] 역할은 뜻으로 나눈 대본 표(_layers/강약_역할표_대본_1108.tsv · docs cc7f4fe · 519문장) — #1636 _roles.json 은 예전 빠르기 맞춤용이라 쓰지 않는다
+   slow = 감정 · 엄숙(회상 · 의미 · 축복 · 다짐 · 부모님께 드리는 마음) · guide = 사람에게 하는 행동 안내 · 박수 요청 · 사진 · 좌석 · 이동 · 서약 읽기 · base = 인사 · 감사 · 정보 · 순서 알림 · 구호 · 마무리 */
+const ROLES = Object.fromEntries(fs.readFileSync(P('assets/audio/_src/_layers/강약_역할표_대본_1108.tsv'), 'utf8').trim().split('\n').slice(1).map((l) => l.split('\t')).map((r) => [r[0], { id: r[0], role: r[2], text: r[3] }]));
 let TEXT = null;   // 대장 글(아래 man 을 읽은 뒤 처음 부를 때 만든다)
 export function roleOf(id) { TEXT = TEXT || Object.fromEntries(man.clips.flatMap((c) => c.sents.map((s) => [pad2(c.no) + '_' + c.file + '#' + s.i, s.text]))); const r = ROLES[id]; return r && r.text === TEXT[id] ? r.role : ''; }
 function speedOf(layer, id) { if (layer < 2) return 1; if (layer < 3) return 0.97; return ROLE_SPEED[roleOf(id)] || 0.97; }
