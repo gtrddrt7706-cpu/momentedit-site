@@ -1,0 +1,15 @@
+{
+ "_왜": "[LAYER_PLAN_1108] 1층 내용 바꾸기 재료 — build-layers 가 깔 때마다 받은 테이크(손대지 않은 원본)에서 한 번만 만든다 · cut = 테이크에서 자를 자리(초 · 무음 가운데) · shrink = 문장 안 쉼을 무음 가운데에서 잘라 to 초로(말소리는 손대지 않음) · match = 원래 글자/초 ÷ 새 글자/초(원래 빠르기에 맞춤 · 5% 안 · 2층부터는 층 빠르기와 곱해 한 번에)",
+ "출처": "대본 11/08 20:00(60) · 20:55(141 · 148) · 21:00(146) · docs claude/splice-162-1108 63cb5fc · 94183ed",
+ "slots": {
+  "162_narr-entry-bow-ex4#0": { "splice": "162_vocative_A3_raw.wav" },
+  "60_narr-photo-split#0": { "take": "60/60_take1.wav", "match": 1, "why": "대본 20:00 7.50 vs 7.46 같은 빠르기" },
+  "141_narr-tribute-name#0": { "take": "redo/141_take2.wav", "match": 1.0292, "why": "대본 20:55 원래 7.04 ÷ 새 6.84" },
+  "148_narr-open-ex2#0": { "take": "redo/148s09_take2.wav", "cut": [0, 9.8955], "match": 1.0015, "why": "대본 20:55 6.65 ÷ 6.64" },
+  "148_narr-open-ex2#1": { "take": "redo/148s09_take2.wav", "cut": [9.8955, 15.96], "match": 1.0098, "why": "7.23 ÷ 7.16" },
+  "148_narr-open-ex2#2": { "take": "redo/148s09_take2.wav", "cut": [15.96, null], "match": 0.9696, "why": "6.69 ÷ 6.90" },
+  "146_narr-candle-bow-fathers#0": { "take": "redo/146p_take3.wav", "cut": [0, 3.3335], "shrink": [[1.2711, 2.78, 0.9]], "match": 1.0079, "why": "대본 21:00 · 이 방 측정 5.469 ÷ 5.426" },
+  "146_narr-candle-bow-fathers#1": { "take": "redo/146p_take3.wav", "cut": [3.3335, 6.3422], "shrink": [[4.2354, 5.1659, 0.4]], "match": 0.95, "why": "이 방 측정 6.417 ÷ 7.018 = 0.914 → 5% 상한 0.95(대본 확인)" },
+  "146_narr-candle-bow-fathers#2": { "take": "redo/146p_take3.wav", "cut": [6.3422, null], "match": 0.95, "why": "이 방 측정 7.117 ÷ 7.752 = 0.918 → 5% 상한 0.95(대본 확인)" }
+ }
+}

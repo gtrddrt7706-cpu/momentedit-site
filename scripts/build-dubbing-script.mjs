@@ -35,6 +35,12 @@ const G = [
 
   { n: 3, t: '고정 순간 진행 나레이션 (블록 시작·마무리)', tone: '차분하고 유려한 진행체', items: [
     ['G3-1', '환영 시작', 'narr-welcome-in', D.NARR.welcome.nar],
+    ['G3-1F', '감사 인사 시작 · 맞절 뒤 기본 (215#1 + 260#2 · SEAM_WORD_1107 J06)', 'narr-welcome-in-face', RC.EXTRA['narr-welcome-in-face']],
+    ['G3-MV1', '식중 영상 여는 말 ① 감사 영상(기본) (MID17_CLIPS_1107)', 'midvideo-in-thanks', RC.EXTRA['midvideo-in-thanks']],
+    ['G3-MV2', '식중 영상 여는 말 ② 두 사람 이야기 (MID17_CLIPS_1107)', 'midvideo-in-story', RC.EXTRA['midvideo-in-story']],
+    ['G3-MV3', '식중 영상 여는 말 ③ 어떤 영상이든 (MID17_CLIPS_1107)', 'midvideo-in-plain', RC.EXTRA['midvideo-in-plain']],
+    ['G3-MV4', '식중 영상 받는 말 · 감사(① 뒤) (MID17_CLIPS_1107)', 'midvideo-out-thanks', RC.EXTRA['midvideo-out-thanks']],
+    ['G3-MV5', '식중 영상 받는 말 · 이야기(②③ 뒤) (MID17_CLIPS_1107)', 'midvideo-out-story', RC.EXTRA['midvideo-out-story']],
     ['G3-2', '환영 마무리', 'narr-welcome-out', D.NARR.welcome.end],
     ['G3-3', '혼인 서약 시작', 'narr-vow-in', D.NARR.vow.nar],
     ['G3-4', '혼인 서약 마무리', 'narr-vow-out', D.NARR.vow.end],
@@ -303,7 +309,7 @@ const G = [
   /* ★★[GUEST_WELCOME_191 · AFTER_PHOTO_191 검토 191] 297 ~ 324 — 새 코스 하객 맞이(입장 때 · 10분 전 · 5분 전 온라인 · 1분 전) · 촬영 후 안내 ·
      문장 창고 방식(같은 문장은 한 번 녹음 · 판마다 이어 붙임) · 전부 진희(안내) · 원천 RC.GUEST_PARTS */
   { n: 18, t: '하객 맞이 · 촬영 후 안내 (검토 191 · 문장 창고)', tone: '차분하고 친절하게 · 안내 방송처럼 또박또박 · 감정 수식 없이', items:
-    Object.keys(RC.GUEST_PARTS || {}).map((sl) => [`W-${sl}`, ({ 'guest-w-arrival': '하객 입장 때', 'guest-w-arrival-guide': '하객 입장 때 · 하객 안내', 'guest-w-5m-online': '5분 전 · 온라인', 'guest-w-1m': '1분 전', 'guest-w-1m-online': '1분 전 · 온라인', 'guest-w-10m-n10-short': '10분 전 · 본식 10분 미만(299s · K3_SHORT_1106)', 'guest-w-10m-n10-short-meal': '10분 전 · 본식 10분 미만 · 식사(345s · K3_SHORT_1106)' })[sl]
+    Object.keys(RC.GUEST_PARTS || {}).map((sl) => [`W-${sl}`, ({ 'guest-w-arrival': '하객 입장 때', 'guest-w-arrival-guide': '하객 입장 때 · 하객 안내', 'guest-w-5m-online': '5분 전 · 온라인', 'guest-w5-meal': '5분 전 · 식사(W5M_FIX_1107 · 03#0 + 321#4)', 'guest-w5-meal-online': '5분 전 · 식사 · 온라인(W5M_FIX_1107 · 03#0 + 321#4 + 314#1)', 'guest-w-1m': '1분 전', 'guest-w-1m-online': '1분 전 · 온라인', 'guest-w-10m-n10-short': '10분 전 · 본식 10분 미만(299s · K3_SHORT_1106)', 'guest-w-10m-n10-short-meal': '10분 전 · 본식 10분 미만 · 식사(345s · K3_SHORT_1106)' })[sl]
         || (/^guest-w-10m-n(\d+)(-(\w+))?$/.test(sl) ? sl.replace(/^guest-w-10m-n(\d+)(?:-(\w+))?$/, (m, n, x) => `10분 전 · 본식 약 ${n}분` + (x ? ' · 식사 ' + ({ mgr: '하객 안내 · 예약 시각', mg: '하객 안내', mr: '현장 디렉터 · 예약 시각', m: '현장 디렉터' })[x] : '')) : '')
         || '촬영 후 안내 · ' + ({ 'after-photo': '식사 없음', 'after-photo-guide': '식사 없음 · 하객 안내', 'after-photo-cafe': '카페 · 다과', 'after-photo-cafe-guide': '카페 · 다과 · 하객 안내', 'after-photo-resv-guide': '식사 · 예약 시각 · 하객 안내', 'after-photo-resv': '식사 · 예약 시각', 'after-photo-meal-guide': '식사 · 하객 안내', 'after-photo-meal': '식사' })[sl],
       sl, RC.GUEST_PARTS[sl].map((x) => x[1]).join(' ')]),

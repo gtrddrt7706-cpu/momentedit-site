@@ -18,8 +18,9 @@ const USED = JSON.parse(fs.readFileSync(P('docs/plans/식순연구/층_씀목록
 /* 목소리가 _recorded 에 없는 옛 12(대본 11/08 20:20 · 우성 9 · 여성 3 = 49 ~ 51) */
 const VOICE_OLD = { '49_bridge-4-wait-emotion': '여성', '50_bridge-5-wait-setup': '여성', '51_bridge-6-resume': '여성' };
 const L1 = { '162_narr-entry-bow-ex4': '«신랑 신부,» A3', '60_narr-photo-split': '새 녹음 take1 «자리를 지켜 주세요.»', '160_narr-entry-bow': '#1636 새 원본(첫 문장)', '350_narr-welcome-in-face': '#1636 새 클립', '356_guest-w5-meal': '#1636 새 클립', '357_guest-w5-meal-online': '#1636 새 클립' };
+const NEW1 = new Set(['350_narr-welcome-in-face', '356_guest-w5-meal', '357_guest-w5-meal-online']);
 const keys = [...new Set([...fs.readdirSync(NAR).filter((f) => f.endsWith('.mp3') && f !== 'parents-letter.mp3').map((f) => f.slice(0, -4)), '350_narr-welcome-in-face', '356_guest-w5-meal', '357_guest-w5-meal-online'])];
-const rows = keys.map((k) => { const c = man.clips.find((x) => String(x.no).padStart(2, '0') + '_' + x.file === k), r = rec[k], isNew = !fs.existsSync(path.join(NAR, k + '.mp3'));
+const rows = keys.map((k) => { const c = man.clips.find((x) => String(x.no).padStart(2, '0') + '_' + x.file === k), r = rec[k], isNew = NEW1.has(k);
   const voice = (r && typeof r === 'object' && r.voice) || VOICE_OLD[k] || (r ? '우성' : (c ? (man.voice || {})[String(c.role).split('|')[0]] : '')) || '우성';
   let src = '없음'; if (c && !c.mix) { const ok = c.sents.map((s) => { const e = idx[k + '#' + s.i]; return e && fs.existsSync(P('assets/audio/_src', k, s.i + '.flac')) ? (e.text === s.text ? 2 : 1) : 0; }); src = ok.every((x) => x === 2) ? '있음' : (ok.some((x) => x) ? '일부·글다름' : '없음'); }
   const u = useOf[k], use = isNew ? '씀' : (u && u.use ? '씀' : '안 씀'), where = isNew ? '1층 새 클립(#1636 엔진)' : ((u && u.where) || '어디서도 안 남');
