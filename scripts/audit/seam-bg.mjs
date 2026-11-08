@@ -4,13 +4,13 @@
      T01 0 → −12 내림 400ms · −8 → −12 내림 · −20 → −12 올림 1200ms   T02 lpLevel 0 → −20 은 조절함 · −90 / −60 은 조절 안 함 · 0 → 0 은 무음 아님
      T03 미지정 · null · NaN = −90(조절 안 함)
    BG01 화촉 없는 입장 전 무음 유지 — T01 영상 → b7 → 입장: 영상 끝부터 입장 GO 전까지 −8 명령 0(콘솔) · 미리 듣기도 소리 0   T02 개식사 → b7: 오래 기다려도 재상승 0 · b7 없는 입장 E 도
-     T03 화촉 있음 대조: 화촉 첫 큐 6초 뜸 · b7 −16 · 입장 클립 · 걷기 0 dB 그대로
+     T03 화촉 있음 대조: 화촉 첫 큐 6초 뜸 · b7 −15 · 입장 클립 · 걷기 0 dB 그대로
    BG03 편지 끝 다음 음악 — 목적지 = 실제 다음 장면 첫 큐(b8 · b12 · b14 는 건너뛰되 정적이면 거기서 정적) · 정적 목적지 아래 M4 올림 0 · 새 곡 전환 한 번 · 들리는 이음말 제 크기 · 늦은 곡 콜백 취소(콘솔 · 미리 듣기)
    BG04 축가 뒤 b12 — 앞 곡 −90 그대로 · M5 는 부모님께 인사 첫 큐 뜸에서 · «밝게»(b12 없음) 판 그대로 · 앞 곡이 들리던 이음말은 제 크기
    BG05 축배 선창 전후 행동 줄(크기 없음) — 선창 전 = 엔진 축배 live(−90 판은 −90) · 선창 뒤 = 축배 곡 크기 · 크기가 실린 줄은 그 값
    BG06 촬영 후 안내 뒤 가족 · 추가 촬영 줄(after 표시 없음)도 같은 마지막 곡(M8L) · 끝내기 뒤 기억 지움
    BG07 테이블 인사 음악 카드 설명 — «테이블 인사 동안 차례로 흘러요 · 준비된 음악 약 30분»
-   BG02 축가(정적) → «음악과 함께» 편지 — T01 여는 말 동안 M4 상승 · 재시작 0(엔진 · 미리 듣기)   T02 낭독 시작에서 본식 곡(M4 · ★[ONE_FLOW_1106] 옛 M4S6 곡 칸 걷음) −20(미리 듣기 · 콘솔)   T03 앞 곡이 들리면 여는 말 −16 · 낭독 곡으로 3초 전환 그대로
+   BG02 축가(정적) → «음악과 함께» 편지 — T01 여는 말 동안 M4 상승 · 재시작 0(엔진 · 미리 듣기)   T02 낭독 시작에서 본식 곡(M4 · ★[ONE_FLOW_1106] 옛 M4S6 곡 칸 걷음) −20(미리 듣기 · 콘솔)   T03 앞 곡이 들리면 여는 말 −15 · 낭독 곡으로 3초 전환 그대로
    ONLY=BG08,… 로 항목만 · BP_BED · BP_OP · BP_CUE · BP_CON = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -80,7 +80,7 @@ const go = async (f, k) => { await f.evaluate((k) => mkGo(k), k); await wait(f, 
 /* 곡을 하나 틀어 둔 뒤 진행을 멈춘다 — 그 곡의 크기 조절 호출(값 · 걸린 시간)을 엿본다 */
 const hold = async (f, k) => { await go(f, k); await f.evaluate((k) => { try { lsStop(); } catch (e) {} lsPlay(k); }, k);
   await f.waitForFunction(() => { const B = BgmBed._t.BED; return B.who === 'lp' && B.cur && B.cur.src && B.cur.g; }, null, { timeout: 30000 }); await wait(f, 7500);
-  await f.evaluate(() => { clearTimeout(LP.t); LP.tok++; const v = BgmBed._t.BED.cur, g = v.g.gain, o = g.linearRampToValueAtTime.bind(g); window.__rl = []; g.linearRampToValueAtTime = function (val, t) { window.__rl.push({ val, ms: Math.round((t - v.g.context.currentTime) * 1000) }); return o(val, t); }; }); };
+  await f.evaluate(() => { clearTimeout(LP.t); LP.tok++; const v = BgmBed._t.BED.cur, g = v.g.gain, o = g.linearRampToValueAtTime.bind(g); window.__rl = []; g.linearRampToValueAtTime = function (val, t) { window.__rl.push({ val, ms: Math.round((t - v.g.context.currentTime) * 1000) }); return o(val, t); }; const oc = g.setValueCurveAtTime.bind(g); g.setValueCurveAtTime = function (a, t0, d) { window.__rl.push({ val: a[a.length - 1], ms: Math.round(d * 1000), cos: 1 }); return oc(a, t0, d); }; }); };   /* [LAYER7_DUCK_1108] 미리 듣기 크기 변화가 dB 코사인(setValueCurveAtTime)으로도 온다 */
 const near = (x, y) => x != null && Math.abs(x - y) <= 40;   /* [SEAM_BG_MS] 걸린 시간은 오디오 시계로 재서 CI 에서 수 ms ~ 수십 ms 어긋난다(388 · 400) — ±40ms 안이면 같은 값(내림 400 · 올림 1200 은 그대로 갈린다) */
 const probe = (f, fn, st, w0) => f.evaluate(({ fn, st, w0 }) => { const v = BgmBed._t.BED.cur; v.want = w0 === 'undef' ? undefined : w0 === 'NaN' ? NaN : w0; window.__rl.length = 0; const s1 = Object.assign({ k: LP.q[LP.i].k }, st);
   try { if (fn === 'show') BgmBed.lpShow(s1); else BgmBed.lpLevel(s1); } catch (e) { return { err: String(e) }; } const r = window.__rl.slice(); return { n: r.length, ms: r.length ? r[r.length - 1].ms : null, want: v.want, f: v.f }; }, { fn, st, w0 });
@@ -118,7 +118,7 @@ try {
     /* T03 화촉 있음 대조 */
     { const R = await (async () => { const C2 = require(path.join(ROOT, 'assets/ritual-cue.js')); return C2.build(S0of({ prevideo: 1, candle: 1 }, 'A'), { mode: 'console' }).cues; })();
       const cd = R.find((x) => x.k === 'candle') || {}, b7 = R.find((x) => x.slug === 'bridge-b7-entry-ready') || {}, en = R.find((x) => x.k === 'entry') || {};
-      ok('BG01-T03 화촉 있음 대조 — 화촉 첫 큐 6초 뜸(−8) · b7 −16 + 줄 끝 정적 · 입장 클립 −12 · 걷기 0 dB 그대로', cd.goLeadMs >= 6000 && cd.leadDb === -8 && b7.duck === -16 && (b7.post || []).length === 2 && en.slug === 'entry-A' && en.duck === -12 && en.live && en.live.duck === 0, { cd: [cd.goLeadMs, cd.leadDb], b7: [b7.duck, b7.post], en: [en.slug, en.duck, en.live && en.live.duck] }); }
+      ok('BG01-T03 화촉 있음 대조 — 화촉 첫 큐 6초 뜸(−8) · b7 −15 + 줄 끝 정적 · 입장 클립 −12 · 걷기 0 dB 그대로', cd.goLeadMs >= 6000 && cd.leadDb === -8 && b7.duck === -15 && (b7.post || []).length === 2 && en.slug === 'entry-A' && en.duck === -12 && en.live && en.live.duck === 0, { cd: [cd.goLeadMs, cd.leadDb], b7: [b7.duck, b7.post], en: [en.slug, en.duck, en.live && en.live.duck] }); }
   }
   if (want('BG03')) {
     const SL = (on, letter, bgm) => { const S = S0of(Object.assign({ song: 0, free: 0, tribute: 0 }, on)); S.letter = letter; S.bgm = bgm || {}; return S; };
@@ -131,26 +131,26 @@ try {
       const pre = before(tr, iT), aT = at(tr, iT), up = upTo(lg, tr, iT), last = tr[tr.length - 1];
       ok('BG03-T01 콘솔 서로에게 → 테이블(음악 없이) — 목적지 테이블(M8) · b8 정적 동안 M4 상승 0 · M8 은 테이블 첫 큐에서', i8 === iE + 1 && iT === i8 + 1 && !!aT && pre.length > 10 && pre.every((x) => x.seg !== 'M8' && !(x.want > -60)) && !up.length && last.seg === 'M8' && last.want > -60, { i8, iT, pre: [...new Set(pre.map((x) => x.cur + ':' + x.seg + '@' + x.want))], last: [last.cur, last.seg, last.want], up });
       ok('BG03 콘솔 오류 0(T01)', !c.errs.length, c.errs.slice(0, 2)); await c.ctx.close(); }
-    /* T04 서로에게 → 테이블 · 음악과 함께 — 들리는 b8 은 제 크기(−16) · 목적지 M8 로 3초 겹침 한 번 */
+    /* T04 서로에게 → 테이블 · 음악과 함께 — 들리는 b8 은 제 크기(−15) · 목적지 M8 로 3초 겹침 한 번 */
     { const { c, iE, tr } = await runL(SL({ letter: 1, table: 1, toast: 1 }, 'each', { S6: { m: 'bed' } }), 9000), i8 = ixA(c, iE, (x) => x.slug === 'bridge-b8-face-guests'), iT = ixA(c, iE, (x) => x.k === 'table');
       const b8 = c.Rq[i8] || {}, d8 = tr.filter((x) => x.cur === i8), last = tr[tr.length - 1], p0 = tr[0].plays;
-      ok('BG03-T04 콘솔 «음악과 함께» 편지 → 테이블 — b8 은 정해진 −16 그대로(−90 으로 바꾸지 않는다) · M8 겹침 한 번', b8.duck === -16 && d8.length > 0 && d8.every((x) => x.want === -16) && last.seg === 'M8' && last.plays - p0 === 1, { b8: b8.duck, d8: [...new Set(d8.map((x) => x.seg + '@' + x.want))], last: [last.cur, last.seg, last.want, last.plays - p0], iT });
+      ok('BG03-T04 콘솔 «음악과 함께» 편지 → 테이블 — b8 은 정해진 −15 그대로(−90 으로 바꾸지 않는다) · M8 겹침 한 번', b8.duck === -15 && d8.length > 0 && d8.every((x) => x.want === -15) && last.seg === 'M8' && last.plays - p0 === 1, { b8: b8.duck, d8: [...new Set(d8.map((x) => x.seg + '@' + x.want))], last: [last.cur, last.seg, last.want, last.plays - p0], iT });
       await c.ctx.close(); }
     /* T02 정적 목적지 — 서로에게 → 축배(b8 · b13 −90) · 서로에게 → 닫는 인사(b8 · 닫는 인사 −90) · 부모님께 → 축배 */
     for (const [nm, on, lt, ms] of [['서로에게 → 축배', { letter: 1, table: 0, toast: 1 }, 'each', 9000], ['서로에게 → 닫는 인사', { letter: 1, table: 0, toast: 0 }, 'each', 9000], ['부모님께 → 축배', { letter: 1, table: 0, toast: 1 }, 'parent', 9000]]) {
       const S = SL(on, lt), R0 = C.build(S, { mode: 'console' }).cues, i0 = R0.findIndex((x) => x.slug === 'narr-letter-end'), nx = R0.slice(i0 + 1).find((x) => !/^bridge-b(8|12|14)-/.test(x.slug || '')) || {};
       const { c, lg, tr } = await runL(S, ms), up = lg.filter((x) => x.db > -60), seen = [...new Set(tr.map((x) => x.cur + ':' + x.slug))];
-      ok(`BG03-T02 콘솔 ${nm}(목적지 ${nx.slug} ${nx.duck}) — 편지 끝 · 이음말 · 다음 GO 기다림 동안 M4 −16 / −8 올림 0`, nx.duck <= -60 && !up.length, { nx: [nx.slug, nx.duck], up, seen });
+      ok(`BG03-T02 콘솔 ${nm}(목적지 ${nx.slug} ${nx.duck}) — 편지 끝 · 이음말 · 다음 GO 기다림 동안 M4 −15 / −8 올림 0`, nx.duck <= -60 && !up.length, { nx: [nx.slug, nx.duck], up, seen });
       await c.ctx.close(); }
     /* T03 부모님께 → 테이블 — 무음 이음말 없이 새 곡: 정적 2초 → 3초 오름 한 번 · 테이블 첫 큐에서 다시 전환 0 */
     { const { c, iE, tr, lg } = await runL(SL({ letter: 1, table: 1, toast: 1 }, 'parent'), 9000), iT = ixA(c, iE, (x) => x.k === 'table'), p0 = tr[0].plays, last = tr[tr.length - 1], up = upTo(lg, tr, iT), aT = at(tr, iT), rise = tr.find((x) => x.seg === 'M8');
       const after = tr.filter((x) => x.cur >= iT), pT = aT ? aT.plays : -1;
-      ok('BG03-T03 콘솔 부모님께 → 테이블 — 새 곡 전환 한 번(정적 2초 뒤 3초 오름 · 테이블 첫 큐에서 다시 틀기 0)', iT === iE + 1 && last.seg === 'M8' && last.plays - p0 === 1 && after.every((x) => x.plays === pT) && up.length === 1 && up[0].db === -16 && up[0].ms === 3000 && !!rise && rise.t >= 1900, { iT, iE, last: [last.cur, last.seg, last.want, last.plays - p0], up, rise: rise && rise.t });
+      ok('BG03-T03 콘솔 부모님께 → 테이블 — 새 곡 전환 한 번(정적 2초 뒤 3초 오름 · 테이블 첫 큐에서 다시 틀기 0)', iT === iE + 1 && last.seg === 'M8' && last.plays - p0 === 1 && after.every((x) => x.plays === pT) && up.length === 1 && up[0].db === -15 && up[0].ms === 3000 && !!rise && rise.t >= 1900, { iT, iE, last: [last.cur, last.seg, last.want, last.plays - p0], up, rise: rise && rise.t });
       await c.ctx.close(); }
   }
   if (want('BG04')) {
     const ST = (narEx) => { const S = S0of({ song: 1, tribute: 1, letter: 0, free: 0 }); if (narEx) S.narEx = narEx; return S; };
-    /* T01 콘솔 — 축가 끝(−90) → b12(−16) → 부모님께 인사: 이음말 동안 앞 곡 −90 그대로 · M5 는 부모님께 인사 첫 큐 뜸에서 */
+    /* T01 콘솔 — 축가 끝(−90) → b12(−15) → 부모님께 인사: 이음말 동안 앞 곡 −90 그대로 · M5 는 부모님께 인사 첫 큐 뜸에서 */
     { const c = await con(ST(), [['M4', 440], ['M5', 560]]), iS = c.ix((x) => x.slug === 'narr-song-end-friend'), i12 = c.ix((x) => x.slug === 'bridge-b12-tribute-calm'), iN = c.ix((x) => x.slug === 'narr-tribute-name');
       await c.fire(iS); await c.pg.waitForTimeout(2500); await c.log0(); await c.fire(i12); const tr = await c.trace(12000), lg = await c.log(), segAt = (T) => (tr.find((x) => x.T >= T + 150) || {}).seg, last = tr[tr.length - 1];
       const old = lg.filter((x) => x.db > -60 && segAt(x.t) !== 'M5'), d12 = tr.filter((x) => x.cur === i12 && x.seg !== 'M5');
@@ -175,7 +175,7 @@ try {
     const C2 = require(path.join(ROOT, 'assets/ritual-cue.js')), eng = (on, bgm) => { const S = S0of(on); S.bgm = bgm; S.letter = 'each'; return C2.build(S, { mode: 'console' }).cues; };
     const e1 = eng({ song: 1, letter: 1, free: 0 }, { S6: { m: 'bed' } }).find((x) => /^letter-/.test(x.slug || '')) || {}, e3 = eng({ song: 0, letter: 1, free: 0 }, { S6: { m: 'bed' } }).find((x) => /^letter-/.test(x.slug || '')) || {};
     ok('BG02-T01 엔진 — 축가(정적) 뒤 «음악과 함께» 편지 여는 말 −90(M4 를 되살리지 않는다) · 낭독 −20', e1.duck === -90 && e1.live && e1.live.duck === -20, { duck: e1.duck, live: e1.live && e1.live.duck });
-    ok('BG02-T03 엔진 대조 — 앞 곡이 들리면(덕담 → 편지) 여는 말 −16 · 낭독 −20 그대로', e3.duck === -16 && e3.live && e3.live.duck === -20, { duck: e3.duck, live: e3.live && e3.live.duck });
+    ok('BG02-T03 엔진 대조 — 앞 곡이 들리면(덕담 → 편지) 여는 말 −15 · 낭독 −20 그대로', e3.duck === -15 && e3.live && e3.live.duck === -20, { duck: e3.duck, live: e3.live && e3.live.duck });
     await setX({ on: { song: 1, letter: 1, free: 0, tribute: 0 }, bgm: { S6: { m: 'bed' } }, letter: 'each' }); await go(f, 'song');
     const o = await runP(['song', 'letter'], 40000), op = o.filter((x) => x.k === 'letter' && !x.talk && x.on && x.s && /^letter-/.test(x.s)), rd = o.filter((x) => x.k === 'letter' && x.talk && x.on);
     const m4 = await f.evaluate(() => BgmPicks.PICKS.M4 || []), first = o.find((x) => x.k === 'letter' && x.on);
@@ -183,7 +183,7 @@ try {
     ok('BG02-T02 미리 듣기 — 낭독에서 처음 들리는 곡 = 본식 곡(M4 · ONE_FLOW_1106 · 따로 곡 없음) −20 · 그전엔 소리 0', !!first && first.talk && first.seg === 'M4' && m4.indexOf(first.f) > -1 && rd.some((x) => x.want === -20) && rd.every((x) => x.seg === 'M4'), { first: first && [first.lab, first.f, first.seg, first.want] });
     await setX({ on: { song: 0, letter: 1, free: 0, tribute: 0, bless: 1 }, bgm: { S6: { m: 'bed' } }, letter: 'each' }); await go(f, 'bless');
     const o3 = await runP(['bless', 'letter'], 40000), op3 = o3.filter((x) => x.k === 'letter' && !x.talk && /^letter-/.test(x.s || '') && x.on), rd3 = o3.filter((x) => x.k === 'letter' && x.talk && x.on);
-    ok('BG02-T03 미리 듣기 대조 — 덕담 곡이 흐르면 여는 말 −16(M4) → 낭독도 같은 본식 곡 −20(ONE_FLOW_1106)', op3.length > 0 && op3[op3.length - 1].seg === 'M4' && op3[op3.length - 1].want === -16 && rd3.length > 0 && rd3[rd3.length - 1].seg === 'M4' && rd3[rd3.length - 1].f === op3[op3.length - 1].f && rd3[rd3.length - 1].want === -20, { op3: op3.length && [op3[op3.length - 1].f, op3[op3.length - 1].seg, op3[op3.length - 1].want], rd3: rd3.length && [rd3[rd3.length - 1].f, rd3[rd3.length - 1].seg] });
+    ok('BG02-T03 미리 듣기 대조 — 덕담 곡이 흐르면 여는 말 −15(M4) → 낭독도 같은 본식 곡 −20(ONE_FLOW_1106)', op3.length > 0 && op3[op3.length - 1].seg === 'M4' && op3[op3.length - 1].want === -15 && rd3.length > 0 && rd3[rd3.length - 1].seg === 'M4' && rd3[rd3.length - 1].f === op3[op3.length - 1].f && rd3[rd3.length - 1].want === -20, { op3: op3.length && [op3[op3.length - 1].f, op3[op3.length - 1].seg, op3[op3.length - 1].want], rd3: rd3.length && [rd3[rd3.length - 1].f, rd3[rd3.length - 1].seg] });
   }
   if (want('BG04')) {
     const toL = () => f.evaluate(() => { const i = STEPS.findIndex((x) => x.k === 'listen'); if (i > -1 && STEPS[idx].k !== 'listen') { idx = i; render(); } });
@@ -192,10 +192,10 @@ try {
       const o = await runP(['song', 'tribute'], 32000), iN = o.findIndex((x) => /^narr-tribute-name/.test(x.s || '')), b12 = o.filter((x) => x.s === 'bridge-b12-tribute-calm'), se = o.findIndex((x) => /^narr-song-end/.test(x.s || ''));
       const gap = o.slice(se, iN < 0 ? o.length : iN).filter((x) => x.on), first = o.find((x) => x.on && o.indexOf(x) >= iN);
       ok(`BG04-T0${ex ? 2 : 1} 미리 듣기 ${nm} — 축가 끝 · ${ex ? '' : 'b12 · '}사이 동안 소리 0 · 첫 소리는 부모님께 인사 첫 줄 M5`, se > -1 && iN > se && (ex ? !b12.length : b12.length > 0) && !gap.length && !!first && first.seg === 'M5' && /^narr-tribute-name/.test(first.s || ''), { b12: b12.length, gap: gap.slice(0, 3).map((x) => [x.s || x.lab, x.f, x.seg, x.want]), first: first && [first.s, first.seg, first.want] }); }
-    /* T02 대조 — 앞 곡이 들리던 이음말(«음악과 함께» 편지 → b8)은 제 크기 −16 그대로 */
+    /* T02 대조 — 앞 곡이 들리던 이음말(«음악과 함께» 편지 → b8)은 제 크기 −15 그대로 */
     await setX({ on: { song: 0, free: 0, tribute: 0, letter: 1, table: 1, toast: 1, bless: 1 }, bgm: { S6: { m: 'bed' } }, letter: 'each' }); await f.evaluate(() => { S.narEx = {}; _persist(); render(); }); await go(f, 'letter'); await toL();
     { const o = await runP(['letter', 'table'], 26000), b8 = o.filter((x) => x.s === 'bridge-b8-face-guests');
-      ok('BG04-T02 미리 듣기 대조 — 앞 곡이 들리던 이음말(편지 «음악과 함께» → b8)은 −16 그대로(정적 조건을 넓히지 않는다)', b8.length > 3 && b8.slice(-3).every((x) => x.on && x.want === -16), { b8: [...new Set(b8.map((x) => x.f + '/' + x.seg + '@' + x.want))] }); }
+      ok('BG04-T02 미리 듣기 대조 — 앞 곡이 들리던 이음말(편지 «음악과 함께» → b8)은 −15 그대로(정적 조건을 넓히지 않는다)', b8.length > 3 && b8.slice(-3).every((x) => x.on && x.want === -15), { b8: [...new Set(b8.map((x) => x.f + '/' + x.seg + '@' + x.want))] }); }
   }
   await f.waitForFunction(() => !!(window.ENG && ENG.RitualCue), null, { timeout: 15000 }).catch(() => {});
   if (want('BG08')) {
@@ -232,15 +232,15 @@ try {
     /* T02 미리 듣기 — 편지만 따로 들을 때 다음 장면 첫 큐가 정적(축배 b13 −90 · 닫는 인사 −90) */
     for (const [nm, on] of [['서로에게(다음 축배)', { letter: 1, table: 0, toast: 1 }], ['서로에게(다음 닫는 인사)', { letter: 1, table: 0, toast: 0 }]]) {
       const { o, L, iE } = await pv(nm, on, 'each', {}, ['letter'], 16000), un = o.slice(Math.max(0, iE)).filter((x) => x.on);
-      ok(`BG03-T02 미리 듣기 ${nm} — 편지 끝 처리(lpTail)는 불리되 M4 −16 / −8 올림 0(꼬리 0)`, iE > -1 && L.length === 1 && !un.length && L.every((x) => !(x.r > 0)), { un: un.slice(0, 3).map((x) => [x.s || x.lab, x.f, x.seg, x.want]), L }); }
+      ok(`BG03-T02 미리 듣기 ${nm} — 편지 끝 처리(lpTail)는 불리되 M4 −15 / −8 올림 0(꼬리 0)`, iE > -1 && L.length === 1 && !un.length && L.every((x) => !(x.r > 0)), { un: un.slice(0, 3).map((x) => [x.s || x.lab, x.f, x.seg, x.want]), L }); }
     /* T03 미리 듣기 — 부모님께 → 테이블: 정적 2초 → 3초 오름 한 번 · 테이블 첫 줄 뜸이 또 걸지 않는다 */
     { const { o, L, iE } = await pv('parent→table', { letter: 1, table: 1, toast: 1 }, 'parent', {}, ['letter', 'table'], 34000)   /* [B2_GEUL_02_05] 부모님께 여는 말이 길어지고 편지 꺼내는 조용한 줄이 생겨 테이블 첫 줄이 23초쯤 — 24초 창으로는 M8 을 못 봤다 */, iT = o.findIndex((x) => x.k === 'table'), f1 = o.find((x) => x.on), fs = [...new Set(o.filter((x) => x.on).map((x) => x.f))];
       const dip = o.slice(o.indexOf(f1) + 1).some((x, j, a) => !x.on && a.slice(j).some((y) => y.on));
       ok('BG03-T03 미리 듣기 부모님께 → 테이블 — 편지 끝 처리 한 번 · 첫 소리는 테이블 첫 줄에서 약 2초 뒤 M8 · 곡 하나 · 끊김 0', iE > -1 && L.length === 1 && L[0].st === 'narr-letter-end' && !!f1 && f1.k === 'table' && f1.seg === 'M8' && f1.t - o[iT].t >= 1500 && fs.length === 1 && !dip, { L, f1: f1 && [f1.k, f1.seg, Math.round(f1.t - o[iT].t)], fs, dip }); }
-    /* T04 엔진 — 음악 없는 편지 끝은 −90 그대로 · «음악과 함께»의 b8 은 −16(무조건 −90 으로 바꾸지 않는다) */
+    /* T04 엔진 — 음악 없는 편지 끝은 −90 그대로 · «음악과 함께»의 b8 은 −15(무조건 −90 으로 바꾸지 않는다) */
     { const eng = (lt, bg, on) => { const S = S0of(Object.assign({ song: 0, free: 0, tribute: 0 }, on)); S.letter = lt; S.bgm = bg; return C.build(S, { mode: 'console' }).cues; };
       const a = eng('each', {}, { letter: 1, table: 1, toast: 1 }), b = eng('each', { S6: { m: 'bed' } }, { letter: 1, table: 1, toast: 1 }), le = (R) => R.find((x) => x.slug === 'narr-letter-end') || {}, b8 = (R) => R[R.indexOf(le(R)) + 1] || {};
-      ok('BG03-T04 엔진 — 음악 없이 편지 끝 −90 · 이음말 b8 −90 / «음악과 함께» 편지 끝 −20 · b8 −16 그대로', le(a).duck === -90 && b8(a).slug === 'bridge-b8-face-guests' && b8(a).duck === -90 && le(b).duck === -20 && b8(b).duck === -16, { a: [le(a).duck, b8(a).slug, b8(a).duck], b: [le(b).duck, b8(b).duck] }); }
+      ok('BG03-T04 엔진 — 음악 없이 편지 끝 −90 · 이음말 b8 −90 / «음악과 함께» 편지 끝 −20 · b8 −15 그대로', le(a).duck === -90 && b8(a).slug === 'bridge-b8-face-guests' && b8(a).duck === -90 && le(b).duck === -20 && b8(b).duck === -15, { a: [le(a).duck, b8(a).slug, b8(a).duck], b: [le(b).duck, b8(b).duck] }); }
     /* T05 미리 듣기 — 다음 곡(M8)이 늦게 오는 사이 멈추면 늦은 곡도 옛 곡도 올리지 않는다 */
     { await setX({ on: { song: 0, free: 0, tribute: 0, bless: 1, letter: 1, table: 1, toast: 1 }, bgm: {}, letter: 'parent' }); await go(f, 'letter'); await toListen();
       const r = await f.evaluate(async () => { const H = window.parent.H; const M8 = [BgmBed._t.songAt('table')].filter(Boolean); (M8 || []).forEach((x) => { H.dly[x] = 7000; delete BgmBed._t.BUF[x]; });
@@ -263,11 +263,11 @@ try {
     if (want('BG05')) { const q = await lv({ song: 1, toast: 1, letter: 0, tribute: 0, table: 0 }), a = await lv({ toast: 1, table: 0, letter: 0, tribute: 1, song: 0 });
     ok('BG05-T01 선창 −90 판(축가 뒤 축배) — 크기 없는 잔 준비 · 잔 들기 줄 = −90(기본 −8 아님)', q.eng === -90 && q.pre === -90, q);
     ok('BG05-T02 선창 뒤(M7 시작) — 화답 · 잔 내려놓기 줄은 축배 곡 크기를 잇는다(−90 복사 0)', q.post === q.toast && q.post > -60, q);
-    ok('BG05-T03 대조 — 들리는 선창(부모님께 인사 뒤 −16)은 엔진 값 그대로 · 크기가 실린 줄(−20)은 그 값', a.eng === -16 && a.pre === -16 && q.withL === -20 && a.withL === -20, { a, q }); }
+    ok('BG05-T03 대조 — 들리는 선창(부모님께 인사 뒤 −15)은 엔진 값 그대로 · 크기가 실린 줄(−20)은 그 값', a.eng === -15 && a.pre === -15 && q.withL === -20 && a.withL === -20, { a, q }); }
     if (want('BG06')) {
       /* BG06 촬영 후 안내 → 가족 · 추가 촬영 줄(after 표시 없음) — 같은 마지막 곡(M8L) · 닫는 인사 곡(M6)으로 돌아가지 않는다 */
       const r6 = await f.evaluate(() => { const BB = BgmBed._t, keep = { q: LP.q, i: LP.i, st: BB.AV.st, set: Object.assign({}, BB.AV.set) }; BB.AV.st = 'ok'; BB.AV.set.B11 = 1; BB.AV.set.B17 = 1;
-        const close = { k: '_close', slug: 'narr-closing', lab: '마무리 멘트', dk: -16 }, aft = { k: '_close', slug: 'after-photo', after: true, lab: '촬영 후 안내', dk: -14 }, fam = { k: '_close', lab: '말없이 흐르는 자리', txt: '가족 단체 사진을 찍어요', quiet: true }, ext = { k: '_close', lab: '말없이 흐르는 자리', txt: '추가 촬영을 이어 가요', quiet: true };
+        const close = { k: '_close', slug: 'narr-closing', lab: '마무리 멘트', dk: -15 }, aft = { k: '_close', slug: 'after-photo', after: true, lab: '촬영 후 안내', dk: -14 }, fam = { k: '_close', lab: '말없이 흐르는 자리', txt: '가족 단체 사진을 찍어요', quiet: true }, ext = { k: '_close', lab: '말없이 흐르는 자리', txt: '추가 촬영을 이어 가요', quiet: true };
         LP.q = [close, aft, fam, ext]; const ff = BB.fileFor, o = {}; LP.i = 0; o.close = ff(close); LP.i = 1; o.aft = ff(aft); LP.i = 2; o.fam = ff(fam); LP.i = 3; o.ext = ff(ext); BgmBed.lpEnd(); LP.i = 2; o.famEnd = ff(fam);
         LP.q = keep.q; LP.i = keep.i; BB.AV.st = keep.st; BB.AV.set = keep.set; return o; });
       ok('BG06-T01 촬영 후 안내(M8L) → 가족 · 추가 촬영 줄 — 같은 마지막 곡 · 닫는 인사 곡(M6) 0', r6.aft === 'B11' && r6.fam === 'B11' && r6.ext === 'B11', r6);

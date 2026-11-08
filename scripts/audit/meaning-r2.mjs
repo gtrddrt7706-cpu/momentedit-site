@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /* ★★[MEANING_R2_1102 2026-11-02 사장님 «도착에서 잦아듦으로 고쳐» · «이런 포인트들을 식순 전체에 녹여»] 행진은 음악 · 의식은 조용한 고점 · 새 장면은 새 곡
-   E 엔진 한 표(미리 듣기 · 연습 · 당일 콘솔) — b7 −16 · 줄 끝 2초 −90 + 정적 1초 · 도착 멘트 −90 을 4.5초(fadeWith) · 맞절 안내 · 맞절 정적 · b8 정적 → 감사 인사 6초 앞 −8 ·
+   E 엔진 한 표(미리 듣기 · 연습 · 당일 콘솔) — b7 −15 · 줄 끝 2초 −90 + 정적 1초 · 도착 멘트 −90 을 4.5초(fadeWith) · 맞절 안내 · 맞절 정적 · b8 정적 → 감사 인사 6초 앞 −8 ·
      선언 뒤 박수 새 곡(newSong · 0.6초) · 부모님께 걸어가기 −12(walkDuck) · 말하는 차례 −20
    P 미리 듣기 이어 듣기(화촉 → 입장 → 맞절 → 감사 인사 → … → 덕담) —
      1 걷기 0 dB · 도착 멘트 동안 −90 · 맞절 · b8 동안 재생 0 · b8 뒤 감사 인사 곡이 무음에서(−8 뜸)
-     2 b7 −16 · 화촉 곡과 입장 곡 사이 정적 ≥ 1초(겹침 0)
+     2 b7 −15 · 화촉 곡과 입장 곡 사이 정적 ≥ 1초(겹침 0)
      3 곡 길이 9초(하네스) — 반지 · 두 분 차례 · 행동 줄 안에서 곡이 바뀌는 일 0(다음 나레이션 줄에서 넘김)
      4 선언 뒤 박수 = 앞 곡이 아닌 새 곡 · 강조 자리부터
      5 부모님께 걸어가는 줄 −12 · 말하는 차례 −20
@@ -93,7 +93,7 @@ try {
         const b8 = ix('bridge-b8-face-guests'), nx8 = cs[b8 + 1] || {}, mj = cs.find((c) => c.k === 'matjeol') || {};
         return { b7: [by('bridge-b7-entry-ready').duck, JSON.stringify(by('bridge-b7-entry-ready').post)], ar: [by('narr-entry-arrive').duck, by('narr-entry-arrive').fadeMs, !!by('narr-entry-arrive').fadeWith], mj: [mj.duck, mj.live && mj.live.duck],
           b8: [by('bridge-b8-face-guests').duck, nx8.k, nx8.goLeadMs, nx8.leadDb], dl: (by('narr-declare-family-out').live || {}), ti: (by('tribute-in').live || {}) }; });
-      ok('E 입장 앞 b7 −16 · 줄 끝 2초에 −90 + 정적 1초', E.b7[0] === -16 && E.b7[1] === '[{"music":"to","v":-90,"ms":2000},{"wait":1000}]', E.b7);
+      ok('E 입장 앞 b7 −15 · 줄 끝 2초에 −90 + 정적 1초', E.b7[0] === -15 && E.b7[1] === '[{"music":"to","v":-90,"ms":2000},{"wait":1000}]', E.b7);
       ok('E 도착 멘트 −90 을 4.5초(멘트와 함께) · 맞절 안내 · 맞절 정적 · b8 정적 → 감사 인사 6초 앞 −8', E.ar.join() === '-90,4500,true' && E.mj.join() === '-90,-90' && E.b8[0] === -90 && E.b8[1] === 'welcome' && E.b8[2] >= 6000 && E.b8[3] === -8, E);
       ok('E 선언 뒤 박수 = 새 곡(newSong · 0.6초 · −8) · 부모님께 걸어가기 −12 · 말하는 차례 −20', E.dl.newSong === true && E.dl.upMs === 600 && E.dl.duck === -8 && E.ti.walkDuck === -12 && E.ti.duck === -20, { dl: E.dl, ti: E.ti }); }
     /* P 이어 듣기 */
@@ -101,7 +101,7 @@ try {
     const o = await run(f, ['candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless'], 150000);
     const b7 = segs(o, (x) => x.s === 'bridge-b7-entry-ready' && x.on && x.f !== '@ENT');
     const lastC = o.reduce((a, x, i) => (x.on && x.f && x.f !== '@ENT' && x.k !== 'welcome' && i < o.findIndex((y) => y.f === '@ENT' && y.on) ? i : a), -1), firstE = o.findIndex((x) => x.f === '@ENT' && x.on);
-    ok('P2 b7 줄 −16 · 화촉 곡과 입장 곡 사이 정적 ≥ 1초(겹침 0)', b7.length > 0 && b7[b7.length - 1].want === -16 && firstE > lastC && lastC >= 0 && o[firstE].t - o[lastC].t >= 1000 && !o.slice(lastC + 1, firstE).some((x) => x.on), { b7: b7.length && b7[b7.length - 1].want, gap: firstE > 0 && lastC >= 0 ? Math.round(o[firstE].t - o[lastC].t) : null });
+    ok('P2 b7 줄 −15 · 화촉 곡과 입장 곡 사이 정적 ≥ 1초(겹침 0)', b7.length > 0 && b7[b7.length - 1].want === -15 && firstE > lastC && lastC >= 0 && o[firstE].t - o[lastC].t >= 1000 && !o.slice(lastC + 1, firstE).some((x) => x.on), { b7: b7.length && b7[b7.length - 1].want, gap: firstE > 0 && lastC >= 0 ? Math.round(o[firstE].t - o[lastC].t) : null });
     const walk = segs(o, (x) => x.k === 'entry' && x.act && x.on), arr = segs(o, (x) => x.s === 'narr-entry-arrive'), arrQ = arr.filter((x) => !x.on);
     const mjb8 = segs(o, (x) => (x.k === 'matjeol' || x.s === 'bridge-b8-face-guests') && x.on), w1 = o.findIndex((x) => x.k === 'welcome' && x.on && x.f !== '@ENT');
     ok('P1 걷기 0 dB · 도착 멘트 동안 −90 으로 · 맞절 안내 · 맞절 · b8 재생 0 · 감사 인사 곡은 무음에서 −8 뜸', walk.length > 0 && walk[walk.length - 1].want === 0 && arrQ.length > 0 && !mjb8.length && w1 > 0 && !o[w1 - 1].on && o[w1].want === -8,

@@ -121,7 +121,7 @@ try {
       await c.fire(iB); await c.pg.waitForTimeout(2500); await c.log0(); await c.fire(i13); const t1 = await c.trace(6000); await c.fire(iT); const t2 = await c.trace(3000);
       await c.pg.evaluate(() => window.__bgmGo.tap()); const t3 = await c.trace(3000), lg = await c.log(); await c.ctx.close(); return { iB, i13, iT, s0, t1, t2, t3, lg, errs: c.errs }; };
     const D = await day([['M4', 440, 60], ['M7', 660, 60]]), b13 = D.t1.filter((x) => x.cur === D.i13), up = D.lg.filter((x) => x.eff > -60), firstUp = up[0], segAtUp = firstUp ? (D.t1.find((x) => x.T >= firstUp.t) || {}).seg : null;
-    ok('음03-T01 당일 맞절 → 축배 b13 — 본식 곡(M4)을 무음에서 · 앞 장면 곡(하객 맞이 · 기본 배경음) −16 되살림 0', D.i13 === D.iB + 1 && b13.length > 10 && b13.slice(-5).every((x) => x.seg === 'M4' && x.id === 'B09' && x.want > -60) && segAtUp === 'M4', { s0: D.s0, b13: [...new Set(b13.map((x) => x.seg + '/' + x.id + '@' + x.want))], segAtUp });
+    ok('음03-T01 당일 맞절 → 축배 b13 — 본식 곡(M4)을 무음에서 · 앞 장면 곡(하객 맞이 · 기본 배경음) −15 되살림 0', D.i13 === D.iB + 1 && b13.length > 10 && b13.slice(-5).every((x) => x.seg === 'M4' && x.id === 'B09' && x.want > -60) && segAtUp === 'M4', { s0: D.s0, b13: [...new Set(b13.map((x) => x.seg + '/' + x.id + '@' + x.want))], segAtUp });
     const c3 = D.t3.slice(-5);
     ok('음03-T03 당일 «위하여» — 축배 곡(M7)이 축배 크기로(−90 으로 눌리지 않는다)', c3.every((x) => x.seg === 'M7' && x.id === 'B28') && D.lg.slice(-1)[0].eff > -60, { t3: [...new Set(D.t3.map((x) => x.seg + '/' + x.id + '@' + x.want))], last: D.lg.slice(-1)[0] });
     const N = await day([['M4', 440, 60]]), n3 = N.t3.slice(-5);
@@ -285,33 +285,33 @@ try {
     await f.evaluate(() => { const i = STEPS.findIndex((x) => x.k === 'listen'); if (i > -1) { idx = i; render(); } });
     const r = await f.evaluate(async () => { const BB = BgmBed._t, W = (ms) => new Promise((r) => setTimeout(r, ms)), on = () => !!(BB.BED.cur && BB.BED.cur.src && BB.BED.cur.want > -60);
       LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(['welcome'], true); _lFull(); (LP.q || []).forEach((x) => { if (x.talk || x.talk2 || x.said || x.act || x.quiet) x.ms = 2500; }); for (let k = 0; k < 120 && !on(); k++) await W(100); await W(1500);
-      const nar = LP.q.findIndex((x) => x.k === 'welcome' && !x._pre && !x.talk && !x.talk2 && x.dk === -16 && !/^bridge-/.test(x.slug || '')), tk = LP.q.findIndex((x) => x.k === 'welcome' && (x.talk || x.talk2) && x.ldk === -20);
+      const nar = LP.q.findIndex((x) => x.k === 'welcome' && !x._pre && !x.talk && !x.talk2 && x.dk === -15 && !/^bridge-/.test(x.slug || '')), tk = LP.q.findIndex((x) => x.k === 'welcome' && (x.talk || x.talk2) && x.ldk === -20);
       LP.paused = true; clearTimeout(LP.t); LP.tok++; await W(1500); LP.i = nar; LP.paused = false; const rr = BgmBed.lpResume(); await W(200); const w0 = BB.BED.cur.want;
       LP.i = tk; BgmBed.lpShow(LP.q[tk]); await W(400); const w1 = BB.BED.cur.want;
       /* 대조 — 같은 줄을 다시 보이면 0.9초 안에는 덮지 않는다 */
       LP.paused = true; await W(1500); LP.paused = false; const rr2 = BgmBed.lpResume(); await W(200); const w2 = BB.BED.cur.want, n2 = BB.BED.cur; BgmBed.lpShow(LP.q[tk]); await W(300); const same = BB.BED.cur === n2 && BB.BED.cur.want === w2;
       try { lsStop(); } catch (e) {} try { lsCloseBig(); } catch (e) {} return { nar, tk, rr, w0, w1, rr2, w2, same }; });
-    ok('음09-T01 이어 든 직후(0.9초 안) 다른 줄로 옮기면 — 그 줄 크기(−20)로 바로', r.nar > -1 && r.tk > -1 && r.rr && r.w0 === -16 && r.w1 === -20, r);
+    ok('음09-T01 이어 든 직후(0.9초 안) 다른 줄로 옮기면 — 그 줄 크기(−20)로 바로', r.nar > -1 && r.tk > -1 && r.rr && r.w0 === -15 && r.w1 === -20, r);
     ok('음09-T02 대조 — 같은 줄은 0.9초 안에 다시 덮지 않는다', r.rr2 && r.same, r);
     ok('음09 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close();
   }
   } catch (e) { ok('음09 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })(),
   (async () => { try {
   if (want('음10')) {
-    /* 쉼 예약(줄 사이 미리 낮추기)은 실행 번호 + 다음 줄 — 그사이 다른 줄로 옮기면 지난 예약이 크기를 덮지 않는다(감사 인사 여는 말 뒤 −16 이 −20 으로 덮이던 것) */
+    /* 쉼 예약(줄 사이 미리 낮추기)은 실행 번호 + 다음 줄 — 그사이 다른 줄로 옮기면 지난 예약이 크기를 덮지 않는다(감사 인사 여는 말 뒤 −15 이 −20 으로 덮이던 것) */
     const { ctx, f, errs } = await open(390, true);
     await f.evaluate(() => { const i = STEPS.findIndex((x) => x.k === 'listen'); if (i > -1) { idx = i; render(); } });
     const r = await f.evaluate(async () => { const BB = BgmBed._t, W = (ms) => new Promise((r) => setTimeout(r, ms)), on = () => !!(BB.BED.cur && BB.BED.cur.src && BB.BED.cur.want > -60);
       LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(['welcome'], true); _lFull(); (LP.q || []).forEach((x) => { if (x.talk || x.talk2 || x.said || x.act || x.quiet) x.ms = 2500; }); for (let k = 0; k < 120 && !on(); k++) await W(100); await W(1500);
-      const nar = LP.q.findIndex((x) => x.k === 'welcome' && !x._pre && !x.talk && !x.talk2 && x.dk === -16 && !/^bridge-/.test(x.slug || '')), tk = LP.q.findIndex((x) => x.k === 'welcome' && (x.talk || x.talk2) && x.ldk === -20);
+      const nar = LP.q.findIndex((x) => x.k === 'welcome' && !x._pre && !x.talk && !x.talk2 && x.dk === -15 && !/^bridge-/.test(x.slug || '')), tk = LP.q.findIndex((x) => x.k === 'welcome' && (x.talk || x.talk2) && x.ldk === -20);
       LP.paused = true; clearTimeout(LP.t); LP.tok++; await W(300); LP.paused = false;
       LP.i = nar; BgmBed.lpShow(LP.q[nar]); await W(1500); const w0 = BB.BED.cur.want;
-      /* 다음 줄(말 · −20) 쉼 예약을 걸고 · 그 쉼 안에 다른 줄(나레이션 · −16)로 옮긴다 */
+      /* 다음 줄(말 · −20) 쉼 예약을 걸고 · 그 쉼 안에 다른 줄(나레이션 · −15)로 옮긴다 */
       LP.i = tk; BgmBed.lpGap(LP.q[nar], LP.q[tk], 1500); await W(200); LP.i = nar; BgmBed.lpShow(LP.q[nar]); await W(2500); const w1 = BB.BED.cur.want;
       /* 대조 — 옮기지 않으면 예약대로 다음 줄 크기(−20)로 */
       LP.i = tk; BgmBed.lpGap(LP.q[nar], LP.q[tk], 1500); await W(2500); const w2 = BB.BED.cur.want;
       try { lsStop(); } catch (e) {} try { lsCloseBig(); } catch (e) {} return { nar, tk, w0, w1, w2 }; });
-    ok('음10-T01 쉼 예약 뒤 다른 줄로 옮기면 — 지난 예약이 크기를 덮지 않는다(−16 그대로)', r.nar > -1 && r.tk > -1 && r.w0 === -16 && r.w1 === -16, r);
+    ok('음10-T01 쉼 예약 뒤 다른 줄로 옮기면 — 지난 예약이 크기를 덮지 않는다(−15 그대로)', r.nar > -1 && r.tk > -1 && r.w0 === -15 && r.w1 === -15, r);
     ok('음10-T02 대조 — 옮기지 않으면 예약대로 다음 줄 크기(−20)', r.w2 === -20, r);
     ok('음10 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close();
   }
