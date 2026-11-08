@@ -1335,8 +1335,28 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 /* ★[DN_NO_EMOJI_1102 사장님 «애프터 웨딩 이모지 같은 거 전부 없애고»] 고르기 카드의 그림 글자(접시 · 잎) 삭제 — 되살리지 말 것(merge-guard nochk) · 카드는 제목 · 설명 두 줄 */
 .dn-gate-card .dgc-t{display:block;font-family:var(--serif-ko);font-size:15px;color:var(--accent);font-weight:600}
 .dn-gate-card .dgc-d{display:block;font-size:12px;color:var(--sub);margin-top:3px;line-height:1.5;word-break:keep-all}
-.dn-gate-card.dn-gate-skip{background:var(--bg2,#F5F3EF)}
-.dn-gate-card.dn-gate-skip .dgc-t{color:var(--sub)}   /* '안 함' 카드는 톤 낮춤 — 주 액션은 만들기 */
+/* ★[DN_GATE_SAME_1107 2026-11-07 사장님 «여기 너무 허하지 않아?» · 대본 ④] '안 함' 카드의 회색 바탕 · 옅은 제목을 걷었다 — 골랐는지 · 막혔는지 애매하게 읽혔다. 두 칸은 같은 모양 */
+/* [DN_GATE_FX_1107] 고르면 바뀌는 것(사실만) · 하객 안내 «여기로 모여요» 카드 미리 보기(예시) — A안은 칸 안 · B안은 두 칸 아래 */
+.dgc-fx{display:block;margin:10px 0 0;padding:10px 0 0;border-top:1px solid var(--hairline)}
+.dgc-fx>span{display:block;position:relative;padding-left:12px;font-size:12px;line-height:1.65;color:var(--sub);word-break:keep-all}
+.dgc-fx>span+span{margin-top:3px}
+.dgc-fx>span::before{content:'';position:absolute;left:0;top:.72em;width:4px;height:4px;border-radius:50%;background:var(--gold)}
+.dn-fx{margin:18px 0 0;text-align:left}
+.dn-fx-h{font-family:var(--serif-ko);font-size:13px;font-weight:600;color:var(--accent);margin:0 0 8px}
+.dn-fx-cols{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:700px){.dn-fx-cols{grid-template-columns:1.25fr 1fr;gap:18px}}
+.dn-fx-k{font-size:12px;font-weight:600;color:var(--gold-deep);margin:0 0 2px}
+.dn-fx .dgc-fx{margin-top:4px;padding-top:0;border-top:0}
+.dn-pv,.dn-pv-cap,.dn-pv-pl,.dn-pv-pn,.dn-pv-pm,.dn-pv-in{display:block}
+.dn-pv{margin:12px 0 0;padding:11px 12px 12px;background:var(--bg2);border:1px solid var(--gold);border-radius:9px;text-align:left}
+.dn-pv-cap{font-size:11px;color:var(--light);margin:0 0 6px}
+.dn-pv-pl{font-family:var(--serif);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep)}
+.dn-pv-pn{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);margin-top:2px}
+.dn-pv-pm{font-size:12px;color:var(--sub);margin-top:3px}
+.dn-pv-acts{display:flex;gap:6px;margin-top:8px}
+.dn-pv-act{font-family:var(--serif-ko);font-size:11px;color:var(--gold-deep);background:var(--card-white);border:1px solid var(--border);border-radius:20px;padding:3px 11px}
+/* [DN_GATE_FIT_1107 · B안] 판을 내용만큼 — WZ_PIN(화면 높이 채우기)의 예외 · 이 입구에는 아래 막대가 없다 */
+.mp-fs>.dn-fit:only-child{flex:0 0 auto;margin-bottom:0;border-bottom-width:1px;border-radius:8px}
 /* ★★[GATE_CARD_BUSY 2026-09-21 사장님 지적 「식사안하고 웨딩 이후 마무리한다 부분있는데
    클릭해도 별다른 변화가없어 … 고객입장에서 당황스러울거같은포인트」]
    원인은 둘이었다. ①이 카드를 누르면 서버에 «안 함»을 적는데(saveTrkDraft) 그 왕복 동안
@@ -13787,6 +13807,17 @@ function _dnRsvWire(d){   // 입력 즉시 draft에 반영 — '저장 후 나�
   var _rt=$('dn_rtime'), _rc=$('dn_rtchk'); if(_rt) _rt.addEventListener('input', function(){ d.reserveTime=(_rt.value||'').trim().slice(0,40); if(_rc) _rc.hidden=!_dnRtBad(d.reserveTime); });   // [RSV_TIME_CHK_1106]
   var _rn=$('dn_rname'); if(_rn) _rn.addEventListener('input', function(){ d.reserveName=(_rn.value||'').trim().slice(0,30); });
 }
+/* ★★[DN_GATE_FX_1107 2026-11-07 사장님 «여기 너무 허하지 않아?» · 대본 ② ③] 입구 두 칸 — 고르면 바뀌는 것을 사실로만.
+   ①하객 안내(guide.html diningHtml) 애프터 웨딩 구역 ②당일 안내 음성 판(ritual-cue guest-w-10m-*-meal · after-photo-meal · after-photo-cafe · narr-closing-meal)
+   ③계약서 v1.16 제3조② «'을'은 마이페이지의 애프터 웨딩에서 식당 정보와 예상 비용을 안내하며, 예약과 식사 비용 지급은 '갑'이 식당에 직접 한다»와 같은 뜻.
+   기한 줄은 넣지 않는다 — 애프터 웨딩에는 시스템 기한이 없다(지어내지 말 것 · 대본 ⑤). 미리 보기 식당 이름은 «예시» · 실제 업체 이름 금지.
+   DN_GATE_V = 'A'(칸 안 · 화면 높이 그대로) / 'B'(판은 내용만큼 · 두 칸 아래) — 대본이 고르면 하나만 남긴다 */
+var DN_GATE_V='B';
+var DN_FX_MAKE=['청첩장의 하객 안내에 식당 · 카페 카드가 생겨요','당일 안내 음성(10분 전 · 촬영 후 안내 · 마무리 멘트)이 고른 곳에 맞춰 바뀌어요','스튜디오는 식당 정보와 예상 비용을 안내하고, 예약과 식사 비용은 두 분이 식당에 직접 해요'];
+var DN_FX_NONE=['안내 음성은 식사 없는 판으로 나가요','나중에 바꿔도 돼요'];
+function _dnFxList(a){ return '<span class="dgc-fx">'+a.map(function(t){ return '<span>'+escapeHtml(t)+'</span>'; }).join('')+'</span>'; }   // 단추 안에도 들어가 span 만(단추 안 ul 금지)
+function _dnPvCard(){ return '<span class="dn-pv"><span class="dn-pv-cap">하객 안내에 이렇게 보여요 · 예시</span><span class="dn-pv-in" aria-hidden="true"><span class="dn-pv-pl">여기로 모여요</span><span class="dn-pv-pn">예시 식당</span><span class="dn-pv-pm">한식 · 걸어서 5분</span><span class="dn-pv-acts"><span class="dn-pv-act">지도</span><span class="dn-pv-act">전화</span></span></span></span>'; }
+function _dnFxBlock(){ return '<div class="dn-fx"><p class="dn-fx-h">고르면 이렇게 바뀌어요</p><div class="dn-fx-cols"><div><p class="dn-fx-k">식사 · 카페 안내 만들기</p>'+_dnFxList(DN_FX_MAKE)+_dnPvCard()+'</div><div><p class="dn-fx-k">예식만으로 조용히 마무리</p>'+_dnFxList(DN_FX_NONE)+'</div></div></div>'; }
 function renderDining(box){
   var d=TRKFLOW.draft;
   // 옛 저장값 호환: venuePick이 없으면 venue·구 파트너 선택에서 복원(구 '식사 형태'는 표시만 안 하고 보존)
@@ -13853,7 +13884,7 @@ function renderDining(box){
   // [DN_GATE 2026-07-21 사용자 지시] 입구에서 '만들기 vs 안 함'을 먼저 큰 두 카드로 — 식당 목록부터 쏟아지지 않게. 아직 아무것도 안 정한 신규 진입에만.
   if(TRKFLOW.step===0 && !((d._favs&&d._favs.length) || String(d.venuePick||'').trim() || TRKFLOW._dnPick)){
     var m=TRK_META[TRKFLOW.track];
-    box.innerHTML='<div class="consult-card inv-wrap">'
+    box.innerHTML='<div class="consult-card inv-wrap'+(DN_GATE_V==='B'?' dn-fit':'')+'">'
       /* ★★[DN_STEP_LABEL 2026-09-22 사장님 지적 「순서도 이상하고」] 입구 게이트는 «단계»가 아니다.
          종전엔 여기가 «1 / 2» 를 차지해, 바로 다음 식당 목록 화면도 «1 / 2» 였다 — 같은 번호가
          두 화면에 붙어 «안 넘어갔나»로 읽힌다(실측: 게이트 1/2 → 목록 1/2 → 정리 2/2).
@@ -13863,9 +13894,9 @@ function renderDining(box){
       +'<div class="inv-q">예식 뒤의 시간, 어떻게 할까요?</div>'
       +'<div class="inv-sub">예식 후 식사 · 카페 자리를 하객분들께 안내할지 정해요. 꼭 하지 않으셔도 괜찮아요.</div>'
       +'<div class="dn-gate">'
-        +'<button type="button" class="dn-gate-card" id="dn_make"><span class="dgc-t">식사 · 카페 안내 만들기</span><span class="dgc-d">하객께 식당 · 카페 · 가볼 곳을 안내해요</span></button>'
-        +'<button type="button" class="dn-gate-card dn-gate-skip" id="dn_none"><span class="dgc-t">예식만으로 조용히 마무리</span><span class="dgc-d">애프터 웨딩 안내는 안 만들래요</span></button>'
-      +'</div></div>';
+        +'<button type="button" class="dn-gate-card" id="dn_make"><span class="dgc-t">식사 · 카페 안내 만들기</span><span class="dgc-d">하객께 식당 · 카페 · 가볼 곳을 안내해요</span>'+(DN_GATE_V==='A'?_dnFxList(DN_FX_MAKE)+_dnPvCard():'')+'</button>'
+        +'<button type="button" class="dn-gate-card" id="dn_none"><span class="dgc-t">예식만으로 조용히 마무리</span><span class="dgc-d">애프터 웨딩 안내는 안 만들래요</span>'+(DN_GATE_V==='A'?_dnFxList(DN_FX_NONE):'')+'</button>'   /* [DN_GATE_SAME_1107] dn-gate-skip(회색) 걷음 */
+      +'</div>'+(DN_GATE_V==='B'?_dnFxBlock():'')+'</div>';
     /* [DN_MAKE_BASE] 2026-09-26 · 만들기 → 같은 step0 식당 화면으로. 그린 «뒤에» 기준선을 다시 잡는다([WIZ_BASE_AFTER] 와 같은 규칙).
        목록 화면이 처음 붙이는 collect() 가 dining_on:'Y' 를 계산해 넣어, 아무것도 안 고른 부부가 «나가기»에서 «저장하지 않은 변경이 있어요»를 받았다.
        «만들기»를 고른 것은 아직 저장할 결정이 아니다 — 식당을 담는 순간 저장된다(_dnFavSaved). */
