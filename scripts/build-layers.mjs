@@ -7,7 +7,7 @@
 import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url'; import { execFileSync } from 'node:child_process'; import { createRequire } from 'node:module';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), P = (...a) => path.join(ROOT, ...a);
 const arg = (k, d = '') => { const i = process.argv.indexOf(k); return i > -1 ? process.argv[i + 1] : d; };
-export const LAYER_DONE = 0;   // 조립기에 들어간 마지막 층 — 층을 넣는 커밋에서 같이 올린다
+export const LAYER_DONE = 1;   // 조립기에 들어간 마지막 층 — 층을 넣는 커밋에서 같이 올린다
 const L = Number(arg('--layer', '0'));
 if (!(L >= 0 && L <= LAYER_DONE)) { console.error(`✗ --layer ${arg('--layer')} — 지금 만들 수 있는 층은 0 ~ ${LAYER_DONE}`); process.exit(2); }
 const man = JSON.parse(fs.readFileSync(P('docs/plans/식순연구/타입캐스트/manifest.json'), 'utf8'));
@@ -15,11 +15,11 @@ const idx = JSON.parse(fs.readFileSync(P('assets/audio/_src/_index.json'), 'utf8
 const RET = createRequire(import.meta.url)(P('assets/ritual-cue.js')).RETIRED || {};
 const st = JSON.parse(fs.readFileSync(P('assets/audio/clip-status.json'), 'utf8')).clips || {};
 const pad2 = (n) => String(n).padStart(2, '0');
-/* 만들 클립 = 나레이션 폴더 · 우성/진희 · 쓰는 클립 · 문장 자리가 창고에 다 있고 글이 같은 것(편지 43 은 창고가 없다 — 층에서 따로) */
+/* 만들 클립 = 나레이션 폴더 · 우성/진희 · 쓰는 클립 · 안 쓰는 클립 · 문장 자리가 창고에 다 있고 글이 같은 것(편지 43 은 창고가 없다 — 층에서 따로) */
 export function layerClips() {
   return man.clips.filter((c) => { const key = pad2(c.no) + '_' + c.file, v = (man.voice || {})[String(c.role).split('|')[0]];
     if (c.mix || (c.dir || 'assets/audio/narration') !== 'assets/audio/narration' || (v !== '우성' && v !== '진희')) return false;
-    if (RET[c.file] || (st['narration/' + key] && st['narration/' + key].s === 'retired')) return false;
+    /* 안 쓰는 클립도 대상(사장님 11/08 20:08 «지금 안 쓰는 것도 손질해 두면 나중에 켜도 같음») — 대상 목록 = scripts/audit/layer-targets.mjs */
     return c.sents.every((s) => { const e = idx[key + '#' + s.i]; return e && e.text === s.text && fs.existsSync(P('assets/audio/_src', key, s.i + '.flac')); }); })
     .map((c) => '=' + pad2(c.no) + '_' + c.file); }
 const list = arg('--clip') || layerClips().join(',');
