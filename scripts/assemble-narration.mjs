@@ -52,6 +52,8 @@ const OUT_OVERRIDE = arg('--out', '');            // 주면 clip.dir을 무시�
 /* ★★[LAYER_PLAN_1108] 층 번호 — 층설정표(assets/audio/_src/_layers/층설정표_1108.json)의 그 층까지 누적 적용 · scripts/build-layers.mjs 가 넘긴다
    0층 = 이 조립기 그대로(main 소리 · 11/08 238클립 길이 · 크기 · 파형 같음) · 1층 = 내용(창고 · 162 A3 는 build-layers 가 깔 때) · 2층부터 여기서 처리 */
 const LAYER = arg('--layer', '') === '' ? null : Number(arg('--layer'));
+/* [LAYER_PLAN_1108 · 대본 21:55] 클립 크기 맞춤 — 짧은 클립은 loudnorm 이 말소리를 낮게 잡는다 · 'key=dB,…' 만큼 loudnorm 뒤에 올리고 −1.5 dBFS 리미터로 최고를 지킨다(3초 미만은 loudnorm 이 목표 I 를 못 쓴다 — 실측 그대로였다) */
+const LOUD_ADJ = Object.fromEntries(String(arg('--loud-adj', '') || '').split(',').filter(Boolean).map((x) => { const [k, v] = x.split('='); return [k, Number(v) || 0]; }));
 
 if (!fs.existsSync(MAN)) { console.error('✗ manifest.json이 없습니다. node scripts/build-typecast-import.mjs 먼저 돌리세요.'); process.exit(1); }
 const man = JSON.parse(fs.readFileSync(MAN, 'utf8'));
@@ -663,7 +665,7 @@ for (const w of work) {
     outDirs.add(outDir);
     const dst = path.join(outDir, `${c.no}_${c.file}.mp3`);
     execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', joined,
-      '-af', `loudnorm=I=-16:TP=-1.5:LRA=11,afade=t=in:st=0:d=0.015,afade=t=out:st=${Math.max(0, total - 0.04).toFixed(3)}:d=0.04`,
+      '-af', `loudnorm=I=-16:TP=-1.5:LRA=11,${LOUD_ADJ[`${c.no}_${c.file}`] ? `volume=${LOUD_ADJ[`${c.no}_${c.file}`]}dB,alimiter=limit=0.8414:level=disabled:attack=3:release=40,` : ''}afade=t=in:st=0:d=0.015,afade=t=out:st=${Math.max(0, total - 0.04).toFixed(3)}:d=0.04`,   // [LAYER_PLAN_1108] LOUD_ADJ
       '-ar', '48000', '-b:a', '192k', dst]);
     made++;
     _recWritten.push({ dir: outDir, key: `${c.no}_${c.file}`, text: c.sents.map((s) => s.text).join(' ') });

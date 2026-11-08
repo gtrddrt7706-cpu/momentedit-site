@@ -45,5 +45,6 @@ if (L >= 1) for (const [id, r] of Object.entries(R1)) { const [key, i] = id.spli
     execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', w, '-c:a', 'flac', o]);
     console.log(`[LAYER 1] ${id} ← ${r.take}${r.cut ? ' ' + JSON.stringify(keep) : ''} · 빠르기 ×${fac}`); }
   fs.copyFileSync(o, path.join(D, f)); }
-execFileSync('node', [P('scripts/assemble-narration.mjs'), '--in', D, '--clip', list, '--layer', String(L), ...(arg('--out') ? ['--out', arg('--out')] : [])], { stdio: 'inherit' });
+const LOUD = L >= 1 ? Object.entries(JSON.parse(fs.readFileSync(P('assets/audio/_src/_layers/층1_재료.json'), 'utf8')).loud || {}).map(([k, v]) => k + '=' + v.dB).join(',') : '';
+execFileSync('node', [P('scripts/assemble-narration.mjs'), '--in', D, '--clip', list, '--layer', String(L), ...(LOUD ? ['--loud-adj', LOUD] : []), ...(arg('--out') ? ['--out', arg('--out')] : [])], { stdio: 'inherit' });
 fs.rmSync(SCR, { recursive: true, force: true });

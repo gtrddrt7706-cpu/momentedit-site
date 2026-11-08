@@ -1,6 +1,9 @@
 {
  "_왜": "[LAYER_PLAN_1108] 1층 내용 바꾸기 재료 — build-layers 가 깔 때마다 받은 테이크(손대지 않은 원본)에서 한 번만 만든다 · cut = 테이크에서 자를 자리(초 · 무음 가운데) · shrink = 문장 안 쉼을 무음 가운데에서 잘라 to 초로(말소리는 손대지 않음) · match = 원래 글자/초 ÷ 새 글자/초(원래 빠르기에 맞춤 · 5% 안 · 2층부터는 층 빠르기와 곱해 한 번에)",
  "출처": "대본 11/08 20:00(60) · 20:55(141 · 148) · 21:00(146) · docs claude/splice-162-1108 63cb5fc · 94183ed",
+ "loud": {
+  "60_narr-photo-split": { "dB": 2.4, "why": "대본 21:55 — 새 60 말소리 RMS −18.86 dB · 예전 −17.01 dB(짧은 클립이라 loudnorm 이 낮게 잡음) · 같게: loudnorm 뒤 +2.4 dB · −1.5 dBFS 리미터(리미터가 0.5 dB 먹는다) → −16.90 dB · 최고 −1.77" }
+ },
  "slots": {
   "162_narr-entry-bow-ex4#0": { "splice": "162_vocative_A3_raw.wav" },
   "60_narr-photo-split#0": { "take": "60/60_take1.wav", "match": 1, "why": "대본 20:00 7.50 vs 7.46 같은 빠르기" },

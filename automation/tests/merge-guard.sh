@@ -23264,3 +23264,5 @@ chk 'SEAM_WORD_1107 b' assets/ritual-cue.js 1   # 감사 인사 예시 208 앞 2
 # ★[SEAM_WORD_1107 c 대본 18:40 예시 칩 전수 판정] 입장 E · F 앞 243 빼기 · 테이블 인사 앞 244 빼기(닫는 인사 · 축배 앞은 그대로)
 chk "'F'\].indexOf(String(S.entry || 'A').toUpperCase()) < 0) _more.push('bridge-b7-entry-ready');" assets/ritual-cue.js 1
 chk "|| _cLast.k === 'ring') && !O.onOf(S, 'table')) _cSeam = 'bridge-b8-face-guests';" assets/ritual-cue.js 1
+chk 'LAYER_PLAN_1108' scripts/audit/layer-short-loud.mjs 1   # 짧은 클립(3초 미만) 말소리 크기 main 대비 1 dB 표시(대본 11/08 21:55)
+chk 'LOUD_ADJ' scripts/assemble-narration.mjs 2   # 3초 미만은 loudnorm 이 목표 I 를 못 쓴다 — 뒤에서 올리고 리미터
