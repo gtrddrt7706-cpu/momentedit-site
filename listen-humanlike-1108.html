@@ -2,7 +2,7 @@
 <style>:root{--ink:#2b2522;--light:#7a706a;--line:#e5ddd5;--seal:#6B2A24;--bg:#faf8f5}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,-apple-system,sans-serif}main{max-width:760px;margin:0 auto;padding:16px}h1{font-size:20px;margin:8px 0 4px}h2{font-size:16px;margin:24px 0 8px}.nt{color:var(--light);font-size:13px}.bt{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}button{font:inherit;min-height:44px;padding:8px 14px;border:1px solid var(--seal);background:#fff;color:var(--seal);border-radius:8px;cursor:pointer}button.on{background:var(--seal);color:#fff}.sum{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:12px 0}.rl{list-style:none;margin:0;padding:0}.rl li{border-bottom:1px solid var(--line);padding:10px 0}.rl .h{font-size:13px;color:var(--light)}.rl .h b{color:var(--ink)}.rl .t{margin:2px 0}.rl .g{font-size:13px}</style></head><body><main>
 <h1>사람처럼 들리기 · 지금 / 사람처럼</h1>
 <p class="nt">시험판(HUMANLIKE_1108) · 새 녹음 0 · 문장별 빠르기 곱(안내 ×1.015 · 기본 ×1.000 · 감정·핵심 ×0.985 · 구호 ×1.000 · 이웃 문장 3% 안) · 문장 사이 쉼 ±0.10초 흔들림(고정 씨앗) + 문장 길이(앞 문장 말소리 4.5초 넘으면 +0.12초 · 1.5초 안 되면 −0.08초) · 합쳐 원래 값 ±0.20초 안 · 기다림(구호 · 선언 앞)과 특수(0.6 · 3 · 4초)는 그대로 · 사람 구간은 1초로 줄임 · 엔진에는 아직 반영하지 않았어요.</p>
-<p class="sum"><b>바뀐 쉼 5곳</b>(줄 사이 2 · 문장 사이 3) · <b>바뀐 빠르기 13문장</b>(안내 ×1.015 쪽 8 · 감정 ×0.985 쪽 5 · 전체 15문장)</p>
+<p class="sum"><b>바뀐 쉼 14곳</b>(줄 사이 2 · 사람 구간 앞뒤 9 · 문장 사이 3) · <b>바뀐 빠르기 13문장</b>(안내 ×1.015 쪽 8 · 감정 ×0.985 쪽 5 · 전체 15문장)</p>
 <h2>3순간 이어 듣기</h2><div class="bt"><button type="button" data-src="assets/audio/preview/humanlike-1108/all-now.mp3">지금 3순간 이어 듣기</button><button type="button" data-src="assets/audio/preview/humanlike-1108/all-hl.mp3">사람처럼 3순간 이어 듣기</button></div>
 <h2>하객 맞이 · 10분 전 · 5분 전 · 1분 전</h2><p class="nt">309 → 03 → 315</p><div class="bt"><button type="button" data-src="assets/audio/preview/humanlike-1108/guest-now.mp3">지금</button><button type="button" data-src="assets/audio/preview/humanlike-1108/guest-hl.mp3">사람처럼</button></div>
 <h2>성혼 선언</h2><p class="nt">136 → 57 → 111 → 255</p><div class="bt"><button type="button" data-src="assets/audio/preview/humanlike-1108/declare-now.mp3">지금</button><button type="button" data-src="assets/audio/preview/humanlike-1108/declare-hl.mp3">사람처럼</button></div>
@@ -10,13 +10,21 @@
 <h2>줄 사이 쉼</h2><p class="nt">원래 쉼 = 앞 줄 끝 여백 + 엔진 큐 사이 + 뒤 줄 앞 여백 · 사람 구간 · 시각 큐 · 구호 앞 · 특수 쉼은 그대로</p><ul class="rl">
 <li><div class="h"><b>309 → 03</b> · 하객 맞이 · 10분 전 · 5분 전 · 1분 전</div><div class="g">쉼: <span class="nt">그대로 · 시각 큐(몇 분 뒤)</span></div></li>
 <li><div class="h"><b>03 → 315</b> · 하객 맞이 · 10분 전 · 5분 전 · 1분 전</div><div class="g">쉼: <span class="nt">그대로 · 시각 큐(몇 분 뒤)</span></div></li>
-<li><div class="h"><b>136 → 57</b> · 성혼 선언</div><div class="g">쉼: <span class="nt">그대로 · 사람 구간 뒤</span></div></li>
-<li><div class="h"><b>57 → 111</b> · 성혼 선언</div><div class="g">쉼: <span class="nt">그대로 · 사람 구간 뒤</span></div></li>
 <li><div class="h"><b>111 → 255</b> · 성혼 선언</div><div class="g">쉼: 0.85 → <b>0.86</b>초 <span class="nt">흔들림 +0.09 · 짧은 문장 -0.08 (말소리 1.3초)</span></div></li>
 <li><div class="h"><b>141 → 38</b> · 부모님께 인사</div><div class="g">쉼: 1.85 → <b>1.91</b>초 <span class="nt">흔들림 -0.06 · 긴 문장 +0.12 (말소리 8.9초)</span></div></li>
-<li><div class="h"><b>38 → 145</b> · 부모님께 인사</div><div class="g">쉼: <span class="nt">그대로 · 사람 구간 뒤</span></div></li>
-<li><div class="h"><b>145 → 256</b> · 부모님께 인사</div><div class="g">쉼: <span class="nt">그대로 · 사람 구간 뒤</span></div></li>
-<li><div class="h"><b>256 → 39</b> · 부모님께 인사</div><div class="g">쉼: <span class="nt">그대로 · 사람 구간 뒤</span></div></li>
+</ul>
+<h2>사람 구간 앞뒤 여백</h2><p class="nt">사람 구간 길이(박수 · 동작 · 포옹)는 그대로 · 앞 = 나레이션 끝 → 사람 구간 · 뒤 = 사람 구간 끝 · 디렉터 GO → 다음 나레이션(앞이 사람 소리라 길이 보정 없이 흔들림만)</p><ul class="rl">
+<li><div class="h"><b>136 끝 → 사람 구간</b> · 성혼 선언</div><div class="g">쉼: 0.45 → <b>0.60</b>초 <span class="nt">흔들림 +0.03 · 긴 문장 +0.12 (말소리 4.7초)</span></div></li>
+<li><div class="h"><b>사람 구간 → 57</b> · 성혼 선언</div><div class="g">쉼: 0.40 → <b>0.44</b>초 <span class="nt">흔들림 +0.04</span></div></li>
+<li><div class="h"><b>57 끝 → 사람 구간</b> · 성혼 선언</div><div class="g">쉼: 0.45 → <b>0.38</b>초 <span class="nt">흔들림 -0.07</span></div></li>
+<li><div class="h"><b>사람 구간 → 111</b> · 성혼 선언</div><div class="g">쉼: 0.40 → <b>0.36</b>초 <span class="nt">흔들림 -0.04</span></div></li>
+<li><div class="h"><b>38 끝 → 사람 구간</b> · 부모님께 인사</div><div class="g">쉼: 0.45 → <b>0.47</b>초 <span class="nt">흔들림 +0.02</span></div></li>
+<li><div class="h"><b>사람 구간 → 145</b> · 부모님께 인사</div><div class="g">쉼: <span class="nt">그대로 · 구호 앞</span></div></li>
+<li><div class="h"><b>145 끝 → 사람 구간</b> · 부모님께 인사</div><div class="g">쉼: <span class="nt">그대로 · 흔들림 계산값 0.00</span></div></li>
+<li><div class="h"><b>사람 구간 → 256</b> · 부모님께 인사</div><div class="g">쉼: 0.40 → <b>0.43</b>초 <span class="nt">흔들림 +0.03</span></div></li>
+<li><div class="h"><b>256 끝 → 사람 구간</b> · 부모님께 인사</div><div class="g">쉼: 0.45 → <b>0.47</b>초 <span class="nt">흔들림 +0.02</span></div></li>
+<li><div class="h"><b>사람 구간 → 39</b> · 부모님께 인사</div><div class="g">쉼: 0.40 → <b>0.34</b>초 <span class="nt">흔들림 -0.06</span></div></li>
+<li><div class="h"><b>39 끝 → 사람 구간</b> · 부모님께 인사</div><div class="g">쉼: 0.45 → <b>0.50</b>초 <span class="nt">흔들림 -0.07 · 긴 문장 +0.12 (말소리 4.7초)</span></div></li>
 </ul>
 <h2>역할 분류표</h2><p class="nt">줄마다 · 클립 · 역할 · 빠르기 곱 / 문장 / 쉼: 원래 → 사람처럼(그 문장 뒤)</p><ul class="rl">
 <li><div class="h"><b>309</b> · 안내 · ×1.015</div><div class="t">십 분 뒤 본식을 시작하겠습니다.</div><div class="g">쉼: 1.25 → <b>1.30</b>초 <span class="nt">흔들림 +0.05</span></div></li>
