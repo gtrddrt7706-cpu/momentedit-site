@@ -14,7 +14,7 @@
  {
   "k": "03_guest-3-5min",
   "use": true,
-  "where": "직접 부름 · console.html",
+  "where": "엔진 · damback · course=open · console",
   "status": ""
  },
  {
@@ -133,8 +133,8 @@
  },
  {
   "k": "112_bridge-b4-breath",
-  "use": false,
-  "where": "",
+  "use": true,
+  "where": "애매 → 씀(대본 21:45) · dormant — ritual-cue «bc.k === tribute → bridge-b4-breath» 경로는 있고 지금 차례(부모님께 인사 뒤 본식 순간 없음)에서만 안 섬",
   "status": "dormant"
  },
  {
@@ -183,7 +183,7 @@
   "k": "11_narr-welcome-in",
   "use": true,
   "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
-  "status": ""
+  "status": "retired"
  },
  {
   "k": "120_guest-ex3-2-10min",
@@ -235,8 +235,8 @@
  },
  {
   "k": "128_narr-prevideo-in-ex2",
-  "use": false,
-  "where": "",
+  "use": true,
+  "where": "엔진 · 새 코스 상태 · pvEx=1 · console",
   "status": ""
  },
  {
@@ -1441,8 +1441,8 @@
  },
  {
   "k": "314_guest-w-5m-online",
-  "use": false,
-  "where": "",
+  "use": true,
+  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":1,\"resv\":0,\"guide\":0} · console",
   "status": ""
  },
  {
@@ -1537,9 +1537,9 @@
  },
  {
   "k": "329_guest-w-5m-mgr",
-  "use": true,
-  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":1,\"mealFull\":1,\"digital\":0,\"resv\":1,\"guide\":1} · console",
-  "status": ""
+  "use": false,
+  "where": "",
+  "status": "retired"
  },
  {
   "k": "32_declare-family",
@@ -1549,57 +1549,57 @@
  },
  {
   "k": "330_guest-w-5m-mg",
-  "use": true,
-  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":1,\"mealFull\":1,\"digital\":0,\"resv\":0,\"guide\":1} · console",
-  "status": ""
+  "use": false,
+  "where": "",
+  "status": "retired"
  },
  {
   "k": "331_guest-w-5m-mr",
-  "use": true,
-  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":1,\"mealFull\":1,\"digital\":0,\"resv\":1,\"guide\":0} · console",
+  "use": false,
+  "where": "",
   "status": ""
  },
  {
   "k": "332_guest-w-5m-m",
-  "use": true,
-  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":1,\"mealFull\":1,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "use": false,
+  "where": "",
   "status": ""
  },
  {
   "k": "333_guest-w-5m-g",
-  "use": true,
-  "where": "엔진 · damback · course=open · console",
-  "status": ""
+  "use": false,
+  "where": "",
+  "status": "retired"
  },
  {
   "k": "334_guest-w-5m-mgr-online",
-  "use": true,
-  "where": "엔진 · damback · course=open · console",
-  "status": ""
+  "use": false,
+  "where": "",
+  "status": "retired"
  },
  {
   "k": "335_guest-w-5m-mg-online",
-  "use": true,
-  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":1,\"mealFull\":1,\"digital\":1,\"resv\":0,\"guide\":1} · console",
-  "status": ""
+  "use": false,
+  "where": "",
+  "status": "retired"
  },
  {
   "k": "336_guest-w-5m-mr-online",
-  "use": true,
-  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":1,\"mealFull\":1,\"digital\":1,\"resv\":1,\"guide\":0} · console",
+  "use": false,
+  "where": "",
   "status": ""
  },
  {
   "k": "337_guest-w-5m-m-online",
-  "use": true,
-  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":1,\"mealFull\":1,\"digital\":1,\"resv\":0,\"guide\":0} · console",
+  "use": false,
+  "where": "",
   "status": ""
  },
  {
   "k": "338_guest-w-5m-g-online",
-  "use": true,
-  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":1,\"resv\":0,\"guide\":0} · console",
-  "status": ""
+  "use": false,
+  "where": "",
+  "status": "retired"
  },
  {
   "k": "339_narr-closing-mealnr",
@@ -1680,6 +1680,24 @@
   "status": ""
  },
  {
+  "k": "350_narr-welcome-in-face",
+  "use": true,
+  "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "356_guest-w5-meal",
+  "use": true,
+  "where": "엔진 · open · 조건 {\"photoShare\":0,\"meal\":1,\"mealFull\":1,\"digital\":0,\"resv\":0,\"guide\":0} · console",
+  "status": ""
+ },
+ {
+  "k": "357_guest-w5-meal-online",
+  "use": true,
+  "where": "엔진 · damback · course=open · console",
+  "status": ""
+ },
+ {
   "k": "35_declare-ask-c",
   "use": false,
   "where": "",
@@ -1730,7 +1748,7 @@
  {
   "k": "43_parents-letter",
   "use": true,
-  "where": "직접 부름 · parents.html(parents-letter.mp3 사본)",
+  "where": "직접 부름 · parents.html",
   "status": "manual_off"
  },
  {
