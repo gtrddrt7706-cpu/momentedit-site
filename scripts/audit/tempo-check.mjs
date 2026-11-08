@@ -24,7 +24,10 @@ function check(T, quiet) {
   const bad = [];
   const F = T.formula || {};
   if (!(F.a === 0.98 && F.b === 0.035 && F.c === 19)) bad.push('① 공식이 0.98 − 0.035 × (n − 1) / 19 가 아님');
-  if (!(+T.global > 0.8 && +T.global <= 1)) bad.push('① global(전체 공통 배속 [GLOBAL_SLOW_1107])이 0.8 ~ 1 사이가 아님');
+  /* ★[SPEED97_1108] 사장님 «97퍼센트» — global 1.0125(단계 배속 위에 곱해 13단계 = 0.970) · 1 을 넘을 수 있다 · 대신 어느 단계든 실제 배속은 1 을 넘지 않게(원본보다 빨라지지 않게) */
+  if (!(+T.global > 0.8 && +T.global <= 1.05)) bad.push('① global(전체 공통 배속 [SPEED97_1108] · 옛 [GLOBAL_SLOW_1107])이 0.8 ~ 1.05 사이가 아님');
+  if (+(T.formula.a * T.global).toFixed(4) > 1) bad.push('① [SPEED97_1108] 1단계 × global 이 1 을 넘는다(원본보다 빨라진다)');
+  if (Math.abs(+((+(T.formula.a - T.formula.b * 12 / T.formula.c).toFixed(T.formula.round)) * T.global).toFixed(4) - 0.97) > 1e-9) bad.push('① [SPEED97_1108] 13단계 실제 배속이 0.970 이 아님');
   const okStep = (v) => Number.isInteger(v) && v >= 0 && v <= 20;
   if (!okStep((T.voice || {})['진희']?.step)) bad.push('① 진희 단계가 0 ~ 20 정수가 아님');
   for (const [m, v] of Object.entries(T.moments || {})) if (!m.startsWith('_') && !okStep(v)) bad.push(`① 순간 ${m} 단계 ${v}`);
