@@ -30,9 +30,23 @@ export function withGlobal(T, v) {
 }
 
 /* 클립 열쇠(«번호_파일») · 목소리 → 배속(단계 배속 × global). 우성인데 표에 없으면 null(조립이 멈춘다 — 순간 키를 표에 적게) */
+/* ★★[SPEED97_1108 사장님 11/08 «97%는 표준»] 표준 방식 — 순간(단계) 차이 없이 한 값(base 0.970) · 문장 역할로만 바꾼다(안내 0.985 · 구호 · 기본 0.970 · 감정은 사장님 선택 뒤)
+   진희 = 클립 전체 안내(voiceRole) · 우성 = 문장마다 rules(구호 → 안내 → 감정 → 기본 차례 · 첫 일치) */
+export function stdOn(T) { return !!(T.standard && T.standard.on); }
+export function sentRole(T, text, voice) {
+  const S = T.standard || {}; if (!stdOn(T)) return null;
+  if ((S.voiceRole || {})[voice]) return S.voiceRole[voice];
+  const t = String(text || '').trim(), R = S.rules || {};
+  for (const r of ['cheer', 'guide', 'emotion']) if (R[r] && new RegExp(R[r]).test(t)) return r;
+  return 'base';
+}
+/* 문장 배속(표준 방식) — 클립 배속(tempoOf) 위에 곱할 비율 = 역할 배속 ÷ 클립 배속 */
+export function sentSpeed(T, text, voice) { const r = sentRole(T, text, voice); return r ? +(+T.standard.roles[r]).toFixed(4) : null; }
+
 export function tempoOf(T, key, voice) {
   const V = (T.voice || {})[voice];
   if (!V) return 1;                                   // 배역 · 그 밖 목소리는 그대로
+  if (stdOn(T)) { const r = (T.standard.voiceRole || {})[voice] || 'base'; return +(+T.standard.roles[r]).toFixed(4); }   // [SPEED97_1108] 클립 바탕 = 그 목소리의 역할(진희 안내) · 우성 기본
   if (V.step != null) return withGlobal(T, speedOfStep(T, V.step));
   if (V.by === 'moment') {
     const m = (T.woosung || {})[key];
