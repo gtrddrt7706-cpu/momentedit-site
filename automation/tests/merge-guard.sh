@@ -23272,3 +23272,7 @@ chk 'ROLE_SPEED = { slow: 0.96, guide: 0.9894 }' scripts/build-layers.mjs 1   # 
 chk "강약_역할표_대본_1108.tsv" scripts/build-layers.mjs 1   # [LAYER_PLAN_1108] 3층 역할 = 대본이 뜻으로 나눈 표(11/09 00:05) · #1636 _roles.json 은 쓰지 않는다
 chk 'LAYER_PLAN_1108' scripts/audit/layer-seats.mjs 1   # 4층 자리별 쉼 · 구호 안 쉼을 mp3 에서 재는 검사
 chk 'SEAT_T' scripts/assemble-narration.mjs 3   # [LAYER_PLAN_1108] 4층 자리별 쉼 목표 = 들리는 무음
+chk 'KEEP_Q' scripts/assemble-narration.mjs 2   # [LAYER_PLAN_1108] 5층 구절 쉼 0.43초 넘는 자리는 안쪽 상한(SENT_CAP)으로 깎지 않는다
+chk 'LAYER_PLAN_1108' scripts/lib/phrase5.mjs 1   # 5층 자리 찾기(에너지 누적 비율 · 자리 본) — 만들기 · 재기 공통
+chk 'LAYER_PLAN_1108' scripts/build-phrase5-ref.mjs 1   # 5층 자리표(층5_자리.json) 만드는 법 · 손으로 확인한 자리(CHECKED) 까닭
+chk 'LAYER_PLAN_1108' scripts/audit/layer-phrase.mjs 1   # 5층 구절 쉼을 mp3 에서 재는 검사(−30 dB · 5ms · ±0.03)

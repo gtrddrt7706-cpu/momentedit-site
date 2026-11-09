@@ -59,6 +59,8 @@ const GAP_ADJ = Object.fromEntries(String(arg('--gap-adj', '') || '').split(',')
 /* [LAYER_PLAN_1108 · 4층 · 대본 11/09 00:35] 자리별 쉼 — 'key#자리=초,…' · 자리 n = n 번째 문장 뒤 · 목표는 «들리는 무음»(앞 문장 꼬리 + 쉼 + 뒤 문장 머리 · −30 dB) · 조립 기록(SEAT_LOG)으로 mp3 에서 다시 잰다 */
 const SEAT_T = Object.fromEntries(String(arg('--seat-targets', '') || '').split(',').filter(Boolean).map((x) => { const [k, v] = x.split('='); return [k, Number(v)]; }));
 const SEAT_LOG = process.env.SEAT_LOG || '';
+/* [LAYER_PLAN_1108 · 5층] 구절 쉼 0.43초 넘는 자리 — 'key#i@초,…'(깔린 문장 시각) · 그 무음은 안쪽 상한(SENT_CAP)으로 깎지 않는다 */
+const KEEP_Q = String(arg('--keep-quiet', '') || '').split(',').filter(Boolean).map((x) => { const [k, t] = x.split('@'); return { k, t: Number(t) }; });
 const _edge = (f) => { const { runs, dur } = _qRuns(_pcm(f), -30, 0.01); const h = runs.find((r) => r.head), t = runs.find((r) => r.tail); return { head: h ? h.b - h.a : 0, tail: t ? t.b - t.a : 0, dur }; };
 const LOUD_ADJ = Object.fromEntries(String(arg('--loud-adj', '') || '').split(',').filter(Boolean).map((x) => { const [k, v] = x.split('='); return [k, Number(v) || 0]; }));
 
@@ -595,7 +597,9 @@ const keepOf = (f) => {
   const _joined = /JOINED_/.test(path.basename(f));
   // 안쪽 무음은 가운데를 도려낸다 — 양끝 절반씩은 남겨 말끝과 들숨을 살린다
   const cut = [];
+  const _kb = path.basename(f).replace(/_JOINED_/, '').replace(/\.[^.]+$/, '').match(/^\d{4}_(\d{2,3}_.+)_(\d+)$/), _kq = _kb ? KEEP_Q.filter((q) => q.k === _kb[1] + '#' + _kb[2]).map((q) => q.t) : [];   // [LAYER_PLAN_1108 · 5층] KEEP_Q
   for (const [s0, e0] of (_joined ? [] : seg)) {
+    if (_kq.some((t) => t >= s0 - 0.01 && t <= e0 + 0.01)) continue;
     const s1 = Math.max(s0, a), e1 = Math.min(e0, b);
     if (e1 - s1 <= SENT_CAP + 0.02) continue;
     cut.push([s1 + SENT_CAP / 2, e1 - SENT_CAP / 2]);

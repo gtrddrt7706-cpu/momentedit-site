@@ -4,10 +4,10 @@
    0층 = 지금 조립기 그대로(main 소리) · 1층 = 내용 바꾸기(162 맨 앞 «신랑 신부,» A3 · 160 · 350 · 356 · 357 새 _src 는 창고에 그대로)
    2층 이상은 조립기(assemble-narration --layer)에 넣은 만큼만 — 아직 없는 층을 달라면 멈춘다(LAYER_DONE)
    쓰기: node scripts/build-layers.mjs --layer <0~6> [--clip =키,…] [--out <폴더>] [--list] */
-import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url'; import { execFileSync } from 'node:child_process'; import { createRequire } from 'node:module'; import { applyTempo } from './lib/tempo.mjs'; import { quietRuns, pcm } from './lib/cps.mjs';
+import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url'; import { execFileSync } from 'node:child_process'; import { createRequire } from 'node:module'; import { applyTempo } from './lib/tempo.mjs'; import { quietRuns, pcm } from './lib/cps.mjs'; import * as P5 from './lib/phrase5.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), P = (...a) => path.join(ROOT, ...a);
 const arg = (k, d = '') => { const i = process.argv.indexOf(k); return i > -1 ? process.argv[i + 1] : d; };
-export const LAYER_DONE = 4;   // 조립기에 들어간 마지막 층 — 층을 넣는 커밋에서 같이 올린다
+export const LAYER_DONE = 5;   // 조립기에 들어간 마지막 층 — 층을 넣는 커밋에서 같이 올린다
 const L = Number(arg('--layer', '0'));
 /* 문장 빠르기(원래 녹음 대비 합계) — 2층 말빠르기 0.97 · 3층 강약은 그 층 커밋에서 · 편지 43 은 창고가 없어 여기 안 온다 */
 /* 3층 강약(대본 11/08 21:55 · 원래 녹음 대비 합계) — 역할표(_layers/_roles.json · #1636 역할표 사본) · 감정 · 엄숙(slow) 0.96 · 일반 안내(guide) 0.9894 · 그 밖(기본 · 정보 · 구호 · 짧은) 0.97
@@ -85,9 +85,34 @@ if (R4) for (const id of R4.calls) { const [key, i] = id.split('#'), f = fs.read
     : `[0:a]atrim=0:${mid.toFixed(4)},asetpts=N/SR/TB[a];[0:a]atrim=start=${mid.toFixed(4)},asetpts=N/SR/TB[b];anullsrc=r=48000:cl=mono,atrim=0:${(want - len).toFixed(4)}[z];[a][z][b]concat=n=3:v=0:a=1[o]`;
   execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', src, '-filter_complex', fc, '-map', '[o]', '-ar', '48000', '-ac', '1', '-c:a', 'flac', o]); fs.copyFileSync(o, src);
   logOne({ id, call: +len.toFixed(3), want, at: +((inner.a + inner.b) / 2).toFixed(3) }); }
+/* 5층 · 구절 쉼(대본 11/09 19:55 · 구절쉼자리표_v2_1109.tsv 195곳) — 자리 = 층5_자리.json(1층 깔린 문장에서 대본 시각의 무음 · 에너지 누적 비율 f · 무음 문턱)
+   4층까지 만든 깔린 문장에서 같은 f 의 무음 가운데를 늘리거나 줄여 «넣을 쉼»(들리는 무음) · 말소리는 자르지 않는다 · 무음이 없으면 가장 조용한 5ms 에서 0.03 / 0.015 페이드로 끊어 넣는다
+   0.43 넘는 쉼은 조립기 안쪽 상한(SENT_CAP 0.45)이 깎지 않게 --keep-quiet 로 넘긴다 */
+const R5 = L >= 5 ? JSON.parse(fs.readFileSync(P('assets/audio/_src/_layers/층5_자리.json'), 'utf8')) : null, KEEPQ = [];
+if (R5) { const by = {}; for (const p of R5.places) (by[p.key + '#' + p.s] = by[p.key + '#' + p.s] || []).push(p);
+  for (const [id, ps] of Object.entries(by)) { const [key, i] = id.split('#'), f = fs.readdirSync(D).find((x) => new RegExp('^\\d+_' + key.replace(/[-]/g, '\\-') + '_' + i + '(_JOINED_)?\\.flac$').test(x)); if (!f) continue;
+    const src = path.join(D, f), e = P5.env(pcm(src)), dur = e.length * P5.WS;
+    const ed = ps.map((p) => { const { d, m, r } = P5.locate(e, p), T = +(p.want + ((R5.adj || {})[p.n] || 0)).toFixed(4); if (r != null && r < 0.85 && !p.checked) { console.error(`✗ 5층 ${id} ${p.w1} — 자리 본 맞춤 ${r}(층5_자리.json 다시 만들기)`); process.exit(3); }
+      return { p, d, T, m, cut: d.kind === 'run' && d.len >= T ? +(d.len - T).toFixed(4) : 0, add: d.kind === 'run' ? Math.max(0, +(T - d.len).toFixed(4)) : T }; }).sort((u, v) => u.m - v.m);
+    if (ed.some((u, k) => k && u.m - ed[k - 1].m < 0.05)) { console.error(`✗ 5층 ${id} — 두 자리가 같은 무음을 골랐다(${ed.map((u) => u.p.w1).join(' · ')})`); process.exit(3); }
+    /* 남길 구간 · 넣을 무음 차례 */
+    const parts = []; let p0 = 0, shift = 0;
+    for (const u of ed) { const a = u.cut ? u.m - u.cut / 2 : u.m, b = u.cut ? u.m + u.cut / 2 : u.m;
+      parts.push({ a: p0, b: a, fo: u.d.kind === 'min' ? 0.03 : 0 }); if (u.add > 0) parts.push({ z: u.add }); p0 = b; const fi = u.d.kind === 'min' ? 0.015 : 0; if (fi) parts.push({ fiNext: fi });
+      const at = +(u.m + shift - (u.cut / 2) + (u.add / 2)).toFixed(4); shift += u.add - u.cut; if (u.T > 0.43) KEEPQ.push(`${id}@${at}`);
+      logOne({ id, phrase: u.p.n, w1: u.p.w1, kind: u.d.kind, len0: u.d.len, want: u.T, at, cut: u.cut, add: u.add }); }
+    parts.push({ a: p0, b: null });
+    const segs = []; let fiPend = 0; for (const q of parts) { if (q.fiNext) { fiPend = q.fiNext; continue; } segs.push({ ...q, fi: q.z ? 0 : fiPend }); if (!q.z) fiPend = 0; }
+    const aud = segs.filter((q) => !q.z), n = aud.length; let k = 0, zk = 0;
+    const fc = `[0:a]asplit=${n}${aud.map((_, j) => `[s${j}]`).join('')};` + segs.map((q) => { if (q.z) return `anullsrc=r=48000:cl=mono,atrim=0:${q.z.toFixed(4)}[z${zk++}]`;
+      const len = (q.b == null ? dur : q.b) - q.a, fl = [`atrim=start=${q.a.toFixed(4)}${q.b != null ? ':end=' + q.b.toFixed(4) : ''}`, 'asetpts=N/SR/TB'];
+      if (q.fi) fl.push(`afade=t=in:st=0:d=${q.fi}`); if (q.fo) fl.push(`afade=t=out:st=${Math.max(0, len - q.fo).toFixed(4)}:d=${q.fo}`); return `[s${k}]${fl.join(',')}[k${k++}]`; }).join(';')
+      + ';' + (() => { let a = 0, z = 0; return segs.map((q) => q.z ? `[z${z++}]` : `[k${a++}]`).join(''); })() + `concat=n=${segs.length}:v=0:a=1[o]`;
+    const o = path.join(SCR, 'p5.flac'); execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', src, '-filter_complex', fc, '-map', '[o]', '-ar', '48000', '-ac', '1', '-c:a', 'flac', o]); fs.copyFileSync(o, src); } }
+if (process.env.KEEP_IN) { fs.mkdirSync(process.env.KEEP_IN, { recursive: true }); for (const f of fs.readdirSync(D)) fs.copyFileSync(path.join(D, f), path.join(process.env.KEEP_IN, f)); }   // 깔린 문장 그대로 남기기(5층 자리표 만들기 · 재기)
 /* 4층 · 자리별 쉼 목표(대본 표 «새 목표» · 빈 칸 그대로) — 조립기 --seat-targets */
 const SEATS = L >= 4 ? fs.readFileSync(P('assets/audio/_src/_layers/쉼자리표_대본값_1108.tsv'), 'utf8').trim().split('\n').slice(1).map((l) => l.split('\t')).filter((r) => r[4] && r[4].trim()).map((r) => `${r[0]}#${r[1]}=${(+r[4] + ((R4.seatAdj || {})[r[0] + '#' + r[1]] || 0)).toFixed(4)}`).join(',') : '';
 const LOUD = L >= 1 ? Object.entries(JSON.parse(fs.readFileSync(P('assets/audio/_src/_layers/층1_재료.json'), 'utf8')).loud || {}).map(([k, v]) => k + '=' + v.dB).join(',') : '';
 const GF = P('assets/audio/_src/_layers/층2_쉼맞춤.json'), GAPS = L >= 2 && fs.existsSync(GF) ? Object.entries(JSON.parse(fs.readFileSync(GF, 'utf8')).gaps || {}).map(([k, v]) => k + '=' + v.sec).join(',') : '';
-execFileSync('node', [P('scripts/assemble-narration.mjs'), '--in', D, '--clip', list, '--layer', String(L), ...(LOUD ? ['--loud-adj', LOUD] : []), ...(GAPS ? ['--gap-adj', GAPS] : []), ...(SEATS ? ['--seat-targets', SEATS] : []), ...(arg('--out') ? ['--out', arg('--out')] : [])], { stdio: 'inherit' });
+execFileSync('node', [P('scripts/assemble-narration.mjs'), '--in', D, '--clip', list, '--layer', String(L), ...(LOUD ? ['--loud-adj', LOUD] : []), ...(GAPS ? ['--gap-adj', GAPS] : []), ...(SEATS ? ['--seat-targets', SEATS] : []), ...(KEEPQ.length ? ['--keep-quiet', KEEPQ.join(',')] : []), ...(arg('--out') ? ['--out', arg('--out')] : [])], { stdio: 'inherit' });
 fs.rmSync(SCR, { recursive: true, force: true });
