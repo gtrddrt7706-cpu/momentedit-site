@@ -23,11 +23,9 @@
   "258_narr-entry-bow-ex6#2"
  ],
  "seatAdj": {
-  "91_narr-candle-in-mothers-ex2#1": -0.04,
-  "258_narr-entry-bow-ex6#1": 0.04
+  "91_narr-candle-in-mothers-ex2#1": -0.04
  },
  "callAdj": {
-  "138_narr-candle-bow#0": 0.05,
-  "146_narr-candle-bow-fathers#1": 0.04
+  "138_narr-candle-bow#0": 0.05
  }
 }
