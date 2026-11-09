@@ -8,12 +8,15 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 const arg = (k) => { const i = process.argv.indexOf(k); return i > -1 ? process.argv[i + 1] : ''; };
 const LOG = fs.readFileSync(arg('--seat-log'), 'utf8').trim().split('\n').map((l) => JSON.parse(l)).filter((x) => x.s != null);
 const T = Object.fromEntries(fs.readFileSync(path.join(ROOT, 'assets/audio/_src/_layers/빠르기표_최종_1109.tsv'), 'utf8').trim().split('\n').slice(1).map((l) => l.split('\t')).map((r) => [r[0], { want: +r[5], fac: +r[2], text: r[7], note: r[6] }]));
+const R1 = JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/audio/_src/_layers/층1_재료.json'), 'utf8')).slots;
 const rows = [];
 for (const x of LOG) { const id = x.key + '#' + x.s, t = T[id]; if (!t) continue;
-  const f = path.join(ROOT, 'assets/audio/narration', x.key + '.mp3'), got = cps(f, t.text, Math.max(0, x.a - 0.05), x.b + 0.05).cps, r = got / t.want;
-  rows.push({ id, want: t.want, got, r: +r.toFixed(4), ok: Math.abs(r - 1) <= 0.015, note: t.note }); }
+  /* 기대값 = _src 문장 flac 의 초당 × 배속(대본 11/10 06:55 · 같은 자로 양쪽을 잰다) · 1층 새 녹음 · 빌려 쓴 자리(재료표)는 표 «맞춘 뒤 초당» */
+  const src = path.join(ROOT, 'assets/audio/_src', x.key, x.s + '.flac'), rec = R1[id], want = !rec && fs.existsSync(src) ? +(cps(src, t.text).cps * t.fac).toFixed(3) : t.want;
+  const f = path.join(ROOT, 'assets/audio/narration', x.key + '.mp3'), got = cps(f, t.text, Math.max(0, x.a - 0.05), x.b + 0.05).cps, r = got / want;
+  rows.push({ id, want, table: t.want, got, r: +r.toFixed(4), ok: Math.abs(r - 1) <= 0.015, note: t.note }); }
 const bad = rows.filter((x) => !x.ok);
-if (arg('--md')) fs.writeFileSync(arg('--md'), '| 문장 | 맞춘 뒤 초당(표) | 3층 mp3 | 비 | 비고 |\n|---|---|---|---|---|\n' + bad.map((x) => `| ${x.id} | ${x.want} | ${x.got} | ${x.r} | ${x.note || ''} |`).join('\n') + '\n');
+if (arg('--md')) fs.writeFileSync(arg('--md'), '| 문장 | 기대(_src × 배속) | 표 | 3층 mp3 | 비 | 비고 |\n|---|---|---|---|---|---|\n' + bad.map((x) => `| ${x.id} | ${x.want} | ${x.table} | ${x.got} | ${x.r} | ${x.note || ''} |`).join('\n') + '\n');
 const rs = rows.map((x) => x.r).sort((a, b) => a - b);
 console.log(`${bad.length ? 'FAIL' : 'ok  '} layer-cps — 문장 ${rows.length} · ±1.5% 밖 ${bad.length} · 비 ${rs[0]} ~ ${rs[rs.length - 1]} · 가운데 ${rs[rs.length >> 1]}`);
 for (const x of bad) console.log('  밖', x.id, x.want, x.got, x.r, x.note || '');
