@@ -23286,3 +23286,23 @@ chk 'CAKE_FILES_OFF_1110' scripts/build-typecast-import.mjs 1
 for _ck in 41_toast-cake 42_toast-both 76_toast-both-b 77_narr-cake-out 107_toast-both-pour-b; do
   if [ -e "assets/audio/narration/$_ck.mp3" ] || [ -e "assets/audio/_src/$_ck" ]; then echo "REVERT? [CAKE_FILES_OFF_1110] $_ck 소리가 되살아났다"; fail=1; fi
 done
+# ★★[SPEED_FINAL_1110 대본 11/10 23:15 배포준비_나레이션_1110 3절] 3층 빠르기 범위 0.878 ~ 1.10(3% 넘게 느린 256줄 빠르게 · 상한 1.10 · 빠른 4문장 늦춤) — 옛 기대 0.89 ~ 1.05(11/09 19:55)는 은퇴
+#   깨 보고 믿음: 범위를 옛 0.89 ~ 1.05 로 되돌리면 표 15줄이 밖 → 빨강(11/10 실측)
+chk 'export const SPEED_MIN = 0.878, SPEED_MAX = 1.10;' scripts/audit/layer-speed.mjs 1
+nochk 'x.fac >= 0.89 - 1e-9 && x.fac <= 1.05 + 1e-9' scripts/audit/layer-speed.mjs
+if command -v node >/dev/null 2>&1; then if node scripts/audit/layer-speed.mjs >/dev/null 2>&1; then echo 'ok layer-speed 표 — 빠르기표_최종_1109 범위 안 [SPEED_FINAL_1110]'; else echo 'REVERT? [SPEED_FINAL_1110] 빠르기표_최종_1109 에 범위 0.878 ~ 1.10 밖 줄이 있다(node scripts/audit/layer-speed.mjs)'; fail=1; fi; fi
+# ★★[REC_FIX3_1110 사장님 11/10 23:06 «추천대로» · 대본 배포준비_나레이션_1110 2절] 새 녹음 3문장(22#0 · 149#1 · 150#2) = 1층 재료(REC_FIX3_1110.wav · 자를 곳 · 150#2 «이어졌고,» 쉼 늘리기)
+#   5층 구절 쉼은 받은 쉼 그대로 — 149#1 n42 · n43 · 150#2 n47 · n48 뺌(194 → 190) · 엔진 결과가 승인 소리와 같은가 = scripts/audit/fix3-match.mjs(override 폴더는 docs 저장소)
+chk 'REC_FIX3_1110' assets/audio/_src/_layers/층1_재료.json 3
+chk '"grow"' assets/audio/_src/_layers/층1_재료.json 1
+chk 'REC_FIX3_1110' scripts/build-layers.mjs 1
+chk 'REC_FIX3_1110' assets/audio/_src/_layers/층5_자리.json 1
+nochk '"n":42,"id":"149_narr-open-ex3#1"' assets/audio/_src/_layers/층5_자리.json
+nochk '"n":43,"id":"149_narr-open-ex3#1"' assets/audio/_src/_layers/층5_자리.json
+nochk '"n":47,"id":"150_narr-open-ex4#2"' assets/audio/_src/_layers/층5_자리.json
+nochk '"n":48,"id":"150_narr-open-ex4#2"' assets/audio/_src/_layers/층5_자리.json
+chk 'REC_FIX3_1110' scripts/audit/fix3-match.mjs 1
+if [ ! -f assets/audio/_src/_layers/redo/REC_FIX3_1110.wav ]; then echo 'REVERT? [REC_FIX3_1110] 새 녹음 원본 REC_FIX3_1110.wav 가 없다'; fail=1; fi
+# ★[NARR_REBUILD_1110 대본 11/10 23:15] 나레이션 다시 만들기 한 줄(build-layers 6층 + 층 검사) — 실청 고침이 더 오면 표만 고치고 이 한 줄
+chk 'NARR_REBUILD_1110' scripts/narr-rebuild.sh 1
+chk 'build-layers.mjs --layer 6' scripts/narr-rebuild.sh 1

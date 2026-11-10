@@ -20,7 +20,7 @@ for (const x of LOG.filter((x) => x.seat != null && TSV[x.key + '#' + x.seat] !=
   const ok = Math.abs(got - want) <= 0.03 + 1e-9; rows.push({ kind: '자리', id: x.key + '#' + x.seat, want, got, ok }); if (!ok) adj.seat[x.key + '#' + x.seat] = +(want - got).toFixed(3); }
 for (const id of R4.calls) { const [key, i] = id.split('#'), s = LOG.find((x) => x.key === key && x.s === +i); if (!s || !fs.existsSync(path.join(DIR, key + '.mp3'))) continue;
   const txt = TEXT[id], m = [...txt.matchAll(/신랑 신부|양가 [가-힣]+님/g)].pop(), hc = (t) => (t.match(/[가-힣]/g) || []).length, ratio = m ? hc(txt.slice(0, m.index + m[0].length)) / hc(txt) : 1;
-  const { runs } = runsOf(key), inside = runs.filter((r) => r.a >= s.a - 0.01 && r.b <= s.b + 0.01), talk = inside.filter((r) => r.b - r.a >= 0.12);   // 부르는 말 뒤 틈 = 0.12초 넘는 무음(«맞절» 안 ㅈ 막힘 같은 짧은 골은 뺀다)
+  const { runs } = runsOf(key), inside = runs.filter((r) => r.a >= s.a - 0.01 && r.b <= s.b + 0.01), talk = inside.filter((r) => r.b - r.a >= 0.15);   // 부르는 말 뒤 틈 = 0.15초 넘는 무음(«맞절» 안 ㅈ 막힘 같은 짧은 골은 뺀다) · ★[N160_PHRASE_1110] 160#2 «맞절»은 147 에서 붙인 느린 말이라 ㅈ 막힘이 0.13초 — 0.12 자는 그 골을 구호 틈으로 잡았다(실제 구호 틈 0.38 은 맞게 들어감 · 11/10 실측) · 구호 틈이 짧아지면 후보가 없어 그대로 빨강
   const h = s.a + ((inside.find((r) => r.a <= s.a + 0.01) || { b: s.a }).b - s.a), e = (inside.filter((r) => r.b >= s.b - 0.01).pop() || { a: s.b }).a, at = h + ratio * (e - h);
   const c = talk.filter((r) => r.a > h + 0.01 && r.b < e - 0.01).map((r) => ({ ...r, d: Math.abs((r.a + r.b) / 2 - at) })).sort((p, q) => p.d - q.d)[0];
   const got = c && c.d < 0.6 ? +(c.b - c.a).toFixed(3) : null, want = R4.call, ok = got != null && Math.abs(got - want) <= 0.03 + 1e-9;

@@ -59,7 +59,11 @@ if (L >= 1) for (const [id, r0] of Object.entries(R1)) { const r = L >= 3 && r0.
     /* 자를 자리 · 문장 안 쉼 줄이기 = 남길 구간 목록(테이크 시각) — 무음 가운데에서 잘라 말소리는 그대로 */
     let keep = [[a, b]]; for (const [sa, sb, to] of r.shrink || []) { const cutLen = (sb - sa) - to, m = (sa + sb) / 2; if (cutLen <= 0) continue;
       keep = keep.flatMap(([ka, kb]) => (m > ka && (kb == null || m < kb)) ? [[ka, +(m - cutLen / 2).toFixed(4)], [+(m + cutLen / 2).toFixed(4), kb]] : [[ka, kb]]); }
-    const fc = keep.map(([ka, kb], j) => `[0:a]atrim=start=${ka}${kb != null ? ':end=' + kb : ''},asetpts=N/SR/TB[k${j}]`).join(';') + ';' + keep.map((_, j) => `[k${j}]`).join('') + `concat=n=${keep.length}:v=0:a=1,aresample=48000[o]`;
+    /* ★[REC_FIX3_1110 · 배포준비_나레이션_1110 2절] 문장 안 쉼 늘리기 = grow [[테이크 시각, 더할 초]] — 그 시각(무음 가운데)에 무음을 끼운다 · 말소리는 그대로 · grow 가 있는 자리만 이 길(다른 테이크는 바이트 그대로) */
+    const GROW = r.grow || [], SRT = GROW.length ? +execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'a:0', '-show_entries', 'stream=sample_rate', '-of', 'csv=p=0', src]).toString().trim() : 0;
+    let segs = keep.map(([ka, kb]) => ({ ka, kb })); for (const [at, add] of GROW) segs = segs.flatMap((q) => q.z == null && at > q.ka && (q.kb == null || at < q.kb) ? [{ ka: q.ka, kb: at }, { z: add }, { ka: at, kb: q.kb }] : [q]);
+    const fc = !GROW.length ? keep.map(([ka, kb], j) => `[0:a]atrim=start=${ka}${kb != null ? ':end=' + kb : ''},asetpts=N/SR/TB[k${j}]`).join(';') + ';' + keep.map((_, j) => `[k${j}]`).join('') + `concat=n=${keep.length}:v=0:a=1,aresample=48000[o]`
+      : segs.map((q, j) => q.z != null ? `anullsrc=r=${SRT}:cl=mono,atrim=0:${q.z}[k${j}]` : `[0:a]atrim=start=${q.ka}${q.kb != null ? ':end=' + q.kb : ''},asetpts=N/SR/TB[k${j}]`).join(';') + ';' + segs.map((_, j) => `[k${j}]`).join('') + `concat=n=${segs.length}:v=0:a=1,aresample=48000[o]`;
     execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', src, '-filter_complex', fc, '-map', '[o]', '-ac', '1', '-c:a', 'pcm_s24le', w]);
     const want = L >= 3 ? speedOf(L, id) : MATCH[id] * speedOf(L, id), fac = +want.toFixed(4);   /* 3층부터는 표 값이 그 테이크 대비 배속 */   // 원래 빠르기 맞춤 × 층 빠르기 — 한 번만 · 5% 상한은 원래 녹음 대비(층 빠르기 쪽 · 대본 22:55)
     if (Math.abs(fac - 1) > 1e-4) { const t = w.replace(/\.wav$/, '_t.wav'), inSec = durOf(w), r = applyTempo(w, t, fac, SIL); logOne({ id, fac, role: roleOf(id) || '', want: +want.toFixed(4), cap: fac !== +want.toFixed(4), talkIn: r.talkIn, quietIn: r.quietIn, inSec, outSec: durOf(t), take: 1 }); fs.renameSync(t, w); }
