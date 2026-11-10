@@ -5,7 +5,7 @@
    T03 본식 목록 곡 사이 겹침 8초(그 밖 구간은 3초) · 당일 콘솔도 같은 값
    T04 목록 끝 조각 — 60초 안에 의도적 무음(축가 MR · «조용히» · 선언)이 오면 다음 곡으로 넘기지 않는다 · 60초 넘게 남았으면 넘긴다(대조)
    T05 «음악과 함께» 축사 뒤 축가 여는 말 — 본식 곡 재생 0(줄 시작에서 내려 정적 → MR) · 엔진 한 표(미리 듣기 · 연습 · 콘솔)
-   T06 대조 — «조용히» 판 축사 말씀 동안 정적 그대로 · 축사가 없으면 덕담 곡이 흐르다 축가 여는 말 −16(NO_RELIFT E)
+   T06 대조 — «조용히» 판 축사 말씀 동안 정적 그대로 · 축사가 없으면 덕담 곡이 흐르다 축가 여는 말 −15(NO_RELIFT E)
    T07 화면 — 축사 · 편지 «곡 고르기» 칸 없음 · «음악과 함께 / 조용히» 고르기만
    T08 끊긴 곡 이어 듣기 — 축가(정적) 뒤 «음악과 함께» 편지에서 본식 곡은 꺼진 그 곡 · 꺼진 자리부터(정적 동안 흘러간 시간이 아니다) · 선언 뒤 새 곡 예외는 meaning-r2 가 지킨다
    하네스는 seam-b2 와 같다 · BP_BED · BP_PICKS · BP_CUE = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
@@ -128,7 +128,7 @@ try {
     const B = (S0) => C.build(C.norm(S0), { mode: 'console' }).cues, mk = (on, bgm) => { const S = O.applyExample({ course: 'open' }, 'standard'); S.course = 'open'; S.on = Object.assign({}, S.on, on); S.freeWhat = 'speech'; S.bgm = bgm || {}; return S; };
     const op = (S0) => (B(S0).find((c) => c.slug === 'narr-song') || {}).duck;
     ok('T05 엔진 — «음악과 함께» 축사 뒤 축가 여는 말 −90(줄 시작에서) · «조용히»도 −90', op(mk({ free: 1, song: 1 }, { S5: { m: 'bed' } })) === -90 && op(mk({ free: 1, song: 1 })) === -90);
-    ok('T06 대조 — 축사가 없으면 덕담 곡이 흐르다 축가 여는 말 −16 그대로(NO_RELIFT E)', op(mk({ free: 0, song: 1, bless: 1 })) === -16);
+    ok('T06 대조 — 축사가 없으면 덕담 곡이 흐르다 축가 여는 말 −15 그대로(NO_RELIFT E)', op(mk({ free: 0, song: 1, bless: 1 })) === -15);
     const con = fs.readFileSync(CON || path.join(ROOT, 'console.html'), 'utf8');
     ok('T03 당일 콘솔 — 목록 곡 사이 겹침도 같은 값(본식 8초 · BgmPicks.xfOf) · «음악과 함께» 곡 칸으로 넘기지 않는다', P.xfOf && P.xfOf('M4') === 8 && P.xfOf('M6') === 6 /* [REPEAT_RULE_1107 ⑤] 닫는 인사 6초 */ && /function segXf\(\)/.test(con) && /bedPlay\(BED\.list\[j\], segXfFor\(BED\.list\[j\]\)\)/.test(con) && /function segXfFor\(sid\)/.test(con) && !/segGo\('M4S[56]'\)/.test(con));
     ok('T01 곡 계획 — 축사 · 편지 «음악과 함께» 구간(M4S5 · M4S6)이 없다 · 옛 이름은 M4 로 읽힌다', P.CORDER.indexOf('M4S5') < 0 && P.CORDER.indexOf('M4S6') < 0 && P.oneSeg && P.oneSeg('M4S5') === 'M4' && P.oneSeg('M4S6') === 'M4' && !P.SEGS.some((s) => /^M4S/.test(s.id)));

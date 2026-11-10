@@ -24,11 +24,13 @@
 })(typeof self !== 'undefined' ? self : this, function (D, O) {
 
   // ── 튜닝 상수 (큐시트·런북 §11-C 이관 · 숫자를 코드 본문에 흩지 않는다)
-  var DUCK_ENV = { downMs: 400, holdMs: 3500, upMs: 1200, leadMs: 800 };   // ★[BGM_FIX_1030] leadMs 0.4 → 0.8초(GPT③ R1-3 · 음성은 실제 내림이 끝난 뒤에 · 박수 뒤 큐는 fadeMs 1.5초가 그 자리)   // [BGM_CONSOLE1_1023] 아래 PARAM.duck · fadeDownMs · fadeUpMs 의 한 원천 · [BGM_CONSOLE2_1023] holdMs = 이음 보호(다음 이음 큐의 음성이 이 안에 시작하면 −8 로 올리지 않는다) · leadMs = 음성보다 먼저 내리는 시간
+  /* ★★[LAYER7_DUCK_1108 대본 확정 · 층설정표_1108 7층] 내림 1.6초 · 올림(말 끝난 뒤) 2.0초 — 둘 다 dB 코사인(dbCos) · 첫 말은 다 낮아진 뒤 0.4초(afterMs) → leadMs = downMs + afterMs = 2.0초 ·
+       현장 콘솔 · 미리 듣기 · 연습 같은 값(연습 ≠ 당일 방지) · 음악 → 말 자리마다 약 1.2초 늘어남(대본 수용) · 종전 0.4 · 1.2 · 0.8초 */
+  var DUCK_ENV = { downMs: 1600, holdMs: 3500, upMs: 2000, afterMs: 400, leadMs: 2000, curve: 'dbcos' };   // ★[BGM_FIX_1030] leadMs 0.4 → 0.8초(GPT③ R1-3 · 음성은 실제 내림이 끝난 뒤에 · 박수 뒤 큐는 fadeMs 1.5초가 그 자리)   // [BGM_CONSOLE1_1023] 아래 PARAM.duck · fadeDownMs · fadeUpMs 의 한 원천 · [BGM_CONSOLE2_1023] holdMs = 이음 보호(다음 이음 큐의 음성이 이 안에 시작하면 −8 로 올리지 않는다) · leadMs = 음성보다 먼저 내리는 시간
   var PARAM = {
     spm: 300,              // 낭독 속도(음절/분) — build-dubbing-script.mjs와 같은 값이어야 한다
     gapMs: 2000,           // 클립 간 침묵 1.5~2.5초의 가운데
-    duckSpeech: -16,       // 말이 주인공(서약·편지·안내) — 큐시트 -15~-18dB
+    duckSpeech: -15,       // 말이 주인공(서약·편지·안내) — 큐시트 -15~-18dB · ★[LAYER7_DUCK_1108] −16 → −15(보컬 곡은 vocalExtra −6 그대로 = −21)
     duckMusic: -8,         // 음악이 주인공(입장·축배) — 큐시트 -6~-10dB
     duckOff: -90,          // 사실상 무음
     duckRead: -20,         // 낭독 아래 — 축사 · 편지에서 두 분이 «음악과 함께»를 고른 날만(S.bgm.S5 · S6 = 'bed') · 아니면 지금처럼 duckOff [BGM_INFO_1023]
@@ -1139,7 +1141,7 @@
     matjeol: function (S) {
       return [cue({
         k: 'matjeol', blockN: '신랑·신부 맞절', slug: 'narr-entry-bow', name: '맞절', text: D.NARR.entryBow, duck: -12,
-        fire: 'chain', gapMs: 1250,   // ★[ENTRY_ARRIVE_1014] 입장 받는 말(144)에 이어 사슬 · 옛 «두 분이 앞에 나란히 서면» 디렉터 GO 는 받는 말이 맡는다
+        fire: 'chain', gapMs: 2000,   // ★[LAYER7_DUCK_1108] 1.25 → 2초(대본 확정 · #1636 맞절 뒤 환영 goLeadMs 6000 · leadDb 와는 나레이션 층 가지 위에서 하나로) · ★[ENTRY_ARRIVE_1014] 입장 받는 말(144)에 이어 사슬 · 옛 «두 분이 앞에 나란히 서면» 디렉터 GO 는 받는 말이 맡는다
         live: { t: '두 분이 마주 보고 무도회 맞절 (신랑은 가슴에 손 얹고 숙이고 · 신부는 치맛자락 잡고 무릎 굽혀 · 서로 눈맞춤)', est: 12, self: true, doing: 'move', duck: -12, hintNext: '두 분이 다시 앞을 보면' }
       })];   // [MATJEOL_1011] 의 큐 그대로 · k 와 blockN 만 맞절
     },
@@ -2069,6 +2071,7 @@
       /* [ENTRY_SETTLE] 하객을 향해 서시겠습니다(b8) = 정적 → 줄 끝에서 감사 인사 곡을 무음에서 뜸(6초 앞서 −8 · 종전 3초 겹침 대신) */
       if (_rs === 'bridge-b8-face-guests' && _rp && _rp.k === 'matjeol') { _rc.duck = PARAM.duckOff;   /* 맞절 바로 뒤만 — 편지 끝 이음말(b8 · 편지 «음악과 함께» 곡 아래)은 그대로 */ var _rn = cues[r2 + 1]; if (_rn && _rn.k === _rc.k) { _rn.goLeadMs = Math.max(_rn.goLeadMs || 0, 6000); _rn.leadDb = PARAM.duckMusic; _rn.gapMs = Math.max(_rn.gapMs || 0, 1000); } }
       /* ★[SEAM_WORD_1107 J06 · FACE_LEAD_1107] 350(«…향해 서주시기 바랍니다» 가 첫머리)이 맞절 바로 뒤 — b8 이 하던 «무음에서 감사 인사 곡을 뜸(6초 앞서 −8 · 정적 1초)»을 350 이 받는다 */
+      /* ★[LAYER7_FACE_LEAD_1110] 7층과 하나로 — 6초 앞 −8(leadDb) 은 그대로 · 말 크기로 내리는 끝은 콘솔 · 미리 듣기 모두 «내림 1.6초 + 다 낮아진 뒤 0.4초»(_ldL · lpLead)라 첫 말 0.4초 앞에 −15 · 입장 받는 말 144 → 맞절 사슬 2초(LAYER7_DUCK_1108) */
       if (_rc.k === 'welcome' && _rp && _rp.k === 'matjeol' && /향해 서/.test(_rc.text || '')) { _rc.goLeadMs = Math.max(_rc.goLeadMs || 0, 6000); _rc.leadDb = PARAM.duckMusic; _rc.gapMs = Math.max(_rc.gapMs || 0, 1000); }
       /* [DECLARE_LIFT] 성혼 선언 뒤 축하 박수 = 새 곡 — 덕담(다음 순간) 곡 · 없으면 목록 다음 곡을 강조 자리에서 −8 로 0.6초에(엄숙 → 기쁨 · 앞 곡을 멈춘 자리부터 되살리지 않는다) */
       if (_rs === 'narr-declare-family-out' && _rc.live) { _rc.live.newSong = true; _rc.live.upMs = 600; }
@@ -2292,9 +2295,26 @@
     return T;
   }
 
+  /* ★★[LAYER7_DUCK_1108] 낮춤 · 올림 곡선 한 원천 — dB 가 (1 − cos πu) / 2 로 움직인다(시작 · 끝이 부드럽다 · 층설정표 7층 «dB 코사인»).
+     당일 콘솔 duckTo · 식순 화면 미리 듣기(bgm-bed ramp) · 연습이 같이 쓴다 · 지금 크기(prm.value)에서 이어 받는다 · 0.1초 미만 · 곡선이 안 되는 브라우저는 종전 지수 오름(dB 직선) */
+  function dbRamp(prm, ac, to, sec) {
+    if (!prm || !ac) return '';
+    var now = ac.currentTime, g0 = Math.max(1e-5, +prm.value || 1e-5), g1 = Math.max(1e-5, +to || 1e-5), s = Math.max(0.02, +sec || 0), d0 = 20 * Math.log10(g0), d1 = 20 * Math.log10(g1);
+    if (d0 <= -60 || d1 <= -60) return '';   /* 무음(−60 아래)에서 오르거나 무음으로 끄는 자리는 곡선 밖 — 부르는 쪽 종전 방식(dB 코사인은 무음 근처에서 1초 넘게 안 들린다 · 7층은 말 아래 낮춤 · 올림 몫) */
+    /* 곡선을 setValueCurveAtTime 대신 짧은 직선(약 0.08초) 이음으로 — 곡선이 도는 동안 다른 자리(종전 방식 · 곡 끄기 · 겹침)의 cancelScheduledValues + setValueAtTime 이 «겹침» 예외로 조용히 실패하지 않게 */
+    try {
+      prm.cancelScheduledValues(now); prm.setValueAtTime(g0, now);
+      if (s < 0.1) { prm.exponentialRampToValueAtTime(g1, now + s); return 'exp'; }
+      var n = Math.max(8, Math.min(48, Math.round(s / 0.08)));
+      for (var i = 1; i <= n; i++) { var w = (1 - Math.cos(Math.PI * i / n)) / 2; prm.linearRampToValueAtTime(Math.pow(10, (d0 + (d1 - d0) * w) / 20), now + s * i / n); }
+      return 'cos';
+    } catch (e) { return ''; }
+  }
+
+
   return {
     moodFit: moodFit, moodClash: moodClash, seamFit: seamFit, MOOD_SHIFT: MOOD_SHIFT,
-    build: build, norm: norm, seqOf: seqOf, PARAM: PARAM, FILES: FILES, EXTRA: EXTRA,
+    build: build, norm: norm, seqOf: seqOf, PARAM: PARAM, dbRamp: dbRamp, FILES: FILES, EXTRA: EXTRA,
     COURSE_DEF: COURSE_DEF, sylSec: sylSec, fileOf: fileOf, noOf: noOf, RETIRED: RETIRED, CLOSING_PARTS: CLOSING_PARTS, closingOf: closingOf, GUEST_PARTS: GUEST_PARTS, guestPick: guestPick, guestMinOf: guestMinOf, guestShort: guestShort, afterPhotoOf: afterPhotoOf, version: 'cue-v1'
   };
 });

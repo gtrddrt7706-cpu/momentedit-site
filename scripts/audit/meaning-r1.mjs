@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* ★★[MEANING_R1_1102 2026-11-02 사장님 «이런 디테일 놓치지 말라고 · 심리적으로도»] 뜻으로 맞는 음악 — 1차(13 · 14 · 15 · 16)
    13 하루 이어 듣기에서 «위하여» 뒤 축배 곡(M7) 1회 이상(차례로 나눈 줄에도 cheer)
-   14 닫는 인사 «마치겠습니다» 앞 정적 ≥ 0.8초 · 그 줄 음악 없이 · 목례 · 박수에서 M6 −8 · 당일 큐(−90 · 2초 · 3초 / 마무리 멘트 −16)
+   14 닫는 인사 «마치겠습니다» 앞 정적 ≥ 0.8초 · 그 줄 음악 없이 · 목례 · 박수에서 M6 −8 · 당일 큐(−90 · 2초 · 3초 / 마무리 멘트 −15)
    15 온라인 인사 — 두 분이 카메라에 말하는 동안 −20(당일 큐)
    16 촬영 후 안내 = 마지막 곡(M8L)
    BP_OP · BP_BED · BP_CUE = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
@@ -100,26 +100,26 @@ const K4 = ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter', 'son
   /* ★[SEAM_WORD_1107 J06 · FACE_LEAD_1107] 맞절 바로 뒤 b8 은 없다(350 첫머리가 «향해 서») — 그때는 감사 인사 첫 큐가 무음에서 곡을 뜬다(6초 앞서 −8 · 정적 1초) */
   const w4 = A[bi(A, 'narr-entry-bow') + 1] || {};
   ok('4 맞절 → 감사 인사 — 이음말 정적 · 또는 350 첫 큐가 무음에서 곡을 뜸(MEANING_R2_1102 ENTRY_SETTLE · FACE_LEAD_1107)', b8.slug ? b8.duck === -90 : (w4.k === 'welcome' && /향해 서/.test(w4.text || '') && w4.goLeadMs >= 6000 && w4.leadDb === -8 && w4.gapMs >= 1000), { b8: b8.duck, w4: [w4.slug, w4.goLeadMs, w4.leadDb, w4.gapMs] });
-  ok('5 선언 박수 뒤 b3 · b9 −16(0.8초 미리 낮춤)', b3.duck === -16 && b3.fadeMs === 800 && b9.duck === -16 && b9.fadeMs === 800, { b3: [b3.duck, b3.fadeMs], b9: [b9.duck, b9.fadeMs] });
+  ok('5 선언 박수 뒤 b3 · b9 −15(0.8초 미리 낮춤)', b3.duck === -15 && b3.fadeMs === 800 && b9.duck === -15 && b9.fadeMs === 800, { b3: [b3.duck, b3.fadeMs], b9: [b9.duck, b9.fadeMs] });
   const L1 = B2({ on: { welcome: 1, free: 1 }, freeWhat: 'speech' }), L2 = B2({ on: { welcome: 1, free: 1 }, freeWhat: 'speech', bgm: { S5: { m: 'bed' } } }), s1 = L1.filter((c) => c.slug === 'bridge-b10-speech-clap'), s2 = L2.filter((c) => c.slug === 'bridge-b10-speech-clap');
-  ok('7 축사가 마지막인 날 b10 — «음악 없이»면 부탁 문장 · 박수 정적(NO_RELIFT_1102 · 박수 소리가 채운다 · 종전 박수 −8) · «음악과 함께»면 −16', s1.length && s1.every((c) => c.duck === -90 && c.live && c.live.duck === -90) && s2.length && s2.every((c) => c.duck === -16), { none: s1.map((c) => [c.duck, c.live && c.live.duck]), bed: s2.map((c) => c.duck) });
+  ok('7 축사가 마지막인 날 b10 — «음악 없이»면 부탁 문장 · 박수 정적(NO_RELIFT_1102 · 박수 소리가 채운다 · 종전 박수 −8) · «음악과 함께»면 −15', s1.length && s1.every((c) => c.duck === -90 && c.live && c.live.duck === -90) && s2.length && s2.every((c) => c.duck === -15), { none: s1.map((c) => [c.duck, c.live && c.live.duck]), bed: s2.map((c) => c.duck) });
   const sg = by(B2({ on: { welcome: 1, bless: 1, free: 0, song: 1 } }), 'narr-song')   /* 덕담 곡이 흐르다(MEANING_R2 뒤로 맞절이 정적이라 맞절 바로 뒤 축가는 정적 그대로) */, sgp = (sg.post || [])[0] || {}, sgq = by(B2({ on: { free: 1, song: 1 }, freeWhat: 'speech' }), 'narr-song');
-  ok('8 축가 여는 말 −16 · 줄 끝 1.5초에 정적 · 앞(축사 «음악 없이»)이 정적이면 정적 그대로(NO_RELIFT_1102)', sg.duck === -16 && sgp.v === -90 && sgp.ms === 1500 && sgq.duck === -90, { duck: sg.duck, post: sg.post, afterQuiet: sgq.duck });
+  ok('8 축가 여는 말 −15 · 줄 끝 1.5초에 정적 · 앞(축사 «음악 없이»)이 정적이면 정적 그대로(NO_RELIFT_1102)', sg.duck === -15 && sgp.v === -90 && sgp.ms === 1500 && sgq.duck === -90, { duck: sg.duck, post: sg.post, afterQuiet: sgq.duck });
   const T = B2({ on: { song: 1, tribute: 1 }, song: 'family', songBy: 'friend' }), b12 = by(T, 'bridge-b12-tribute-calm'), t1 = T[bi(T, 'bridge-b12-tribute-calm') + 1] || {};
-  ok('9 축가 → 부모님께 인사 이음말 −16 → 정적 · 정적 1초 뒤 M5 무음에서 6초 앞서', b12.duck === -16 && ((b12.post || [])[0] || {}).v === -90 && t1.k === 'tribute' && t1.goLeadMs >= 6000 && t1.leadDb === -8 && t1.gapMs >= 1000, { b12: [b12.duck, b12.post], next: [t1.k, t1.goLeadMs, t1.leadDb, t1.gapMs] });
+  ok('9 축가 → 부모님께 인사 이음말 −15 → 정적 · 정적 1초 뒤 M5 무음에서 6초 앞서', b12.duck === -15 && ((b12.post || [])[0] || {}).v === -90 && t1.k === 'tribute' && t1.goLeadMs >= 6000 && t1.leadDb === -8 && t1.gapMs >= 1000, { b12: [b12.duck, b12.post], next: [t1.k, t1.goLeadMs, t1.leadDb, t1.gapMs] });
   const ti = by(A, 'narr-table-in');
-  ok('11 테이블 인사 여는 말 −16 · 이동 −12', ti.duck === -16 && ti.live && ti.live.duck === -12, { duck: ti.duck, live: ti.live && ti.live.duck });
+  ok('11 테이블 인사 여는 말 −15 · 이동 −12', ti.duck === -15 && ti.live && ti.live.duck === -12, { duck: ti.duck, live: ti.live && ti.live.duck });
   const b13 = by(A, 'bridge-b13-toast-stay');
-  ok('12 축배 앞 «자리를 지켜 주시면» 말 −16 · 잔 나누는 40초 −8', b13.duck === -16 && b13.live && b13.live.duck === -8, { duck: b13.duck, live: b13.live && b13.live.duck });
+  ok('12 축배 앞 «자리를 지켜 주시면» 말 −15 · 잔 나누는 40초 −8', b13.duck === -15 && b13.live && b13.live.duck === -8, { duck: b13.duck, live: b13.live && b13.live.duck });
   const G = B2({ on: { welcome: 1, free: 1 }, freeWhat: 'gift' }), gf = G.find((c) => c.k === 'free' && c.live) || {};
   ok('6 선물 전달 동작 −12', gf.live && gf.live.duck === -12, { live: gf.live && gf.live.duck });
   /* 화면 음악 안내 글(5 · 11) */
   const vd = SL.viewOf('declare', { onOf: () => true, seq: K4, nameOf: (k) => k }), vt = SL.viewOf('table', { onOf: () => true, seq: ['table'], nameOf: (k) => k });
   ok('5 · 11 화면 음악 글 — 선언 «선언문을 읽는 동안은 음악 없이 …» · 테이블 «테이블 인사 동안 재즈가 흘러요»', !!vd && vd.t === '선언문을 읽는 동안은 음악 없이, 축하 박수와 함께 새 곡이 시작돼요' && !!vt && vt.t === '테이블 인사 동안 재즈가 흘러요', { d: vd && vd.t, t: vt && vt.t });
-  /* 원칙 — 나레이션 줄은 말 아래(−16 이하) · 예외 목록(화촉 −8 · 입장 −12 · 부모님 «인사!» 구호 −12 · 맺는 말 · 정적 줄) */
+  /* 원칙 — 나레이션 줄은 말 아래(−15 이하) · 예외 목록(화촉 −8 · 입장 −12 · 부모님 «인사!» 구호 −12 · 맺는 말 · 정적 줄) */
   const NARR_OK = /^(narr-candle|entry-|narr-entry|tribute-call|narr-song-end|narr-free-out|narr-letter-end|narr-vow-out|declare-clap|narr-ring-out|narr-declare|toast-|narr-cheer|bridge-b14|bridge-b10|guest-|narr-photo|narr-final|narr-goodbye|after-|narr-close$)/;
-  const loud = A.filter((c) => /^(narr-|bridge-)/.test(c.slug || '') && c.duck > -16 && !NARR_OK.test(c.slug || ''));
-  ok('원칙 — 나레이션 · 이음말 줄은 −16 이하(예외 목록 밖)', !loud.length, loud.map((c) => c.slug + ' ' + c.duck));
+  const loud = A.filter((c) => /^(narr-|bridge-)/.test(c.slug || '') && c.duck > -15 && !NARR_OK.test(c.slug || ''));
+  ok('원칙 — 나레이션 · 이음말 줄은 −15 이하(예외 목록 밖)', !loud.length, loud.map((c) => c.slug + ' ' + c.duck));
 }
 
 const listen = (f, ks, ms) => f.evaluate(async ({ ks, ms }) => { const BB = BgmBed._t, o = []; window._lpMs = function () { return 800; };
@@ -142,7 +142,7 @@ try {
   ok('14 닫는 인사 «마치겠습니다» 앞 정적 ≥ 0.8초 · 그 줄은 음악 없이(≤ −60)', silMs >= 800 && bowOn.length > 2 && bowOn.every((x) => !x.src || x.want <= -60), { silMs: Math.round(silMs), bow: [...new Set(bowOn.map((x) => x.want))] });
   const m6 = (await f.evaluate(() => BgmPicks.PICKS.M6 || [])).filter(Boolean);
   ok('14 목례 · 박수에서 닫는 인사 곡(M6)을 −8 로', bowAct.length > 2 && bowAct.some((x) => x.want >= -8.5 && x.want <= -7.5 && m6.includes(x.f)), [...new Set(bowAct.map((x) => x.f + ' ' + x.want))]);
-  ok('14 마무리 멘트 −16(그 뒤 −8)', clo.length > 2 && clo.some((x) => x.want >= -16.5 && x.want <= -15.5), [...new Set(clo.map((x) => x.f + ' ' + x.want))]);
+  ok('14 마무리 멘트 −15(그 뒤 −8)', clo.length > 2 && clo.some((x) => x.want >= -15.5 && x.want <= -14.5), [...new Set(clo.map((x) => x.f + ' ' + x.want))]);
   /* 16 */
   const m8l = await f.evaluate(() => (BgmPicks.PICKS.M8L || [])[0] || ''), af = r.filter((x) => x.after && x.src && x.pl);
   const dbg = await f.evaluate(() => ({ av: !!BgmBed._t.AV.set.B32, st: BgmBed._t.AV.st, pl: JSON.stringify((BgmBed._t.plan(true) || {}).M8L || null), pend: BgmBed._t.LPB.pend, late: JSON.stringify(BgmBed._t.LPB.late || null), b32: BgmBed._t.BUF.B32 ? BgmBed._t.BUF.B32.st : 'none', note: BgmBed._t.LPB.note }));
@@ -150,7 +150,7 @@ try {
   /* 14 · 15 당일 큐 */
   const cq = await f.evaluate(() => { const S2 = JSON.parse(JSON.stringify(S)); S2.digital = true; const L = ENG.RitualCue.build(S2, { mode: 'console' }).cues, at = (fn) => L.find(fn) || {};
     const b = at((x) => x.slug === 'narr-close-bow'), cl = at((x) => /^narr-closing/.test(x.slug || '')), on = at((x) => x.slug === 'narr-online-in'); return { b: [b.duck, b.fadeMs, b.goLeadMs], cl: cl.duck, on: [on.duck, on.live && on.live.duck] }; });
-  ok('14 · 15 당일 큐 — 닫는 인사 −90(2초 · 3초) · 마무리 멘트 −16 · 온라인 인사 −16 / 두 분 말하는 동안 −20', cq.b.join() === '-90,2000,3000' && cq.cl === -16 && cq.on.join() === '-16,-20', cq);
+  ok('14 · 15 당일 큐 — 닫는 인사 −90(2초 · 3초) · 마무리 멘트 −15 · 온라인 인사 −15 / 두 분 말하는 동안 −20', cq.b.join() === '-90,2000,3000' && cq.cl === -15 && cq.on.join() === '-15,-20', cq);
   /* 18 선언 앞 — 반지 바로 뒤일 때만 «4초 내림 + 2.5초 정적» · 그 밖에는 1.5초에 끄고 정적 1초 */
   const silBefore = (r, k) => { const i = r.findIndex((x) => x.k === k && x.au && !x.act), t = i > -1 ? r[i].t : null; if (t == null) return -1; const pre = r.filter((x) => x.t < t && x.t > t - 9000), j = pre.length - 1; let st = t; for (let q = j; q >= 0; q--) { if (pre[q].src && pre[q].want > -60) break; st = pre[q].t; } return t - st; };
   await setX(f, { on: { vow: 1, ring: 1, declare: 1 }, bgm: {} }); await go(f, 'ring');
