@@ -92,9 +92,10 @@ try {
     { const E = await f.evaluate(() => { const cs = ENG.RitualCue.build(S, { mode: 'console' }).cues, by = (s) => cs.find((c) => c.slug === s) || {}, ix = (s) => cs.findIndex((c) => c.slug === s);
         const b8 = ix('bridge-b8-face-guests'), nx8 = cs[b8 + 1] || {}, mj = cs.find((c) => c.k === 'matjeol') || {};
         return { b7: [by('bridge-b7-entry-ready').duck, JSON.stringify(by('bridge-b7-entry-ready').post)], ar: [by('narr-entry-arrive').duck, by('narr-entry-arrive').fadeMs, !!by('narr-entry-arrive').fadeWith], mj: [mj.duck, mj.live && mj.live.duck],
-          b8: [by('bridge-b8-face-guests').duck, nx8.k, nx8.goLeadMs, nx8.leadDb], dl: (by('narr-declare-family-out').live || {}), ti: (by('tribute-in').live || {}) }; });
+          b8: [b8, (cs.find((c) => c.k === 'welcome') || {}).slug, (cs.find((c) => c.k === 'welcome') || {}).goLeadMs, (cs.find((c) => c.k === 'welcome') || {}).leadDb], dl: (by('narr-declare-family-out').live || {}), ti: (by('tribute-in').live || {}) }; });
       ok('E 입장 앞 b7 −16 · 줄 끝 2초에 −90 + 정적 1초', E.b7[0] === -16 && E.b7[1] === '[{"music":"to","v":-90,"ms":2000},{"wait":1000}]', E.b7);
-      ok('E 도착 멘트 −90 을 4.5초(멘트와 함께) · 맞절 안내 · 맞절 정적 · b8 정적 → 감사 인사 6초 앞 −8', E.ar.join() === '-90,4500,true' && E.mj.join() === '-90,-90' && E.b8[0] === -90 && E.b8[1] === 'welcome' && E.b8[2] >= 6000 && E.b8[3] === -8, E);
+      /* ★[SEAM_WORD_1107 J06 · 1층 · CI 5개 1층 조건 맞춤 11/10] 맞절 뒤 b8 이음말이 빠지고 350(narr-welcome-in)이 감사 인사 첫 줄 — b8 에 걸던 «다음 줄 6초 앞 −8 뜸»을 감사 인사 첫 줄에서 본다 */
+      ok('E 도착 멘트 −90 을 4.5초(멘트와 함께) · 맞절 안내 · 맞절 정적 · b8 없음 → 감사 인사 첫 줄(350) 6초 앞 −8', E.ar.join() === '-90,4500,true' && E.mj.join() === '-90,-90' && E.b8[0] === -1 && E.b8[1] === 'narr-welcome-in' && E.b8[2] >= 6000 && E.b8[3] === -8, E);
       ok('E 선언 뒤 박수 = 새 곡(newSong · 0.6초 · −8) · 부모님께 걸어가기 −12 · 말하는 차례 −20', E.dl.newSong === true && E.dl.upMs === 600 && E.dl.duck === -8 && E.ti.walkDuck === -12 && E.ti.duck === -20, { dl: E.dl, ti: E.ti }); }
     /* P 이어 듣기 */
     await go(f, 'candle');
