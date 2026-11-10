@@ -316,6 +316,10 @@ const G = [
     note: '입장 때는 2분마다 다시(10분 전 안내가 시작되면 멈춤) · 판은 마이페이지 값(식사 · 예약 시각 · 하객 안내 · 디지털 참석)으로 갈린다 · 촬영 후 안내는 작가님이 촬영을 마치면 재생.' },
 ];
 
+/* ★★[CAKE_FILES_OFF_1110 사장님 11/10 12:42 «케이크는 없어졌잖아 삭제해»] 케이크 5클립(41 · 42 · 76 · 77 · 107)은 녹음 · 대장에서 지웠다 — 대본에서도 뺀다
+   번호는 ritual-cue FILES 자리 그대로라 뒤 번호는 안 밀린다 · 되살리기 금지 */
+const CAKE_FILES_OFF = new Set(['toast-cake', 'toast-both', 'toast-both-b', 'narr-cake-out', 'toast-both-pour-b']);
+for (const g of G) g.items = g.items.filter((it) => !CAKE_FILES_OFF.has(it[2]));
 // ── 조립
 let no = 0, totalSyl = 0;
 const md = [], txt = [];

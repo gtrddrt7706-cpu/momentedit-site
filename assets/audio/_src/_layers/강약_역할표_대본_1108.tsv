@@ -33,8 +33,6 @@
 09_entry-E#4	info	base	오늘의 주인공을 여러분께 소개합니다.
 09_entry-E#5	short	base	신랑 신부, 입장!
 103_narr-free-in-speech#0	info	base	오늘의 축사는요, 신랑 신부가 부탁드린 분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.
-107_toast-both-pour-b#0	slow	base	신랑 신부의 영원한 사랑과 행복을 위하여 다 같이 축배를 드는 시간입니다.
-107_toast-both-pour-b#1	base	guide	신랑 신부가 선창하면 '위하여'라고 해 주세요.
 108_narr-close-bow#0	base	base	이상으로 오늘의 결혼식을 마치겠습니다.
 108_narr-close-bow#1	base	guide	마지막까지 큰 박수 부탁드립니다.
 108_narr-close-bow#2	cheer	base	신랑 신부, 하객 여러분께 인사!
@@ -462,10 +460,6 @@
 39_tribute-out#1	info	guide	이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해 서도록 하겠습니다.
 40_toast-toast#0	slow	base	다음은 신랑 신부의 영원한 사랑과 행복을 위하여 다 같이 축배를 들도록 하겠습니다.
 40_toast-toast#1	base	guide	신랑 신부가 선창하면 '위하여'라고 해 주세요.
-41_toast-cake#0	base	base	케이크가 준비되어 있습니다.
-41_toast-cake#1	info	guide	두 분, 나이프를 함께 잡고 천천히 잘라 주세요.
-42_toast-both#0	base	base	케이크가 준비되어 있습니다.
-42_toast-both#1	info	guide	두 분, 나이프를 함께 잡고 천천히 잘라 주세요.
 44_end-0-photo#0	base	base	여기서부터는 작가님이 안내해 드립니다.
 45_end-1a-farewell#0	-	base	하객 여러분께 인사를 올리겠습니다.
 45_end-1a-farewell#1	-	base	곧이어 양가 직계 가족분들과의 기념 촬영이 이어집니다.
@@ -485,10 +479,6 @@
 62_narr-online-in#0	info	base	화면으로 보고 계신 분들께 인사를 올리겠습니다.
 62_narr-online-in#1	guide	guide	신랑 신부는 카메라를 향해 서주시기 바랍니다.
 65_narr-photo-out#0	base	slow	오늘 함께해 주신 모습이, 사진 속에 그대로 남았습니다.
-76_toast-both-b#0	base	guide	마지막으로, 두 사람에게 잔이 가는 동안 다 같이 잔을 들어 주세요.
-76_toast-both-b#1	info	guide	두 분이 선창하면 다 함께 '위하여!'로 답해 주세요.
-77_narr-cake-out#0	base	base	두 사람이 케이크에 첫 칼을 넣었습니다.
-77_narr-cake-out#1	info	guide	두 분, 나이프는 그 자리에 내려놓아 주세요.
 80_narr-entry-out-C#0	base	slow	지금부터는 두 사람의 시간입니다.
 80_narr-entry-out-C#1	base	slow	잠시, 서로를 바라봐 주세요.
 81_narr-entry-out-D#0	base	slow	그 계절을 다 건너, 두 사람이 이 자리에 닿았습니다.

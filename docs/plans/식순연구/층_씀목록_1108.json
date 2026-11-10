@@ -96,12 +96,6 @@
   "status": "retired"
  },
  {
-  "k": "107_toast-both-pour-b",
-  "use": true,
-  "where": "직접 부름 · order-preview.html",
-  "status": "retired"
- },
- {
   "k": "108_narr-close-bow",
   "use": true,
   "where": "엔진 · damback · 조건 {\"photoShare\":0,\"meal\":0,\"mealFull\":0,\"digital\":0,\"resv\":0,\"guide\":0} · console",
@@ -1734,18 +1728,6 @@
   "status": ""
  },
  {
-  "k": "41_toast-cake",
-  "use": true,
-  "where": "애매 → 씀(대본 22:35) · ritual-cue 걸러내기 «^toast-(both|cake)$» 에 이름이 있음",
-  "status": "retired"
- },
- {
-  "k": "42_toast-both",
-  "use": true,
-  "where": "직접 부름 · order-preview.html",
-  "status": "retired"
- },
- {
   "k": "43_parents-letter",
   "use": true,
   "where": "직접 부름 · parents.html",
@@ -1936,18 +1918,6 @@
   "use": false,
   "where": "",
   "status": "manual_off"
- },
- {
-  "k": "76_toast-both-b",
-  "use": true,
-  "where": "직접 부름 · order-preview.html",
-  "status": "retired"
- },
- {
-  "k": "77_narr-cake-out",
-  "use": true,
-  "where": "애매 → 씀(대본 22:35) · ritual-cue «t.out === cakeOut ? narr-cake-out» 경로 있음",
-  "status": "retired"
  },
  {
   "k": "78_fx-count",

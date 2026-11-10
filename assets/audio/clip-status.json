@@ -1,27 +1,7 @@
 {
- "about": "[CLIP_STATUS_1031 검토 175] 안 나는 녹음 표시 — 파일 단위(열쇠 = «폴더/번호_이름») · 녹음 · 파일 · 번호는 그대로(표시만). 상태: retired(어디서도 안 남) · legacy(옛 저장분 전용 — 옛 코스 · «직접 녹음» 배역) · dormant(구조상 지금 차례에선 안 섬 · 실청은 «지금 안 남»으로 따로) · manual_off(수동 전용 · 당일 재생 안 함 — 콘솔 보조 단추 · 촬영 연출 판을 걷은 자리 · AUTO_ONLY_1031). ★원천이 따로 있는 것은 여기 적지 않는다: 나레이션 폐지 슬러그 = assets/ritual-cue.js RETIRED · 안 트는 배역 = assets/ritual-story.js CAST_MUTE(06 ~ 14 · 24 · 25 · 26) — 두 군데가 갈리지 않게 그쪽을 읽는다(scripts/lib/clip-status.mjs). 실청 · 쉼 도구 · check-recorded 는 retired + legacy + dormant + manual_off + CAST_MUTE 를 함께 뺀다. 검사 scripts/audit/clip-status.mjs",
+ "about": "[CLIP_STATUS_1031 검토 175] 안 나는 녹음 표시 — 파일 단위(열쇠 = «폴더/번호_이름») · 녹음 · 파일 · 번호는 그대로(표시만). 상태: retired(어디서도 안 남) · legacy(옛 저장분 전용 — 옛 코스 · «직접 녹음» 배역) · dormant(구조상 지금 차례에선 안 섬 · 실청은 «지금 안 남»으로 따로) · manual_off(수동 전용 · 당일 재생 안 함 — 콘솔 보조 단추 · 촬영 연출 판을 걷은 자리 · AUTO_ONLY_1031). ★원천이 따로 있는 것은 여기 적지 않는다: 나레이션 폐지 슬러그 = assets/ritual-cue.js RETIRED · 안 트는 배역 = assets/ritual-story.js CAST_MUTE(06 ~ 14 · 24 · 25 · 26) — 두 군데가 갈리지 않게 그쪽을 읽는다(scripts/lib/clip-status.mjs). 실청 · 쉼 도구 · check-recorded 는 retired + legacy + dormant + manual_off + CAST_MUTE 를 함께 뺀다. 검사 scripts/audit/clip-status.mjs · ★예외 [CAKE_FILES_OFF_1110] 케이크 5클립(41 · 42 · 76 · 77 · 107)은 사장님 11/10 지시로 파일까지 지움 · 번호 자리만 남김(ritual-cue FILES · RETIRED)",
  "v": "1031d",
  "clips": {
-  "narration/41_toast-cake": {
-   "s": "retired",
-   "why": "케이크 · 축배 «둘 다» 판 — 케이크 순간이 RETIRED(CAKE_OLD_OFF_1017) · 축배는 «축배만» 판 하나"
-  },
-  "narration/42_toast-both": {
-   "s": "retired",
-   "why": "케이크 · 축배 «둘 다» 판 — 케이크 순간 RETIRED · 축배 판 하나"
-  },
-  "narration/76_toast-both-b": {
-   "s": "retired",
-   "why": "케이크 · 축배 «둘 다» 판의 선창 — 케이크 순간 RETIRED · 축배 판 하나"
-  },
-  "narration/77_narr-cake-out": {
-   "s": "retired",
-   "why": "케이크 커팅 마무리 — 케이크 순간 RETIRED"
-  },
-  "narration/107_toast-both-pour-b": {
-   "s": "retired",
-   "why": "«둘 다» 판 + 와인 붓기의 선창 — 케이크 RETIRED · wine 칩은 «붓지 않음» 하나"
-  },
   "narration/114_bridge-b6-lighter": {
    "s": "retired",
    "why": "이음말 편지 → 케이크 — 케이크 순간 RETIRED"

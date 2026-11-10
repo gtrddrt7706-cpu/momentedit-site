@@ -88,7 +88,7 @@
     // [VEIL_RETIRED 2026-08-03] 베일 다운 폐지 — 전 예식 동시입장이라 실행 불가. 되살리지 말 것.
     'ringwarm-family', 'ringwarm-all',
     'tribute-in', 'tribute-out',
-    'toast-toast', 'toast-cake', 'toast-both',
+    'toast-toast', 'toast-cake', 'toast-both',   // [CAKE_FILES_OFF_1110] 41 · 42 지움 — 번호 자리만(되살리기 금지)
     'parents-letter',
     'end-0-photo', 'end-1a-farewell', 'end-1b-farewell-online', 'end-2-goodbye',
     'online-3-welcome', 'bridge-4-wait-emotion', 'bridge-5-wait-setup', 'bridge-6-resume',
@@ -108,7 +108,7 @@
        ★반드시 목록 **끝**이다 — 번호가 인덱스+1이라 중간에 끼우면 기존 74개가 전부 개명된다.
        toast-both-b : 나이프를 걷고 잔을 쥐여 드리는 사이를 덮는 두 번째 문안
        narr-cake-out: 케이크만 고른 자리의 마무리(잔 이야기가 나가던 자리) */
-    'toast-both-b', 'narr-cake-out',
+    'toast-both-b', 'narr-cake-out',   // [CAKE_FILES_OFF_1110] 76 · 77 지움 — 번호 자리만(되살리기 금지)
     /* [PHOTO_COUNT 2026-08-09] 단체촬영 셔터 신호 — 목록 **끝**(번호 = 인덱스+1). */
     'fx-count',
     /* ★[ENTRY_OUT_TONE 2026-08-11] 도착 직후 멘트를 입장 느낌 B~F 로 나누며 늘어난 다섯.
@@ -160,7 +160,7 @@
        107 toast-both-pour-b: 와인을 붓는 날의 선창(P2 · «두 사람에게 잔이 가는 동안»을 뺀 줄 · 붓는 동안 이미 잔이 가 있다)
        ★옛 코스는 이 여덟을 한 번도 부르지 않는다 — 새 코스(open)일 때만 나간다. */
     'narr-free-in-video', 'narr-free-in-stage', 'narr-free-in-gift', 'narr-free-in-speech', 'narr-free-out-clap', 'narr-free-fail',
-    'tribute-bow-groom', 'toast-both-pour-b',
+    'tribute-bow-groom', 'toast-both-pour-b',   // [CAKE_FILES_OFF_1110] 107 지움 — 번호 자리만(되살리기 금지)
     /* ★★[CLOSE_BOW 2026-09-26 코워크 회신5 4-2] 108 — 끝 선언 · 두 분 목례 · 마지막 박수. **맨 끝에 붙였다**(위 경고 그대로).
        녹음 전이라 텍스트 카드로 흐른다 · 재녹음은 사장님 대본 점검(7단계) 뒤 한 번에. */
     'narr-close-bow',
@@ -697,6 +697,9 @@
      "소리가 없으니 녹음하라"고 하고, 폐지한 것을 다시 녹음하게 된다(실제로 한 번 그렇게 나왔다).
      ★되살리려면 여기서 빼는 것만으로는 안 된다. GADD 부터 되돌려야 하고 그건 사용자 지시에 반한다. */
   var RETIRED = { 'narr-ringwarm-out': 1, 'ringwarm-family': 1, 'ringwarm-all': 1,
+    /* ★★[CAKE_FILES_OFF_1110 사장님 11/10 12:42 «케이크는 없어졌잖아 삭제해» · 대본 A] 케이크 5클립(41 toast-cake · 42 toast-both · 76 toast-both-b · 77 narr-cake-out · 107 toast-both-pour-b)은
+       mp3 · _src · 대장까지 지웠다 — FILES 에는 번호 자리만 남긴다(빼면 뒤 번호가 전부 밀린다) · 되살리기 금지 · 옛 초안 both → toast 옮기기는 그대로(CAKE_OLD_OFF_1017) */
+    'toast-cake': 1, 'toast-both': 1, 'toast-both-b': 1, 'narr-cake-out': 1, 'toast-both-pour-b': 1,
     /* ★★[CLOSING_LINE_1031 검토 178 사장님 «사진은 작가님 몫»] 사진 «모여 달라 · 앞을 봐 달라»를 자동 식순에서 걷었다 — 265 · 266(사진 전 안내) · 262(자유 사진 여는 말) · 219(닫는 멘트 칩의 사진 줄)는
        새 코스에서만 나던 자리라 쉰다(파일 · 문안 · 번호 그대로 · 266 · 47 · 264 · 44 의 문장은 마무리 멘트 287 ~ 291 이 빌려 쓴다) · 26 · 85 · 47 은 옛 코스가 그대로 틀어 clip-status 표에 legacy · 되살리지 말 것 */
     'narr-photo-pre': 1, 'narr-photo-pre-meal': 1, 'narr-photo-free': 1, 'narr-close-ex2': 1,
