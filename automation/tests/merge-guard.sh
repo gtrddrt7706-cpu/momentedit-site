@@ -23289,3 +23289,4 @@ chk 'LAYER_PLAN_1108' scripts/audit/layer-phrase.mjs 1   # 5층 구절 쉼을 mp
 chk 'LAYER_PLAN_1108' scripts/build-loud6.mjs 1   # 6층 문장 크기 — 5층 mp3 에서 몸 크기(첫 0.4초 뺌) − 클립 가운데값 · ±1.5 dB 넘는 문장만 절반
 chk 'LAYER_PLAN_1108' scripts/audit/layer-loud.mjs 1   # 6층 결과를 mp3 에서 다시 재는 검사
 chk '층6_크기.json' scripts/build-layers.mjs 1   # 6층 이득 표 — loudnorm 전 깔린 문장에
+chk "★\[LAYER7_FACE_LEAD_1110\] 7층과 하나로" assets/ritual-cue.js 1
