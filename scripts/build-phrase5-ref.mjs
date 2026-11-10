@@ -11,7 +11,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), P
 const arg = (k) => { const i = process.argv.indexOf(k); return i > -1 ? process.argv[i + 1] : ''; };
 const REF = '98a4a91^';   // 대본이 시각을 잰 1층 mp3(2층 커밋 바로 앞)
 /* 손으로 정한 자리 — 4층까지의 원천이 1층과 다른 녹음이라 자리 본이 안 맞는 곳(글자 비율로 고른다) */
-const BY_TEXT = { '148_narr-open-ex2#1/마음으로': '3층부터 새 녹음(148_s1_REC_148_1_1109) — 1층 테이크와 다른 소리 · 글자 비율 0.65 근처 무음(−30 dB)' };
+const BY_TEXT = { '148_narr-open-ex2#1/마음으로': '3층부터 새 녹음(148_s1_REC_148_1_1109) — 1층 테이크와 다른 소리 · 글자 비율 0.65 근처 무음(−30 dB)',
+  '211_narr-candle-out-ex2#0/위해': '3층부터 새 녹음(REC_FAST19_1110) — 1층 소리로 못 찾아 글자 비율(말소리 앞뒤 사이) 근처 무음(−30 dB)', '256_tribute-hug#0/부모님께서는': '3층부터 새 녹음(REC_FAST19_1110) — 1층 소리로 못 찾아 글자 비율(말소리 앞뒤 사이) 근처 무음(−30 dB)' };
 /* 걸림을 손으로 확인한 자리 — 까닭(11/10) · 이 자리는 걸림으로 세지 않고 만들기도 멈추지 않는다 */
 const CHECKED = {
   '141_narr-tribute-name#0/부모님께': '테이크가 바뀌어 대본 판 창 맞춤 0.936 — 대본 판에서 «섭섭하고,» 무음 ~ 말 끝 사이 비율 0.574 를 4층에 대면 4.85초 = 자리 본이 고른 4.83 ~ 4.88(0.05)',
@@ -29,6 +30,7 @@ const gitMp3 = (key) => { const f = path.join(TMP, key + '.mp3'); if (!fs.exists
 const hc = (t) => (t.match(/[가-힣]/g) || []).length;
 const places = [], bad = [];
 rows.forEach((r, n) => { const [key, s, kind, w1, w2, tStr, orig, want, why, text] = r, id = key + '#' + s, t = +tStr;
+  if (!fs.existsSync(P('assets/audio/_src', key))) return;   // [CAKE_FILES_OFF_1110] 지운 클립(107 «위하여» 자리) — 표 줄 번호는 그대로
   const base = { n: n + 1, id, key, s: +s, kind, w1, w2, want: +want, orig: +orig, ...(CHECKED[id + '/' + w1] ? { checked: CHECKED[id + '/' + w1] } : {}) };
   if (BY_TEXT[id + '/' + w1]) { const i = text.indexOf(w1 + ' ' + w2), f = hc(text.slice(0, i + w1.length)) / hc(text); places.push({ ...base, how: 'text', f: +f.toFixed(4), thrDb: -30, why: BY_TEXT[id + '/' + w1] }); return; }
   const sp = seat.find((x) => x.key === key && x.s === +s), f1 = stF(arg('--l1-in'), key, s), mp3 = path.join(arg('--l1-out'), key + '.mp3');

@@ -38,5 +38,8 @@ export function dipAt(e, m, thr) { const r = runs(e, thr).find((q) => !q.head &&
   return dipNear(e, m, thr, 0.02); }
 /* 자리 하나 찾기(만들기 · 재기 공통) — p = 층5_자리.json 한 줄 · how 'text' = 글자 비율(말소리 앞뒤 사이) 근처 ±0.25 무음 */
 export function locate(e, p) { const thr = Math.pow(10, p.thrDb / 20);
-  if (p.how === 'text') { const rs = runs(e, thr), h = (rs.find((r) => r.head) || { b: 0 }).b, t = (rs.find((r) => r.tail) || { a: e.length * WS }).a, x = h + p.f * (t - h), d = dipNear(e, x, thr, 0.25); return { m: +((d.a + d.b) / 2).toFixed(4), d, r: null }; }
+  if (p.how === 'text') { const rs = runs(e, thr), h = (rs.find((r) => r.head) || { b: 0 }).b, t = (rs.find((r) => r.tail) || { a: e.length * WS }).a, x = h + p.f * (t - h);
+    /* [FAST19_TEXT_1110] 글자 비율은 대충 맞는 자리라 «가장 가까운 골»이 아니라 근처(±0.25)에서 길이 − 거리/2 가 큰 무음(낱말 경계가 가장 긴 골 · 256 «부모님께서는» 0.005 골 대신 0.145 무음) */
+    const cand = runs(e, thr).filter((r) => !r.head && !r.tail && r.b >= x - 0.25 && r.a <= x + 0.25).map((r) => ({ ...r, sc: (r.b - r.a) - Math.max(0, r.a - x, x - r.b) / 2 })).sort((u, v) => v.sc - u.sc)[0];
+    const d = cand ? { a: cand.a, b: cand.b, len: +(cand.b - cand.a).toFixed(3), kind: 'run' } : dipNear(e, x, thr, 0.25); return { m: +((d.a + d.b) / 2).toFixed(4), d, r: null }; }
   const mt = matchT(e, p.tpl, timeOf(cum(e), p.f)), d = dipAt(e, mt.mid, thr); return { m: +((d.a + d.b) / 2).toFixed(4), d, r: mt.r }; }
