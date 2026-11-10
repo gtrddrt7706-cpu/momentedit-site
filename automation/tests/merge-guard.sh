@@ -23318,3 +23318,6 @@ if [ ! -f assets/audio/_src/_layers/redo/REC_FIX3_1110.wav ]; then echo 'REVERT?
 chk 'NARR_REBUILD_1110' scripts/narr-rebuild.sh 1
 chk 'build-layers.mjs --layer 6' scripts/narr-rebuild.sh 1
 chk "★\[LAYER7_FACE_LEAD_1110\] 7층과 하나로" assets/ritual-cue.js 1
+# ★[CI_RUNNER_2404 11/10] CI 러너 24.04 고정 — ubuntu-latest(26.04)는 Playwright 1.56.1 브라우저 설치 실패 · ffmpeg 없음으로 bgm-sound 5칸 · guard 소리 검사가 테스트 전에 떨어졌다(PR #1647)
+chk 'runs-on: ubuntu-24.04   # ★\[CI_RUNNER_2404' .github/workflows/merge-guard.yml 2
+nochk 'runs-on: ubuntu-latest' .github/workflows/merge-guard.yml
