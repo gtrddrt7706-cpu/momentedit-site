@@ -7,7 +7,7 @@
 import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url'; import { execFileSync } from 'node:child_process'; import { createRequire } from 'node:module'; import { applyTempo } from './lib/tempo.mjs'; import { quietRuns, pcm } from './lib/cps.mjs'; import * as P5 from './lib/phrase5.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), P = (...a) => path.join(ROOT, ...a);
 const arg = (k, d = '') => { const i = process.argv.indexOf(k); return i > -1 ? process.argv[i + 1] : d; };
-export const LAYER_DONE = 5;   // 조립기에 들어간 마지막 층 — 층을 넣는 커밋에서 같이 올린다
+export const LAYER_DONE = 6;   // 조립기에 들어간 마지막 층 — 층을 넣는 커밋에서 같이 올린다
 const L = Number(arg('--layer', '0'));
 /* 문장 빠르기(원래 녹음 대비 합계) — 2층 말빠르기 0.97 · 3층 강약은 그 층 커밋에서 · 편지 43 은 창고가 없어 여기 안 온다 */
 /* 3층 강약(대본 11/08 21:55 · 원래 녹음 대비 합계) — 역할표(_layers/_roles.json · #1636 역할표 사본) · 감정 · 엄숙(slow) 0.96 · 일반 안내(guide) 0.9894 · 그 밖(기본 · 정보 · 구호 · 짧은) 0.97
@@ -109,6 +109,11 @@ if (R5) { const by = {}; for (const p of R5.places) (by[p.key + '#' + p.s] = by[
       if (q.fi) fl.push(`afade=t=in:st=0:d=${q.fi}`); if (q.fo) fl.push(`afade=t=out:st=${Math.max(0, len - q.fo).toFixed(4)}:d=${q.fo}`); return `[s${k}]${fl.join(',')}[k${k++}]`; }).join(';')
       + ';' + (() => { let a = 0, z = 0; return segs.map((q) => q.z ? `[z${z++}]` : `[k${a++}]`).join(''); })() + `concat=n=${segs.length}:v=0:a=1[o]`;
     const o = path.join(SCR, 'p5.flac'); execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', src, '-filter_complex', fc, '-map', '[o]', '-ar', '48000', '-ac', '1', '-c:a', 'flac', o]); fs.copyFileSync(o, src); } }
+/* 6층 · 문장 크기 고르게(대본 11/10 11:20 · 층설정표 6층) — _layers/층6_크기.json(5층 mp3 에서 잰 문장 몸 크기 − 클립 가운데값 · ±1.5 dB 넘는 문장만 차이의 절반 반대로 · 최대 ±1.5 · 만든 법 scripts/build-loud6.mjs)
+   loudnorm(조립) 전 깔린 문장 통째로 같은 이득(volume) · 첫머리 힘(0.4초)은 재지 않으니 그대로 · 결과는 scripts/audit/layer-loud.mjs 가 mp3 에서 다시 잰다 */
+const R6 = L >= 6 ? JSON.parse(fs.readFileSync(P('assets/audio/_src/_layers/층6_크기.json'), 'utf8')).gains : null;
+if (R6) for (const [id, r] of Object.entries(R6)) { const [key, i] = id.split('#'), f = fs.readdirSync(D).find((x) => new RegExp('^\\d+_' + key.replace(/[-]/g, '\\-') + '_' + i + '(_JOINED_)?\\.flac$').test(x)); if (!f) continue;
+  const src = path.join(D, f), o = path.join(SCR, 'l6.flac'); execFileSync('ffmpeg', ['-v', 'error', '-y', '-i', src, '-af', `volume=${r.gain}dB`, '-ar', '48000', '-ac', '1', '-c:a', 'flac', o]); fs.copyFileSync(o, src); logOne({ id, loud: r.d, gain: r.gain }); }
 if (process.env.KEEP_IN) { fs.mkdirSync(process.env.KEEP_IN, { recursive: true }); for (const f of fs.readdirSync(D)) fs.copyFileSync(path.join(D, f), path.join(process.env.KEEP_IN, f)); }   // 깔린 문장 그대로 남기기(5층 자리표 만들기 · 재기)
 /* 4층 · 자리별 쉼 목표(대본 표 «새 목표» · 빈 칸 그대로) — 조립기 --seat-targets */
 const SEATS = L >= 4 ? fs.readFileSync(P('assets/audio/_src/_layers/쉼자리표_대본값_1108.tsv'), 'utf8').trim().split('\n').slice(1).map((l) => l.split('\t')).filter((r) => r[4] && r[4].trim()).map((r) => `${r[0]}#${r[1]}=${(+r[4] + ((R4.seatAdj || {})[r[0] + '#' + r[1]] || 0)).toFixed(4)}`).join(',') : '';

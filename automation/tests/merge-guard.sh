@@ -23276,3 +23276,6 @@ chk 'KEEP_Q' scripts/assemble-narration.mjs 2   # [LAYER_PLAN_1108] 5층 구절 
 chk 'LAYER_PLAN_1108' scripts/lib/phrase5.mjs 1   # 5층 자리 찾기(에너지 누적 비율 · 자리 본) — 만들기 · 재기 공통
 chk 'LAYER_PLAN_1108' scripts/build-phrase5-ref.mjs 1   # 5층 자리표(층5_자리.json) 만드는 법 · 손으로 확인한 자리(CHECKED) 까닭
 chk 'LAYER_PLAN_1108' scripts/audit/layer-phrase.mjs 1   # 5층 구절 쉼을 mp3 에서 재는 검사(−30 dB · 5ms · ±0.03)
+chk 'LAYER_PLAN_1108' scripts/build-loud6.mjs 1   # 6층 문장 크기 — 5층 mp3 에서 몸 크기(첫 0.4초 뺌) − 클립 가운데값 · ±1.5 dB 넘는 문장만 절반
+chk 'LAYER_PLAN_1108' scripts/audit/layer-loud.mjs 1   # 6층 결과를 mp3 에서 다시 재는 검사
+chk '층6_크기.json' scripts/build-layers.mjs 1   # 6층 이득 표 — loudnorm 전 깔린 문장에
