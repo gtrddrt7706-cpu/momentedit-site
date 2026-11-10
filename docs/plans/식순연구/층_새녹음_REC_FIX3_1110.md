@@ -2,6 +2,7 @@
 
 > 대본 11/10 23:15 `docs/handoff/배포준비_나레이션_1110.md` 2 · 3절 · 사장님 23:06 «추천대로» · 엔진(`build-layers --layer 6`)으로만 · 높이 그대로(atempo 만)
 > 다시 만들기 한 줄: `sh scripts/narr-rebuild.sh --ref <실청 후보 fin 폴더> --override <승인 소리 폴더>` — 표만 고치고 이 한 줄
+> ★[JINHEE_OUT_1110] 진희(안내) 46클립은 확정 아님 — 새 성우 녹음이 오면 `층1_재료.json` l3 테이크 + 빠르기표 값만 넣고 `sh scripts/narr-rebuild.sh --voice 진희 --list`(대상 46 확인) → 전체 한 줄(우성 191 은 바이트 그대로) · main 병합은 진희 새 녹음 뒤
 
 ## 넣은 것
 | 문장 | 1층 재료(`층1_재료.json` l3) | 3층 빠르기(이 테이크 대비) | 5층 |

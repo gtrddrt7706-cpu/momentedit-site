@@ -1,12 +1,16 @@
 #!/bin/sh
 # ★[NARR_REBUILD_1110 · 대본 11/10 23:15 «실청 반복으로 고침이 더 올 수 있으니 다시 만들기를 명령 한 줄로»] 나레이션 237클립을 엔진(build-layers 6층)으로 다시 만들고 층 검사를 한 번에 돈다
 #   표를 고친다(층1_재료 · 빠르기표_최종_1109 · 층4_쉼 · 층5_자리 · 층6_크기) → 이 한 줄 → 결과 mp3 는 손대지 않는다(엔진으로만 · 높이는 atempo 만)
-#   쓰기: sh scripts/narr-rebuild.sh [--ref <비교 mp3 폴더 · 실청 후보 fin>] [--override <승인 소리 폴더>] [--clip =키,…]
+#   쓰기: sh scripts/narr-rebuild.sh [--ref <비교 mp3 폴더 · 실청 후보 fin>] [--override <승인 소리 폴더>] [--clip =키,…] [--voice 진희|우성] [--list]
+#   ★[JINHEE_OUT_1110 사장님 결정 · 대본 11/10 23:20] 진희(안내) 클립은 확정 아님 — 새 성우 녹음이 오면 층1_재료.json 에 l3 테이크(REC_FIX3_1110 처럼) · 빠르기표 값만 넣고
+#     sh scripts/narr-rebuild.sh --voice 진희 --list 로 대상 확인 → 그 표로 전체 한 줄(안 바뀐 클립은 바이트 그대로 · 전체로 돌아야 층 검사가 다 맞는다)
 #   끝에 «바뀐 클립 / 같은 클립»(--ref 대비 바이트) · 검사 줄마다 ok / FAIL · 하나라도 FAIL 이면 종료 1
 set -u
 ROOT=$(cd "$(dirname "$0")/.." && pwd); cd "$ROOT"
-REF=''; OVR=''; CLIP=''
-while [ $# -gt 0 ]; do case "$1" in --ref) REF=$2; shift 2;; --override) OVR=$2; shift 2;; --clip) CLIP=$2; shift 2;; *) echo "모르는 인자 $1"; exit 2;; esac; done
+REF=''; OVR=''; CLIP=''; VOICE=''; LIST=0
+while [ $# -gt 0 ]; do case "$1" in --ref) REF=$2; shift 2;; --override) OVR=$2; shift 2;; --clip) CLIP=$2; shift 2;; --voice) VOICE=$2; shift 2;; --list) LIST=1; shift;; *) echo "모르는 인자 $1"; exit 2;; esac; done
+if [ -n "$VOICE" ]; then CLIP=$(VOICE="$VOICE" node -e "const fs=require('fs');const m=JSON.parse(fs.readFileSync('docs/plans/식순연구/타입캐스트/manifest.json','utf8'));const all=new Set(require('child_process').execFileSync('node',['scripts/build-layers.mjs','--list']).toString().trim().split(','));const p=(n)=>String(n).padStart(2,'0');console.log(m.clips.filter((c)=>(m.voice||{})[String(c.role).split('|')[0]]===process.env.VOICE&&all.has('='+p(c.no)+'_'+c.file)).map((c)=>'='+p(c.no)+'_'+c.file).join(','))"); fi
+if [ "$LIST" = 1 ]; then L=${CLIP:-$(node scripts/build-layers.mjs --list)}; echo "$L" | tr ',' '\n' | grep -c . ; echo "$L"; exit 0; fi
 W=${NARR_WORK:-$(mktemp -d "${TMPDIR:-/tmp}/narr-rebuild-XXXX")}; mkdir -p "$W"; rm -f "$W/layer.log" "$W/seat.log"; rm -rf "$W/in"
 echo "== 작업 폴더 $W"
 LAYER_LOG="$W/layer.log" SEAT_LOG="$W/seat.log" KEEP_IN="$W/in" node scripts/build-layers.mjs --layer 6 ${CLIP:+--clip "$CLIP"} > "$W/build.out" 2>&1 || { tail -20 "$W/build.out"; echo 'FAIL build-layers'; exit 1; }
