@@ -23312,6 +23312,7 @@ nochk '"n":43,"id":"149_narr-open-ex3#1"' assets/audio/_src/_layers/층5_자리.
 nochk '"n":47,"id":"150_narr-open-ex4#2"' assets/audio/_src/_layers/층5_자리.json
 nochk '"n":48,"id":"150_narr-open-ex4#2"' assets/audio/_src/_layers/층5_자리.json
 chk 'REC_FIX3_1110' scripts/audit/fix3-match.mjs 1
+chk 'N160_PHRASE_1110' scripts/audit/layer-seats.mjs 1   # 구호 틈 후보 0.15초 — 160#2 «맞절»(147) ㅈ 막힘 0.13초를 구호 틈으로 잡지 않게(0.12 로 되돌리면 layer-seats 구호 160#2 빨강 · 11/10 실측)
 if [ ! -f assets/audio/_src/_layers/redo/REC_FIX3_1110.wav ]; then echo 'REVERT? [REC_FIX3_1110] 새 녹음 원본 REC_FIX3_1110.wav 가 없다'; fail=1; fi
 # ★[NARR_REBUILD_1110 대본 11/10 23:15] 나레이션 다시 만들기 한 줄(build-layers 6층 + 층 검사) — 실청 고침이 더 오면 표만 고치고 이 한 줄
 chk 'NARR_REBUILD_1110' scripts/narr-rebuild.sh 1
