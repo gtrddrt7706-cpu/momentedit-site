@@ -27,11 +27,15 @@
 ## 237클립(`build-layers --layer 6`)
 - 실청 후보 fin(docs `listen_v10/fin`) 대비 바이트 같음 234 · 다름 3(22 · 149 · 150 = 새 녹음 클립만) · 변경 전(9b2b17e) 엔진 판 = fin 237 바이트 같음(엔진 재현 확인)
 - layer-speed 509문장 ±0.5% 밖 0 · 표 범위 0.878 ~ 1.10 밖 0 · layer-seats 자리 96 · 구호 19 ±0.03 밖 0 · layer-phrase 190 ±0.03 밖 0
-- layer-loud 밖 2 = 317_after-photo#0(1.76 → 1.81) · 319_after-photo-cafe#0(1.57 → 1.65) — 9b2b17e 판(fin)에서도 같다(3층 빠르기 B 뒤 6층 표를 다시 재지 않음 · 사장님이 들은 fin 을 바꾸지 않으려고 그대로 둠)
+- layer-loud 밖 2 = 317_after-photo#0(1.76 → 1.81) · 319_after-photo-cafe#0(1.57 → 1.65) — 9b2b17e 판(fin)에서도 같다 · **확정 아님 · 진희 새 녹음 뒤 다시**(진희 클립 · 새 성우 문정으로 바뀜 · docs `handoff_1111/jinhee_1110/munjeong_1111/` · 빠르기는 사장님이 고르는 중 · 대본 11/11 00:24)
+- 150#0 크기(새 빨강 · 고침): 새 녹음 150#2 테이크가 옛 _src 보다 0.8 dB 작아(−16.37 / −15.6) 클립 가운데값이 −15.09 → −15.29 로 내려가 150#0 d 1.87 → 2.07 · 6층 표를 바뀐 3클립만 다시 재 이득 −0.94 → −1.03 → layer-loud 통과
 - check-recorded · keepgap-text · keepgap-carry · flow-gaps · entry-call-pause · letter-mirror · voice-register · narration-pad --check 초록
+
+- 받아쓰기(글 틀림 0): 이 세션에서 못 함 — faster-whisper 모델 받는 곳(huggingface)이 프록시에서 막힘(curl 56 · 403) · 실청 방 / 다른 방에서 `python3 scripts/audit/asr-transcribe.py --only 22_narr-bless-open` 등
 
 ## 바꾼 검사
 - `layer-speed` 범위 0.89 ~ 1.05 → 0.878 ~ 1.10 [SPEED_FINAL_1110] · 옛 기대 은퇴 · `--log` 없이 표 범위만(merge-guard 에서 돎 · 옛 범위로 되돌리면 15줄 밖 → 빨강 확인)
 - `layer-seats` 구호 틈 후보 0.12 → 0.15초 [N160_PHRASE_1110] — 160#2 «맞절»(147 에서 붙인 느린 말) 안 ㅈ 막힘 0.13초를 구호 틈으로 잡았다(실제 구호 틈 0.38 은 맞게 들어감 · 9b2b17e 판에서도 빨강이던 것)
-- `layer-cps` 는 6층 한 줄에서 빼고(4 · 5층 쉼이 든 6층 mp3 에는 자가 안 맞음 · 9b2b17e 판도 128 밖) 3층 mp3 용으로 남김
+- `layer-cps` 는 6층 한 줄에서 빼고(4 · 5층 쉼이 든 6층 mp3 에는 자가 안 맞음 · 9b2b17e 판도 128 밖 · 옛 기대값) 3층 mp3 용으로 남김 · 확정 아님 · 진희 새 녹음 뒤 다시
 - 새 `fix3-match`(승인 소리 견줌) · `narr-rebuild.sh`(한 줄)
+- CI 러너 ubuntu-24.04 고정 [CI_RUNNER_2404] — ubuntu-latest(26.04)에서 Playwright 1.56.1 설치 실패 · ffmpeg 없음
