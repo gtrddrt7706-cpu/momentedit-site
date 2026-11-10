@@ -17,7 +17,7 @@ on:
 jobs:
   guard:
     runs-on: ubuntu-24.04   # ★[CI_RUNNER_2404 11/10] ubuntu-latest 가 26.04 로 넘어가 Playwright 1.56.1 브라우저 설치 실패 · ffmpeg 없음(PR #1647 CI) — 전에 초록이던 24.04 에 고정
-    timeout-minutes: 5
+    timeout-minutes: 10   # [CI_RUNNER_2404] 24.04 러너에서 merge-guard 가 5분 6초 — «ALL MARKERS OK» 뒤에 잘렸다(PR #1647)
     # ★[GUARD_TIME_1019 2026-10-19] 3 → 5분 — 3분은 게이트가 56초에 끝나던 때 값이다. 지금 165초 안팎이라 실행 속도가 조금만 흔들려도
     #   한도에 걸려 «취소»로 진다(10/19 main push 185초 취소 · PR #1316 두 번 취소). 검사를 빼지 않고 시간만 늘린다 · 브라우저는 여전히 깔지 않는다
     steps:
