@@ -34,10 +34,12 @@ if (process.argv.includes('--selftest')) {
 
 for (const [nm, S] of [['하객 안내', {}], ['하객 안내 끔', { guide: 0 }], ['식사 · 예약', { meal: 1, mealFull: 1, resv: '13:30' }], ['식사 · 하객 안내 끔', { meal: 1, mealFull: 1, guide: 0 }], ['온라인', { digital: 1 }]]) {
   const cs = q(Object.assign({ on: {}, guestVoice: 'couple' }, S));
-  ok('[B2_FIX_NA_28] 두 분 목소리 · ' + nm + ' — 5분 전에 사진 올리기 문장', photoAt5(cs), cs.filter((c) => c.k === 'guest').map((c) => c.slug));
+  /* ★[W5M_FIX_1107 대본 22:25 · 사장님 «이게 말이 안 되잖아»] 5분 전은 본식 «전» — 식사 날만 «식사 장소 확인과 사진 올리기는 …» · 식사 없는 날은 «시작 오 분 전입니다.»만(사진 올리기는 닫는 인사가 말한다) · 옛 «늘 사진»(B2_FIX_NA_28 · PHOTO_ALWAYS_NI02) 기대 은퇴 */
+  const _meal = !!S.meal;
+  ok('[B2_FIX_NA_28 · W5M_FIX_1107] 두 분 목소리 · ' + nm + (_meal ? ' — 5분 전에 사진 올리기 문장(식사 날)' : ' — 식사 없는 날 5분 전은 시작 예고만(사진 줄 없음)'), _meal ? photoAt5(cs) : !photoAt5(cs), cs.filter((c) => c.k === 'guest').map((c) => c.slug));
 }
 { const cs = q({ on: {}, guestVoice: 'couple', meal: 1, mealFull: 1, resv: '13:30' }); const c = cs.find((x) => x.atMin === -5) || {};
-  ok('[B2_FIX_NA_28] 두 분 목소리 · 식사 날 5분 전에 장소 · 예약 경로', /장소/.test(c.text || '') && /예약 시각/.test(c.text || ''), c.text); }
+  ok('[B2_FIX_NA_28 · W5M_FIX_1107] 두 분 목소리 · 식사 날 5분 전에 «식사 장소 확인과 사진 올리기» 경로(옛 «장소와 예약 시각은» 은퇴 — 무엇의 장소인지 없어 예식 장소로 들렸다)', /식사 장소 확인/.test(c.text || '') && /사진 올리기/.test(c.text || '') && !/예약 시각/.test(c.text || ''), c.text); }
 { const cs = q({ on: {}, guestVoice: 'couple', digital: 1 }); const c = cs.find((x) => x.atMin === -5) || {};
   ok('[B2_FIX_NA_28] 두 분 목소리 · 온라인 문장은 5분 전 묶음 맨 끝', /온라인으로 함께하시는 분들은[^.]*\.$/.test(c.text || ''), c.text); }
 for (const v of [0, 1, 2, 3]) { const r = vowClapOk(q({ on: { vow: 1, ring: 1 }, narEx: { vow: v } }));
