@@ -23296,3 +23296,4 @@ chk 'CAKE_FILES_OFF_1110' scripts/build-typecast-import.mjs 1
 for _ck in 41_toast-cake 42_toast-both 76_toast-both-b 77_narr-cake-out 107_toast-both-pour-b; do
   if [ -e "assets/audio/narration/$_ck.mp3" ] || [ -e "assets/audio/_src/$_ck" ]; then echo "REVERT? [CAKE_FILES_OFF_1110] $_ck 소리가 되살아났다"; fail=1; fi
 done
+chk "★\[LAYER7_FACE_LEAD_1110\] 7층과 하나로" assets/ritual-cue.js 1
