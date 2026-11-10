@@ -122,6 +122,7 @@ if (process.argv[2] === '--check') {
     const cells = line.split('|').slice(1, -1).map((c) => c.trim()); if (!cols) { cols = cells; continue; }
     if (cells.every((c) => /^:?-+:?$/.test(c))) continue; const ti = cols.indexOf('3단계 글'); if (ti < 0) continue;
     const t = cells[ti]; if (!t || t === '—' || /^\(/.test(t)) continue;
+    if (/^(41|42|76|77|107) /.test(cells[0] || '')) continue;   /* ★[CAKE_FILES_OFF_1110 사장님 11/10 12:42 «케이크는 없어졌잖아 삭제해»] 케이크 5클립은 소리까지 지웠다 — 원고 표에 남은 그 줄은 «소리 없음»으로 세지 않는다(줄은 기록으로 둔다 · 다른 줄은 종전대로) */
     for (const s of t.split(/(?<=[.!?])(?!['"’”])/).map((x) => x.trim()).filter((x) => /[.!?]$/.test(x))) {   /* ★[MODERN_WORDS_1024 검토 164] «'위하여!'로» — 따옴표 앞 느낌표는 문장 끝이 아니다 */ n++; const k = norm(s); if (one.has(k)) a++; else if (inClip.has(k)) b++; else if (wait.has(k)) { w++; waits.push(`${cells[0].slice(0, 30)} «${s}» · ${wait.get(k)}`); } else none.push(`${cells[0].slice(0, 30)} «${s}»`); }
   }
   console.log(`원고 문장 ${n} · 낱개 소리 ${a} · 옛 줄째 클립 안에만 ${b} · 녹음 대기 ${w} · 소리 없음 ${none.length}`);

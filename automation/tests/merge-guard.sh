@@ -23321,3 +23321,4 @@ chk "★\[LAYER7_FACE_LEAD_1110\] 7층과 하나로" assets/ritual-cue.js 1
 # ★[CI_RUNNER_2404 11/10] CI 러너 24.04 고정 — ubuntu-latest(26.04)는 Playwright 1.56.1 브라우저 설치 실패 · ffmpeg 없음으로 bgm-sound 5칸 · guard 소리 검사가 테스트 전에 떨어졌다(PR #1647)
 chk 'runs-on: ubuntu-24.04   # ★\[CI_RUNNER_2404' .github/workflows/merge-guard.yml 2
 nochk 'runs-on: ubuntu-latest' .github/workflows/merge-guard.yml
+chk 'CAKE_FILES_OFF_1110' scripts/build-rev1013.mjs 1   # 원고 표 케이크 줄(41 · 42 · 76 · 77 · 107)은 «소리 없음»으로 세지 않는다 — 이 줄을 빼면 NARR AUDIO FAIL 4(11/10 CI)
