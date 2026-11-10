@@ -2463,7 +2463,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1107r5"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1106wk"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1107ig"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1106of2"></script><script src="/assets/bgm-picks.js?v=1107rf"></script><script src="/assets/narration-pad.js?v=1106k3"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1107rf"></script><script src="/assets/bgm-form.js?v=1106b3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1108L1"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1106wk"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1107ig"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1106of2"></script><script src="/assets/bgm-picks.js?v=1107rf"></script><script src="/assets/narration-pad.js?v=1108L2"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1110L7"></script><script src="/assets/bgm-form.js?v=1106b3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3308,7 +3308,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={}, gen=++ENG_GEN, ac=null, tm=0; try{ ac=new AbortController(); }catch(e){ ac=null; }
-  var ASSET_V='1107r5';   /* [MID17_NAME · MID17_ENGINE · MID17_CONSOLE] ritual-open 식중 영상 이름 · ritual-cue 58 → 129 · 식중 영상 디렉터 메모 */   // [ASSET_V] 위 주석 · [ONE_FLOW_1106] ritual-open · ritual-cue · bgm-picks · bgm-slots · bgm-bed · [B2_FIX_R1 · B2_FIX_R2] ritual-open · ritual-cue 를 바꿨다 · #1619 와 합침
+  var ASSET_V='1108L1';   /* [MID17_NAME · MID17_ENGINE · MID17_CONSOLE] ritual-open 식중 영상 이름 · ritual-cue 58 → 129 · 식중 영상 디렉터 메모 */   // [ASSET_V] 위 주석 · [ONE_FLOW_1106] ritual-open · ritual-cue · bgm-picks · bgm-slots · bgm-bed · [B2_FIX_R1 · B2_FIX_R2] ritual-open · ritual-cue 를 바꿨다 · #1619 와 합침
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,ac?{credentials:'same-origin',signal:ac.signal}:{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })), _to=new Promise(function(_ok,no){ tm=setTimeout(function(){ var _e5=new Error('engine'); _e5.meN=5; no(_e5); try{ if(ac) ac.abort(); }catch(e){} },ENG_TO_MS); });
@@ -4785,7 +4785,7 @@ function _lSteps(g,ks){
   var S0=S; S=JSON.parse(JSON.stringify(S0)); S.on=S.on||{}; off.forEach(function(k){ S.on[k]=1; });
   try{ return _lSteps0(g,ks); } finally { S=S0; }
 }
-var LS_GLASS={'toast-both-pour-b':1,'toast-toast':1,'toast-both-b':1};
+var LS_GLASS={'toast-toast':1};   /* [CAKE_FILES_OFF_1110] 107 · 76(케이크 «둘 다» 판 선창)은 지웠다 · 되살리기 금지 */
 /* ★[LISTEN_PACE_1031] 행동 줄 시간 표 — 그 줄의 큐 live 가 그 행동만의 시간이 아닐 때.
    tribute-in 의 live(160초)는 «부모님 앞으로 가서 인사말을 전함»까지라 걸어가는 줄에 쓰면 말하는 시간까지 붙는다 — 같은 걸음의 되돌아오기(tribute-out · 15초)를 쓴다.
    서약 «마지막 한 문장은 …»은 낭독 안의 한 줄(행동이 아니다) — 0(멈춤은 바닥 3초 · 시간 글 없음). 빈칸은 listen-pace 검사가 빨강으로 잡는다 */
@@ -4982,7 +4982,6 @@ function _lQuiet(k,c){
   if(k==='tribute'&&/^tribute-call/.test(sl)&&_inPr()&&!RitualOpen.crossTribute(S)) return '양가 부모님 모두께 인사해요 · 집에서는 양쪽 방향을 정해 두 번 다 해 보세요'+(RitualOpen.chipOf('tribute',S)==='none'?' · 말없이':'');   /* ★[PRACTICE_WALK_R2 4] «어느 쪽부터»가 미정이라 한쪽만 하고 끝내는 걸로 익힐 수 있었다 */
   if(k==='tribute'&&/^tribute-call/.test(sl)) return '두 분이 부모님께 인사해요'+(RitualOpen.chipOf('tribute',S)==='none'?' · 말없이':'');   /* ★[TRIB_HUG_LINE_1018 검토 131-4] 구호 뒤는 인사만 · 포옹은 256(«양가 부모님께서는, 두 사람을 꼭 안아 …») 뒤 줄 — 종전 «인사하고 안아 드려요»는 256 과 포옹이 두 번 · 방향이 반대였다 */
   if(k==='tribute'&&sl==='tribute-hug') return _inPr()?'두 분이 양가 부모님 모두와 차례로 안아요 · 부모님은 편한 자세로 계셔도 돼요':'부모님이 두 분을 안아 주세요 · 앉으신 채로도, 일어나셔도';   /* [PRACTICE_WALK_1101 11] */   /* [TRIB_HUG_LINE_1018] 엔진 live «양가 부모님이 두 분을 안아 주심(앉은 채로도 · 일어나셔도)»과 같은 사실 */   /* [TRIB_CALL_1014] 말 → 인사 → 포옹(HUG_WORDS_1013) */   /* ★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] «꽃을 건네고» 되살리지 말 것 · ★[HUG_WORDS_1013] 말로 인사 날은 말 → 인사 → 포옹(자료 FF 2-1 · S · G · T4 · O · 콘솔 이야기와 같은 차례) — 인사 · 포옹 줄은 사람 줄 뒤(_lSteps0) */   /* [STAGE_LINES] «말 없이»를 고르면 사람 줄이 없어 여는 말과 맺는 말 사이가 비었다 · 꽃은 늘 저희가([GOODS_STUDIO]) */
-  if(k==='cake'&&sl==='toast-both') return '두 분이 함께 케이크를 잘라요';   /* [STAGE_LINES] 나레이션 한 줄뿐이라 정작 자르는 장면이 화면에 없었다 */   // 나레이션 판 · 박수 판(-clap-a 뒤 박수) · 가족 낭독 판(마무리 뒤)
   if(k==='toast'&&sl==='toast-pour-family') return '양가 와인을 한 잔에 모아요';   // [POUR_BY_PICK 코워크 회신7 #872-1] 판 이름과 같은 말 — «양가 와인 한 병씩»을 골랐는데 «두 와인…»이면 «안 먹혔나?»로 읽힌다
   if(k==='toast'&&/^toast-pour-/.test(sl)) return '두 분이 고른 와인을 한 잔에 부어요';
   if(k==='_close'&&sl==='narr-close-bow') return '두 분이 하객께 목례 · 박수';

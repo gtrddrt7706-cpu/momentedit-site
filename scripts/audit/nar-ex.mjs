@@ -52,7 +52,7 @@ function run(mut) {
     want.forEach((w) => { const c = cues.find((q) => q.ex === w); if (!c) miss.push(`${k}#${n + 1}${JSON.stringify(x)} ${w}`); else if (c.text !== C.EXTRA[w] || c.file !== C.fileOf(w) || c.slug !== w.replace(/-ex\d$/, '')) wrong.push(w); });
     if (!want.length) miss.push(`${k}#${n + 1} 고른 예시에 소리가 없다`); })));
   T('③ 고르면 그 줄 소리 · 번호 · 글이 예시로 · 줄 slug 는 그대로(화면 · 콘솔 slug 판정)', !miss.length && !wrong.length, miss.concat(wrong).slice(0, 6).join(' | '));
-  const plain = C.build(C.norm(O.sampleS()), { mode: 'console' }).cues.filter((c) => c.ex || /-ex\d+$/.test(c.file || '') && !/^\d+_(guest-ex|narr-prevideo-in-ex)/.test(c.file || ''));
+  const plain = C.build(C.norm(O.sampleS()), { mode: 'console' }).cues.filter((c) => c.ex || /-ex\d+$/.test(c.file || '') && !/^\d+_(guest-ex|narr-prevideo-in-ex)/.test(c.file || '')).filter((c) => c.ex !== 'narr-welcome-in-face');   // [SEAM_WORD_1107 J06] 350 = 감사 인사 앞 «하객을 향해 서» 이음 판(예시 아님)
   T('③ 안 고르면 예시 소리가 한 줄도 없다(예시 1 = 지금 녹음)', !plain.length, plain.map((c) => c.file).join(' '));
   // ④ 맞는 날
   const S0 = O.sampleS(), noVow = Object.assign({}, S0, { on: Object.assign({}, S0.on) }); delete noVow.on.vow;

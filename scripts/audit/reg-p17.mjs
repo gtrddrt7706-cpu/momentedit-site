@@ -72,8 +72,9 @@ async function open(W, embed, init) {
 
 const ONLY = (process.env.ONLY || '').split(',').filter(Boolean), want = (id) => !ONLY.length || ONLY.indexOf(id) > -1;
 /* 멈춘 듣기를 만든다 — 감사 인사(또는 ks) 듣기를 열고 곡이 흐르면 멈춘다(멈춤 감시가 곡 · 자리를 적고 끈다) · 그 뒤 «음악 끄기» */
-const setup = async (ks, pickRow) => {
+const setup = async (ks, pickRow, narEx) => {
   const { ctx, f, errs } = await open(390, true);
+  if (narEx) await f.evaluate((nx) => { S.narEx = Object.assign({}, S.narEx || {}, nx); try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, narEx);   /* [SEAM_WORD_1107 J06 · CI 5개 1층 조건 맞춤] 이음말이 붙는 조합(b14 = 화촉 멘트 «뭉클» narEx.candle 1 · bridge-first 와 같은 조건) */
   await f.evaluate(() => { const i = STEPS.findIndex((x) => x.k === 'listen'); if (i > -1) { idx = i; render(); } });
   const r0 = await f.evaluate(async ({ ks, pickRow }) => { const BB = BgmBed._t, W = (ms) => new Promise((r) => setTimeout(r, ms)), on = () => !!(BB.BED.cur && BB.BED.cur.src && BB.BED.cur.want > -60);
     LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(ks, true); _lFull(); (LP.q || []).forEach((x) => { if (x.talk || x.talk2 || x.said || x.act || x.quiet) x.ms = 2500; });
@@ -117,7 +118,8 @@ try {
     console.log('T04 줄', r4.k, r4.slug, r4.dk); ok('T04 대조 — 의도적 무음 줄(맞절 · 목표 −60 이하)에서 «음악 켜기» 뒤 이어 들으면 무음 그대로', r0.pick > -1 && r4.k === 'matjeol' && r4.dk <= -60 && !r4.src && r4.g < 0.01, { r0: { pick: r0.pick, ks: r0.ks }, r4 });
     ok('C 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); } } catch (e) { ok('C 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })(),
   (async () => { try { if (want('D')) {
-    const { ctx, f, errs, r0 } = await setup(['entry', 'matjeol', 'welcome'], 'pre');
+    /* ★[SEAM_WORD_1107 J06 · 1층 · CI 5개 1층 조건 맞춤 11/10] 맞절 → 감사 인사의 b8 이음말은 빠졌다(350 이 감사 인사 첫 줄) — 같은 꼴의 이음말 b14(식전 영상 → 화촉)로 잰다 */
+    const { ctx, f, errs, r0 } = await setup(['prevideo', 'candle'], 'pre', { candle: 1 });
     const r6 = await f.evaluate(async () => { const BB = BgmBed._t, W = (ms) => new Promise((r) => setTimeout(r, ms)), st = LP.q[LP.i]; st.dk = -16; st.ldk = null;   /* 이음말이 말 아래 크기(−16)인 판(b12 · b14 꼴) */
       BgmBed.lpShow(st); const hold = !!BB.LPB.hold; await W(600); LP.paused = false; BgmBed.lpResume(); await W(1200); const v = BB.BED.cur; return { slug: st.slug, pre: !!st._pre, hold, src: !!(v && v.src && v.want > -60), f: v && v.f, g: v && v.g ? Math.round(v.g.gain.value * 1000) / 1000 : 0 }; });
     ok('T06 다음 순간 몫 이음말(_pre)에서 보류 뒤 이어 듣기 — 새 곡을 한 줄 일찍 걸지 않는다', r0.pick > -1 && r6.pre && r6.hold && !r6.src && r6.g < 0.01, { r0: { pick: r0.pick }, r6 });

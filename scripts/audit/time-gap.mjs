@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ★★[TIME_GAP_1102 2026-11-02 사장님 «나레이션 사이 턴 — 넘어갈 때가 너무 빨라» · «이벤트마다 전부»] ② 이 순간 전체 듣기 — 이벤트 줄 사이 쉼
-   T1 하객 맞이 — 시각이 1분 이상 떨어진 줄 사이 «말끝 → 말머리» 6초(쉼 = 6초 − 앞뒤 무음 · [MIN_GAP_PAD_AU01]) · 그 동안 곡 −8 · 다음 줄 시작 때 −16 · «… 약 n분 뒤» 줄 = 실제 간격 · 쉼 동안만 진하게
+   T1 하객 맞이 — 시각이 1분 이상 떨어진 줄 사이 «말끝 → 말머리» 6초(쉼 = 6초 − 앞뒤 무음 · [MIN_GAP_PAD_AU01]) · 그 동안 곡 −8 · 다음 줄 시작 때 −15 · «… 약 n분 뒤» 줄 = 실제 간격 · 쉼 동안만 진하게
    T2 같은 순간 안 제목이 바뀌는 자리(시작할 때 → 끝나면 · 소개 → 영상이 끝나면) 쉼 ≥ 2.3초 · 음악은 −12 까지(정적이면 정적 그대로)
    T3 «이어서»는 같은 이벤트 — 2.3초 쉼을 붙이지 않는다
    BP_OP · BP_BED = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
@@ -88,7 +88,7 @@ try {
     const mid = mg.map((g) => Math.max(...inG(r1, g, 1200, g.gap - 1000).map((x) => x.want))), at = mg.map((g) => { const z = inG(r1, g, g.gap + 150, g.gap + 450); return z.length ? z[z.length - 1].want : null; });
     const lit = mg.map((g) => inG(r1, g, 300, g.gap - 300).every((x) => x.now === 1));
     ok(`${W} T1 하객 맞이 — 시각 간격 쉼 ${mg.length}곳 · 말끝 → 말머리 6초(앞뒤 무음을 한 번 뺀 쉼 4.5 ~ 6초) [MIN_GAP_PAD_AU01]`, mg.length >= 4 && mg.length === want.length && mg.every((g) => g.gap >= 4500 && g.gap <= 6000), { mg: mg.map((g) => [g.plab, g.nlab, g.gap]), want });
-    ok(`${W} T1 쉼 동안 곡 −8 · 다음 줄 시작 때 −16`, mg.every((g, i) => !g.src || (at[i] != null && at[i] <= -60) || (mid[i] >= -8.6 && at[i] != null && at[i] <= -15.4)) && mg.filter((g, i) => g.src && at[i] != null && at[i] > -60).length >= 2, { mid, at });   /* [MEANING_R1_1102 1] 개식사 앞 쉼은 «예식 시작» 경계 — 하객 맞이 곡이 내려가 정적(−90) */
+    ok(`${W} T1 쉼 동안 곡 −8 · 다음 줄 시작 때 −15`, mg.every((g, i) => !g.src || (at[i] != null && at[i] <= -60) || (mid[i] >= -8.6 && at[i] != null && at[i] <= -14.4)) && mg.filter((g, i) => g.src && at[i] != null && at[i] > -60).length >= 2, { mid, at });   /* [MEANING_R1_1102 1] 개식사 앞 쉼은 «예식 시작» 경계 — 하객 맞이 곡이 내려가 정적(−90) */
     ok(`${W} T1 «… 약 n분 뒤» 줄 = 실제 간격(${want.join(' · ')}) · 쉼 동안만 진하게`, rows.join('|') === want.join('|') && lit.every(Boolean), { lit, rows });
     /* T2 · T3 화촉 · 식전 영상 */
     await go(f, 'candle'); await hookGaps(f); await f.evaluate(() => lsPlay('candle')); await wait(f, 30000); const r2 = await take(f);

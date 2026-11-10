@@ -1,0 +1,32 @@
+{
+ "_왜": "[LAYER_PLAN_1108 · 4층 · 대본 11/09 00:35] ①자리별 쉼 = _layers/쉼자리표_대본값_1108.tsv «새 목표»(들리는 무음 −30 dB · ±0.03초 · 빈 칸 그대로) ②구호 안 부르는 말 뒤 쉼 0.38초 — 원래 틈(−30 dB · 0.12초 넘음)이 있는 자리만 · 입장 구호(«신랑 신부, 입장!» keepGap 1.83)는 그대로 · ③seatAdj · callAdj = mp3 에서 다시 잰 뒤 한 번 바로잡은 값(초)",
+ "call": 0.38,
+ "calls": [
+  "132_narr-entry-bow-ex2#3",
+  "138_narr-candle-bow#0",
+  "138_narr-candle-bow#1",
+  "139_narr-candle-bow-four#0",
+  "143_tribute-call#0",
+  "145_tribute-call-say#0",
+  "146_narr-candle-bow-fathers#0",
+  "146_narr-candle-bow-fathers#1",
+  "160_narr-entry-bow#2",
+  "161_narr-entry-bow-ex3#4",
+  "162_narr-entry-bow-ex4#3",
+  "183_tribute-call-ex3#0",
+  "238_tribute-call-ex2#0",
+  "239_tribute-call-ex4#1",
+  "240_tribute-call-say-ex2#1",
+  "241_tribute-call-say-ex3#1",
+  "242_tribute-call-say-ex4#0",
+  "252_narr-entry-bow-ex5#2",
+  "258_narr-entry-bow-ex6#2"
+ ],
+ "seatAdj": {
+  "91_narr-candle-in-mothers-ex2#1": -0.04
+ },
+ "callAdj": {
+  "138_narr-candle-bow#0": 0.05,
+  "146_narr-candle-bow-fathers#1": 0.04
+ }
+}

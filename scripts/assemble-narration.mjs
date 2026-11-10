@@ -37,6 +37,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { selectClips, selectSents } from './clip-select.mjs';
+import { quietRuns as _qRuns, pcm as _pcm } from './lib/cps.mjs';   // [LAYER_PLAN_1108] 4층 자리별 쉼 — 들리는 무음(−30 dB)
 
 const root = path.join(path.dirname(new URL(import.meta.url).pathname), '..');
 const MAN = path.join(root, 'docs/plans/식순연구/타입캐스트/manifest.json');
@@ -49,6 +50,19 @@ const CLIPS = arg('--clip', '');                  // 'entry-' 또는 'entry-D,na
 const SENTS = arg('--sent', '');                  // '신랑 신부, 입장!' — 이 문장 자리만 (문장 재더빙 · 구분자는 |)
 const PATCH = arg('--patch', '');                 // 새로 받은 그 문장 wav가 있는 폴더
 const OUT_OVERRIDE = arg('--out', '');            // 주면 clip.dir을 무시하고 전부 여기로
+/* ★★[LAYER_PLAN_1108] 층 번호 — 층설정표(assets/audio/_src/_layers/층설정표_1108.json)의 그 층까지 누적 적용 · scripts/build-layers.mjs 가 넘긴다
+   0층 = 이 조립기 그대로(main 소리 · 11/08 238클립 길이 · 크기 · 파형 같음) · 1층 = 내용(창고 · 162 A3 는 build-layers 가 깔 때) · 2층부터 여기서 처리 */
+const LAYER = arg('--layer', '') === '' ? null : Number(arg('--layer'));
+/* [LAYER_PLAN_1108 · 대본 21:55] 클립 크기 맞춤 — 짧은 클립은 loudnorm 이 말소리를 낮게 잡는다 · 'key=dB,…' 만큼 loudnorm 뒤에 올리고 −1.5 dBFS 리미터로 최고를 지킨다(3초 미만은 loudnorm 이 목표 I 를 못 쓴다 — 실측 그대로였다) */
+/* [LAYER_PLAN_1108 · 대본 22:55] 문장 사이 쉼 맞춤 — 'key#i=초,…' 를 i 번째 문장 뒤 쉼에 더한다(층이 바뀌어도 들리는 쉼은 그대로 · loudnorm 이 말끝 크기를 바꿔 −30 dB 쉼이 흔들린 자리) */
+const GAP_ADJ = Object.fromEntries(String(arg('--gap-adj', '') || '').split(',').filter(Boolean).map((x) => { const [k, v] = x.split('='); return [k, Number(v) || 0]; }));
+/* [LAYER_PLAN_1108 · 4층 · 대본 11/09 00:35] 자리별 쉼 — 'key#자리=초,…' · 자리 n = n 번째 문장 뒤 · 목표는 «들리는 무음»(앞 문장 꼬리 + 쉼 + 뒤 문장 머리 · −30 dB) · 조립 기록(SEAT_LOG)으로 mp3 에서 다시 잰다 */
+const SEAT_T = Object.fromEntries(String(arg('--seat-targets', '') || '').split(',').filter(Boolean).map((x) => { const [k, v] = x.split('='); return [k, Number(v)]; }));
+const SEAT_LOG = process.env.SEAT_LOG || '';
+/* [LAYER_PLAN_1108 · 5층] 구절 쉼 0.43초 넘는 자리 — 'key#i@초,…'(깔린 문장 시각) · 그 무음은 안쪽 상한(SENT_CAP)으로 깎지 않는다 */
+const KEEP_Q = String(arg('--keep-quiet', '') || '').split(',').filter(Boolean).map((x) => { const [k, t] = x.split('@'); return { k, t: Number(t) }; });
+const _edge = (f) => { const { runs, dur } = _qRuns(_pcm(f), -30, 0.01); const h = runs.find((r) => r.head), t = runs.find((r) => r.tail); return { head: h ? h.b - h.a : 0, tail: t ? t.b - t.a : 0, dur }; };
+const LOUD_ADJ = Object.fromEntries(String(arg('--loud-adj', '') || '').split(',').filter(Boolean).map((x) => { const [k, v] = x.split('='); return [k, Number(v) || 0]; }));
 
 if (!fs.existsSync(MAN)) { console.error('✗ manifest.json이 없습니다. node scripts/build-typecast-import.mjs 먼저 돌리세요.'); process.exit(1); }
 const man = JSON.parse(fs.readFileSync(MAN, 'utf8'));
@@ -583,7 +597,9 @@ const keepOf = (f) => {
   const _joined = /JOINED_/.test(path.basename(f));
   // 안쪽 무음은 가운데를 도려낸다 — 양끝 절반씩은 남겨 말끝과 들숨을 살린다
   const cut = [];
+  const _kb = path.basename(f).replace(/_JOINED_/, '').replace(/\.[^.]+$/, '').match(/^\d{4}_(\d{2,3}_.+)_(\d+)$/), _kq = _kb ? KEEP_Q.filter((q) => q.k === _kb[1] + '#' + _kb[2]).map((q) => q.t) : [];   // [LAYER_PLAN_1108 · 5층] KEEP_Q
   for (const [s0, e0] of (_joined ? [] : seg)) {
+    if (_kq.some((t) => t >= s0 - 0.01 && t <= e0 + 0.01)) continue;
     const s1 = Math.max(s0, a), e1 = Math.min(e0, b);
     if (e1 - s1 <= SENT_CAP + 0.02) continue;
     cut.push([s1 + SENT_CAP / 2, e1 - SENT_CAP / 2]);
@@ -638,13 +654,18 @@ for (const w of work) {
     const headSec = +(c.head + (c.sents[0]?.before || 0)).toFixed(3);          // 클립 가장자리 — 차감 없음
     const tailSec = +(c.tail + (c.sents[c.sents.length - 1]?.after || 0)).toFixed(3);
     const seq = [sil(headSec)];
+    let _t = headSec;   // [LAYER_PLAN_1108] 조립 시간선 — 문장 · 자리의 위치를 SEAT_LOG 에 남긴다(loudnorm 은 시간을 옮기지 않는다)
     for (let i = 0; i < norms.length; i++) {
       seq.push(norms[i]);
+      const _d = SEAT_LOG ? dur(norms[i]) : 0; if (SEAT_LOG) fs.appendFileSync(SEAT_LOG, JSON.stringify({ key: `${c.no}_${c.file}`, s: i, a: +_t.toFixed(4), b: +(_t + _d).toFixed(4) }) + '\n'); _t += _d;
       if (i + 1 >= norms.length) continue;
       const raw = c.sents[i].after + c.sents[i + 1].before;
-      const g = GAP_NET(raw);
+      let g = Math.max(0, GAP_NET(raw) + (GAP_ADJ[`${c.no}_${c.file}#${i}`] || 0));   // [LAYER_PLAN_1108] GAP_ADJ
+      const _st = SEAT_T[`${c.no}_${c.file}#${i + 1}`];
+      if (_st != null && !Number.isNaN(_st)) { const ea = _edge(norms[i]), eb = _edge(norms[i + 1]); g = Math.max(0, +(_st - ea.tail - eb.head).toFixed(4)); }   // [LAYER_PLAN_1108] SEAT_T — 들리는 무음 = 목표
       trimStat.net += raw - g;
-      if (g > 0) seq.push(sil(g));
+      if (SEAT_LOG) fs.appendFileSync(SEAT_LOG, JSON.stringify({ key: `${c.no}_${c.file}`, seat: i + 1, t0: +_t.toFixed(4), t1: +(_t + g).toFixed(4), target: _st ?? null }) + '\n');
+      if (g > 0) { seq.push(sil(g)); _t += g; }
     }
     seq.push(sil(tailSec));
 
@@ -660,7 +681,7 @@ for (const w of work) {
     outDirs.add(outDir);
     const dst = path.join(outDir, `${c.no}_${c.file}.mp3`);
     execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', joined,
-      '-af', `loudnorm=I=-16:TP=-1.5:LRA=11,afade=t=in:st=0:d=0.015,afade=t=out:st=${Math.max(0, total - 0.04).toFixed(3)}:d=0.04`,
+      '-af', `loudnorm=I=-16:TP=-1.5:LRA=11,${LOUD_ADJ[`${c.no}_${c.file}`] ? `volume=${LOUD_ADJ[`${c.no}_${c.file}`]}dB,alimiter=limit=0.8414:level=disabled:attack=3:release=40,` : ''}afade=t=in:st=0:d=0.015,afade=t=out:st=${Math.max(0, total - 0.04).toFixed(3)}:d=0.04`,   // [LAYER_PLAN_1108] LOUD_ADJ
       '-ar', '48000', '-b:a', '192k', dst]);
     made++;
     _recWritten.push({ dir: outDir, key: `${c.no}_${c.file}`, text: c.sents.map((s) => s.text).join(' ') });
@@ -697,7 +718,7 @@ if (_recWritten.length) {
     for (const w of ws) {
       const cl = man.clips.find((c) => String(c.no).padStart(2, '0') + '_' + c.file === w.key);
       const v = cl && ((man.voice || {})[String(cl.role).split('|')[0]]);
-      j.clips[w.key] = v ? { text: w.text, voice: v } : w.text;
+      j.clips[w.key] = v ? { text: w.text, voice: v, ...(LAYER != null ? { layer: LAYER } : {}) } : w.text;   // [LAYER_PLAN_1108] 몇 층으로 만든 소리인지
     }
     /* ★[WHEN_KEEP_MARKS 2026-10-09] 옛 «_언제» 의 [표식]은 이어 붙인다 — merge-guard 가 이 줄의 표식(NAR_1007 등)을 chk 한다.
        덮어쓰면 녹음 하나 받을 때마다 가드가 «역전 의심»으로 붉는다(2026-10-09 #1160 에서 실제로 붉었다). */

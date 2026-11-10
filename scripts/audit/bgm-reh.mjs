@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ★★[BGM_CONSOLE2_1023 REHEARSAL · DOOR_LEAD 2026-10-23 BGM 섹션 라운드 2 PR 3] 리허설 칸 · 문 신호
-   ① 설정 «리허설» — 다섯 값(말 아래 −16 · 음악이 주인공 −8 · 낭독 아래 −20 · 축배 크기 0 · 축배 오름 0.6초) · 지금 프로필 «기본값(엔진)»
+   ① 설정 «리허설» — 다섯 값(말 아래 −15 · 음악이 주인공 −8 · 낭독 아래 −20 · 축배 크기 0 · 축배 오름 0.6초) · 지금 프로필 «기본값(엔진)»
    ② 장소 · 출력 이름으로 저장 → 다시 열어도 그 프로필 · 그 값(이 기기)
    ③ 시작하면 그 값으로 큐를 만든다 — 서약 여는 말 크기 = 저장한 «말 아래» · 축배 GO 오름 = 저장한 축배 크기 · 오름 시간 · 위쪽 줄에 «리허설 ‹이름›»
    ④ 고객 미리 듣기는 엔진 기본값 그대로
@@ -37,7 +37,7 @@ try {
   let pg = await page(ctx, q(SOF('record')));
   if (!(await pg.evaluate(() => !!document.getElementById('rehBox') && !!window.__bgmGo))) { ok('콘솔에 «리허설» 칸이 있다', false, '없음 — 옛 판'); throw new Error('hook'); }
   const A = await vals(pg);
-  ok('① 리허설 일곱 값 = 엔진 기본(−16 · −8 · −20 · 0 · 0.6초 · 노래 곡 −6 · 음악 전체 −3.1 [BGM_FIX_1030]) · 지금 프로필 «기본값(엔진)»', JSON.stringify(A.o) === JSON.stringify({ duckSpeech: '-16', duckMusic: '-8', duckRead: '-20', toastLevel: '0', toastUpMs: '0.6', vocalExtra: '-6', musicTrim: '-3.1' }) && A.now === '기본값(엔진)', A);
+  ok('① 리허설 일곱 값 = 엔진 기본(−15 · −8 · −20 · 0 · 0.6초 · 노래 곡 −6 · 음악 전체 −3.1 [BGM_FIX_1030]) · 지금 프로필 «기본값(엔진)»', JSON.stringify(A.o) === JSON.stringify({ duckSpeech: '-15', duckMusic: '-8', duckRead: '-20', toastLevel: '0', toastUpMs: '0.6', vocalExtra: '-6', musicTrim: '-3.1' }) && A.now === '기본값(엔진)', A);
   await pg.fill('[data-reh="duckSpeech"]', '-18'); await pg.fill('[data-reh="toastLevel"]', '-3'); await pg.fill('[data-reh="toastUpMs"]', '0.9'); await pg.fill('#rehName', '스튜디오 PA'); await pg.click('#rehSave'); await pg.waitForTimeout(200); await pg.close();
   pg = await page(ctx, q(SOF('record')));
   const B = await vals(pg);
@@ -54,7 +54,7 @@ try {
   /* ④ 미리 듣기 */
   const pv = await page(ctx, q(SOF('record')) + '&mode=preview'); await pv.click('#go'); await pv.waitForTimeout(600);
   const pd = await pv.evaluate(() => { const R0 = window.__bgmR(); const c = R0.find((x) => x.slug === 'narr-vow-in'); return c ? c.duck : null; });
-  ok('④ 고객 미리 듣기는 엔진 기본값 그대로(서약 여는 말 −16)', pd === C.PARAM.duckSpeech, { pd });
+  ok('④ 고객 미리 듣기는 엔진 기본값 그대로(서약 여는 말 −15)', pd === C.PARAM.duckSpeech, { pd });
   await pv.close(); await ctx.close();
   /* ⑤ 문 열기 시작 */
   { const FID = 'DOORSONG0123456789abc', SONG = wav(60, 300).toString('base64');

@@ -1,0 +1,230 @@
+{
+ "_왜": "[LAYER_PLAN_1108 · 6층] 5층 mp3 에서 잰 문장 몸 크기 − 클립 가운데값(d) · ±1.5 dB 넘는 문장만 gain = 차이의 절반 반대로(최대 ±1.5) · loudnorm 전 깔린 문장에 · 만든 법 scripts/build-loud6.mjs · ★[REC_FIX3_1110 11/10] 새 녹음 3클립(22 · 149 · 150)만 5층에서 다시 잼(같은 자 · 다른 클립 줄은 그대로)",
+ "gains": {
+  "04_guest-4-1min#0": {
+   "d": 2.81,
+   "gain": -1.41,
+   "med": -15.09
+  },
+  "04_guest-4-1min#1": {
+   "d": -1.9,
+   "gain": 0.95,
+   "med": -15.09
+  },
+  "45_end-1a-farewell#1": {
+   "d": -1.52,
+   "gain": 0.76,
+   "med": -14.77
+  },
+  "110_end-1c-thanks-nomeal#3": {
+   "d": -1.59,
+   "gain": 0.8,
+   "med": -15.09
+  },
+  "89_guest-4-1min-pre#0": {
+   "d": 2.89,
+   "gain": -1.45,
+   "med": -15.17
+  },
+  "89_guest-4-1min-pre#1": {
+   "d": -1.87,
+   "gain": 0.94,
+   "med": -15.17
+  },
+  "314_guest-w-5m-online#0": {
+   "d": 2.45,
+   "gain": -1.23,
+   "med": -13.96
+  },
+  "314_guest-w-5m-online#1": {
+   "d": -2.45,
+   "gain": 1.23,
+   "med": -13.96
+  },
+  "317_after-photo#0": {
+   "d": 1.76,
+   "gain": -0.88,
+   "med": -15.02
+  },
+  "317_after-photo#2": {
+   "d": -1.65,
+   "gain": 0.82,
+   "med": -15.02
+  },
+  "324_after-photo-meal#2": {
+   "d": -2.36,
+   "gain": 1.18,
+   "med": -14.31
+  },
+  "319_after-photo-cafe#0": {
+   "d": 1.57,
+   "gain": -0.79,
+   "med": -14.83
+  },
+  "319_after-photo-cafe#2": {
+   "d": -1.84,
+   "gain": 0.92,
+   "med": -14.83
+  },
+  "349_guest-w-10m-n10-short-meal#0": {
+   "d": 1.54,
+   "gain": -0.77,
+   "med": -14.78
+  },
+  "356_guest-w5-meal#0": {
+   "d": 1.91,
+   "gain": -0.95,
+   "med": -13.43
+  },
+  "356_guest-w5-meal#1": {
+   "d": -1.91,
+   "gain": 0.95,
+   "med": -13.43
+  },
+  "357_guest-w5-meal-online#0": {
+   "d": 3.76,
+   "gain": -1.5,
+   "med": -15.28
+  },
+  "08_entry-D#3": {
+   "d": -2.35,
+   "gain": 1.18,
+   "med": -15.24
+  },
+  "08_entry-D#5": {
+   "d": -1.64,
+   "gain": 0.82,
+   "med": -15.24
+  },
+  "13_narr-vow-in#1": {
+   "d": -1.86,
+   "gain": 0.93,
+   "med": -15.12
+  },
+  "108_narr-close-bow#2": {
+   "d": -1.58,
+   "gain": 0.79,
+   "med": -15.66
+  },
+  "151_narr-candle-in-mothers#1": {
+   "d": 1.72,
+   "gain": -0.86,
+   "med": -15.92
+  },
+  "127_narr-vow-in-b#1": {
+   "d": -1.86,
+   "gain": 0.93,
+   "med": -15.12
+  },
+  "127_narr-vow-in-b#3": {
+   "d": 2.04,
+   "gain": -1.02,
+   "med": -15.12
+  },
+  "138_narr-candle-bow#0": {
+   "d": 1.54,
+   "gain": -0.77,
+   "med": -15.63
+  },
+  "146_narr-candle-bow-fathers#0": {
+   "d": 2.4,
+   "gain": -1.2,
+   "med": -15.73
+  },
+  "147_narr-candle-bow-others#1": {
+   "d": 1.6,
+   "gain": -0.8,
+   "med": -15.1
+  },
+  "150_narr-open-ex4#0": {
+   "d": 2.07,
+   "gain": -1.03,
+   "med": -15.29
+  },
+  "91_narr-candle-in-mothers-ex2#2": {
+   "d": -1.95,
+   "gain": 0.97,
+   "med": -15.83
+  },
+  "159_narr-candle-in-others-ex3#3": {
+   "d": -1.62,
+   "gain": 0.81,
+   "med": -15.26
+  },
+  "224_narr-candle-in-others-ex4#1": {
+   "d": 1.63,
+   "gain": -0.81,
+   "med": -16.11
+  },
+  "132_narr-entry-bow-ex2#3": {
+   "d": 2.48,
+   "gain": -1.24,
+   "med": -15.28
+  },
+  "161_narr-entry-bow-ex3#4": {
+   "d": -1.78,
+   "gain": 0.89,
+   "med": -14.95
+  },
+  "163_narr-vow-in-ex2#1": {
+   "d": -1.54,
+   "gain": 0.77,
+   "med": -14.97
+  },
+  "164_narr-vow-in-ex3#1": {
+   "d": -1.68,
+   "gain": 0.84,
+   "med": -15.56
+  },
+  "165_narr-vow-in-ex4#1": {
+   "d": -2.15,
+   "gain": 1.07,
+   "med": -14.96
+  },
+  "166_narr-vow-in-b-ex2#1": {
+   "d": -1.54,
+   "gain": 0.77,
+   "med": -14.97
+  },
+  "167_narr-vow-in-b-ex3#1": {
+   "d": -1.68,
+   "gain": 0.84,
+   "med": -15.56
+  },
+  "168_narr-vow-in-b-ex4#1": {
+   "d": -2.13,
+   "gain": 1.06,
+   "med": -14.97
+  },
+  "186_narr-close-bow-ex3#1": {
+   "d": 2.02,
+   "gain": -1.01,
+   "med": -15.6
+  },
+  "186_narr-close-bow-ex3#3": {
+   "d": -1.6,
+   "gain": 0.8,
+   "med": -15.6
+  },
+  "207_toast-toast-ex4#0": {
+   "d": 1.69,
+   "gain": -0.84,
+   "med": -15.26
+  },
+  "207_toast-toast-ex4#1": {
+   "d": -1.69,
+   "gain": 0.84,
+   "med": -15.26
+  },
+  "341_narr-closing-mealnr-nt-nc#0": {
+   "d": 2.12,
+   "gain": -1.06,
+   "med": -15.11
+  },
+  "162_narr-entry-bow-ex4#3": {
+   "d": -1.69,
+   "gain": 0.84,
+   "med": -14.86
+  }
+ }
+}

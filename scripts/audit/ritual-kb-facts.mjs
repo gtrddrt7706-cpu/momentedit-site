@@ -56,7 +56,7 @@ function checkKB(full, lite, tag) {
   return bad;
 }
 { const b = checkKB(KB.full, KB.lite); ok('① · ② 식순 지식 full · lite — 공통 사실 ' + want.length + '줄이 엔진 값 그대로 · 옛 문장 0 · 내부 표식 0 [B3_FACTS · B3_Q21]', !b.length, b.join(' / ')); }
-ok('Q05 하객 안내를 끈 예식도 사진 올리기 안내가 같은 시점에 나간다(PHOTO_ALWAYS_NI02)', offGuide.join() === photo.join() && photo.length >= 2, offGuide.join() + ' vs ' + photo.join());
+ok('Q05 하객 안내를 끈 예식도 사진 올리기 안내가 같은 시점에 나간다(PHOTO_ALWAYS_NI02)', offGuide.join() === photo.join() && photo.length >= 1 /* ★[W5M_FIX_1107] 식사 없는 날 5분 전은 «시작 오 분 전입니다»만(사진 올리기는 닫는 인사가 말한다) — 모든 판에 같이 나가는 시점은 입장 때 하나 · 옛 «2곳 이상» 기대 은퇴 */, offGuide.join() + ' vs ' + photo.join());
 ok('Q06 마무리 끝 문장에 모으기 · 시선 명령이 없다', !/모여|주목|앞으로 나와|바라봐/.test(clLast), clLast);
 ok('KB 크기 — full ≤ 18,181자 · lite ≤ 5,454자(check-ritual-mirror 캡)', KB.full.length <= 18181 && KB.lite.length <= 5454, KB.full.length + ' / ' + KB.lite.length);
 // 깨 보기 — 옛 문장을 되넣은 판 · 예시 서약을 바꾼 판은 빨강이어야 한다
