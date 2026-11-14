@@ -23198,6 +23198,20 @@ chk "live: o.live, note: o.note };" assets/ritual-cue.js 1          # 두 줄 �
 chk 'MID17_CONSOLE' console.html 1                                   # 재생 순서 기록(window.__playLog · 점검이 켰을 때만)
 chk 'MID17_CONSOLE' scripts/audit/mid17-console.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/mid17-console.mjs >/dev/null 2>&1; _m17c=$?; node scripts/audit/mid17-console.mjs --selftest >/dev/null 2>&1; _m17cs=$?; if [ "$_m17c" = 2 ]; then echo 'ok mid17-console — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_m17c" != 0 ] || [ "$_m17cs" != 0 ]; then echo "REVERT? mid17-console: 식중 영상 당일 콘솔(메모 · 재생 순서 · 재생 안 됨 · 디지털 같음)이 어긋났습니다 ($_m17c/$_m17cs) — node scripts/audit/mid17-console.mjs"; fail=1; else echo 'ok mid17-console'; fi; fi
+# ★★[MIDV_DIM_OWNER_1115 2026-11-15 사장님 결정 «식중 영상도 불 낮추기»(대본 추천 · 까닭: 창빛이 강한 홀이라 화면이 잘 보이게)] 식중 영상도 식전 영상처럼 불을 낮추고 튼다 —
+#   디렉터 메모 끝 «… · 상영 중 배경음은 끈다 · 불을 낮춘다»(식전 영상 메모와 같은 꼴 · 영상 사람 순간을 든 큐에) · 고객 글은 식전 영상이 «불을 낮추고»를 말하는 자리와 같은 둘(장면 설명 how · ① 미리 보기 창)에만 ·
+#   같은 화면 fx · 장면(LIVE)에는 넣지 않는다(PV_FX_TRIM_R7_1016 · R2_PV_SCENE_1014 와 같은 까닭) · 큐 · 시간(gapMs · fire)은 그대로 · 실행 검사는 위 mid17-console(메모 끝 · 콘솔 힌트 칸 · 고객 미리 듣기)
+chk 'MIDV_DIM_OWNER_1115' assets/ritual-cue.js 2
+chk "소개 말이 끝나면 영상을 튼다 · 상영 중 배경음은 끈다 · 불을 낮춘다' : ''," assets/ritual-cue.js 1   # 식중 영상 디렉터 메모 끝
+nochk '식중은 사장님 결정 전' assets/ritual-cue.js   # 옛 주석 «불 낮추기는 식전 영상만(…)» — 되살리지 말 것
+nochk "상영 중 배경음은 끈다' : ''," assets/ritual-cue.js   # 옛 메모 끝(«불을 낮춘다» 없음) — 되살리지 말 것
+chk 'MIDV_DIM_OWNER_1115' assets/ritual-story.js 2
+chk "how: '마음의 순간 사이에 불을 낮추고 두 분이 준비한 영상이 흘러요(10분 안 · 길이는 두 분이 정해요).'," assets/ritual-story.js 1   # 고객 미리 듣기 블록 설명
+nochk "how: '마음의 순간 사이에 두 분이 준비한 영상이 흘러요" assets/ritual-story.js   # 옛 글 — 되살리지 말 것
+chk 'MIDV_DIM_OWNER_1115' order-preview.html 2
+chk "midvid:'불을 낮추고 두 분이 준비한 영상을 함께 봐요. 영상을 보는 하객들의 얼굴을 사진으로 남겨요.'," order-preview.html 1   # ① 미리 보기 창
+nochk "midvid:'두 분이 준비한 영상을 함께 봐요." order-preview.html   # 옛 글 — 되살리지 말 것
+chk 'MIDV_DIM_OWNER_1115' scripts/audit/mid17-console.mjs 5
 # ★[FIT_BEFORE_ACCT_1107] 닫는 멘트 · 이음새 맞추기는 계정 확인(ACCT_KEYS) 앞 — 뒤로 가면 계정 확인 전 화면에서 칩 ≠ 글(close-seam 화면이 잰다)
 chk 'FIT_BEFORE_ACCT_1107' order-preview.html 1
 
