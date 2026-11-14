@@ -23406,3 +23406,7 @@ chk 'BACK_DROP_OPEN_1115' scripts/audit/console-r2-1115.mjs 3
 chk 'LIVE_DOWN_MS_1115' console.html 1
 chk "_lv < duckWant - 0.5) ? PARAM.fadeDownMs : PARAM.fadeUpMs); segLive(c); duckTo(_lv, _lms); }" console.html 1
 chk 'LIVE_DOWN_MS_1115' scripts/audit/console-r2-1115.mjs 3
+# ★★[HEARD_AUDIBLE_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 기존 07 확장] 당일 콘솔 — 들린 기록(HEARD · REPEAT_FIX_1107 ①)은 음악만 멈춤 · 전체 볼륨 0 · 실효 출력 −60 dB 아래 동안 쌓지 않는다 · 검사 console-r2-1115 C
+chk 'HEARD_AUDIBLE_1115' console.html 1
+chk "duckWant <= -60) && bedHeardOn()) { var _h = HEARD" console.html 1
+chk 'HEARD_AUDIBLE_1115' scripts/audit/console-r2-1115.mjs 3
