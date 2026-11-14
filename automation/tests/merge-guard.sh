@@ -11555,6 +11555,20 @@ chk '61e73eebd34a845df0bfef463eb0d31ed4eab581' .claude/skills/impeccable/SOURCE.
 nochk '23행의 폴백' .claude/skills/impeccable/SKILL.md   # 행 번호는 판마다 바뀐다 — «Launcher unavailable» 문단으로 가리킨다
 chk 'EXC_IMP_MAINT' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
 chk '누가(11/14 · impeccable 4.9.1)' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+# ★[SKILLS_UPDATE_1114 2026-11-14] web-quality-skills 여섯(addyosmani · upstream afa8da9 · MIT)을 10/11 방식으로 넣었다 — 점검용 · «10/11 의 다섯» 뒤.
+#   여섯 다 범용 · Lighthouse · 구글 기준이라 SKILL.md 끝 [WQ_LOCAL] 이 momentedit-design · EXCEPTIONS 를 먼저 가리킨다(목록까지만 · 문구 · 메타 · 기능 코드 불변).
+#   [WQ_LOCAL] 이 사라지면(다시 받으며 덮어쓰면) seo 스킬이 제목 · 설명 · 스키마를 고치자고 한다 — 금지사항 3 · [EXC_WQ_GOOGLE].
+chk 'SKILLS_UPDATE_1114' CLAUDE.md 1
+chk 'SKILLS_UPDATE_1114' docs/rules/디자인.md 1
+chk 'WQ_LOCAL' .claude/skills/accessibility/SKILL.md 1
+chk 'WQ_LOCAL' .claude/skills/best-practices/SKILL.md 1
+chk 'WQ_LOCAL' .claude/skills/core-web-vitals/SKILL.md 1
+chk 'WQ_LOCAL' .claude/skills/performance/SKILL.md 1
+chk 'WQ_LOCAL' .claude/skills/seo/SKILL.md 1
+chk 'WQ_LOCAL' .claude/skills/web-quality-audit/SKILL.md 1
+chk 'EXC_WQ_GOOGLE' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+chk 'MIT License' .claude/skills/seo/LICENSE 1
+chk 'afa8da942115f2961fdbfa80807ea0b232ff6c00' .claude/skills/web-quality-audit/SOURCE.md 1
 chk '라이선스 파일이 없었다' .claude/skills/frontend-design/SOURCE.md 1
 # [SKILL_404_BODY] curl -o 는 404 여도 본문(「404: Not Found」 14바이트)을 파일로 쓴다 — frontend-design/LICENSE 가 그렇게
 #   «라이선스 파일»로 커밋될 뻔했다(2026-09-25 · 커밋 직후 크기 14 로 발견). 받은 파일 어디에도 그 본문이 있으면 안 된다.

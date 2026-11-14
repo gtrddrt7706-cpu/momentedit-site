@@ -1,7 +1,8 @@
 # MOMENTEDIT_EXCEPTIONS — 새 스킬이 권하지만 이 사이트에선 틀린 것
 
 `impeccable` · `web-design-guidelines` · `frontend-design`(9/25)과 `hallmark` · `emil-design-eng` · `review-animations` ·
-`mobile-native` · `break-ui`(10/11 · `[SKILLS_VENDOR_1011]`)는 **범용**이다. 이 사이트를 모른다.
+`mobile-native` · `break-ui`(10/11 · `[SKILLS_VENDOR_1011]`), `accessibility` · `best-practices` · `core-web-vitals` · `performance` · `seo` ·
+`web-quality-audit`(11/14 · web-quality-skills · `[SKILLS_UPDATE_1114]`)는 **범용**이다. 이 사이트를 모른다.
 아래는 그 스킬들이 권하거나 결함으로 채점하는데 **여기선 틀린 것**이다. 점검에서 이 항목이 나오면
 **지적으로 올리지 않는다.** 순서는 `CLAUDE.md` 의 `[DESIGN_SKILLS_12]` — `momentedit-design` 다음이 이 문서다.
 
@@ -197,4 +198,16 @@
   엔진 바이너리가 이 환경에서 못 돌아(릴리스 403 · `impeccable/SOURCE.md`) 명령 자체가 실패한다 — 그 실패를 «고칠 것»으로 올리지 않는다.
 - **대신**: 점검 결과는 `docs/design-audit-YYYYMMDD.md` 한 파일에 목록으로만 적는다(`[DESIGN_RULES_1011]` 「점검 → 승인 → 적용」) · `.impeccable/` 폴더를 만들지 않는다 ·
   SKILL.md 의 «Launcher unavailable» 폴백대로 PRODUCT.md · DESIGN.md 를 읽기만 한다. 사장님이 이 명령을 직접 말씀하실 때만 다시 본다.
+- **날짜**: 2026-11-14
+
+### [EXC_WQ_GOOGLE] web-quality-skills 여섯은 Lighthouse · 구글 기준이다 — 네이버 SEO 해당 없음
+
+- **누가**: `seo/SKILL.md` 머리말 — *"Search engine optimization based on Lighthouse SEO audits and Google Search guidelines."* ·
+  같은 파일 «Title tags» · «Meta descriptions» · «Heading structure» 절(제목 · 설명 · 제목 구조를 고치는 본보기) · «Structured data (JSON-LD)» ·
+  `web-quality-audit/SKILL.md` 의 Lighthouse 갈래 점검 · 나머지 넷(`accessibility` · `best-practices` · `core-web-vitals` · `performance`)도 Lighthouse · 크롬 도구(DevTools · CrUX) 기준으로 잰다.
+- **왜 틀리나**: 여섯 스킬 본문에 네이버는 한 번도 나오지 않는다(2026-11-14 grep 0건) — Lighthouse SEO 점수나 구글 지침은 **네이버 노출 판단의 근거가 못 된다**
+  (스킬도 *"A Lighthouse SEO score … is not a prediction of rankings"* 라고 적는다). 메타 문구(제목 · 설명 · 스키마 · 숨은 h1/h2)를 고치자는 제안은 금지사항 3 이다.
+  성능 · 호환 쪽의 React · Next.js · webpack · SSR 전제 조언은 `[EXC_STATIC_SITE]` 다. 제목 50–60자 · 설명 150–160자 같은 길이 자는 구글 화면 기준이고 스킬도 *"linting proxy"* 라고만 적는다 — 한글 문구를 그 자로 재지 않는다(`[EXC_KO_COPY]`).
+- **대신**: 기술 점검만 목록으로 낸다 — 색인 가능 여부(robots · canonical · noindex) · 구조화 데이터 문법 · `alt` · `lang`. 문구를 바꾸는 항목은 점검표에 «금지사항 3 저촉»으로 적고 멈춘다.
+  네이버 쪽 판단이 필요하면 이 스킬의 결과를 근거로 쓰지 않는다.
 - **날짜**: 2026-11-14
