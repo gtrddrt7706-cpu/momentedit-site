@@ -23340,3 +23340,7 @@ chk 'TABLE_BORROW_PLAY_1114' scripts/audit/console-bed-1114.mjs 3
 chk 'HEARD_RESET_1114' console.html 1   # 새로 시작(시작 · 끝난 뒤 다시 · 나가기)하면 들린 곡 기록을 비운다 — 리허설 기록이 본 예식 테이블 인사 차례를 바꾸지 않게
 chk '^  HEARD = {};$' console.html 1
 chk 'HEARD_RESET_1114' scripts/audit/console-bed-1114.mjs 3
+chk 'BED_BAD_RESET_1114' console.html 3   # «못 연 곡» 표시는 그 판 안에서만 — 파일을 바꿔 넣으면 그 곡만 · 새로 시작하면 전부 지운다(지우는 곳이 없어 그 탭 내내 건너뛰었다)
+chk 'if (BED.bad) delete BED.bad\[sid\];' console.html 1
+chk '^  BED.bad = {};$' console.html 1
+chk 'BED_BAD_RESET_1114' scripts/audit/console-bed-1114.mjs 3

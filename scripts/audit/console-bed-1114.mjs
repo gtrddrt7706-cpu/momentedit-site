@@ -5,6 +5,7 @@
    B [TABLE_BORROW_PLAY_1114] 테이블 인사(M8) — 곡 파일이 다 있는 날 콘솔이 실제로 트는 목록(__segPlan · 테이블 GO 뒤 BED.list) = 계획 목록(BgmPicks.plan 을 미리 듣기 playOrd 와 같은 꼴로 부른 것 · have · heard · now · seg) ·
      빌려 온 곡이 남고 합이 30분(NEED.M8) 이상 · 설정 화면 곡 칩은 제 곡만 · 이어 트는 칸(M4 · M6 · M8L)은 빠짐 0 · 미리 듣기 쪽 줄(lfNext = playOrd.filter(has))도 그대로
    C [HEARD_RESET_1114] 같은 탭에서 «■ 나가기 → 시작» — 앞 판의 들린 곡 기록(20초 넘게 들린 곡)이 0 · 음악만 멈춤 → 다시 · 전체 정지 → GO 는 기록 그대로
+   D [BED_BAD_RESET_1114] 못 연 곡 표시(BED.bad) — 깨진 파일을 멀쩡한 파일로 바꿔 넣으면 그 곡 표시가 지워지고 제 차례에 다시 흐른다 · «■ 나가기 → 시작» 뒤에는 표시가 0
    깨 보기: BP_CON=<옛 console.html> 로 돌리면 고친 줄마다 빨강이어야 한다(각 칸 머리에 적음) · ONLY=A 처럼 칸을 골라 돌릴 수 있다
    곡 = 시험 사인파(곡마다 다른 높이) · 나레이션 = 0.6초 짧은 소리 · 큐는 손으로 낸다(__bgmGo.fire) · 읽는 창구 = __seg.st · __segPlan · __heard(점검용)
    ROOT = 저장소 뿌리(이 파일이 scripts/audit/ 에 있으면 저절로 · 밖에 두면 CONBED_ROOT 로) · 종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
@@ -145,6 +146,31 @@ try {
         ok('C ② 음악만 멈춤 → 다시 · 전체 정지 → GO 는 들린 기록을 지우지 않는다', h1.length === 7 && h2.length === 7, rC);
       }
       ok('C 쪽 오류 0', !c.errs.length, c.errs.slice(0, 3));
+    }
+    await c.ctx.close();
+  }
+  /* ── D [BED_BAD_RESET_1114] — 옛 판: 파일을 바꿔 넣어도 그 곡이 끝내 안 나온다(② 빨강) · 점검 창구(__seg.st().bad)도 없다(① ③ 빨강) ── */
+  if (want('D')) {
+    const c = await open('standard', [['B01', wav(40, 220)], ['B24', BADFILE, '.bin'], ['B13', BADFILE, '.bin']]); const R = await c.start();
+    if (!R || !(await hooks(c)) || c.put < c.need) skip('D — 콘솔 점검 고리가 없거나 곡 파일 칸을 못 찾았다');
+    else {
+      const hasBad = Array.isArray((await c.seg()).bad);   /* 점검 창구 — 없으면(옛 판 · 되돌려짐) ① ③ 은 빨강 · ② 는 동작으로 잰다 */
+      await c.fire(R.findIndex((x) => x.k === 'guest')); const p0 = await c.playing('M1'); await c.pg.waitForTimeout(3600); const X = P.xfOf('M1');
+      await c.nearEnd(X + 1.0);   /* 곡 끝 → B24(깨짐) → B13(깨짐) → 틀 곡이 없어 지금 곡을 이어 튼다 */
+      const k1 = await c.pg.waitForFunction(() => { const s = window.__seg.st(); return /다음 곡을 열지 못해/.test(s.err) && !s.opening; }, null, { timeout: 12000 }).then(() => true, () => false); const s1 = await c.seg();
+      await c.pg.waitForTimeout(X * 1000 + 600);   /* 같은 곡 다시 잇기 겹침이 끝날 때까지 */
+      const good = path.join(TMP, 'B24good.wav'); fs.writeFileSync(good, wav(40, 300)); await c.pg.locator('[data-seg-file="B24"]').first().setInputFiles(good); await c.pg.waitForTimeout(1200); const s2 = await c.seg();
+      await c.nearEnd(X + 1.0); const k2 = await c.pg.waitForFunction(() => { const s = window.__seg.st(); return s.id === 'B24' && !s.opening; }, null, { timeout: 9000 }).then(() => true, () => false); const s3 = await c.seg();
+      c.pg.once('dialog', (d) => d.accept()); await c.pg.click('#bExit'); await c.pg.waitForTimeout(400); await c.pg.click('#go'); await c.pg.waitForTimeout(700); const s4 = await c.seg();
+      const rD = { 깨진뒤표시: s1.bad, 상태줄: s1.err, 바꿔넣은뒤표시: s2.bad, 다음차례곡: s3.id, 다시시작뒤표시: s4.bad };
+      console.log('  재 본 값 D', JSON.stringify(rD));
+      if (!p0 || !k1) skip('D — 준비(하객 맞이 곡 틀기 · 깨진 두 곡 건너뜀)가 안 됐다 ' + JSON.stringify(rD));
+      else {
+        ok('D ① 깨진 곡 파일을 멀쩡한 파일로 바꿔 넣으면 그 곡의 «못 연 곡» 표시만 지워진다 [BED_BAD_RESET_1114]', hasBad && s1.bad.slice().sort().join() === 'B13,B24' && s2.bad.join() === 'B13', rD);
+        ok('D ② 바꿔 넣은 곡이 제 차례에 다시 흐른다(계속 건너뛰지 않는다)', k2 && s3.id === 'B24', rD);
+        ok('D ③ «■ 나가기 → 시작» 뒤 «못 연 곡» 표시가 0', hasBad && s4.bad.length === 0, rD);
+      }
+      ok('D 쪽 오류 0', !c.errs.length, c.errs.slice(0, 3));
     }
     await c.ctx.close();
   }
