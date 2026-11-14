@@ -99,4 +99,5 @@ After init writes PRODUCT.md, resume without rerunning `impeccable context`; ini
    `THE REALITY` 같은 영문 라벨 17개는 타이포의 뼈대다. 지우지 않는다.
 
 순서 전체는 저장소 루트 `CLAUDE.md` 의 `[DESIGN_SKILLS_12]`.
-엔진(`scripts/impeccable <verb>`)은 이 환경에서 못 돈다(릴리스 403 · `SOURCE.md`) — SKILL.md 의 «Launcher unavailable» 문단의 폴백을 따른다.
+★**[IMP_NO_RUN] `scripts/impeccable` · `impeccable.cmd` 는 실행하지 않는다**(엔진 바이너리를 내려받아 실행한다). 글로 된 플레이북만 쓴다. 엔진을 들이려면 사장님 승인이 먼저다.
+«못 도는 환경이라서»가 아니다 — 내려받기가 되는 환경에서도 실행하지 않는다. SKILL.md Setup 1번(런처 실행)은 건너뛰고 «Launcher unavailable» 문단의 폴백대로 PRODUCT.md · DESIGN.md 를 직접 읽는다(`SOURCE.md`).

@@ -68,3 +68,9 @@ SKILL.md Setup 1번이 `.claude/skills/impeccable/scripts/impeccable context` �
 `/impeccable hooks on` 을 실행하지 않는다. 그 명령은 `.impeccable/config.json` 과 `.claude/settings.local.json` 에 디자인 감지 훅을 적는다(`reference/hooks.md`).
 이 저장소의 훅 설정(`.claude/settings*.json`)은 따로 관리한다 — 스킬 갱신이 건드리지 않는다. 엔진이 없어 훅이 걸려도 돌지 못한다.
 `doctor --fix` · `init` · `document` · `foundations <id>` 도 돌리지 않는다 — 루트 `PRODUCT.md` · `DESIGN.md` 는 우리 브랜드 요약본이다(`[DESIGN_MD_POINTER]` · `../MOMENTEDIT_EXCEPTIONS.md` 의 `[EXC_IMP_MAINT]`).
+
+## ★[IMP_NO_RUN 2026-11-14 대본 확인] 런처는 실행하지 않는다 — «할 수 없다»가 아니라 «하지 않는다»
+
+`scripts/impeccable` · `impeccable.cmd` 는 돌리면 GitHub 릴리스에서 엔진 바이너리를 내려받아 실행한다(9/25 판부터 있던 구조).
+이 환경에서는 403 이라 못 돌 뿐이고, 내려받기가 되는 환경(사장님 PC 등)에서는 그대로 실행된다.
+그래서 `[IMP_LOCAL]` 에 «실행하지 않는다 · 글로 된 플레이북만 쓴다 · 엔진을 들이려면 사장님 승인이 먼저»라고 못 박았다(merge-guard 가 그 줄을 지킨다).

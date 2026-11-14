@@ -488,3 +488,4 @@ findNearbyButton.addEventListener('click', async () => {
 3. 문구 · 메타 · SEO 글(제목 · 설명 · 스키마 · 숨은 h1/h2)과 기능 코드(예약 · 결제 · GAS · 시트)는 바꾸지 않는다(금지사항 3 · 4).
 4. 정적 HTML 이다(빌드 없음). React · 번들러 · SSR 전제 조언은 `[EXC_STATIC_SITE]`.
 5. Lighthouse · 구글 기준이다. 네이버 검색에는 해당 없음(`[EXC_WQ_GOOGLE]`).
+6. ★**[WQ_NO_INSTALL] 본문이 권하는 바깥 도구(`npx lighthouse` · 전역 설치 · 그 밖의 내려받아 실행하는 것)는 설치 · 실행하지 않는다.** 써도 되는 것은 `web-quality-audit/scripts/analyze.sh`(읽기 전용 · 파일을 바꾸지 않음) 하나다. 바깥 도구를 들이려면 사장님 승인이 먼저다.

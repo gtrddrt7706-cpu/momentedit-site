@@ -11569,6 +11569,18 @@ chk 'WQ_LOCAL' .claude/skills/web-quality-audit/SKILL.md 1
 chk 'EXC_WQ_GOOGLE' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
 chk 'MIT License' .claude/skills/seo/LICENSE 1
 chk 'afa8da942115f2961fdbfa80807ea0b232ff6c00' .claude/skills/web-quality-audit/SOURCE.md 1
+# ★[IMP_NO_RUN · WQ_NO_INSTALL 2026-11-14 대본 확인] «할 수 없다»가 아니라 «하지 않는다» — impeccable 런처는 엔진 바이너리를 내려받아 실행하고,
+#   여섯 스킬 본문은 npx lighthouse 같은 바깥 도구를 권한다. 내려받기가 되는 환경에서도 실행하지 않는다는 줄이 지워지면 빨강.
+chk 'IMP_NO_RUN' .claude/skills/impeccable/SKILL.md 1
+chk 'IMP_NO_RUN' .claude/skills/impeccable/reference/craft-floor.md 1
+chk 'IMP_NO_RUN' .claude/skills/impeccable/SOURCE.md 1
+chk 'WQ_NO_INSTALL' .claude/skills/accessibility/SKILL.md 1
+chk 'WQ_NO_INSTALL' .claude/skills/best-practices/SKILL.md 1
+chk 'WQ_NO_INSTALL' .claude/skills/core-web-vitals/SKILL.md 1
+chk 'WQ_NO_INSTALL' .claude/skills/performance/SKILL.md 1
+chk 'WQ_NO_INSTALL' .claude/skills/seo/SKILL.md 1
+chk 'WQ_NO_INSTALL' .claude/skills/web-quality-audit/SKILL.md 1
+chk 'IMP_NO_RUN' docs/rules/디자인.md 1
 chk '라이선스 파일이 없었다' .claude/skills/frontend-design/SOURCE.md 1
 # [SKILL_404_BODY] curl -o 는 404 여도 본문(「404: Not Found」 14바이트)을 파일로 쓴다 — frontend-design/LICENSE 가 그렇게
 #   «라이선스 파일»로 커밋될 뻔했다(2026-09-25 · 커밋 직후 크기 14 로 발견). 받은 파일 어디에도 그 본문이 있으면 안 된다.
