@@ -23379,3 +23379,7 @@ chk 'var _own = BED.gen' console.html 1
 # ★★[NO_RELIFT_WANT_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 07] 당일 콘솔 — «정적인가»에 청한 크기(duckWant −60 아래)도 넣는다 · 아직 들리는 크기에서 내려가던 중이면 0.5초에 끈다(HUSH_SOFT) · 소리는 console-relift ⑦
 chk 'NO_RELIFT_WANT_1115' console.html 3
 chk 'soft = !off && duckWant != null && duckWant <= -60' console.html 1
+# ★★[M4_HANDOFF_NONE_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 02] 당일 콘솔 — 짧은 입장 곡 인계(ENTRY_SHORT)는 본식 피아노가 실제로 흐르거나 열릴 때만 배경을 올린다 · 없으면 음악 없이 + 상태 한 줄 · 소리는 console-relift ⑧
+chk 'M4_HANDOFF_NONE_1115' console.html 2
+chk 'function m4Flows(){' console.html 1
+chk '이어받을 본식 피아노 파일이 없어 음악 없이 이어 가요' console.html 1

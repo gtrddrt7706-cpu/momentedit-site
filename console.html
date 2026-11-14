@@ -1598,7 +1598,16 @@ function esdDuck(db, ms){ var r = ESD.run; if (!r || cur === r.i) return; var a 
    같은 곡 강조(H) 자리에서 새로 걸고 3초 겹쳐 잇는다(미리 듣기 entArm · LIST_HOLD 와 같은 방식 · 앞 장면 곡 M1 · M2 로 돌아가지 않는다) ② 짧은 곡은 종전 그대로 M4 인계 ·
    떠난 run(ESD.run 이 바뀜) · 이미 인계한 끝(run.ending)은 다시 하지 않는다 */
 function esdEnd(run, ended){ if (ESD.run !== run || run.ending) return; if (!ESD.short && esdRelay(run)) return; run.ending = true;
-  if (ESD.short) segGo('M4'); if (ended) { ESD.run = null; if (run.tEnd) clearTimeout(run.tEnd); esdBedBack(3000); } else { esdStop(SEG_XF, true); esdBedBack(SEG_XF * 1000, true); } try { render(); } catch (e) {} }
+  var _go = true; if (ESD.short) { segGo('M4'); _go = BED.mode !== 'seg' || m4Flows(); if (!_go) m4None(); }   /* [M4_HANDOFF_NONE_1115] 구간 곡을 안 쓰는 날(배경 음악 파일 하나)은 종전 그대로 */
+  if (ended) { ESD.run = null; if (run.tEnd) clearTimeout(run.tEnd); if (_go) esdBedBack(3000); } else if (_go) { esdStop(SEG_XF, true); esdBedBack(SEG_XF * 1000, true); } else esdStop(SEG_XF, true); try { render(); } catch (e) {} }
+/* ★★[M4_HANDOFF_NONE_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 02] 짧은 입장 곡의 인계(ENTRY_SHORT · 10/23) — 배경을 올리는 것은 이어받을 본식 피아노(M4)가 실제로 흐르거나 새로 열릴 때만.
+     종전엔 재생할 수 있는 M4 파일이 하나도 없으면 새 곡 요청이 0회인데 배경(전체 크기)만 올라가, 입장 동안 꺼져 있던 화촉 곡이 −76 → +3.9 dB 로 돌아왔다(6초 −60 위 · NO_RELIFT_1102 «정적 뒤 앞 곡을 되살리지 않는다»와 어긋남).
+     판정은 segGo 의 반환값 하나로 하지 않는다 — 같은 곡을 이을 때(CARRY_SAME) · 이미 M4 일 때도 false 다 · 지금 구간이 M4 이고 여는 중 · 미뤄 둔 요청 · 그 목록의 곡이 흐르는 중이어야 «흐른다».
+     구간 곡이 흐르던 날(BED.mode 'seg')에만 — 배경 음악 파일 하나로 진행하는 날은 그 곡이 종전대로 돌아온다 ·
+     없으면 음악 없이 잇는다 — 앞 곡 재생기는 멈추고(다음 큐가 크기를 올려도 되살아나지 않게 · 다음 구간 곡이 열리면 그때부터 음악) · 디렉터에게 상태 한 줄 */
+function m4Flows(){ if (BED.mode !== 'seg' || BED.seg !== 'M4') return false; if (BED.opening || BED.later) return true; var el = BED.el[BED.on]; return !!(BED.id && el && !el.paused && el.getAttribute('src') && BED.list.indexOf(BED.id) > -1); }
+function m4None(){ BED.el.forEach(function(el, k){ if (!el.paused) { try { if (BED.xg[k] && AC) { BED.xg[k].gain.cancelScheduledValues(AC.currentTime); BED.xg[k].gain.setValueAtTime(0.0001, AC.currentTime); } el.pause(); } catch (e) {} } });
+  BED.hushK = -1; clearTimeout(BED.hushT); BED.keepErr = ''; bedErr('이어받을 본식 피아노 파일이 없어 음악 없이 이어 가요'); }
 function esdRelay(run){ var Sg = ESD.Sg, a = run.a; if (ESD.run !== run || !Sg || !Sg.buf || !a || a.state === 'closed' || !esdIn(cueAt(cur))) return false;
   try { var n = a.currentTime, h = Math.max(0, Math.min(Sg.dur - SEG_XF * 2 - 1, +run.PL.H || 0)), cg = run.cg || run.eg, lv = Math.max(0.0001, cg.gain.value), os = run.src;
     var s2 = a.createBufferSource(), g2 = a.createGain(); s2.buffer = Sg.buf; g2.gain.value = 0.0001; xfCurve(g2.gain, lv, SEG_XF, n); s2.connect(g2); g2.connect(run.mg); s2.start(n, h);   /* [EAR_D_1106 ①] 같은 곡선 */
