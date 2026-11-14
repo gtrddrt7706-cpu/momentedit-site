@@ -23417,3 +23417,7 @@ chk 'MUTE_PRESSED_1115' scripts/audit/console-r2-1115.mjs 3
 # ★[CONSOLE_R2_1115 2026-11-15 BGM 섹션 · GPT 라운드 2] 당일 콘솔 · 곡 계획 묶음 검사 — CI bgm-sound f 칸(가장 짧은 칸)에서 돈다
 chk 'CONSOLE_R2_1115' .github/workflows/merge-guard.yml 1
 chk "tests: 'pv-fix-1114 console-r2-1115' }" .github/workflows/merge-guard.yml 1
+# ★[GEN_ON_OPEN_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 검증 중 찾음] 새 곡이 재생기를 받을 때 세대 번호를 올린다 — 앞 겹침 뒷정리 타이머가 늦게 여는 곡 재생기를 세우지 않게(검사 console-r2-1115 F)
+chk 'GEN_ON_OPEN_1115' console.html 1
+chk '  BED.gen\[nx\] = (BED.gen\[nx\] || 0) + 1;' console.html 1
+chk 'GEN_ON_OPEN_1115' scripts/audit/console-r2-1115.mjs 3

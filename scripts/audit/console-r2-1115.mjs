@@ -7,6 +7,7 @@
    D [MUTE_PRESSED_1115] (새 12) «음악만 멈춤» 단추 — aria-pressed 가 상태와 같다 · 켜진 동안 아랫줄 글이 상태를 말한다 · 단추 높이가 흔들리지 않는다(1280 · 390) · 전각 줄표 · 이모지 없음
    E [FILL_XF_1115] (새 10) 목록 칸 계획(BgmPicks.plan) — 콘솔 · 미리 듣기는 곡마다 겹침(xfOf · M8 · M1 · M6 6초 · M4 8초)만큼 일찍 다음 곡으로 넘긴다 →
        첫 반복 시각 = 곡 길이 합 − 곡 수 × 겹침 ≥ 칸 길이(NEED) · 빌려 올 곡이 남아 있는 칸(M8 · M4 · M6)에서 · 들린 기록으로 다시 짜는 길(heard)도 같다
+   F [GEN_ON_OPEN_1115] 하객 맞이 곡이 열린 지 3초 안(겹침 뒷정리 전)에 개식 → 화촉 GO · 화촉 곡이 늦게 열림(2.5초 · 뒷정리 3.1초가 여는 중에 온다) — 뒷정리 타이머가 그 재생기를 세우지 않고 화촉 곡이 오른다 · «열지 못했어요» 없음
    깨 보기: BP_CON=<옛 console.html> → A ① ② · B ① ② · C ① ② · D ① ② 빨강 / BP_PICKS=<옛 assets/bgm-picks.js> → E ① ③ 빨강 · ONLY=A 처럼 칸을 골라 돌린다
    곡 = 시험 사인파(구간마다 다른 높이) · 나레이션 = 0.6초 짧은 소리 · 큐는 손으로 낸다(__bgmGo.fire) · «뒤로» · «음악만 멈춤»은 실제 단추를 누른다
    ROOT = 저장소 뿌리(이 파일이 scripts/audit/ 에 있으면 저절로 · 밖에 두면 R2_ROOT 로) · 종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
@@ -50,7 +51,7 @@ if (want('E')) {
     ok('E ③ 들린 기록으로 다시 짠 테이블 인사 목록도 첫 반복 ≥ 30분', r.length > 0 && first(r, 'M8') >= P.NEED.M8, rE); }
 }
 
-const BROWSER = ['A', 'B', 'C', 'D'].some(want);
+const BROWSER = ['A', 'B', 'C', 'D', 'F'].some(want);
 if (!BROWSER) { console.log(fail ? `console-r2-1115: FAIL ${fail}` : cant ? `console-r2-1115: 못 잰 칸 ${cant}` : 'console-r2-1115: ok'); process.exit(fail ? 1 : cant ? 2 : 0); }
 
 let pw = null; for (const p of ['playwright', path.join(process.env.NODE_PATH || '', 'playwright'), '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
@@ -220,6 +221,26 @@ try {
       await c.ctx.close();
     }
     console.log('  화면 사진: ' + TMP + '/mute-1280.png · mute-390.png');
+  }
+  /* ── F [GEN_ON_OPEN_1115] — 옛 판: 뒷정리 타이머가 늦게 여는 화촉 곡 재생기를 세워 «열지 못했어요» · 화촉 곡 없음(① 빨강) ── */
+  if (want('F')) {
+    const c = await open(SOF('standard'), [['M1', 220], ['M2', 262]]);
+    const iG = c.ix(/^guest-w-arrival/), iO = c.ix(/^narr-open/), iC = c.ix(/^narr-candle-in/);
+    if (!c.ok || [iG, iO, iC].some((x) => x < 0)) skip('F — 콘솔 점검 고리 · 큐 · 곡 파일 칸을 못 찾았다 ' + JSON.stringify({ ok: c.ok, put: c.put, iG, iO, iC }));
+    else {
+      await c.on(); await c.pg.evaluate(() => { window.__slowName = 'M2'; window.__slowMs = 2500; });
+      const t0 = await c.fire(iG); const g1 = await c.waitDb('M1', 'v != null && v > -60', 6000); const tUp = await c.pg.evaluate(() => performance.now());
+      await c.pg.waitForTimeout(1000); await c.fire(iO); await c.pg.waitForTimeout(300); const tC = await c.fire(iC); await c.pg.waitForTimeout(7000);
+      const sc = await c.pg.evaluate(() => window.__seg.st()), s1 = await c.smp(), W1 = win(s1, tC, 7000);
+      const rF = { 준비: g1, 하객곡_오른뒤_화촉GO_ms: Math.round(tC - tUp), 화촉곡최고: peak(W1, 'M2'), 지금곡: sc.id, 글: sc.err, n: W1.length };
+      console.log('  재 본 값 F', JSON.stringify(rF));
+      if (!g1 || rF.하객곡_오른뒤_화촉GO_ms > 2500 || W1.length < 100) skip('F — 준비(하객 맞이 곡이 3초 안에 화촉 GO) 또는 표본이 모자라다 ' + JSON.stringify(rF));
+      else {
+        ok('F ① 하객 맞이 곡 겹침 뒷정리 전 · 늦게 여는 화촉 곡 — 뒷정리가 그 재생기를 세우지 않는다(화촉 곡이 −30 dB 위로 · 지금 곡이 하객 맞이 곡이 아니다) [GEN_ON_OPEN_1115]', rF.화촉곡최고 > -30 && rF.지금곡 && rF.지금곡 !== 'B01', rF);
+        ok('F ② «곡 파일을 열지 못했어요» 없음 · 쪽 오류 0', !/열지 못했어요/.test(rF.글 || '') && !c.errs.length, { 글: rF.글, errs: c.errs.slice(0, 3) });
+      }
+    }
+    await c.ctx.close();
   }
 } catch (e) { console.log('못 쟀다 —', String(e && e.stack || e).slice(0, 500)); try { await br.close(); } catch {} srv.close(); process.exit(2); }
 await br.close(); srv.close();
