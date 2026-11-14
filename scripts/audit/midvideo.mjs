@@ -217,6 +217,14 @@ console.log('━━ ⑤ 길');
     const [y, m, d] = mf.split('-').map(Number), ko = y + '년 ' + m + '월 ' + d + '일';
     ok(priv.indexOf(ko + ' (식중 영상 항목 추가') > -1, '개정 이력에 «' + ko + ' (식중 영상 항목 추가 …)» — midFrom 과 같은 날 [MID_OPEN_1114]');
     ok(/id="midvideo"[\s\S]{0,400}?식중 영상/.test(priv), '처리방침 수집 항목에 «식중 영상» 줄(#midvideo) [MID_OPEN_1114]');
+    /* ★[MID_OPEN_1114 · GPT 3-29] 이 개정이 맨 위(가장 최근)인 동안은 날짜 다섯이 한 날 — 맨 위 시행 · 공고 · 개정 공고일자 · 시행일자 첫 날 · midFrom.
+       승인일로 옮길 때 한 곳만 놓쳐도 빨강(다음 개정이 위에 오면 이력 한 줄 = midFrom 만 본다) */
+    const yk = (t) => { const q = String(t || '').match(/(\d{4})년 (\d{1,2})월 (\d{1,2})일/); return q ? q[1] + '-' + ('0' + q[2]).slice(-2) + '-' + ('0' + q[3]).slice(-2) : ''; };
+    const dot = (t) => (String(t || '').match(/(\d{4})\.(\d{2})\.(\d{2})/) || []).slice(1, 4).join('-');
+    const hero = (priv.match(/개정 시행일자 · ([\d.]+) \(공고 ([\d.]+)\)/) || []), pub = (priv.match(/개정 공고일자<\/span>\s*<span class="spec-val">([^<]+)</) || [])[1], eff = (priv.match(/시행일자<\/span>\s*<span class="spec-val">([^<]+)</) || [])[1] || '';
+    if (/^\d{4}년 \d{1,2}월 \d{1,2}일 \(식중 영상 항목 추가/.test(eff)) {
+      const five = { 맨위시행: dot(hero[1]), 맨위공고: dot(hero[2]), 공고일자: yk(pub), 시행일자: yk(eff), midFrom: mf };
+      ok(Object.values(five).every((v) => v === mf), '식중 영상 개정이 맨 위인 동안 날짜 다섯이 같은 날(맨 위 시행 · 공고 · 개정 공고일자 · 시행일자 · midFrom) [MID_OPEN_1114]', JSON.stringify(five)); }
     ok(/privacy\.html#'\+\(PVCFLOW\.kind==='mid'\?'midvideo':'prevideo'\)/.test(fnSrc(my, '_pvcAgree')), '식중 동의 판의 처리방침 링크 = #midvideo [MID_OPEN_1114]'); }
   else ok(mf === '', '식중 영상 꺼짐(midFrom 비어 있음) — 처리방침에 «식중 영상»을 넣은 날 midFrom 을 적어 켠다'); }
 ok(/midvideo: \(typeof _pvPublic === 'function'\) \? _pvPublic\(.*?, r, 'mid'\)/.test(pr), 'buildProductionState 가 midvideo 를 싣는다');
