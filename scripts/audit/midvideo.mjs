@@ -57,6 +57,13 @@ r = row({ st: 'draft', due: '2099-05-01' }, true, -1);
 ok(r.done === true && r.tag === '영상 없이 진행', '기한 지남 · 미확정 → «영상 없이 진행»', JSON.stringify(r));
 r = row({ st: 'review', due: '2099-05-01' }, true, -1);
 ok(r.tag === '확인 필요', '기한 전에 보낸 미리보기는 기한 뒤에도 «확인 필요»(서버가 확정을 받는다)', JSON.stringify(r));
+/* ★[VIDEO_NAME_1114 · GPT 1-08] 식전 줄은 늘 식전으로 판정 — 마지막에 연 식중 화면(식순에서 뺀 상태)이 남긴 PVCFLOW 를 읽어 식전 줄에 «식순 확인»이 붙던 것 */
+{ const need2 = ['_pvcRow', '_pvcClash', '_pvcRitOn', '_pvcNewD', '_pvcMd'], s2 = need2.map((x) => fnSrc(my, x));
+  if (s2.every(Boolean)) { const C2 = vm.createContext({ window: { _lastProd: { ritualDraft: { _v: 3, S: { on: { prevideo: 1 } } } } }, PVCFLOW: { kind: 'mid', on: false } });
+    vm.runInContext('function _kstDdayOf(d){ return 20; }\n' + s2.join('\n'), C2);
+    const r2 = C2._pvcRow({ st: 'done', conf: { at: 'x' }, due: '2099-01-01' });
+    ok(r2 && r2.tag !== '식순 확인', '식중 화면을 연 뒤에도 식전 줄은 식전으로 판정(«식순 확인»이 옮겨 붙지 않는다) [VIDEO_NAME_1114]', JSON.stringify(r2)); }
+  else ok(false, '_pvcRow 판정 함수들을 못 찾았다', need2.filter((x, i) => !s2[i]).join(' · ')); }
 // 화면 글 · 길
 const blk = my.slice(my.indexOf('var PVC_ON='), my.indexOf('function renderSnap(p)'));
 const mstart = fnSrc(my, '_mvcStart');
