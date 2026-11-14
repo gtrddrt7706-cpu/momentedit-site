@@ -23397,3 +23397,8 @@ chk 'NO_RELIFT_FB_1115' scripts/audit/console-relift.mjs 3
 chk 'FILL_XF_1115' assets/bgm-picks.js 2
 chk "0) - out.length \* xfOf(sg); }" assets/bgm-picks.js 2
 chk 'FILL_XF_1115' scripts/audit/console-r2-1115.mjs 3
+# ★★[BACK_DROP_OPEN_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 04] 당일 콘솔 «뒤로» — 떠난 큐가 건 구간 곡 요청이 아직 열리는 중이면 거둔다(재생 번호 · 여는 재생기 · 미룬 요청 · 구간 자리) · 정적 뒤 꺼 둔 앞 곡은 되살리지 않는다 · 검사 console-r2-1115 A
+chk 'BACK_DROP_OPEN_1115' console.html 3
+chk "bedBackDrop(cur);" console.html 1
+chk "BED.goBk = _bk;" console.html 1
+chk 'BACK_DROP_OPEN_1115' scripts/audit/console-r2-1115.mjs 3

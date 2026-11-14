@@ -1962,7 +1962,9 @@ function fire(i, opt){
   if (ESD.run && (!esdIn(c) || esdMain(c))) esdStop(esdMain(c) ? 0.3 : (ES ? ES.OUTF : 4));   // [ENTRY_SCENE_DAY] 입장 묶음을 떠나면 곡은 4초에 걸쳐 잦아든다(배경음은 아래 duckTo 로 돌아온다)
   if (!esdMain(c)) doorMark(null);   // [DOOR_LEAD] 입장 장면이 아니면 걷는다
   PRE_HOLD = (/^bridge-(b12-tribute-calm|b14-candle-name)$/.test(String(c.slug || '')) && !ESD.run && duckWant != null && duckWant <= -60) ? i : -1;   /* ★[BRIDGE_FIRST_1101] 배경음이 꺼져 있던 자리(축가 · 영상 뒤)의 이음말은 꺼진 채로 — 앞의 앞 곡이 이음말 아래로 되살아나지 않게(미리 듣기와 같다) · 구간 곡은 다음 큐에서 */
+  var _bk = { i: i, seg: BED.seg, list: BED.list.slice(), li: BED.li, cut: BED.cut, res: BED.res, id: BED.id, tk: BED.tk || 0, later: BED.later };   /* [BACK_DROP_OPEN_1115] 이 큐가 곡을 바꾸기 전 자리 — «뒤로»가 아직 안 열린 요청을 거둘 때 */
   segGo(segOfCue(c));   // [BGM_SEG8_1023] 구간의 첫 큐가 나가는 순간 3초에 걸쳐 그 구간 곡으로(곡이 없으면 앞 곡이 잇는다 · 새 GO 없음)
+  BED.goBk = _bk;
   liveT0 = 0;                          // 방금 판정에 썼다 · 다음 큐로 새지 않게 여기서 끊는다
   castNow = null;                      // ★배역 예시는 큐를 넘어가지 않는다(배지가 다음 자리로 새는 것을 막는다)
   blkFresh = (c.blockN || '') !== blkNow;
@@ -2533,7 +2535,19 @@ $('#bMute').onclick = function(){
   toast(muted ? '음악만 멈췄습니다 · 말은 그대로 나갑니다' : '음악을 다시 올립니다');
 };
 
+/* ★★[BACK_DROP_OPEN_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 04] «뒤로» — 떠난 큐가 건 구간 곡 요청이 아직 열리는 중이면(파일이 늦게 열림 · 예: 정적 뒤 화촉 곡 1.3초) 거둔다.
+     종전엔 화면은 앞 큐 손 대기(B2_NA_02 · K09 «뒤로는 직접 GO 까지 손 대기»)인데 늦게 열린 그 곡이 다음 GO 없이 −8 dB 로 올랐다(재생 번호가 그대로라 DETAIL_R5_1101 규칙 7 의 확인을 지났다).
+     거두기 = 재생 번호(BED.tk)를 올려 늦은 응답 · 실패 뒤 다음 곡(onFail)을 버리고 · 여는 재생기를 세우고 · 미뤄 둔 요청(later)을 그 큐 전으로 · 구간 자리(seg · 목록 · 순번)를 그 큐 전으로 되돌린다.
+     그 큐가 정적 뒤라 앞 곡을 꺼 두었으면(NO_RELIFT_XF_1114 hushK) 앞 곡은 되살리지 않는다 — 되돌림 타이머(bedUnhush)를 거두고 그 재생기를 세운다 · 구간 자리는 비워 다음 GO 가 그 구간 곡을 처음부터 다시 연다(bedUnhush 함수는 그대로 · 부르는 쪽에서 막는다).
+     이미 열려 흐르는 곡은 종전 그대로(뒤로는 소리를 바꾸지 않는다) */
+function bedBackDrop(i){ var g = BED.goBk; BED.goBk = null; if (!g || g.i !== i || BED.id !== g.id) return;
+  var op = BED.opening, pend = !!((op && op.tk > g.tk) || (BED.later && BED.later !== g.later)); if (!pend) return;
+  BED.tk = (BED.tk || 0) + 1; BED.onFail = null; BED.later = g.later || null;
+  if (op) { BED.opening = null; try { BED.el[op.nx].pause(); } catch (e) {} }
+  if (BED.hushK != null && BED.hushK > -1) { var k = BED.hushK; clearTimeout(BED.hushT); BED.hushK = -1; try { BED.el[k].pause(); } catch (e) {} BED.seg = ''; BED.list = []; BED.li = 0; BED.cut = null; BED.res = g.res; return; }
+  BED.seg = g.seg; BED.list = g.list; BED.li = g.li; BED.cut = g.cut; BED.res = g.res; }
 $('#bBack').onclick = function(){
+  bedBackDrop(cur);   // [BACK_DROP_OPEN_1115] 떠나는 큐의 아직 안 열린 곡 요청
   clearT();
   try { aNarr.pause(); aNarr.currentTime = 0; } catch(e){}
   aNarr._pg = (aNarr._pg || 0) + 1;   // [PLAY_GEN] 되돌린 순서의 늦은 재생 결과가 대신 나레이션을 내지 않게
