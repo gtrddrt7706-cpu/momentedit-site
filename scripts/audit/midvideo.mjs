@@ -64,6 +64,15 @@ ok(r.tag === '확인 필요', '기한 전에 보낸 미리보기는 기한 뒤�
     const r2 = C2._pvcRow({ st: 'done', conf: { at: 'x' }, due: '2099-01-01' });
     ok(r2 && r2.tag !== '식순 확인', '식중 화면을 연 뒤에도 식전 줄은 식전으로 판정(«식순 확인»이 옮겨 붙지 않는다) [VIDEO_NAME_1114]', JSON.stringify(r2)); }
   else ok(false, '_pvcRow 판정 함수들을 못 찾았다', need2.filter((x, i) => !s2[i]).join(' · ')); }
+/* ★[VIDEO_NAME_1114 · GPT 1-20 · 2-25] 옛 초안의 영상 갈래 장면 이름 = «식중 영상»(이름만 맞춘 판 · 장면 목록만 실린 10/12 판 둘 다) · 선물 · 축사 갈래는 그대로 */
+{ const a = my.indexOf('var PHOTO_SCENE=['), b = my.indexOf('];', a);
+  const src3 = (a > -1 && b > a ? my.slice(a, b + 2) : '') + '\n' + fnSrc(my, '_flowFix') + '\n' + fnSrc(my, 'photoSceneList');
+  if (a > -1 && fnSrc(my, 'photoSceneList') && fnSrc(my, '_flowFix')) { const C3 = vm.createContext({}); vm.runInContext(src3, C3);
+    const nm = (rd) => ((C3.photoSceneList(rd) || []).map((x) => x.n));
+    const v1 = nm({ S: { freeWhat: 'video' }, summary: { flow: ['준비한 순서'] } }), v2 = nm({ S: { freeWhat: 'video' }, summary: { open: true, scenes: [{ n: '준비한 순서', s: '함께 보며 웃는 하객들' }] } }),
+      g1 = nm({ S: { freeWhat: 'gift' }, summary: { open: true, scenes: [{ n: '준비한 순서', s: 'x' }] } });
+    ok(v1.indexOf('식중 영상') > -1 && v2.indexOf('식중 영상') > -1 && g1.indexOf('준비한 순서') > -1, '옛 초안 영상 갈래 장면 이름 «식중 영상»(두 저장 판) · 선물 갈래는 그대로 [VIDEO_NAME_1114]', JSON.stringify({ v1, v2, g1 })); }
+  else ok(false, 'photoSceneList · PHOTO_SCENE 를 못 찾았다'); }
 // 화면 글 · 길
 const blk = my.slice(my.indexOf('var PVC_ON='), my.indexOf('function renderSnap(p)'));
 const mstart = fnSrc(my, '_mvcStart');
