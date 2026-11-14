@@ -23361,7 +23361,7 @@ chk "if(_pm>0){ LPB.arr={ v:BED.cur, st:nx }; ramp(BED.cur,db,_pm); return; } }"
 chk 'SONG_OPEN_FADE_PV_1114' scripts/audit/pv-fix-1114.mjs 1
 # ★★[ENTRY_HOOK_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 후보 ③] 미리 듣기 · 연습 — 화촉 직후 입장(뜸 없는 길)은 입장 곡 시작 자리에서 «먼저 흐른 6초»를 빼지 않는다(구호 말끝 0.3초 뒤가 강조 자리 · 종전 5.3초) · 뜸 있는 길은 종전 셈 · 소리는 pv-fix-1114 ③ 이 잰다
 chk 'ENTRY_HOOK_PV_1114' assets/bgm-bed.js 2
-chk "if(st0){ var c0=callOf(st0,x); t=x.H-c0.hd-c0.v-0.3; } else t=x.H-6-(x.V!=null?x.V:15)-0.3; }" assets/bgm-bed.js 1
+chk "return Math.min(x.H-c0.hd-c0.v-0.3+(el||0),x.end-1)-x.o; }" assets/bgm-bed.js 1   # [ENTRY_HOOK_PV_1114] 뜸 없는 길 셈은 entHushAt 으로 옮겼다(2026-11-15 ENTRY_LATE_FILE_1115) — 구호 말끝 + 0.3초 = 강조 · 6초를 빼지 않는다
 chk "var _at=entHushAt(st,(Date.now()-_t3)/1000);" assets/bgm-bed.js 1   # [ENTRY_LATE_FILE_1115] 시작 자리 = 같은 셈(callOf) + 구호가 시작된 뒤 지난 초
 chk "startVoice(f,lvOf(q2,f),1500,Math.max(0,_at));" assets/bgm-bed.js 1   # [ENTRY_LATE_FILE_1115] · [ENTRY_LATE_MUSIC_1115]
 chk 'ENTRY_HOOK_PV_1114' scripts/audit/pv-fix-1114.mjs 1
@@ -23495,3 +23495,10 @@ chk 'ENTRY_LATE_MUSIC_1115' assets/bgm-bed.js 3
 chk "if(_at<-0.05&&!_w){ LPB.entLate={ st:q2, tk:_tkh }; setTimeout(function(){ _put(1); },Math.round(-_at\*1000)); return; } LPB.entLate=null;" assets/bgm-bed.js 1
 chk "if(LPB.entLate&&LPB.entLate.st===st&&LPB.entLate.tk===LPB.lt){ LPB.on=true; return; }" assets/bgm-bed.js 1
 chk 'ENTRY_LATE_MUSIC_1115' scripts/audit/pv-r3-1115.mjs 1
+# ★★[ENTRY_LEAD_CALL_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 15] 미리 듣기 · 연습 — 뜸 있는 길(입장부터 듣기)도 구호 말 길이를 실제로 트는 파일로 센다(callOf · 앞 6초 뜸 그대로 · 종전 장면 V 또는 15초 어림 → 강조가 말끝 4.1초 전)
+chk 'ENTRY_LEAD_CALL_1115' assets/bgm-bed.js 2
+chk "if(k==='entry'&&!entRest()){ var c0=st0?callOf(st0,x):{ hd:0, v:x.V!=null?x.V:15 }; t=x.H-ENT_LEAD-c0.hd-c0.v-0.3; } else {" assets/bgm-bed.js 1
+chk "if(f===ENT_F) return entAt(st&&st.k,lead?st:null);" assets/bgm-bed.js 1
+chk "var go=function(){ play(f,vx(p.music,f),p.up,atOf(f,st,1)); LPB.f=f;" assets/bgm-bed.js 1
+chk 'ENTRY_LEAD_CALL_1115' scripts/audit/pv-r3-1115.mjs 1
+chk 'ENTRY_LEAD_CALL_1115' scripts/audit/pv-fix-1114.mjs 1   # ③ 대조 — 뜸 있는 길 시작 자리 = H − 6 − 구호(실제 파일) − 0.3

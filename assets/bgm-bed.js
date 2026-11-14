@@ -142,7 +142,10 @@
   function callOf(st0,x){ var d=st0&&st0.src?DUR[st0.src]:0, pd=null; try{ if(st0&&st0.file&&String(st0.src||'').indexOf(st0.file)>-1&&window.NarrPad) pd=NarrPad.of(st0.file); }catch(e){}
     if(pd&&d>0) return { hd:pd[0]/1000, v:Math.max(0.5,d-(pd[0]+pd[1])/1000) }; return { hd:0, v:x.V!=null?x.V:(d>0?d:15) }; }
   function entAt(k,st0){ var o=BUF[ENT_F], x=o&&o.ext; if(!x) return 0; var t;
-    if(k==='entry'&&!entRest()){ if(st0){ var c0=callOf(st0,x); t=x.H-c0.hd-c0.v-0.3; } else t=x.H-6-(x.V!=null?x.V:15)-0.3; } else { var need=entNeed(k); t=x.arrive; if(t+need>x.end) t=x.end-need; }   /* [ENTRY_UNDER_1101] ② */
+    /* ★★[ENTRY_LEAD_CALL_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 15] 뜸 있는 길(«입장부터 듣기» · 입장 곡 6초 뒤 구호) — 그 뜸 줄(st0 = 구호 줄)을 받으면 구호 말 길이를 실제로 트는 파일로 센다(callOf · 뜸 없는 길과 같은 셈).
+         종전: 장면이 잰 V(입장 쪽을 열어 본 날만 · 장면 쉼 늘림이 든 값) 또는 15초로 어림 — 실제 구호 19.8초면 강조가 말끝 4.1초 전(V 를 아는 날도 0.2초 전 · 설계 0.3초 뒤).
+         그대로: 앞 6초 뜸(ENT_LEAD) · 구호 줄을 모르는 길(줄 이동 · 늦은 곡)은 종전 셈 · 검사 scripts/audit/pv-r3-1115.mjs 15 */
+    if(k==='entry'&&!entRest()){ var c0=st0?callOf(st0,x):{ hd:0, v:x.V!=null?x.V:15 }; t=x.H-ENT_LEAD-c0.hd-c0.v-0.3; } else { var need=entNeed(k); t=x.arrive; if(t+need>x.end) t=x.end-need; }   /* [ENTRY_UNDER_1101] ② */
     t=Math.max(x.o,Math.min(t,x.end-1)); return t-x.o; }
   /* ★★[ENTRY_LATE_FILE_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 14] 화촉 직후 입장(뜸 없는 길) — 입장 곡 파일이 구호 시작보다 늦게 오면(LTE · 큰 곡) 그동안 지난 시간만큼 뒤에서 시작한다.
        종전: 늦게 와도 «구호와 함께 시작했을 때»의 자리(entAt)에서 시작 — 강조 자리가 늦은 만큼 밀렸다(1.5초 늦으면 말끝 +1.8초 · 재 본 값 +2.3초 · 설계 0.3초).
@@ -153,7 +156,7 @@
        종전: 곡 처음(0초)에서 구호와 함께 시작 — 강조가 구호 말끝 14초 전에 지나갔다. 입장 장면(entry-scene LATE_MUSIC «목소리가 먼저 · 음악은 뒤에»)과 당일 콘솔(같은 ES.plan)이 이미 이렇게 한다.
        그대로: 강조 자리가 넉넉한 곡(추천 곡 · 뒤 소절 hooks) · 화촉 곡 내림 + 정적 1초 · 늦게 들어올 때도 1.5초 올림 · 검사 scripts/audit/pv-r3-1115.mjs 13 */
   function entHushAt(st0,el){ var o=BUF[ENT_F], x=o&&o.ext; if(!x) return 0; var c0=callOf(st0,x); return Math.min(x.H-c0.hd-c0.v-0.3+(el||0),x.end-1)-x.o; }
-  function atOf(f,st){ if(BED.cur.f===f&&BED.cur.src) return 0; if(f===ENT_F) return entAt(st&&st.k); if(LPB.keep[f]!=null) return LPB.keep[f]; try{ if(st&&!entMulti()&&dayAt(st.k)===f&&ordOf('M4').filter(has)[0]!==f) return hookOf(f); }catch(x){} return 0; }   /* ★[SCREEN_SOUND_1102 2] 순간 하나 = 당일 시간표 그 자리 곡 · 목록 둘째 곡부터는 강조 자리에서(당일 목록이 넘길 때와 같다) · 첫 곡은 처음(0초) */
+  function atOf(f,st,lead){ if(BED.cur.f===f&&BED.cur.src) return 0; if(f===ENT_F) return entAt(st&&st.k,lead?st:null);   /* [ENTRY_LEAD_CALL_1115] lead = 순간 첫 줄 뜸(lpLead) — 입장이면 그 줄이 구호 */ if(LPB.keep[f]!=null) return LPB.keep[f]; try{ if(st&&!entMulti()&&dayAt(st.k)===f&&ordOf('M4').filter(has)[0]!==f) return hookOf(f); }catch(x){} return 0; }   /* ★[SCREEN_SOUND_1102 2] 순간 하나 = 당일 시간표 그 자리 곡 · 목록 둘째 곡부터는 강조 자리에서(당일 목록이 넘길 때와 같다) · 첫 곡은 처음(0초) */
 
   /* ── 있는 곡(드라이브 목록) · 곡 받기 — 마이페이지 안에서만 ── */
   var AV={ st:'', set:{}, t:null, cb:[] };   /* [DETAIL_R1_1101 ②] cb = 목록을 기다리는 듣기 */
@@ -444,7 +447,7 @@
     /* ★[BGM_TIMING_1101] 순간 첫 줄이 무음(−60 이하 · 편지 «음악 없이» 등)이면 뜸 대신 «끄고 정적 1초» — 앞 곡이 흐르면 1.5초에 −90 → 1초 뒤 첫 멘트(당일 1.5초 내림 + 내림 끝 대기와 같다) · 그 순간만이면 처음부터 음악 없이 · 판정은 위(곡이 없어도) */
     var p=PR(), cont=!!(BED.who==='lp'&&BED.cur.src&&BED.cur.f===f), ms=cont?3000:6000;   /* ★[LEAD_LONGER_1031 사장님 «처음 BGM 노래가 좀 더 흐른 뒤 멘트가 나왔으면»] 뜸 새 곡 3 → 6초 · 이어지는 곡 1.5 → 3초(큐 사이 크기 −8 · 끝 0.8초 미리 낮추기) */
     if(st.k!=='toast') LPB.m7=false; LPB.on=true; BED.who='lp'; LPB.cheer=false; subNote(st);
-    var go=function(){ play(f,vx(p.music,f),p.up,atOf(f,st)); LPB.f=f; var v=BED.cur, db=lvOf(st,f);
+    var go=function(){ play(f,vx(p.music,f),p.up,atOf(f,st,1)); LPB.f=f; var v=BED.cur, db=lvOf(st,f);
       if(v.want>db+0.5) setTimeout(function(){ if(BED.cur===v&&LPB.on&&curStep()===st) ramp(v,db,p.down); },Math.max(0,ms-p.down-p.aft)); };   /* ★[LAYER7_DUCK_1108] 뜸 끝 — 1.6초에 말 아래로 · 다 낮아진 뒤 0.4초에 첫 말(종전 0.8초) */
     /* ★[MEANING_R2_1102 ENTRY_HUSH] 입장 첫 줄 — 흐르던 화촉 곡을 2초에 −90 → 정적 1초 → 입장 곡은 무음에서 입장 구호 아래(그 줄 크기 −12 · 뜸 없음) · 두 곡이 겹치는 자리 0 */
     if(f===ENT_F&&st.k==='entry'&&BED.who==='lp'&&BED.cur.src&&BED.cur.f!==ENT_F){ var _v0=BED.cur, _tkh=++LPB.lt; LPB.on=true; if(_v0.want>-60) ramp(_v0,-90,2000); if(!BUF[f]) want(f);

@@ -6,7 +6,7 @@
    ② [SONG_OPEN_FADE_PV_1114] 가족 코스 축가 여는 말 → MR 자리 — 본식 피아노가 1.5초에 걸쳐 꺼진다(당일 큐 post 1.5초 · 종전 0.3초) · 여는 말이 끝난 뒤 0.9초에도 아직 들리고 1.9초 뒤엔 정적
         대조: 내림은 한 번(다음 줄이 시작돼도 다시 걸지 않는다) · MR 자리 · 맺는 말은 정적 · 사이를 늘리지 않았다 · 정석(축가 앞이 이미 정적)은 내림 예약 0
    ③ [ENTRY_HOOK_PV_1114] 화촉 직후 입장(뜸 없는 길) — «입장!» 구호 말끝 → 입장 곡 강조 자리(문 열림) 0 ~ 0.8초(설계 0.3초 · 종전 5.3초 · 구호 길이를 모르면 1.4초) · 구호는 저장소의 실제 소리(약 20초)
-        대조: 뜸 있는 길(입장부터 듣기)의 시작 자리는 종전 셈(H − 6 − V − 0.3) 그대로 · 입장만 따로 듣기(장면)의 설계 값 0.3초 · 화촉 곡과 입장 곡 사이 정적 1초 이상 · 곡 · 구호가 함께 시작
+        대조: 뜸 있는 길(입장부터 듣기)의 시작 자리는 H − 6 − (구호 앞 무음 + 말 길이) − 0.3(실제 구호 파일 · [ENTRY_LEAD_CALL_1115] 2026-11-15 · 종전 H − 6 − V − 0.3) · 입장만 따로 듣기(장면)의 설계 값 0.3초 · 화촉 곡과 입장 곡 사이 정적 1초 이상 · 곡 · 구호가 함께 시작
    ④ [BGM_OFF_STAYS_OFF_1114] 가족 코스 선언 뒤 박수 곡(새 곡)을 받는 중에 «음악 끄기» → 곡이 늦게 와도 새 소리 0 · «잠시 멈춤» → 멈춘 동안 새 소리 0 · 이어 들으면 그 새 곡이 그 줄 크기(−8)로
    ⑤ [LISTEN_LEN_PV_1114] 본식 순간 하나만 들을 때 곡 = 등록된 곡 길이로 센 당일 그 자리 곡 — 정석 축사 B10 · 축가 B11 · 가족 덕담 B10(종전 240초 셈 B09 · B10 · B09) · 화면 글 = 소리
    ONLY=1,2 … · BP_BED · BP_OP · BP_CUE = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
@@ -116,11 +116,11 @@ async function hook(key, vKnown) { const { ctx, f, errs } = await open(Bv.port, 
   await start(f, 'flow', ['candle', 'entry'], 1500);
   try { await f.waitForFunction(() => window.__pv.na.some((x) => x.e === 'ended' && /_entry-[A-F]\.mp3/.test(x.src)), null, { timeout: 150000, polling: 50 }); await f.waitForTimeout(1500); } catch (e) {}
   const d = await stop(f), pl = d.na.find((x) => x.e === 'playing' && /_entry-[A-F]\.mp3/.test(x.src)), en = d.na.find((x) => x.e === 'ended' && /_entry-[A-F]\.mp3/.test(x.src)), s0 = d.st.filter((x) => x.ent)[0], x = d.ent && d.ent.x;
-  let lead = null;
-  if (vKnown) { await f.evaluate(() => { try { BgmBed.turn(); } catch (e) {} }); await start(f, 'flow', ['entry', 'matjeol'], 1500); try { await f.waitForFunction(() => window.__pv.st.some((q) => q.buf === (BgmBed._t.BUF['@ENT'] || {}).b), null, { timeout: 30000, polling: 50 }); } catch (e) {} const d2 = await stop(f), s2 = d2.st.filter((q) => q.ent)[0]; lead = s2 ? r1(s2.off) : null; }
+  let lead = null, callD = 0;
+  if (vKnown) { await f.evaluate(() => { try { BgmBed.turn(); } catch (e) {} }); await start(f, 'flow', ['entry', 'matjeol'], 1500); try { await f.waitForFunction(() => window.__pv.st.some((q) => q.buf === (BgmBed._t.BUF['@ENT'] || {}).b), null, { timeout: 30000, polling: 50 }); } catch (e) {} const d2 = await stop(f), s2 = d2.st.filter((q) => q.ent)[0]; lead = s2 ? r1(s2.off) : null; callD = await f.evaluate((u) => { const D = BgmBed._t.DUR; const k = Object.keys(D).find((q) => q.split('/').pop() === u); return k ? D[k] : 0; }, pl ? pl.src : ''); }
   await ctx.close(); if (!pl || !en || !s0 || !x) return { key, vKnown, none: true, errs, pl: !!pl, en: !!en, s0: !!s0 };
   const pd = PAD.of(pl.src) || [0, 0], hookAt = s0.T + (x.H - x.o - s0.off) * 1000, last = d.o.filter((q) => q.t < s0.T && q.f && q.f !== '@ENT' && q.want > -60).pop();
-  return { key, vKnown, errs, V: x.V, off: r1(s0.off), callSec: r1((en.T - pl.T) / 1000), after: Math.round((hookAt - (en.T - pd[1])) / 10) / 100, together: Math.round(pl.T - s0.T), hush: last ? Math.round(s0.T - last.t) : null, lead, leadWant: x.V != null ? r1(Math.max(0, x.H - 6 - x.V - 0.3 - x.o)) : null, scene: scene ? r1((scene.th - (scene.tv + scene.V)) * 10) / 10 : null }; }
+  return { key, vKnown, errs, V: x.V, off: r1(s0.off), callSec: r1((en.T - pl.T) / 1000), after: Math.round((hookAt - (en.T - pd[1])) / 10) / 100, together: Math.round(pl.T - s0.T), hush: last ? Math.round(s0.T - last.t) : null, lead, leadWant: callD > 0 ? r1(Math.max(0, x.H - 6 - pd[0] / 1000 - Math.max(0.5, callD - (pd[0] + pd[1]) / 1000) - 0.3 - x.o)) : null, scene: scene ? r1((scene.th - (scene.tv + scene.V)) * 10) / 10 : null }; }
 
 /* ④ 박수 곡을 받는 중 끄기(off) · 멈춤(pause) — 박수 곡 응답을 붙잡아 두었다가 누른 뒤에 풀어 준다 */
 async function lateClap(mode) { const { ctx, pg, f, errs } = await open(A.port, 'family', { mu: false, pre: () => { H.hold.B10 = true; } }); await start(f, 'flow', ['declare', 'bless'], 1500);
@@ -164,7 +164,7 @@ try {
     console.log('  재 본 값 ③ ' + [k1, k0, k2].map((x) => JSON.stringify(x)).join(' · '));
     ok('③ 화촉 직후 입장 — 구호 말끝 → 강조 자리 0 ~ 0.8초(정석 · 가족 · 구호 길이를 아는 날)', [k1, k2].every((x) => !x.none && x.V > 1 && x.after >= 0 && x.after <= 0.8), [k1, k2].map((x) => [x.key, x.V, x.after, x.off]));
     ok('③ 구호 길이를 아직 모르는 날(입장 쪽을 안 열어 봄)도 0 ~ 0.8초', !k0.none && k0.after >= 0 && k0.after <= 0.8, [k0.V, k0.after, k0.off]);
-    ok('③ 대조 — 곡 · 구호가 함께 시작(±0.4초) · 화촉 곡이 꺼진 뒤 1초 이상 정적 · 뜸 있는 길(입장부터)은 종전 시작 자리(H − 6 − V − 0.3) · 장면 설계 값 0.3초', [k1, k0, k2].every((x) => !x.none && Math.abs(x.together) <= 400 && x.hush >= 1000) && [k1, k2].every((x) => x.lead != null && Math.abs(x.lead - x.leadWant) <= 0.15 && Math.abs(x.scene - 0.3) <= 0.05), [k1, k0, k2].map((x) => [x.key, x.together, x.hush, x.lead, x.leadWant, x.scene]));
+    ok('③ 대조 — 곡 · 구호가 함께 시작(±0.4초) · 화촉 곡이 꺼진 뒤 1초 이상 정적 · 뜸 있는 길(입장부터)은 H − 6 − 구호(실제 파일 · 앞 무음 + 말) − 0.3 · 장면 설계 값 0.3초', [k1, k0, k2].every((x) => !x.none && Math.abs(x.together) <= 400 && x.hush >= 1000) && [k1, k2].every((x) => x.lead != null && Math.abs(x.lead - x.leadWant) <= 0.15 && Math.abs(x.scene - 0.3) <= 0.05), [k1, k0, k2].map((x) => [x.key, x.together, x.hush, x.lead, x.leadWant, x.scene]));
     ok('③ 쪽 오류 0', [k1, k0, k2].every((x) => !x.errs.length), [k1, k0, k2].map((x) => x.errs.slice(0, 2))); }
   if (want(2)) { const [fa, sd] = await Promise.all([songOpen('family'), songOpen('standard')]);
     console.log('  재 본 값 ② 가족 ' + JSON.stringify(fa) + ' · 정석 ' + JSON.stringify(sd));
