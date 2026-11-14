@@ -23383,3 +23383,15 @@ chk 'FINAL_APPLY_1115' scripts/build-layers.mjs 1
 chk '오늘은 주례사 대신 부모님의 덕담을 듣겠습니다.' assets/ritual-open.js 1
 chk '예식에 앞서 두 사람이 준비한 영상을 함께 보겠습니다.' assets/ritual-open.js 1
 nochk '하객 여러분께서는 스크린에 주목해 주시기 바랍니다. 영상 함께 보시겠습니다.' assets/ritual-open.js
+# ★[FINAL_APPLY_1115 묶음 2 · 대본 11/15] 우성 FINAL1 다시 녹음 59문장(+ 226 F7 · 146 d45) — 확정 테이크 원본 = 창고 1층 · 1층 재료표 옛 줄 뺌 · 5층 옛 소리 본 → 글자 비율 · 끊긴 10곳 뺌
+#   146 «양가 아버님, 맞절.» = 글 그대로(대본 a) · 소리는 두 테이크를 들리는 틈 0.51초로 이은 재료 · 구호 쉼 자리에서 뺌 · «신랑 신부… 맞절.» 넷도 구호 쉼에서 뺌(쉼 없이 끌어 말함)
+chk 'FINAL_APPLY_1115' assets/audio/_src/_layers/층5_자리.json 10
+chk 'FINAL_APPLY_1115' assets/audio/_src/_layers/층4_쉼.json 1
+chk 'FINAL_APPLY_1115' assets/audio/_src/_layers/층6_크기.json 1
+chk 'FINAL_APPLY_1115' assets/audio/_src/_layers/끊김_허용_1114.json 1
+chk '신랑 신부… 맞절.' assets/ritual-open.js 4
+chk '화면으로 함께해 주시는 분들께도 두 사람이 인사드리겠습니다.' assets/ritual-data.js 1
+chk '이제 안내에 따라 사진 촬영을 진행하겠습니다.' assets/ritual-cue.js 1
+chk '양가 아버님, 맞절.' assets/ritual-open.js 1
+nochk '화면으로 보고 계신 분들께 인사를 올리겠습니다.' assets/ritual-data.js
+nochk '이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해 서도록 하겠습니다.' assets/ritual-open.js
