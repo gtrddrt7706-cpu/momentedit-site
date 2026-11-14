@@ -4806,7 +4806,13 @@ nochk '«준비한 순서»에서 «영상»을 먼저 골라' automation/platfo
 # ★[MID_OPEN_1114 2026-11-14 · ★사장님 승인 전 · 병합하는 날로 넷을 같은 날로] 처리방침 «식중 영상» 항목(수집 #midvideo · 목적 · 보관) + 89_prevideo PV_UP.midFrom = 그 시행일 → 식중 영상 줄 · 받기가 열린다
 #   날짜가 서로 맞는지 · 동의 판 링크는 midvideo.mjs ⑤ 가 잰다(되돌리면 빨강 확인)
 chk 'MID_OPEN_1114' privacy.html 3
-chk 'MID_OPEN_1114' automation/platform/89_prevideo.gs 1
+chk 'MID_OPEN_1114' automation/platform/89_prevideo.gs 2
+chk 'MID_OPEN_1114' api/_kb.js 1
+chk 'VIDEO_NAME_1114' api/_ritual-kb.js 2   # 빌더 AI — 준비한 영상은 식전 · 식중 둘 · D-7 식중 영상 확정
+chk '마이페이지 «식중 영상»에서 링크로 보내실 수 있습니다.' index.html 2   # [MID_OPEN_1114] 문을 연 날 홈 FAQ · JSON-LD «상담 때 안내» → 마이페이지
+nochk '보내는 방법은 상담 때 안내' index.html 0
+nochk '보내는 방법은 상담 때 안내' api/_kb.js 0
+chk "_recordHandler(code, _pvName_(kind) + ' 동의 · 처리방침 ' + ver)" automation/platform/89_prevideo.gs 1   # [GPT 1-03] 처리이력 = 동의한 처리방침 날짜
 chk 'MID_OPEN_1114' mypage.html 1
 chk 'MID_OPEN_1114' scripts/audit/midvideo.mjs 4
 chk 'id="midvideo"' privacy.html 1

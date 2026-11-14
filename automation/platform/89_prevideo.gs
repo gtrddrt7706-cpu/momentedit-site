@@ -172,8 +172,9 @@ function _pvSess_(body) {
   return { code: code, cust: s.row };
 }
 function _pvConsentGive_(m, code, kind) {
-  m.consent = { at: fmtKST(new Date()), ver: (_pvKind_(kind) === 'mid' && PV_UP.midFrom) ? PV_UP.midFrom : PV_UP.from };   // [MID_VIDEO_1106 · 재검토 1604] 식중은 처리방침 «식중 영상» 날짜
-  try { if (typeof _recordHandler === 'function') _recordHandler(code, _pvName_(kind) + ' 동의 · 처리방침 ' + PV_UP.from); } catch (e) {}   // [MID_VIDEO_1106]
+  var ver = (_pvKind_(kind) === 'mid' && PV_UP.midFrom) ? PV_UP.midFrom : PV_UP.from;   // [MID_OPEN_1114 · GPT 1-03] 처리이력도 같은 날짜(식중이 식전 날짜로 적히던 것)
+  m.consent = { at: fmtKST(new Date()), ver: ver };   // [MID_VIDEO_1106 · 재검토 1604] 식중은 처리방침 «식중 영상» 날짜
+  try { if (typeof _recordHandler === 'function') _recordHandler(code, _pvName_(kind) + ' 동의 · 처리방침 ' + ver); } catch (e) {}   // [MID_VIDEO_1106]
 }
 // 관리자 메일 — 코드마다 10분에 한 통(같은 사람이 여러 번 보내도 메일이 쌓이지 않게)
 function _pvAdminMail_(code, line) {
