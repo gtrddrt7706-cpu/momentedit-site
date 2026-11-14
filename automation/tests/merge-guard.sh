@@ -23376,3 +23376,6 @@ chk 'LISTEN_LEN_PV_1114' scripts/audit/pv-fix-1114.mjs 1
 chk 'NO_RELIFT_ALL_1115' console.html 4
 chk 'function bedHush(){' console.html 1
 chk 'var _own = BED.gen' console.html 1
+# ★★[NO_RELIFT_WANT_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 07] 당일 콘솔 — «정적인가»에 청한 크기(duckWant −60 아래)도 넣는다 · 아직 들리는 크기에서 내려가던 중이면 0.5초에 끈다(HUSH_SOFT) · 소리는 console-relift ⑦
+chk 'NO_RELIFT_WANT_1115' console.html 3
+chk 'soft = !off && duckWant != null && duckWant <= -60' console.html 1

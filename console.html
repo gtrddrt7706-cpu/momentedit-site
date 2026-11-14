@@ -1295,7 +1295,7 @@ function bedPlay(sid, xf, at){ if (!SEGF[sid]) return false;
       if (BED.tk !== tk) { if (BED.opening && BED.opening.tk === tk) BED.opening = null; return; }   /* 그사이 다른 재생(정지 · 새 곡)이 왔다 — 버린다 */
       BED.opening = null;
       if (!ok) { try { el.pause(); el.removeAttribute('src'); el.load(); } catch (e) {} (BED.bad = BED.bad || {})[sid] = 1; if (_ofl) { _ofl(sid); return; } bedUnhush(); var _pe = BED.el[BED.on], _keep = !!(_pe && _pe !== el && !_pe.paused && _pe.getAttribute('src')); bedErr(_keep ? '곡 파일을 열지 못했어요 · 재생 중인 곡은 그대로 이어집니다.' : '곡 파일을 열지 못했어요.'); bedLater(); return; }   /* [B2_NA_65] 이어질 곡이 실제로 흐를 때만 «그대로 이어집니다» */   /* ★[DETAIL_R5_1101 규칙 5] 못 연 곡은 이 예식에서 다시 시도하지 않는다 · 목록이 넘길 때 실패하면 그다음 곡으로(listGo) */
-      if (sid !== BED.id) BED.keepErr = ''; bedErr(BED.keepErr || ''); var xm = Math.round(xf * 1000) + 120;   /* [DETAIL_R5_1101 규칙 5] 같은 곡을 이어 트는 동안은 상태 한 줄을 남긴다 */ BED.xing = Date.now(); bedFade(nx, 1, xf); if (BED.hushK === BED.on && BED.hushK != null && BED.hushK > -1) xm = 150; else bedFade(BED.on, 0, xf);   /* [NO_RELIFT_XF_1114] 꺼 둔 앞 곡은 겹치지 않고 바로 멈춘다 */ BED.hushK = -1; clearTimeout(BED.hushT);
+      if (sid !== BED.id) BED.keepErr = ''; bedErr(BED.keepErr || ''); var xm = Math.round(xf * 1000) + 120;   /* [DETAIL_R5_1101 규칙 5] 같은 곡을 이어 트는 동안은 상태 한 줄을 남긴다 */ BED.xing = Date.now(); bedFade(nx, 1, xf); if (BED.hushK === BED.on && BED.hushK != null && BED.hushK > -1) xm = Math.max(150, (BED.hushEnd || 0) - Date.now() + 60); else bedFade(BED.on, 0, xf);   /* [NO_RELIFT_WANT_1115] 0.5초에 끄는 중이면 다 끈 뒤에 멈춘다 */   /* [NO_RELIFT_XF_1114] 꺼 둔 앞 곡은 겹치지 않고 바로 멈춘다 */ BED.hushK = -1; clearTimeout(BED.hushT);
       var was = BED.on, wel = BED.el[was], wgen = BED.gen[was]; if (wel && !wel.paused && wel.getAttribute('src')) BED.fade[was] = Date.now() + xm;   /* 소리 나던 재생기만 «잦아드는 중» */ setTimeout(function(){ var _own = BED.gen[was] === wgen;   /* [NO_RELIFT_ALL_1115] bedHush 가 먼저 멈추고 내준 재생기는 이 타이머가 손대지 않는다(그사이 새 곡이 그 재생기를 쓸 수 있다) */ if (_own && BED.on !== was) { try { BED.el[was].pause(); } catch (e) {} } if (_own && BED.fade[was] <= Date.now() + 5) BED.fade[was] = 0; if (!BED.fade.some(function(t){ return t > Date.now(); })) BED.xing = 0; bedLater(); }, xm);
       var _v0 = bedVocal(); BED.on = nx; BED.id = sid; BED.mode = 'seg'; songGainSet(sid !== '@PV'); pvsNote(); applyMaster(); if (bedVocal() !== _v0 && duckWant != null) duckTo(duckWant, Math.round(xf * 1000)); },   /* [BGM_FIX_1030] 노래 곡 ↔ 연주 곡이 바뀌면 지금 크기를 다시 건다(vocalExtra) */
     onPl = function(){ if (t0 == null) t0 = el.currentTime; }, onEr = function(){ fin(false); },
@@ -1313,9 +1313,14 @@ function bedPlay(sid, xf, at){ if (!SEGF[sid]) return false;
      먼저 잦아들던 재생기도 «안 들릴 뿐» 곡선을 따라 내려가는 중이라(정적 때 크기 0.96), 정적 뒤 새 구간 곡(부모님께 인사 등)이 전체 크기를 올리면 그 재생기가 되살아났다(종전엔 BED.on 한 대만 막았다 · 잰 값 −6.3 dB · 5.5초 −60 위).
      고침 = 정적에서 새 곡을 걸 때 소리가 남은 모든 재생기를 정리 — 지금 곡은 꺼 두고(못 열면 되돌림 · 위 그대로) · 잦아들던 재생기는 바로 멈추고 비워 준다(새 곡이 그 재생기를 쓸 수 있다 ·
      그 재생기의 겹침 끝 타이머는 BED.gen 으로 손을 뗀다) · 세 대가 다 쓰여 요청을 BED.later 로 미룰 때도 미루기 전에 같은 처리(종전엔 미루는 길에서 아무것도 꺼 두지 않았다 · 되돌림 bedUnhush 도 미뤄 둔 요청을 기다린다) · 결정 기록 NO_RELIFT_1102 · DETAIL_R3_1101 ② */
-function bedHush(){ if (BED.mode !== 'seg' || !gBgm || !AC) return; var off = 20 * Math.log10(Math.max(1e-6, gBgm.gain.value)) <= -60; if (!off) return;
-  var t = AC.currentTime, on = BED.on, n = 0;
+/* ★★[NO_RELIFT_WANT_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 07] «정적인가»를 지금 크기(gBgm −60 dB 아래)만으로 가르지 않는다 — 정적으로 내려가는 중(청한 크기 duckWant −60 아래 ·
+     반지 뒤 선언 4초 내림 2.5초째 gBgm −57.7 dB)에 큐 목록으로 다른 구간(부모님께 인사)에 점프하면 조건이 안 맞아 앞 곡이 겹침 동안 −8.9 dB 로 되돌아왔다(3.2초 −60 위 · 조금 뒤였으면 꺼졌다).
+     고침 = 청한 크기가 −60 아래면 정적으로 본다 · 아직 들리는 크기에서 내려가던 중이면 바로 끊지 않고 0.5초에 걸쳐 끈다(HUSH_SOFT · 정적으로 가던 길을 줄인 것) · 결정 기록 NO_RELIFT_1102 */
+var HUSH_SOFT = 0.5;
+function bedHush(){ if (BED.mode !== 'seg' || !gBgm || !AC) return; var off = 20 * Math.log10(Math.max(1e-6, gBgm.gain.value)) <= -60, soft = !off && duckWant != null && duckWant <= -60; if (!off && !soft) return;
+  var t = AC.currentTime, on = BED.on, n = 0; BED.hushEnd = soft ? Date.now() + HUSH_SOFT * 1000 : 0;
   for (var k = 0; k < BED.el.length; k++) { var el = BED.el[k], g = BED.xg[k]; if (!el || !g || el.paused || !el.getAttribute('src')) continue;
+    if (soft) { xfCurve(g.gain, 0.0001, HUSH_SOFT, t); if (k === on) { BED.hushK = k; n++; } continue; }   /* [NO_RELIFT_WANT_1115] 잦아들던 재생기는 제 타이머가 멈춘다 */
     try { g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(0.0001, t); } catch (e) {}
     if (k === on) { BED.hushK = k; n++; continue; }
     try { el.pause(); } catch (e) {} BED.gen[k] = (BED.gen[k] || 0) + 1; BED.fade[k] = 0; }   /* 잦아들던 재생기 — 멈추고 비운다 */
