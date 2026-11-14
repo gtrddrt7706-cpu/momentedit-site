@@ -1384,11 +1384,12 @@ function segGo(id){ if (!id || ((MODE === 'preview' || GUEST) && !pvsOn())) retu
        그 구간 목록의 다음 곡을 한 번씩 열어 본다(segFirstFail · 목록 넘김 listGo 와 같은 규칙 DETAIL_R5_1101 규칙 5) · 종전엔 빨간 한 줄만 남기고 그 구간 내내 무음이었다
        (같은 구간이라 다음 큐에서도 다시 시도하지 않았다 · 하객 맞이 20분 무음 · 설정 화면엔 깨진 파일도 ✓).
        앞 곡이 흐르는 중이면(안 들리게 낮춰 둔 정적 자리 포함) 종전 그대로 — DETAIL_R3_1101 ② «앞 곡 그대로 · 빨간 한 줄» · 꺼 둔 앞 곡 되돌림(NO_RELIFT_XF_1114 bedUnhush)도 그대로 */
-  var _pe0 = BED.el[BED.on]; if (!(_pe0 && !_pe0.paused && _pe0.getAttribute('src'))) BED.onFail = function(){ segFirstFail(id); };
+  var _pe0 = BED.el[BED.on], _h4 = !!BED.m4h; if (_h4 || !(_pe0 && !_pe0.paused && _pe0.getAttribute('src'))) BED.onFail = function(){ segFirstFail(id, _h4); };   /* [M4_HANDOFF_NEXT_1115] 짧은 입장 곡 인계(esdEnd)는 앞 곡(꺼 둔 화촉 곡)이 있어도 다음 곡을 연다 */
   var _r0 = bedPlay(L[li], SEG_XF, rat); BED.onFail = null;   /* 미뤄진 요청(BED.later)으로 새지 않게 */ return _r0; }
 /* [SEG_FIRST_FAIL_1114] 구간 첫 곡이 안 열렸고 흐르는 앞 곡도 없다 — 목록의 다음 곡(파일이 있고 못 연 적 없는 곡)을 한 번씩 · 다 안 되면 꺼 둔 재생기를 되돌리고(bedUnhush) 종전 한 줄 */
-function segFirstFail(id){ if (BED.seg !== id) return; var L = BED.list || [], bad = BED.bad || {};
-  for (var k = 1; k < L.length; k++) { var j = (BED.li + k) % L.length, s = L[j]; if (s && SEGF[s] && !bad[s]) { BED.li = j; BED.onFail = function(){ segFirstFail(id); }; bedPlay(s, SEG_XF); BED.onFail = null; return; } }
+function segFirstFail(id, h4){ if (BED.seg !== id) return; var L = BED.list || [], bad = BED.bad || {};
+  for (var k = 1; k < L.length; k++) { var j = (BED.li + k) % L.length, s = L[j]; if (s && SEGF[s] && !bad[s]) { BED.li = j; BED.onFail = function(){ segFirstFail(id, h4); }; bedPlay(s, SEG_XF); BED.onFail = null; return; } }
+  if (h4) { m4None(); return; }   /* [M4_HANDOFF_NEXT_1115] 인계에서 다 못 열면 음악 없이(M4_HANDOFF_NONE_1115 와 같은 끝) */
   bedUnhush(); bedErr('곡 파일을 열지 못했어요.'); bedLater(); }
 /* [CARRY_SAME_1101] 지금 들리는 구간 곡 — 입장 곡 · 식전 영상 · 축가처럼 배경음이 꺼져 있던 자리(−60 아래)는 «흐르던 곡»이 아니다 */
 function segCur(){ var el = BED.el[BED.on]; if (BED.mode !== 'seg' || !BED.id || !el || el.paused || (ESD && ESD.run)) return ''; if (duckWant != null && duckWant <= -60) return ''; return BED.id; }
@@ -1612,7 +1613,9 @@ function esdDuck(db, ms){ var r = ESD.run; if (!r || cur === r.i) return; var a 
    같은 곡 강조(H) 자리에서 새로 걸고 3초 겹쳐 잇는다(미리 듣기 entArm · LIST_HOLD 와 같은 방식 · 앞 장면 곡 M1 · M2 로 돌아가지 않는다) ② 짧은 곡은 종전 그대로 M4 인계 ·
    떠난 run(ESD.run 이 바뀜) · 이미 인계한 끝(run.ending)은 다시 하지 않는다 */
 function esdEnd(run, ended){ if (ESD.run !== run || run.ending) return; if (!ESD.short && esdRelay(run)) return; run.ending = true;
-  var _go = true; if (ESD.short) { segGo('M4'); _go = BED.mode !== 'seg' || m4Flows(); if (!_go) m4None(); }   /* [M4_HANDOFF_NONE_1115] 구간 곡을 안 쓰는 날(배경 음악 파일 하나)은 종전 그대로 */
+  /* ★[M4_HANDOFF_NEXT_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 02] 인계에서 첫 본식 곡을 못 열면 목록의 다음 곡을 한 번씩(SEG_FIRST_FAIL_1114 segFirstFail 과 같은 규칙) · 다 못 열면 m4None —
+       종전엔 앞 곡(입장 동안 꺼 둔 화촉 곡)이 «흐르는 중»이라 실패 뒤 다음 곡 요청이 0회였고 꺼 둔 화촉 곡이 0.8초에 되살아나 배경과 함께 올랐다(DETAIL_R3_1101 ② «앞 곡 그대로»보다 NO_RELIFT_1102 가 앞선다 · 정적에 꺼진 곡) */
+  var _go = true; if (ESD.short) { BED.m4h = 1; segGo('M4'); BED.m4h = 0; _go = BED.mode !== 'seg' || m4Flows(); if (!_go) m4None(); }   /* [M4_HANDOFF_NONE_1115] 구간 곡을 안 쓰는 날(배경 음악 파일 하나)은 종전 그대로 */
   if (ended) { ESD.run = null; if (run.tEnd) clearTimeout(run.tEnd); if (_go) esdBedBack(3000); } else if (_go) { esdStop(SEG_XF, true); esdBedBack(SEG_XF * 1000, true); } else esdStop(SEG_XF, true); try { render(); } catch (e) {} }
 /* ★★[M4_HANDOFF_NONE_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 02] 짧은 입장 곡의 인계(ENTRY_SHORT · 10/23) — 배경을 올리는 것은 이어받을 본식 피아노(M4)가 실제로 흐르거나 새로 열릴 때만.
      종전엔 재생할 수 있는 M4 파일이 하나도 없으면 새 곡 요청이 0회인데 배경(전체 크기)만 올라가, 입장 동안 꺼져 있던 화촉 곡이 −76 → +3.9 dB 로 돌아왔다(6초 −60 위 · NO_RELIFT_1102 «정적 뒤 앞 곡을 되살리지 않는다»와 어긋남).
