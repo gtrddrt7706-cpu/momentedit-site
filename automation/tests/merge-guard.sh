@@ -23392,6 +23392,6 @@ chk 'FINAL_APPLY_1115' assets/audio/_src/_layers/끊김_허용_1114.json 1
 chk '신랑 신부… 맞절.' assets/ritual-open.js 4
 chk '화면으로 함께해 주시는 분들께도 두 사람이 인사드리겠습니다.' assets/ritual-data.js 1
 chk '이제 안내에 따라 사진 촬영을 진행하겠습니다.' assets/ritual-cue.js 1
-chk '양가 아버님, 맞절.' assets/ritual-open.js 1
+chk '양가 아버님, 맞절.' assets/ritual-open.js 2
 nochk '화면으로 보고 계신 분들께 인사를 올리겠습니다.' assets/ritual-data.js
 nochk '이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해 서도록 하겠습니다.' assets/ritual-open.js
