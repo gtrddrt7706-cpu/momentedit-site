@@ -54,7 +54,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
   /* ── 03 브랜드 색 토큰 (index.html :root 와 동일) ── */
   --bg:#FAFAF8; --bg2:#F5F3EF; --bg3:#EDEBE6; --text:#1C1B19;
   --accent:#3A2D22; --sub:#5A554C; --light:#6E6959;   /* [TAP44] 대비 4.47→4.6:1 · 홈·상담과 같은 정정 */
-  --gold:#B89A75; --seal:#6B2A24; --border:#DDD8D1;
+  --gold:#B89A75; --seal:#6B2A24; --border:#DDD8D1;--field-line:#8A857C;
   --gold-bg:#FAF6EF;                 /* 골드 옅은 배경(선택칩·아이콘 원) · 정식 토큰화 */
   --gold-soft:rgba(184,154,117,.28); /* 골드 옅은 테두리 */
   --card-shadow:0 1px 2px rgba(28,27,25,.03),0 8px 30px rgba(28,27,25,.05); /* index·schedule 카드와 동일 톤 */
@@ -75,7 +75,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
   --sans:'Noto Sans KR',-apple-system,sans-serif;
   --mono:'Roboto Mono',ui-monospace,monospace;
   --ease:cubic-bezier(0.16,1,0.3,1);
-}
+}   /* ★[FIELD_LINE_1115 2026-11-15 대본 «입력칸 한 벌»] 입력칸 경계 = 비텍스트 3:1(WCAG 1.4.11) · 종전 --border #DDD8D1 은 크림 위 1.36:1 · 쓰는 곳: 로그인 .field input · .cc-input · .res-qty · .birth-group · .dt-year-sel · .sdb-nm · .seat-note-ta (inquiry · index 도 같은 값) */
 html{scroll-behavior:smooth;overscroll-behavior-y:contain}   /* 안드로이드 크롬 기본 당겨서-새로고침(전체 리로드)과 커스텀 상단 당김(loadMyState) 충돌 방지 */
 body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;font-size:15px;line-height:1.8;-webkit-font-smoothing:antialiased;word-break:keep-all}
 
@@ -138,7 +138,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .subtitle .nb{white-space:nowrap}   /* [AUTH_BOX_WRAP] 말 덩어리(«진행 상황을 볼 수 있어요» · «자동으로 로그인돼요»)는 한 줄로 — 폰에서 그 앞에서 끊긴다 */
 
 .field{position:relative;margin-bottom:15px}
-.field input{width:100%;border:1px solid var(--border);border-radius:6px;padding:17px 15px;font-family:var(--sans);font-size:16px;color:var(--accent);background:var(--bg);outline:none;transition:border-color .3s}   /* MPD_B9 입력 16px — iOS 포커스 자동 줌 방지(15px 이하 금지 · 2026-07-25) */
+.field input{width:100%;border:1px solid var(--field-line);border-radius:6px;padding:17px 15px;font-family:var(--sans);font-size:16px;color:var(--accent);background:var(--bg);outline:none;transition:border-color .3s}   /* MPD_B9 입력 16px — iOS 포커스 자동 줌 방지(15px 이하 금지 · 2026-07-25) */
 .field input:focus{border-color:var(--gold)}
 /* 자동완성(autofill) 시 브라우저가 입히는 연보라/노랑 배경 제거 — 페이지 톤 유지 */
 .field input:-webkit-autofill,.field input:-webkit-autofill:hover,.field input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 1000px var(--bg) inset;-webkit-text-fill-color:var(--accent);caret-color:var(--accent);transition:background-color 9999s ease 0s}
@@ -443,7 +443,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .consult-card .cc-count{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--seal);margin-top:8px}
 .consult-card .cc-note.cc-warn{color:var(--seal);font-weight:500}
 .consult-card .cc-mini{font-size:11px;color:var(--light)}   /* RESULT_WAIT_POLISH · 각주 대비 4.5:1 경계 → 한 톤 진하게(위계는 최하위 유지) */
-.consult-card .cc-input,.mp-modal-body .cc-input{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:6px;padding:12px 13px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none;margin-bottom:8px}
+.consult-card .cc-input,.mp-modal-body .cc-input{width:100%;box-sizing:border-box;border:1px solid var(--field-line);border-radius:6px;padding:12px 13px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none;margin-bottom:8px}
 .consult-card .cc-input:focus{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}   /* ★[FOCUS_ONE 2026-09-27 사장님 «일관성»] 입력칸 초점 한 벌 = 짙은 금빛 테 두 겹 — 옅은 금빛 한 겹(2.5:1 · 잘 안 보였다) · 좌석 메모의 진사 빛 번짐 · 겹화면의 바깥 테가 섞여 있었다 */
 /* 완료 카드 접기 */
 .consult-card.cc-done{padding:0;text-align:left}
@@ -583,9 +583,9 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .dt-cal-nav{background:none;border:none;cursor:pointer;font-family:var(--serif);font-size:20px;font-weight:300;color:var(--sub);line-height:1;padding:4px 9px;border-radius:2px;transition:all .25s var(--ease)}
 .dt-cal-nav:hover:not(:disabled){color:var(--gold-deep);background:var(--bg2)}
 .dt-cal-nav:disabled{opacity:.25;cursor:not-allowed}
-.dt-year-sel{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);background:transparent;border:none;border-bottom:1px solid var(--border);padding:2px 2px;cursor:pointer;outline:none}
+.dt-year-sel{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);background:transparent;border:none;border-bottom:1px solid var(--field-line);padding:2px 2px;cursor:pointer;outline:none}
 /* 생년월일 — 개별 박스 3개 → 테두리 하나로 묶은 통합 필드(년│월│일). 내부 구분선으로 구획 */
-.birth-group{display:flex;align-items:stretch;border:1px solid var(--border);border-radius:8px;background:#fff;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.birth-group{display:flex;align-items:stretch;border:1px solid var(--field-line);border-radius:8px;background:#fff;overflow:hidden;transition:border-color .2s,box-shadow .2s}
 .birth-group:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft,rgba(184,154,117,.28))}
 .birth-sel{-webkit-appearance:none;-moz-appearance:none;appearance:none;box-sizing:border-box;flex:1;min-width:0;font-family:var(--serif-ko);font-size:14px;font-weight:300;color:var(--accent);background-color:transparent;border:none;border-radius:0;padding:12px 26px 12px 14px;outline:none;cursor:pointer;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23B89A75' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 9px center}
 .birth-sel+.birth-sel{border-left:1px solid var(--border)}
@@ -1085,7 +1085,7 @@ body.snp-open #mpToast{bottom:calc(var(--snp-toast-b,34px) + env(safe-area-inset
 /* 추가 보정 수량 입력 — 가운데 정렬 + '컷' 접미 / 우측 '합계 금액' */
 .res-exrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:13px 0 4px}   /* [EXROW_WRAP 2026-09-26] 320 에서 「합계 40,000원」이 패널 밖으로 21px 넘쳤다(실측 · 종전부터) — 자리가 모자라면 수량 아래로 내린다 */
 .res-qty{position:relative;flex:0 0 108px}
-.res-qty input{width:100%;box-sizing:border-box;text-align:center;border:1px solid var(--border);border-radius:10px;padding:12px 30px 12px 14px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none;transition:border-color .25s}
+.res-qty input{width:100%;box-sizing:border-box;text-align:center;border:1px solid var(--field-line);border-radius:10px;padding:12px 30px 12px 14px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none;transition:border-color .25s}
 .res-qty input:focus{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}   /* [FOCUS_ONE] */
 .res-qty input::-webkit-outer-spin-button,.res-qty input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .res-qty input[type=number]{-moz-appearance:textfield}
@@ -1707,7 +1707,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     .sp-opt{display:block;position:relative;padding:11px 12px 11px 38px;border:1px solid var(--border);border-radius:10px;background:#fff;margin-bottom:8px;cursor:pointer;transition:border-color .15s,background .15s}
     .sp-opt input{position:absolute;left:13px;top:14px;accent-color:var(--seal)}
     .seat-note-d{font-size:12px;color:var(--sub);line-height:1.6;word-break:keep-all;margin:-2px 0 9px;text-align:left}   /* [SUBHEAD_ONE] 제목(왼쪽)과 같은 왼쪽 선 · 11.5 → 12(반 px 없이) */   /* [SEAT_NOTE] .sp-d 는 라디오 안쪽 전용 스코프라 여기선 안 먹는다 */
-    .seat-note-ta{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:10px;background:#fff;padding:10px 12px;font:inherit;font-size:13px;color:var(--accent);line-height:1.6;resize:vertical;min-height:66px}   /* [SEAT_NOTE] */
+    .seat-note-ta{width:100%;box-sizing:border-box;border:1px solid var(--field-line);border-radius:10px;background:#fff;padding:10px 12px;font:inherit;font-size:13px;color:var(--accent);line-height:1.6;resize:vertical;min-height:66px}   /* [SEAT_NOTE] */
     .seat-note-ta:focus{outline:none;border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}   /* [FOCUS_ONE] 진사 빛 번짐 → 짙은 금빛 테(진사는 점에만) */
     .seat-note-ta::placeholder{color:var(--label-soft)}
     /* .sp-opt.on → [SEL_ONE] */
@@ -1768,7 +1768,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     .sdb-x:active{color:var(--accent)}
     /* 골랐던 것을 되돌리는 길 — 옛 판엔 없어서 한 번 고르면 '미정'으로 못 돌아갔다(×는 창을 닫을 뿐이다) */
     /* [SEAT_ONE_CARD] 이름칸이 창 안으로 들어왔다 — 캔버스의 70px 칸과 달리 넓게 서고, 포커스 크기 16px(iOS 확대 방지·MPD_B9와 같은 이유) */
-    .sdb-nm{display:block;width:100%;box-sizing:border-box;margin-bottom:10px;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;font-family:var(--serif-ko);font-size:16px;color:var(--accent);text-align:center}
+    .sdb-nm{display:block;width:100%;box-sizing:border-box;margin-bottom:10px;padding:11px 12px;border:1px solid var(--field-line);border-radius:10px;background:#fff;font-family:var(--serif-ko);font-size:16px;color:var(--accent);text-align:center}
     .sdb-nm:focus{outline:none;border-color:var(--gold-deep)}
     .sdb-nm::placeholder{color:var(--light);font-size:14px}
     .sdb-opts.n4,.sdb-opts.n5{grid-template-columns:repeat(2,1fr)}   /* [ALC_ONE]·[KID_CHAIR] 알콜이 정해지면 넷(그 알콜·논알콜·유아·어린이) · 아직이면 다섯 */
