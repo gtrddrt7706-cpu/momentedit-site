@@ -2,6 +2,8 @@
 /* ★★[CONSOLE_BED_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 콘솔 쪽 검증에서 재현된 것] 당일 콘솔(console.html) 구간 곡 재생기 검사 — console-relift.mjs 와 같은 하네스 방식
    A [LIST_OPEN_ONCE_1114] 목록 곡 끝 — 다음 곡이 늦게 열려도(play() 400ms 늦춤) 감시기는 한 번만 요청한다 · 다음 곡 = 목록 바로 다음 곡 · 상태 줄 없음 ·
      여는 중에 디렉터 GO(화촉 큐)가 오면 화촉 곡이 이긴다(DETAIL_R3_1101 ③ «마지막 요청이 이긴다» 그대로 · 옛 판은 감시기가 그 요청까지 취소해 화촉 구간인데 하객 맞이 곡이 남았다)
+   B [TABLE_BORROW_PLAY_1114] 테이블 인사(M8) — 곡 파일이 다 있는 날 콘솔이 실제로 트는 목록(__segPlan · 테이블 GO 뒤 BED.list) = 계획 목록(BgmPicks.plan 을 미리 듣기 playOrd 와 같은 꼴로 부른 것 · have · heard · now · seg) ·
+     빌려 온 곡이 남고 합이 30분(NEED.M8) 이상 · 설정 화면 곡 칩은 제 곡만 · 이어 트는 칸(M4 · M6 · M8L)은 빠짐 0 · 미리 듣기 쪽 줄(lfNext = playOrd.filter(has))도 그대로
    깨 보기: BP_CON=<옛 console.html> 로 돌리면 고친 줄마다 빨강이어야 한다(각 칸 머리에 적음) · ONLY=A 처럼 칸을 골라 돌릴 수 있다
    곡 = 시험 사인파(곡마다 다른 높이) · 나레이션 = 0.6초 짧은 소리 · 큐는 손으로 낸다(__bgmGo.fire) · 읽는 창구 = __seg.st · __segPlan · __heard(점검용)
    ROOT = 저장소 뿌리(이 파일이 scripts/audit/ 에 있으면 저절로 · 밖에 두면 CONBED_ROOT 로) · 종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
@@ -20,6 +22,8 @@ const T = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'applicatio
 /* 시험 곡 — 16비트 사인파(짧은 곡) · 8비트 4kHz 사인파(실제 길이 240초 안팎 곡 · 파일을 작게) · 못 여는 파일(소리가 아닌 글자) */
 function wav(sec, f, sr = 8000) { const n = Math.round(sr * sec), b = Buffer.alloc(44 + n * 2); b.write('RIFF', 0); b.writeUInt32LE(36 + n * 2, 4); b.write('WAVEfmt ', 8); b.writeUInt32LE(16, 16); b.writeUInt16LE(1, 20); b.writeUInt16LE(1, 22); b.writeUInt32LE(sr, 24); b.writeUInt32LE(sr * 2, 28); b.writeUInt16LE(2, 32); b.writeUInt16LE(16, 34); b.write('data', 36); b.writeUInt32LE(n * 2, 40);
   for (let i = 0; i < n; i++) b.writeInt16LE(Math.round(f ? 8000 * Math.sin(2 * Math.PI * f * i / sr) : 0), 44 + i * 2); return b; }
+function wav8(sec, f, sr = 4000) { const n = Math.round(sr * sec), b = Buffer.alloc(44 + n); b.write('RIFF', 0); b.writeUInt32LE(36 + n, 4); b.write('WAVEfmt ', 8); b.writeUInt32LE(16, 16); b.writeUInt16LE(1, 20); b.writeUInt16LE(1, 22); b.writeUInt32LE(sr, 24); b.writeUInt32LE(sr, 28); b.writeUInt16LE(1, 32); b.writeUInt16LE(8, 34); b.write('data', 36); b.writeUInt32LE(n, 40);
+  for (let i = 0; i < n; i++) b[44 + i] = 128 + Math.round(40 * Math.sin(2 * Math.PI * f * i / sr)); return b; }
 const BADFILE = Buffer.from('this is not audio at all, just bytes. '.repeat(40));
 const SHORT = wav(0.6, 330, 16000);   /* 나레이션 대신 — 0.6초 */
 const srv = http.createServer((q, r) => { const u = decodeURIComponent(q.url.split('?')[0]);
@@ -82,6 +86,41 @@ try {
         ok('A ④ 다음 곡을 여는 중에 디렉터 GO(화촉 큐)가 오면 화촉 곡이 이긴다(마지막 요청이 이긴다 · DETAIL_R3_1101 ③) · 감시기가 그 요청을 취소하지 않는다', op && won, { 여는중이었나: op, 구간: s2.seg, 곡: s2.id, 여는중: s2.opening });
       }
       ok('A 쪽 오류 0', !c.errs.length, c.errs.slice(0, 3));
+    }
+    await c.ctx.close();
+  }
+  /* ── B [TABLE_BORROW_PLAY_1114] — 옛 판: 계획 7곡 31분 → 콘솔 3곡 13분(① ② ③ 빨강) ── */
+  if (want('B')) {
+    const ids = [...new Set([].concat(...Object.values(P.PICKS), ...Object.values(P.FILL)))];
+    /* 곡 길이를 실제처럼 — 원곡 길이(len)를 아는 곡은 그보다 2초 긴 파일 · 모르는 곡은 240초(LEN0) → 계획이 세는 길이가 미리 듣기(길이 모름 = len · LEN0)와 같아진다 */
+    const files = ids.map((f, i) => [f, wav8(P.SONGS[f] && P.SONGS[f].len ? Math.ceil(P.SONGS[f].len) + 2 : P.LEN0, 180 + i * 12)]);
+    const c = await open('record', files); await c.pg.waitForTimeout(2500); const R = await c.start(); const it = R ? R.findIndex((x) => x.k === 'table') : -1;
+    const durs = await c.pg.evaluate((ids) => ids.map((f) => { const e = document.querySelector('[data-seg-st="' + f + '"]'); return e ? e.textContent : ''; }), ids);
+    if (!R || !(await hooks(c)) || c.put < c.need || it < 0 || durs.some((t) => !/· \d+:\d\d/.test(t))) skip('B — 콘솔 점검 고리 · 테이블 인사 큐가 없거나 곡 파일(길이 재기)이 덜 됐다(넣은 곡 ' + c.put + '/' + c.need + ' · 길이 잰 곡 ' + durs.filter((t) => /· \d+:\d\d/.test(t)).length + ')');
+    else {
+      /* 들린 기록 — 하객 맞이 3곡 · 화촉 · 본식 2곡 · 부모님께 인사(가장 흔한 꼴) · 넣기 · 읽기 · 테이블 GO 를 한 번에(그사이 감시기가 기록을 건드리지 않게) */
+      const H = { B01: [-3300, 'M1', 240, -3060], B24: [-3060, 'M1', 240, -2820], B13: [-2820, 'M1', 238, -2580], B05: [-2500, 'M2', 130, -2370], B09: [-1900, 'M4', 118, -1700], B10: [-1500, 'M4', 200, -900], B15: [-400, 'M5', 200, -100] };
+      const r = await c.pg.evaluate(([H, it]) => { const n = performance.now() / 1000, h = {}; Object.keys(H).forEach((f) => { h[f] = { t0: n + H[f][0], seg: H[f][1], sec: H[f][2], last: n + H[f][3], lseg: H[f][1] }; }); window.__heardSet(h);
+        const o = { now: n, heard: h, M8: window.__segPlan('M8', ''), M4: window.__segPlan('M4', ''), M6: window.__segPlan('M6', ''), M8L: window.__segPlan('M8L', ''), chip: window.__segSel('M8') };
+        window.__bgmGo.fire(it); const s = window.__seg.st(); o.bed = { seg: s.seg, list: s.list }; return o; }, [H, it]);
+      const ks = new Set(R.map((x) => x.k)), S = c.S;
+      const on = (id) => { let d = P.seg(id); if (d && id === 'M8L' && !d.ks) d = Object.assign({}, d, { ks: ['_goodbye'] }); if (!d || !d.ks) return false; if (d.slot && !(S.bgm && S.bgm[d.slot] && S.bgm[d.slot].m === 'bed')) return false; return d.ks.some((k) => ks.has(k)); };   /* 콘솔 segOnC 와 같은 판정 */
+      const have = (f) => ids.indexOf(f) > -1, planOf = (sg, hd) => ((P.plan(S, hd ? { on, have, heard: r.heard, now: r.now, seg: sg } : { on, have })[sg] || {}).list || []);
+      const exp = planOf('M8', true), own = new Set((P.PICKS.M8 || []).concat(P.FILL.M8 || [])), sum = (L) => Math.round((L || []).reduce((a, f) => a + (P.lenOf(f, 0) || P.LEN0), 0));
+      const rB = { 계획: exp, 콘솔: r.M8, 빠진곡: exp.filter((f) => (r.M8 || []).indexOf(f) < 0), 빌려온곡: (r.M8 || []).filter((f) => !own.has(f)), 합초: sum(r.M8), 필요초: P.NEED.M8, GO뒤: r.bed, 칩: r.chip };
+      console.log('  재 본 값 B', JSON.stringify(rB));
+      if (exp.length < 4 || !exp.some((f) => !own.has(f))) skip('B — 계획에 빌려 온 곡이 없다(자료가 바뀌었나) ' + JSON.stringify(exp));
+      else {
+        ok('B ① 콘솔이 트는 테이블 인사 목록 = 계획 목록(빌려 온 곡이 재생 직전에 빠지지 않는다 · 미리 듣기와 같은 목록) [TABLE_BORROW_PLAY_1114]', (r.M8 || []).join() === exp.join(), rB);
+        ok('B ② 빌려 온 곡이 남고 합이 30분 이상', rB.빌려온곡.length > 0 && rB.합초 >= P.NEED.M8, rB);
+        ok('B ③ 테이블 인사 GO 뒤 실제 목록(BED.list)도 같은 목록', r.bed.seg === 'M8' && r.bed.list.join() === exp.join(), rB);
+        ok('B ④ 설정 화면 곡 칩(__segSel)은 종전대로 제 곡만', (r.chip || []).length > 0 && r.chip.every((f) => own.has(f)), rB);
+        const loop = ['M4', 'M6', 'M8L'].map((sg) => { const pl = planOf(sg, !!(P.REPLAN && P.REPLAN[sg])); return { sg, 계획: pl.length, 콘솔: (r[sg] || []).length, 빠진곡: pl.filter((f) => (r[sg] || []).indexOf(f) < 0) }; });
+        ok('B ⑤ 이어 트는 칸(M4 · M6 · M8L)은 그대로 — 계획 곡이 하나도 빠지지 않는다', loop.every((x) => x.계획 > 0 && !x.빠진곡.length), loop);
+      }
+      const bb = fs.readFileSync(path.join(ROOT, 'assets/bgm-bed.js'), 'utf8');
+      ok('B ⑥ 미리 듣기 쪽 줄 그대로 — lfNext = playOrd(sg).filter(has)(파일이 있나로만 거른다 · 콘솔과 같은 목록)', bb.indexOf('function lfNext(sg,f){ var o=playOrd(sg).filter(has)') > -1 && bb.indexOf('heard:heardMap(), now:nowS(), seg:sg') > -1);
+      ok('B 쪽 오류 0', !c.errs.length, c.errs.slice(0, 3));
     }
     await c.ctx.close();
   }

@@ -20826,7 +20826,7 @@ chk "M2: \['B05', 'B31', 'B07'\]" assets/bgm-picks.js 1   # ★[GHIBLI_ADD_1101]
 chk "M6: \['B17', 'B34', 'B19'\]" assets/bgm-picks.js 1
 chk "FILL = { M1: \['B16', 'B33'\], M8: \['B13', 'B14'\], M6: \['B07', 'B16'\], M4: \['B12', 'B14'\], M8L: \['B26', 'B33'\] }" assets/bgm-picks.js 1   # [REPEAT_RULE_1107 ①] 본식 · 마지막 곡 배경 곡 더함   # ★[BGM_FILL_1101] 목록 칸 배경 곡
 chk 'function order(S, seg, prev, on)' assets/bgm-picks.js 1
-chk 'if (BP.order) return segListOf(id, cur).filter(have)' console.html 1   # 콘솔 차례 = 식순 화면 순서 줄과 같은 함수
+chk 'if (BP.order) return segListOf(id, cur).filter(function(x){ return have(x) || !!(play && SEGF\[x\] && BP.SONGS && BP.SONGS\[x\]); });' console.html 1   # 콘솔 차례 = 식순 화면 순서 줄과 같은 함수 · ★[TABLE_BORROW_PLAY_1114 11/14] 재생 목록(play)은 빌려 온 곡도 남긴다 — 옛 줄 «.filter(have);» 로 되돌리지 말 것(테이블 인사 30분이 3곡 13분으로 줄었다)
 chk 'function listRoHtml(sg,k)' assets/bgm-bed.js 1   # ★[LIST_NO_PICK_1101] 목록 칸 = 안내 칸(고르기 없음)
 nochk 'function flowHtml(sg)' assets/bgm-bed.js   # 순서 화살표 두 줄은 곡 줄 목록이 대신 — 되살리지 말 것
 chk "if (!d || d.multi || !S || !S.bgm) return ''" assets/bgm-picks.js 1   # 목록 칸 k 는 쓰지 않는다
@@ -23332,3 +23332,8 @@ chk 'LIST_OPEN_ONCE_1114' console.html 1   # 목록 곡 끝 감시기 — 다음
 chk '  if (BED.opening) return;' console.html 1
 chk 'LIST_OPEN_ONCE_1114' scripts/audit/console-bed-1114.mjs 3
 chk "reg-p17 console-bed-1114'" .github/workflows/merge-guard.yml 1
+chk 'TABLE_BORROW_PLAY_1114' console.html 3   # 테이블 인사(M8) 재생 목록에 계획이 빌려 온 곡을 남긴다(REPEAT_RULE_1107 ② 가 당일 콘솔에서도 먹게)
+nochk 'segListOf(id, cur).filter(have);' console.html   # 옛 줄 — 빌려 온 곡이 재생 직전에 빠진다 · 되살리지 말 것
+chk 'function segSel(id, cur, play){' console.html 1
+chk 'var s = segSel(id, cur, 1), d0 = segDef(id);' console.html 1
+chk 'TABLE_BORROW_PLAY_1114' scripts/audit/console-bed-1114.mjs 3

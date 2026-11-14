@@ -1219,14 +1219,19 @@ function heardMap(){ var o = {}; Object.keys(HEARD).forEach(function(f){ var h =
 function segPlanFor(id, cur){ if (!BP || !BP.plan) return null; try { return BP.plan(S, { on: segOnC, have: function(f){ return !!SEGF[f]; }, dur: function(f){ var m = SEGST.meta[f]; return m && m.dur ? +m.dur : 0; }, heard: heardMap(), now: nowS(), seg: id, cur: cur || '' }); } catch (e) { return null; } }
 window.__heard = function(){ return JSON.parse(JSON.stringify(HEARD)); }; window.__heardSet = function(o){ HEARD = o || {}; };
 function segListOf(id, cur){ var pa = (BP && BP.REPLAN && BP.REPLAN[id]) ? segPlanFor(id, cur) : segPlanAll(), b = (pa && pa[id] && pa[id].list.length) ? pa[id].list.slice() : (BP.order ? BP.order(S, id, '') : []); var c = (cur && BP.carryOf) ? BP.carryOf(S, id, cur) : ''; if (c) b = [c].concat(b.filter(function(x){ return x !== c; })); return b; }
-function segSel(id, cur){ var d = segDef(id), L = segSongs(id), v = SEGST.sel[id], have = function(x){ return L.some(function(s){ return s.id === x; }); };
+/* ★★[TABLE_BORROW_PLAY_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 검증 06] 테이블 인사(M8) — 계획(BgmPicks.plan · REPEAT_RULE_1107 ② · REPEAT_FIX_1107 ①)이 30분을 채우려고 앞 배경 칸에서 빌려 온 곡을 재생 목록에 남긴다.
+     종전: 아래 «계획 차례» 줄이 .filter(have) — have = 이 구간 제 곡(추천 + 배경 곡 + 직접 더한 곡)이라 빌려 온 곡이 재생 직전에 전부 빠졌다(기록 코스 · 곡 파일 24개: 계획 7곡 31분 → 실제 3곡 13분 · 30분에 두 바퀴 넘게).
+     11/07 에 빌려 오기를 넣으며 이 줄(BGM_FILL_1101 · 그때는 계획에 제 곡만 있었다)을 안 봤다 · 미리 듣기(bgm-bed.js lfNext = playOrd.filter(has))는 «파일이 있나»로만 걸러 남겼다 → 연습 ≠ 당일.
+     고침: 재생 목록을 만들 때(segPlan 이 play 로 부른다)만 «곡 목록에 있고 이 기기에 파일이 있는» 빌려 온 곡을 남긴다 · 설정 화면 곡 칩(segRow · 고르기)은 종전대로 제 곡만(play 없이 부른다) ·
+     이 기기에서 목록을 직접 고른 날(SEGST.sel 배열)은 고른 곡만(종전 그대로) · 이어 트는 칸(M4 · M6 · M8L)은 다른 길(segPlan loop)이라 그대로 */
+function segSel(id, cur, play){ var d = segDef(id), L = segSongs(id), v = SEGST.sel[id], have = function(x){ return L.some(function(s){ return s.id === x; }); };
   /* ★[BGM_PREVIEW_1024 2026-10-24 사장님 «고객이 고름»] 이 기기에서 아직 안 골랐으면 고객이 식순 화면에서 고른 곡(S.bgm · 곡 번호 f)이 기본 — 목록 칸(M1 · M8)은 그 곡을 맨 앞에 */
   var ck = (BP && BP.custK) ? BP.custK(S, id) : '', cs = ck ? L.filter(function(s){ return s.f === ck; })[0] : null;
-  if (d && d.multi) { if (Array.isArray(v)) { var a = v.filter(have); return (cur && a.indexOf(cur) > 0) ? [cur].concat(a.filter(function(x){ return x !== cur; })) : a; } if (BP.order) return segListOf(id, cur).filter(have);   /* [DETAIL_R5_1101] 계획 차례 */   /* ★[BGM_FILL_1101] 차례 = 식순 화면 순서 줄과 같은 함수(고른 곡 → 나머지 → fill · 다른 구간에서 고른 곡은 건너뜀) */
+  if (d && d.multi) { if (Array.isArray(v)) { var a = v.filter(have); return (cur && a.indexOf(cur) > 0) ? [cur].concat(a.filter(function(x){ return x !== cur; })) : a; } if (BP.order) return segListOf(id, cur).filter(function(x){ return have(x) || !!(play && SEGF[x] && BP.SONGS && BP.SONGS[x]); });   /* [DETAIL_R5_1101] 계획 차례 · [TABLE_BORROW_PLAY_1114] 재생 목록은 빌려 온 곡도 */   /* ★[BGM_FILL_1101] 차례 = 식순 화면 순서 줄과 같은 함수(고른 곡 → 나머지 → fill · 다른 구간에서 고른 곡은 건너뜀) */
     var all = L.filter(function(s){ return !s.own; }).map(function(s){ return s.id; }); return cs ? [cs.id].concat(all.filter(function(x){ return x !== cs.id; })) : all; }
   if (typeof v === 'string' && have(v)) return v; if (cs) return cs.id; var cc = (cur && BP && BP.carryOf) ? BP.carryOf(S, id, cur) : ''; if (cc && have(cc)) return cc; return L[0] ? L[0].id : null; }
 /* 소리 낼 수 있는 곡(파일이 있는 것)만 — 없으면 null(앞 곡이 이어진다) */
-function segPlan(id, cur){ var s = segSel(id, cur), d0 = segDef(id);
+function segPlan(id, cur){ var s = segSel(id, cur, 1), d0 = segDef(id);   /* [TABLE_BORROW_PLAY_1114] 재생 목록 */
   /* ★★[DAYLONG_1101] 감사 인사 ~ 덕담(M4) · 닫는 인사(M6) = 고른 곡(이 기기 · 두 분 · 앞 곡 잇기 · 없으면 1순위) → 나머지 → (M6) fill 이어 트는 목록 · 끝 3초 전 타이머가 다음 곡으로 겹쳐 넘긴다 */
   if (d0 && d0.loop && s && !Array.isArray(s) && BP && BP.order) { var lo = [s].concat(segListOf(id, cur).filter(function(x){ return x !== s; })).filter(function(x){ return !!SEGF[x]; });   /* [DETAIL_R5_1101] */ return lo.length ? lo : null; }
   var L = (Array.isArray(s) ? s : (s ? [s] : [])).filter(function(x){ return !!SEGF[x]; });
