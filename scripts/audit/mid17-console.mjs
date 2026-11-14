@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 /* ★★[MID17_CONSOLE 2026-11-07 사장님 결정 · 식중 영상 · 계획 docs/handoff/midvideo-17.md 줄 10 · 11] 당일 콘솔 · 디지털 참석
-   ① 엔진(node) — 식중 영상 큐의 디렉터 메모(note)가 식전 영상 큐 메모와 같은 꼴(«영상 링크는 D-7 까지 받는다(…)» · «상영 중 배경음은 끈다») ·
+   ★[MIDV_DIM_OWNER_1115 2026-11-15 사장님 결정 «식중 영상도 불 낮추기»(대본 추천 · 창빛이 강한 홀이라 화면이 잘 보이게)] 식중 영상 메모 끝 = 식전 영상 메모 끝 «… · 상영 중 배경음은 끈다 · 불을 낮춘다» ·
+       콘솔 영상 자리 · 129 가 나가는 동안 힌트 칸에 «불을 낮춘다»가 보인다 · 옛 기대(메모가 «상영 중 배경음은 끈다»로 끝남)는 이 결정으로 바꿨다 · 고객 미리 듣기에는 안 보인다(디렉터 글)
+   ① 엔진(node) — 식중 영상 큐의 디렉터 메모(note)가 식전 영상 큐 메모와 같은 꼴(«영상 링크는 D-7 까지 받는다(…)» · «상영 중 배경음은 끈다 · 불을 낮춘다») ·
        메모는 영상 사람 순간을 든 큐에(두 줄 날 129 · 129 겹친 날 58) · 길이 · «…_식중» 폴더 «미리보기…» · «소개 말이 끝나면 영상을 튼다» ·
        [재생 안 됨] 이름 · 영상 동안 소리 크기(배경음 끔)가 식전 영상과 같다 · 영상 뒤 다음 순간은 손(GO) · «… 후» 힌트 ·
        디지털 참석 날에도 식전 영상 · 식중 영상 큐가 한 글자도 안 바뀐다(식전 영상에도 중계 처리가 없다 — 둘이 같다) · 축사 · 선물 · 기타는 메모 없음
@@ -33,9 +35,10 @@ const vNote = (c) => c && c.live && c.rescue ? c : null;   // 영상 사람 순�
 
 /* ── 판정(검사 · 깨 보기가 같은 함수를 쓴다) ── */
 const NOTE_HEAD = '영상 링크는 D-7 까지 받는다(';
+const DIM_END = / · 상영 중 배경음은 끈다 · 불을 낮춘다$/;   // [MIDV_DIM_OWNER_1115] 식전 영상 · 식중 영상 메모가 같은 말로 끝난다
 function midNoteOk(n, len) {
   return typeof n === 'string' && n.indexOf(NOTE_HEAD) === 0 && n.indexOf('마이페이지 «식중 영상» 확정 기한과 같다') > -1 && n.indexOf('길이 ' + len + '분') > -1
-    && n.indexOf('_식중» 폴더의 «미리보기…» 파일') > -1 && n.indexOf('소개 말이 끝나면 영상을 튼다') > -1 && /상영 중 배경음은 끈다$/.test(n) && n.indexOf('—') < 0;
+    && n.indexOf('_식중» 폴더의 «미리보기…» 파일') > -1 && n.indexOf('소개 말이 끝나면 영상을 튼다') > -1 && DIM_END.test(n) && n.indexOf('—') < 0;   // [MIDV_DIM_OWNER_1115] 옛 끝 «상영 중 배경음은 끈다»
 }
 function engine(src) {
   const r = {};
@@ -60,8 +63,8 @@ function judgeEngine(r) {
   t('129 겹친 날(식전 영상 소개 pvEx 2) — 58 하나에 영상 · 메모도 58 에', fo.length === 1 && fo[0].slug === S58 && !!vNote(fo[0]) && midNoteOk(fo[0].note, 4), fo.map((c) => [c.slug, c.note]));
   /* 식전 영상과 같은 꼴 — 메모 머리 · 상영 중 배경음 · [재생 안 됨] 이름 · 영상 동안 소리 크기 */
   const pv = pick(r.pv90, 'prevideo').find((c) => c.live && c.rescue), mv = pick(r.pv90, 'free').find((c) => c.live && c.rescue);
-  t('식전 영상 · 식중 영상 — 메모 머리 «영상 링크는 D-7 까지 받는다(» · «상영 중 배경음은 끈다» · [재생 안 됨] 이름 · 영상 동안 소리 크기(배경음 끔)가 같다',
-    !!pv && !!mv && pv.note.indexOf(NOTE_HEAD) === 0 && mv.note.indexOf(NOTE_HEAD) === 0 && /상영 중 배경음은 끈다/.test(pv.note) && /상영 중 배경음은 끈다/.test(mv.note)
+  t('식전 영상 · 식중 영상 — 메모 머리 «영상 링크는 D-7 까지 받는다(» · 메모 끝 «상영 중 배경음은 끈다 · 불을 낮춘다»[MIDV_DIM_OWNER_1115] · [재생 안 됨] 이름 · 영상 동안 소리 크기(배경음 끔)가 같다',
+    !!pv && !!mv && pv.note.indexOf(NOTE_HEAD) === 0 && mv.note.indexOf(NOTE_HEAD) === 0 && DIM_END.test(pv.note) && DIM_END.test(mv.note)
     && pv.rescue.name === mv.rescue.name && pv.live.duck === mv.live.duck && mv.live.duck <= -60, pv && mv && [pv.note, mv.note, pv.rescue.name, mv.rescue.name, pv.live.duck, mv.live.duck]);
   /* 끝나면 GO — 영상 뒤 다음 순간 첫 큐는 손으로 · 힌트 «<영상 장면> 후» */
   const nx = (cues) => { const i = cues.indexOf(cues.filter((c) => c.k === 'free').slice(-1)[0]); return [cues[i], cues[i + 1]]; };
@@ -94,7 +97,8 @@ function judgeDay(d, width, two) {
     L.name === '준비한 영상 상영 (영상은 디렉터가 튼다)' && /막히면: 영상 · 음원이 안 나오면 \[재생 안 됨\]/.test(L.txt || '') && L.hintOn && (L.hint || '').indexOf(NOTE_HEAD) === 0 && /«식중 영상»/.test(L.hint) && /소개 말이 끝나면 영상을 튼다/.test(L.hint), L);
   t('영상 자리 — [재생 안 됨] 단추가 눌린다 · «다음» 칸 «축가 시작 · 손 · 준비한 영상 상영 (영상은 디렉터가 튼다) 후»', L.bw === false && /축가 시작/.test(L.u1 || '') && /준비한 영상 상영 \(영상은 디렉터가 튼다\) 후/.test(L.u1 || ''), L);
   t('영상 자리 갈래 칩 — «축사하시는 분» 아님(식전 영상 자리와 같은 «당일 직접»)', Array.isArray(L.tags) && L.tags.indexOf('당일 직접') > -1 && !L.tags.some((x) => /축사/.test(x)), L.tags);
-  if (two) t('129 이 나가는 동안(영상 앞) 힌트 칸 = 메모 — 언제 트나(소개 말이 끝나면 영상을 튼다)', !!d.at129 && d.at129.hintOn && /소개 말이 끝나면 영상을 튼다/.test(d.at129.hint || ''), d.at129);
+  t('영상 자리 힌트 칸 끝 «상영 중 배경음은 끈다 · 불을 낮춘다»[MIDV_DIM_OWNER_1115]', !!L.hintOn && DIM_END.test(L.hint || ''), L.hint);
+  if (two) t('129 이 나가는 동안(영상 앞) 힌트 칸 = 메모 — 언제 트나(소개 말이 끝나면 영상을 튼다) · 불을 낮춘다', !!d.at129 && d.at129.hintOn && /소개 말이 끝나면 영상을 튼다/.test(d.at129.hint || '') && DIM_END.test(d.at129.hint || ''), d.at129);
   t('누른 뒤 다음 순간(축가 시작)이 나간다 · 쪽 오류 0', d.after === 'narr-song' && !d.errs.length, [d.after, d.errs.slice(0, 2)]);
   return bad;
 }
@@ -107,6 +111,7 @@ if (SELF) {
     ['메모 없음(옛 엔진)', mapFree((c) => Object.assign(c, { note: '' }))],
     ['메모가 58 에(영상 사람 순간과 떨어짐)', { cues: (S) => { const cs = build(S); const f = cs.filter((c) => c.k === 'free'); if (f.length === 2) { f[0].note = f[1].note; f[1].note = ''; } return cs; } }],
     ['디지털 날 메모가 바뀜', mapFree((c, S) => S.digital && c.note ? Object.assign(c, { note: c.note + ' · 중계 화면을 영상으로' }) : c)],
+    ['메모에 «불을 낮춘다» 없음(옛 메모 · MIDV_DIM_OWNER_1115 앞)', mapFree((c) => c.note ? Object.assign(c, { note: c.note.replace(/ · 불을 낮춘다$/, '') }) : c)],
     ['영상 동안 배경음이 남음(식전 영상과 다름)', mapFree((c) => c.live ? Object.assign(c, { live: Object.assign({}, c.live, { duck: -20 }) }) : c)],
   ];
   let dead = 0;
@@ -114,7 +119,7 @@ if (SELF) {
   const okNow = quiet(() => judgeEngine(engine(live))); fail = 0;
   if (okNow) { dead++; console.log('FAIL 깨 보기 — 지금 엔진이 빨강이다(' + okNow + ')'); }
   /* 화면 판정 깨 보기 — 기록 · 화면 값을 옛 꼴로 만들어 넣는다 */
-  const goodLive = { tags: ['이어서', '129번', '당일 직접', '사람의 시간'], name: '준비한 영상 상영 (영상은 디렉터가 튼다)', txt: '막히면: 영상 · 음원이 안 나오면 [재생 안 됨] · …', hintOn: true, hint: NOTE_HEAD + '마이페이지 «식중 영상» … · 소개 말이 끝나면 영상을 튼다 · 상영 중 배경음은 끈다', bw: false, u1: '다음축가 시작손 · 준비한 영상 상영 (영상은 디렉터가 튼다) 후' };
+  const goodLive = { tags: ['이어서', '129번', '당일 직접', '사람의 시간'], name: '준비한 영상 상영 (영상은 디렉터가 튼다)', txt: '막히면: 영상 · 음원이 안 나오면 [재생 안 됨] · …', hintOn: true, hint: NOTE_HEAD + '마이페이지 «식중 영상» … · 소개 말이 끝나면 영상을 튼다 · 상영 중 배경음은 끈다 · 불을 낮춘다', bw: false, u1: '다음축가 시작손 · 준비한 영상 상영 (영상은 디렉터가 튼다) 후' };
   const L = (arr) => arr.map((x, j) => ({ i: 10 + j, slug: x.split(':')[0], phase: x.endsWith(':live') ? 'live' : 'clip' }));
   const good = { from: 10, log: L([S58, S129, S129 + ':live', 'narr-song']), atLive: goodLive, at129: { hintOn: true, hint: goodLive.hint }, after: 'narr-song', errs: [] };
   if (quiet(() => judgeDay(good, 'self', true))) { dead++; console.log('FAIL 깨 보기 — 맞는 화면 값을 빨강으로 읽었다'); } fail = 0;
@@ -122,6 +127,8 @@ if (SELF) {
     ['58 하나에 영상(129 빠짐)', Object.assign({}, good, { log: L([S58, S58 + ':live', 'narr-song']) }), true],
     ['129 겹친 날에 129 가 또', Object.assign({}, good, { log: L([S58, S129, S129 + ':live', 'narr-song']) }), false],
     ['영상 자리 힌트 칸 빔', Object.assign({}, good, { atLive: Object.assign({}, goodLive, { hintOn: false, hint: '' }) }), true],
+    ['영상 자리 힌트 칸에 «불을 낮춘다» 없음(옛 메모)', Object.assign({}, good, { atLive: Object.assign({}, goodLive, { hint: goodLive.hint.replace(/ · 불을 낮춘다$/, '') }) }), true],
+    ['129 이 나가는 동안 힌트 칸에 «불을 낮춘다» 없음(옛 메모)', Object.assign({}, good, { at129: { hintOn: true, hint: goodLive.hint.replace(/ · 불을 낮춘다$/, '') } }), true],
     ['[재생 안 됨] 흐림', Object.assign({}, good, { atLive: Object.assign({}, goodLive, { bw: true }) }), true],
     ['갈래 칩 «당일 직접 · 축사하시는 분»(옛 voiceLab)', Object.assign({}, good, { atLive: Object.assign({}, goodLive, { tags: ['이어서', '129번', '당일 직접 · 축사하시는 분', '사람의 시간'] }) }), true],
     ['다음 순간이 안 나감', Object.assign({}, good, { after: S129 }), true],
@@ -223,6 +230,10 @@ try {
   ok('390 고객 미리 듣기 — 이름 «식중 영상 시작 · 1분» → «식중 영상 소개» · 블록 «식중 영상» · «준비한 순서» 없음 · 디렉터 글 안 보임 · 쪽 오류 0',
     !!g.a && !!g.b && !!g.c && g.a.name === '식중 영상 시작 · 1분' && /^식중 영상/.test(g.a.blk) && g.b.name === '식중 영상 소개' && /준비한 영상을 다 같이 봐요/.test(g.c.txt)
     && ![g.a, g.b, g.c].some((v) => leak(v) || /준비한 순서/.test(v.name + v.blk)) && !g.errs.length, [g.a && [g.a.name, g.a.blk], g.b && g.b.name, g.c && [g.c.name, g.c.txt, g.c.hint], g.errs.slice(0, 2)]);
+  /* [MIDV_DIM_OWNER_1115] 고객 미리 듣기 — 블록 설명(how)이 «불을 낮추고»를 한 번 · 영상 자리(장면 · fx)는 다시 말하지 않는다(한 화면 같은 말 두 번 금지 · R2_PV_SCENE_1014) · 디렉터 메모 «불을 낮춘다»는 안 보인다 */
+  const dimN = (v) => ((v && v.body || '').match(/불을 낮/g) || []).length;
+  ok('390 고객 미리 듣기 — 식중 영상 첫 줄 블록 설명에 «불을 낮추고» 한 번 · 영상 자리 화면에는 «불을 낮…» 0번 · 디렉터 메모 «불을 낮춘다» 안 보임[MIDV_DIM_OWNER_1115]',
+    !!g.a && !!g.c && /불을 낮추고 두 분이 준비한 영상이 흘러요/.test(g.a.blk) && dimN(g.a) === 1 && dimN(g.c) === 0 && ![g.a, g.b, g.c].some((v) => /불을 낮춘다/.test(v.body || '')), [g.a && g.a.blk, dimN(g.a), dimN(g.c)]);
 } catch (e) { ok('390 고객 미리 듣기 예외', false, e && e.message); }
 await br.close(); srv.close();
 console.log(fail ? `\nMID17_CONSOLE FAIL ${fail}` : '\nMID17_CONSOLE OK');

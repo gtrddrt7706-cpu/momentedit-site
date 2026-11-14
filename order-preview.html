@@ -2468,7 +2468,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1107r5"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1106wk"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1107ig"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1106of2"></script><script src="/assets/bgm-picks.js?v=1107rf"></script><script src="/assets/narration-pad.js?v=1106k3"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1107rf"></script><script src="/assets/bgm-form.js?v=1106b3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1115a"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1106wk"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1107ig"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1106of2"></script><script src="/assets/bgm-picks.js?v=1107rf"></script><script src="/assets/narration-pad.js?v=1106k3"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1107rf"></script><script src="/assets/bgm-form.js?v=1106b3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3313,7 +3313,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={}, gen=++ENG_GEN, ac=null, tm=0; try{ ac=new AbortController(); }catch(e){ ac=null; }
-  var ASSET_V='1107r5';   /* [MID17_NAME · MID17_ENGINE · MID17_CONSOLE] ritual-open 식중 영상 이름 · ritual-cue 58 → 129 · 식중 영상 디렉터 메모 */   // [ASSET_V] 위 주석 · [ONE_FLOW_1106] ritual-open · ritual-cue · bgm-picks · bgm-slots · bgm-bed · [B2_FIX_R1 · B2_FIX_R2] ritual-open · ritual-cue 를 바꿨다 · #1619 와 합침
+  var ASSET_V='1115a';   /* [MIDV_DIM_OWNER_1115] ritual-cue 식중 영상 디렉터 메모 «불을 낮춘다» · ritual-story 식중 영상 how «불을 낮추고» · 옛 값 1107r5 */   /* [MID17_NAME · MID17_ENGINE · MID17_CONSOLE] ritual-open 식중 영상 이름 · ritual-cue 58 → 129 · 식중 영상 디렉터 메모 */   // [ASSET_V] 위 주석 · [ONE_FLOW_1106] ritual-open · ritual-cue · bgm-picks · bgm-slots · bgm-bed · [B2_FIX_R1 · B2_FIX_R2] ritual-open · ritual-cue 를 바꿨다 · #1619 와 합침
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,ac?{credentials:'same-origin',signal:ac.signal}:{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })), _to=new Promise(function(_ok,no){ tm=setTimeout(function(){ var _e5=new Error('engine'); _e5.meN=5; no(_e5); try{ if(ac) ac.abort(); }catch(e){} },ENG_TO_MS); });
@@ -9708,7 +9708,7 @@ var PV_DESC={
   toast:'두 분과 하객이 자기 자리에서 잔을 들어요. 두 분이 먼저 «위하여»를 외치면 하객이 함께 화답해요. 모두의 잔이 한 장에 담겨요. 축배 잔은 저희가 준비해요.',   /* [TOAST_ORDER_TX04] */   /* ★[END_FLOW_1030 검토 167] */
   _close:'두 분이 하객께 인사하며 본식을 마쳐요. 전체 단체 사진 뒤에는 촬영 후 안내, 가족 사진과 추가 촬영이 이어져요.',   /* [B2_GEUL_11] */   /* [CLOSE_WORDS_1013] */
   table:'두 분이 테이블을 돌며 하객께 인사해요. 가까이 마주하는 모습을 담아요. 그만큼 사진 시간은 줄어요.',   /* [B2_GEUL_09 · d-07] 고정값(6테이블 · 9분) 뺌 */   /* [TABLE_GREET_1008] · ★[END_FLOW_1030 검토 167] 축배 · 닫는 인사 앞 · 9분 = TABLE_SEC 90 × 6(open-course 가 잰다) */
-  midvid:'두 분이 준비한 영상을 함께 봐요. 영상을 보는 하객들의 얼굴을 사진으로 남겨요.',   /* ★[MID17_TILE 2026-11-07] 식중 영상 칸 · 식전 영상 설명과 같은 꼴(남는 장면 = FREE_SHOT.video «함께 보며 웃는 하객들») */
+  midvid:'불을 낮추고 두 분이 준비한 영상을 함께 봐요. 영상을 보는 하객들의 얼굴을 사진으로 남겨요.',   /* ★[MIDV_DIM_OWNER_1115 2026-11-15 사장님 결정 «식중 영상도 불 낮추기»] 식전 영상 설명(위 prevideo «… 불을 낮추고 두 분이 준비한 영상이 흘러요.»)과 같은 말 · 옛 글 «두 분이 준비한 영상을 함께 봐요. …» */   /* ★[MID17_TILE 2026-11-07] 식중 영상 칸 · 식전 영상 설명과 같은 꼴(남는 장면 = FREE_SHOT.video «함께 보며 웃는 하객들») */
   free:'친구 · 형제자매 · 은사님 등 가까운 분이 두 분께 축하의 말을 전해요. 말하는 분과 웃으며 듣는 두 분을 함께 담아요.'   /* [B2_GEUL_29] «(3분 안팎)» 고정값 뺌 */   /* ★[SPEECH_TILE_1012] 축사 · 옛 «준비한 순서»는 고른 칩마다 사진이 달라 원문 설명만 두었다 */
 };
 function _pvDraw(){
