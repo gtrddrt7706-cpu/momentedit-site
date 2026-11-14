@@ -581,7 +581,7 @@ ok('[MUST_FIX_165_1024 검토 165] 17 · 151 · 154 · 120 · 107 · 189 · 165 
   const t = (id) => (w.RITUAL_REF.rows.filter((r) => r.id === id)[0] || {}).text || '', B3 = fs.readFileSync(P('order-preview.html'), 'utf8'), OP = fs.readFileSync(P('assets/ritual-open.js'), 'utf8');
   return /각자의 와인을 한 잔에 부어 주시면 됩니다\.$/.test(D.NARR.valleyWine) && /축복의 불을 밝혀 주시겠습니다\./.test(N.candleIn.mothers) && /축복의 불을 밝혀 주시겠습니다\./.test(E.candle.lines['narr-candle-in-fathers'][0])
     && N.guestEx[1][1].indexOf('오늘은 자연스러운 모습을 사진으로 남기니, ') > 0 && N.toastBothPour.indexOf('신랑 신부의 영원한 사랑과 행복을') === 0 && /축배를 들겠습니다\./.test(E.toast.lines['toast-toast'][1])
-    && E.vow.lines['narr-vow-in'][2].indexOf('사랑하는 가족, 소중한 친구,') === 0 && E.vow.lines['narr-vow-in-b'][2] === E.vow.lines['narr-vow-in'][2] && /오늘 그 멈춰 있던 시간이 다시 흐르길/.test(E.candle.lines['narr-candle-in-mothers'][2])
+    && E.vow.lines['narr-vow-in'][2].indexOf('사랑하는 가족, 소중한 친구,') === 0 && E.vow.lines['narr-vow-in-b'][2] === E.vow.lines['narr-vow-in'][2] && /오늘은 그 멈춰 있던 시간이 어머님들을 위해 다시 흐르길/.test(E.candle.lines['narr-candle-in-mothers'][2]) /* ★[FINAL_APPLY_1115 묶음 2] 153 대표님 FINAL1 새 글(165 «다시 흐르길»은 그대로 살아 있음) */
     && /"십 분 뒤 저희의 결혼식이 시작됩니다\. 오늘은 자연스러운 모습을 사진으로 남기니/.test(B3)
     && /앞으로도 오래 웃으며 만나자\./.test(t('622_speech-close-friend')) && !/며늘아/.test(t('609_bless-father')) && /^언제나 아내의 편이 되는 남편이 되겠습니다\./.test(t('903_vow-groom')) && /^서로의 시간을 존중하는 아내가 되겠습니다\./.test(t('904_vow-bride'))
     && !/아무 일은 서울로/.test(t('707_letter-each-groom')) && /사랑하는 사람을 어떻게 대해야 하는지/.test(t('502_letter-each-bride')) && /"609_bless-father": \[[^\]]*며늘아/.test(B3)

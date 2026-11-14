@@ -71,15 +71,10 @@
    "gain": -0.97,
    "med": -15.16
   },
-  "151_narr-candle-in-mothers#1": {
-   "d": 1.72,
-   "gain": -0.86,
+  "153_narr-candle-in-mothers-ex4#2": {
+   "d": 1.61,
+   "gain": -0.81,
    "med": -15.92
-  },
-  "159_narr-candle-in-others-ex3#3": {
-   "d": -1.62,
-   "gain": 0.81,
-   "med": -15.26
   },
   "161_narr-entry-bow-ex3#4": {
    "d": -2.25,
@@ -102,8 +97,8 @@
    "med": -15.56
   },
   "165_narr-vow-in-ex4#1": {
-   "d": -2.15,
-   "gain": 1.07,
+   "d": -2.29,
+   "gain": 1.15,
    "med": -14.96
   },
   "166_narr-vow-in-b-ex2#1": {
@@ -117,8 +112,8 @@
    "med": -15.56
   },
   "168_narr-vow-in-b-ex4#1": {
-   "d": -2.13,
-   "gain": 1.06,
+   "d": -2.31,
+   "gain": 1.16,
    "med": -14.97
   },
   "186_narr-close-bow-ex3#1": {
@@ -131,6 +126,16 @@
    "gain": 0.8,
    "med": -15.6
   },
+  "197_narr-declare-family-out-ex3#0": {
+   "d": 1.53,
+   "gain": -0.77,
+   "med": -15.31
+  },
+  "197_narr-declare-family-out-ex3#1": {
+   "d": -1.53,
+   "gain": 0.77,
+   "med": -15.31
+  },
   "207_toast-toast-ex4#0": {
    "d": 1.69,
    "gain": -0.84,
@@ -140,11 +145,6 @@
    "d": -1.69,
    "gain": 0.84,
    "med": -15.26
-  },
-  "224_narr-candle-in-others-ex4#1": {
-   "d": 1.63,
-   "gain": -0.81,
-   "med": -16.11
   },
   "314_guest-w-5m-online#0": {
    "d": 2.45,
@@ -220,11 +220,6 @@
    "d": -1.87,
    "gain": 0.94,
    "med": -15.17
-  },
-  "91_narr-candle-in-mothers-ex2#2": {
-   "d": -1.95,
-   "gain": 0.97,
-   "med": -15.83
   }
  }
 }

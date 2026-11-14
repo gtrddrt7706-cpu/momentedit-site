@@ -85,7 +85,7 @@
 138_narr-candle-bow#0	short	base	양가 어머님, 맞절.
 138_narr-candle-bow#1	cheer	base	양가 어머님 하객분들께 인사!
 138_narr-candle-bow#2	info	guide	이제 두 분께서는 자리에 착석해 주시기 바랍니다.
-139_narr-candle-bow-four#0	-	base	양가 부모님 하객분들께 인사!
+139_narr-candle-bow-four#0	-	base	양가 부모님, 하객분들께 인사!
 139_narr-candle-bow-four#1	-	guide	불을 밝혀 주신 네 분은, 이제 자리로 돌아가 예식을 지켜봐 주십시오.
 13_narr-vow-in#0	base	base	다음은 혼인 서약의 순서가 있겠습니다.
 13_narr-vow-in#1	base	guide	신랑 신부는 서로 마주 보고 서주시기 바랍니다.
@@ -123,7 +123,7 @@
 152_narr-candle-in-mothers-ex3#3	info	guide	두 분께서는 마련된 초에 함께 점화해 주시기 바랍니다.
 153_narr-candle-in-mothers-ex4#0	info	slow	하객 여러분, 어릴 땐 엄마가 좋다며 엄마 뒤만 졸졸 쫓아다니던 우리 어린아이들이 지금은 전화 한 통도 참 쉽지 않습니다.
 153_narr-candle-in-mothers-ex4#1	base	slow	세월은 빠르게 흘러 어느덧 결혼할 나이가 되었지만, 아직도 '차 조심해라' 말씀하시는 우리 어머님들의 시간은 아직도 두 사람의 어린 시절에 멈춰 있는 듯합니다.
-153_narr-candle-in-mothers-ex4#2	info	slow	오늘 그 멈춰 있던 시간이 다시 흐르길, 그리고 두 분을 위해 흐르길 바라며, 하객분들의 따뜻한 박수와 함께 모시겠습니다.
+153_narr-candle-in-mothers-ex4#2	info	slow	오늘은 그 멈춰 있던 시간이 어머님들을 위해 다시 흐르길 바라며, 하객분들의 따뜻한 박수와 함께 두 분을 모시겠습니다.
 153_narr-candle-in-mothers-ex4#3	base	guide	단상 위로 올라와 주십시오.
 153_narr-candle-in-mothers-ex4#4	info	guide	두 분께서는 마련된 초에 함께 점화해 주시기 바랍니다.
 154_narr-candle-in-fathers-ex2#0	slow	slow	이제 양가 아버님께서 두 사람의 행복한 앞날을 기원하며 축복의 불을 밝혀 주시겠습니다.
@@ -239,12 +239,12 @@
 207_toast-toast-ex4#0	base	guide	이제 모두 잔을 들어 주세요!
 207_toast-toast-ex4#1	base	guide	신랑 신부가 선창하면 다 함께 '위하여!'라고 힘차게 외쳐 주세요!
 208_narr-welcome-in-ex2#0	info	base	이제 신랑 신부가 이 자리를 가득 채워 주신 하객 여러분께 감사 인사를 올리겠습니다.
-209_narr-song-ex5#0	base	base	여러분, 여기 서 있는 두 사람 참 잘 어울리죠?
+209_narr-song-ex5#0	base	base	여러분, 나란히 선 두 사람, 참 잘 어울리죠?
 209_narr-song-ex5#1	base	slow	서로가 있어 매일이 기대가 되고, 서로가 있기에 하루하루가 설렙니다.
 209_narr-song-ex5#2	base	slow	지금껏 그래왔던 것처럼 행복한 시간은 더욱 행복하게 즐기고, 다투거나 힘든 날에는 언제나 대화로 잘 풀어가며, 앞으로의 그 모든 날들이 오늘 이 순간처럼 빛나길 바라겠습니다.
 209_narr-song-ex5#3	base	guide	그럼 마음을 담아 준비한 노래, 큰 박수로 맞아 주세요.
 20_narr-letter-end#0	short	base	정말 감사합니다.
-210_narr-song-end#0	base	guide	우리 두 사람을 위해 다시 한 번 큰 박수 부탁드리겠습니다.
+210_narr-song-end#0	base	guide	두 사람을 위해 다시 한 번 큰 박수 부탁드리겠습니다.
 211_narr-candle-out-ex2#0	slow	slow	두 사람의 예식을 위해 축복의 촛불을 밝혔습니다.
 212_narr-candle-out-ex3#0	base	slow	한 쌍의 화촉에는, 두 사람에게 밝은 미래만 가득하길 바라는 소중한 바람이 담겨 있습니다.
 213_narr-candle-out-ex4#0	base	slow	촛불이 밝혀졌습니다.
@@ -252,7 +252,7 @@
 214_narr-welcome-in-ex3#1	info	slow	오늘 이 자리에는 신랑 신부의 새로운 출발을 축복하기 위해 귀한 시간 내어 함께해 주신 소중한 분들이 계십니다.
 214_narr-welcome-in-ex3#2	info	slow	바로 여러분입니다.
 214_narr-welcome-in-ex3#3	info	base	바쁜 일정 속에서도 두 사람의 결혼을 축하하기 위해 참석해 주신 하객 여러분께 신랑 신부가 감사 인사를 드리겠습니다.
-215_narr-welcome-in-ex4#0	info	base	이어서 하객 여러분께 감사의 인사가 있겠습니다.
+215_narr-welcome-in-ex4#0	info	base	이어서 두 사람이 하객 여러분께 감사의 인사를 드리겠습니다.
 215_narr-welcome-in-ex4#1	guide	guide	신랑 신부는 하객을 향해 서주시기 바랍니다.
 216_narr-ring-out-ex2#0	slow	slow	이 반지는 변치 않는 사랑과 영원한 약속의 상징입니다.
 216_narr-ring-out-ex2#1	base	slow	두 사람은 오늘 이 자리에서 서로를 평생의 동반자로 약속했습니다.
@@ -269,7 +269,7 @@
 224_narr-candle-in-others-ex4#2	info	guide	두 분께서는 마련된 초에 함께 점화해 주시기 바랍니다.
 225_narr-vow-out-ex2#0	base	base	신랑, 신부 모두 서약을 마쳤습니다.
 226_narr-vow-out-ex3#0	slow	slow	아름다운 사랑의 서약이었습니다.
-226_narr-vow-out-ex3#1	info	guide	하객 여러분께서도 두 사람이 서약한 대로 행복하게 살 수 있도록 지켜봐 주시고 응원해 주세요.
+226_narr-vow-out-ex3#1	info	guide	하객 여러분께서도 두 사람이 서약한 대로 행복하게 살 수 있도록 지켜봐 주시고 응원해 주시길 바랍니다.
 227_narr-vow-out-ex4#0	base	slow	두 사람의 진심 어린 약속이었습니다.
 227_narr-vow-out-ex4#1	base	guide	큰 박수 부탁드립니다.
 228_narr-thanks-in-ex2#0	info	slow	여러분, 우리가 사랑하는 사람에게 줄 수 있는 가장 큰 선물은 우리의 시간이라는 말이 있습니다.
