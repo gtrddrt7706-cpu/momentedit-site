@@ -134,7 +134,8 @@ async function rate() { const { ctx, f, errs } = await open(Bv, 'standard'); let
       const a = new Audio(); a.src = st.src; await new Promise((res) => { a.onloadedmetadata = res; setTimeout(res, 4000); }); const d = a.duration, pd = NarrPad.of(st.file) || [0, 0];
       const x = B.ENT().x, s2 = Object.assign({}, st, { up: 'entryTest', couple: 1 }); B.DUR[s2.src] = d;
       const old = window._upRate; window._upRate = function(){ return 1.2; }; const S0 = window.S.up; window.S.up = Object.assign({}, S0 || {}, { entryTest: { src: 'ai', tempo: '1' } });
-      let off12, off1; try { off12 = B.entAt('entry', s2); window._upRate = function(){ return 1; }; off1 = B.entAt('entry', s2); } finally { window._upRate = old; window.S.up = S0; }
+      const hz = (q) => (B.entHushAt ? B.entHushAt(q, 0) : B.entAt('entry', q));   /* 뜸 없는 길 셈(옛 판은 entAt 의 구호 줄 갈래) */
+      let off12, off1; try { off12 = hz(s2); window._upRate = function(){ return 1; }; off1 = hz(s2); } finally { window._upRate = old; window.S.up = S0; }
       const speak = (rr) => (pd[0] / 1000 + Math.max(0.5, d - (pd[0] + pd[1]) / 1000)) / rr;
       return { d, pd, H: x.H, o: x.o, after12: Math.round(((x.H - x.o - off12) - speak(1.2)) * 100) / 100, after1: Math.round(((x.H - x.o - off1) - speak(1)) * 100) / 100 }; });
   } catch (e) { r = { none: String(e).slice(0, 300) }; }

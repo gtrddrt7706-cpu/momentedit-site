@@ -23502,3 +23502,8 @@ chk "if(f===ENT_F) return entAt(st&&st.k,lead?st:null);" assets/bgm-bed.js 1
 chk "var go=function(){ play(f,vx(p.music,f),p.up,atOf(f,st,1)); LPB.f=f;" assets/bgm-bed.js 1
 chk 'ENTRY_LEAD_CALL_1115' scripts/audit/pv-r3-1115.mjs 1
 chk 'ENTRY_LEAD_CALL_1115' scripts/audit/pv-fix-1114.mjs 1   # ③ 대조 — 뜸 있는 길 시작 자리 = H − 6 − 구호(실제 파일) − 0.3
+# ★★[ENTRY_RATE_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 16] 미리 듣기 · 연습 — 구호 말 길이는 틀 빠르기로 나눈다(두 분 AI 줄 · 빌더가 거는 playbackRate 와 같은 식 _upRate · VOICE_TUNE · 종전 1.2배면 강조가 말끝 3.5초 뒤)
+chk 'ENTRY_RATE_1115' assets/bgm-bed.js 2
+chk "function rateOf(st0){ var r=1; try{ if(st0&&st0.up&&st0.couple&&typeof _upRate==='function') r=+_upRate(st0.up)||1; }catch(e){} return (r>0.3&&r<3)?r:1; }" assets/bgm-bed.js 1
+chk "var r=rateOf(st0); if(pd&&d>0) return { hd:pd\[0\]/1000/r, v:Math.max(0.5,d-(pd\[0\]+pd\[1\])/1000)/r };" assets/bgm-bed.js 1
+chk 'ENTRY_RATE_1115' scripts/audit/pv-r3-1115.mjs 1
