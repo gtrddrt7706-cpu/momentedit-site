@@ -15,7 +15,7 @@
 06_entry-B#2	base	slow	목적지 없이 걸어도 같은 곳을 향하는 사람이 있습니다.
 06_entry-B#3	base	slow	우리 신랑과 신부는 서로에게 그런 사람입니다.
 06_entry-B#4	base	slow	마치 내 머릿속에 들어와 있기라도 한 것처럼 서로를 너무나도 잘 이해하는 신랑과 신부가 이제 하나 되어 소중한 발걸음을 내딛겠습니다.
-06_entry-B#5	slow	base	자, 그럼 이 축복의 여정의 막을 열어 보겠습니다.
+06_entry-B#5	slow	base	자, 그럼, 이 축복의 여정의 막을 열어 보겠습니다.
 06_entry-B#6	short	base	신랑 신부, 입장!
 07_entry-C#0	info	guide	오늘 귀한 발걸음 해 주신 하객 여러분께서는 두 사람의 첫 시작을 큰 박수로 축복해 주시고 응원해 주시기 바랍니다.
 07_entry-C#1	cheer	base	서로에게 행복이 되어 줄 거란 약속을, 사랑의 결심을 다시 한번 다지면서, 함께했던 지난날보다 더 행복한 앞날들을 위하여!
@@ -36,7 +36,7 @@
 108_narr-close-bow#0	base	base	이상으로 오늘의 결혼식을 마치겠습니다.
 108_narr-close-bow#1	base	guide	마지막까지 큰 박수 부탁드립니다.
 108_narr-close-bow#2	cheer	base	신랑 신부, 하객 여러분께 인사!
-10_entry-F#0	base	slow	평생이라는 영화의 멋진 이야기를 써 내려갈 텐데요!
+10_entry-F#0	base	slow	두 사람은 이제 평생이라는 영화의 멋진 이야기를 함께 써 내려갈 텐데요!
 10_entry-F#1	slow	guide	둘만의 아름다운 OST가 오래도록 울려 퍼질 수 있도록 뜨거운 박수로 축하해 주시기 바랍니다.
 10_entry-F#2	short	base	신랑 신부, 입장!
 110_end-1c-thanks-nomeal#0	-	base	하객 여러분께 인사를 올리겠습니다.
@@ -80,7 +80,7 @@
 133_narr-thanks-in#0	slow	base	다음은 감사문 낭독이 있겠습니다.
 136_narr-declare-in-friend#0	info	base	오늘의 성혼 선언은 신랑 신부가 부탁드린 분께서 직접 해 주시겠습니다.
 137_narr-open#0	info	base	오늘 두 사람을 축복해 주시기 위하여 먼 걸음 해 주신 하객분들께 양가를 대표하여 감사의 말씀을 드립니다.
-137_narr-open#1	info	base	오늘 결혼식은 하객 여러분께서 예식의 증인이 되는 주례 없는 결혼식으로 진행됩니다.
+137_narr-open#1	info	base	오늘 예식은 하객 여러분께서 증인이 되어 주시는, 주례 없는 결혼식으로 진행됩니다.
 137_narr-open#2	base	base	지금부터 신랑과 신부의 예식을 여러분의 박수로 시작하겠습니다!
 138_narr-candle-bow#0	short	base	양가 어머님, 맞절.
 138_narr-candle-bow#1	cheer	base	양가 어머님 하객분들께 인사!
@@ -112,7 +112,7 @@
 14_narr-vow-out#0	slow	slow	두 사람의 진심과 사랑이 가득 담긴 서약이었습니다.
 150_narr-open-ex4#0	base	base	여러분, 안녕하세요.
 150_narr-open-ex4#1	info	base	바쁘신 가운데 두 사람을 축복해 주시기 위해 이 자리에 참석해 주신 하객 여러분께 진심으로 감사의 말씀을 드립니다.
-150_narr-open-ex4#2	info	slow	두 사람 처음 마주했을 때의 설렘이 오늘 이 자리까지 이어졌고, 그 사랑이 여러분의 축복 속에서 하나의 길로 이어지려 합니다.
+150_narr-open-ex4#2	info	slow	두 사람이 처음 마주했던 날의 설렘이 오늘 이 자리까지 이어졌고, 이제 두 사람은 여러분의 축복 속에서 같은 길을 걸어가려 합니다.
 150_narr-open-ex4#3	base	base	그럼 지금부터 신랑 신부의 행복한 결혼식을 시작하겠습니다.
 151_narr-candle-in-mothers#0	slow	slow	이제 양가 어머님께서 두 사람의 행복한 앞날을 기원하며 축복의 불을 밝혀 주시겠습니다.
 151_narr-candle-in-mothers#1	base	guide	단상 위로 올라와 주십시오.
@@ -147,11 +147,11 @@
 161_narr-entry-bow-ex3#1	slow	slow	긴 시간 동안 내 곁에 있어 준 나의 사랑하는 사람이 바로 앞에 서 있습니다.
 161_narr-entry-bow-ex3#2	slow	slow	깊게 사랑하고 존경하는 나의 연인이 이제는 나의 평생 반려자가 되는 순간입니다.
 161_narr-entry-bow-ex3#3	base	slow	이 깊은 마음을 눈과 미소에 담아 예를 갖추어 맞절하겠습니다.
-161_narr-entry-bow-ex3#4	short	base	신랑 신부, 맞절.
+161_narr-entry-bow-ex3#4	short	base	신랑 신부… 맞절.
 162_narr-entry-bow-ex4#0	base	slow	신랑 신부, 처음 만났던 날, 함께 웃으면서 행복했던 지난 시간들을 회상해 주시기 바랍니다.
 162_narr-entry-bow-ex4#1	base	slow	이제 우리 두 사람은 지난 아름다운 시간을 지나 부부라는 이름으로 새로운 여정을 시작하려 합니다.
 162_narr-entry-bow-ex4#2	slow	slow	인생에서 만날 그 어떤 순간일지라도 늘 감사하고 아껴 주며 사랑할 것을 다짐하며 서로에게 인사하겠습니다.
-162_narr-entry-bow-ex4#3	short	base	신랑 신부, 맞절.
+162_narr-entry-bow-ex4#3	short	base	신랑 신부… 맞절.
 163_narr-vow-in-ex2#0	base	base	이제 두 사람이 평생의 동반자가 될 것을 약속하는 혼인 서약이 있겠습니다.
 163_narr-vow-in-ex2#1	base	guide	신랑 신부는 서로 마주 보고 서주시기 바랍니다.
 163_narr-vow-in-ex2#2	base	guide	준비되었다면, 신랑과 신부는 낭독해 주십시오.
@@ -311,7 +311,7 @@
 251_narr-open-ex5#3	base	base	그럼 지금부터 신랑 신부의 아름다운 예식을 시작하겠습니다.
 252_narr-entry-bow-ex5#0	base	guide	신랑 신부, 서로 마주 보고 서 주십시오.
 252_narr-entry-bow-ex5#1	base	slow	평생을 함께할 동반자로서, 서로를 아끼고 존중하는 마음을 담아 인사하겠습니다.
-252_narr-entry-bow-ex5#2	short	base	신랑 신부, 맞절.
+252_narr-entry-bow-ex5#2	short	base	신랑 신부… 맞절.
 253_narr-ring-out-ex9#0	base	slow	이 반지가 두 사람이 어디에 있더라도 내 남편이, 내 아내가 곁에 있음을 잊지 않도록 해 주는 징표가 되어 주길 바랍니다.
 254_narr-tribute-name-ex5#0	slow	slow	이번에는 부모님의 은혜에 앞으로 평생 보답하겠다는 의미로 양가 부모님께 감사의 인사를 드리겠습니다.
 255_bridge-b9-declare-seat-end#0	info	guide	선언해 주신 분께서는 자리로 돌아가셔도 좋습니다.
@@ -319,11 +319,11 @@
 257_narr-open-ex6#0	info	base	바쁘신 와중에도 두 사람의 결혼식을 빛내 주시기 위해 이 자리에 참석해 주신 친지, 하객 여러분께 양가의 가족을 대신하여 깊은 감사의 말씀을 드립니다.
 257_narr-open-ex6#1	base	base	오늘 예식은 조금 특별하게 진행됩니다.
 257_narr-open-ex6#2	base	base	신랑 신부가 진정한 주인공이 되는, 주례가 없는 예식으로 진행되는데요.
-257_narr-open-ex6#3	info	slow	주례가 없는 것이 아니라, 이 자리에 계신 가족 친지 여러분과 함께해 주시는 모든 분들이 오늘의 주례 선생님이자 사랑의 증인으로 함께하시는 것입니다.
+257_narr-open-ex6#3	info	slow	주례가 없는 것이 아니라, 이 자리에 계신 가족과 친지, 그리고 함께해 주시는 모든 분들이, 오늘의 주례 선생님이자 사랑의 증인이 되어 주시는 것입니다.
 257_narr-open-ex6#4	base	base	그럼 지금부터 신랑 신부의 결혼식을 시작하겠습니다.
 258_narr-entry-bow-ex6#0	base	slow	처음 마주한 순간부터 '이 사람이면 좋겠다' 싶었던 마음, 그 마음이 오늘까지 단 한 번도 흔들리지 않았습니다.
 258_narr-entry-bow-ex6#1	base	slow	그때의 확신 그대로 앞으로의 시간도 함께 걸어가겠다는 마음을 담아, 오늘의 첫 인사를 나누겠습니다.
-258_narr-entry-bow-ex6#2	short	base	신랑 신부, 맞절.
+258_narr-entry-bow-ex6#2	short	base	신랑 신부… 맞절.
 259_narr-tribute-name-ex6#0	slow	base	이제 부모님께 인사드릴 시간입니다.
 259_narr-tribute-name-ex6#1	base	slow	눈물보다 웃음으로 인사드리겠습니다.
 25_narr-bless-end-long#0	slow	slow	부모님의 진심어린, 그리고 따뜻한 말씀 참으로 고맙습니다.
@@ -468,7 +468,7 @@
 47_end-2-goodbye#0	info	base	끝까지 함께해 주신 하객 여러분께 다시 한 번 진심으로 감사드립니다.
 47_end-2-goodbye#1	base	base	남은 하루 행복하게 보내세요.
 48_online-3-welcome#0	info	base	화면으로 함께해 주시는 여러분, 반갑습니다.
-52_narr-entry-out#0	base	slow	두 사람이 나란히 있습니다.
+52_narr-entry-out#0	base	slow	두 사람이 나란히 섰습니다.
 52_narr-entry-out#1	base	slow	잠시, 서로를 바라봐 주세요.
 56_narr-toast-out#0	base	guide	편안하게 즐겨 주세요.
 57_narr-declare-family-out#0	slow	guide	큰 박수로 두 사람을 축하해 주세요.
@@ -476,7 +476,7 @@
 59_narr-free-out#0	slow	base	함께 봐 주셔서 고맙습니다.
 59_narr-free-out#1	base	guide	준비한 정성에도, 박수 한 번 부탁드립니다.
 60_narr-photo-split#0	base	guide	자리를 지켜 주세요.
-62_narr-online-in#0	info	base	화면으로 보고 계신 분들께 인사를 올리겠습니다.
+62_narr-online-in#0	info	base	화면으로 함께해 주시는 분들께도 두 사람이 인사드리겠습니다.
 62_narr-online-in#1	guide	guide	신랑 신부는 카메라를 향해 서주시기 바랍니다.
 65_narr-photo-out#0	base	slow	오늘 함께해 주신 모습이, 사진 속에 그대로 남았습니다.
 80_narr-entry-out-C#0	base	slow	지금부터는 두 사람의 시간입니다.

@@ -73,7 +73,10 @@ function run(mut) {
   const BASE = { 'narr-vow-in': D.NARR.vow.nar, 'narr-vow-in-b': D.NARR.vow.narB, 'narr-ring-in': D.NARR.ring.nar, 'narr-entry-bow': D.NARR.entryBow, 'narr-declare-family-out': D.NARR.declareFamilyOut, 'narr-bless-mid': D.NARR.blessMid, 'narr-bless-end': D.NARR.blessEnd, 'letter-each': D.LETTER.each.nar, 'narr-letter-end': D.NARR.letterEnd, 'tribute-in': D.TRIBUTE.nar, 'tribute-out': D.TRIBUTE.end, 'narr-close-bow': D.NARR.closeBow, 'toast-toast': D.TOAST.toast.nar, 'narr-table-in': D.NARR.tableIn, 'narr-close': D.NARR.close };   /* [REVIEW4_1018] 단체 사진 안내 예시의 뒤 문장은 지금 글 */
   const CALL = /^(양가 (어머님|아버님|부모님)|양가를 대표하는 두 분), 단상 위로 올라와 주십시오\.$/;
   /* ★[FINAL_APPLY_1115 대표님 11/14 FINAL2 확정 · 새 녹음] 대표님이 듣고 고른 새 글 — 자료 글(SOURCE_FIRST_1016)보다 늦은 결정 · 여기 적힌 문장만 «지어낸 문장»에서 뺀다(지금 글 그대로여야 한다) */
-  const OWNER = new Set(['오늘은 주례사 대신 부모님의 덕담을 듣겠습니다.' /* 194 */, '그동안 서로에게 전하고 싶었던 마음을 담아, 직접 쓴 편지로 약속을 대신한다고 합니다.' /* 177 «가득» 뺌 */].map(nz));
+  const OWNER = new Set(['오늘은 주례사 대신 부모님의 덕담을 듣겠습니다.' /* 194 */, '그동안 서로에게 전하고 싶었던 마음을 담아, 직접 쓴 편지로 약속을 대신한다고 합니다.' /* 177 «가득» 뺌 */,
+    /* ★[FINAL_APPLY_1115 묶음 2] 대표님 FINAL1 다시 녹음에서 고른 새 글(rerecord62 final_selection · 대표님 «ok») */
+    '두 사람이 처음 마주했던 날의 설렘이 오늘 이 자리까지 이어졌고, 이제 두 사람은 여러분의 축복 속에서 같은 길을 걸어가려 합니다.' /* 150 */,
+    '주례가 없는 것이 아니라, 이 자리에 계신 가족과 친지, 그리고 함께해 주시는 모든 분들이, 오늘의 주례 선생님이자 사랑의 증인이 되어 주시는 것입니다.' /* 257 */].map(nz));
   const made = [];
   clips.forEach((x) => { const own = new Set(sents(BASE[x.base] || C.EXTRA[x.base] || '').map(nz));
     sents(x.text).forEach((s) => { if (!SRC.has(nz(s)) && !own.has(nz(s)) && !OWNER.has(nz(s)) && !CALL.test(s)) made.push(x.slug + ' «' + s + '»'); }); });
