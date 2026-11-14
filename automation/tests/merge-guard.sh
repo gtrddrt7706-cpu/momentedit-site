@@ -23325,7 +23325,7 @@ chk 'CAKE_FILES_OFF_1110' scripts/build-rev1013.mjs 1   # 원고 표 케이크 �
 # ★★[NO_RELIFT_XF_1114 2026-11-14 BGM 섹션 · 직접 넘겨 보기] 당일 콘솔 — 정적 뒤 새 곡 큐에서 꺼져 있던 앞 곡을 겹쳐 넘기지 않는다(NO_RELIFT_1102 의 콘솔 재생기 판) · 소리는 CI bgm-sound e 칸 console-relift 가 잰다
 chk 'NO_RELIFT_XF_1114' console.html 3
 chk 'function bedUnhush(){' console.html 1
-chk 'NO_RELIFT_XF_1114' scripts/audit/console-relift.mjs 3
+chk 'NO_RELIFT_XF_1114' scripts/audit/console-relift.mjs 5
 chk "seam-b2-rest console-relift'" .github/workflows/merge-guard.yml 1
 # ★★[CONSOLE_BED_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 콘솔 쪽 검증] 당일 콘솔 구간 곡 재생기 고침 — 소리 · 동작은 CI bgm-sound c 칸 console-bed-1114 가 잰다(옛 console.html 로 돌리면 빨강)
 chk 'LIST_OPEN_ONCE_1114' console.html 1   # 목록 곡 끝 감시기 — 다음 곡을 여는 중이면 다시 요청하지 않는다(요청 24회 · 곡 건너뜀 · 무음 0.4초)
