@@ -11607,7 +11607,8 @@ chk '^\.letter-preview \.lp-message-box{' live.html 1
 chk '<span class="lf-mark" aria-hidden="true">From.</span>' live.html 2
 chk 'NAV_FOCUS_BG' index.html 1
 # ── [HALLMARK_FIX_1114 묶음 1] 화면 점검(docs/design-audit-20261114.md)에서 넣기로 한 것 — 되돌리면 겹침 · 줄 꺾임 · 머리 줄 덜컥임이 돌아온다 ──
-chk 'NAV_SOLID_BG_1114' index.html 3                    # H-1·2 위로 올려 나타난 PC 메뉴 = 종이색 단색 + 헤어라인(반투명 · blur 금지) · 680 이하는 끔
+chk 'NAV_BG_NONE_OWNER_1114' index.html 1               # H-1·2 는 2026-11-14 사장님이 뺌 — PC 평소 메뉴는 바탕 없이(되살리면 빨강)
+nochk 'NAV_SOLID_BG_1114' index.html
 chk 'CTA_NARROW_1114' index.html 1                      # H-3 폰 360 전환 CTA 한 줄(좌우 여백만 24px · 글자 격은 CTA_TYPE_QUIET 그대로)
 chk 'GA_TAB_NARROW_1114' index.html 1                   # H-4 폰 360 탭 한 줄(좌우 여백 10px)
 chk 'FAQ_EG_GRID_1114' index.html 1                     # H-5 칩 넷이 한 줄에 안 들어가는 폭(389 이하)은 2 × 2
