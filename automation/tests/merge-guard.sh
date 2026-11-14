@@ -2341,6 +2341,15 @@ chk 'IG_GAP' index.html 1                                # 기록 갤러리 세�
 chk 'IG_MARK' index.html 1                               # 제목 옆 인스타 마크 하나 · 빼면 '@momentedit.kr'이 세리프에선 홈페이지 주소로 읽힌다(.kr 때문에 특히)
 chk 'archive-grid-ig' index.html 14                      # 사진 9장 우상단 마크(마크업 9 + CSS) · 정중앙 흰 원으로 되돌리면 인물 얼굴 위에 다시 얹힌다
 chk 'DM_FOOT_SIGN' index.html 1                          # 편지 맺음 = 이름(Moment Edit) 위 · 문장 아래 · 메일 없음 · 되돌리면 금색(대비 2.3) 문구가 위로 서고 연락처가 편지 안에 다시 들어온다
+# ── 순서 묶음 [HOME_ORDER_1114] (2026-11-14 INSTA 보고 1 · 대본 판정 · 번호마다 커밋 하나 — 빼려면 그 커밋만 revert)
+chk 'CTA_PLACE_OWNER_1114' index.html 1                # S-1 은 2026-11-14 사장님이 뺌 — 가격 구간 상담 버튼은 스냅 표 아래(구간 끝) 그대로
+nochk 'CTA_NEAR_PRICE_1114' index.html
+chk 'RSVP_CTA_UP_1114' index.html 1                    # S-2 RSVP 상담 버튼 = 3단계 뒤 · 약관 앞 · 되돌리면 구간 머리에서 버튼까지 1,626px
+chk 'mm-ko">상담 예약' index.html 1                      # S-4 폰 전체 메뉴 한글 = 구간 머리 · 버튼과 같은 말
+nochk 'mm-ko">사전 문의' index.html
+chk '두 개의 공간 · 촬영 예시' index.html 1               # S-5 공간 카드 라벨에 «촬영 예시» · 아카이브([H4_10])와 같은 자리 · 같은 모양
+# [HOME_ORDER_1114] 표식만 남고 자리가 되돌아가는 것을 막는다 — 표식이 있을 때만 줄 순서를 본다(그 번호만 revert 하면 이 검사도 조용히 빠진다).
+if grep -q 'RSVP_CTA_UP_1114' index.html; then _ho2=$(awk '/<section id="rsvp">/{r=NR} r&&/class="cta-btn"/{if(!b)b=NR} r&&/class="terms-block"/{if(!t)t=NR} END{print (r&&b&&t&&b<t)?"ok":"bad"}' index.html); if [ "$_ho2" = ok ]; then echo 'ok [HOME_ORDER_1114] S-2 RSVP 버튼이 약관 위'; else echo 'REVERT? index.html: [RSVP_CTA_UP_1114] 표식은 있는데 RSVP 상담 버튼이 약관 아래에 있다'; fail=1; fi; fi
 # ── 편지 전달 점검 (2026-08-03 사용자 "편지 전달되는 부분 점검해보자 시스템이나 연동이나 디자인부분도")
 # ★[LETTER_MERGED 2026-09-25] 위·아래 편지 검사 중 guest-letter-webhook.gs·form-to-couple.gs 를 보던 줄은 옮겼다 —
 #   옛 Letter System 을 본 프로젝트 87_letter.gs 로 합치면서 옛 파일을 은퇴시켰다. 같은 표식(LETTER_RATE·DELIVERED·PLAIN·

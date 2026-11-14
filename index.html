@@ -5857,7 +5857,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
       <li><a href="invitation-gallery.html" data-num="04"><span class="mm-text"><span class="mm-en">Invitation</span><span class="mm-ko">청첩장 갤러리</span></span></a></li>
       <li><a href="#live" data-num="05"><span class="mm-text"><span class="mm-en">Experience</span><span class="mm-ko">디지털 참석</span></span></a></li>
       <li><a href="#faq" data-num="06"><span class="mm-text"><span class="mm-en">FAQ</span><span class="mm-ko">자주 묻는 질문</span></span></a></li>
-      <li><a href="#rsvp" data-num="07"><span class="mm-text"><span class="mm-en">RSVP</span><span class="mm-ko">사전 문의</span></span></a></li>
+      <li><a href="#rsvp" data-num="07"><span class="mm-text"><span class="mm-en">RSVP</span><span class="mm-ko">상담 예약</span><!-- [MENU_RSVP_KO_1114 · 순서 묶음 S-4 · 대본 판정] 폰 전체 메뉴 한글만 «사전 문의» → «상담 예약» — 구간 머리(RSVP · 상담 예약) · 버튼(상담 예약하기)과 같은 말. 영문 RSVP 와 3단계 «01 사전 문의»(절차 이름)는 그대로 --></span></a></li>
       <li><a href="mypage.html" data-num="08"><span class="mm-text"><span class="mm-en">My Page</span><span class="mm-ko">예약 현황</span></span></a></li>
     </ul>
     <div class="mobile-menu-foot">
@@ -6179,7 +6179,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
 <div class="divider-line"></div>
 <!-- SPATIAL DUALITY -->
 <div class="reveal">
-  <h3 class="sec-label">Spatial Duality ·<span class="ll-ko"> 두 개의 공간</span></h3>
+  <h3 class="sec-label">Spatial Duality ·<span class="ll-ko"> 두 개의 공간 · 촬영 예시</span></h3><!-- [SPACE_EXAMPLE_1114 · 순서 묶음 S-5 · 대본 판정] 오픈 전이라 공간 사진도 «촬영 예시» — 아카이브 구간([H4_10])과 같은 자리(라벨) · 같은 글자 · 같은 모양. 사진 위 배지는 [IG_ONCE] 라 넣지 않는다 -->
   <p class="t-body" style="margin-bottom:28px">한 번의 예약으로 두 가지 무드를 담습니다.<br class="pc-hide"> 실내라 날씨를 타지 않고, 가족·지인 기념 촬영에도 그대로 쓰입니다.</p>
   <div class="card-grid">
     <div>
@@ -6635,6 +6635,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
     </div>
   </div>
 </div>
+<!-- ★[CTA_PLACE_OWNER_1114] 이 버튼은 스냅 표 아래(구간 끝) 그대로 둔다 — 가격표 가까이(Opening Honor 뒤 · 스냅 앞)로 올리는 안(순서 묶음 S-1)은
+     2026-11-14 사장님이 앞뒤 그림을 보고 뺐다. 다시 제안 · 복원하지 않는다. -->
 <div class="cta-block">
   <div class="cta-eyebrow">Start Your Narrative</div>
   <a href="./inquiry.html" class="cta-btn">프라이빗 방문 상담 예약하기</a>
@@ -7082,6 +7084,15 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
   <div class="step"><div class="step-num">02</div><div><div class="step-name ko">일정 선택</div><div class="step-desc">신청 즉시 개인코드를 메일로 보내 드립니다. 마이페이지에서 방문 상담 시간을 직접 선택하실 수 있습니다.</div></div></div><!-- [CONSULT_FLOW_ONE] 종전 «일정 조율 · 담당 디렉터가 메일로 개별 안내» — 실제 흐름(신청 즉시 개인코드 메일 → 마이페이지에서 직접 선택)과 달랐다 -->
   <div class="step"><div class="step-num">03</div><div><div class="step-name ko">방문 상담</div><div class="step-desc">스튜디오 방문 상담은 <strong>상담 예약금 100,000원</strong> 입금 확인 후 최종 확정됩니다.</div></div></div>
 </div>
+<!-- ★[RSVP_CTA_UP_1114 · 순서 묶음 S-2] 상담 버튼을 약관 위로 올렸다(머리 → 3단계 → 버튼 → 약관 → 本 → 오시는 길).
+     전에는 약관 · 本 아래라 구간 머리에서 버튼까지 폰 390 에서 1,626px 였다 · 글 · 링크 · 모양은 그대로, 자리만 옮김.
+     ★약관을 지운 것이 아니다 — 버튼 바로 아래 그대로 있고, 버튼을 누르면 가는 상담 신청 화면(inquiry.html)도
+       «신청서 보내기» 위에 예약금 100,000원 · 환불 · 일정 변경 조건을 다시 보여 준다(2026-11-14 직접 눌러 확인).
+     되돌리려면 이 커밋을 revert. -->
+<div class="cta-block">
+  <div class="cta-eyebrow">Start Your Narrative</div>
+  <a href="./inquiry.html" class="cta-btn">프라이빗 방문 상담 예약하기</a>
+</div>
 <div class="reveal">
   <div class="terms-block">
     <div class="terms-row">
@@ -7108,10 +7119,6 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
   <div class="ideogram-rule"></div>
   <p class="ideogram-caption">Record the Truth.</p>
   <p class="ideogram-caption-ko">본질을 기록하다</p>
-</div>
-<div class="cta-block">
-  <div class="cta-eyebrow">Start Your Narrative</div>
-  <a href="./inquiry.html" class="cta-btn">프라이빗 방문 상담 예약하기</a>
 </div>
 <!-- ACCESS -->
 <div class="access-wrap">
