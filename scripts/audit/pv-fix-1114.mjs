@@ -1,0 +1,109 @@
+#!/usr/bin/env node
+/* ★★[PV_FIX_1114 2026-11-14 BGM 섹션 · 직접 넘겨 보기 + GPT 라운드 1 검증에서 재현된 미리 듣기(assets/bgm-bed.js) 고침 묶음] 깨 보기(옛 판 빨강) → 초록 → 대조
+   소리는 «원하는 값(want)»이 아니라 실제 크기 마디 값(gain)으로 잰다 — 50분의 1초마다 · 나레이션은 실제로 소리가 난 때(playing · ended).
+   ① [ARRIVE_SETTLE_PV_1114] 도착 멘트 첫 소리 때 입장 곡이 걷기 크기보다 18 dB 이상 아래 — 예시 코스 넷 × 연습 «흐름 보기» · «직접 해보기» · 이어 듣기(당일 콘솔 ear-d ② 와 같은 자)
+        대조: 잦아듦은 멘트 0.8 ~ 1.4초 앞에 시작(사이를 늘리지 않는다) · 길이 4.5초 그대로(멘트 3.7초 뒤 −40 아래) · 걷는 동안 0 dB · 맞절 정적 · 입장만 따로 듣기(장면)는 제 잦아듦으로 이미 18 dB 아래
+   ONLY=1,2 … · BP_BED · BP_OP · BP_CUE = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
+import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
+const OP = process.env.BP_OP || '', BED = process.env.BP_BED || '', CUE = process.env.BP_CUE || '';
+let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
+if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(2); }
+let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || d === undefined ? '' : ' → ' + JSON.stringify(d).slice(0, 700)}`); if (!c) fail++; };
+const T = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.mp3': 'audio/mpeg', '.mp4': 'video/mp4', '.css': 'text/css', '.svg': 'image/svg+xml', '.webp': 'image/webp' };
+function wav(sec, f, sr = 16000) { const n = Math.round(sr * sec), b = Buffer.alloc(44 + n * 2); b.write('RIFF', 0); b.writeUInt32LE(36 + n * 2, 4); b.write('WAVEfmt ', 8); b.writeUInt32LE(16, 16); b.writeUInt16LE(1, 20); b.writeUInt16LE(1, 22); b.writeUInt32LE(sr, 24); b.writeUInt32LE(sr * 2, 28); b.writeUInt16LE(2, 32); b.writeUInt16LE(16, 34); b.write('data', 36); b.writeUInt32LE(n * 2, 40);
+  for (let i = 0; i < n; i++) b.writeInt16LE(Math.round(f ? 8000 * Math.sin(2 * Math.PI * f * i / sr) : 0), 44 + i * 2); return b; }
+const SHORT = wav(0.6, 330);   /* 나레이션 대신 — 0.6초(REAL 에 든 파일만 저장소의 실제 소리) */
+const RL = [{ k: 'r5', name: '경쾌하게', t: '시험 입장 곡', a: '시험 가수', hook: 40, hook0: 40, len: 140, file: 'r5.mp3', img: '/assets/home/snap.webp', pos: '50% 50%' }];
+const HAVE = ['B01', 'B05', 'B09', 'B10', 'B11', 'B12', 'B13', 'B15', 'B16', 'B17', 'B24', 'B28', 'B32'];
+const SONG = {}; HAVE.forEach((k, i) => { SONG[k] = wav(40, 180 + i * 20).toString('base64'); });   /* 40초 — 재는 동안 곡 끝 이어 잇기가 끼지 않게 */
+const RS = { r5: wav(140, 250).toString('base64') };
+const HARNESS = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0"><iframe id="fr" style="width:100vw;height:100vh;border:0;display:block"></iframe>
+<script>
+window.H={rl:${JSON.stringify(RL)},rs:${JSON.stringify(RS)},log:[],draft:null,saved:null,delay:40,dly:{},hold:{},have:${JSON.stringify(HAVE)},songs:${JSON.stringify(SONG)}};
+var fr=document.getElementById('fr');
+function back(m){ fr.contentWindow.postMessage(m, location.origin); }
+window.go=function(){ fr.src='/order-preview.html?embed=1'; };
+window.addEventListener('message',function(ev){ var d=ev.data||{}; if(ev.origin!==location.origin||ev.source!==fr.contentWindow) return;
+  if(d.type==='momentedit:orderReady'){ back({type:'momentedit:orderFill',draft:H.draft,done:false,cust:{name:'시험',code:'TEST01'}}); return; }
+  if(d.type==='momentedit:orderDraft'){ H.saved=1; back({type:'momentedit:orderDraftSaved'}); return; }
+  if(d.type==='momentedit:ritualFileGet'){ var g=d.data;
+    if(g.key==='rec'){ setTimeout(function(){ if(g.id==='list'){ back({type:'momentedit:ritualFileData',key:'rec',id:'list',ok:true,songs:H.rl}); return; }
+        if(!H.rs[g.id]){ back({type:'momentedit:ritualFileData',key:'rec',id:g.id,ok:false,error:'곡을 불러오지 못했어요 (코드 L3)',ecode:'L3'}); return; }
+        back({type:'momentedit:ritualFileData',key:'rec',id:g.id,ok:true,mime:'audio/wav',data:H.rs[g.id]}); }, H.delay); return; }
+    if(g.key==='bed'){ var send=function(){ if(g.id==='list'){ back({type:'momentedit:ritualFileData',key:'bed',id:'list',ok:true,songs:H.have.map(function(f){ return {f:f}; })}); return; }
+        if(!H.songs[g.id]){ back({type:'momentedit:ritualFileData',key:'bed',id:g.id,ok:false,error:'곡 파일을 찾을 수 없어요. (코드 L3)',ecode:'L3'}); return; }
+        back({type:'momentedit:ritualFileData',key:'bed',id:g.id,ok:true,mime:'audio/wav',data:H.songs[g.id]}); };
+      if(H.hold[g.id]){ var iv=setInterval(function(){ if(!H.hold[g.id]){ clearInterval(iv); send(); } },40); } else setTimeout(send, H.dly[g.id]!=null?H.dly[g.id]:H.delay); return; }   /* hold = 그 곡 응답을 붙잡아 둔다(늦게 오는 곡) */
+    back({type:'momentedit:ritualFileData',key:g.key,id:g.id,ok:false,error:'파일을 불러오지 못했어요 (코드 L6)',ecode:'L6'}); return; }
+});
+</script>`;
+const serve = async (REAL) => { const srv = http.createServer((q, r) => { const u = decodeURIComponent(q.url.split('?')[0]);
+    if (u === '/__harness.html') { r.writeHead(200, { 'Content-Type': 'text/html' }); r.end(HARNESS); return; }
+    if (/^\/assets\/audio\/narration\/.+\.mp3$/.test(u) && !(REAL && REAL.test(u))) { r.writeHead(200, { 'Content-Type': 'audio/wav' }); r.end(SHORT); return; }
+    const p = (OP && u === '/order-preview.html') ? OP : (BED && u === '/assets/bgm-bed.js') ? BED : (CUE && u === '/assets/ritual-cue.js') ? CUE : path.join(ROOT, u);
+    fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': T[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
+  await new Promise((r) => srv.listen(0, '127.0.0.1', r)); return { srv, port: srv.address().port }; };
+const A = await serve(null);
+let br; try { br = await pw.chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] }); } catch (e) { console.log('못 쟀다 — 브라우저 ' + e.message); A.srv.close(); process.exit(2); }
+const MU = { src: 'rec', k: 'r5', t: '시험 입장 곡', a: '시험 가수', hook: 40, hooks: [40], dur: 140 };
+/* 탐침 — 곡 소리 시작(AudioBufferSourceNode.start · 판 안 자리) · 나레이션이 실제로 소리 난 때를 적는다 */
+const PROBE = `(() => { if (window.__pv) return; var E = window.__pv = { st: [], na: [], rp: [] }; var now = function(){ return performance.now(); };
+  ['linearRampToValueAtTime', 'exponentialRampToValueAtTime'].forEach(function(m){ var o = window.AudioParam && AudioParam.prototype[m]; if (!o) return; AudioParam.prototype[m] = function(v, t){ try { var c = window.BgmBed && BgmBed._t.BED.cur; if (c && c.g && c.g.gain === this) E.rp.push({ T: now(), m: m.slice(0, 3), v: v, ms: Math.round((t - c.g.context.currentTime) * 1000), f: c.f }); } catch (e) {} return o.apply(this, arguments); }; });   /* 지금 곡 크기 마디에 걸린 내림 · 올림(모양 · 목표 · 길이) */
+  var AS = window.AudioBufferSourceNode && AudioBufferSourceNode.prototype; if (AS) { var s0 = AS.start; AS.start = function(w, off){ try { E.st.push({ T: now(), off: off || 0, dur: this.buffer ? this.buffer.duration : 0, buf: this.buffer }); } catch (e) {} return s0.apply(this, arguments); }; }
+  var HP = HTMLMediaElement.prototype, op = HP.play; HP.play = function(){ var el = this; if (!el.__pvL) { el.__pvL = 1; ['playing', 'ended'].forEach(function(e){ el.addEventListener(e, function(){ E.na.push({ T: now(), e: e, src: String(el.getAttribute('src') || el.src || '').split('/').pop().split('?')[0] }); }); }); } return op.apply(this, arguments); };
+})();`;
+async function open(port, key, { mu = true, W = 390, pre = null } = {}) {
+  const ctx = await br.newContext({ viewport: { width: W, height: 900 }, hasTouch: W < 1000 }); await ctx.addInitScript(PROBE); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
+  await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
+  await pg.goto(`http://127.0.0.1:${port}/__harness.html`, { waitUntil: 'load' }); if (pre) await pg.evaluate(pre); await pg.evaluate(() => go());
+  await pg.waitForFunction(() => { const x = document.getElementById('fr'); return x.contentWindow && x.contentWindow.document.readyState === 'complete' && x.contentWindow.render; }, null, { timeout: 30000 }); await pg.waitForTimeout(900);
+  const f = pg.frames().find((x) => /order-preview\.html/.test(x.url()));
+  const nx = async () => { if (await f.isVisible('#next')) await f.click('#next'); else if (await f.isVisible('.pk-go')) await f.click('.pk-go'); await f.waitForTimeout(450); };
+  await nx(); await nx();
+  await f.evaluate(({ k, mu }) => { RitualOpen.applyExample(S, k); S.bgm = {}; S.guestVoice = 'nar'; S.vsAsked = 1; if (mu) S.mu = mu; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, { k: key, mu: mu ? MU : null });
+  await nx(); await f.waitForTimeout(800); await f.waitForFunction(() => !!(window.ENG && ENG.RitualCue), null, { timeout: 15000 }).catch(() => {});
+  return { ctx, pg, f, errs };
+}
+/* 듣기 시작 — way: flow · try(연습 큰 화면 · 그 범위만) · listen(② 이어 듣기) · 행동 · 차례 줄은 ms 로 줄인다 · 직접 해보기는 기다림 1.5초 뒤 «다 했어요»(prDone) · 20ms 마다 지금 줄 · 곡 · 크기 */
+const start = (f, way, ks, ms) => f.evaluate(({ way, ks, ms }) => { const B = BgmBed._t; window.__pv.st.length = 0; window.__pv.na.length = 0; window.__pv.rp.length = 0; const R = window.__run = { o: [], t0: performance.now(), press: [] };
+  if (way === 'listen') { mkGo(ks[0]); LP.fast = false; _lStart(ks, true); }
+  else { const i = STEPS.findIndex((x) => x.k === 'practice'); if (i > -1 && STEPS[idx].k !== 'practice') { idx = i; render(); } prWay(way); LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(_lRows().filter((k) => ks.indexOf(k) > -1), true); _lFull(); }
+  if (ms) (LP.q || []).forEach((x) => { if (x.talk || x.talk2 || x.said || x.act || x.quiet) x.ms = ms; });
+  let wAt = 0; R.iv = setInterval(() => { const v = B.BED.cur, st = LP.q && LP.q[LP.i], n = performance.now();
+    R.o.push({ t: n, i: LP.i, k: st && st.k, s: st ? (st.slug || '') : '', of: st ? (st.of || '') : '', act: !!(st && (st.act || st.quiet)), f: v && v.src ? v.f : '', want: v && v.src ? v.want : null, g: v && v.src && v.g ? v.g.gain.value : 0, pz: !!LP.paused });
+    if (LP.wait && LP.wait === st) { if (!wAt) wAt = n; else if (n - wAt > (window.__hold || 1500)) { wAt = 0; R.press.push(n); try { prDone(); } catch (e) {} } } else wAt = 0; }, 20);
+  return (LP.q || []).map((x) => x.k + ':' + (x.slug || x.of || '') + (x.act || x.quiet ? ':act' : '')); }, { way, ks, ms });
+const stop = (f) => f.evaluate(() => { const R = window.__run; clearInterval(R.iv); try { lsStop(); } catch (e) {} try { if (document.body.classList.contains('lsfull')) lsCloseBig(); } catch (e) {} const E = window.__pv, eb = (BgmBed._t.BUF['@ENT'] || {}).b;
+  return { o: R.o, press: R.press, na: E.na.slice(), rp: E.rp.slice(), st: E.st.map((x) => ({ T: x.T, off: x.off, dur: x.dur, ent: !!(eb && x.buf === eb) })), ent: BgmBed._t.ENT(), g0: (() => { try { const x = (BgmBed._t.BUF['@ENT'] || {}).ext; return x ? x.gain * Math.pow(10, x.trim / 20) : 0; } catch (e) { return 0; } })() }; });
+const dB = (x) => (x > 0 ? 20 * Math.log10(x) : -200), r1 = (x) => Math.round(x * 10) / 10;
+const gAt = (o, t) => { let b = null; for (const x of o) { if (!b || Math.abs(x.t - t) < Math.abs(b.t - t)) b = x; } return b ? b.g : 0; };
+const ONLY = (process.env.ONLY || '').split(',').filter(Boolean), want = (id) => !ONLY.length || ONLY.indexOf(String(id)) > -1;
+const COURSES = ['standard', 'record', 'family', 'brief'];
+
+/* ① 도착 멘트 — 코스 하나(쪽 하나)에서 세 길을 차례로 */
+async function arrive(key) { const { ctx, f, errs } = await open(A.port, key); const out = {};
+  for (const way of ['flow', 'try', 'listen']) { await f.evaluate(() => { try { BgmBed.turn(); } catch (e) {} window.__hold = 3000; }); const q = await start(f, way, ['entry', 'matjeol'], 3200);   /* 걷는 줄 3.2초 — 걷기 크기(0 dB)까지 다 오른 뒤 넘긴다 */
+    try { await f.waitForFunction(() => window.__pv.na.some((x) => x.e === 'playing' && /narr-entry-arrive/.test(x.src)), null, { timeout: 60000, polling: 50 }); await f.waitForTimeout(5600); } catch (e) {}
+    const d = await stop(f), vp = d.na.find((x) => x.e === 'playing' && /narr-entry-arrive/.test(x.src));
+    if (!vp || !(d.g0 > 0)) { out[way] = { none: true, q: q.slice(0, 6), g0: d.g0 }; continue; }
+    const tv = vp.T, w = d.o.filter((x) => x.t < tv - 1500 && x.k === 'entry' && x.f === '@ENT'), walk = w.filter((x) => x.act);
+    const fall = d.rp.filter((x) => x.f === '@ENT' && x.v <= 1e-4 && x.T > tv - 4000 && x.T < tv + 1000)[0], mj = d.o.filter((x) => x.k === 'matjeol' && x.t > tv + 4200);   /* 무음으로 가는 첫 내림 예약 = 잦아듦 시작 */
+    out[way] = { rel0: r1(dB(gAt(d.o, tv)) - dB(d.g0)), rel1: r1(dB(gAt(d.o, tv + 1000)) - dB(d.g0)), rel37: r1(dB(gAt(d.o, tv + 3700)) - dB(d.g0)), pre: r1(dB(gAt(d.o, tv - 1500)) - dB(d.g0)), lead: fall ? Math.round(tv - fall.T) : null, shape: fall ? fall.m + '/' + fall.ms : null, walkDb: walk.length ? r1(dB(Math.max(...walk.map((x) => x.g))) - dB(d.g0)) : null, walkWant: walk.length ? walk[walk.length - 1].want : null,
+      gap: (() => { const a = d.o.find((x) => /narr-entry-arrive/.test(x.s)); return a ? Math.round(tv - a.t) : null; })(), mjOn: mj.filter((x) => x.f && x.want > -60).length, mjN: mj.length }; }
+  await ctx.close(); return { key, out, errs }; }
+
+try {
+  if (want(1)) { const rs = []; for (let i = 0; i < COURSES.length; i += 2) rs.push(...await Promise.all(COURSES.slice(i, i + 2).map(arrive)));   /* 두 코스씩 나란히 */
+    const all = []; rs.forEach((r) => Object.keys(r.out).forEach((w) => all.push(Object.assign({ c: r.key, w }, r.out[w]))));
+    console.log('  재 본 값 ① ' + all.map((x) => `${x.c}/${x.w}: 앞 ${x.pre} · 첫 소리 ${x.rel0} · +1초 ${x.rel1} · 앞섬 ${x.lead}ms(${x.shape}) · 줄→멘트 ${x.gap}ms`).join(' | '));
+    ok('① 도착 멘트 첫 소리 — 입장 곡이 걷기 크기보다 18 dB 이상 아래(4코스 × 흐름 보기 · 직접 해보기 · 이어 듣기)', all.length === 12 && all.every((x) => !x.none && x.rel0 <= -18), all.map((x) => [x.c, x.w, x.none ? 'none' : x.rel0]));
+    ok('① 대조 — 잦아듦은 멘트 0.8 ~ 1.4초 앞에 시작 · 길이 4.5초 그대로(멘트 3.7초 뒤 걷기 크기보다 40 dB 넘게 아래 · 첫 소리까지 내린 폭 27 dB 안)', all.every((x) => !x.none && x.lead >= 800 && x.lead <= 1400 && x.rel37 <= -40 && x.rel0 - x.pre >= -27 && /4500$/.test(x.shape || '')), all.map((x) => [x.c, x.w, x.lead, x.shape, x.pre, x.rel0, x.rel37]));
+    const pr = all.filter((x) => x.w !== 'listen');
+    ok('① 대조 — 걷는 동안 0 dB 그대로(연습 두 길) · 맞절은 정적 · 사이를 늘리지 않았다(줄이 바뀐 뒤 멘트까지 3초 안)', pr.length === 8 && pr.every((x) => x.walkWant === 0 && Math.abs(x.walkDb) <= 0.5) && all.every((x) => x.mjN > 0 && !x.mjOn && x.gap != null && x.gap <= 3000), all.map((x) => [x.c, x.w, x.walkWant, x.walkDb, x.mjOn + '/' + x.mjN, x.gap]));
+    ok('① 쪽 오류 0', rs.every((r) => !r.errs.length), rs.map((r) => r.errs.slice(0, 2))); }
+} catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 700)); }
+await br.close(); A.srv.close();
+console.log(fail ? `PV FIX 1114 FAIL ${fail}` : 'PV FIX 1114 OK');
+process.exit(fail ? 1 : 0);

@@ -23349,3 +23349,9 @@ chk 'function segFirstFail(id){' console.html 1
 chk 'function segNeedTxt(d, pl){' console.html 1
 chk '지금 파일이 없어 음악 없이 진행돼요' console.html 1   # 파일 없는 하객 맞이 — 이어질 앞 곡이 없다(«앞 곡이 이어져요» 아님)
 chk 'SEG_FIRST_FAIL_1114' scripts/audit/console-bed-1114.mjs 3
+# ★★[ARRIVE_SETTLE_PV_1114 2026-11-14 BGM 섹션 · 직접 넘겨 보기 문제 2] 미리 듣기 · 연습 — 도착 멘트 잦아듦(4.5초)은 멘트 1.0초 앞에 먼저 · 무음까지 dB 직선(당일 콘솔 EAR_D_1106 ② 와 같게 · 첫 소리 때 걷기 크기보다 18 dB 이상 아래) · 소리는 CI bgm-sound f 칸 pv-fix-1114 ① 이 잰다
+chk 'ARRIVE_SETTLE_PV_1114' assets/bgm-bed.js 4
+chk 'var ARRIVE_LEAD=1000;' assets/bgm-bed.js 1
+chk 'ARRIVE_SETTLE_PV_1114' scripts/audit/pv-fix-1114.mjs 1
+chk "{ name: f, tests: 'pv-fix-1114' }" .github/workflows/merge-guard.yml 1
+chk 'PV_FIX_1114' scripts/audit/pv-fix-1114.mjs 1   # 검사 머리 이름(묶음) — CI bgm-sound f 칸
