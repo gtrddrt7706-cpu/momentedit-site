@@ -11545,6 +11545,16 @@ chk '^### Accessibility' .claude/skills/web-design-guidelines/web-interface-guid
 chk 'FD_LOCAL' .claude/skills/frontend-design/SKILL.md 1
 chk 'Apache License' .claude/skills/impeccable/LICENSE 1
 chk 'MIT License' .claude/skills/web-design-guidelines/LICENSE 1
+# ★[SKILLS_UPDATE_1114 2026-11-14] impeccable 4.4.0 → 4.9.1(upstream 61e73ee · 저장소 폴더에서 복사 · 설치 명령 · 엔진 내려받기 없음).
+#   다시 받을 때 [IMP_LOCAL] 블록(SKILL.md · craft-floor.md 끝)을 떠 두었다가 다시 붙인다 — 위 IMP_LOCAL · EXC_EYEBROW 줄이 그 누락을 잡는다.
+#   새 판은 아이브로우 금지가 더 단단하다(craft-floor «except a line marked as a ban» · degraded/documenter · finish-reviewer) → [EXC_EYEBROW] 11/14 몫.
+#   doctor · init · document · foundations · hooks 는 돌리지 않는다 → [EXC_IMP_MAINT]. NOTICE.md 는 ios.md · android.md(제3자 MIT 파생) 고지다.
+chk '^version: 4.9.1' .claude/skills/impeccable/SKILL.md 1
+chk '61e73eebd34a845df0bfef463eb0d31ed4eab581' .claude/skills/impeccable/SOURCE.md 1
+[ -f .claude/skills/impeccable/NOTICE.md ] && echo 'ok .claude/skills/impeccable/NOTICE.md: 제3자 고지 존재 [SKILLS_UPDATE_1114]' || { echo 'REVERT? .claude/skills/impeccable/NOTICE.md 가 없다 — ios.md · android.md 의 제3자(MIT) 고지 [SKILLS_UPDATE_1114]'; fail=1; }
+nochk '23행의 폴백' .claude/skills/impeccable/SKILL.md   # 행 번호는 판마다 바뀐다 — «Launcher unavailable» 문단으로 가리킨다
+chk 'EXC_IMP_MAINT' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+chk '누가(11/14 · impeccable 4.9.1)' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
 chk '라이선스 파일이 없었다' .claude/skills/frontend-design/SOURCE.md 1
 # [SKILL_404_BODY] curl -o 는 404 여도 본문(「404: Not Found」 14바이트)을 파일로 쓴다 — frontend-design/LICENSE 가 그렇게
 #   «라이선스 파일»로 커밋될 뻔했다(2026-09-25 · 커밋 직후 크기 14 로 발견). 받은 파일 어디에도 그 본문이 있으면 안 된다.
