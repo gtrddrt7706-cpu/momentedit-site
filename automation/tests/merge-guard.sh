@@ -23372,3 +23372,7 @@ chk 'BGM_OFF_STAYS_OFF_1114' scripts/audit/pv-fix-1114.mjs 1
 chk 'LISTEN_LEN_PV_1114' assets/bgm-bed.js 1
 chk "d=Math.max(30,((P.lenOf&&P.lenOf(f,0))||P.LEN0||DAY_LEN)-X); if(t+d>sec) return f; t+=d; } return L\[0\]; }" assets/bgm-bed.js 1
 chk 'LISTEN_LEN_PV_1114' scripts/audit/pv-fix-1114.mjs 1
+# ★★[NO_RELIFT_ALL_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 01] 당일 콘솔 — 정적 뒤 새 곡을 걸 때 지금 곡만이 아니라 소리가 남은 모든 재생기를 정리(잦아들던 재생기는 멈추고 비운다 · BED.later 로 미룰 때도) · 소리는 console-relift ⑥ 이 잰다
+chk 'NO_RELIFT_ALL_1115' console.html 4
+chk 'function bedHush(){' console.html 1
+chk 'var _own = BED.gen' console.html 1
