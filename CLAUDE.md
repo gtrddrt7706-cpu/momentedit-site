@@ -142,7 +142,7 @@
 
 ## 디자인 판단의 권위 [DESIGN_AUTHORITY] [DESIGN_SKILLS_12] (스킬 순서 상세 · impeccable 실측 → `docs/rules/디자인.md`)
 
-- 디자인 스킬(17개)끼리 어긋나면 `momentedit-design` 이 이긴다 → `.claude/skills/MOMENTEDIT_EXCEPTIONS.md` → `web-design-guidelines`(점검) → `impeccable`(고치는 절차 · 미감 제안은 위 둘을 통과한 것만) → `frontend-design`(새 화면만) → 10/11 의 다섯(점검용) → 나머지.
+- 디자인 스킬(17개)끼리 어긋나면 `momentedit-design` 이 이긴다 → `.claude/skills/MOMENTEDIT_EXCEPTIONS.md` → `web-design-guidelines`(점검) → `impeccable`(고치는 절차 · 미감 제안은 위 둘을 통과한 것만) → `frontend-design`(새 화면만) → 10/11 의 다섯(점검용) → 11/14 의 품질 여섯(web-quality · 점검용 [SKILLS_UPDATE_1114]) → 나머지.
 - 정적 HTML(빌드 없음 · 외부 CSS 0)이라 Tailwind · shadcn · React 전제 조언은 버린다 · 브랜드 팔레트가 범용 팔레트를 이긴다.
 - 다크모드 · 글래스모피즘 · 네온 · 튀는 모션(bounce · spring) · 이모지 · 보라 · 청록 · 형광은 어떤 스킬이 권해도 금지. ★[GLASS_MENU_OWNER 2026-09-25 사장님 결정] 글래스모피즘 금지의 **유일한 예외** — `index.html` 모바일 메뉴(`.mobile-menu`)는 그대로 둔다 · 다른 요소로 넓히지 않는다.
 - 오른쪽 아이콘 레일(`.me-fab-stack`)은 [RAIL_LOCKED] — 제안 · 재질문 금지(점검에서 «본문과 겹친다»가 나와도 보고하지 않는다).

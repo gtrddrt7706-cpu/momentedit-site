@@ -11545,6 +11545,42 @@ chk '^### Accessibility' .claude/skills/web-design-guidelines/web-interface-guid
 chk 'FD_LOCAL' .claude/skills/frontend-design/SKILL.md 1
 chk 'Apache License' .claude/skills/impeccable/LICENSE 1
 chk 'MIT License' .claude/skills/web-design-guidelines/LICENSE 1
+# ★[SKILLS_UPDATE_1114 2026-11-14] impeccable 4.4.0 → 4.9.1(upstream 61e73ee · 저장소 폴더에서 복사 · 설치 명령 · 엔진 내려받기 없음).
+#   다시 받을 때 [IMP_LOCAL] 블록(SKILL.md · craft-floor.md 끝)을 떠 두었다가 다시 붙인다 — 위 IMP_LOCAL · EXC_EYEBROW 줄이 그 누락을 잡는다.
+#   새 판은 아이브로우 금지가 더 단단하다(craft-floor «except a line marked as a ban» · degraded/documenter · finish-reviewer) → [EXC_EYEBROW] 11/14 몫.
+#   doctor · init · document · foundations · hooks 는 돌리지 않는다 → [EXC_IMP_MAINT]. NOTICE.md 는 ios.md · android.md(제3자 MIT 파생) 고지다.
+chk '^version: 4.9.1' .claude/skills/impeccable/SKILL.md 1
+chk '61e73eebd34a845df0bfef463eb0d31ed4eab581' .claude/skills/impeccable/SOURCE.md 1
+[ -f .claude/skills/impeccable/NOTICE.md ] && echo 'ok .claude/skills/impeccable/NOTICE.md: 제3자 고지 존재 [SKILLS_UPDATE_1114]' || { echo 'REVERT? .claude/skills/impeccable/NOTICE.md 가 없다 — ios.md · android.md 의 제3자(MIT) 고지 [SKILLS_UPDATE_1114]'; fail=1; }
+nochk '23행의 폴백' .claude/skills/impeccable/SKILL.md   # 행 번호는 판마다 바뀐다 — «Launcher unavailable» 문단으로 가리킨다
+chk 'EXC_IMP_MAINT' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+chk '누가(11/14 · impeccable 4.9.1)' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+# ★[SKILLS_UPDATE_1114 2026-11-14] web-quality-skills 여섯(addyosmani · upstream afa8da9 · MIT)을 10/11 방식으로 넣었다 — 점검용 · «10/11 의 다섯» 뒤.
+#   여섯 다 범용 · Lighthouse · 구글 기준이라 SKILL.md 끝 [WQ_LOCAL] 이 momentedit-design · EXCEPTIONS 를 먼저 가리킨다(목록까지만 · 문구 · 메타 · 기능 코드 불변).
+#   [WQ_LOCAL] 이 사라지면(다시 받으며 덮어쓰면) seo 스킬이 제목 · 설명 · 스키마를 고치자고 한다 — 금지사항 3 · [EXC_WQ_GOOGLE].
+chk 'SKILLS_UPDATE_1114' CLAUDE.md 1
+chk 'SKILLS_UPDATE_1114' docs/rules/디자인.md 1
+chk 'WQ_LOCAL' .claude/skills/accessibility/SKILL.md 1
+chk 'WQ_LOCAL' .claude/skills/best-practices/SKILL.md 1
+chk 'WQ_LOCAL' .claude/skills/core-web-vitals/SKILL.md 1
+chk 'WQ_LOCAL' .claude/skills/performance/SKILL.md 1
+chk 'WQ_LOCAL' .claude/skills/seo/SKILL.md 1
+chk 'WQ_LOCAL' .claude/skills/web-quality-audit/SKILL.md 1
+chk 'EXC_WQ_GOOGLE' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+chk 'MIT License' .claude/skills/seo/LICENSE 1
+chk 'afa8da942115f2961fdbfa80807ea0b232ff6c00' .claude/skills/web-quality-audit/SOURCE.md 1
+# ★[IMP_NO_RUN · WQ_NO_INSTALL 2026-11-14 대본 확인] «할 수 없다»가 아니라 «하지 않는다» — impeccable 런처는 엔진 바이너리를 내려받아 실행하고,
+#   여섯 스킬 본문은 npx lighthouse 같은 바깥 도구를 권한다. 내려받기가 되는 환경에서도 실행하지 않는다는 줄이 지워지면 빨강.
+chk 'IMP_NO_RUN' .claude/skills/impeccable/SKILL.md 1
+chk 'IMP_NO_RUN' .claude/skills/impeccable/reference/craft-floor.md 1
+chk 'IMP_NO_RUN' .claude/skills/impeccable/SOURCE.md 1
+chk 'WQ_NO_INSTALL' .claude/skills/accessibility/SKILL.md 1
+chk 'WQ_NO_INSTALL' .claude/skills/best-practices/SKILL.md 1
+chk 'WQ_NO_INSTALL' .claude/skills/core-web-vitals/SKILL.md 1
+chk 'WQ_NO_INSTALL' .claude/skills/performance/SKILL.md 1
+chk 'WQ_NO_INSTALL' .claude/skills/seo/SKILL.md 1
+chk 'WQ_NO_INSTALL' .claude/skills/web-quality-audit/SKILL.md 1
+chk 'IMP_NO_RUN' docs/rules/디자인.md 1
 chk '라이선스 파일이 없었다' .claude/skills/frontend-design/SOURCE.md 1
 # [SKILL_404_BODY] curl -o 는 404 여도 본문(「404: Not Found」 14바이트)을 파일로 쓴다 — frontend-design/LICENSE 가 그렇게
 #   «라이선스 파일»로 커밋될 뻔했다(2026-09-25 · 커밋 직후 크기 14 로 발견). 받은 파일 어디에도 그 본문이 있으면 안 된다.

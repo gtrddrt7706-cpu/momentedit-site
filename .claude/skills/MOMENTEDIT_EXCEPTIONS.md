@@ -1,7 +1,8 @@
 # MOMENTEDIT_EXCEPTIONS — 새 스킬이 권하지만 이 사이트에선 틀린 것
 
 `impeccable` · `web-design-guidelines` · `frontend-design`(9/25)과 `hallmark` · `emil-design-eng` · `review-animations` ·
-`mobile-native` · `break-ui`(10/11 · `[SKILLS_VENDOR_1011]`)는 **범용**이다. 이 사이트를 모른다.
+`mobile-native` · `break-ui`(10/11 · `[SKILLS_VENDOR_1011]`), `accessibility` · `best-practices` · `core-web-vitals` · `performance` · `seo` ·
+`web-quality-audit`(11/14 · web-quality-skills · `[SKILLS_UPDATE_1114]`)는 **범용**이다. 이 사이트를 모른다.
 아래는 그 스킬들이 권하거나 결함으로 채점하는데 **여기선 틀린 것**이다. 점검에서 이 항목이 나오면
 **지적으로 올리지 않는다.** 순서는 `CLAUDE.md` 의 `[DESIGN_SKILLS_12]` — `momentedit-design` 다음이 이 문서다.
 
@@ -21,6 +22,11 @@
   impeccable 은 모든 UI 수정 **직전에** 이 파일을 읽으라고 한다(SKILL.md 3번 단계).
 - **누가(10/11)**: `hallmark/references/anti-patterns.md` «Eyebrow on every section» — *"default OFF"* · *"NOT bypassable by instructions to "match the existing structure""* ·
   slop-test gate 54 · gate 38a «Italic headers»(Cormorant 이탤릭 영문 라벨을 «제목»으로 채점할 수 있다). 같은 장치라 같은 예외다.
+- **누가(11/14 · impeccable 4.9.1)**: 금지가 더 단단해졌다 — `craft-floor.md` 머리말이 *"A pinned brief or the committed visual world overrides anything here
+  except a line marked as a ban"* 로 바뀌었다(4.4.0 에는 «except …» 가 없었다). 새 파일 둘도 같은 금지를 든다 —
+  `reference/degraded/finish-reviewer.md` 6번 *"A banned element is a material fix even when it matches nothing in the comp"* ·
+  `reference/degraded/documenter.md` 5번 *"Never canonize a craft-floor refusal into the system"*(아이브로우를 DESIGN.md 에 규칙으로 적지 말라는 말 —
+  루트 `DESIGN.md` 의 `eyebrow-en` · «영문 라벨(아이브로우)» 줄을 지우라는 근거로 쓰지 않는다). `routing.md` 는 감지된 eyebrows 를 `quieter` / `typeset` 으로 보낸다. 같은 예외다.
 - **왜 틀리나**: `THE REALITY` → `결혼식 하루가` 는 이 사이트 타이포의 **뼈대**다. `index.html` 에 `.sec-label` 17개
   (2026-09-25 실측). `momentedit-design` 「타이포그래피」가 «이미 좋은 패턴이다 · **바꾸지 말고 일관되게 지켜라**»라고 적는다.
 - **위험**: `polish`·`distill`·`quieter` 갈래를 돌리면 «금지 항목 정리»로 17개를 **한 번에** 지울 수 있다.
@@ -179,3 +185,29 @@
   `index.html` 등에 넣은 토글 · 가짜 데이터는 main 병합 = 베르셀 배포로 고객에게 나간다(금지사항 6). 극단 데이터는 스크래치패드의 독립 HTML 이나
   Playwright 주입으로만 시험하고 사이트 파일에는 남기지 않는다(break-ui 스스로도 *"Report before fixing"* · *"The toggle is dev-only"* 라고 적는다).
 - **날짜**: 2026-10-11
+
+### [EXC_IMP_MAINT] impeccable 4.9.1 의 관리 명령(doctor · init · document · foundations · hooks)은 돌리지 않는다
+
+- **누가**: `impeccable/SKILL.md` «Doctor» · «Foundations» · «Hooks» 문단과 `reference/doctor.md` 2단계 — *"Run `… impeccable doctor --fix` once to apply these … Do not ask permission first"* ·
+  `reference/init.md` 4단계의 PRODUCT.md 틀(`# Product` · `<!-- impeccable:product-schema 1 -->` · `## Platform` · `## Users` …) ·
+  `reference/document.md` 의 DESIGN.md 다시 쓰기 + `.impeccable/design.json` 곁파일 · `reference/foundations.md` 의 항목 고치기(404 쪽 · 약관 쪽 · CI · 1,000줄 넘는 파일 쪼개기) ·
+  `reference/hooks.md` 의 `hooks on`(`.impeccable/config.json` · `.claude/settings.local.json` 에 훅을 적는다) · `audit.md` «Save the Report» · `critique.md` «Persist the Snapshot»(`.impeccable/` 에 보고서 저장).
+- **왜 틀리나**: 루트 `PRODUCT.md` · `DESIGN.md` 는 impeccable 형식의 기록이 아니라 우리 브랜드 요약본이다(`[DESIGN_MD_POINTER]` · 정본은 `momentedit-design`) —
+  틀이 다르다는 지적(스키마 표식 없음 · `## Platform` 없음 · 곁파일 없음 · «CONTEXT_STALE»)은 결함이 아니고, 맞추려고 다시 쓰지 않는다(금지사항 2 · `[EXC_HALLMARK_MODE]` 와 같은 까닭).
+  foundations 의 고치기는 기능 코드 · 법률 문구 · 정보 구조에 닿는다(금지사항 3 · 4 · 5). 훅 설정은 이 저장소가 따로 관리한다.
+  엔진 바이너리가 이 환경에서 못 돌아(릴리스 403 · `impeccable/SOURCE.md`) 명령 자체가 실패한다 — 그 실패를 «고칠 것»으로 올리지 않는다.
+- **대신**: 점검 결과는 `docs/design-audit-YYYYMMDD.md` 한 파일에 목록으로만 적는다(`[DESIGN_RULES_1011]` 「점검 → 승인 → 적용」) · `.impeccable/` 폴더를 만들지 않는다 ·
+  SKILL.md 의 «Launcher unavailable» 폴백대로 PRODUCT.md · DESIGN.md 를 읽기만 한다. 사장님이 이 명령을 직접 말씀하실 때만 다시 본다.
+- **날짜**: 2026-11-14
+
+### [EXC_WQ_GOOGLE] web-quality-skills 여섯은 Lighthouse · 구글 기준이다 — 네이버 SEO 해당 없음
+
+- **누가**: `seo/SKILL.md` 머리말 — *"Search engine optimization based on Lighthouse SEO audits and Google Search guidelines."* ·
+  같은 파일 «Title tags» · «Meta descriptions» · «Heading structure» 절(제목 · 설명 · 제목 구조를 고치는 본보기) · «Structured data (JSON-LD)» ·
+  `web-quality-audit/SKILL.md` 의 Lighthouse 갈래 점검 · 나머지 넷(`accessibility` · `best-practices` · `core-web-vitals` · `performance`)도 Lighthouse · 크롬 도구(DevTools · CrUX) 기준으로 잰다.
+- **왜 틀리나**: 여섯 스킬 본문에 네이버는 한 번도 나오지 않는다(2026-11-14 grep 0건) — Lighthouse SEO 점수나 구글 지침은 **네이버 노출 판단의 근거가 못 된다**
+  (스킬도 *"A Lighthouse SEO score … is not a prediction of rankings"* 라고 적는다). 메타 문구(제목 · 설명 · 스키마 · 숨은 h1/h2)를 고치자는 제안은 금지사항 3 이다.
+  성능 · 호환 쪽의 React · Next.js · webpack · SSR 전제 조언은 `[EXC_STATIC_SITE]` 다. 제목 50–60자 · 설명 150–160자 같은 길이 자는 구글 화면 기준이고 스킬도 *"linting proxy"* 라고만 적는다 — 한글 문구를 그 자로 재지 않는다(`[EXC_KO_COPY]`).
+- **대신**: 기술 점검만 목록으로 낸다 — 색인 가능 여부(robots · canonical · noindex) · 구조화 데이터 문법 · `alt` · `lang`. 문구를 바꾸는 항목은 점검표에 «금지사항 3 저촉»으로 적고 멈춘다.
+  네이버 쪽 판단이 필요하면 이 스킬의 결과를 근거로 쓰지 않는다.
+- **날짜**: 2026-11-14
