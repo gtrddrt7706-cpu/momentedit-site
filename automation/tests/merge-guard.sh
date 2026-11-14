@@ -23338,6 +23338,12 @@ chk '"n":102,"id":"209_narr-song-ex5#2"' assets/audio/_src/_layers/층5_자리.j
 chk 'CHOP_FIX_1114' scripts/audit/layer-chop.mjs 1
 chk 'scripts/audit/layer-chop.mjs' scripts/narr-rebuild.sh 1
 chk 'CHOP_FIX_1114' assets/audio/_src/_layers/끊김_허용_1114.json 1
+# ★[CHOP_FIX_1114 · 285 대표님 11/15 «새 후보 1»] 285 «어머님께서는|자리로» = 새 녹음 REC_285_1115 k12(1층 l3 · 3층 이 테이크 대비 실측 B 0.9301 · 5층 n164 글자 비율 f 0.4) · 허용 목록 pending 비움
+chk 'REC_285_1115_k12.wav' assets/audio/_src/_layers/층1_재료.json 1
+chk '"n":164,"id":"285_bridge-b9-declare-seat-end-gmom#0".*"how":"text"' assets/audio/_src/_layers/층5_자리.json 1
+chk '285_bridge-b9-declare-seat-end-gmom#0	guide	0.9301' assets/audio/_src/_layers/빠르기표_최종_1109.tsv 1
+nochk '"pending": {"285' assets/audio/_src/_layers/끊김_허용_1114.json
+if [ ! -f assets/audio/_src/_layers/redo/REC_285_1115_k12.wav ]; then echo 'REVERT? [CHOP_FIX_1114] 285 새 녹음 원본 REC_285_1115_k12.wav 가 없다'; fail=1; fi
 chk "★\[LAYER7_FACE_LEAD_1110\] 7층과 하나로" assets/ritual-cue.js 1
 # ★[CI_RUNNER_2404 11/10] CI 러너 24.04 고정 — ubuntu-latest(26.04)는 Playwright 1.56.1 브라우저 설치 실패 · ffmpeg 없음으로 bgm-sound 5칸 · guard 소리 검사가 테스트 전에 떨어졌다(PR #1647)
 chk 'runs-on: ubuntu-24.04   # ★\[CI_RUNNER_2404' .github/workflows/merge-guard.yml 2
