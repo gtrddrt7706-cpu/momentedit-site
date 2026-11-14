@@ -317,7 +317,13 @@
     var at=(pz&&pz.f===f&&pz.pos!=null)?pz.pos:(LPB.keep[f]||0), tk=LPB.lt;
     var go=function(){ if(LPB.lt!==tk||curStep()!==st||pzNow()) return false; LPB.on=true; BED.who='lp'; var nv=startVoice(f,db,RESUME_MS,at); if(!nv) return false; if(BED.cur.src&&BED.cur!==nv) stopVoice(BED.cur,300); BED.cur=nv; LPB.f=f; LPB.pz=null; LPB.rs=Date.now(); LPB.rsSt=st; return true; };
     if(BUF[f]&&BUF[f].st==='ok') return go(); LPB.on=true; BED.who='lp'; LPB.pend=f; want(f,function(b){ if(b&&LPB.pend===f) go(); }); return true; }
-  function lpShow(st){ if(!emb()||!st) return; if(pzNow()){ holdOn(st); return; }   /* [REG_P17] */ LPB.gk=(LPB.gk||0)+1; showMark(st); if(BED.who==='card') stopCard(true); if(LPB.rs&&Date.now()-LPB.rs<900&&BED.cur.src){ var _rsS=LPB.rsSt; LPB.rs=0; LPB.rsSt=null; if(_rsS===st) return; }   /* ★[B2_EUM09] 같은 줄만 건너뛴다 — 이어 든 뒤 0.9초 안에 다른 줄로 옮기면(이전 · 다음 · 순간 이동) 그 줄 곡 · 크기를 바로 */   /* [DETAIL_R1_1101 ③] 방금 이어 든 곡을 lpShow 가 다시 1.2초로 덮지 않는다 */ durWarm(); if(LPB.note&&LPB.noteK&&st.k!==LPB.noteK) note('');   /* [BED_LOAD_1101] 그 순간 듣기 동안만 */
+  /* ★★[ARRIVE_ONCE_VISIT_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 01] «이 줄 몫으로 이미 도는 내림»(LPB.arr · 도착 멘트 잦아듦 · 축가 여는 말 뒤 1.5초)은 그 줄의 «이번 방문»에만 맞다.
+       종전: 줄을 떠나도 기록이 남아 — 크게 보기에서 저절로 도착 멘트(또는 MR 자리)까지 간 뒤 «이전 줄 → 다음 줄»(lsLine)로 다시 들어오면 같은 소리 · 같은 줄이라
+             «이미 돈다»로 읽고 내림을 다시 걸지 않았다(도착 멘트 위 걷기 크기 0 dB · MR 자리 위 피아노 −11 dB 그대로 · 저절로 넘김은 4.5초 · 1.5초 내림).
+       고침 = 다른 줄을 보여 줄 때(lpShow · lpLead) 그 기록을 지운다 — 다시 들어오면 줄 시작부터 같은 모양으로 다시 건다(ARRIVE_SETTLE_PV_1114 «사이 없이 바로 오면 줄 시작부터»).
+       그대로: 사이(lpGap)에서 다음 줄 몫으로 먼저 건 내림은 그 줄이 시작돼도 다시 걸지 않는다 · 같은 줄을 다시 부르는 길(음악 켜기 등)도 · 검사 scripts/audit/pv-r3-1115.mjs 01 */
+  function arrLeave(st){ if(LPB.arr&&LPB.arr.st!==st) LPB.arr=null; }
+  function lpShow(st){ if(!emb()||!st) return; if(pzNow()){ holdOn(st); return; }   /* [REG_P17] */ arrLeave(st); LPB.gk=(LPB.gk||0)+1; showMark(st); if(BED.who==='card') stopCard(true); if(LPB.rs&&Date.now()-LPB.rs<900&&BED.cur.src){ var _rsS=LPB.rsSt; LPB.rs=0; LPB.rsSt=null; if(_rsS===st) return; }   /* ★[B2_EUM09] 같은 줄만 건너뛴다 — 이어 든 뒤 0.9초 안에 다른 줄로 옮기면(이전 · 다음 · 순간 이동) 그 줄 곡 · 크기를 바로 */   /* [DETAIL_R1_1101 ③] 방금 이어 든 곡을 lpShow 가 다시 1.2초로 덮지 않는다 */ durWarm(); if(LPB.note&&LPB.noteK&&st.k!==LPB.noteK) note('');   /* [BED_LOAD_1101] 그 순간 듣기 동안만 */
     if(st.k!==LPB.wk){ LPB.wk=st.k; var _nk=nextK(st.k), _rk=[]; try{ _rk=(typeof LP!=='undefined'&&LP.range&&LP.range.ks)||[]; }catch(x){} if(_nk&&(_rk.indexOf(_nk)>-1||st.k==='letter')) songsOf(_nk).forEach(function(_nf){ if(_nf&&!BUF[_nf]) want(_nf); }); }   /* [BED_LOAD_1101] 다음 순간 곡은 이어 듣는 범위 안이거나 편지 끝(lpTail 이 올린다)일 때만 미리 — 맞절만 들을 때 감사 인사 곡까지 받지 않는다(ENTRY_CARRY 1) */   /* ★[BGM_TIMING2_1101] 편지 끝에 오를 다음 순간 곡을 미리 받는다(편지만 따로 들을 때도 · 받는 동안 정적이 끝나 곡이 안 오르던 자리) */
     /* ★★[BRIDGE_FIRST_1101 사장님 «이어듣기 누르면 노래가 먼저 나오는데 순서가 맞아?»] 다음 순간 몫으로 붙은 이음말(st._pre · 빌더가 BgmSlots.leadAt 으로 표시)은 앞 장면을 닫는 말 —
          새 곡을 걸지 않는다 · 이어 듣기면 앞 곡을 말 아래 크기(−16 · 보컬 −22)로 · 그 순간만 들으면 음악 없이 · 새 곡 뜸은 그 바로 뒤 줄(lpLead) */
@@ -415,7 +421,7 @@
     LPB.tailTo=Date.now()+w+d.lup; return w+d.lup+600; }
   /* ★[GPT_R1_NOMUS] 새 구간 곡을 기다리다 «음악 없이 먼저» · «불러오지 못했어요»가 뜨면 흐르던 앞 곡도 1.5초에 내린다 — 화면(나레이션만) = 소리 · 곡이 늦게 오면 줄 사이에서 그 곡으로(LPB.late) */
   function oldHush(f){ var q=curStep(); LPB.noMus=q?{ k:q.k, f:f }:null; if(BED.who==='lp'&&BED.cur&&BED.cur.src&&BED.cur.f!==f&&num(BED.cur.want,-90)>-60) ramp(BED.cur,-90,1500); }
-  function lpLead(st,re){ if(!emb()||!st) return 0; if(pzNow()){ holdOn(st); return 0; }   /* [REG_P17] */ showMark(st); if(BED.who==='card') stopCard(true); durWarm(); var f=fileFor(st);   /* [GPT_R1_JUMP] 뜸 줄도 «보여 준 줄» 기록 */
+  function lpLead(st,re){ if(!emb()||!st) return 0; if(pzNow()){ holdOn(st); return 0; }   /* [REG_P17] */ arrLeave(st);   /* [ARRIVE_ONCE_VISIT_1115] */ showMark(st); if(BED.who==='card') stopCard(true); durWarm(); var f=fileFor(st);   /* [GPT_R1_JUMP] 뜸 줄도 «보여 준 줄» 기록 */
     /* ★[DETAIL_R1_1101 ②] 곡 목록이 아직 안 왔다 — 곡 받기와 같은 8초 기다림 · 1.5초 넘으면 «음악을 불러오는 중이에요» · 목록이 오면 지금 줄 곡을 다시 정해 깐다(뜸 자리면 뜸부터) */
     if(!f&&avWait()&&(segAt(st.k)||st._base||st.k==='prevideo'||st.k==='_close')){ list(); var tl=++LPB.lt; LPB.on=true; BED.who='lp'; clearTimeout(LPB.ln); LPB.ln=setTimeout(function(){ if(LPB.lt===tl&&leadOf()===st) note('load'); },LOAD_MS);
       AV.cb.push(function(){ if(LPB.lt!==tl) return; clearTimeout(LPB.ln); if(LPB.note) note('');
