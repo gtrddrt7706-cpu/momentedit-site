@@ -23344,3 +23344,8 @@ chk 'BED_BAD_RESET_1114' console.html 3   # «못 연 곡» 표시는 그 판 �
 chk 'if (BED.bad) delete BED.bad\[sid\];' console.html 1
 chk '^  BED.bad = {};$' console.html 1
 chk 'BED_BAD_RESET_1114' scripts/audit/console-bed-1114.mjs 3
+chk 'SEG_FIRST_FAIL_1114' console.html 4   # 흐르는 곡이 없을 때(하객 맞이) 구간 첫 곡이 안 열리면 같은 구간 다음 곡을 한 번씩 — 앞 곡이 흐르면 종전 그대로(DETAIL_R3_1101 ②)
+chk 'function segFirstFail(id){' console.html 1
+chk 'function segNeedTxt(d, pl){' console.html 1
+chk '지금 파일이 없어 음악 없이 진행돼요' console.html 1   # 파일 없는 하객 맞이 — 이어질 앞 곡이 없다(«앞 곡이 이어져요» 아님)
+chk 'SEG_FIRST_FAIL_1114' scripts/audit/console-bed-1114.mjs 3

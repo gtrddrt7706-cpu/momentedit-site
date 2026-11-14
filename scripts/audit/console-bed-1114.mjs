@@ -6,6 +6,8 @@
      빌려 온 곡이 남고 합이 30분(NEED.M8) 이상 · 설정 화면 곡 칩은 제 곡만 · 이어 트는 칸(M4 · M6 · M8L)은 빠짐 0 · 미리 듣기 쪽 줄(lfNext = playOrd.filter(has))도 그대로
    C [HEARD_RESET_1114] 같은 탭에서 «■ 나가기 → 시작» — 앞 판의 들린 곡 기록(20초 넘게 들린 곡)이 0 · 음악만 멈춤 → 다시 · 전체 정지 → GO 는 기록 그대로
    D [BED_BAD_RESET_1114] 못 연 곡 표시(BED.bad) — 깨진 파일을 멀쩡한 파일로 바꿔 넣으면 그 곡 표시가 지워지고 제 차례에 다시 흐른다 · «■ 나가기 → 시작» 뒤에는 표시가 0
+   E [SEG_FIRST_FAIL_1114] 흐르는 곡이 없을 때(그날 첫 음악 하객 맞이) 구간 첫 곡이 안 열리면 같은 구간 다음 곡이 흐른다 · 다 깨진 날은 한 번씩만 열어 보고 종전 한 줄 ·
+     앞 곡이 흐르는 중(정적으로 낮춰 둔 자리 포함)이면 종전 그대로 앞 곡(DETAIL_R3_1101 ② · NO_RELIFT_XF_1114 되돌림) · 설정 글: 파일 없는 하객 맞이 = «음악 없이 진행돼요»
    깨 보기: BP_CON=<옛 console.html> 로 돌리면 고친 줄마다 빨강이어야 한다(각 칸 머리에 적음) · ONLY=A 처럼 칸을 골라 돌릴 수 있다
    곡 = 시험 사인파(곡마다 다른 높이) · 나레이션 = 0.6초 짧은 소리 · 큐는 손으로 낸다(__bgmGo.fire) · 읽는 창구 = __seg.st · __segPlan · __heard(점검용)
    ROOT = 저장소 뿌리(이 파일이 scripts/audit/ 에 있으면 저절로 · 밖에 두면 CONBED_ROOT 로) · 종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
@@ -173,6 +175,55 @@ try {
       ok('D 쪽 오류 0', !c.errs.length, c.errs.slice(0, 3));
     }
     await c.ctx.close();
+  }
+  /* ── E [SEG_FIRST_FAIL_1114] — 옛 판: 하객 맞이 내내 무음(① 빨강) · 다음 곡을 열어 보지 않음(③ 빨강) · 글 «앞 곡이 이어져요»(④ 빨강) · ② 는 옛 판에서 잴 수 없다(하객 맞이 곡이 없다) ── */
+  if (want('E')) {
+    { /* ① ② 하객 맞이 첫 곡 B01 이 깨진 파일 · B24 · B13 은 멀쩡 · 화촉 첫 곡 B05 도 깨짐 · 화촉 다음 곡 B31 은 멀쩡 */
+      const c = await open('standard', [['B01', BADFILE, '.bin'], ['B24', wav(40, 260)], ['B13', wav(40, 300)], ['B05', BADFILE, '.bin'], ['B31', wav(40, 340)]]); const R = await c.start();
+      if (!R || !(await hooks(c)) || c.put < c.need) skip('E — 콘솔 점검 고리가 없거나 곡 파일 칸을 못 찾았다');
+      else {
+        const iG = R.findIndex((x) => x.k === 'guest'), iO = R.findIndex((x) => /^narr-open/.test(x.slug || '')), iC = R.findIndex((x) => x.k === 'candle'); await c.fire(iG);
+        const p1 = await c.playing('M1', 9000); await c.pg.waitForTimeout(3300); const s1 = await c.seg();
+        const rE1 = { 구간: s1.seg, 지금곡: s1.id, 요청: s1.plays, 재생기크기: s1.xg[s1.on], 멈춤: s1.paused[s1.on], 상태줄: s1.err };
+        console.log('  재 본 값 E①', JSON.stringify(rE1));
+        ok('E ① 하객 맞이 첫 곡이 안 열린다(흐르는 곡 없음) — 같은 구간 다음 곡 B24 가 흐른다 · 빨간 줄 없음 [SEG_FIRST_FAIL_1114]', p1 && s1.id === 'B24' && !s1.paused[s1.on] && s1.xg[s1.on] > 0.9 && !s1.err, rE1);
+        if (!p1 || iO < 0 || iC < 0) { if (p1) skip('E ② — 개식 · 화촉 큐를 못 찾았다'); }
+        else { /* ② 정적(개식 −90) 뒤 화촉 큐 — 화촉 첫 곡이 깨짐 · 하객 맞이 곡은 안 들리게 흐르는 중 */
+          await c.fire(iO); const q = await c.pg.waitForFunction(() => { const b = window.__bgmSt(); return b.want != null && b.want <= -60 && b.now != null && b.now <= -60; }, null, { timeout: 15000 }).then(() => true, () => false); await c.pg.waitForTimeout(500);
+          const a0 = await c.seg(); await c.fire(iC); await c.pg.waitForTimeout(2600); const a1 = await c.seg();
+          const rE2 = { 정적됨: q, 앞곡: a0.id, 뒤곡: a1.id, 요청늘어남: a1.plays - a0.plays, 앞곡재생기크기: a1.xg[a1.on], 멈춤: a1.paused[a1.on], 상태줄: a1.err };
+          console.log('  재 본 값 E②', JSON.stringify(rE2));
+          if (!q) skip('E ② — 정적(개식)이 안 됐다 ' + JSON.stringify(rE2));
+          else ok('E ② 앞 곡이 흐르는 중(정적으로 낮춰 둔 자리)에 화촉 첫 곡이 안 열린다 — 종전 그대로: 다음 곡을 열지 않고 · 앞 곡 그대로 · 꺼 둔 재생기 되돌림 · «재생 중인 곡은 그대로 이어집니다»(DETAIL_R3_1101 ② · NO_RELIFT_XF_1114)',
+            a1.id === a0.id && a1.on === a0.on && !a1.paused[a1.on] && rE2.요청늘어남 === 1 && a1.xg[a1.on] > 0.9 && /재생 중인 곡은 그대로 이어집니다/.test(a1.err), rE2); }
+        ok('E ① ② 쪽 오류 0', !c.errs.length, c.errs.slice(0, 3));
+      }
+      await c.ctx.close(); }
+    { /* ③ 하객 맞이 곡이 다 깨진 날 — 한 번씩만 열어 본다 */
+      const c = await open('standard', [['B01', BADFILE, '.bin'], ['B24', BADFILE, '.bin']]); const R = await c.start();
+      if (!R || !(await hooks(c)) || c.put < c.need) skip('E ③ — 콘솔 점검 고리가 없거나 곡 파일 칸을 못 찾았다');
+      else {
+        const g = R.map((x, i) => [x, i]).filter(([x]) => x.k === 'guest').map(([, i]) => i); await c.fire(g[0]); await c.pg.waitForTimeout(5000); const s1 = await c.seg();
+        if (g[1] != null) await c.fire(g[1]); await c.pg.waitForTimeout(1500); const s2 = await c.seg();
+        const rE3 = { 요청: s1.plays, 다음큐뒤요청: s2.plays, 지금곡: s2.id, 여는중: s2.opening, 상태줄: s2.err };
+        console.log('  재 본 값 E③', JSON.stringify(rE3));
+        ok('E ③ 하객 맞이 곡이 다 안 열린다 — 곡마다 한 번씩만 열어 보고(요청 2회 · 되풀이 없음) 빨간 한 줄 «곡 파일을 열지 못했어요.»', s1.plays === 2 && s2.plays === 2 && !s2.id && !s2.opening && s2.err === '곡 파일을 열지 못했어요.', rE3);
+        ok('E ③ 쪽 오류 0', !c.errs.length, c.errs.slice(0, 3));
+      }
+      await c.ctx.close(); }
+    { /* ④ 설정 글 — 곡 파일이 하나도 없는 날 */
+      const c = await open('standard', []);
+      const txt = () => c.pg.evaluate(() => { const o = {}; [].slice.call(document.querySelectorAll('.sg[data-seg] .sg-need')).forEach((e) => { o[e.closest('.sg').getAttribute('data-seg')] = e.textContent; }); return o; });
+      const t0 = await txt(); const bg = path.join(TMP, 'bed.wav'); fs.writeFileSync(bg, wav(5, 200)); let t1 = null; try { await c.pg.setInputFiles('#fBgm', bg, { timeout: 4000 }); await c.pg.waitForTimeout(300); t1 = await txt(); } catch {}
+      const rE4 = { 하객맞이: t0.M1, 화촉: t0.M2, 배경파일넣은뒤: t1 && t1.M1 };
+      console.log('  재 본 값 E④', JSON.stringify(rE4));
+      if (!t0.M1 || !t0.M2) skip('E ④ — 설정 화면 «구간 음악» 글을 못 찾았다');
+      else {
+        ok('E ④ 파일 없는 하객 맞이(그날 첫 음악) 글 = «지금 파일이 없어 음악 없이 진행돼요»(«앞 곡이 이어져요» 아님) · 다른 구간은 «앞 곡이 이어져요» 그대로 · 전각 줄표 없음', /지금 파일이 없어 음악 없이 진행돼요$/.test(t0.M1) && !/앞 곡이 이어져요/.test(t0.M1) && /지금 파일이 없어 앞 곡이 이어져요$/.test(t0.M2) && !/—/.test(t0.M1), rE4);
+        ok('E ④ 위 «배경 음악 파일»을 넣으면 하객 맞이 글 = «…위 «배경 음악 파일»이 흘러요»', !!t1 && /지금 파일이 없어 위 «배경 음악 파일»이 흘러요$/.test(t1.M1), rE4);
+      }
+      ok('E ④ 쪽 오류 0', !c.errs.length, c.errs.slice(0, 3));
+      await c.ctx.close(); }
   }
 } catch (e) { console.log('못 쟀다 —', String(e && e.stack || e).slice(0, 600)); try { await br.close(); } catch {} srv.close(); process.exit(2); }
 await br.close(); srv.close(); try { fs.rmSync(TMP, { recursive: true, force: true }); } catch {}

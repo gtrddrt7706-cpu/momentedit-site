@@ -1127,6 +1127,7 @@ $('#fBgm').onchange = function(e){
   BGMURL = URL.createObjectURL(f);
   $('#lbBgm').classList.add('has');
   $('#lbBgm').firstChild.nodeValue = '🎵 ' + f.name.slice(0, 22) + ' ';
+  try { var _n1 = document.querySelector('.sg[data-seg="M1"] .sg-need'), _d1 = segDef('M1'); if (_n1 && _d1) _n1.textContent = segNeedTxt(_d1, segPlan('M1')); } catch (x) {}   /* [SEG_FIRST_FAIL_1114] 하객 맞이 머리 글만 다시(칸 전체를 다시 그리지 않는다) */
 };
 $('#tClear').onclick = function(){ $('#tStart').value = ''; };
 
@@ -1350,7 +1351,16 @@ function segGo(id){ if (!id || ((MODE === 'preview' || GUEST) && !pvsOn())) retu
   else if (rs && rs.id === id && rs.list.length) { BED.res = null; L = rs.list.filter(function(x){ return !!SEGF[x]; }); if (!L.length) return false; li = Math.max(0, L.indexOf(rs.f)); if (L[li] === rs.f) rat = rs.t; if (cur && L.indexOf(cur) > -1) { li = L.indexOf(cur); rat = null; } }   /* [DETAIL_R3_1101 ⑥] 돌아오면 그 곡 그 자리(82초 등)에서 잇는다 · 지금 흐르는 곡이 본식 목록에 있으면 그대로(CARRY_SAME) · 처음부터 · 새 예식이면 BED.res 가 비어 처음 */
   BED.seg = id; BED.list = L; BED.li = li; if (id !== 'M4') BED.cut = null;   /* [ONE_FLOW_1106 ⑥] */
   if (cur && L[li] === cur) { bedFade(BED.on, 1, SEG_XF); return false; }   /* ★[CARRY_SAME_1101] 같은 곡 — 다시 시작하지 않는다(끝 3초 전 타이머가 이 구간 목록의 다음 곡으로 잇는다) */
-  return bedPlay(L[li], SEG_XF, rat); }
+  /* ★★[SEG_FIRST_FAIL_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 검증 05 · 첫 구간 몫만] 흐르는 곡이 하나도 없을 때(그날 첫 음악 하객 맞이 등 · 재생기가 멈춰 있다) 구간 첫 곡이 안 열리면 —
+       그 구간 목록의 다음 곡을 한 번씩 열어 본다(segFirstFail · 목록 넘김 listGo 와 같은 규칙 DETAIL_R5_1101 규칙 5) · 종전엔 빨간 한 줄만 남기고 그 구간 내내 무음이었다
+       (같은 구간이라 다음 큐에서도 다시 시도하지 않았다 · 하객 맞이 20분 무음 · 설정 화면엔 깨진 파일도 ✓).
+       앞 곡이 흐르는 중이면(안 들리게 낮춰 둔 정적 자리 포함) 종전 그대로 — DETAIL_R3_1101 ② «앞 곡 그대로 · 빨간 한 줄» · 꺼 둔 앞 곡 되돌림(NO_RELIFT_XF_1114 bedUnhush)도 그대로 */
+  var _pe0 = BED.el[BED.on]; if (!(_pe0 && !_pe0.paused && _pe0.getAttribute('src'))) BED.onFail = function(){ segFirstFail(id); };
+  var _r0 = bedPlay(L[li], SEG_XF, rat); BED.onFail = null;   /* 미뤄진 요청(BED.later)으로 새지 않게 */ return _r0; }
+/* [SEG_FIRST_FAIL_1114] 구간 첫 곡이 안 열렸고 흐르는 앞 곡도 없다 — 목록의 다음 곡(파일이 있고 못 연 적 없는 곡)을 한 번씩 · 다 안 되면 꺼 둔 재생기를 되돌리고(bedUnhush) 종전 한 줄 */
+function segFirstFail(id){ if (BED.seg !== id) return; var L = BED.list || [], bad = BED.bad || {};
+  for (var k = 1; k < L.length; k++) { var j = (BED.li + k) % L.length, s = L[j]; if (s && SEGF[s] && !bad[s]) { BED.li = j; BED.onFail = function(){ segFirstFail(id); }; bedPlay(s, SEG_XF); BED.onFail = null; return; } }
+  bedUnhush(); bedErr('곡 파일을 열지 못했어요.'); bedLater(); }
 /* [CARRY_SAME_1101] 지금 들리는 구간 곡 — 입장 곡 · 식전 영상 · 축가처럼 배경음이 꺼져 있던 자리(−60 아래)는 «흐르던 곡»이 아니다 */
 function segCur(){ var el = BED.el[BED.on]; if (BED.mode !== 'seg' || !BED.id || !el || el.paused || (ESD && ESD.run)) return ''; if (duckWant != null && duckWant <= -60) return ''; return BED.id; }
 /* 끝 3초 전 — 목록의 다음 곡 · 한 곡이면 그 곡 처음으로 겹쳐 넘어간다(끊기지 않게) */
@@ -1429,11 +1439,13 @@ function segRow(id, s, d){ var sel = segSel(id), on = Array.isArray(sel) ? sel.i
     + '<label class="filebtn sm' + (has ? ' has' : '') + '">' + (has ? '파일 바꾸기' : '파일 넣기') + '<input type="file" accept="audio/*" data-seg-file="' + esc(s.id) + '"></label>'
     + (id === 'M7' ? '<input type="text" inputmode="decimal" class="sg-at" data-seg-start="' + esc(s.id) + '" placeholder="강조 시작(초)" value="' + esc(SEGST.start[s.id] != null ? String(SEGST.start[s.id]) : '') + '">' : '')
     + '<span class="sg-st' + (has ? ' ok' : '') + '" data-seg-st="' + esc(s.id) + '">' + st + '</span></div>'; }
+/* ★[SEG_FIRST_FAIL_1114] 구간 머리 글 — 파일이 없는 구간은 «앞 곡이 이어져요» · 그날 첫 음악인 하객 맞이(M1)는 이어질 앞 곡이 없다 → «음악 없이 진행돼요»(위 «배경 음악 파일»을 넣었으면 그 파일이 흐른다) */
+function segNeedTxt(d, pl){ return d.need + (d.multi ? ' · 여러 곡을 고르면 차례로 이어 틀어요' : '') + (pl ? '' : (d.id === 'M1' ? (BGMURL ? ' · 지금 파일이 없어 위 «배경 음악 파일»이 흘러요' : ' · 지금 파일이 없어 음악 없이 진행돼요') : ' · 지금 파일이 없어 앞 곡이 이어져요')); }
 function segPaint(){ var box = $('#segList'); if (!box) return; if (!BP) { box.innerHTML = '<p class="note">추천 곡 목록을 못 읽었어요 · 배경 음악 파일 하나로 진행합니다.</p>'; return; }
   box.innerHTML = '<p class="note sg-mine" id="segMine">' + esc(segMine()) + '</p>' + BP.SEGS.map(function(d){ var id = d.id;
     if (d.entry) return '<div class="sg"><h3>' + esc(d.nm) + '</h3><p class="sg-need">' + esc(d.need) + ' · 위 «소리 파일 확인»의 입장 음악</p></div>';
     var L = segSongs(id), pl = segPlan(id);
-    return '<div class="sg" data-seg="' + id + '"><h3>' + esc(d.nm) + (d.parent ? '' : '') + '</h3><p class="sg-need">' + esc(d.need) + (d.multi ? ' · 여러 곡을 고르면 차례로 이어 틀어요' : '') + (pl ? '' : ' · 지금 파일이 없어 앞 곡이 이어져요') + '</p>'
+    return '<div class="sg" data-seg="' + id + '"><h3>' + esc(d.nm) + (d.parent ? '' : '') + '</h3><p class="sg-need">' + esc(segNeedTxt(d, pl)) + '</p>'
       + L.filter(function(s){ return !s.own; }).map(function(s){ return segRow(id, s, d); }).join('')
       + (L.some(function(s){ return s.own; }) ? '<p class="sg-sub">직접 더한 곡</p>' + L.filter(function(s){ return s.own; }).map(function(s){ return segRow(id, s, d); }).join('') : '')
       + '<div class="sg-add"><input type="text" data-seg-addt="' + id + '" placeholder="곡 이름"><input type="text" data-seg-adda="' + id + '" placeholder="아티스트"><label class="filebtn sm" data-seg-addl="' + id + '">파일<input type="file" accept="audio/*" data-seg-addf="' + id + '"></label><button class="chip" type="button" data-seg-add="' + id + '">곡 추가</button></div></div>'; }).join(''); }
