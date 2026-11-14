@@ -196,7 +196,12 @@ console.log('━━ ④ 기한 안내(예식 14일 · 7일 전)');
 console.log('━━ ⑤ 길');
 { const priv = read('privacy.html') || '', mf = (gs.match(/midFrom: '([^']*)'/) || [])[1];
   if (mf) { const top = (priv.match(/개정 시행일자 · (\d{4})\.(\d{2})\.(\d{2})/) || []).slice(1, 4).join('-');
-    ok(/식중 영상/.test(priv) && top >= mf, '식중 영상을 켰으면(midFrom ' + mf + ') 처리방침에 «식중 영상»이 있고 개정 시행일이 그 날 이후', top); }
+    ok(/식중 영상/.test(priv) && top >= mf, '식중 영상을 켰으면(midFrom ' + mf + ') 처리방침에 «식중 영상»이 있고 개정 시행일이 그 날 이후', top);
+    /* ★[MID_OPEN_1114] 문을 연 날 = 처리방침에 «식중 영상»을 넣은 개정의 시행일(같은 날) — 처리방침보다 먼저 받지 않는다 · 수집 줄(#midvideo) · 동의 판이 그 줄을 가리킨다 */
+    const [y, m, d] = mf.split('-').map(Number), ko = y + '년 ' + m + '월 ' + d + '일';
+    ok(priv.indexOf(ko + ' (식중 영상 항목 추가') > -1, '개정 이력에 «' + ko + ' (식중 영상 항목 추가 …)» — midFrom 과 같은 날 [MID_OPEN_1114]');
+    ok(/id="midvideo"[\s\S]{0,400}?식중 영상/.test(priv), '처리방침 수집 항목에 «식중 영상» 줄(#midvideo) [MID_OPEN_1114]');
+    ok(/privacy\.html#'\+\(PVCFLOW\.kind==='mid'\?'midvideo':'prevideo'\)/.test(fnSrc(my, '_pvcAgree')), '식중 동의 판의 처리방침 링크 = #midvideo [MID_OPEN_1114]'); }
   else ok(mf === '', '식중 영상 꺼짐(midFrom 비어 있음) — 처리방침에 «식중 영상»을 넣은 날 midFrom 을 적어 켠다'); }
 ok(/midvideo: \(typeof _pvPublic === 'function'\) \? _pvPublic\(.*?, r, 'mid'\)/.test(pr), 'buildProductionState 가 midvideo 를 싣는다');
 ok(/fn: 'sendVideoDueNotices',\s+hour: 10/.test(jr), 'setupAllTriggers — 매일 10시 기한 안내');

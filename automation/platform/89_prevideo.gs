@@ -21,7 +21,7 @@
  *   ■ 1차에서 뺀 것(곧 연다 · 화면도 보이지 않는다) — 짧은 영상 · 인사 영상(5초 고르기) · 큰 파일 올리기 · 문구 고치기 · 카톡 알림 · 식순과 상태 잇기
  * ==============================================================================
  */
-var PV_UP = { midFrom: '', from: '2026-10-31', root: 'ME_식전영상', sheet: '식전영상', min: 5, max: 20, first: 4, days: 10, today: 6, photoMax: 4 * 1048576, thumbMax: 320 * 1024, uploadsMax: 60, hourMax: 40, keepDays: 183, dueDays: 7, linkMax: 400 };
+var PV_UP = { midFrom: '2026-11-14', from: '2026-10-31', root: 'ME_식전영상', sheet: '식전영상', min: 5, max: 20, first: 4, days: 10, today: 6, photoMax: 4 * 1048576, thumbMax: 320 * 1024, uploadsMax: 60, hourMax: 40, keepDays: 183, dueDays: 7, linkMax: 400 };
 var PV_STYLES = ['editorial', 'cinematic', 'storybook', 'retro', 'scrapbook'];   // assets 쪽 PVC_STYLES 와 같은 순서 · 같은 열쇠
 var PV_SONGS = ['mujin', 'oban', 'grizzly', 'geomjeong', 'fx', 'hyukoh', 'jake', 'day6', 'roykim', 'dks', 'wonstein', 'elijah'];
 var PV_MODES = ['make', 'upload'];
@@ -41,7 +41,8 @@ function _mvOn_(cust) {
   return { on: on, len: (n >= 1 && n <= 10) ? n : 3 };
 }
 // [MID_VIDEO_1106 · 검토 1604-5] 식중 영상은 처리방침에 «식중 영상»이 들어간 날(midFrom)부터 받는다 — 비어 있으면 꺼짐(줄 · 화면 · 받기 · 안내 모두)
-function _pvLiveK_(kind) { if (_pvKind_(kind) !== 'mid') return _pvLive_(); var f = String(PV_UP.midFrom || ''); return !!f && typeof _kstYmd === 'function' && String(_kstYmd(new Date())) >= f; }
+function _pvLiveK_(kind) { if (_pvKind_(kind) !== 'mid') return _pvLive_(); var f = String(PV_UP.midFrom || '');   // [MID_OPEN_1114] midFrom = 처리방침 «식중 영상» 개정 시행일(사장님 승인 · 병합하는 날로 넷을 같은 날로)
+   return !!f && typeof _kstYmd === 'function' && String(_kstYmd(new Date())) >= f; }
 function _pvLive_() {
   // [PV_CAT_1031] 처리방침 «식전 영상» 시행일(한국 날짜)부터 받는다
   return typeof _kstYmd === 'function' && String(_kstYmd(new Date())) >= PV_UP.from;

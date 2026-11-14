@@ -4801,6 +4801,13 @@ chk 'VIDEO_NAME_1114' scripts/audit/mid17-pick.mjs 2
 nochk "label:'넣기', tag:'선택'" mypage.html 0            # [VIDEO_NAME_1114] 고르지 않은 분께 «식중 영상 · 넣기 · 선택» 줄을 되살리지 말 것
 nochk '「준비한 순서」에서 «영상»을 고르면' mypage.html 0     # [VIDEO_NAME_1114] 옛 이름 — 빌더 칸 이름은 «식중 영상»
 nochk '«준비한 순서»에서 «영상»을 먼저 골라' automation/platform/89_prevideo.gs 0
+# ★[MID_OPEN_1114 2026-11-14 · ★사장님 승인 전 · 병합하는 날로 넷을 같은 날로] 처리방침 «식중 영상» 항목(수집 #midvideo · 목적 · 보관) + 89_prevideo PV_UP.midFrom = 그 시행일 → 식중 영상 줄 · 받기가 열린다
+#   날짜가 서로 맞는지 · 동의 판 링크는 midvideo.mjs ⑤ 가 잰다(되돌리면 빨강 확인)
+chk 'MID_OPEN_1114' privacy.html 3
+chk 'MID_OPEN_1114' automation/platform/89_prevideo.gs 1
+chk 'MID_OPEN_1114' mypage.html 1
+chk 'MID_OPEN_1114' scripts/audit/midvideo.mjs 4
+chk 'id="midvideo"' privacy.html 1
 # ★★[MID17_PICK 2026-11-07 재검증 재수정 · 사장님 «마음의 순간에 식중 영상 칸을 따로 하나»] MID17 줄 1 · 2 — ① 식중 영상 칸(축사와 둘 중 하나 · 바꿔 담기 · 알림 한 줄) ·
 #   이름 «식중 영상»(nameOf · 칩 · 칸 글) · ② 길이 칸 + 택1 한 줄 · at:'midvideo' · 준비 목록 빈 칸 · 시간 띠(60 × 분 + 8 · 40분 상한) — 390 · 360 화면을 돌린다
 if command -v node >/dev/null 2>&1; then _m17=$(node scripts/audit/mid17-pick.mjs 2>&1); _m17r=$?
@@ -17516,9 +17523,8 @@ chk '네오사피엔스㈜ (타입캐스트 Typecast, 국내)' privacy.html 1
 chk '2026년 10월 8일' privacy.html 2   # [PRIVACY_REV_1031] 3 → 2 — 개정 공고일자 줄이 10/31 로 넘어갔다 · 남는 둘 = «AI 목소리 생성» 위탁 줄 «부터» · 개정 이력 «직전 개정»
 # ★[PRIVACY_REV_1031 2026-10-31 사장님 승인] 처리방침 개정 공고 · 시행 10/31 — 두 분 목소리 보관 기간 구체화(VC_DECISIONS_1030 · 7일 전 AI 목소리 삭제 · 예식일 없음 90일).
 #   보관을 줄이기만 해 정보주체에게 불리하지 않다 → 10조 단서로 공고일 시행. 맨 위 날짜는 VOICE_UP.from 보다 늦어도 된다(voice-open.mjs) · «부터» 날짜 10/8 은 그대로
-chk '개정 시행일자 · 2026.10.31 (공고 2026.10.31)' privacy.html 1
-chk '2026년 10월 31일 (두 분 목소리 보관 기간 구체화' privacy.html 1
-chk '직전 개정 2026년 10월 8일 (두 분 목소리 항목 추가' privacy.html 1
+chk '2026년 10월 31일 (두 분 목소리 보관 기간 구체화' privacy.html 1   # [MID_OPEN_1114] 맨 위는 11/14 로 넘어갔다 · 10/31 은 «직전 개정»으로 남는다
+chk '그 전 개정 2026년 10월 8일 (두 분 목소리 항목 추가' privacy.html 1
 chk 'PRIVACY_REV_1031' privacy.html 2
 chk 'PRIVACY_REV_1031' scripts/audit/voice-open.mjs 4
 chk 'VOICE_OPEN_1008' deploy-marks.json 1

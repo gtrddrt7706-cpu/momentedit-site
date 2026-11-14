@@ -12253,7 +12253,7 @@ function _pvcRecheck(){
    처리방침은 새 창으로 연다 — 확인 판(11000) 위에 처리방침 창(10001)을 띄우면 판 뒤에 숨는다 */
 function _pvcAgree(){
   if(PVCFLOW.consent||PVCFLOW._agreed) return Promise.resolve(true);
-  return mpConfirm({ title:'올리기 전에 확인해 주세요', bodyHtml:(PVCFLOW.kind==='mid'?'보내 주신 링크 · 영상은 식중 영상을 상영하는 데만 쓰고, 예식 6개월 뒤 지워요.':'올린 사진 · 링크 · 영상은 식전 영상을 만들고 상영하는 데만 쓰고, 예식 6개월 뒤 지워요.')+'<br><a href="privacy.html#prevideo" class="pvc-a" target="_blank" rel="noopener">'+(PVCFLOW.kind==='mid'?'개인정보 처리방침':'개인정보 처리방침 «식전 영상»')+'</a>', yes:'동의하고 올리기', no:'취소', dismissNull:true }).then(function(v){ if(v===true){ PVCFLOW._agreed=true; return true; } return false; });
+  return mpConfirm({ title:'올리기 전에 확인해 주세요', bodyHtml:(PVCFLOW.kind==='mid'?'보내 주신 링크 · 영상은 식중 영상을 상영하는 데만 쓰고, 예식 6개월 뒤 지워요.':'올린 사진 · 링크 · 영상은 식전 영상을 만들고 상영하는 데만 쓰고, 예식 6개월 뒤 지워요.')+'<br><a href="privacy.html#'+(PVCFLOW.kind==='mid'?'midvideo':'prevideo')+'" class="pvc-a" target="_blank" rel="noopener">'+(PVCFLOW.kind==='mid'?'개인정보 처리방침 «식중 영상»':'개인정보 처리방침 «식전 영상»')+'</a>'   /* [MID_OPEN_1114] 식중은 처리방침 «식중 영상» 줄(#midvideo)로 */, yes:'동의하고 올리기', no:'취소', dismissNull:true }).then(function(v){ if(v===true){ PVCFLOW._agreed=true; return true; } return false; });
 }
 function _pvcBusyText(t){ try{ var s=document.querySelector('#flow_busy .flow-busy-box span:last-child'); if(s) s.textContent=t; }catch(e){} }
 function _pvcUpload1(sec, files){
