@@ -1666,6 +1666,11 @@ section:not(#rsvp) > *:last-child {
 #invest > .reveal:first-child > .price-block:first-child {
   margin-top: 0;
 }
+/* [CTA_NEAR_PRICE_1114] 같은 취지의 뒤쪽 경계 — 상담 버튼을 스냅 앞으로 올리면서 구간의 마지막이 스냅 카드가 됐다.
+   .snap-block 의 margin-bottom 36px 이 .reveal 을 통과해 구간 아래로 새면 invest→journey 경계가 328 → 364px 이 된다([RHYTHM_LOCK]). 마지막 것만 막는다. */
+#invest > .reveal:last-child > .snap-block:last-child {
+  margin-bottom: 0;
+}
 /* [SECTION_RHYTHM_TIER2] 2단 리듬 — 장(챕터)이 바뀌는 4개 경계만 한 박자 넓힌다.
    기본 경계는 200/248 그대로, 아래 divider만 상하 +32px → 모바일 264 · 데스크톱 312.
    경위: 200 단일값 배포 직후 사용자가 답답함을 느꼈고, 코워크가 전후를 390px
@@ -6609,6 +6614,14 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
     <div class="price-note">가격은 Standard Investment와 동일하게 적용됩니다</div>
   </div>
 </div>
+<!-- ★[CTA_NEAR_PRICE_1114 · 순서 묶음 S-1] 상담 버튼을 가격표 가까이로 올렸다(가격 → 평일 예식 → Opening Honor → 버튼 → 스냅).
+     전에는 스냅 표 아래(구간 맨 끝)라 폰 390 에서 글자 버튼이 21번째 화면에서 처음 나왔다 · 글 · 링크 · 모양은 그대로, 자리만 옮김.
+     되돌리려면 이 커밋을 revert. -->
+<div class="cta-block">
+  <div class="cta-eyebrow">Start Your Narrative</div>
+  <a href="./inquiry.html" class="cta-btn">프라이빗 방문 상담 예약하기</a>
+  <div class="cta-assure">상담 예약금은 계약을 진행하지 않으셔도 환불됩니다<br><span style="font-size:11px;color:var(--light)">드레스를 시착하신 경우에만 1벌당 50,000원(최대 100,000원)&#8288;을 제하고 돌려드려요</span></div>
+</div>
 <div class="divider-line"></div>
 <!-- WEEKDAY EDITORIAL SNAP — Opening Archive Honor -->
 <div class="reveal">
@@ -6634,11 +6647,6 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
       </div>
     </div>
   </div>
-</div>
-<div class="cta-block">
-  <div class="cta-eyebrow">Start Your Narrative</div>
-  <a href="./inquiry.html" class="cta-btn">프라이빗 방문 상담 예약하기</a>
-  <div class="cta-assure">상담 예약금은 계약을 진행하지 않으셔도 환불됩니다<br><span style="font-size:11px;color:var(--light)">드레스를 시착하신 경우에만 1벌당 50,000원(최대 100,000원)&#8288;을 제하고 돌려드려요</span></div>
 </div>
 </section>
 <div class="divider"><span class="divider-stamp" aria-label="ME" role="img"></span></div>
