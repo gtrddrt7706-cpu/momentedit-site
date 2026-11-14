@@ -23387,3 +23387,9 @@ chk '이어받을 본식 피아노 파일이 없어 음악 없이 이어 가요'
 chk 'NO_RELIFT_FB_1115' console.html 2
 chk 'function bedHushFb(){' console.html 1
 chk 'k !== BED.hushK' console.html 1
+# ★★[RELIFT_OBS_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 검사 보강] console-relift — 앞 곡을 못 보면(표본 없음 → −140) 초록이 아니라 «못 쟀다»(종료 2) · ⑥ 목록 넘김 중 정적 · ⑦ 내려가는 중 점프 · ⑧ 짧은 입장 곡 뒤 M4 없음 · ⑨ 대체 경로
+chk 'RELIFT_OBS_1115' scripts/audit/console-relift.mjs 4
+chk 'NO_RELIFT_ALL_1115' scripts/audit/console-relift.mjs 2
+chk 'NO_RELIFT_WANT_1115' scripts/audit/console-relift.mjs 2
+chk 'M4_HANDOFF_NONE_1115' scripts/audit/console-relift.mjs 2
+chk 'NO_RELIFT_FB_1115' scripts/audit/console-relift.mjs 3
