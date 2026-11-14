@@ -23322,3 +23322,8 @@ chk "★\[LAYER7_FACE_LEAD_1110\] 7층과 하나로" assets/ritual-cue.js 1
 chk 'runs-on: ubuntu-24.04   # ★\[CI_RUNNER_2404' .github/workflows/merge-guard.yml 2
 nochk 'runs-on: ubuntu-latest' .github/workflows/merge-guard.yml
 chk 'CAKE_FILES_OFF_1110' scripts/build-rev1013.mjs 1   # 원고 표 케이크 줄(41 · 42 · 76 · 77 · 107)은 «소리 없음»으로 세지 않는다 — 이 줄을 빼면 NARR AUDIO FAIL 4(11/10 CI)
+# ★★[NO_RELIFT_XF_1114 2026-11-14 BGM 섹션 · 직접 넘겨 보기] 당일 콘솔 — 정적 뒤 새 곡 큐에서 꺼져 있던 앞 곡을 겹쳐 넘기지 않는다(NO_RELIFT_1102 의 콘솔 재생기 판) · 소리는 CI bgm-sound e 칸 console-relift 가 잰다
+chk 'NO_RELIFT_XF_1114' console.html 3
+chk 'function bedUnhush(){' console.html 1
+chk 'NO_RELIFT_XF_1114' scripts/audit/console-relift.mjs 3
+chk "seam-b2-rest console-relift'" .github/workflows/merge-guard.yml 1
