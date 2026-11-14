@@ -116,16 +116,22 @@ try {
   const wait5 = (nm, fn, ms) => p5.waitForFunction(([nm, f]) => { const a = window.__rl.smp, s = a[a.length - 1]; const v = s && s.s[nm]; return new Function('v', 'return ' + f)(v); }, [nm, fn], { timeout: ms || 20000 }).then(() => true, () => false);
   await fire5(iG); const g5 = await wait5('M1', 'v != null && v > -30', 15000);
   await fire5(iO); const q5 = await wait5('M1', 'v == null || v <= -60', 15000); await p5.waitForTimeout(600);
+  await p5.evaluate(() => { var X = window.__xgs = []; window.__xgT = setInterval(function () { try { var st = window.__seg.st(); X.push({ t: performance.now(), on: st.on, xg: st.xg.slice() }); } catch (e) {} }, 20); });   /* [RELIFT_XG_1115] 재생기 크기 마디(xg)를 20ms 마다 — 전체 크기(gBgm)가 같이 움직여도 «앞 곡 재생기가 몇 초에 걸쳐 오르나»만 본다 */
   const tE = await fire5(iC); await p5.waitForTimeout(9000);
-  const s5 = await p5.evaluate(() => { window.__rl.on = false; return { smp: window.__rl.smp, err: (window.__seg && window.__seg.st().err) || '' }; });
+  const s5 = await p5.evaluate(() => { window.__rl.on = false; clearInterval(window.__xgT); return { smp: window.__rl.smp, xgs: window.__xgs, err: (window.__seg && window.__seg.st().err) || '' }; });
   obs(s5.smp, tE, 9000, 'M1', '⑤'); const E = s5.smp.filter((s) => s.t >= tE && s.t <= tE + 9000), up = E.find((s) => s.t > tE + 1000 && s.s.M1 != null && s.s.M1 > -60);
   const fin5 = E.filter((s) => up && s.t >= up.t && s.t <= up.t + 2000 && s.s.M1 != null).map((s) => s.s.M1), lv5 = fin5.length ? Math.max(...fin5) : -140;
-  const fast = up ? E.filter((s) => s.t >= up.t && s.t <= up.t + 300 && s.s.M1 != null && s.s.M1 > lv5 - 3).length : -1;
-  const rE = { 준비: [put5, g5, q5], 되돌아옴_ms: up ? Math.round(up.t - tE) : null, 끝크기: lv5, 첫300ms_3dB안: fast, 글: s5.err, n: E.length };
+  /* ★[RELIFT_XG_1115 2026-11-15] «계단 없이»는 앞 곡 재생기의 크기 마디(xg)로 잰다 — 종전엔 스피커까지 곱(전체 크기 · 화촉 말 아래 낮춤이 같이 움직임)의 «2초 안 최고 크기»와 견주어
+       부하 때 표본 위상에 따라 0.8초 곡선도 빨강이 됐다(바탕 판도 4번 중 3번) · 기준: 오르기 시작한 뒤 0.1초 크기 ≤ 0.5(0.8초 직선이면 약 0.13 · 한 번에 켜면 1) · 1.5초 안에 0.9 위 */
+  const X5 = (s5.xgs || []).filter((x) => x.t >= tE + 1000), k5 = X5.length ? X5[0].on : -1, x0 = X5.find((x) => x.xg[k5] != null && x.xg[k5] > 0.001);
+  const at5 = (ms) => { const x = x0 && X5.find((y) => y.t >= x0.t + ms); return x ? x.xg[k5] : null; };
+  const g100 = at5(100), gTop = x0 ? Math.max(...X5.filter((y) => y.t >= x0.t && y.t <= x0.t + 1500).map((y) => y.xg[k5] || 0)) : null;
+  const fast = (x0 && g100 != null) ? (g100 <= 0.5 && gTop >= 0.9 ? 0 : 1) : -1;
+  const rE = { 준비: [put5, g5, q5], 되돌아옴_ms: up ? Math.round(up.t - tE) : null, 끝크기: lv5, 재생기: k5, 오른뒤100ms_xg: g100, 최고xg_1500ms: gTop, 계단: fast, xg표본: X5.length, 글: s5.err, n: E.length };
   console.log('  재 본 값 ⑤', JSON.stringify(rE));
   if (put5 < 2 || !g5 || !q5 || E.length < 100) { console.log('못 쟀다 — ⑤ 준비 단계(곡 틀기 · 정적)가 안 됐다'); await br.close(); srv.close(); process.exit(2); }
   ok('⑤ 새 곡을 못 열면 꺼 둔 앞 곡이 «그대로» 돌아온다(4초 한도 뒤 · 끝 크기 −40 dB 위) [NO_RELIFT_XF_1114 bedUnhush]', !!up && rE.되돌아옴_ms >= 3500 && lv5 > -40, rE);
-  ok('⑤ 돌아올 때 계단 없이 — 처음 0.3초는 돌아온 뒤 2초 안 최고 크기보다 3 dB 넘게 아래(0.8초에 걸쳐 오른다 · 한 번에 켜면 첫 표본부터 최고 크기)', fast === 0, rE);
+  ok('⑤ 돌아올 때 계단 없이 — 앞 곡 재생기 크기(xg)가 오르기 시작한 뒤 0.1초에 0.5 아래 · 1.5초 안에 0.9 위(0.8초에 걸쳐 오른다 · 한 번에 켜면 0.1초에 이미 1) [RELIFT_XG_1115]', fast === 0, rE);
   ok('⑤ 빨간 한 줄 «재생 중인 곡은 그대로 이어집니다» · 쪽 오류 0', /그대로 이어집니다/.test(s5.err) && !e5.length, { err: s5.err, e5: e5.slice(0, 3) });
   await ctx5.close();
   /* ── ⑥ ~ ⑨ (2026-11-15 GPT 라운드 2) — 콘솔 하나 여는 도우미 ── */

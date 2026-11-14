@@ -23471,3 +23471,5 @@ chk 'out.indexOf(c) > -1 ? cAt : 0' assets/bgm-picks.js 1
 chk 'CARRY_HEARD_1115' console.html 1
 chk 'curAt: (cur && BED.id === cur' console.html 1
 chk 'CARRY_HEARD_1115' scripts/audit/console-r3-1115.mjs 3
+# ★[RELIFT_XG_1115 2026-11-15] console-relift ⑤ «계단 없이»는 앞 곡 재생기 크기 마디(xg)로 잰다 — 전체 크기 곱으로 재면 부하 때 표본 위상에 흔들렸다
+chk 'RELIFT_XG_1115' scripts/audit/console-relift.mjs 3
