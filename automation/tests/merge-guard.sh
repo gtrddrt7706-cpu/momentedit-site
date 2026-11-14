@@ -23520,3 +23520,7 @@ chk "if(DAY.key===key) return DAY.v; var v={};" assets/bgm-bed.js 1
 chk "DAY.key=key; DAY.v=v; }catch(x){} return v; }" assets/bgm-bed.js 1
 nochk "DAY.key=key; DAY.v={};" assets/bgm-bed.js 0
 chk 'DAY_KEY_READY_1115' scripts/audit/pv-r3-1115.mjs 1
+# ★[WARM_DAY_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 20] 미리 듣기 — 순간 쪽을 열 때 미리 받는 곡 맨 앞은 그 순간 하나 듣기 첫 곡(dayAt · 같은 곡이면 하나 · 데이터 절약 · 셋 한도 그대로)
+chk 'WARM_DAY_1115' assets/bgm-bed.js 1
+chk "var _wl=songsOf(k), _wd=dayAt(k); if(_wd&&_wl.indexOf(_wd)<0) _wl.unshift(_wd);" assets/bgm-bed.js 1
+chk 'WARM_DAY_1115' scripts/audit/pv-r3-1115.mjs 1

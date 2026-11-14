@@ -552,7 +552,9 @@
   function songsOf(k){ var o=[], add=function(f){ if(f&&o.indexOf(f)<0) o.push(f); };
     if(k==='free'||k==='letter') add(m4());   /* [ONE_FLOW_1106] */
     else if(k==='toast'){ add(toastBed()); add(effHas('M7')); } else if(k==='prevideo') add(backBed('prevideo')); else if(k==='_close'){ add(backBed('_close')); add(songAt('_close')); } else add(songAt(k)); return o; }   /* [DETAIL_R1_1101 ⑤ ⑨] */
-  function warmK(k){ if(!emb()||!k) return; list(); if(AV.st!=='ok'){ MW.after=k; return; } MW.after=''; if(saveData()) return; songsOf(k).forEach(function(f){ if(!f||BUF[f]||MW.tried[f]) return; MW.tried[f]=1; want(f); }); }
+  /* ★[WARM_DAY_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 20] 순간 쪽을 열 때 미리 받는 곡 맨 앞 = 그 순간 하나 듣기의 첫 곡(dayAt · 당일 시간표 그 자리 곡 · SCREEN_SOUND_1102) —
+       종전엔 고른 곡(songAt)만 받아 본식 순간(가족 덕담 B10 · 받은 곡 B09)은 누른 뒤에야 받기 시작했다 · 같은 곡이면 하나 · 데이터 절약 켜짐 · 셋 한도(prune)는 그대로 · 검사 scripts/audit/pv-r3-1115.mjs 20 */
+  function warmK(k){ if(!emb()||!k) return; list(); if(AV.st!=='ok'){ MW.after=k; return; } MW.after=''; if(saveData()) return; var _wl=songsOf(k), _wd=dayAt(k); if(_wd&&_wl.indexOf(_wd)<0) _wl.unshift(_wd); _wl.forEach(function(f){ if(!f||BUF[f]||MW.tried[f]) return; MW.tried[f]=1; want(f); }); }
   function lpWarm(ks){ if(!emb()) return; sess(); list(); var _nw=0; if((ks||[]).indexOf('matjeol')>-1||((ks||[]).length>1&&(ks||[]).indexOf('entry')>-1)){ if(entOn()) want(ENT_F); }   /* [ENTRY_CARRY_1101] */ (ks||[]).forEach(function(k){ if(k==='matjeol'||k==='entry') return; songsOf(k).forEach(function(f){ if(_nw<BUF_MAX&&!BUF[f]){ _nw++; want(f); } }); }); }   /* ★[BED_LOAD_1101 ④ · 덧1 ③] 앞 순간부터 셋까지(LRU 한도) — 나머지는 순간이 바뀔 때 다음 순간 곡을 미리 · 한꺼번에 풀면 아이폰 메모리가 넘친다 · 축배는 M7(종전 M6 는 END_FLOW_1030 뒤로 축배 뒤 곡) */
 
   /* ── 곡 카드 ▶ — 그 곡을 깐 이 순간 첫 나레이션(없으면 곡만) ── */
