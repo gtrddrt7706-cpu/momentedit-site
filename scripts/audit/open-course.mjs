@@ -506,14 +506,14 @@ ok('[PV_PHOTO_OFF_1023 검토 158] 식전 영상 글(카드 · 흐름 설명 · 
   const files = ['assets/ritual-open.js', 'assets/ritual-story.js', 'assets/ritual-cue.js', 'api/_ritual-kb.js', 'order-preview.html'].map((f) => fs.readFileSync(P(f), 'utf8').split('\n').filter((l) => bad.test(l) && !/PV_PHOTO_OFF_1023|^\s*(\/\/|\/\*|\*)/.test(l)).length);
   return !bad.test(O.CARDS.prevideo.one) && !bad.test(how) && files.every((n) => n === 0); })());
 /* ★★[REVIEW33_1023 검토 159 · ADAPT_OK_1023 사장님 2026-10-23 «자료 없는 자리는 실제 멘트를 단어 몇 개만 고쳐 써도 된다»] 하객 맞이 · 사진 올리기 · 식전 영상 격식 · 두 분 예시 · 축배 예시를 실제 자료 글로 */
-ok('[REVIEW33_1023 검토 159-2] 01 · 02 · 116 · 119 · 122 · 124 · 130 · 264 = 실제 자료 글 · 두 분 판은 «저희»', (() => {
+ok('[REVIEW33_1023 검토 159-2] 01 · 02 · 116 · 119 · 122 · 124 · 264 = 실제 자료 글 · 130 = 대표님 새 글[FINAL_APPLY_1115] · 두 분 판은 «저희»', (() => {
   const N = O.NAR, X = C.EXTRA || {};
   return D.GUEST[0][1] === '바쁘신 가운데 시간을 내어, 오늘 결혼식에 참석해 주셔서 감사드립니다. 오늘 모든 안내는 신랑 신부가 정성껏 고른 목소리로 진행됩니다.'
     && D.GUEST[0][2] === D.GUEST[0][1].replace('신랑 신부가', '저희가') && N.guestEx[0][0] !== D.GUEST[0][1]
     && D.GUEST[1][1].indexOf('잠시 후 신랑 신부의 결혼식이 진행될 예정입니다. ') === 0 && D.GUEST[1][2].indexOf('잠시 후 저희의 결혼식이 진행될 예정입니다. ') === 0
     && N.guestEx[0][1].indexOf('잠시 후 아름다운 두 사람의 시작을 함께하게 될 텐데요. ') === 0 && N.guestEx[1][0].indexOf('귀한 걸음 해 주신 여러분, 고맙습니다. ') === 0 /* [WEEKDAY_SAFE_1030] */
     && N.guestEx[1][3] === '잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주시기 바랍니다.'   /* [YUKWAE_MODERN_1024] 122 다시 */
-    && N.guestEx[2][1].indexOf('잠시 후 신랑 신부의 예식이 시작될 예정입니다. ') === 0 && N.pvEx[2] === '하객 여러분께서는 스크린에 주목해 주시기 바랍니다. 영상 함께 보시겠습니다.'
+    && N.guestEx[2][1].indexOf('잠시 후 신랑 신부의 예식이 시작될 예정입니다. ') === 0 && N.pvEx[2] === '예식에 앞서 두 사람이 준비한 영상을 함께 보겠습니다.' /* ★[FINAL_APPLY_1115] 130 대표님 FINAL2 새 글 · 옛 기대(«스크린에 주목해 주시기 바랍니다» 자료 G2 121) 은퇴 */
     && /'narr-photo-upload': '여러분이 받으신 모바일 청첩장의 하객 안내를 통해 오늘 찍으신 사진을 바로 올리실 수 있습니다\.'/.test(fs.readFileSync(P('assets/ritual-cue.js'), 'utf8')); })());
 ok('[REVIEW33_1023 검토 159-3 · 159-4] 두 분 예시(다정 g0 · 격식 g0 · 유쾌 g3 · 입장 E) · 축배 예시 다섯 = 새 글 · 옛 글은 _OLD 에', (() => {
   const w = {}; new Function('window', fs.readFileSync(P('assets/ritual-ref.js'), 'utf8'))(w);

@@ -2521,13 +2521,14 @@
    "file": "letter-each-ex3",
    "key": "177_letter-each-ex3",
    "i": 0,
-   "text": "그동안 서로에게 전하고 싶었던 마음을 가득 담아, 직접 쓴 편지로 약속을 대신한다고 합니다.",
+   "text": "그동안 서로에게 전하고 싶었던 마음을 담아, 직접 쓴 편지로 약속을 대신한다고 합니다.",
    "next": "그럼 지금부터 편지를 낭독해 주시기 바랍니다.",
    "after_now": 1,
    "after_new": 1.15,
    "kind": "C",
    "after_prev_1030": 1.0,
-   "why_1030": "PAUSE_PREF_1030 검수본 쉼(사장님 승인 41 · 비교안 41 · 코멘트 12)"
+   "why_1030": "PAUSE_PREF_1030 검수본 쉼(사장님 승인 41 · 비교안 41 · 코멘트 12)",
+   "why_1115": "[FINAL_APPLY_1115] 대표님 FINAL2 «u177 N» 새 글(«가득» 뺌) · 쉼 값 그대로"
   },
   {
    "file": "tribute-out-ex4",
@@ -3152,16 +3153,6 @@
    "kind": "C",
    "after_prev_1030": 1.0,
    "why_1030": "PAUSE_PREF_1030 검수본 쉼(사장님 승인 41 · 비교안 41 · 코멘트 12)"
-  },
-  {
-   "file": "narr-prevideo-in-ex4",
-   "key": "130_narr-prevideo-in-ex4",
-   "i": 0,
-   "text": "하객 여러분께서는 스크린에 주목해 주시기 바랍니다.",
-   "next": "영상 함께 보시겠습니다.",
-   "after_now": 1,
-   "after_new": 1.0,
-   "kind": "C"
   },
   {
    "file": "narr-declare-in-friend-ex4",

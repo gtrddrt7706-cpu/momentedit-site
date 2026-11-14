@@ -40,7 +40,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     fs.writeFileSync(ALLOW, JSON.stringify(A, null, 1) + '\n'); console.log(`허용 목록 씀 — 클립 ${Object.keys(hit).length} · 다시 녹음 대기 ${Object.keys(pending).length}`); process.exit(0);
   }
   const AJ = fs.existsSync(ALLOW) ? JSON.parse(fs.readFileSync(ALLOW, 'utf8')) : {}, allow = AJ.clips || {}, wait = AJ.pending || {}, bad = [], waits = []; let ok = 0;
-  const near = (L, h) => (L || []).some((x) => Math.abs(x.t - h.t) <= TOL);
+  /* ★[FINAL_APPLY_1115] 앞 문장이 새 녹음으로 바뀌면 뒤 문장의 같은 자리 시각이 밀린다(177 · 8.93 → 8.24초) — 시각 ±0.05 또는 «같은 무음 · 같은 꼴»(길이 ±0.01초 · 직전 20ms · 40 ~ 80ms 앞 ±1.5 dB)이면 같은 자리 */
+  const near = (L, h) => (L || []).some((x) => Math.abs(x.t - h.t) <= TOL || (Math.abs(x.d - h.d) <= 0.01 && Math.abs(x.pre20 - h.pre20) <= 1.5 && Math.abs(x.far - h.far) <= 1.5));
   for (const [k, a] of Object.entries(hit)) for (const h of a) { const s = `${k} ${h.t}초 무음 ${h.d} · 직전 20ms ${h.pre20} dB · 40~80ms 앞 ${h.far} dB`; if (near(allow[k], h)) ok++; else if (near(wait[k], h)) waits.push(s); else bad.push(s); }
   console.log(`${bad.length ? 'FAIL' : 'ok  '} layer-chop — 클립 ${files.length} · 끊김 의심 ${n}(허용 목록 안 ${ok} · 다시 녹음 대기 ${waits.length}) · 새로 생김 ${bad.length}`);
   for (const w of waits) console.log('  대기', w);

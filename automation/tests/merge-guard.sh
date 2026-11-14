@@ -23374,3 +23374,12 @@ chk "★\[LAYER7_FACE_LEAD_1110\] 7층과 하나로" assets/ritual-cue.js 1
 chk 'runs-on: ubuntu-24.04   # ★\[CI_RUNNER_2404' .github/workflows/merge-guard.yml 2
 nochk 'runs-on: ubuntu-latest' .github/workflows/merge-guard.yml
 chk 'CAKE_FILES_OFF_1110' scripts/build-rev1013.mjs 1   # 원고 표 케이크 줄(41 · 42 · 76 · 77 · 107)은 «소리 없음»으로 세지 않는다 — 이 줄을 빼면 NARR AUDIO FAIL 4(11/10 CI)
+# ★[FINAL_APPLY_1115 대본 11/15 «배포 준비: 확정분 전부 엔진에 넣기» · 묶음 1 우성 FINAL2] 194 E(«주례사 대신») · 130 새 글 · 식중 351 ~ 355 · 177 N(«가득» 뺌) · 빠르기 60 · 169
+#   받은 테이크 원본 = 1층 · 빠르기 = 표(atempo 만 · 높이 그대로) · 기준 = FINAL2 듣기판(아티팩트 DP5LNsqP8yR92bRM3CwCFZ) · 끊김 허용 목록은 같은 무음·같은 꼴이면 시각이 밀려도 같은 자리
+chk 'FINAL_APPLY_1115' assets/ritual-open.js 3
+chk 'FINAL_APPLY_1115' assets/ritual-cue.js 5
+chk 'FINAL_APPLY_1115' scripts/audit/layer-chop.mjs 1
+chk 'FINAL_APPLY_1115' scripts/build-layers.mjs 1
+chk '오늘은 주례사 대신 부모님의 덕담을 듣겠습니다.' assets/ritual-open.js 1
+chk '예식에 앞서 두 사람이 준비한 영상을 함께 보겠습니다.' assets/ritual-open.js 1
+nochk '하객 여러분께서는 스크린에 주목해 주시기 바랍니다. 영상 함께 보시겠습니다.' assets/ritual-open.js

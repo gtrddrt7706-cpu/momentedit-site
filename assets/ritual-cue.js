@@ -407,11 +407,11 @@
     'narr-table-in': D.NARR.tableIn,   // [TABLE_GREET_1008]
     'narr-entry-bow': D.NARR.entryBow,   // [MATJEOL_1011]
     'narr-welcome-in-face': D.NARR.welcome.face,   // [SEAM_WORD_1107 J06]
-    'midvideo-in-thanks': "다음은 오늘 예식에서 두 사람이 가장 마음을 쏟아 준비한 순서입니다. 두 사람이 부모님께 드리는 영상 편지를 준비했습니다. 말로는 다 전하지 못한 마음, 함께 보시겠습니다.",   // [MID17_CLIPS_1107]
-    'midvideo-in-story': "두 사람이 오늘을 위해 정성스레 준비한 영상이 있습니다. 두 사람이 함께 걸어온 이야기, 함께 보시겠습니다.",   // [MID17_CLIPS_1107]
-    'midvideo-in-plain': "오늘의 특별한 순간을 더 특별하게 만들어 줄 영상을 두 사람이 준비했습니다. 함께 보시겠습니다.",   // [MID17_CLIPS_1107]
-    'midvideo-out-thanks': "두 사람의 마음이 부모님께 잘 전해졌으리라 생각합니다. 따뜻한 박수 부탁드립니다.",   // [MID17_CLIPS_1107]
-    'midvideo-out-story': "두 사람이 얼마나 정성스럽게 오늘을 준비했는지 알 수 있었던 시간이었습니다. 따뜻한 박수 부탁드립니다.",   // [MID17_CLIPS_1107]
+    'midvideo-in-thanks': "오늘 두 사람이 부모님께 꼭 전하고 싶은 마음이 있다고 합니다.",   // [MID17_CLIPS_1107] ★[FINAL_APPLY_1115 대표님 FINAL2 11/14 · MIDV_1114/RX2_1114 새 녹음] 351 = v351c2(반쯤 알림 · 따뜻) · 옛 글 «다음은 오늘 예식에서 … 함께 보시겠습니다.»(세 문장)
+    'midvideo-in-story': "두 사람이 함께 걸어온 이야기를 영상에 담았습니다. 함께 보시겠습니다.",   // [MID17_CLIPS_1107] ★[FINAL_APPLY_1115 대표님 FINAL2 11/14 · MIDV_1114/RX2_1114 새 녹음] 352 = v352n · 옛 글 «두 사람이 오늘을 위해 정성스레 준비한 영상이 있습니다. 두 사람이 함께 걸어온 이야기, 함께 보시겠습니다.»
+    'midvideo-in-plain': "두 사람이 준비한 영상 한 편, 함께 보시겠습니다.",   // [MID17_CLIPS_1107] ★[FINAL_APPLY_1115 대표님 FINAL2 11/14 · MIDV_1114/RX2_1114 새 녹음] 353 = v353n · 옛 글 «오늘의 특별한 순간을 더 특별하게 만들어 줄 영상을 두 사람이 준비했습니다. 함께 보시겠습니다.»
+    'midvideo-out-thanks': "두 사람의 마음이 부모님께 잘 전해졌으리라 생각합니다. 따뜻한 박수 부탁드립니다.",   // [MID17_CLIPS_1107] ★[FINAL_APPLY_1115 대표님 FINAL2 11/14 · MIDV_1114/RX2_1114 새 녹음] 354 = 글 그대로 · 다시 녹음 v354
+    'midvideo-out-story': "영상을 준비한 두 사람에게 따뜻한 박수 부탁드립니다.",   // [MID17_CLIPS_1107] ★[FINAL_APPLY_1115 대표님 FINAL2 11/14 · MIDV_1114/RX2_1114 새 녹음] 355 = v355n · 옛 글 «두 사람이 얼마나 정성스럽게 오늘을 준비했는지 알 수 있었던 시간이었습니다. 따뜻한 박수 부탁드립니다.»
     'narr-thanks-in': D.NARR.thanksIn,   // [THANKS_IN_VOW]
     'narr-declare-in-friend': D.NARR.declareIn   // [DECLARE_BY_PERSON] · [DECLARE_ANYONE] 여는 말은 하나(이름은 옛 판 그대로 · 134 · 135 는 RETIRED)
   };

@@ -33,7 +33,7 @@ const RET = createRequire(import.meta.url)(P('assets/ritual-cue.js')).RETIRED ||
 const st = JSON.parse(fs.readFileSync(P('assets/audio/clip-status.json'), 'utf8')).clips || {};
 const pad2 = (n) => String(n).padStart(2, '0');
 /* 만들 클립 = 실제로 트는 클립 중 나레이션 폴더 · 우성/진희 · 문장 자리가 창고에 다 있고 글이 같은 것(편지 43 은 창고가 없다 — 층에서 따로) */
-const USED = new Set(JSON.parse(fs.readFileSync(P('docs/plans/식순연구/층_씀목록_1108.json'), 'utf8')).filter((x) => x.use).map((x) => x.k).concat(['350_narr-welcome-in-face', '356_guest-w5-meal', '357_guest-w5-meal-online']));   // + 1층 새 클립(#1636)   // 실제로 트는 클립(scripts/audit/layer-used.mjs · 사장님 11/08 20:20 «안 쓰는 건 버려»)
+const USED = new Set(JSON.parse(fs.readFileSync(P('docs/plans/식순연구/층_씀목록_1108.json'), 'utf8')).filter((x) => x.use).map((x) => x.k).concat(['350_narr-welcome-in-face', '356_guest-w5-meal', '357_guest-w5-meal-online', '130_narr-prevideo-in-ex4', '351_midvideo-in-thanks', '352_midvideo-in-story', '353_midvideo-in-plain', '354_midvideo-out-thanks', '355_midvideo-out-story']));   // + 1층 새 클립(#1636) · ★[FINAL_APPLY_1115] 130(대표님 FINAL2 새 글 · 고르는 목록엔 없어도 소리는 새 글로) · 351 ~ 355 식중 영상(대표님 FINAL2 · 트는 길은 #1635)   // 실제로 트는 클립(scripts/audit/layer-used.mjs · 사장님 11/08 20:20 «안 쓰는 건 버려»)
 export function layerClips() {
   return man.clips.filter((c) => { const key = pad2(c.no) + '_' + c.file, v = (man.voice || {})[String(c.role).split('|')[0]]; if (!USED.has(key)) return false;
     if (c.mix || (c.dir || 'assets/audio/narration') !== 'assets/audio/narration' || (v !== '우성' && v !== '진희')) return false;

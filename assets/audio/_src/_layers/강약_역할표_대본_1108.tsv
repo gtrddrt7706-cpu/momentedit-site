@@ -184,7 +184,7 @@
 175_narr-free-in-speech-ex3#0	base	base	다음은 두 사람을 위해 준비된 축사 순서입니다.
 176_letter-each-ex2#0	base	guide	두 사람의 아름다운 고백과 다짐을 따뜻한 마음으로 함께 들어 주시길 바랍니다.
 176_letter-each-ex2#1	base	guide	그럼 지금부터 편지를 낭독해 주시기 바랍니다.
-177_letter-each-ex3#0	base	slow	그동안 서로에게 전하고 싶었던 마음을 가득 담아, 직접 쓴 편지로 약속을 대신한다고 합니다.
+177_letter-each-ex3#0	base	slow	그동안 서로에게 전하고 싶었던 마음을 담아, 직접 쓴 편지로 약속을 대신한다고 합니다.
 177_letter-each-ex3#1	base	guide	그럼 지금부터 편지를 낭독해 주시기 바랍니다.
 178_narr-letter-end-ex2#0	base	slow	서로가 서로에게 전한 그 약속을 꼭 지키셔서 행복만 가득한 결혼 생활이 되기를 바라겠습니다.
 179_narr-tribute-name-ex2#0	slow	base	다음은 양가 부모님께 감사의 인사를 드리는 순서입니다.
@@ -218,7 +218,7 @@
 193_narr-ring-in-ex4#0	base	base	이제 두 사람의 언약의 증표로 예물 교환이 있겠습니다.
 193_narr-ring-in-ex4#1	base	guide	신랑이 먼저 신부에게 반지를 끼워 주도록 하겠습니다.
 193_narr-ring-in-ex4#2	slow	guide	이번에는 신부가 사랑의 마음을 담아 신랑에게 반지를 끼워 주도록 하겠습니다.
-194_narr-bless-mid-ex4#0	slow	base	오늘 결혼식은 주례가 없는 대신, 부모님께서 두 사람에게 덕담을 해 주시겠습니다.
+194_narr-bless-mid-ex4#0	slow	base	오늘은 주례사 대신 부모님의 덕담을 듣겠습니다.
 195_narr-bless-end-ex4#0	slow	slow	두 사람에게 귀한 말씀 전해 주신 부모님이셨습니다.
 196_narr-free-in-speech-ex4#0	base	base	다음은 축사입니다.
 196_narr-free-in-speech-ex4#1	base	guide	큰 박수로 맞아 주세요!
@@ -508,3 +508,11 @@
 94_narr-candle-in-others#2	info	guide	두 분께서는 마련된 초에 함께 점화해 주시기 바랍니다.
 95_narr-candle-out#0	base	slow	두 가정의 따뜻한 마음이 하나의 불꽃이 되었습니다.
 99_toast-pour-family#0	base	slow	양가에서 한 병씩 고른 와인을, 이제 한 잔에 모읍니다.
+351_midvideo-in-thanks#0	base	base	오늘 두 사람이 부모님께 꼭 전하고 싶은 마음이 있다고 합니다.
+352_midvideo-in-story#0	base	base	두 사람이 함께 걸어온 이야기를 영상에 담았습니다.
+352_midvideo-in-story#1	base	base	함께 보시겠습니다.
+353_midvideo-in-plain#0	base	base	두 사람이 준비한 영상 한 편, 함께 보시겠습니다.
+354_midvideo-out-thanks#0	base	base	두 사람의 마음이 부모님께 잘 전해졌으리라 생각합니다.
+354_midvideo-out-thanks#1	base	base	따뜻한 박수 부탁드립니다.
+355_midvideo-out-story#0	base	base	영상을 준비한 두 사람에게 따뜻한 박수 부탁드립니다.
+130_narr-prevideo-in-ex4#0	base	base	예식에 앞서 두 사람이 준비한 영상을 함께 보겠습니다.

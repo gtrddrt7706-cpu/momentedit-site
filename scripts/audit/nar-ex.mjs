@@ -72,9 +72,11 @@ function run(mut) {
   const SRC = new Set(JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/자료그대로_1016.json'), 'utf8')).sents.flatMap((x) => [x.text].concat(sents(x.text))).map(nz));
   const BASE = { 'narr-vow-in': D.NARR.vow.nar, 'narr-vow-in-b': D.NARR.vow.narB, 'narr-ring-in': D.NARR.ring.nar, 'narr-entry-bow': D.NARR.entryBow, 'narr-declare-family-out': D.NARR.declareFamilyOut, 'narr-bless-mid': D.NARR.blessMid, 'narr-bless-end': D.NARR.blessEnd, 'letter-each': D.LETTER.each.nar, 'narr-letter-end': D.NARR.letterEnd, 'tribute-in': D.TRIBUTE.nar, 'tribute-out': D.TRIBUTE.end, 'narr-close-bow': D.NARR.closeBow, 'toast-toast': D.TOAST.toast.nar, 'narr-table-in': D.NARR.tableIn, 'narr-close': D.NARR.close };   /* [REVIEW4_1018] 단체 사진 안내 예시의 뒤 문장은 지금 글 */
   const CALL = /^(양가 (어머님|아버님|부모님)|양가를 대표하는 두 분), 단상 위로 올라와 주십시오\.$/;
+  /* ★[FINAL_APPLY_1115 대표님 11/14 FINAL2 확정 · 새 녹음] 대표님이 듣고 고른 새 글 — 자료 글(SOURCE_FIRST_1016)보다 늦은 결정 · 여기 적힌 문장만 «지어낸 문장»에서 뺀다(지금 글 그대로여야 한다) */
+  const OWNER = new Set(['오늘은 주례사 대신 부모님의 덕담을 듣겠습니다.' /* 194 */, '그동안 서로에게 전하고 싶었던 마음을 담아, 직접 쓴 편지로 약속을 대신한다고 합니다.' /* 177 «가득» 뺌 */].map(nz));
   const made = [];
   clips.forEach((x) => { const own = new Set(sents(BASE[x.base] || C.EXTRA[x.base] || '').map(nz));
-    sents(x.text).forEach((s) => { if (!SRC.has(nz(s)) && !own.has(nz(s)) && !CALL.test(s)) made.push(x.slug + ' «' + s + '»'); }); });
+    sents(x.text).forEach((s) => { if (!SRC.has(nz(s)) && !own.has(nz(s)) && !OWNER.has(nz(s)) && !CALL.test(s)) made.push(x.slug + ' «' + s + '»'); }); });
   T('⑥ 예시 문장마다 자료(자료그대로_1016.json · 출처) · 아니면 지금 글 문장 · 서는 분 부르는 한 마디 — 지어낸 문장 0 [SOURCE_FIRST_1016]', !made.length, made.slice(0, 4).join(' | '));
   // ⑦ 화면
   const H = fs.readFileSync(path.join(ROOT, 'order-preview.html'), 'utf8');
