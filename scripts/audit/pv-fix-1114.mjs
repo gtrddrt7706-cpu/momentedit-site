@@ -8,6 +8,7 @@
    ③ [ENTRY_HOOK_PV_1114] 화촉 직후 입장(뜸 없는 길) — «입장!» 구호 말끝 → 입장 곡 강조 자리(문 열림) 0 ~ 0.8초(설계 0.3초 · 종전 5.3초 · 구호 길이를 모르면 1.4초) · 구호는 저장소의 실제 소리(약 20초)
         대조: 뜸 있는 길(입장부터 듣기)의 시작 자리는 종전 셈(H − 6 − V − 0.3) 그대로 · 입장만 따로 듣기(장면)의 설계 값 0.3초 · 화촉 곡과 입장 곡 사이 정적 1초 이상 · 곡 · 구호가 함께 시작
    ④ [BGM_OFF_STAYS_OFF_1114] 가족 코스 선언 뒤 박수 곡(새 곡)을 받는 중에 «음악 끄기» → 곡이 늦게 와도 새 소리 0 · «잠시 멈춤» → 멈춘 동안 새 소리 0 · 이어 들으면 그 새 곡이 그 줄 크기(−8)로
+   ⑤ [LISTEN_LEN_PV_1114] 본식 순간 하나만 들을 때 곡 = 등록된 곡 길이로 센 당일 그 자리 곡 — 정석 축사 B10 · 축가 B11 · 가족 덕담 B10(종전 240초 셈 B09 · B10 · B09) · 화면 글 = 소리
    ONLY=1,2 … · BP_BED · BP_OP · BP_CUE = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -135,7 +136,24 @@ async function lateClap(mode) { const { ctx, pg, f, errs } = await open(A.port, 
   await stop(f); await ctx.close();
   return { mode, how, errs, old: got.old, st0: a0.st, btn: a1.btn, music: a1.music, lateStarts: a2.st - a1.st, lateSrc: a2.src, lateF: a2.f, lateG: a2.g, pz: a2.pz, res: a3 ? { f: a3.f, want: a3.want, g: r1(dB(a3.g)), st: a3.st - a2.st, pz: a3.pz } : null }; }
 
+/* ⑤ 순간 하나 듣기 곡 — 화면 함수 값 · 독립 셈(노드) · 실제로 깔린 곡 */
+const PK = require(path.join(ROOT, 'assets/bgm-picks.js')), RO = require(path.join(ROOT, 'assets/ritual-open.js')); require(path.join(ROOT, 'assets/ritual-data.js')); const RC = require(CUE || path.join(ROOT, 'assets/ritual-cue.js'));
+async function dayOne(key, lk) { const { ctx, f, errs } = await open(A.port, key, { mu: false }); await f.evaluate(() => { mkGo('welcome'); }); await f.waitForFunction(() => BgmBed._t.AV.st === 'ok', null, { timeout: 20000 }).catch(() => {});
+  const pg = await f.evaluate(() => { const q = RitualOpen.bodySeq(S).filter((k) => BgmBed.segAt(k) === 'M4' && RitualOpen.onOf(S, k)); return { q, list: (BgmBed._t.plan(false).M4 || {}).list || [], at: q.map((k) => BgmBed.dayAt(k)), nm: q.map((k) => BgmBed.dayName(k)) }; });
+  /* 독립 셈 — 엔진 시간 합(말 est + 사람 구간)으로 그 순간 시작 초 · 곡마다 (등록 길이 − 겹침) */
+  const S0 = RO.applyExample({ course: 'open' }, key), sec = {}; (RC.build(S0, { mode: 'console' }).cues || []).forEach((c) => { sec[c.k] = (sec[c.k] || 0) + (+c.est || 0) + ((c.live && (+(c.live.fullEst || c.live.est) || 0)) || 0); });
+  const L = pg.list.filter((x) => HAVE.indexOf(x) > -1), X = PK.xfOf('M4'); let t0 = 0; const exp = pg.q.map((k, i) => { let t = 0, r = L[0]; if (i > 0) for (let n = 0; n < 200; n++) { const x = L[n % L.length], d = Math.max(30, (PK.lenOf(x, 0) || PK.LEN0) - X); if (t + d > t0) { r = x; break; } t += d; } const o = { k, start: Math.round(t0), f: r }; t0 += sec[k] || 0; return o; });
+  let heard = null; if (lk) { await f.evaluate((k) => { mkGo(k); }, lk); await f.waitForTimeout(700); await f.evaluate((k) => { window.__pv.st.length = 0; lsPlay(k); }, lk);
+    await f.waitForFunction(() => { const c = BgmBed._t.BED.cur; return !!(c && c.src && c.want > -60); }, null, { timeout: 30000, polling: 50 }).catch(() => {}); heard = await f.evaluate(() => { const c = BgmBed._t.BED.cur; return c && c.src ? c.f : ''; }); await f.evaluate(() => { try { lsStop(); } catch (e) {} }); }
+  await ctx.close(); return { key, errs, q: pg.q, at: pg.at, nm: pg.nm, exp, heard, names: pg.at.map((x) => (PK.byF(x) || {}).t || '') }; }
+
 try {
+  if (want(5)) { const [sd, fa] = await Promise.all([dayOne('standard', 'free'), dayOne('family', 'bless')]); const at = (r, k) => r.at[r.q.indexOf(k)];
+    console.log('  재 본 값 ⑤ 정석 ' + sd.q.map((k, i) => `${k}@${sd.exp[i].start}초=${sd.at[i]}`).join(' ') + ' · 들린 곡(축사) ' + sd.heard + ' · 가족 ' + fa.q.map((k, i) => `${k}@${fa.exp[i].start}초=${fa.at[i]}`).join(' ') + ' · 들린 곡(덕담) ' + fa.heard);
+    ok('⑤ 순간 하나 듣기 곡(고정 값) — 정석 서약 B09 · 축사 B10 · 축가 B11 · 가족 선언 B09 · 덕담 B10 · 축가 B10', at(sd, 'vow') === 'B09' && at(sd, 'free') === 'B10' && at(sd, 'song') === 'B11' && at(fa, 'declare') === 'B09' && at(fa, 'bless') === 'B10' && at(fa, 'song') === 'B10', [sd.q.map((k, i) => k + '=' + sd.at[i]), fa.q.map((k, i) => k + '=' + fa.at[i])]);
+    ok('⑤ 독립 셈(엔진 시간 합 · 등록 길이 − 겹침)과 같다 — 본식 순간 전부', [sd, fa].every((r) => r.q.length >= 3 && r.exp.every((x, i) => x.f === r.at[i])), [sd, fa].map((r) => r.exp.map((x, i) => [x.k, x.start, x.f, r.at[i]])));
+    ok('⑤ 화면 글(dayName) = 그 곡 이름 · 실제로 깔린 곡도 그 곡(정석 축사 · 가족 덕담)', [sd, fa].every((r) => r.nm.every((n, i) => n && n === r.names[i])) && sd.heard === 'B10' && fa.heard === 'B10', { sd: [sd.nm, sd.heard], fa: [fa.nm, fa.heard] });
+    ok('⑤ 쪽 오류 0', !sd.errs.length && !fa.errs.length, [sd.errs, fa.errs]); }
   if (want(4)) { const [off, pz] = await Promise.all([lateClap('off'), lateClap('pause')]);
     console.log('  재 본 값 ④ ' + JSON.stringify(off) + ' · ' + JSON.stringify(pz));
     ok('④ 박수 곡을 받는 중 «음악 끄기» → 곡이 늦게 와도 새 소리 0(곡 시작 0 · 흐르는 곡 없음 · 음악 설정 꺼짐 그대로)', !off.none && off.music === false && off.lateStarts === 0 && !off.lateSrc, off);

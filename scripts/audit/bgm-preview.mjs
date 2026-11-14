@@ -196,7 +196,7 @@ try {
     ok(`${W} D4 [R1-1] 초안이 바뀌면(저장에 «음악과 함께» 없음) 축사 칩은 안 눌린 모양으로`, d4.length === 2 && d4.every((v) => v === 'false'), d4);
     await f.click('[data-fk="bgm:S5:bed"]'); await wait(f, 300);
     await go(f, 'letter'); await f.click('[data-fk="bgm:S6:bed"]'); await wait(f, 300);   /* [ONE_FLOW_1106] 편지 곡 고르기 칸은 없다 */
-    const b9 = await listen(f, 'letter', 9000); const t9 = b9.filter((x) => x.talk && x.src).slice(5), m4s = await f.evaluate(() => BgmPicks.PICKS.M4.slice());
+    const b9 = await listen(f, 'letter', 9000); const t9 = b9.filter((x) => x.talk && x.src).slice(5), m4s = await f.evaluate(() => BgmPicks.PICKS.M4.concat((BgmPicks.FILL || {}).M4 || []));   /* [LISTEN_LEN_PV_1114] 본식 목록 = 고객이 보는 3곡 + 본식 배경 곡(REPEAT_RULE_1107 ① · 계획 목록 그대로) — 곡 길이를 등록 값으로 세면 이 검사 판(B11 파일 없음)에서는 편지 자리가 세 번째 곡 B12 다(옛 240초 셈은 우연히 B10) · 재는 것은 «따로 고른 곡이 아니라 본식 흐름 곡»(ONE_FLOW_1106) */
     ok(`${W} 6 편지 «음악과 함께» — S.bgm.S6 = { m:bed } · 낭독 동안 −20 · 곡은 본식 목록(M4) 곡`, t9.length && t9.every((x) => x.want === -20 && m4s.indexOf(x.f) > -1) && (await f.evaluate(() => S.bgm.S6 && S.bgm.S6.m === 'bed')), t9.slice(0, 2));
     /* 7 곡 없는 구간 */
     await go(f, 'table'); const l10 = await lab(f, 'table'); const b10 = await listen(f, 'table', 11000);   /* [DETAIL_R3_1101 ⑦ 보탬] 맨 뒤 B13 이 흐르므로 첫 줄 앞 뜸(6초 · listen 은 뜸을 세지 않는다) 뒤까지 */

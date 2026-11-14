@@ -285,7 +285,10 @@
     if(!g||!g.RitualCue) return DAY.v; try{ (g.RitualCue.build(St(),{mode:'console'}).cues||[]).forEach(function(c){ DAY.v[c.k]=(DAY.v[c.k]||0)+(+c.est||0)+((c.live&&(+(c.live.fullEst||c.live.est)||0))||0); }); }catch(x){} return DAY.v; }
   function dayAt(k){ if(segAt(k)!=='M4') return ''; var L=ordOf('M4').filter(has); if(!L.length) return '';
     var q=seq().filter(onOf).filter(function(x){ return segAt(x)==='M4'; }), i=q.indexOf(k); if(i<=0) return L[0];
-    var v=daySec(), sec=0; for(var j=0;j<i;j++) sec+=(v[q[j]]||0); var t=0; for(var n=0;n<200;n++){ var f=L[n%L.length]; if(t+DAY_LEN>sec) return f; t+=DAY_LEN; } return L[0]; }
+    /* ★★[LISTEN_LEN_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 검증 14] 곡마다 등록된 길이(BgmPicks.lenOf · REPEAT_FIX_1107 ③ · B09 117.9초)로 센다 — 종전엔 모든 곡을 240초로 세어
+         정석 축사(당일 140초 자리)가 B09 로 나왔다(이어 듣기 · 당일은 B09 가 110초쯤에 B10 으로 넘어간 뒤) · 곡 하나가 차지하는 시간 = 길이 − 겹침(본식 8초 · listArm 이 끝 8초 앞에 다음 곡을 건다) ·
+         길이를 모르는 곡만 4분(LEN0 · SCREEN_SOUND_1102 «곡 길이를 모르면 4분») · 화면 «이 순서 즈음엔 ‹곡›»(dayName)과 소리(fileFor)가 같은 이 함수를 본다 · 검사 scripts/audit/pv-fix-1114.mjs ⑤ */
+    var v=daySec(), sec=0; for(var j=0;j<i;j++) sec+=(v[q[j]]||0); var t=0, X=P.xfOf?P.xfOf('M4'):0; for(var n=0;n<200;n++){ var f=L[n%L.length], d=Math.max(30,((P.lenOf&&P.lenOf(f,0))||P.LEN0||DAY_LEN)-X); if(t+d>sec) return f; t+=d; } return L[0]; }
   function dayName(k){ var f=dayAt(k), p=f&&P.byF(f); return p?p.t:''; }
   function lastF(){ var l=P.PICKS.M8L||[]; for(var i=0;i<l.length;i++){ if(has(l[i])) return l[i]; } return ''; }
   function lastName(){ var f=lastF(), p=f&&P.byF(f); return p?p.t:''; }

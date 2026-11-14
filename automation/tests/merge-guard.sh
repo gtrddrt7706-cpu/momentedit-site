@@ -23368,3 +23368,7 @@ chk 'ENTRY_HOOK_PV_1114' scripts/audit/pv-fix-1114.mjs 1
 chk 'BGM_OFF_STAYS_OFF_1114' assets/bgm-bed.js 1
 chk "if(LPB.lt!==_tkn||pzNow()){ if(pzNow()){ var _z=LPB.pz;" assets/bgm-bed.js 1
 chk 'BGM_OFF_STAYS_OFF_1114' scripts/audit/pv-fix-1114.mjs 1
+# ★★[LISTEN_LEN_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 검증 14] 미리 듣기 — 본식 순간 하나만 들을 때 곡(dayAt · 화면 «이 순서 즈음엔»)은 곡마다 등록된 길이(BgmPicks.lenOf) − 겹침으로 센다(모르는 곡만 4분 · 종전 전부 240초) · 값은 pv-fix-1114 ⑤ 가 잰다
+chk 'LISTEN_LEN_PV_1114' assets/bgm-bed.js 1
+chk "d=Math.max(30,((P.lenOf&&P.lenOf(f,0))||P.LEN0||DAY_LEN)-X); if(t+d>sec) return f; t+=d; } return L\[0\]; }" assets/bgm-bed.js 1
+chk 'LISTEN_LEN_PV_1114' scripts/audit/pv-fix-1114.mjs 1
