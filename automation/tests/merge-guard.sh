@@ -23393,3 +23393,7 @@ chk 'NO_RELIFT_ALL_1115' scripts/audit/console-relift.mjs 2
 chk 'NO_RELIFT_WANT_1115' scripts/audit/console-relift.mjs 2
 chk 'M4_HANDOFF_NONE_1115' scripts/audit/console-relift.mjs 2
 chk 'NO_RELIFT_FB_1115' scripts/audit/console-relift.mjs 3
+# ★★[FILL_XF_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 10] 곡 계획 — 목록 칸 길이(NEED) 판정은 곡 길이 합 − 곡 수 × 겹침(xfOf) · 콘솔 · 미리 듣기가 곡마다 그만큼 일찍 넘긴다(단순합 30:29 테이블 인사가 29:41 에 첫 곡 반복) · 검사 console-r2-1115 E
+chk 'FILL_XF_1115' assets/bgm-picks.js 2
+chk "0) - out.length \* xfOf(sg); }" assets/bgm-picks.js 2
+chk 'FILL_XF_1115' scripts/audit/console-r2-1115.mjs 3
