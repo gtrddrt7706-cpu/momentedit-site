@@ -1996,7 +1996,7 @@ function fire(i, opt){
         phase = 'live';
         liveT0 = Date.now();
         if (c.live.cheer && MODE === 'preview') duckTo(c.live.cheer.level, c.live.cheer.upMs);   // [BGM_CONSOLE2_1023 TOAST_GO] 미리 듣기는 종전처럼 «위하여»와 함께 오른다(GO 가 없다)
-        else { segLive(c); duckTo(c.live.duck === undefined ? c.duck : c.live.duck, c.live.upMs || PARAM.fadeUpMs); }   // [HOLD_LIVE] ⓑ 사람 구간은 GO 까지 이 크기(낭독 −20 · 무음 −90 을 풀지 않는다) · [BGM_FIX_1030] 선언 박수는 1.5초(upMs) · 닫는 인사 목례부터 M6
+        else { var _lv = c.live.duck === undefined ? c.duck : c.live.duck, _lms = c.live.upMs || ((duckWant != null && _lv < duckWant - 0.5) ? PARAM.fadeDownMs : PARAM.fadeUpMs); segLive(c); duckTo(_lv, _lms); }   /* ★[LIVE_DOWN_MS_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 08] 사람 구간이 지금보다 낮은 크기로 시작하면(축사 · 편지 «음악과 함께» 안내 −15 → 낭독 −20 · 감사 인사 · 서약 · 부모님께 인사 −20 · 무음 −90) 내림 시간 1.6초(LAYER7_DUCK_1108 «내림 1.6초 · 올림 2.0초») · 종전엔 올림 2.0초로 내려 첫 구절 아래가 0.4초 −15.5 · 1초 −17.5 dB 였다 · 오르는 쪽 · 박수(upMs)는 그대로 */   // [HOLD_LIVE] ⓑ 사람 구간은 GO 까지 이 크기(낭독 −20 · 무음 −90 을 풀지 않는다) · [BGM_FIX_1030] 선언 박수는 1.5초(upMs) · 닫는 인사 목례부터 M6
         render();
         if (MODE === 'preview') {
           // ★사람이 말하는 자리 — 고객 화면에서는 배우 예시 목소리가 그 시간을 채운다.

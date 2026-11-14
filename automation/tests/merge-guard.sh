@@ -23402,3 +23402,7 @@ chk 'BACK_DROP_OPEN_1115' console.html 3
 chk "bedBackDrop(cur);" console.html 1
 chk "BED.goBk = _bk;" console.html 1
 chk 'BACK_DROP_OPEN_1115' scripts/audit/console-r2-1115.mjs 3
+# ★★[LIVE_DOWN_MS_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 08] 당일 콘솔 — 사람 구간이 지금보다 낮은 크기로 시작하면(축사 · 편지 «음악과 함께» −15 → −20 등) 내림 시간 1.6초 · 오르는 쪽 2.0초 · 박수 upMs 그대로(LAYER7_DUCK_1108) · 검사 console-r2-1115 B
+chk 'LIVE_DOWN_MS_1115' console.html 1
+chk "_lv < duckWant - 0.5) ? PARAM.fadeDownMs : PARAM.fadeUpMs); segLive(c); duckTo(_lv, _lms); }" console.html 1
+chk 'LIVE_DOWN_MS_1115' scripts/audit/console-r2-1115.mjs 3
