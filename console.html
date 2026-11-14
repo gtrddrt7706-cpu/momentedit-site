@@ -1357,6 +1357,11 @@ setInterval(function(){ if (BED.lfWant && !talkNow()) BED.lfGo = 1;   /* ★[LF_
   if (BED.id && !el.paused && !(duckWant != null && duckWant <= -60)) { var _h = HEARD[BED.id] || (HEARD[BED.id] = { t0: nowS(), seg: BED.seg, sec: 0 }); _h.sec += 0.25; _h.last = nowS(); _h.lseg = BED.seg; }   /* [REPEAT_FIX_1107 ①] 들린 초 */
   var _X = segXf(); if (isFinite(end) && !(end > _X * 2 + 1)) _X = SEG_XF;   /* [ONE_FLOW_1106 ②] 아주 짧은 곡은 3초 겹침 그대로 */ if (!isFinite(end) || !(end > _X + 1) || el.paused) return;
   if (end - el.currentTime <= 20 && BED.pre !== BED.id + '>' + BED.li) { BED.pre = BED.id + '>' + BED.li; listProbe(); }   /* [DETAIL_R5_1101 규칙 5] 끝 20초 전 — 다음 곡 파일을 미리 열어 본다 */
+  /* ★★[LIST_OPEN_ONCE_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 검증 04] 다음 곡을 «여는 중»이면 이 감시기는 다시 요청하지 않는다 — 그 결과(열림 · 실패 · 4초 한도 BED_OPEN_MS)를 기다린다.
+       종전: 250ms 마다 같은 조건이 참이라 listGo → bedPlay 가 «여는 중» 재생기를 멈추고 새로 요청(DETAIL_R3_1101 ③ «마지막 요청이 이긴다»가 감시기 자신의 요청을 취소) —
+       열기가 250ms 를 넘으면(400ms 흉내) 14초에 요청 24회 · 목록 곡 둘을 건너뜀 · 무음 0.4초 · 2곡 목록은 같은 곡을 다시 틀며 거짓 «다음 곡을 열지 못해» · 말하는 자리(LIST_HOLD)는 22초에 82회 + 원곡 끝을 12초 지남.
+       디렉터 GO(segGo · segLive · segCheer)는 bedPlay 를 바로 부르므로 종전대로 여는 중 요청을 이긴다 · 들린 초 세기 · 끝 20초 전 미리 열어 보기는 위에서 그대로 */
+  if (BED.opening) return;
   if (BED.lfWant && (BED.lfGo || !talkNow())) { BED.lfWant = 0; BED.lfGo = 0; if (BED.seg === 'M4' && hushNowC()) return; listGo(1); return; }   /* [REPEAT_FIX_1107 ②] 미룬 넘김도 — 60초 안 무음(지금 큐 포함)이면 넘기지 않고 지금 곡 그대로(끝나면 강조 자리부터) */   /* [MEANING_R1_1102 19] 말하는 줄이 끝나고 다음 나레이션 · 박수 · 이동 줄에서 다음 곡으로 */
   if (el.currentTime >= end - _X) { if (talkNow() && BED.list.length > 1) { BED.lfWant = 1; BED.lfGo = 0; bedPlay(BED.id, _X, reHookC(BED.id)); return; } if (BED.seg === 'M4' && BED.list.length > 1 && hushSoonC(HUSH_NEAR)) { bedPlay(BED.id, _X, reHookC(BED.id)); return; } listGo(1); } }, 250);   /* [REPEAT_RULE_1107 ③] 말하는 동안 · 60초 안 무음 앞 = 같은 곡을 강조 자리(없으면 40%)부터 */
 /* ★[MEANING_R1_1102 19] 두 분 · 손님이 직접 말하는 자리(live doing 'say' · 서약 · 덕담 · 낭독) — 곡 끝 3초 전에 다음 곡으로 넘기면 새 멜로디가 말 한가운데 들어온다 ·
