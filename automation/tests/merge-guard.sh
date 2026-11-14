@@ -2343,6 +2343,7 @@ chk 'archive-grid-ig' index.html 14                      # 사진 9장 우상단
 # ── 순서 묶음 [HOME_ORDER_1114] (2026-11-14 INSTA 보고 1 · 대본 판정 · 번호마다 커밋 하나 — 빼려면 그 커밋만 revert)
 chk 'DM_FOOT_SIGN' index.html 1                          # 편지 맺음 = 이름(Moment Edit) 위 · 문장 아래 · 메일 없음 · 되돌리면 금색(대비 2.3) 문구가 위로 서고 연락처가 편지 안에 다시 들어온다
 chk 'CTA_NEAR_PRICE_1114' index.html 1                 # S-1 가격 구간 상담 버튼 = Opening Honor 뒤 · 스냅 앞 · 되돌리면 폰 첫 글자 버튼이 다시 구간 맨 끝(21번째 화면)
+chk 'RSVP_CTA_UP_1114' index.html 1                    # S-2 RSVP 상담 버튼 = 3단계 뒤 · 약관 앞 · 되돌리면 구간 머리에서 버튼까지 1,626px
 # ── 편지 전달 점검 (2026-08-03 사용자 "편지 전달되는 부분 점검해보자 시스템이나 연동이나 디자인부분도")
 # ★[LETTER_MERGED 2026-09-25] 위·아래 편지 검사 중 guest-letter-webhook.gs·form-to-couple.gs 를 보던 줄은 옮겼다 —
 #   옛 Letter System 을 본 프로젝트 87_letter.gs 로 합치면서 옛 파일을 은퇴시켰다. 같은 표식(LETTER_RATE·DELIVERED·PLAIN·
