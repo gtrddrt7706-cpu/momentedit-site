@@ -23447,7 +23447,7 @@ chk '_o.bk.i === i) g = _o.bk;' console.html 1
 chk 'BED.bkNow = _bk; segGo(segOfCue(c)); BED.bkNow = null;' console.html 1
 chk 'BACK_DROP_ORIGIN_1115' scripts/audit/console-r3-1115.mjs 3
 # [FINISH_NO_NEXT_1115] (06) 끝내기 뒤 3초 잦아드는 동안 목록 감시가 다음 곡을 열지 않는다(AFTER_PHOTO_LOOP_1102)
-chk 'FINISH_NO_NEXT_1115' console.html 1
+chk 'FINISH_NO_NEXT_1115' console.html 2
 chk 'BED.fin = 1; BED.tk = (BED.tk || 0) + 1;' console.html 1
 chk "if (BED.mode !== 'seg' || BED.xing || BED.fin) return;" console.html 1
 chk 'FINISH_NO_NEXT_1115' scripts/audit/console-r3-1115.mjs 3
