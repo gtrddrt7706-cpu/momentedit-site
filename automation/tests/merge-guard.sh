@@ -2346,6 +2346,7 @@ chk 'CTA_NEAR_PRICE_1114' index.html 1                 # S-1 가격 구간 상�
 chk 'RSVP_CTA_UP_1114' index.html 1                    # S-2 RSVP 상담 버튼 = 3단계 뒤 · 약관 앞 · 되돌리면 구간 머리에서 버튼까지 1,626px
 chk 'mm-ko">상담 예약' index.html 1                      # S-4 폰 전체 메뉴 한글 = 구간 머리 · 버튼과 같은 말
 nochk 'mm-ko">사전 문의' index.html
+chk '두 개의 공간 · 촬영 예시' index.html 1               # S-5 공간 카드 라벨에 «촬영 예시» · 아카이브([H4_10])와 같은 자리 · 같은 모양
 # ── 편지 전달 점검 (2026-08-03 사용자 "편지 전달되는 부분 점검해보자 시스템이나 연동이나 디자인부분도")
 # ★[LETTER_MERGED 2026-09-25] 위·아래 편지 검사 중 guest-letter-webhook.gs·form-to-couple.gs 를 보던 줄은 옮겼다 —
 #   옛 Letter System 을 본 프로젝트 87_letter.gs 로 합치면서 옛 파일을 은퇴시켰다. 같은 표식(LETTER_RATE·DELIVERED·PLAIN·
