@@ -23355,3 +23355,7 @@ chk 'var ARRIVE_LEAD=1000;' assets/bgm-bed.js 1
 chk 'ARRIVE_SETTLE_PV_1114' scripts/audit/pv-fix-1114.mjs 1
 chk "{ name: f, tests: 'pv-fix-1114' }" .github/workflows/merge-guard.yml 1
 chk 'PV_FIX_1114' scripts/audit/pv-fix-1114.mjs 1   # 검사 머리 이름(묶음) — CI bgm-sound f 칸
+# ★★[SONG_OPEN_FADE_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 후보 ⑦] 미리 듣기 · 연습 — 축가 여는 말 뒤 본식 피아노는 줄이 끝난 때부터 1.5초에 걸쳐 정적(엔진 큐 post 값 그대로 · 종전 0.3초 · MEANING_R1_1102 8) · 소리는 pv-fix-1114 ② 가 잰다
+chk 'SONG_OPEN_FADE_PV_1114' assets/bgm-bed.js 2
+chk "if(_pm>0){ LPB.arr={ v:BED.cur, st:nx }; ramp(BED.cur,db,_pm); return; } }" assets/bgm-bed.js 1
+chk 'SONG_OPEN_FADE_PV_1114' scripts/audit/pv-fix-1114.mjs 1

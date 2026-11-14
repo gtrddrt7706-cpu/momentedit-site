@@ -3,6 +3,8 @@
    소리는 «원하는 값(want)»이 아니라 실제 크기 마디 값(gain)으로 잰다 — 50분의 1초마다 · 나레이션은 실제로 소리가 난 때(playing · ended).
    ① [ARRIVE_SETTLE_PV_1114] 도착 멘트 첫 소리 때 입장 곡이 걷기 크기보다 18 dB 이상 아래 — 예시 코스 넷 × 연습 «흐름 보기» · «직접 해보기» · 이어 듣기(당일 콘솔 ear-d ② 와 같은 자)
         대조: 잦아듦은 멘트 0.8 ~ 1.4초 앞에 시작(사이를 늘리지 않는다) · 길이 4.5초 그대로(멘트 3.7초 뒤 −40 아래) · 걷는 동안 0 dB · 맞절 정적 · 입장만 따로 듣기(장면)는 제 잦아듦으로 이미 18 dB 아래
+   ② [SONG_OPEN_FADE_PV_1114] 가족 코스 축가 여는 말 → MR 자리 — 본식 피아노가 1.5초에 걸쳐 꺼진다(당일 큐 post 1.5초 · 종전 0.3초) · 여는 말이 끝난 뒤 0.9초에도 아직 들리고 1.9초 뒤엔 정적
+        대조: 내림은 한 번(다음 줄이 시작돼도 다시 걸지 않는다) · MR 자리 · 맺는 말은 정적 · 사이를 늘리지 않았다 · 정석(축가 앞이 이미 정적)은 내림 예약 0
    ONLY=1,2 … · BP_BED · BP_OP · BP_CUE = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -94,7 +96,21 @@ async function arrive(key) { const { ctx, f, errs } = await open(A.port, key); c
       gap: (() => { const a = d.o.find((x) => /narr-entry-arrive/.test(x.s)); return a ? Math.round(tv - a.t) : null; })(), mjOn: mj.filter((x) => x.f && x.want > -60).length, mjN: mj.length }; }
   await ctx.close(); return { key, out, errs }; }
 
+/* ② 축가 여는 말 → MR 자리 */
+async function songOpen(key) { const { ctx, f, errs } = await open(A.port, key, { mu: false }); await start(f, 'flow', ['bless', 'free', 'song'], 1500);
+  try { await f.waitForFunction(() => window.__pv.na.some((x) => x.e === 'ended' && /narr-song(?!-(end|out))/.test(x.src)), null, { timeout: 150000, polling: 50 }); await f.waitForTimeout(4200); } catch (e) {}
+  const d = await stop(f), en = d.na.filter((x) => x.e === 'ended' && /narr-song(?!-(end|out))/.test(x.src)).pop(); await ctx.close(); if (!en) return { key, none: true, errs, na: d.na.slice(-6) };
+  const te = en.T, g0 = gAt(d.o, te - 120), pre = d.o.filter((x) => x.t < te - 120).pop() || {}, rps = d.rp.filter((x) => x.T > te - 300 && x.T < te + 2500), dn = rps.filter((x) => x.v <= 1e-4), i0 = (pre.i == null ? -1 : pre.i), nxt = d.o.find((x) => x.t > te && x.i > i0);
+  const after = d.o.filter((x) => x.t > te + 2000 && x.k === 'song');
+  return { key, errs, preWant: pre.want, preF: pre.f, r09: g0 > 0 ? r1(dB(gAt(d.o, te + 900)) - dB(g0)) : null, r19: g0 > 0 ? r1(dB(gAt(d.o, te + 1900)) - dB(g0)) : null, downs: dn.map((x) => x.m + '/' + x.ms + '@' + Math.round(x.T - te)), ramps: rps.length, ups: rps.length - dn.length, abs09: gAt(d.o, te + 900), gap: nxt ? Math.round(nxt.t - te) : null, afterOn: after.filter((x) => x.f && x.want > -60).length, afterN: after.length }; }
+
 try {
+  if (want(2)) { const [fa, sd] = await Promise.all([songOpen('family'), songOpen('standard')]);
+    console.log('  재 본 값 ② 가족 ' + JSON.stringify(fa) + ' · 정석 ' + JSON.stringify(sd));
+    ok('② 가족 · 축가 여는 말 뒤 본식 피아노가 1.5초에 걸쳐 꺼진다(말끝 0.9초 뒤 아직 들림 −3 ~ −20 dB · 1.9초 뒤 정적)', !fa.none && fa.preWant > -60 && fa.r09 != null && fa.r09 <= -3 && fa.r09 >= -20 && fa.r19 <= -60, fa);
+    ok('② 대조 — 내림 예약은 한 번 · 길이 1.4 ~ 1.6초 · 말이 끝난 때(±0.25초) 시작 · MR 자리 · 맺는 말은 정적 · 사이 그대로(1초 안)', !fa.none && fa.downs.length === 1 && fa.ramps === 1 && /^lin\/(14|15)\d\d@-?\d{1,3}$/.test(fa.downs[0]) && Math.abs(+fa.downs[0].split('@')[1]) <= 250 && fa.afterN > 0 && !fa.afterOn && fa.gap != null && fa.gap <= 1000, fa);
+    ok('② 대조 — 정석(축가 앞이 이미 정적)은 정적 그대로(올림 0 · 말끝 0.9초 뒤 소리 없음)', !sd.none && !(sd.preWant > -60) && sd.ups === 0 && sd.abs09 <= 1e-4 && !sd.afterOn, sd);
+    ok('② 쪽 오류 0', !fa.errs.length && !sd.errs.length, [fa.errs, sd.errs]); }
   if (want(1)) { const rs = []; for (let i = 0; i < COURSES.length; i += 2) rs.push(...await Promise.all(COURSES.slice(i, i + 2).map(arrive)));   /* 두 코스씩 나란히 */
     const all = []; rs.forEach((r) => Object.keys(r.out).forEach((w) => all.push(Object.assign({ c: r.key, w }, r.out[w]))));
     console.log('  재 본 값 ① ' + all.map((x) => `${x.c}/${x.w}: 앞 ${x.pre} · 첫 소리 ${x.rel0} · +1초 ${x.rel1} · 앞섬 ${x.lead}ms(${x.shape}) · 줄→멘트 ${x.gap}ms`).join(' | '));

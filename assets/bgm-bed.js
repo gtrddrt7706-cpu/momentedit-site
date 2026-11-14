@@ -331,8 +331,8 @@
                ② 모양 = 무음까지 dB 직선(4.5초 · 첫 단어 때 걷기 크기보다 18 dB 이상 아래 · +1초 약 −40) ③ 줄이 시작되면 이미 도는 잦아듦을 다시 걸지 않는다(LPB.arr) ·
                사이 없이 이 줄로 바로 오면(순간 이동 · 이어 하기) 줄 시작부터 같은 모양으로.
          그대로: 걷기 0 dB · 길이 4.5초 · 맞절 정적(ENTRY_SETTLE) · 입장만 따로 들을 때는 장면(entry-music)이 제 잦아듦(4초 · dB 직선)을 한다 · 검사 scripts/audit/pv-fix-1114.mjs ① */
-    var _cq=cueBy(st.slug); if(_cq&&_cq.fadeWith&&BED.who==='lp'&&BED.cur.src){ if(LPB.arr&&LPB.arr.v===BED.cur&&LPB.arr.st===st){ LPB.on=true; return; }   /* 사이에서 먼저 시작한 잦아듦이 돈다 */
-      if(db<(BED.cur.want!=null?BED.cur.want:-90)-0.5){ LPB.on=true; LPB.arr={ v:BED.cur, st:st }; ramp(BED.cur,db,_cq.fadeMs||4500,1); return; } }
+    if(LPB.arr&&LPB.arr.v===BED.cur&&LPB.arr.st===st&&BED.who==='lp'&&BED.cur.src&&db<=-60){ LPB.on=true; return; }   /* 사이(lpGap)에서 이 줄 몫으로 먼저 시작한 내림(도착 멘트 잦아듦 · [SONG_OPEN_FADE_PV_1114] 축가 여는 말 뒤 1.5초)이 돈다 — 다시 걸지 않는다 */
+    var _cq=cueBy(st.slug); if(_cq&&_cq.fadeWith&&BED.who==='lp'&&BED.cur.src&&db<(BED.cur.want!=null?BED.cur.want:-90)-0.5){ LPB.on=true; LPB.arr={ v:BED.cur, st:st }; ramp(BED.cur,db,_cq.fadeMs||4500,1); return; }
     if(!f&&avWait()){ list(); var tw=LPB.lt; AV.cb.push(function(){ if(LPB.lt!==tw) return; var q=curStep(); if(q&&q===st) lpShow(q); }); return; }   /* [DETAIL_R1_1101 ②] 목록이 오면 이 줄 곡을 깐다 */
     if(!f){ if(BED.who==='lp'&&BED.cur.src) hushAll(1500); LPB.on=false; LPB.f=''; return; }
     LPB.on=true; BED.who='lp'; subNote(st);
@@ -464,7 +464,15 @@
     if(tg&&pv&&pv.k===nx.k&&BED.cur.want>-60&&lvOf(nx)>-60){   /* 다음 줄이 정적(편지 끝 · 선언)이면 올리지 않는다 */ var vt=BED.cur, tl=vx(tg==='min'?p.music:-12,vt.f), dbt=lvOf(nx); if(Math.abs(tl-vt.want)>0.5) ramp(vt,tl,800);   /* 크게 흐르던 곡(입장 0 dB)도 쉼 크기로 */ var _tf=Math.min(p.down,Math.max(300,gap-800-p.aft)); setTimeout(function(){ if(gOk()&&BED.cur===vt&&LPB.on&&vt.want>dbt+0.5) ramp(vt,dbt,_tf); },Math.max(0,gap-_tf-p.aft)); return; }   /* [LAYER7_DUCK_1108] 다음 줄 0.4초 앞에 다 낮아지게 */
     var _fw=cueBy(nx.slug); if(_fw&&_fw.fadeWith){ var _va=BED.cur, _dba=lvOf(nx,_va.f); LPB.arr=null;   /* ★[ARRIVE_SETTLE_PV_1114] 도착 멘트 — 말 아래로 미리 낮추지 않고(ENTRY_SETTLE), 잦아듦(4.5초 · 무음까지 dB 직선)만 멘트 1.0초 앞에 먼저 시작(당일 콘솔 EAR_D_1106 ② 와 같게 · 사이 길이 그대로) */
       if(_dba<=-60&&num(_va.want,-90)>-60) setTimeout(function(){ if(!gOk()||BED.cur!==_va||!_va.src||!LPB.on||BED.who!=='lp'||pzNow()) return; LPB.arr={ v:_va, st:nx }; ramp(_va,_dba,_fw.fadeMs||4500,1); },Math.max(0,gap-ARRIVE_LEAD)); return; }
-    var db=lvOf(nx); if(BED.cur.want>db+0.5){ var lead=Math.min(nx.fm||p.down,Math.max(300,gap-p.aft)), v=BED.cur; setTimeout(function(){ if(gOk()&&BED.cur===v&&LPB.on) ramp(v,db,lead); },Math.max(0,gap-lead-p.aft)); } }   /* ★[LAYER7_DUCK_1108] 내림 1.6초(박수 뒤 줄 fm) · 다 낮아진 뒤 0.4초에 다음 말 · 사이가 짧으면 사이 − 0.4초 동안(최소 0.3초) */   /* [BGM_FIX_1030] 미리 낮추기 0.8초 · 박수 뒤 줄 1.5초(fm) */
+    var db=lvOf(nx);
+    /* ★★[SONG_OPEN_FADE_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 후보 ⑦ · 연습 ≠ 당일] 축가 여는 말 → MR 자리 — 본식 피아노가 여는 말 아래로 흐르던 날(가족 · 기록처럼 축가 앞이 조용하지 않은 식순)
+         종전: 다음 줄(«여기서 축가를 불러요» · −90)로 0.35초 사이에 0.3초 만에 꺼짐(말 아래 낮춤 규칙의 최소 0.3초가 «끄기»에 쓰였다) · 결정 MEANING_R1_1102 8 = «줄 끝 1.5초에 정적 · 정적 1초 뒤 MR»(당일 큐 post 1.5초).
+         고침 = 앞 줄의 엔진 큐가 «줄 끝에 음악을 정적으로»(post music:'to' · −60 아래 · ms)를 실었고 다음 줄이 정적이면, 줄이 끝난 그때부터 그 ms(1.5초)에 걸쳐 내린다 — 당일 콘솔과 같은 자리(말이 끝난 뒤) · 같은 길이 ·
+               사이(0.35초)는 그대로라 내림의 뒤쪽은 소리 없는 다음 줄(3초 자리) 처음과 겹친다 · 그 줄이 시작돼도 다시 걸지 않는다(LPB.arr) · 지금 해당하는 큐는 축가 여는 말(narr-song) 하나.
+         그대로: 말 아래 낮춤(LAYER7_DUCK 사이 − 0.4초 · 최소 0.3초) · 무음 경계는 직선(LAYER7 «곡선 밖») · 이미 조용한 날(정석 — 축사 뒤)은 아무 일 없음 · 검사 scripts/audit/pv-fix-1114.mjs ② */
+    if(db<=-60&&pv&&num(BED.cur.want,-90)>-60){ var _pq=cueBy(pv.slug), _pm=0; ((_pq&&_pq.post)||[]).some(function(o){ if(o&&o.music==='to'&&num(o.v,0)<=-60&&+o.ms>0){ _pm=+o.ms; return true; } return false; });
+      if(_pm>0){ LPB.arr={ v:BED.cur, st:nx }; ramp(BED.cur,db,_pm); return; } }
+    if(BED.cur.want>db+0.5){ var lead=Math.min(nx.fm||p.down,Math.max(300,gap-p.aft)), v=BED.cur; setTimeout(function(){ if(gOk()&&BED.cur===v&&LPB.on) ramp(v,db,lead); },Math.max(0,gap-lead-p.aft)); } }   /* ★[LAYER7_DUCK_1108] 내림 1.6초(박수 뒤 줄 fm) · 다 낮아진 뒤 0.4초에 다음 말 · 사이가 짧으면 사이 − 0.4초 동안(최소 0.3초) */   /* [BGM_FIX_1030] 미리 낮추기 0.8초 · 박수 뒤 줄 1.5초(fm) */
   function lpEnd(keepHold){ if(!keepHold) LPB.hold=null;   /* [REG_P17] 끄기 · 끝내기 · 새 시작은 보류를 지운다 · 멈춤 감시(아래 setInterval)는 보류를 남긴다 */ if(LPB.note) note(''); LPB.lt++; LPB.gk=(LPB.gk||0)+1; LPB.aft=''; LPB.showSt=null; LPB.natSt=null; LPB.noMus=null; LPB.rs=0; LPB.rsSt=null;   /* [B2_EUM09] 끝내기 · 새 시작은 이어 든 줄 기록도 지운다 */ LPB.lf=null; LPB.hzL=null; LPB.hushF=''; LPB.cut=null; LPB.arr=null;   /* [MEANING_R2_1102] 듣기가 끝나면 «들린 곡» 기억도 비운다 · [ONE_FLOW_1106 ⑥] 끊긴 곡 기억도 */ if(LPB.pz) LPB.pz.keep=0; if(BED.who==='tail'){ clearTimeout(LPB.tt); hushAll(1500); return; }   /* [LISTEN_LOOK_LEVEL_1101 ③] 여운 중 ⏹ = 지금처럼 1.5초에 잦아듦 */
     if(BED.who!=='lp') return; if(BED.cur.f) LPB.keep[BED.cur.f]=posOf(BED.cur); LPB.on=false; LPB.f=''; LPB.pend=''; LPB.late=null; LPB.m7=false; hushAll(1500); }
   /* ★[LISTEN_LOOK_LEVEL_1101 ③ 사장님 «마지막 나레이션이 끝나면 노래는 다시 커지는 거야?»] 끝까지 들으면(⏹ 가 아니라) 여운 —
