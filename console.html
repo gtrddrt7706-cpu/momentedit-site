@@ -173,6 +173,7 @@ body:not(.guest) .tm{min-height:26px;align-items:center}   /* [BLESS_PER_SPEAKER
 }
 .sub3 button small{display:block;font-size:10px;font-weight:400;color:var(--dim);margin-top:2px}
 .sub3 button.on{background:var(--gold);border-color:var(--gold);color:#20180F}
+.sub3 button.on small{color:inherit}   /* [MUTE_PRESSED_1115] 켜진 단추의 아랫줄 — 금색 바탕 위 흐린 글(--dim)은 읽히지 않는다 */
 .sub3 button:disabled{opacity:.38;cursor:default}   /* [WAIT_CLIP_OFF_1016] «재생 안 됨»은 영상 · 음원 순서에서만 */
 .vol{display:flex;align-items:center;gap:12px;margin-top:12px}
 .vol span{font-size:11px;color:var(--dim);flex:0 0 auto}
@@ -711,7 +712,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
       <div>
         <div class="sub3">
           <button id="bWait" disabled>재생 안 됨<small>사진 시간으로 미룸</small></button><!-- ★[WAIT_CLIP_OFF_1016] 대기 클립(49 · WAIT_BRIDGE_RETIRED 9/6) 판 없음 · 되살리지 말 것 -->
-          <button id="bMute">음악만 멈춤<small>말은 그대로</small></button>
+          <button id="bMute" aria-pressed="false">음악만 멈춤<small>말은 그대로</small></button><!-- [MUTE_PRESSED_1115] 누름 상태 = aria-pressed · 켜진 동안 아랫줄 «지금 멈춰 있음» -->
           <button id="bBack">뒤로<small>한 칸 되돌림</small></button>
         </div>
         <p class="bed-err" id="bedErr" role="status" hidden></p><!-- [DETAIL_R3_1101 ②] 곡 파일을 못 열면 빨간 한 줄 -->
@@ -2535,6 +2536,8 @@ $('#bWait').onclick = function(){
 $('#bMute').onclick = function(){
   muted = !muted;
   $('#bMute').classList.toggle('on', muted);
+  /* ★[MUTE_PRESSED_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 12] 켜짐 · 꺼짐이 같은 글이고 aria-pressed 가 없었다 — 누름 상태를 화면 읽기에도 알리고 켜진 동안 아랫줄 한 줄이 상태를 말한다(알림은 3초 뒤 사라진다) · 글 길이는 비슷하게(단추 높이 고정) */
+  $('#bMute').setAttribute('aria-pressed', String(muted)); var _ms = $('#bMute small'); if (_ms) _ms.textContent = muted ? '지금 멈춰 있음' : '말은 그대로';
   if (gMaster && AC) gMaster.gain.setTargetAtTime(muted ? 0.0001 : vol(), AC.currentTime, .4);
   else bedVolFb();   // [DETAIL_R4_1101 ③]
   toast(muted ? '음악만 멈췄습니다 · 말은 그대로 나갑니다' : '음악을 다시 올립니다');

@@ -23410,3 +23410,7 @@ chk 'LIVE_DOWN_MS_1115' scripts/audit/console-r2-1115.mjs 3
 chk 'HEARD_AUDIBLE_1115' console.html 1
 chk "duckWant <= -60) && bedHeardOn()) { var _h = HEARD" console.html 1
 chk 'HEARD_AUDIBLE_1115' scripts/audit/console-r2-1115.mjs 3
+# ★★[MUTE_PRESSED_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 12] 당일 콘솔 «음악만 멈춤» — aria-pressed 가 상태와 같다 · 켜진 동안 아랫줄 «지금 멈춰 있음» · 금색 바탕 위 아랫줄 글은 단추 글색 · 검사 console-r2-1115 D
+chk 'MUTE_PRESSED_1115' console.html 3
+chk "setAttribute('aria-pressed', String(muted));" console.html 1
+chk 'MUTE_PRESSED_1115' scripts/audit/console-r2-1115.mjs 3
