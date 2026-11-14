@@ -85,7 +85,7 @@ const near = (x, y) => x != null && Math.abs(x - y) <= 40;   /* [SEAM_BG_MS] 걸
 const probe = (f, fn, st, w0) => f.evaluate(({ fn, st, w0 }) => { const v = BgmBed._t.BED.cur; v.want = w0 === 'undef' ? undefined : w0 === 'NaN' ? NaN : w0; window.__rl.length = 0; const s1 = Object.assign({ k: LP.q[LP.i].k }, st);
   try { if (fn === 'show') BgmBed.lpShow(s1); else BgmBed.lpLevel(s1); } catch (e) { return { err: String(e) }; } const r = window.__rl.slice(); return { n: r.length, ms: r.length ? r[r.length - 1].ms : null, want: v.want, f: v.f }; }, { fn, st, w0 });
 
-const at = (tr, i) => tr.find((x) => x.cur >= i), before = (tr, i) => tr.filter((x) => x.cur < i), upTo = (lg, tr, i) => { const a = at(tr, i); return lg.filter((x) => x.db > -60 && (!a || x.t < a.T - 50)); };
+const at = (tr, i) => tr.find((x) => x.cur >= i), before = (tr, i) => tr.filter((x) => x.cur < i), upTo = (lg, tr, i) => { const a = at(tr, i), b = before(tr, i).slice(-1)[0]; return lg.filter((x) => x.db > -60 && (!a || x.t <= (b ? b.T : a.T - 150))); };   /* ★[SEAM_SAMPLE_1115] 큐가 바뀐 때는 0.1초 표본으로만 안다 — 옛 «a.T − 50»은 다음 큐가 시작하며 낸 제 명령(테이블 첫 말 앞 내림 −15 · 1.6초)을 표본 늦음(0 ~ 100 ms)에 따라 «앞»으로 셌다(PR #1647 CI e 칸 BG03-T01 · T03 이 반반 빨강 · 로컬 두 번 중 한 번). 이제 «바뀌기 전 마지막 표본»까지만 앞으로 센다 — 그 뒤 0.1초 안 명령은 어느 큐 것인지 모르니 세지 않는다 */
 const S0of = (on, entry) => { const S = O.applyExample({ course: 'open' }, 'standard'); S.course = 'open'; S.on = Object.assign({}, S.on, on); S.entry = entry || 'A'; S.bgm = {}; return S; };
 /* 당일 콘솔 — 큐를 손으로 내고(fire) 그사이 음악 크기 명령(duckTo)을 모은다 */
 const con = async (S, files) => { const ctx = await br.newContext({ viewport: { width: 1280, height: 900 } }), errs = [], pg = await ctx.newPage(); pg.on('pageerror', (e) => errs.push(e.message));
