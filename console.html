@@ -1298,7 +1298,7 @@ function bedPlay(sid, xf, at){ if (!SEGF[sid]) return false;
   BED.gen[nx] = (BED.gen[nx] || 0) + 1;   /* ★[GEN_ON_OPEN_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 검증 중 찾음] 이 재생기를 새 곡이 쓴다 — 앞 겹침의 뒷정리 타이머(아래 setTimeout · was)는 손을 뗀다.
        종전: 소리 없던 재생기는 «잦아드는 중»(BED.fade)이 안 걸려 겹침 3초 안에 다음 곡이 그 재생기를 받을 수 있었고, 그 곡이 늦게 열리는 중이면 뒷정리가 여는 재생기를 세워 «곡 파일을 열지 못했어요» + 앞 곡 되돌림(하객 맞이 시작 3초 안 화촉 GO) · NO_RELIFT_ALL_1115 의 BED.gen 을 같이 쓴다 */
   BED.plays = (BED.plays || 0) + 1; var el = BED.el[nx], m = SEGST.meta[sid] || {}, tk = BED.tk = (BED.tk || 0) + 1;
-  bedWire(); BED.opening = { sid: sid, tk: tk, nx: nx }; var _ofl = BED.onFail; BED.onFail = null;   /* [DETAIL_R5_1101 규칙 5] 이 재생 차례의 «실패하면 다음 곡»만 — 다른 재생으로 새지 않는다 */
+  bedWire(); BED.opening = { sid: sid, tk: tk, nx: nx, bk: BED.bkNow || null }; var _ofl = BED.onFail; BED.onFail = null;   /* [BACK_DROP_ORIGIN_1115] bk = 이 요청을 건 큐의 «바꾸기 전 자리»(GO 로 건 요청만) */   /* [DETAIL_R5_1101 규칙 5] 이 재생 차례의 «실패하면 다음 곡»만 — 다른 재생으로 새지 않는다 */
   try { if (BED.xg[nx] && AC) { BED.xg[nx].gain.cancelScheduledValues(AC.currentTime); BED.xg[nx].gain.setValueAtTime(0.0001, AC.currentTime); } else el.volume = 0; } catch (e) {}
   el.loop = false; el.src = SEGF[sid]; try { el.currentTime = (at != null ? at : (m.head || 0)); } catch (e) {}
   var t0 = null, done = false, fin = function(ok){ if (done) return; done = true; clearTimeout(to); clearInterval(iv); el.removeEventListener('playing', onPl); el.removeEventListener('error', onEr);
@@ -1980,7 +1980,7 @@ function fire(i, opt){
   if (!esdMain(c)) doorMark(null);   // [DOOR_LEAD] 입장 장면이 아니면 걷는다
   PRE_HOLD = (/^bridge-(b12-tribute-calm|b14-candle-name)$/.test(String(c.slug || '')) && !ESD.run && duckWant != null && duckWant <= -60) ? i : -1;   /* ★[BRIDGE_FIRST_1101] 배경음이 꺼져 있던 자리(축가 · 영상 뒤)의 이음말은 꺼진 채로 — 앞의 앞 곡이 이음말 아래로 되살아나지 않게(미리 듣기와 같다) · 구간 곡은 다음 큐에서 */
   var _bk = { i: i, seg: BED.seg, list: BED.list.slice(), li: BED.li, cut: BED.cut, res: BED.res, id: BED.id, tk: BED.tk || 0, later: BED.later };   /* [BACK_DROP_OPEN_1115] 이 큐가 곡을 바꾸기 전 자리 — «뒤로»가 아직 안 열린 요청을 거둘 때 */
-  segGo(segOfCue(c));   // [BGM_SEG8_1023] 구간의 첫 큐가 나가는 순간 3초에 걸쳐 그 구간 곡으로(곡이 없으면 앞 곡이 잇는다 · 새 GO 없음)
+  BED.bkNow = _bk; segGo(segOfCue(c)); BED.bkNow = null;   // [BACK_DROP_ORIGIN_1115] 이 큐가 연 요청에 자리를 붙인다   // [BGM_SEG8_1023] 구간의 첫 큐가 나가는 순간 3초에 걸쳐 그 구간 곡으로(곡이 없으면 앞 곡이 잇는다 · 새 GO 없음)
   BED.goBk = _bk;
   liveT0 = 0;                          // 방금 판정에 썼다 · 다음 큐로 새지 않게 여기서 끊는다
   castNow = null;                      // ★배역 예시는 큐를 넘어가지 않는다(배지가 다음 자리로 새는 것을 막는다)
@@ -2559,7 +2559,9 @@ $('#bMute').onclick = function(){
      거두기 = 재생 번호(BED.tk)를 올려 늦은 응답 · 실패 뒤 다음 곡(onFail)을 버리고 · 여는 재생기를 세우고 · 미뤄 둔 요청(later)을 그 큐 전으로 · 구간 자리(seg · 목록 · 순번)를 그 큐 전으로 되돌린다.
      그 큐가 정적 뒤라 앞 곡을 꺼 두었으면(NO_RELIFT_XF_1114 hushK) 앞 곡은 되살리지 않는다 — 되돌림 타이머(bedUnhush)를 거두고 그 재생기를 세운다 · 구간 자리는 비워 다음 GO 가 그 구간 곡을 처음부터 다시 연다(bedUnhush 함수는 그대로 · 부르는 쪽에서 막는다).
      이미 열려 흐르는 곡은 종전 그대로(뒤로는 소리를 바꾸지 않는다) */
-function bedBackDrop(i){ var g = BED.goBk; BED.goBk = null; if (!g || g.i !== i || BED.id !== g.id) return;
+/* ★[BACK_DROP_ORIGIN_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 05] 거둘 자리는 «방금 떠난 큐»만이 아니다 — 여는 요청은 저를 건 큐의 자리(bk)를 들고 있어, 같은 구간의 다음 큐(화촉 둘째 큐)를 지나 «뒤로»를 거듭해 그 큐 밖으로 나가면 그때 거둔다.
+     종전: 첫 화촉 큐의 곡이 늦게 열리는 중 둘째 화촉 큐 → 뒤로 두 번이면 BED.goBk 가 둘째 큐 것이라 거두지 못해, 식전 영상 마무리 손 대기(B2_NA_02)에서 화촉 곡이 −15 dB 로 시작했다 */
+function bedBackDrop(i){ var g = BED.goBk; BED.goBk = null; var _o = BED.opening; if ((!g || g.i !== i) && _o && _o.bk && _o.bk.i === i) g = _o.bk; if (!g || g.i !== i || BED.id !== g.id) return;
   var op = BED.opening, pend = !!((op && op.tk > g.tk) || (BED.later && BED.later !== g.later)); if (!pend) return;
   BED.tk = (BED.tk || 0) + 1; BED.onFail = null; BED.later = g.later || null;
   if (op) { BED.opening = null; try { BED.el[op.nx].pause(); } catch (e) {} }
