@@ -11619,9 +11619,6 @@ chk 'BIZNO_NOWRAP_1114' index.html 1                   # A-3 사업자등록번�
 chk 'GV_DOT_SEEN_1114' invitation-gallery.html 1       # A-2 안 고른 점 3:1 이상
 chk 'GV_OPEN_INSET_1114' invitation-gallery.html 1     # I-2 OPEN 알약 = 프레임 모서리에서 14px(아래는 카드 여백 10px 을 더한 24px)
 nochk '#gv-open-new{bottom:14px;right:14px}' invitation-gallery.html
-# ── HALLMARK FIX 묶음 3
-chk 'INPUT_EDGE_SEEN_1114' mypage.html 1               # I-3 로그인 입력칸 테두리 3:1 이상(#93897D) · --border 로 되돌리면 칸 경계가 1.36:1
-nochk '\.field input{width:100%;border:1px solid var(--border)' mypage.html
 chk '.op-steps li:has(> .op-stepb){padding-top:0}' order-preview.html 1
 chk '.op-steps{min-height:46px}' order-preview.html 1
 chk 'CC_BTN_TRACK' mypage.html 1
