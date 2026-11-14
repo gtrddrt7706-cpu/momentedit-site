@@ -4810,7 +4810,7 @@ chk 'MID_OPEN_1114' automation/platform/89_prevideo.gs 2
 #   ★홈 FAQ · AI 상담 · 빌더 AI 글(«마이페이지 «식중 영상»에서 링크로»)은 가지 claude/video-name-1114-copy(PR 따로) — GAS 재배포로 줄이 열린 것을 본 뒤 병합(GPT 2-22)
 chk "_recordHandler(code, _pvName_(kind) + ' 동의 · 처리방침 ' + ver)" automation/platform/89_prevideo.gs 1   # [GPT 1-03] 처리이력 = 동의한 처리방침 날짜
 chk 'MID_OPEN_1114' mypage.html 1
-chk 'MID_OPEN_1114' scripts/audit/midvideo.mjs 6
+chk 'MID_OPEN_1114' scripts/audit/midvideo.mjs 8
 chk 'id="midvideo"' privacy.html 1
 # ★★[MID17_PICK 2026-11-07 재검증 재수정 · 사장님 «마음의 순간에 식중 영상 칸을 따로 하나»] MID17 줄 1 · 2 — ① 식중 영상 칸(축사와 둘 중 하나 · 바꿔 담기 · 알림 한 줄) ·
 #   이름 «식중 영상»(nameOf · 칩 · 칸 글) · ② 길이 칸 + 택1 한 줄 · at:'midvideo' · 준비 목록 빈 칸 · 시간 띠(60 × 분 + 8 · 40분 상한) — 390 · 360 화면을 돌린다

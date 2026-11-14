@@ -226,7 +226,9 @@ console.log('━━ ⑤ 길');
       const five = { 맨위시행: dot(hero[1]), 맨위공고: dot(hero[2]), 공고일자: yk(pub), 시행일자: yk(eff), midFrom: mf };
       ok(Object.values(five).every((v) => v === mf), '식중 영상 개정이 맨 위인 동안 날짜 다섯이 같은 날(맨 위 시행 · 공고 · 개정 공고일자 · 시행일자 · midFrom) [MID_OPEN_1114]', JSON.stringify(five)); }
     ok(/privacy\.html#'\+\(PVCFLOW\.kind==='mid'\?'midvideo':'prevideo'\)/.test(fnSrc(my, '_pvcAgree')), '식중 동의 판의 처리방침 링크 = #midvideo [MID_OPEN_1114]'); }
-  else ok(mf === '', '식중 영상 꺼짐(midFrom 비어 있음) — 처리방침에 «식중 영상»을 넣은 날 midFrom 을 적어 켠다'); }
+  else { /* ★[MID_OPEN_1114 · GPT 4-32] 처리방침 맨 위 개정이 «식중 영상 항목 추가»인데 midFrom 이 비면 — 줄 · 받기가 닫혀 «담았는데 보낼 곳이 없음»이 돌아온다 */
+    const eff0 = (priv.match(/시행일자<\/span>\s*<span class="spec-val">([^<]+)</) || [])[1] || '';
+    ok(mf === '' && !/^\d{4}년 \d{1,2}월 \d{1,2}일 \(식중 영상 항목 추가/.test(eff0), '식중 영상 꺼짐(midFrom 비어 있음)은 처리방침에 «식중 영상» 개정이 없을 때만 — 개정을 넣었으면 midFrom 을 그 날로 [MID_OPEN_1114]', eff0.slice(0, 40)); } }
 ok(/midvideo: \(typeof _pvPublic === 'function'\) \? _pvPublic\(.*?, r, 'mid'\)/.test(pr), 'buildProductionState 가 midvideo 를 싣는다');
 ok(/fn: 'sendVideoDueNotices',\s+hour: 10/.test(jr), 'setupAllTriggers — 매일 10시 기한 안내');
 ok(/'cust\.videoDue':\s+\{ to: 'customer'/.test(nt) && /case 'cust\.videoDue':/.test(nt) && /'cust\.videoDue':\s+\{ subj:/.test(nt), '알림 이벤트 cust.videoDue — 표 · 글 · 메일 제목');
