@@ -4,6 +4,7 @@
      여는 중에 디렉터 GO(화촉 큐)가 오면 화촉 곡이 이긴다(DETAIL_R3_1101 ③ «마지막 요청이 이긴다» 그대로 · 옛 판은 감시기가 그 요청까지 취소해 화촉 구간인데 하객 맞이 곡이 남았다)
    B [TABLE_BORROW_PLAY_1114] 테이블 인사(M8) — 곡 파일이 다 있는 날 콘솔이 실제로 트는 목록(__segPlan · 테이블 GO 뒤 BED.list) = 계획 목록(BgmPicks.plan 을 미리 듣기 playOrd 와 같은 꼴로 부른 것 · have · heard · now · seg) ·
      빌려 온 곡이 남고 합이 30분(NEED.M8) 이상 · 설정 화면 곡 칩은 제 곡만 · 이어 트는 칸(M4 · M6 · M8L)은 빠짐 0 · 미리 듣기 쪽 줄(lfNext = playOrd.filter(has))도 그대로
+   C [HEARD_RESET_1114] 같은 탭에서 «■ 나가기 → 시작» — 앞 판의 들린 곡 기록(20초 넘게 들린 곡)이 0 · 음악만 멈춤 → 다시 · 전체 정지 → GO 는 기록 그대로
    깨 보기: BP_CON=<옛 console.html> 로 돌리면 고친 줄마다 빨강이어야 한다(각 칸 머리에 적음) · ONLY=A 처럼 칸을 골라 돌릴 수 있다
    곡 = 시험 사인파(곡마다 다른 높이) · 나레이션 = 0.6초 짧은 소리 · 큐는 손으로 낸다(__bgmGo.fire) · 읽는 창구 = __seg.st · __segPlan · __heard(점검용)
    ROOT = 저장소 뿌리(이 파일이 scripts/audit/ 에 있으면 저절로 · 밖에 두면 CONBED_ROOT 로) · 종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
@@ -121,6 +122,29 @@ try {
       const bb = fs.readFileSync(path.join(ROOT, 'assets/bgm-bed.js'), 'utf8');
       ok('B ⑥ 미리 듣기 쪽 줄 그대로 — lfNext = playOrd(sg).filter(has)(파일이 있나로만 거른다 · 콘솔과 같은 목록)', bb.indexOf('function lfNext(sg,f){ var o=playOrd(sg).filter(has)') > -1 && bb.indexOf('heard:heardMap(), now:nowS(), seg:sg') > -1);
       ok('B 쪽 오류 0', !c.errs.length, c.errs.slice(0, 3));
+    }
+    await c.ctx.close();
+  }
+  /* ── C [HEARD_RESET_1114] — 옛 판: 나가기 → 시작 뒤에도 들린 기록 7 → 7(① 빨강) ── */
+  if (want('C')) {
+    const c = await open('standard', ['B01', 'B24'].map((f, i) => [f, wav(30, 220 + i * 40)])); const R = await c.start();
+    if (!R || !(await hooks(c)) || c.put < c.need || !(await c.pg.evaluate(() => !!(window.__esdT && window.__esdT.panic && window.__bgmGo.tap && document.getElementById('bMute') && document.getElementById('bExit'))))) skip('C — 콘솔 점검 고리 · 단추(음악만 멈춤 · 나가기)를 못 찾았다');
+    else {
+      await c.fire(R.findIndex((x) => x.k === 'guest')); await c.playing('M1');
+      const big = () => c.pg.evaluate(() => { const h = window.__heard(); return Object.keys(h).filter((f) => h[f] && h[f].sec >= 20).sort(); });
+      await c.pg.evaluate(() => { const n = performance.now() / 1000, h = {}; ['B01', 'B24', 'B13', 'B05', 'B09', 'B10', 'B15'].forEach((f, i) => { h[f] = { t0: n - 3000 + i * 300, seg: i < 3 ? 'M1' : 'M4', sec: 200, last: n - 2800 + i * 300, lseg: i < 3 ? 'M1' : 'M4' }; }); window.__heardSet(h); });
+      const h0 = await big();
+      await c.pg.evaluate(() => { document.getElementById('bMute').click(); }); await c.pg.waitForTimeout(500); await c.pg.evaluate(() => { document.getElementById('bMute').click(); }); await c.pg.waitForTimeout(300); const h1 = await big();   /* 음악만 멈춤 → 다시 */
+      await c.pg.evaluate(() => { window.__esdT.panic(); }); await c.pg.waitForTimeout(400); await c.pg.evaluate(() => { window.__bgmGo.tap(); }); await c.pg.waitForTimeout(500); const h2 = await big();   /* 전체 정지 → GO */
+      c.pg.once('dialog', (d) => d.accept()); await c.pg.click('#bExit'); await c.pg.waitForTimeout(400); await c.pg.click('#go'); await c.pg.waitForTimeout(700); const h3 = await big(), st = await c.pg.evaluate(() => window.__bgmSt());
+      const rC = { 넣은기록: h0.length, 멈춤다시뒤: h1.length, 정지GO뒤: h2.length, 나가기시작뒤: h3.length, 남은곡: h3, 새판큐: st.cur };
+      console.log('  재 본 값 C', JSON.stringify(rC));
+      if (h0.length !== 7) skip('C — 들린 기록을 넣지 못했다 ' + JSON.stringify(rC));
+      else {
+        ok('C ① «■ 나가기 → 시작» 뒤 앞 판의 들린 곡 기록이 0 [HEARD_RESET_1114]', h3.length === 0 && st.cur === -1, rC);
+        ok('C ② 음악만 멈춤 → 다시 · 전체 정지 → GO 는 들린 기록을 지우지 않는다', h1.length === 7 && h2.length === 7, rC);
+      }
+      ok('C 쪽 오류 0', !c.errs.length, c.errs.slice(0, 3));
     }
     await c.ctx.close();
   }

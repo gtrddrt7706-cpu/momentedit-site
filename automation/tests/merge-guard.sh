@@ -23337,3 +23337,6 @@ nochk 'segListOf(id, cur).filter(have);' console.html   # 옛 줄 — 빌려 온
 chk 'function segSel(id, cur, play){' console.html 1
 chk 'var s = segSel(id, cur, 1), d0 = segDef(id);' console.html 1
 chk 'TABLE_BORROW_PLAY_1114' scripts/audit/console-bed-1114.mjs 3
+chk 'HEARD_RESET_1114' console.html 1   # 새로 시작(시작 · 끝난 뒤 다시 · 나가기)하면 들린 곡 기록을 비운다 — 리허설 기록이 본 예식 테이블 인사 차례를 바꾸지 않게
+chk '^  HEARD = {};$' console.html 1
+chk 'HEARD_RESET_1114' scripts/audit/console-bed-1114.mjs 3

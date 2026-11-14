@@ -1645,6 +1645,9 @@ var blkNow = '', blkFresh = false;        // 블록 머리말은 블록이 바�
 function resetRun(){
   cur = -1; phase = 'idle'; fired = {}; CLK_SKIP = {}; GONE_SIG = ''; shown = {}; liveT0 = 0; RESCUED = []; TAKE_USED = {}; STALL = -1; MAN_HOLD = false;   // [STALL_HOLD_CLOCK] 새로 시작하면 앞 판의 멈춤은 걷는다
   castNow = null; blkNow = ''; blkFresh = false;
+  /* ★[HEARD_RESET_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 검증 07] 새로 시작하면 들린 곡 기록(HEARD · REPEAT_FIX_1107 ①)을 비운다 — 종전엔 같은 탭에서 «■ 나가기 → 시작»(리허설 뒤 본 예식)을 해도 앞 판 기록이 남아
+       아무 곡도 안 들린 새 판의 테이블 인사 목록 차례가 달라졌다(들린 기록 8 → 8 그대로) · 이 함수는 시작 · 끝난 뒤 다시 · 나가기에서만 불린다(음악만 멈춤 · 전체 정지 → GO 는 기록을 그대로 둔다) */
+  HEARD = {};
 }
 
 /* ★ALT_CLIP — 바로 앞 사람 구간이 overSec을 넘었으면 문안을 바꿔 내보낸다.
