@@ -4817,6 +4817,9 @@ chk "freeVideo:\['식중 영상은 어디로 보내나요?'" order-preview.html 
 nochk '보내는 방법은 상담 때 안내' index.html 0
 nochk '보내는 방법은 상담 때 안내' api/_kb.js 0
 nochk '영상 속 노래는 「식전 영상」으로 담는다' api/_ritual-kb.js 0
+chk '식중 영상(선택 · 2026-11-06 사장님 결정): 본식 중 «영상» 자리에 두 분이 준비한 영상을 틀 수 있다' api/_kb.js 1
+chk '예식 7일 전 23:59까지 확정하며' api/_kb.js 1   # [GPT 4-34] 홈 AI 도 마감 시각을 안다
+chk '마이페이지 «식중 영상»에 링크를 보내고 미리 본 뒤 예식 7일 전 23:59까지 확정하면 상영해요' api/_ritual-kb.js 1   # [GPT 3-27 · 4-35] 공개 · 계약 고객 공통 · 그대로 읽어도 되는 말
 chk "_recordHandler(code, _pvName_(kind) + ' 동의 · 처리방침 ' + ver)" automation/platform/89_prevideo.gs 1   # [GPT 1-03] 처리이력 = 동의한 처리방침 날짜
 chk 'MID_OPEN_1114' mypage.html 1
 chk 'MID_OPEN_1114' scripts/audit/midvideo.mjs 8
