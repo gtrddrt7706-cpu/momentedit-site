@@ -1328,13 +1328,16 @@ function bedPlay(sid, xf, at){ if (!SEGF[sid]) return false;
      고침 = 청한 크기가 −60 아래면 정적으로 본다 · 아직 들리는 크기에서 내려가던 중이면 바로 끊지 않고 0.5초에 걸쳐 끈다(HUSH_SOFT · 정적으로 가던 길을 줄인 것) · 결정 기록 NO_RELIFT_1102 */
 var HUSH_SOFT = 0.5;
 function bedHush(){ if (BED.mode !== 'seg') return; if (!gBgm || !AC) { bedHushFb(); return; } var off = 20 * Math.log10(Math.max(1e-6, gBgm.gain.value)) <= -60, soft = !off && duckWant != null && duckWant <= -60; if (!off && !soft) return;
-  var t = AC.currentTime, on = BED.on, n = 0; BED.hushEnd = soft ? Date.now() + HUSH_SOFT * 1000 : 0;
+  var t = AC.currentTime, on = BED.on, n = 0, sk = []; BED.hushEnd = soft ? Date.now() + HUSH_SOFT * 1000 : 0;
   for (var k = 0; k < BED.el.length; k++) { var el = BED.el[k], g = BED.xg[k]; if (!el || !g || el.paused || !el.getAttribute('src')) continue;
-    if (soft) { xfCurve(g.gain, 0.0001, HUSH_SOFT, t); if (k === on) { BED.hushK = k; n++; } continue; }   /* [NO_RELIFT_WANT_1115] 잦아들던 재생기는 제 타이머가 멈춘다 */
+    if (soft) { xfCurve(g.gain, 0.0001, HUSH_SOFT, t); if (k === on) { BED.hushK = k; n++; } else sk.push([k, BED.gen[k]]); continue; }   /* [NO_RELIFT_WANT_1115] 잦아들던 재생기는 제 타이머가 멈춘다 */
     try { g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(0.0001, t); } catch (e) {}
     if (k === on) { BED.hushK = k; n++; continue; }
     try { el.pause(); } catch (e) {} BED.gen[k] = (BED.gen[k] || 0) + 1; BED.fade[k] = 0; }   /* 잦아들던 재생기 — 멈추고 비운다 */
-  if (n) { clearTimeout(BED.hushT); BED.hushT = setTimeout(bedUnhush, BED_OPEN_MS * 2 + 600); } }   /* 어느 길로도 새 곡이 자리를 못 잡으면(정지 · 버려진 요청) 마지막에 한 번 되돌린다 */
+  if (n) { clearTimeout(BED.hushT); BED.hushT = setTimeout(bedUnhush, BED_OPEN_MS * 2 + 600); }
+  /* ★[HUSH_SOFT_FREE_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 04] 0.5초에 다 끈 뒤 — 지금 곡 밖의 조용해진 재생기(잦아들던 겹침)를 비우고 미뤄 둔 요청을 바로 낸다(그사이 새 곡이 그 재생기를 받았으면 BED.gen 이 달라 손대지 않는다).
+       종전: 세 곡 겹침 중 정적으로 내리다 다른 구간으로 점프하면 세 대가 모두 −95 dB 아래인데 옛 겹침의 자리 예약(BED.fade)이 남아 새 요청이 2.5초(본식 8초 겹침이면 더) 늦게 나갔다 · 결정 기록 NO_RELIFT_WANT_1115 · DETAIL_R3_1101 ③ */
+  if (sk.length) setTimeout(function(){ sk.forEach(function(q){ var j = q[0]; if (BED.gen[j] !== q[1] || j === BED.on) return; try { BED.el[j].pause(); } catch (e) {} BED.gen[j] = (BED.gen[j] || 0) + 1; BED.fade[j] = 0; }); if (!BED.fade.some(function(x){ return x > Date.now(); })) BED.xing = 0; bedLater(); }, HUSH_SOFT * 1000 + 30); }   /* 어느 길로도 새 곡이 자리를 못 잡으면(정지 · 버려진 요청) 마지막에 한 번 되돌린다 */
 /* ★[NO_RELIFT_FB_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 03] Web Audio 가 없는 대체 경로(el.volume)에도 같은 «차단» — 종전엔 hush 가 gain 마디(BED.xg)를 전제로 해 아예 안 걸려,
      정적 뒤 새 곡을 여는 동안 다음 크기 명령(그 큐의 −15 등)이 bedVolFb 로 옛 재생기 볼륨을 바로 올렸다(화촉 곡을 여는 데 1.5초 · 하객 맞이 곡 −11.1 dB 1.6초) · 꺼 둔 재생기는 bedVolFb 가 0 으로 둔다(BED.hushK) · 되돌림은 bedUnhush 그대로 */
 function bedHushFb(){ var on = BED.on, el = BED.el[on]; if (!el || el.paused || !el.getAttribute('src') || !(duckG <= 0.001 || (duckWant != null && duckWant <= -60))) return;
