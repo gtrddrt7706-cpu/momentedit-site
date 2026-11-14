@@ -2341,6 +2341,15 @@ chk 'IG_GAP' index.html 1                                # 기록 갤러리 세�
 chk 'IG_MARK' index.html 1                               # 제목 옆 인스타 마크 하나 · 빼면 '@momentedit.kr'이 세리프에선 홈페이지 주소로 읽힌다(.kr 때문에 특히)
 chk 'archive-grid-ig' index.html 14                      # 사진 9장 우상단 마크(마크업 9 + CSS) · 정중앙 흰 원으로 되돌리면 인물 얼굴 위에 다시 얹힌다
 chk 'DM_FOOT_SIGN' index.html 1                          # 편지 맺음 = 이름(Moment Edit) 위 · 문장 아래 · 메일 없음 · 되돌리면 금색(대비 2.3) 문구가 위로 서고 연락처가 편지 안에 다시 들어온다
+# ── 순서 묶음 [HOME_ORDER_1114] (2026-11-14 INSTA 보고 1 · 대본 판정 · 번호마다 커밋 하나 — 빼려면 그 커밋만 revert)
+chk 'CTA_PLACE_OWNER_1114' index.html 1                # S-1 은 2026-11-14 사장님이 뺌 — 가격 구간 상담 버튼은 스냅 표 아래(구간 끝) 그대로
+nochk 'CTA_NEAR_PRICE_1114' index.html
+chk 'RSVP_CTA_UP_1114' index.html 1                    # S-2 RSVP 상담 버튼 = 3단계 뒤 · 약관 앞 · 되돌리면 구간 머리에서 버튼까지 1,626px
+chk 'mm-ko">상담 예약' index.html 1                      # S-4 폰 전체 메뉴 한글 = 구간 머리 · 버튼과 같은 말
+nochk 'mm-ko">사전 문의' index.html
+chk '두 개의 공간 · 촬영 예시' index.html 1               # S-5 공간 카드 라벨에 «촬영 예시» · 아카이브([H4_10])와 같은 자리 · 같은 모양
+# [HOME_ORDER_1114] 표식만 남고 자리가 되돌아가는 것을 막는다 — 표식이 있을 때만 줄 순서를 본다(그 번호만 revert 하면 이 검사도 조용히 빠진다).
+if grep -q 'RSVP_CTA_UP_1114' index.html; then _ho2=$(awk '/<section id="rsvp">/{r=NR} r&&/class="cta-btn"/{if(!b)b=NR} r&&/class="terms-block"/{if(!t)t=NR} END{print (r&&b&&t&&b<t)?"ok":"bad"}' index.html); if [ "$_ho2" = ok ]; then echo 'ok [HOME_ORDER_1114] S-2 RSVP 버튼이 약관 위'; else echo 'REVERT? index.html: [RSVP_CTA_UP_1114] 표식은 있는데 RSVP 상담 버튼이 약관 아래에 있다'; fail=1; fi; fi
 # ── 편지 전달 점검 (2026-08-03 사용자 "편지 전달되는 부분 점검해보자 시스템이나 연동이나 디자인부분도")
 # ★[LETTER_MERGED 2026-09-25] 위·아래 편지 검사 중 guest-letter-webhook.gs·form-to-couple.gs 를 보던 줄은 옮겼다 —
 #   옛 Letter System 을 본 프로젝트 87_letter.gs 로 합치면서 옛 파일을 은퇴시켰다. 같은 표식(LETTER_RATE·DELIVERED·PLAIN·
@@ -11617,6 +11626,22 @@ chk 'LETTER_PREVIEW_PAPER' live.html 1
 chk '^\.letter-preview \.lp-message-box{' live.html 1
 chk '<span class="lf-mark" aria-hidden="true">From.</span>' live.html 2
 chk 'NAV_FOCUS_BG' index.html 1
+# ── [HALLMARK_FIX_1114 묶음 1] 화면 점검(docs/design-audit-20261114.md)에서 넣기로 한 것 — 되돌리면 겹침 · 줄 꺾임 · 머리 줄 덜컥임이 돌아온다 ──
+chk 'NAV_BG_NONE_OWNER_1114' index.html 1               # H-1·2 는 2026-11-14 사장님이 뺌 — PC 평소 메뉴는 바탕 없이(되살리면 빨강)
+nochk 'NAV_SOLID_BG_1114' index.html
+chk 'CTA_NARROW_1114' index.html 1                      # H-3 폰 360 전환 CTA 한 줄(좌우 여백만 24px · 글자 격은 CTA_TYPE_QUIET 그대로)
+chk 'GA_TAB_NARROW_1114' index.html 1                   # H-4 폰 360 탭 한 줄(좌우 여백 10px)
+chk 'FAQ_EG_GRID_1114' index.html 1                     # H-5 칩 넷이 한 줄에 안 들어가는 폭(389 이하)은 2 × 2
+chk 'STEP_ROW_STILL_1114' order-preview.html 1          # O-1 순간을 담아도 단계 줄 · 제목이 움직이지 않는다
+# ── HALLMARK FIX 묶음 2 (2026-11-14 · 결정 기록을 먼저 대조하고 넣은 것만)
+chk 'ACCESS_ADDR_WRAP_1114' index.html 1               # H-6 폰 주소 줄 — ↗ 는 주소 뒤 · 안내문은 주소 첫 글자에 맞춤
+chk 'ACCESS_LABEL_11_1114' index.html 1                # H-7 오시는 길 라벨 11px(실제 안내 표 · 목업 예외 아님)
+chk 'BIZNO_NOWRAP_1114' index.html 1                   # A-3 사업자등록번호가 줄 끝에서 끊기지 않는다
+chk 'GV_DOT_SEEN_1114' invitation-gallery.html 1       # A-2 안 고른 점 3:1 이상
+chk 'GV_OPEN_INSET_1114' invitation-gallery.html 1     # I-2 OPEN 알약 = 프레임 모서리에서 14px(아래는 카드 여백 10px 을 더한 24px)
+nochk '#gv-open-new{bottom:14px;right:14px}' invitation-gallery.html
+chk '.op-steps li:has(> .op-stepb){padding-top:0}' order-preview.html 1
+chk '.op-steps{min-height:46px}' order-preview.html 1
 chk 'CC_BTN_TRACK' mypage.html 1
 nochk 'letter-spacing:\.16em;background:#4E3F31' mypage.html
 chk 'SKILL_SEATED30' .claude/skills/momentedit-design/SKILL.md 1
@@ -23224,3 +23249,6 @@ chk '_tblWatch(_tb0); };' order-preview.html 1
 chk 'RA5_TABLE_NOTE' scripts/audit/toast-min.mjs 1
 chk 'RA5_RULES' scripts/audit/ra5-rules.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/ra5-rules.mjs >/dev/null 2>&1; _ra5=$?; node scripts/audit/ra5-rules.mjs --selftest >/dev/null 2>&1; _ra5s=$?; if [ "$_ra5" = 2 ]; then echo 'ok ra5-rules — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_ra5" != 0 ] || [ "$_ra5s" != 0 ]; then echo "REVERT? ra5-rules: 미리 듣기 페이드 · 테이블 인사 지문 · 줄임 알림이 어긋났습니다 ($_ra5/$_ra5s) — node scripts/audit/ra5-rules.mjs"; fail=1; else echo 'ok ra5-rules'; fi; fi
+# ★[CI_RUNNER_2404 11/10] CI 러너 24.04 고정 — ubuntu-latest(26.04)는 Playwright 1.56.1 브라우저 설치 실패 · ffmpeg 없음으로 bgm-sound 5칸 · guard 소리 검사가 테스트 전에 떨어졌다(PR #1647)
+chk 'runs-on: ubuntu-24.04   # ★\[CI_RUNNER_2404' .github/workflows/merge-guard.yml 2
+nochk 'runs-on: ubuntu-latest' .github/workflows/merge-guard.yml
