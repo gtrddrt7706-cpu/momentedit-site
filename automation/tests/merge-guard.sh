@@ -11612,6 +11612,13 @@ chk 'CTA_NARROW_1114' index.html 1                      # H-3 폰 360 전환 CTA
 chk 'GA_TAB_NARROW_1114' index.html 1                   # H-4 폰 360 탭 한 줄(좌우 여백 10px)
 chk 'FAQ_EG_GRID_1114' index.html 1                     # H-5 칩 넷이 한 줄에 안 들어가는 폭(389 이하)은 2 × 2
 chk 'STEP_ROW_STILL_1114' order-preview.html 1          # O-1 순간을 담아도 단계 줄 · 제목이 움직이지 않는다
+# ── HALLMARK FIX 묶음 2 (2026-11-14 · 결정 기록을 먼저 대조하고 넣은 것만)
+chk 'ACCESS_ADDR_WRAP_1114' index.html 1               # H-6 폰 주소 줄 — ↗ 는 주소 뒤 · 안내문은 주소 첫 글자에 맞춤
+chk 'ACCESS_LABEL_11_1114' index.html 1                # H-7 오시는 길 라벨 11px(실제 안내 표 · 목업 예외 아님)
+chk 'BIZNO_NOWRAP_1114' index.html 1                   # A-3 사업자등록번호가 줄 끝에서 끊기지 않는다
+chk 'GV_DOT_SEEN_1114' invitation-gallery.html 1       # A-2 안 고른 점 3:1 이상
+chk 'GV_OPEN_INSET_1114' invitation-gallery.html 1     # I-2 OPEN 알약 = 프레임 모서리에서 14px(아래는 카드 여백 10px 을 더한 24px)
+nochk '#gv-open-new{bottom:14px;right:14px}' invitation-gallery.html
 chk '.op-steps li:has(> .op-stepb){padding-top:0}' order-preview.html 1
 chk '.op-steps{min-height:46px}' order-preview.html 1
 chk 'CC_BTN_TRACK' mypage.html 1
