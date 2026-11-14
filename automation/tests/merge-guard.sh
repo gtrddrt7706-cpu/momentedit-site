@@ -23359,3 +23359,8 @@ chk 'PV_FIX_1114' scripts/audit/pv-fix-1114.mjs 1   # 검사 머리 이름(묶�
 chk 'SONG_OPEN_FADE_PV_1114' assets/bgm-bed.js 2
 chk "if(_pm>0){ LPB.arr={ v:BED.cur, st:nx }; ramp(BED.cur,db,_pm); return; } }" assets/bgm-bed.js 1
 chk 'SONG_OPEN_FADE_PV_1114' scripts/audit/pv-fix-1114.mjs 1
+# ★★[ENTRY_HOOK_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 후보 ③] 미리 듣기 · 연습 — 화촉 직후 입장(뜸 없는 길)은 입장 곡 시작 자리에서 «먼저 흐른 6초»를 빼지 않는다(구호 말끝 0.3초 뒤가 강조 자리 · 종전 5.3초) · 뜸 있는 길은 종전 셈 · 소리는 pv-fix-1114 ③ 이 잰다
+chk 'ENTRY_HOOK_PV_1114' assets/bgm-bed.js 2
+chk "if(st0){ var c0=callOf(st0,x); t=x.H-c0.hd-c0.v-0.3; } else t=x.H-6-(x.V!=null?x.V:15)-0.3; }" assets/bgm-bed.js 1
+chk "startVoice(f,lvOf(q2,f),1500,entAt('entry',st));" assets/bgm-bed.js 1
+chk 'ENTRY_HOOK_PV_1114' scripts/audit/pv-fix-1114.mjs 1

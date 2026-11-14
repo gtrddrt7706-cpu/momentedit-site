@@ -134,8 +134,15 @@
   /* 입장 곡 크기 — 말 아래(under) · 큐 사이(intro) · 크게(0 · 축배와 같은 크기 자리) 에 BED_TRIM · 곡 gain(−12 LUFS) */
   function entGf(x){ return function(db){ if(db<=-80) return 0.00003; var d=db>=-0.5?0:(db>=PR().music-0.5?x.intro:x.under); return x.gain*Math.pow(10,(d+x.trim)/20); }; }
   /* 곡 판 안의 시작 자리(초) — 입장(이어 듣기) = 문 열림에 멘트 끝이 닿게(뜸 6초 + 멘트 + 숨 0.3초 앞) · 맞절 = 도착(H + 60) */
-  function entAt(k){ var o=BUF[ENT_F], x=o&&o.ext; if(!x) return 0; var t;
-    if(k==='entry'&&!entRest()) t=x.H-6-(x.V!=null?x.V:15)-0.3; else { var need=entNeed(k); t=x.arrive; if(t+need>x.end) t=x.end-need; }   /* [ENTRY_UNDER_1101] ② */
+  /* ★★[ENTRY_HOOK_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 후보 ③] 뜸 없는 길(화촉 직후 · ENTRY_HUSH — 입장 곡이 무음에서 구호와 같은 순간에 시작)은 «먼저 흐른 6초»를 빼지 않는다.
+       종전: 이 길도 «뜸 6초 + 구호 + 0.3초 앞»(H − 6 − V − 0.3)에서 시작 — 뜸이 없으니 강조 자리(문 열림 H)가 구호 끝 5.3초 뒤(설계 0.3초 · 구호 길이를 모르면 15초로 어림해 1.4초 뒤).
+       고침 = 그 구호 줄(st0)을 받으면 «구호 말끝 + 0.3초 = 강조 자리»가 되게 — 구호 말 길이는 실제로 트는 그 파일(받은 길이 − 앞 · 뒤 무음 NarrPad) · 표에 없는 소리(두 분 목소리)는 장면이 잰 V · 그것도 없으면 받은 길이 ·
+             파일 앞 무음만큼 더 늦게(말끝 기준) · 입장 곡 · 구호가 함께 시작하는 것, 화촉 곡 2초 내림 + 정적 1초(ENTRY_HUSH) · 연습 입장 준비 5초(PR_WAY_198 ⑩)는 그대로.
+       뜸 있는 길(앞 곡 없이 입장부터 · st0 없음)은 종전 셈 그대로 · 검사 scripts/audit/pv-fix-1114.mjs ③ */
+  function callOf(st0,x){ var d=st0&&st0.src?DUR[st0.src]:0, pd=null; try{ if(st0&&st0.file&&String(st0.src||'').indexOf(st0.file)>-1&&window.NarrPad) pd=NarrPad.of(st0.file); }catch(e){}
+    if(pd&&d>0) return { hd:pd[0]/1000, v:Math.max(0.5,d-(pd[0]+pd[1])/1000) }; return { hd:0, v:x.V!=null?x.V:(d>0?d:15) }; }
+  function entAt(k,st0){ var o=BUF[ENT_F], x=o&&o.ext; if(!x) return 0; var t;
+    if(k==='entry'&&!entRest()){ if(st0){ var c0=callOf(st0,x); t=x.H-c0.hd-c0.v-0.3; } else t=x.H-6-(x.V!=null?x.V:15)-0.3; } else { var need=entNeed(k); t=x.arrive; if(t+need>x.end) t=x.end-need; }   /* [ENTRY_UNDER_1101] ② */
     t=Math.max(x.o,Math.min(t,x.end-1)); return t-x.o; }
   function atOf(f,st){ if(BED.cur.f===f&&BED.cur.src) return 0; if(f===ENT_F) return entAt(st&&st.k); if(LPB.keep[f]!=null) return LPB.keep[f]; try{ if(st&&!entMulti()&&dayAt(st.k)===f&&ordOf('M4').filter(has)[0]!==f) return hookOf(f); }catch(x){} return 0; }   /* ★[SCREEN_SOUND_1102 2] 순간 하나 = 당일 시간표 그 자리 곡 · 목록 둘째 곡부터는 강조 자리에서(당일 목록이 넘길 때와 같다) · 첫 곡은 처음(0초) */
 
@@ -416,7 +423,7 @@
       if(v.want>db+0.5) setTimeout(function(){ if(BED.cur===v&&LPB.on&&curStep()===st) ramp(v,db,p.down); },Math.max(0,ms-p.down-p.aft)); };   /* ★[LAYER7_DUCK_1108] 뜸 끝 — 1.6초에 말 아래로 · 다 낮아진 뒤 0.4초에 첫 말(종전 0.8초) */
     /* ★[MEANING_R2_1102 ENTRY_HUSH] 입장 첫 줄 — 흐르던 화촉 곡을 2초에 −90 → 정적 1초 → 입장 곡은 무음에서 입장 구호 아래(그 줄 크기 −12 · 뜸 없음) · 두 곡이 겹치는 자리 0 */
     if(f===ENT_F&&st.k==='entry'&&BED.who==='lp'&&BED.cur.src&&BED.cur.f!==ENT_F){ var _v0=BED.cur, _tkh=++LPB.lt; LPB.on=true; if(_v0.want>-60) ramp(_v0,-90,2000); if(!BUF[f]) want(f);
-      setTimeout(function(){ if(LPB.lt!==_tkh) return; var q=curStep(); if(!q||q.k!=='entry') return; var _put=function(){ var q2=curStep(); if(LPB.lt!==_tkh||!q2||q2.k!=='entry'||!(BUF[f]&&BUF[f].st==='ok')) return; var nv=startVoice(f,lvOf(q2,f),1500,atOf(f,q2)); if(!nv) return; if(BED.cur.src) stopVoice(BED.cur,200); BED.cur=nv; LPB.f=f; BED.who='lp'; };
+      setTimeout(function(){ if(LPB.lt!==_tkh) return; var q=curStep(); if(!q||q.k!=='entry') return; var _put=function(){ var q2=curStep(); if(LPB.lt!==_tkh||!q2||q2.k!=='entry'||!(BUF[f]&&BUF[f].st==='ok')) return; var nv=startVoice(f,lvOf(q2,f),1500,entAt('entry',st)); if(!nv) return;   /* [ENTRY_HOOK_PV_1114] 뜸 없는 길 — 구호 말끝 0.3초 뒤가 강조 자리 */ if(BED.cur.src) stopVoice(BED.cur,200); BED.cur=nv; LPB.f=f; BED.who='lp'; };
         if(BUF[f]&&BUF[f].st==='ok') _put(); else want(f,function(b){ if(b) _put(); }); },3000);
       return 3000; }
     if(BUF[f]&&BUF[f].st==='ok'){ go(); return ms; }
