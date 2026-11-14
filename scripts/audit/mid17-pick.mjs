@@ -170,6 +170,7 @@ try {
       try { opGoStep('listen'); mkGo('free'); } catch (e) { out.err = e.message; } await w(700);
       const head = document.getElementById('mkHead') || document.querySelector('.mk h3, .mk h2');
       out.head = head ? head.textContent : ''; const fl = document.querySelector('[data-fk="freelen"]');
+      out.my = ((document.querySelector('.mk-pvmy') || {}).textContent || '').replace(/\s+/g, ' ').trim();   /* [VIDEO_NAME_1114] «어디서 준비하나» 한 덩어리 */
       out.len = !!fl; out.note = fl ? ((fl.closest('.ls-cg') || {}).textContent || '') : '';
       out.what = [...document.querySelectorAll('.ls-cg .gl')].map((e) => e.textContent);
       out.gift = /깜짝 선물/.test((document.querySelector('.mk') || document.body).textContent);
@@ -189,6 +190,7 @@ try {
     ok(W + ' [MID17_TIME] ② 길이 칸 1 · 5 · 10분 → 본식 · 단체 사진 띠가 바뀌고 합은 늘 40분(' + [1, 5, 10].map((L) => L + '분 본식 ' + (q.t[L] || {}).body + ' · 사진 ' + (q.t[L] || {}).photo).join(' | ') + ')',
       [1, 5, 10].every((L) => q.t[L] && q.t[L].v === String(L) && !q.t[L].ask && q.t[L].sum === 40) && q.t[5].hi - q.t[1].hi === 240 && q.t[10].hi - q.t[5].hi === 300, q.t);
     ok(W + ' [MID17_TIME] 길이 칸으로 바꾼 값 = 엔진에 바로 넣은 값(같은 셈)', q.same);
+    ok(W + ' [VIDEO_NAME_1114] ② 식중 영상 칸 아래 «식중 영상 · 기한 · 마이페이지 «식중 영상»에서 준비해요»(식전 영상과 같은 한 덩어리)', /^식중 영상/.test(q.my) && /예식 7일 전/.test(q.my) && /마이페이지 «?식중 영상»?에서 준비해요/.test(q.my), q.my);
     ok(W + ' [MID17_TIME] 정석 + 식중 영상 10분 = 40분 예산 밖 → 막힘(길이 그대로 3분)', q.cap.v === '3' && /이 길이로 하려면/.test(q.cap.ask), q.cap);
     ok(W + ' [MID17_PREP] 식중 영상 날 준비 목록 빈 칸 · 한눈에 보기에 옛 «준비한 순서 영상(휴대폰…)» · «준비한 순서 파일» 없음', q.prep === '[]' && !q.sum.old && !q.sum.file, { p: q.prep, s: q.sum });
     if (SHOT) { await pg.evaluate(async () => { const R = RitualOpen; R.applyExample(S, 'brief'); S.on.free = 1; S.freeWhat = 'video'; S.freeLen = '5'; opSync(); try { mkGo('free'); } catch (e) {} }); await wait(800);

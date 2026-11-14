@@ -5491,10 +5491,10 @@ function _mkCopied(key){ var cp=(MK.copied&&MK.copied.k===key)?MK.copied:null; r
 function _mkCopyTo(key,t,msg){ var done=function(ok){ MK.copied={k:key,ok:ok,msg:msg}; clearTimeout(MK.copiedT); MK.copiedT=setTimeout(function(){ MK.copied=null; document.querySelectorAll('.mk-copied').forEach(function(e){ e.textContent=''; e.classList.remove('bad'); }); },6000); render(); };
   try{ navigator.clipboard.writeText(t).then(function(){ done(true); },function(){ done(false); }); }catch(e){ done(false); } }
 window.mkAskCopyPage=function(k){ var qs=_mkItems(k).filter(function(q){ return q.cat==='ask'; }); if(qs.length) _mkCopyTo('ask:'+k,_mkAskText(qs),'복사됐어요 · 부모님께 카톡으로 붙여 보내세요'); };
-function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddingDate)||'', c=_mkChk(), pvMy=k==='prevideo'&&R.onOf(S,k); if(!items.length&&!pvMy) return '';   /* [PV_MYPAGE_1102] 식전 영상은 할 일이 없어도 «어디서 준비하나» 한 덩어리는 그린다 */
+function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddingDate)||'', c=_mkChk(), pvMy=k==='prevideo'&&R.onOf(S,k), mvMy=k==='free'&&R.onOf(S,'free')&&R.FREE_KIND[R.chipOf('free',S)]==='video'; if(!items.length&&!pvMy&&!mvMy) return '';   /* [VIDEO_NAME_1114] 식중 영상도 «어디서 준비하나» 한 덩어리(마이페이지 «식중 영상») */   /* [PV_MYPAGE_1102] 식전 영상은 할 일이 없어도 «어디서 준비하나» 한 덩어리는 그린다 */
   var h='', gn=(R.onOf(S,k)?_lGroups(k):[]).map(function(g){ return (g.unote||'')+' '+(g.tip||''); }).join(' ');   /* [NOTE_TOAST] 덧말(note)은 칩 아래에 없다 — 보이는 줄만 겹침으로 친다 */
   var ups=items.filter(function(q){ return q.up; }); if(ups.length) h+=_mkVoice(k,ups,wed);
-  if(pvMy) h+=_pvMyRow(wed);   /* ★[PV_MYPAGE_1102] 링크 칸 대신 마이페이지 «식전 영상» 안내 한 덩어리 — 되살리지 말 것 */
+  if(pvMy) h+=_pvMyRow(wed); if(mvMy) h+=_pvMyRow(wed, RitualOpen.MID_NAME);   /* [VIDEO_NAME_1114] 식중 영상 — 같은 모양 · 이름 · 기한(예식 7일 전)은 식전 영상과 같다 */   /* ★[PV_MYPAGE_1102] 링크 칸 대신 마이페이지 «식전 영상» 안내 한 덩어리 — 되살리지 말 것 */
   ['ask','send','bring'].forEach(function(cat){ var qs=items.filter(function(q){ return q.cat===cat&&!q.up; }); if(!qs.length) return;
     var hd=(cat==='ask'&&qs.every(function(q){ return q.who==='parents'; }))?'부모님께 부탁드릴 것':cat==='bring'?'당일 챙길 것':MK_CAT[cat];
     if(cat==='ask'&&qs.every(function(q){ return _askScript(q)&&c[q.id]==='site'; })) hd=_askScript(qs[0]).hd;   // [SPEECH_SCRIPT] 축사도   /* [R8-05] «원고 없이»면 부탁할 것이 없다 — 빈 «부모님께 부탁드릴 것» 아래 체크칸만 남아 무엇이 빠진 화면처럼 읽혔다 */
@@ -5526,8 +5526,8 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
   return h; }
 /* ★★[PV_MYPAGE_1102 2026-11-02 사장님 «여기도 개선해야지 최신화 · 저기서 영상을 받을 필요도 없잖아»] 식전 영상은 마이페이지 «식전 영상» 카드에서 준비하고 받는다(협력사 연결형 · [PV_PARTNER_1101]).
    식순에는 링크 칸을 두지 않는다 — 이름 · 기한 한 줄([PV_SEND_ONE] 모양) + «어디서» 한 줄. 받는 곳이 둘이면 두 분이 어디에 보냈는지 헷갈리고 준비 목록이 두 번 셌다. */
-function _pvMyRow(wed){ return '<section class="mk-sec mk-prep mk-send1 mk-pvmy"><ul class="mk-vlist"><li class="mk-vr"><span class="mk-vt"><span class="mk-vn">식전 영상</span><span class="mk-vs">'+esc(_ndd(RitualOpen.dueWord({due:7},wed)))+'</span></span></li>'
-  +'<li class="mk-vx"><p class="mk-note mk-pvmyt">마이페이지 «식전 영상»에서 준비해요</p></li></ul></section>'; }
+function _pvMyRow(wed, nm){ nm=nm||'식전 영상'; return '<section class="mk-sec mk-prep mk-send1 mk-pvmy"><ul class="mk-vlist"><li class="mk-vr"><span class="mk-vt"><span class="mk-vn">'+esc(nm)+'</span><span class="mk-vs">'+esc(_ndd(RitualOpen.dueWord({due:7},wed)))+'</span></span></li>'
+  +'<li class="mk-vx"><p class="mk-note mk-pvmyt">마이페이지 «'+esc(nm)+'»에서 준비해요</p></li></ul></section>'; }   /* [VIDEO_NAME_1114] 식전 · 식중 같은 한 덩어리(nm) */
 function _pvOkTg(v){ var o=document.getElementById('mkPvOk'); if(o) o.style.display=_linkOk(v)?'':'none'; }
 function _linkOk(v){ return /^https?:\/\/[^\s\/?#]+\.[^\s\/?#]+\S*$/i.test(String(v||'').trim()); }   // [QA_LINK_HOST] 가운데 띄어쓰기도 아니다   /* ★[QA_LINK_HOST 2026-10-04 점검] «https://» 만 쳐도 «링크 받았어요»가 떴다 — 주소(점이 있는 이름)까지 있어야 */   /* [R1-44] 식전 영상 링크 «링크 받았어요» 표시를 다른 쪽에 다녀오지 않아도 바로 */
 /* ★★[RITUAL_FILE 2026-09-27 사장님 «여기서 파일을 바로 첨부 · 지금은 너무 지저분하니 디자인적으로 깔끔하게 · 첨부 안 되어 있으면 미완료»]

@@ -36,13 +36,17 @@ ok(C._mvcOn({}) === null, '식순이 아직 없으면 → 모름(null)');
 ok(C._mvcLen(rd(true, 'video', '5')) === 5 && C._mvcLen(rd(true, 'video', '99')) === 3, '길이 = 식순 길이 칸(1~10분 · 모르면 3분)');
 const row = (v, on, left) => { C.LEFT = left; return C._mvcRow(v, on); };
 let r = row({ st: '' }, false, 20);
-ok(r.done === true && r.label === '넣기' && r.tag === '선택', '꺼짐 → «넣기 · 선택» · 할 일 아님(done)', JSON.stringify(r));
+ok(r === null, '식순에 없음 → 줄 없음(고르지 않은 분께는 안 보임 · [VIDEO_NAME_1114] · 11/07 «넣기 · 선택» 걷음)', JSON.stringify(r));
+r = row({ st: '' }, null, 20);
+ok(r === null, '식순이 아직 없음 → 줄 없음 [VIDEO_NAME_1114]', JSON.stringify(r));
 r = row({ st: 'done' }, false, 20);
 ok(r.label === '보기' && r.tag === '식순 확인', '확정한 뒤 식순에서 빼면 «식순 확인»(«넣기»로 덮지 않는다 · 검토 1604-3)', JSON.stringify(r));
 r = row({ st: '', due: '2020-05-01' }, false, -2);
-ok(r.label === '보기' && r.tag === '기한 지남', '식순에 없고 기한도 지났으면 «넣기»를 권하지 않는다(재검토 1604)', JSON.stringify(r));
+ok(r === null, '식순에 없고 받은 것도 없으면 기한이 지나도 줄 없음 [VIDEO_NAME_1114]', JSON.stringify(r));
 r = row({ st: '', due: '2099-05-01' }, true, 10);
-ok(r.done === false && r.label === '올리기' && r.tag === '5월 1일까지', '미제출 → «올리기» · 14일 안이면 기한', JSON.stringify(r));
+ok(r.done === false && r.label === '시작하기' && r.tag === '5월 1일까지', '미제출 → «시작하기»(식전 영상 줄과 같은 말 · [VIDEO_NAME_1114]) · 14일 안이면 기한', JSON.stringify(r));
+r = row({ st: 'draft', due: '2099-05-01', d: { link: 'https://x' } }, true, 10);
+ok(r.label === '이어하기', '링크를 적다 두면 «이어하기»(식전 영상 줄과 같음)', JSON.stringify(r));
 r = row({ st: 'checking', due: '2099-05-01' }, true, 10);
 ok(r.done === false && r.tag === '스튜디오 확인 중', '제출 → «스튜디오 확인 중»', JSON.stringify(r));
 r = row({ st: 'review', due: '2099-05-01' }, true, 10);
@@ -114,11 +118,11 @@ ok(r && r.ok === false && r.consent === false && /식중 영상 동의가 필요
 { const R0 = RIT, S0 = J(store); RIT = { on: { free: 1 }, freeWhat: 'speech' };
   store['T1#mid'] = { d: { mode: 'upload', link: 'https://drive.google.com/x' }, m: { st: 'review', prev: { id: 'MVX' }, consent: { at: 'x' } } };
   const rc = save('confirm', null);
-  ok(rc && rc.ok === false && /먼저 골라 주세요/.test(rc.error || '') && store['T1#mid'].m.st === 'review', '식순에서 뺀 식중 영상은 서버도 확정하지 않는다(재검토 1604)', JSON.stringify(rc));
+  ok(rc && rc.ok === false && /«식중 영상»을 먼저 담아 주세요/.test(rc.error || '') && store['T1#mid'].m.st === 'review', '식순에서 뺀 식중 영상은 서버도 확정하지 않는다(재검토 1604)', JSON.stringify(rc));
   store = S0; RIT = R0; }
 { const R0 = RIT; RIT = { on: { free: 1 }, freeWhat: 'speech' };
   const rr = save('submit', { link: 'https://drive.google.com/x' }, { pvConsent: 1 });
-  ok(rr && rr.ok === false && /먼저 골라 주세요/.test(rr.error || ''), '식순이 영상이 아니면 서버도 보내기를 막는다', JSON.stringify(rr)); RIT = R0; }
+  ok(rr && rr.ok === false && /«식중 영상»을 먼저 담아 주세요/.test(rr.error || ''), '식순이 영상이 아니면 서버도 보내기를 막는다', JSON.stringify(rr)); RIT = R0; }
 r = save('submit', { link: 'https://youtu.be/x' }, { pvConsent: 1 });
 ok(r && r.ok === false && /유튜브/.test(r.error || ''), '유튜브 링크 → 거절', JSON.stringify(r));
 mails = []; folders = [];

@@ -231,7 +231,7 @@ function handlePvSave(body) { _gsr_();
         if (d.photos.length < PV_UP.min) return { ok: false, error: '사진은 ' + PV_UP.min + '장부터 만들 수 있어요.' };
         if (!d.song) return { ok: false, error: '곡을 골라 주세요.' };
       } else if (d.mode === 'upload') {
-        if (kind === 'mid' && _mvOn_(cust).on !== true) return { ok: false, error: '식순 «준비한 순서»에서 «영상»을 먼저 골라 주세요.' };   // [MID_VIDEO_1106 · 검토 1604] 화면이 막아도 서버가 한 번 더
+        if (kind === 'mid' && _mvOn_(cust).on !== true) return { ok: false, error: '식순에서 «식중 영상»을 먼저 담아 주세요.' };   // [VIDEO_NAME_1114] 이름 = 빌더 «식중 영상» 칸 · [MID_VIDEO_1106 · 검토 1604] 화면이 막아도 서버가 한 번 더
         if (!d.link) return { ok: false, error: '공유 링크를 넣어 주세요.' };
         if (_pvYoutube_(d.link)) return { ok: false, error: '유튜브 주소로는 원본을 받을 수 없어요 · 구글 드라이브나 업체 공유 링크로 보내 주세요' };
       } else return { ok: false, error: '준비 방법을 골라 주세요.' };
@@ -244,10 +244,10 @@ function handlePvSave(body) { _gsr_();
       var fUrl = 'https://drive.google.com/drive/folders/' + m.folder;
       mail = d.mode === 'make'
         ? ('식전 영상 만들기 요청 · ' + code + ' · 예식 ' + (wed || '-') + ' · 분위기 ' + d.style + ' · 곡 ' + d.song + ' · 사진 ' + d.photos.length + '장 · 확정 기한 ' + (due || '-') + ' · 다 만들면 폴더에 «미리보기»로 시작하는 이름의 영상을 넣어 주세요 · 폴더 ' + fUrl)
-        : ((kind === 'mid' ? '식중 영상 도착(식순 «준비한 순서» 자리) · ' : '준비한 식전 영상 도착 · ') + code + ' · 예식 ' + (wed || '-') + ' · 링크 ' + d.link + ' · 원본을 받아 재생을 확인한 뒤 폴더에 «미리보기»로 시작하는 이름으로 넣어 주세요 · 폴더 ' + fUrl);   // [MID_VIDEO_1106]
+        : ((kind === 'mid' ? '식중 영상 도착(덕담 뒤 · 축가 앞) · ' : '준비한 식전 영상 도착 · ') + code + ' · 예식 ' + (wed || '-') + ' · 링크 ' + d.link + ' · 원본을 받아 재생을 확인한 뒤 폴더에 «미리보기»로 시작하는 이름으로 넣어 주세요 · 폴더 ' + fUrl);   // [MID_VIDEO_1106]
     } else if (op === 'confirm') {
       if (st !== 'review' || !(m.prev && m.prev.id)) return { ok: false, error: '확정할 영상이 아직 없어요.' };
-      if (kind === 'mid' && _mvOn_(cust).on !== true) return { ok: false, error: '식순 «준비한 순서»에서 «영상»을 먼저 골라 주세요.' };   // [MID_VIDEO_1106 · 재검토 1604] 식순에서 뺀 식중 영상은 확정하지 않는다
+      if (kind === 'mid' && _mvOn_(cust).on !== true) return { ok: false, error: '식순에서 «식중 영상»을 먼저 담아 주세요.' };   // [MID_VIDEO_1106 · 재검토 1604] 식순에서 뺀 식중 영상은 확정하지 않는다
       /* ★[B2_MA_08 2026-11-06 2차 B2-마08] 고객이 본 미리보기(id · 요청 판)와 지금 서버의 미리보기가 다르면 확정하지 않는다 — 종전엔 지금 m.prev 를 그대로 확정했다 */
       if ((body.prevId != null && String(body.prevId) !== String(m.prev.id)) || (body.ver != null && Number(body.ver) !== (Number((m.submit || {}).n) || 0))) return { ok: false, newer: true, error: '새 영상이 준비됐어요. 확인한 뒤 확정해 주세요.', pv: _pvPublic(code, cust, kind) };
       m.subRev = (Number(m.rev) || 0) + 1;
