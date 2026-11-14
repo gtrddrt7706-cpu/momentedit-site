@@ -23317,6 +23317,27 @@ if [ ! -f assets/audio/_src/_layers/redo/REC_FIX3_1110.wav ]; then echo 'REVERT?
 # ★[NARR_REBUILD_1110 대본 11/10 23:15] 나레이션 다시 만들기 한 줄(build-layers 6층 + 층 검사) — 실청 고침이 더 오면 표만 고치고 이 한 줄
 chk 'NARR_REBUILD_1110' scripts/narr-rebuild.sh 1
 chk 'build-layers.mjs --layer 6' scripts/narr-rebuild.sh 1
+# ★[CHOP_FIX_1114 대표님 승인 11/14 · 대본] 5층 구절 쉼 — 원본 쉼 0.10초 미만 자리를 넓혀 끊겨 들린 14곳 뺌(190 → 176) · 끊김 검사 layer-chop(narr-rebuild 한 줄 · 허용 목록 끊김_허용_1114.json)
+chk 'CHOP_FIX_1114' assets/audio/_src/_layers/층5_자리.json 1
+nochk '"n":21,"id":"11_narr-welcome-in#0"' assets/audio/_src/_layers/층5_자리.json
+nochk '"n":36,"id":"141_narr-tribute-name#0"' assets/audio/_src/_layers/층5_자리.json
+nochk '"n":55,"id":"153_narr-candle-in-mothers-ex4#1"' assets/audio/_src/_layers/층5_자리.json
+nochk '"n":61,"id":"161_narr-entry-bow-ex3#0"' assets/audio/_src/_layers/층5_자리.json
+nochk '"n":79,"id":"172_narr-bless-mid-ex2#0"' assets/audio/_src/_layers/층5_자리.json
+nochk '"n":91,"id":"188_toast-toast-ex2#0"' assets/audio/_src/_layers/층5_자리.json
+nochk '"n":101,"id":"209_narr-song-ex5#1"' assets/audio/_src/_layers/층5_자리.json
+nochk '"n":107,"id":"214_narr-welcome-in-ex3#1"' assets/audio/_src/_layers/층5_자리.json
+nochk '"n":114,"id":"222_narr-table-in-ex4#1"' assets/audio/_src/_layers/층5_자리.json
+nochk '"n":119,"id":"228_narr-thanks-in-ex2#1"' assets/audio/_src/_layers/층5_자리.json
+nochk '"n":121,"id":"229_narr-thanks-in-ex3#0"' assets/audio/_src/_layers/층5_자리.json
+nochk '"n":137,"id":"258_narr-entry-bow-ex6#0"' assets/audio/_src/_layers/층5_자리.json
+nochk '"n":143,"id":"269_narr-declare-in-friend-gmom#0"' assets/audio/_src/_layers/층5_자리.json
+nochk '"n":155,"id":"277_narr-declare-in-friend-ex3-gmom#1"' assets/audio/_src/_layers/층5_자리.json
+chk '"n":46,"id":"150_narr-open-ex4#1"' assets/audio/_src/_layers/층5_자리.json 1   # 150(n46) 대표님 «고치기 전 그대로» — 빼지 않는다
+chk '"n":102,"id":"209_narr-song-ex5#2"' assets/audio/_src/_layers/층5_자리.json 1   # 209 둘째(n102) 대표님 통과 — 빼지 않는다
+chk 'CHOP_FIX_1114' scripts/audit/layer-chop.mjs 1
+chk 'scripts/audit/layer-chop.mjs' scripts/narr-rebuild.sh 1
+chk 'CHOP_FIX_1114' assets/audio/_src/_layers/끊김_허용_1114.json 1
 chk "★\[LAYER7_FACE_LEAD_1110\] 7층과 하나로" assets/ritual-cue.js 1
 # ★[CI_RUNNER_2404 11/10] CI 러너 24.04 고정 — ubuntu-latest(26.04)는 Playwright 1.56.1 브라우저 설치 실패 · ffmpeg 없음으로 bgm-sound 5칸 · guard 소리 검사가 테스트 전에 떨어졌다(PR #1647)
 chk 'runs-on: ubuntu-24.04   # ★\[CI_RUNNER_2404' .github/workflows/merge-guard.yml 2

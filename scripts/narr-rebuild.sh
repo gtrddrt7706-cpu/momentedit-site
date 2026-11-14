@@ -22,6 +22,8 @@ run node scripts/audit/layer-speed.mjs --log "$W/layer.log"
 run node scripts/audit/layer-seats.mjs --seat-log "$W/seat.log"
 run node scripts/audit/layer-phrase.mjs --log "$W/layer.log" --seat-log "$W/seat.log" --in "$W/in"
 run node scripts/audit/layer-loud.mjs --log "$W/layer.log" --seat-log "$W/seat.log"
+# ★[CHOP_FIX_1114 대본 11/14] 끊김 검사 — 말 가운데 넣은 무음 앞에서 말이 툭 끊기는 자리(직전 20ms > −30 dB 등) · 대표님이 듣고 통과시킨 자리는 허용 목록(끊김_허용_1114.json) · 새로 생기면 FAIL
+run node scripts/audit/layer-chop.mjs
 # layer-cps(3층 mp3 초당 ±1.5%)는 여기서 돌지 않는다 — 4 · 5층 쉼이 들어간 6층 mp3 에서는 자가 맞지 않는다(9b2b17e 판도 128 밖 · 11/10 실측) · 빠르기는 layer-speed(만들기 기록 ±0.5%)가 잰다 [SPEED_FINAL_1110]
 [ -n "$OVR" ] && run node scripts/audit/fix3-match.mjs --a "$OVR"
 if [ -n "$REF" ]; then s=0; d=''; for f in "$REF"/*.mp3; do b=$(basename "$f"); if cmp -s "$f" "assets/audio/narration/$b"; then s=$((s+1)); else d="$d ${b%.mp3}"; fi; done
