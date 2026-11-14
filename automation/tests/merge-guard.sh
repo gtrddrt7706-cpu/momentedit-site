@@ -1126,7 +1126,7 @@ chk 'entryOutBy' assets/ritual-data.js 1
 #   옛 nochk 는 «B 갈래가 A 와 겹친다»를 막던 것인데, B 갈래가 없어졌으므로 막을 겹침이 없다
 #   (실측: `entryOutBy` 키 0개 · A 는 `entryOut` 과 짝으로만 존재).
 #   ★사장님께 여쭌 자리다 — 「같은 자리에 두 사람이 있습니다」로 되돌리라 하시면 이 둘을 도로 바꾼다.
-chk '두 사람이 나란히 있습니다' assets/ritual-data.js 2
+chk '두 사람이 나란히 섰습니다. 잠시, 서로를 바라봐 주세요.' assets/ritual-data.js 2   # ★[FINAL_APPLY_1115 · 대본 11/15 «대표님 확정 글이 옛 핀을 넘는 자리는 핀을 새 글로»] 대표님 FINAL1 11/14 확정(RERECORD_1113 다시 녹음 글 · FINAL2 듣기판 DP5LNsqP8yR92bRM3CwCFZ) 52 글(entryOut · entryOutBy.A) — 옛 «두 사람이 나란히 있습니다.»
 # ★[SELF_COMMENT_TRAP] 여기 nochk 를 뒀다가 **내 주석을 내가 잡았다**(이 세션 두 번째다).
 #   왜 뒀는지를 주석에 적는 것이 이 저장소 규칙이라, 문자열 nochk 와 늘 부딪힌다.
 #   ★지키려던 것은 위 chk 가 이미 지킨다 — A 가 「두 사람이 나란히 있습니다」 둘이면
@@ -7529,7 +7529,7 @@ chk "closest('\[class\*=\"mock\"\]" scripts/audit/typo-ramp.mjs 1   # 목업은 
 #   ★생성물을 손으로 고치지 말 것 — 여기만 고치고 --write 로 다시 뽑는다.
 #   ★'잔희' 로 뽑으면 타입캐스트가 그 화자를 못 찾아 사장님이 클립마다 손으로 배정해야 한다.
 chk 'VOICE_JINHEE' scripts/build-typecast-import.mjs 1
-chk "안내: '진희'" scripts/build-typecast-import.mjs 1
+chk "안내: '문정'" scripts/build-typecast-import.mjs 1   # ★[FINAL_APPLY_1115 묶음 3 · 대본 11/15 · 대표님 FINAL2 11/14] 안내 목소리 진희 → 문정 — 이름 철자 결정(VOICE_JINHEE)은 진희 옛 녹음 기록으로 남는다 · 옛 핀 «안내: '진희'»
 #   ★주석에 남은 '잔희' 는 «왜 바뀌었나»의 기록이라 그대로 둔다 — 지우면 다음 세션이 오타로 되돌린다.
 #     검사는 «뽑힌 대본»을 본다: 거기 '잔희' 가 하나라도 있으면 원천이 되돌아간 것이다.
 nochk '잔희' 'docs/plans/식순연구/타입캐스트/재더빙_붙여넣기.txt'
@@ -8161,7 +8161,7 @@ chk 'OPEN_DECL_1014' assets/ritual-cue.js 2          # 개식 선언(137) — �
 chk 'OPEN_DECL_1014' assets/ritual-open.js 1
 chk 'OPEN_DECL_1014' api/_ritual-kb.js 1
 chk 'OPEN_DECL_1014' scripts/audit/open-course.mjs 2
-chk "open: '오늘 두 사람을 축복해 주시기 위하여 먼 걸음 해 주신 하객분들께 양가를 대표하여 감사의 말씀을 드립니다. 오늘 결혼식은 하객 여러분께서 예식의 증인이 되는 주례 없는 결혼식으로 진행됩니다. 지금부터 신랑과 신부의 예식을 여러분의 박수로 시작하겠습니다!'" assets/ritual-open.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «open: '신랑 신부와 양가를 대신해, 와 주신 여러분께 감…» · 옛 주석 ★[SOURCE_BEST_1015 라운드 5] [OPEN_WITNESS_1015] BB 93 단어 바꿈 · 화촉 «…계셨던 분들이»와 같은 꼴 풂   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «open: '바쁜 일정에도 자리를 빛내 주신 하객께 신랑 신부와 양가를 …») · 자료 OO · II   # ★[REVIEW26_1023 검토 150] 옛 핀 «먼 걸음 해주신 하객분들께»
+chk "open: '오늘 두 사람을 축복해 주시기 위하여 먼 걸음 해 주신 하객분들께 양가를 대표하여 감사의 말씀을 드립니다. 오늘 예식은 하객 여러분께서 증인이 되어 주시는, 주례 없는 결혼식으로 진행됩니다. 지금부터 신랑과 신부의 예식을 여러분의 박수로 시작하겠습니다!'" assets/ritual-open.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «open: '신랑 신부와 양가를 대신해, 와 주신 여러분께 감…» · 옛 주석 ★[SOURCE_BEST_1015 라운드 5] [OPEN_WITNESS_1015] BB 93 단어 바꿈 · 화촉 «…계셨던 분들이»와 같은 꼴 풂   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 «open: '바쁜 일정에도 자리를 빛내 주신 하객께 신랑 신부와 양가를 …») · 자료 OO · II   # ★[REVIEW26_1023 검토 150] 옛 핀 «먼 걸음 해주신 하객분들께»   # ★[FINAL_APPLY_1115 · 대본 11/15 «대표님 확정 글이 옛 핀을 넘는 자리는 핀을 새 글로»] 대표님 FINAL1 11/14 확정(RERECORD_1113 다시 녹음 글 · FINAL2 듣기판 DP5LNsqP8yR92bRM3CwCFZ) 150 둘째 문장 — 옛 «오늘 결혼식은 하객 여러분께서 예식의 증인이 되는 …»
 chk "_gi>-1&&S.guestVoice==='couple'" order-preview.html 2        # 두 분 목소리 판이어도 개식 선언은 나레이션(두 분 줄로 바꾸지 않는다) · ★[G_IDX_SLUG 2026-10-30] 이제 슬러그가 하객 맞이 칸(g0 · g1 · g3)일 때만 두 분 줄 — 개식(narr-open) · 사진 · 온라인 큐는 -1
 chk 'CANDLE_CALL_1014' assets/ritual-cue.js 2          # 화촉 — 불을 밝힘 → 맺는 말(불을 다 밝히면 GO) → 인사 안내(138 · 139 · 1.25초 사슬) → 인사 · 자리로
 chk 'CANDLE_CALL_1014' assets/ritual-story.js 1
@@ -15179,9 +15179,9 @@ chk 'R11_SRC_1018' assets/ritual-open.js 6
 chk 'R11_SRC_1018' assets/ritual-cue.js 2
 chk 'R11_SRC_1018' order-preview.html 3
 chk "'narr-ring-out-ex4': 1, 'narr-table-in-ex2': 1," assets/ritual-cue.js 1   # [B11_OFF_1018] 줄 끝에 247 이 더해졌다(쉬는 소리 셋)
-chk '이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해 서도록 하겠습니다.' assets/ritual-data.js 1   # ★[REVIEW30_1023 검토 154] 자료 글로 옮김
-chk '이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해 서도록 하겠습니다.' order-preview.html 1   # ★[REVIEW30_1023 검토 154] 자료 글로 옮김
-chk '이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해 서도록 하겠습니다.' assets/ritual-open.js 1   # ★[REVIEW30_1023 검토 154] 자료 글로 옮김
+chk '이제 두 분께서는 중앙으로 오셔서, 하객 여러분을 향해 서 주시기 바랍니다.' assets/ritual-data.js 1   # ★[REVIEW30_1023 검토 154] 자료 글로 옮김 · ★[FINAL_APPLY_1115 · 대본 11/15 «대표님 확정 글이 옛 핀을 넘는 자리는 핀을 새 글로»] 대표님 FINAL1 11/14 확정(RERECORD_1113 다시 녹음 글 · FINAL2 듣기판 DP5LNsqP8yR92bRM3CwCFZ) 39 끝 문장 — 옛 «… 하객 여러분을 향해 서도록 하겠습니다.»
+chk '이제 두 분께서는 중앙으로 오셔서, 하객 여러분을 향해 서 주시기 바랍니다.' order-preview.html 1   # ★[REVIEW30_1023 검토 154] 자료 글로 옮김 · ★[FINAL_APPLY_1115 · 대본 11/15 «대표님 확정 글이 옛 핀을 넘는 자리는 핀을 새 글로»] 대표님 FINAL1 11/14 확정(RERECORD_1113 다시 녹음 글 · FINAL2 듣기판 DP5LNsqP8yR92bRM3CwCFZ) 39 끝 문장 — 옛 «… 하객 여러분을 향해 서도록 하겠습니다.»
+chk '이제 두 분께서는 중앙으로 오셔서, 하객 여러분을 향해 서 주시기 바랍니다.' assets/ritual-open.js 1   # ★[REVIEW30_1023 검토 154] 자료 글로 옮김 · ★[FINAL_APPLY_1115 · 대본 11/15 «대표님 확정 글이 옛 핀을 넘는 자리는 핀을 새 글로»] 대표님 FINAL1 11/14 확정(RERECORD_1113 다시 녹음 글 · FINAL2 듣기판 DP5LNsqP8yR92bRM3CwCFZ) 39 끝 문장 — 옛 «… 하객 여러분을 향해 서도록 하겠습니다.»
 chk '다음은 정식으로 부부가 된 우리 신랑 신부의 빛나는 앞날을 축복하기 위한 덕담의 순서가 있겠습니다.' assets/ritual-open.js 1
 chk '귀한 덕담의 말씀을 부탁드리며 큰 박수로 맞아 주시기 바랍니다.' assets/ritual-open.js 1
 nochk '두 분, 다시 앞으로 와 주세요' assets/ritual-data.js
@@ -15555,7 +15555,7 @@ chk 'SONG_END_1018' assets/ritual-data.js 1
 chk 'SONG_END_1018' assets/ritual-cue.js 2
 chk 'SONG_END_1018' assets/ritual-story.js 1
 chk 'SONG_END_1018' scripts/build-dubbing-script.mjs 1
-chk 'songEnd:"우리 두 사람을 위해 다시 한 번 큰 박수 부탁드리겠습니다."' assets/ritual-data.js 1
+chk 'songEnd:"두 사람을 위해 다시 한 번 큰 박수 부탁드리겠습니다."' assets/ritual-data.js 1   # ★[FINAL_APPLY_1115 · 대본 11/15 «대표님 확정 글이 옛 핀을 넘는 자리는 핀을 새 글로»] 대표님 FINAL1 11/14 확정(RERECORD_1113 다시 녹음 글 · FINAL2 듣기판 DP5LNsqP8yR92bRM3CwCFZ) «우리» 뺌
 chk "slug: S.songBy === 'self' ? 'narr-song-end' : 'narr-song-end-friend', name: '축가 마무리', text: S.songBy === 'self' ? D.NARR.songEnd : D.NARR.songEndFriend" assets/ritual-cue.js 1   # [SONG_BY_1018] 부르는 분으로 갈림 · 옛 핀 = 210 하나
 chk "'하객 박수 · 노래해 주신 분과 두 사람께'" assets/ritual-story.js 1
 nochk '노래를 잘 하는 건 아니에요' assets/ritual-data.js 1   # 한도 1 = 뺀 까닭을 적은 주석 한 줄 · 녹음은 노래를 듣고 평하지 않는다(④ 현장 단정)
@@ -17811,7 +17811,7 @@ chk "'toast', 'table'\]" assets/ritual-open.js 2
 chk "table: { n: '테이블 인사'" assets/ritual-open.js 1
 chk 'TABLE_GREET_1008' assets/ritual-data.js 3
 chk "'cake','toast','table'\]" assets/ritual-data.js 1
-chk 'tableIn:"신랑 신부가 오늘 참석해 주신 하객 여러분의 테이블마다 찾아뵙고 감사의 인사를 드리겠습니다."' assets/ritual-data.js 1   # ★[REVIEW31_1023 검토 157-1] 01 · 02 = G4 표 2 «다정» 판 · ★[R11_SRC_1018 라운드 11] 앞 두 문장 = 자료 S 원본 2부 끝(옛 우리 글 «두 사람이 여러분께 …»를 걷었다) · ★[TABLE_NEXT_1014] 4판 셋째 문장(다음 순서 미리 · DD ③ · 5)   # ★[NAR_ENGINE_1014] 10/14 라운드 1 결정 «원고 글»(VOICE_2ND · 녹음 받음 u/23)   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 « 다 돌고 나면, 단체 사진으로 이어집니…»)   # [MODERN_WORDS_1024 검토 164] 새 글
+chk 'tableIn:"신랑 신부가, 오늘 참석해 주신 하객 여러분의 테이블마다 찾아뵙고, 감사의 인사를 드리겠습니다."' assets/ritual-data.js 1   # ★[FINAL_APPLY_1115 · 대본 11/15 «대표님 확정 글이 옛 핀을 넘는 자리는 핀을 새 글로»] 대표님 FINAL1 11/14 확정(RERECORD_1113 다시 녹음 글 · FINAL2 듣기판 DP5LNsqP8yR92bRM3CwCFZ) 쉼표 둘(131) ·   # ★[REVIEW31_1023 검토 157-1] 01 · 02 = G4 표 2 «다정» 판 · ★[R11_SRC_1018 라운드 11] 앞 두 문장 = 자료 S 원본 2부 끝(옛 우리 글 «두 사람이 여러분께 …»를 걷었다) · ★[TABLE_NEXT_1014] 4판 셋째 문장(다음 순서 미리 · DD ③ · 5)   # ★[NAR_ENGINE_1014] 10/14 라운드 1 결정 «원고 글»(VOICE_2ND · 녹음 받음 u/23)   # ★[SRC_ALL_1023 검토 144] 자료집 글로만(옛 핀 « 다 돌고 나면, 단체 사진으로 이어집니…»)   # [MODERN_WORDS_1024 검토 164] 새 글
 chk 'TABLE_GREET_1008' assets/ritual-cue.js 4
 chk "'narr-table-in'" assets/ritual-cue.js 3
 chk "if (_openC && seq.indexOf('table') > -1) cues.push(cue({" assets/ritual-cue.js 1   # [END_FLOW_1030] 테이블 인사 = 닫는 인사 앞
@@ -19886,7 +19886,7 @@ chk 'B5_OFF_1023' assets/ritual-cue.js 2   # B5 «영상은 여기까지입니�
 nochk "slugB = 'bridge-b5-video-out'" assets/ritual-cue.js   # [B5_OFF_1023] 되살리지 말 것
 nochk 'playLoose(rc.rescue' console.html   # [FREE_FAIL_VOICE_OFF_1023] 녹음 한 줄은 쉰다 · [AUTO_ONLY_1031] 큐 밖 재생 길 없음
 nochk "slug: 'narr-free-fail'" assets/ritual-cue.js   # [FREE_FAIL_VOICE_OFF_1023] 재생 안 됨 한 줄(105)은 쉰다 · 디렉터가 말로
-chk '하객분들의 따뜻한 박수와 함께 모시겠습니다. 단상 위로 올라와 주십시오.' assets/ritual-open.js 1   # [검토 151-1 5)] 153 = FF 1-1 원문
+chk '하객분들의 따뜻한 박수와 함께 두 분을 모시겠습니다. 단상 위로 올라와 주십시오.' assets/ritual-open.js 1   # ★[FINAL_APPLY_1115 · 대본 11/15 «대표님 확정 글이 옛 핀을 넘는 자리는 핀을 새 글로»] 대표님 FINAL1 11/14 확정(RERECORD_1113 다시 녹음 글 · FINAL2 듣기판 DP5LNsqP8yR92bRM3CwCFZ) «두 분을» 더함 — 옛 «… 박수와 함께 모시겠습니다. …»   # [검토 151-1 5)] 153 = FF 1-1 원문
 chk '이 잔에는 두 사람의 영원한 사랑이 이어지길 바라는 모두의 마음이 담겨있는데요.' assets/ritual-open.js 1   # [검토 151-1 6)] 188 = SS 묶음 d
 chk ' entryArrive:"사랑하는 가족과 소중한 하객 여러분의 축복 속에 두 사람이 한자리에 섰습니다.",' assets/ritual-data.js 1   # [검토 151-2] 144 = WW29 한 문장 그대로
 chk '그럼 지금부터 신랑 신부의 결혼식을 시작하겠습니다.' assets/ritual-open.js 1   # [검토 152] 149 = T2 36 끝말(151-2 의 «거행하도록»은 출처 착오)   # [MODERN_WORDS_1024 검토 164] 새 글
@@ -20611,7 +20611,7 @@ nochk '>말투 바꾸기<' order-preview.html 0
 # ── 2026-10-23 [REVIEW33_1023 검토 159 · ADAPT_OK_1023]
 chk 'ADAPT_OK_1023 사장님 2026-10-23' assets/ritual-data.js 1   # ★[ADAPT_OK_1023] 자료 없는 자리는 실제 멘트를 낱말 몇 개만 고쳐 쓴다(원문 먼저 · 고친 비율 30% 아래 · AI 글 바탕 금지) · 결정 주석 · 검사 open-course «ADAPT_OK_1023»
 chk '여러분이 받으신 모바일 청첩장의 하객 안내를 통해 오늘 찍으신 사진을 바로 올리실 수 있습니다.' assets/ritual-cue.js 1   # ★[REVIEW33_1023 검토 159-2] 264 = sypo0202 ADAPT
-chk '하객 여러분께서는 스크린에 주목해 주시기 바랍니다. 영상 함께 보시겠습니다.' assets/ritual-open.js 1   # ★[REVIEW33_1023 검토 159-2] 130 = sypo0202   # [MODERN_WORDS_1024 검토 164] 새 글
+# ★[FINAL_APPLY_1115 · 대본 11/15] 130 = 대표님 FINAL2 11/14 확정 새 글 «예식에 앞서 두 사람이 준비한 영상을 함께 보겠습니다.»(듣기판 DP5LNsqP8yR92bRM3CwCFZ) — 옛 sypo0202 글 핀은 뒤집었다(아래 FINAL_APPLY_1115 블록 nochk · 새 글 chk)
 # ★★[BGM_SEG8_1023 2026-10-23 사장님 결정 «8구간» · BGM 섹션 라운드 2 PR 2 · BGM_PICKS_1023 사장님 21:40 «나머지 이 노래들 우선 고를 수 있게»]
 #   콘솔이 구간마다 곡을 바꾼다(재생기 둘 · 3초 크로스페이드 · 파일 없는 구간은 앞 곡이 잇는다 · 영상 · 축가 뒤 돌아옴) · 추천 곡 assets/bgm-picks.js(콘솔만) ·
 #   구간 칸 = 추천 곡 고르기 + 파일 넣기 + 곡 추가(이 기기 보관) · 입장 곡이 짧으면 «곡 길이 모자람» + 곡 끝 3초 전 피아노가 이어받기 [ENTRY_SHORT] · 엔진 큐에 있는 자리만 받기 [RF_IN_ENGINE]
@@ -20683,7 +20683,7 @@ nochk '이전에도 그랬듯이 앞으로 두 사람의 삶은' assets/ritual-o
 # ── 2026-10-24 [MUST_FIX_165_1024 검토 165] GPT 694줄 전수 검토 → 사장님 확정 «꼭 고칠 것» 27줄(나레이션 9 · 두 분 예시 1 · 참고 예시 15 · 안내 글 2) — 검사 open-course «MUST_FIX_165_1024»
 chk 'MUST_FIX_165_1024' assets/ritual-open.js 1
 chk '각자의 와인을 한 잔에 부어 주시면' assets/ritual-data.js 1
-chk '오늘 그 멈춰 있던 시간이 다시 흐르길' assets/ritual-open.js 1
+chk '오늘은 그 멈춰 있던 시간이 어머님들을 위해 다시 흐르길' assets/ritual-open.js 1   # ★[FINAL_APPLY_1115 · 대본 11/15 «대표님 확정 글이 옛 핀을 넘는 자리는 핀을 새 글로»] 대표님 FINAL1 11/14 확정(RERECORD_1113 다시 녹음 글 · FINAL2 듣기판 DP5LNsqP8yR92bRM3CwCFZ) 153 — 옛 «오늘 그 멈춰 있던 시간이 다시 흐르길»
 chk '중간에 숨 돌릴 틈이 생겨요' assets/ritual-open.js 5   # 줄 수(805 한 줄에 둘)
 nochk '사이가 풀려요' assets/ritual-open.js
 nochk '축의금 많이 내거라' assets/ritual-ref.js
@@ -21019,7 +21019,7 @@ nochk "^  clearToken();$" mypage.html   # [RELOGIN_KEEP] 로그인 풀림(_errGo
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-fix6-1030.mjs >/dev/null 2>&1; _vf6=$?; if [ "$_vf6" != 0 ]; then echo 'FAIL vc-fix6-1030: AI 목소리 6차 점검(로그인하기 뒤 초안 · 옛 목록 답 · 늦은 재생 결과 · 멈춤 중 시각 큐) 판정이 어긋났습니다 — node scripts/audit/vc-fix6-1030.mjs'; fail=1; else echo "ok vc-fix6-1030 ($_vf6)"; fi; fi
 
 # ── 2026-10-30 [RETAKE_168_1030 검토 168 사장님] 나레이션 다시 받기 묶음(글만 · 녹음은 따로) — 무음 부탁 · 안내 음성 · 증인이십니다 · 안녕하세요 · 입장 A · E · 맞절 252 · 감사 인사 228 · 229 · «천천히» 넷 걷기 · 반지 170 · 축가 209 · «맞절!» → «맞절.»(구호 검사도 «맞절.»을 구호로 본다)
-chk '신랑 신부, 서로 마주 보고 서 주십시오. 평생을 함께할 동반자로서, 서로를 아끼고 존중하는 마음을 담아 인사하겠습니다. 신랑 신부, 맞절.' assets/ritual-open.js 1
+chk '신랑 신부, 서로 마주 보고 서 주십시오. 평생을 함께할 동반자로서, 서로를 아끼고 존중하는 마음을 담아 인사하겠습니다. 신랑 신부… 맞절.' assets/ritual-open.js 1   # ★[FINAL_APPLY_1115 · 대본 11/15 «대표님 확정 글이 옛 핀을 넘는 자리는 핀을 새 글로»] 대표님 FINAL1 11/14 확정(RERECORD_1113 다시 녹음 글 · FINAL2 듣기판 DP5LNsqP8yR92bRM3CwCFZ) 맞절 구호 «신랑 신부… 맞절.» — 옛 «신랑 신부, 맞절.»
 chk '오늘 모든 안내는 신랑 신부가 미리 준비한 안내 음성으로 진행됩니다.' assets/ritual-open.js 1
 chk '먼저 신랑님께서는 다시 한번 프러포즈하는 마음으로, 신부님의 왼손 약지에 반지를 끼워 주세요. 이번에는 신부님께서도 그 마음에 답하듯, 신랑님께 반지를 끼워 주세요.' assets/ritual-open.js 1   # [RING_HONOR_1031 검토 179 덧] 존칭 «신랑님 · 신부님»(자료 S 원본과 같은 존칭)
 chk '그럼 마음을 담아 준비한 노래, 큰 박수로 맞아 주세요.' assets/ritual-open.js 1
@@ -23328,8 +23328,7 @@ nochk 'x.fac >= 0.89 - 1e-9 && x.fac <= 1.05 + 1e-9' scripts/audit/layer-speed.m
 if command -v node >/dev/null 2>&1; then if node scripts/audit/layer-speed.mjs >/dev/null 2>&1; then echo 'ok layer-speed 표 — 빠르기표_최종_1109 범위 안 [SPEED_FINAL_1110]'; else echo 'REVERT? [SPEED_FINAL_1110] 빠르기표_최종_1109 에 범위 0.878 ~ 1.10 밖 줄이 있다(node scripts/audit/layer-speed.mjs)'; fail=1; fi; fi
 # ★★[REC_FIX3_1110 사장님 11/10 23:06 «추천대로» · 대본 배포준비_나레이션_1110 2절] 새 녹음 3문장(22#0 · 149#1 · 150#2) = 1층 재료(REC_FIX3_1110.wav · 자를 곳 · 150#2 «이어졌고,» 쉼 늘리기)
 #   5층 구절 쉼은 받은 쉼 그대로 — 149#1 n42 · n43 · 150#2 n47 · n48 뺌(194 → 190) · 엔진 결과가 승인 소리와 같은가 = scripts/audit/fix3-match.mjs(override 폴더는 docs 저장소)
-chk 'REC_FIX3_1110' assets/audio/_src/_layers/층1_재료.json 3
-chk '"grow"' assets/audio/_src/_layers/층1_재료.json 1
+chk 'REC_FIX3_1110' assets/audio/_src/_layers/층1_재료.json 2   # ★[FINAL_APPLY_1115 묶음 2 · 대본 11/15] 149#1 · 150#2 는 대표님 FINAL1 11/14 다시 녹음 테이크가 1층(창고)이 됐다 — REC_FIX3 줄은 22#0 하나만(옛 3 · 150#2 «이어졌고,» 쉼 늘리기 grow 도 함께 빠짐 · 새 테이크 받은 쉼 그대로 · 대표님 듣기 목록)
 chk 'REC_FIX3_1110' scripts/build-layers.mjs 1
 chk 'REC_FIX3_1110' assets/audio/_src/_layers/층5_자리.json 1
 nochk '"n":42,"id":"149_narr-open-ex3#1"' assets/audio/_src/_layers/층5_자리.json
@@ -23358,8 +23357,7 @@ nochk '"n":121,"id":"229_narr-thanks-in-ex3#0"' assets/audio/_src/_layers/층5_�
 nochk '"n":137,"id":"258_narr-entry-bow-ex6#0"' assets/audio/_src/_layers/층5_자리.json
 nochk '"n":143,"id":"269_narr-declare-in-friend-gmom#0"' assets/audio/_src/_layers/층5_자리.json
 nochk '"n":155,"id":"277_narr-declare-in-friend-ex3-gmom#1"' assets/audio/_src/_layers/층5_자리.json
-chk '"n":46,"id":"150_narr-open-ex4#1"' assets/audio/_src/_layers/층5_자리.json 1   # 150(n46) 대표님 «고치기 전 그대로» — 빼지 않는다
-chk '"n":102,"id":"209_narr-song-ex5#2"' assets/audio/_src/_layers/층5_자리.json 1   # 209 둘째(n102) 대표님 통과 — 빼지 않는다
+# ★[FINAL_APPLY_1115 묶음 2 · 대본 11/15] 150(n46 «위해|이») · 209 둘째(n102) 옛 «빼지 않는다» 핀은 옛 테이크 위 결정 — 대표님 FINAL1 11/14 새 테이크엔 그 자리에 원본 쉼이 없어 넓히면 끊김 검사에 걸린다 · 뺐고 대표님 듣기 목록(GPT 점검: 옛 승인을 새 테이크에 넘기지 않음)
 chk 'CHOP_FIX_1114' scripts/audit/layer-chop.mjs 1
 chk 'scripts/audit/layer-chop.mjs' scripts/narr-rebuild.sh 1
 chk 'CHOP_FIX_1114' assets/audio/_src/_layers/끊김_허용_1114.json 1
@@ -23388,6 +23386,18 @@ nochk '하객 여러분께서는 스크린에 주목해 주시기 바랍니다. 
 chk 'FINAL_APPLY_1115' assets/audio/_src/_layers/층5_자리.json 10
 chk 'FINAL_APPLY_1115' assets/audio/_src/_layers/층4_쉼.json 1
 chk 'FINAL_APPLY_1115' assets/audio/_src/_layers/층6_크기.json 1
+# ★★[FINAL_APPLY_1115 묶음 3 · 대본 11/15 «안내 진희 → 문정» · 대표님 FINAL2 11/14] 엔진 안내 46클립 = 문정 원본 테이크(1층) · 빠르기 = 듣기판 ÷ 테이크(atempo 만) · 결정 기록 docs/rules/나레이션.md
+#   문장 수가 바뀐 클립(01 · 115 · 119 · 123 · 315 · 309 · 347 · 324 · 339 ~ 341)은 식순 화면 글도 바뀐다 · 두 분 판(01 · 02 · 04 «저희가»)은 cast 녹음 글 그대로
+chk '"안내": "문정"' docs/plans/식순연구/타입캐스트/manifest.json 1
+chk "v !== '문정'" scripts/build-layers.mjs 1
+chk 'FINAL_APPLY_1115 대표님 FINAL2 11/14 확정 · 대본 11/15 «배포 준비' docs/rules/나레이션.md 1
+chk '예식이 시작될 때까지 편안히 기다려 주세요.' assets/ritual-data.js 1
+chk '예식이 시작될 때까지 편안히 기다려 주세요.' assets/ritual-open.js 3
+chk "'guest-w-1m': \[GW.soon, GW.sit, GW.snapOk\]" assets/ritual-cue.js 1
+chk "'after-photo': \[GW.done, GW.fam, GW.stay2, GW.goHome2, GW.things2, GW.day2\]" assets/ritual-cue.js 1
+chk "'after-photo-meal': \[GW.done, GW.fam, GW.stay2, GW.things2, GW.goMeal, GW.mealWhere\]" assets/ritual-cue.js 1
+chk "'narr-closing-mealnr': \[CL_THX2, CL_CHEER, CL_NJ, CL_GA\]" assets/ritual-cue.js 1
+nochk '식사는 두 분과 함께합니다.' docs/plans/식순연구/타입캐스트/manifest.json
 chk 'FINAL_APPLY_1115' assets/audio/_src/_layers/끊김_허용_1114.json 1
 chk '신랑 신부… 맞절.' assets/ritual-open.js 4
 chk '화면으로 함께해 주시는 분들께도 두 사람이 인사드리겠습니다.' assets/ritual-data.js 1

@@ -36,7 +36,7 @@ const pad2 = (n) => String(n).padStart(2, '0');
 const USED = new Set(JSON.parse(fs.readFileSync(P('docs/plans/식순연구/층_씀목록_1108.json'), 'utf8')).filter((x) => x.use).map((x) => x.k).concat(['350_narr-welcome-in-face', '356_guest-w5-meal', '357_guest-w5-meal-online', '130_narr-prevideo-in-ex4', '351_midvideo-in-thanks', '352_midvideo-in-story', '353_midvideo-in-plain', '354_midvideo-out-thanks', '355_midvideo-out-story']));   // + 1층 새 클립(#1636) · ★[FINAL_APPLY_1115] 130(대표님 FINAL2 새 글 · 고르는 목록엔 없어도 소리는 새 글로) · 351 ~ 355 식중 영상(대표님 FINAL2 · 트는 길은 #1635)   // 실제로 트는 클립(scripts/audit/layer-used.mjs · 사장님 11/08 20:20 «안 쓰는 건 버려»)
 export function layerClips() {
   return man.clips.filter((c) => { const key = pad2(c.no) + '_' + c.file, v = (man.voice || {})[String(c.role).split('|')[0]]; if (!USED.has(key)) return false;
-    if (c.mix || (c.dir || 'assets/audio/narration') !== 'assets/audio/narration' || (v !== '우성' && v !== '진희')) return false;
+    if (c.mix || (c.dir || 'assets/audio/narration') !== 'assets/audio/narration' || (v !== '우성' && v !== '진희' && v !== '문정')   /* [FINAL_APPLY_1115] 안내 = 문정 */) return false;
     return c.sents.every((s) => { const e = idx[key + '#' + s.i]; return e && e.text === s.text && fs.existsSync(P('assets/audio/_src', key, s.i + '.flac')); }); })
     .map((c) => '=' + pad2(c.no) + '_' + c.file); }
 const list = arg('--clip') || layerClips().join(',');

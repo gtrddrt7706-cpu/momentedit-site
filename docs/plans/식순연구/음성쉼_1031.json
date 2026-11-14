@@ -14,10 +14,6 @@
    "text": "자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주시기 바랍니다."
   },
   {
-   "clip": "04_guest-4-1min",
-   "text": "자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주시기 바랍니다."
-  },
-  {
    "clip": "05_entry-A",
    "text": "신랑 신부, 입장!"
   },
@@ -527,10 +523,6 @@
   },
   {
    "clip": "298_guest-w-arrival-guide",
-   "text": "받으신 모바일 청첩장을 열고, 하객 안내에서 사진 올리기를 누르시면 두 분께 바로 보내실 수 있습니다."
-  },
-  {
-   "clip": "298_guest-w-arrival-guide",
    "text": "발걸음해 주신 여러분, 고맙습니다."
   },
   {
@@ -543,10 +535,6 @@
   },
   {
    "clip": "299_guest-w-10m-n10",
-   "text": "십 분 뒤 본식을 시작하겠습니다."
-  },
-  {
-   "clip": "299_guest-w-10m-n10",
    "text": "약 십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다."
   },
   {
@@ -615,10 +603,6 @@
   },
   {
    "clip": "304_guest-w-10m-n15",
-   "text": "십 분 뒤 본식을 시작하겠습니다."
-  },
-  {
-   "clip": "304_guest-w-10m-n15",
    "text": "약 십오 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다."
   },
   {
@@ -684,10 +668,6 @@
   {
    "clip": "308_guest-w-10m-n15-m",
    "text": "장소와 시간은 현장 디렉터에게 여쭤 주세요."
-  },
-  {
-   "clip": "309_guest-w-10m-n20",
-   "text": "십 분 뒤 본식을 시작하겠습니다."
   },
   {
    "clip": "309_guest-w-10m-n20",
@@ -766,32 +746,12 @@
    "text": "자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요."
   },
   {
-   "clip": "315_guest-w-1m",
-   "text": "잠시 후 순서를 시작하겠습니다."
-  },
-  {
-   "clip": "316_guest-w-1m-online",
-   "text": "잠시 후 순서를 시작하겠습니다."
-  },
-  {
    "clip": "316_guest-w-1m-online",
    "text": "현장에 계신 분들은 자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요."
   },
   {
    "clip": "317_after-photo",
-   "text": "그 밖의 분들은 이제 편히 돌아가셔도 좋습니다."
-  },
-  {
-   "clip": "317_after-photo",
    "text": "단체 사진을 마쳤습니다."
-  },
-  {
-   "clip": "317_after-photo",
-   "text": "두 분과 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요."
-  },
-  {
-   "clip": "317_after-photo",
-   "text": "두고 가시는 물건이 없는지 한 번 살펴 주세요."
   },
   {
    "clip": "317_after-photo",
@@ -812,14 +772,6 @@
   {
    "clip": "319_after-photo-cafe",
    "text": "단체 사진을 마쳤습니다."
-  },
-  {
-   "clip": "319_after-photo-cafe",
-   "text": "두 분과 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요."
-  },
-  {
-   "clip": "319_after-photo-cafe",
-   "text": "두고 가시는 물건이 없는지 한 번 살펴 주세요."
   },
   {
    "clip": "319_after-photo-cafe",
@@ -892,14 +844,6 @@
   {
    "clip": "324_after-photo-meal",
    "text": "단체 사진을 마쳤습니다."
-  },
-  {
-   "clip": "324_after-photo-meal",
-   "text": "두 분과 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요."
-  },
-  {
-   "clip": "324_after-photo-meal",
-   "text": "두고 가시는 물건이 없는지 한 번 살펴 주세요."
   },
   {
    "clip": "324_after-photo-meal",
@@ -1015,15 +959,7 @@
   },
   {
    "clip": "339_narr-closing-mealnr",
-   "text": "두 분은 남은 촬영을 마친 뒤 합류합니다."
-  },
-  {
-   "clip": "339_narr-closing-mealnr",
    "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다."
-  },
-  {
-   "clip": "339_narr-closing-mealnr",
-   "text": "식사는 두 분과 함께합니다."
   },
   {
    "clip": "339_narr-closing-mealnr",
@@ -1031,15 +967,7 @@
   },
   {
    "clip": "340_narr-closing-mealnr-nt",
-   "text": "두 분은 남은 촬영을 마친 뒤 합류합니다."
-  },
-  {
-   "clip": "340_narr-closing-mealnr-nt",
    "text": "두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다."
-  },
-  {
-   "clip": "340_narr-closing-mealnr-nt",
-   "text": "식사는 두 분과 함께합니다."
   },
   {
    "clip": "340_narr-closing-mealnr-nt",
@@ -1047,19 +975,7 @@
   },
   {
    "clip": "341_narr-closing-mealnr-nt-nc",
-   "text": "두 분은 남은 촬영을 마친 뒤 합류합니다."
-  },
-  {
-   "clip": "341_narr-closing-mealnr-nt-nc",
-   "text": "식사는 두 분과 함께합니다."
-  },
-  {
-   "clip": "341_narr-closing-mealnr-nt-nc",
    "text": "이어서 단체 사진을 찍겠습니다."
-  },
-  {
-   "clip": "342_narr-closing-mealr",
-   "text": "두 분은 남은 촬영을 마친 뒤 합류합니다."
   },
   {
    "clip": "342_narr-closing-mealr",
@@ -1067,15 +983,7 @@
   },
   {
    "clip": "342_narr-closing-mealr",
-   "text": "식사는 안내된 예약 시각에 두 분과 함께합니다."
-  },
-  {
-   "clip": "342_narr-closing-mealr",
    "text": "이어서 단체 사진을 찍겠습니다."
-  },
-  {
-   "clip": "343_narr-closing-mealr-nt",
-   "text": "두 분은 남은 촬영을 마친 뒤 합류합니다."
   },
   {
    "clip": "343_narr-closing-mealr-nt",
@@ -1083,31 +991,11 @@
   },
   {
    "clip": "343_narr-closing-mealr-nt",
-   "text": "식사는 안내된 예약 시각에 두 분과 함께합니다."
-  },
-  {
-   "clip": "343_narr-closing-mealr-nt",
    "text": "이어서 단체 사진을 찍겠습니다."
   },
   {
    "clip": "344_narr-closing-mealr-nt-nc",
-   "text": "두 분은 남은 촬영을 마친 뒤 합류합니다."
-  },
-  {
-   "clip": "344_narr-closing-mealr-nt-nc",
-   "text": "식사는 안내된 예약 시각에 두 분과 함께합니다."
-  },
-  {
-   "clip": "344_narr-closing-mealr-nt-nc",
    "text": "이어서 단체 사진을 찍겠습니다."
-  },
-  {
-   "clip": "345_guest-w-10m-n10-meal",
-   "text": "식사는 촬영 뒤에 함께합니다."
-  },
-  {
-   "clip": "345_guest-w-10m-n10-meal",
-   "text": "십 분 뒤 본식을 시작하겠습니다."
   },
   {
    "clip": "345_guest-w-10m-n10-meal",
@@ -1115,55 +1003,11 @@
   },
   {
    "clip": "346_guest-w-10m-n15-meal",
-   "text": "식사는 촬영 뒤에 함께합니다."
-  },
-  {
-   "clip": "346_guest-w-10m-n15-meal",
-   "text": "십 분 뒤 본식을 시작하겠습니다."
-  },
-  {
-   "clip": "346_guest-w-10m-n15-meal",
    "text": "약 십오 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다."
   },
   {
    "clip": "347_guest-w-10m-n20-meal",
-   "text": "식사는 촬영 뒤에 함께합니다."
-  },
-  {
-   "clip": "347_guest-w-10m-n20-meal",
-   "text": "십 분 뒤 본식을 시작하겠습니다."
-  },
-  {
-   "clip": "347_guest-w-10m-n20-meal",
    "text": "약 이십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다."
-  },
-  {
-   "clip": "348_guest-w-10m-n10-short",
-   "text": "본식을 마친 뒤에는 기념 촬영이 있습니다."
-  },
-  {
-   "clip": "348_guest-w-10m-n10-short",
-   "text": "십 분 뒤 본식을 시작하겠습니다."
-  },
-  {
-   "clip": "349_guest-w-10m-n10-short-meal",
-   "text": "본식을 마친 뒤에는 기념 촬영이 있습니다."
-  },
-  {
-   "clip": "349_guest-w-10m-n10-short-meal",
-   "text": "식사는 촬영 뒤에 함께합니다."
-  },
-  {
-   "clip": "349_guest-w-10m-n10-short-meal",
-   "text": "십 분 뒤 본식을 시작하겠습니다."
-  },
-  {
-   "clip": "356_guest-w5-meal",
-   "text": "식사 장소 확인과 사진 올리기는 모바일 청첩장의 하객 안내에서 하실 수 있습니다."
-  },
-  {
-   "clip": "357_guest-w5-meal-online",
-   "text": "식사 장소 확인과 사진 올리기는 모바일 청첩장의 하객 안내에서 하실 수 있습니다."
   },
   {
    "clip": "357_guest-w5-meal-online",
@@ -1180,10 +1024,6 @@
   {
    "clip": "42_toast-both",
    "text": "두 분, 나이프를 함께 잡고 천천히 잘라 주세요."
-  },
-  {
-   "clip": "48_online-3-welcome",
-   "text": "화면으로 함께해 주시는 여러분, 반갑습니다."
   },
   {
    "clip": "52_narr-entry-out",
@@ -1248,10 +1088,6 @@
   {
    "clip": "83_narr-entry-out-F",
    "text": "잠시, 서로를 바라봐 주세요."
-  },
-  {
-   "clip": "84_narr-photo-ask",
-   "text": "안내 페이지의 사진 올리기를 통해, 간직하신 장면을 신랑 신부에게 보내실 수 있습니다."
   },
   {
    "clip": "87_narr-toast-none",
@@ -1446,6 +1282,211 @@
   {
    "clip": "254_narr-tribute-name-ex5",
    "text": "이번에는 부모님의 은혜에 앞으로 평생 보답하겠다는 의미로 양가 부모님께 감사의 인사를 드리겠습니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "04_guest-4-1min",
+   "text": "자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주시기 바랍니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "298_guest-w-arrival-guide",
+   "text": "받으신 모바일 청첩장을 열고, 하객 안내에서 사진 올리기를 누르시면 두 분께 바로 보내실 수 있습니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "299_guest-w-10m-n10",
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "304_guest-w-10m-n15",
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "309_guest-w-10m-n20",
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "315_guest-w-1m",
+   "text": "잠시 후 순서를 시작하겠습니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "316_guest-w-1m-online",
+   "text": "잠시 후 순서를 시작하겠습니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "317_after-photo",
+   "text": "그 밖의 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "317_after-photo",
+   "text": "두 분과 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "317_after-photo",
+   "text": "두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "319_after-photo-cafe",
+   "text": "두 분과 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "319_after-photo-cafe",
+   "text": "두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "324_after-photo-meal",
+   "text": "두 분과 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "324_after-photo-meal",
+   "text": "두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "339_narr-closing-mealnr",
+   "text": "두 분은 남은 촬영을 마친 뒤 합류합니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "339_narr-closing-mealnr",
+   "text": "식사는 두 분과 함께합니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "340_narr-closing-mealnr-nt",
+   "text": "두 분은 남은 촬영을 마친 뒤 합류합니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "340_narr-closing-mealnr-nt",
+   "text": "식사는 두 분과 함께합니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "341_narr-closing-mealnr-nt-nc",
+   "text": "두 분은 남은 촬영을 마친 뒤 합류합니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "341_narr-closing-mealnr-nt-nc",
+   "text": "식사는 두 분과 함께합니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "342_narr-closing-mealr",
+   "text": "두 분은 남은 촬영을 마친 뒤 합류합니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "342_narr-closing-mealr",
+   "text": "식사는 안내된 예약 시각에 두 분과 함께합니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "343_narr-closing-mealr-nt",
+   "text": "두 분은 남은 촬영을 마친 뒤 합류합니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "343_narr-closing-mealr-nt",
+   "text": "식사는 안내된 예약 시각에 두 분과 함께합니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "344_narr-closing-mealr-nt-nc",
+   "text": "두 분은 남은 촬영을 마친 뒤 합류합니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "344_narr-closing-mealr-nt-nc",
+   "text": "식사는 안내된 예약 시각에 두 분과 함께합니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "345_guest-w-10m-n10-meal",
+   "text": "식사는 촬영 뒤에 함께합니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "345_guest-w-10m-n10-meal",
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "346_guest-w-10m-n15-meal",
+   "text": "식사는 촬영 뒤에 함께합니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "346_guest-w-10m-n15-meal",
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "347_guest-w-10m-n20-meal",
+   "text": "식사는 촬영 뒤에 함께합니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "347_guest-w-10m-n20-meal",
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "348_guest-w-10m-n10-short",
+   "text": "본식을 마친 뒤에는 기념 촬영이 있습니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "348_guest-w-10m-n10-short",
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "349_guest-w-10m-n10-short-meal",
+   "text": "본식을 마친 뒤에는 기념 촬영이 있습니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "349_guest-w-10m-n10-short-meal",
+   "text": "식사는 촬영 뒤에 함께합니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "349_guest-w-10m-n10-short-meal",
+   "text": "십 분 뒤 본식을 시작하겠습니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "356_guest-w5-meal",
+   "text": "식사 장소 확인과 사진 올리기는 모바일 청첩장의 하객 안내에서 하실 수 있습니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "357_guest-w5-meal-online",
+   "text": "식사 장소 확인과 사진 올리기는 모바일 청첩장의 하객 안내에서 하실 수 있습니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "48_online-3-welcome",
+   "text": "화면으로 함께해 주시는 여러분, 반갑습니다.",
+   "since": "2026-11-15"
+  },
+  {
+   "clip": "84_narr-photo-ask",
+   "text": "안내 페이지의 사진 올리기를 통해, 간직하신 장면을 신랑 신부에게 보내실 수 있습니다.",
    "since": "2026-11-15"
   }
  ]

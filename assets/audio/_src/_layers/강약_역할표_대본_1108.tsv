@@ -1,12 +1,13 @@
 문장	지금 역할	대본 역할(slow=감정·엄숙 0.96 · guide=일반 안내 0.9894 · base=인사·정보·구호 0.97)	글
 01_guest-1-arrival#0	slow	base	바쁘신 가운데 시간을 내어, 오늘 결혼식에 참석해 주셔서 감사드립니다.
 01_guest-1-arrival#1	base	base	오늘 모든 안내는 신랑 신부가 정성껏 고른 목소리로 진행됩니다.
-02_guest-2-10min#0	guide	base	잠시 후 신랑 신부의 결혼식이 진행될 예정입니다.
+01_guest-1-arrival#2	slow	base	예식이 시작될 때까지 편안히 기다려 주세요.
+02_guest-2-10min#0	guide	base	잠시 후 신랑 신부의 결혼식이 시작됩니다.
 02_guest-2-10min#1	base	guide	오늘 하루의 자연스러운 모습을, 곁에서 마음껏 사진으로 담아 주세요.
 03_guest-3-5min#0	info	base	시작 오 분 전입니다.
 04_guest-4-1min#0	base	base	다시 한번 말씀드립니다.
 04_guest-4-1min#1	guide	base	잠시 후 예식이 시작됩니다.
-04_guest-4-1min#2	guide	guide	자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주시기 바랍니다.
+04_guest-4-1min#2	guide	guide	자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.
 05_entry-A#0	slow	slow	서로 마주 보며 다져 온 사랑을 이제 같은 곳을 바라보며 더 큰 사랑으로 키워 가려 합니다.
 05_entry-A#1	slow	guide	함께 걸어갈 두 사람의 첫걸음을 아낌없는 박수에 담아 축복해 주시기 바랍니다.
 05_entry-A#2	short	base	신랑 신부, 입장!
@@ -39,32 +40,35 @@
 10_entry-F#0	base	slow	두 사람은 이제 평생이라는 영화의 멋진 이야기를 함께 써 내려갈 텐데요!
 10_entry-F#1	slow	guide	둘만의 아름다운 OST가 오래도록 울려 퍼질 수 있도록 뜨거운 박수로 축하해 주시기 바랍니다.
 10_entry-F#2	short	base	신랑 신부, 입장!
-110_end-1c-thanks-nomeal#0	-	base	하객 여러분께 인사를 올리겠습니다.
-110_end-1c-thanks-nomeal#1	-	base	곧이어 양가 직계 가족분들과의 기념 촬영이 이어질 예정입니다.
-110_end-1c-thanks-nomeal#2	-	guide	촬영하실 분들께서는 끝까지 자리를 함께해 주시기 바랍니다.
-110_end-1c-thanks-nomeal#3	-	base	오늘 하루 행복한 추억 가득하시길 바랍니다.
+110_end-1c-thanks-nomeal#0	-	base	이제 두 사람이 하객 여러분께 감사 인사를 드리겠습니다.
+110_end-1c-thanks-nomeal#1	-	base	곧이어 양가 직계 가족분들과 기념 촬영이 이어집니다.
+110_end-1c-thanks-nomeal#2	-	guide	촬영하실 분들께서는 끝까지 자리를 함께해 주시길 바랍니다.
+110_end-1c-thanks-nomeal#3	-	base	오늘 하루 행복한 추억 가득하세요.
 111_bridge-b3-clap-thanks#0	short	base	정말 고맙습니다.
 112_bridge-b4-breath#0	base	slow	모두 잠시, 숨을 고르셔도 좋습니다.
 114_bridge-b6-lighter#0	base	base	이제, 조금 가벼운 순서로 넘어가겠습니다.
-115_guest-ex2-1-arrival#0	-	base	귀한 걸음 해 주신 여러분, 고맙습니다.
+115_guest-ex2-1-arrival#0	-	base	귀한 걸음 해 주신 여러분, 고맙습니다!
 115_guest-ex2-1-arrival#1	-	base	오늘 모든 안내는 신랑 신부가 정성껏 고른 목소리로 진행됩니다.
-116_guest-ex2-2-10min#0	-	base	잠시 후 아름다운 두 사람의 시작을 함께하게 될 텐데요.
+115_guest-ex2-1-arrival#2	-	base	예식이 시작될 때까지 편안히 기다려 주세요.
+116_guest-ex2-2-10min#0	-	base	잠시 후 아름다운 두 사람의 시작을 함께하게 됩니다.
 116_guest-ex2-2-10min#1	-	guide	오늘 하루의 자연스러운 모습을, 곁에서 마음껏 사진으로 담아 주세요.
 118_guest-ex2-4-1min#0	-	base	곧 신랑 신부의 결혼식이 시작됩니다.
-118_guest-ex2-4-1min#1	-	guide	하객 여러분께서는 자리에 편안히 앉아 주시고, 휴대폰은 무음으로 바꿔 주시기 바랍니다.
-119_guest-ex3-1-arrival#0	-	base	귀한 걸음 해 주신 여러분, 고맙습니다.
-119_guest-ex3-1-arrival#1	-	base	오늘 모든 안내는 신랑 신부가 미리 준비한 안내 음성으로 진행됩니다.
+118_guest-ex2-4-1min#1	-	guide	하객 여러분께서는 자리에 편안히 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.
+119_guest-ex3-1-arrival#0	-	base	귀한 걸음 해 주신 여러분, 고맙습니다!
+119_guest-ex3-1-arrival#1	-	base	오늘 모든 안내는 신랑 신부가 미리 준비한 목소리로 진행돼요.
+119_guest-ex3-1-arrival#2	-	base	예식이 시작될 때까지 편안히 기다려 주세요.
 11_narr-welcome-in#0	slow	base	자리해 주신 하객들을 향한 신랑 신부의 감사 인사가 있겠습니다.
 120_guest-ex3-2-10min#0	-	base	십 분 뒤 예식이 시작됩니다.
-120_guest-ex3-2-10min#1	-	guide	오늘은 자연스러운 모습을 사진으로 남기니, 여러분도 곁에서 마음껏 사진으로 담아 주세요.
+120_guest-ex3-2-10min#1	-	guide	오늘은 자연스러운 모습을 사진으로 남기니, 여러분도 곁에서 마음껏 담아 주세요.
 122_guest-ex3-4-1min#0	-	base	잠시 후 예식이 시작됩니다.
-122_guest-ex3-4-1min#1	-	guide	자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주시기 바랍니다.
+122_guest-ex3-4-1min#1	-	guide	자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.
 123_guest-ex4-1-arrival#0	-	base	참석해 주신 하객 여러분, 고맙습니다.
-123_guest-ex4-1-arrival#1	-	base	오늘 모든 안내는 신랑 신부가 미리 준비한 목소리로 진행됩니다.
+123_guest-ex4-1-arrival#1	-	base	오늘 모든 안내는 신랑 신부가 미리 준비한 목소리로 진행돼요.
+123_guest-ex4-1-arrival#2	-	base	예식이 시작될 때까지 편안히 기다려 주세요.
 124_guest-ex4-2-10min#0	-	base	잠시 후 신랑 신부의 예식이 시작될 예정입니다.
 124_guest-ex4-2-10min#1	-	guide	오늘은 자연스러운 모습을 사진으로 남기니, 하객 여러분께서도 마음껏 담아 주시길 바랍니다.
 126_guest-ex4-4-1min#0	-	base	잠시 후 신랑 신부의 결혼식이 시작될 예정입니다.
-126_guest-ex4-4-1min#1	-	guide	하객 여러분께서는 마련된 좌석에 앉아 주시고, 원활한 진행을 위해 휴대폰은 무음으로 바꿔 주시기 바랍니다.
+126_guest-ex4-4-1min#1	-	guide	하객 여러분께서는 마련된 좌석에 앉아 주시고, 원활한 진행을 위해 휴대폰은 무음으로 바꿔 주세요.
 127_narr-vow-in-b#0	base	base	다음은 혼인 서약의 순서가 있겠습니다.
 127_narr-vow-in-b#1	base	guide	신랑 신부는 서로 마주 보고 서주시기 바랍니다.
 127_narr-vow-in-b#2	slow	base	두 사람의 사랑의 서약을 함께 듣겠습니다.
@@ -378,82 +382,83 @@
 298_guest-w-arrival-guide#0	info	base	발걸음해 주신 여러분, 고맙습니다.
 298_guest-w-arrival-guide#1	base	guide	오늘 예식은 신랑 신부가 미리 준비한 목소리로 안내해 드립니다.
 298_guest-w-arrival-guide#2	base	guide	사진은 편하게, 마음껏 담아 주세요.
-298_guest-w-arrival-guide#3	info	guide	받으신 모바일 청첩장을 열고, 하객 안내에서 사진 올리기를 누르시면 두 분께 바로 보내실 수 있습니다.
-299_guest-w-10m-n10#0	info	base	십 분 뒤 본식을 시작하겠습니다.
+298_guest-w-arrival-guide#3	info	guide	모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 신랑 신부에게 바로 보내실 수 있어요.
+299_guest-w-10m-n10#0	info	base	십 분 뒤 예식을 시작하겠습니다.
 299_guest-w-10m-n10#1	info	base	약 십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.
 29_letter-both#0	base	base	신랑 신부가 편지를 써 왔습니다.
 29_letter-both#1	slow	base	부모님께 먼저, 그리고 서로에게.
 29_letter-both#2	info	guide	두 분, 차례로 전해 주세요.
-304_guest-w-10m-n15#0	info	base	십 분 뒤 본식을 시작하겠습니다.
+304_guest-w-10m-n15#0	info	base	십 분 뒤 예식을 시작하겠습니다.
 304_guest-w-10m-n15#1	info	base	약 십오 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.
-309_guest-w-10m-n20#0	info	base	십 분 뒤 본식을 시작하겠습니다.
+309_guest-w-10m-n20#0	info	base	십 분 뒤 예식을 시작하겠습니다.
 309_guest-w-10m-n20#1	info	base	약 이십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.
+309_guest-w-10m-n20#2	info	base	아직 자리에 앉지 않으셨다면, 천천히 자리를 잡아 주세요.
 314_guest-w-5m-online#0	info	base	시작 오 분 전입니다.
 314_guest-w-5m-online#1	info	guide	온라인으로 함께하시는 분들은 화면과 소리를 확인해 주세요.
-315_guest-w-1m#0	guide	base	잠시 후 순서를 시작하겠습니다.
+315_guest-w-1m#0	guide	base	잠시 후 예식을 시작하겠습니다.
 315_guest-w-1m#1	guide	guide	자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.
-316_guest-w-1m-online#0	guide	base	잠시 후 순서를 시작하겠습니다.
+315_guest-w-1m#2	guide	base	예식 중에도 자리에서 편하게 사진을 찍으셔도 괜찮습니다.
+316_guest-w-1m-online#0	guide	base	잠시 후 예식을 시작하겠습니다.
 316_guest-w-1m-online#1	info	guide	현장에 계신 분들은 자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.
 317_after-photo#0	base	base	단체 사진을 마쳤습니다.
 317_after-photo#1	base	base	이어서 가족 사진을 찍겠습니다.
-317_after-photo#2	info	guide	두 분과 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.
-317_after-photo#3	base	guide	두고 가시는 물건이 없는지 한 번 살펴 주세요.
-317_after-photo#4	info	guide	그 밖의 분들은 이제 편히 돌아가셔도 좋습니다.
-317_after-photo#5	base	base	남은 하루 행복하게 보내세요.
+317_after-photo#2	info	guide	신랑 신부와 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.
+317_after-photo#3	info	guide	다른 분들은 이제 편히 돌아가셔도 좋습니다.
+317_after-photo#4	base	guide	가실 때 두고 가시는 물건이 없는지 한 번 살펴 주세요.
+317_after-photo#5	base	base	남은 하루도 행복하게 보내시길 바랍니다.
 319_after-photo-cafe#0	base	base	단체 사진을 마쳤습니다.
 319_after-photo-cafe#1	base	base	이어서 가족 사진을 찍겠습니다.
-319_after-photo-cafe#2	info	guide	두 분과 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.
-319_after-photo-cafe#3	base	guide	두고 가시는 물건이 없는지 한 번 살펴 주세요.
+319_after-photo-cafe#2	info	guide	신랑 신부와 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.
+319_after-photo-cafe#3	base	guide	가실 때 두고 가시는 물건이 없는지 한 번 살펴 주세요.
 324_after-photo-meal#0	base	base	단체 사진을 마쳤습니다.
 324_after-photo-meal#1	base	base	이어서 가족 사진을 찍겠습니다.
-324_after-photo-meal#2	info	guide	두 분과 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.
-324_after-photo-meal#3	base	guide	두고 가시는 물건이 없는지 한 번 살펴 주세요.
+324_after-photo-meal#2	info	guide	신랑 신부와 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.
+324_after-photo-meal#3	base	guide	가실 때 두고 가시는 물건이 없는지 한 번 살펴 주세요.
 324_after-photo-meal#4	info	guide	그 밖의 분들은 먼저 식사 자리로 이동하셔도 좋습니다.
+324_after-photo-meal#5	base	base	식사 자리는 모바일 청첩장의 하객 안내에서 확인하실 수 있습니다.
 325_narr-closing-nt-nc#0	base	base	이어서 단체 사진을 찍겠습니다.
-339_narr-closing-mealnr#0	info	base	끝까지 함께해 주신 하객 여러분께 다시 한 번 진심으로 감사드립니다.
+339_narr-closing-mealnr#0	info	base	끝까지 함께해 주신 하객 여러분께 다시 한 번 감사드립니다.
 339_narr-closing-mealnr#1	slow	guide	두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.
-339_narr-closing-mealnr#2	info	base	식사는 두 분과 함께합니다.
-339_narr-closing-mealnr#3	info	base	두 분은 남은 촬영을 마친 뒤 합류합니다.
-339_narr-closing-mealnr#4	base	base	이어서 단체 사진을 찍겠습니다.
+339_narr-closing-mealnr#2	info	base	식사 자리에는 신랑 신부도 남은 촬영을 마친 뒤 합류할 예정이에요.
+339_narr-closing-mealnr#3	base	base	이어서 단체 사진을 찍겠습니다.
 340_narr-closing-mealnr-nt#0	slow	guide	두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.
-340_narr-closing-mealnr-nt#1	info	base	식사는 두 분과 함께합니다.
-340_narr-closing-mealnr-nt#2	info	base	두 분은 남은 촬영을 마친 뒤 합류합니다.
-340_narr-closing-mealnr-nt#3	base	base	이어서 단체 사진을 찍겠습니다.
-341_narr-closing-mealnr-nt-nc#0	info	base	식사는 두 분과 함께합니다.
-341_narr-closing-mealnr-nt-nc#1	info	base	두 분은 남은 촬영을 마친 뒤 합류합니다.
-341_narr-closing-mealnr-nt-nc#2	base	base	이어서 단체 사진을 찍겠습니다.
+340_narr-closing-mealnr-nt#1	info	base	식사 자리에는 신랑 신부도 남은 촬영을 마친 뒤 합류할 예정이에요.
+340_narr-closing-mealnr-nt#2	base	base	이어서 단체 사진을 찍겠습니다.
+341_narr-closing-mealnr-nt-nc#0	info	base	식사 자리에는 신랑 신부도 남은 촬영을 마친 뒤 합류할 예정이에요.
+341_narr-closing-mealnr-nt-nc#1	base	base	이어서 단체 사진을 찍겠습니다.
 342_narr-closing-mealr#0	info	base	끝까지 함께해 주신 하객 여러분께 다시 한 번 진심으로 감사드립니다.
 342_narr-closing-mealr#1	slow	guide	두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.
-342_narr-closing-mealr#2	info	base	식사는 안내된 예약 시각에 두 분과 함께합니다.
-342_narr-closing-mealr#3	info	base	두 분은 남은 촬영을 마친 뒤 합류합니다.
+342_narr-closing-mealr#2	info	base	식사는 안내해 드린 시간에 신랑 신부와 함께할 예정입니다.
+342_narr-closing-mealr#3	info	base	두 사람은 남은 촬영을 마친 뒤에 자리합니다.
 342_narr-closing-mealr#4	base	base	이어서 단체 사진을 찍겠습니다.
 343_narr-closing-mealr-nt#0	slow	guide	두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.
-343_narr-closing-mealr-nt#1	info	base	식사는 안내된 예약 시각에 두 분과 함께합니다.
-343_narr-closing-mealr-nt#2	info	base	두 분은 남은 촬영을 마친 뒤 합류합니다.
+343_narr-closing-mealr-nt#1	info	base	식사는 안내해 드린 시간에 신랑 신부와 함께할 예정입니다.
+343_narr-closing-mealr-nt#2	info	base	두 사람은 남은 촬영을 마친 뒤에 자리합니다.
 343_narr-closing-mealr-nt#3	base	base	이어서 단체 사진을 찍겠습니다.
-344_narr-closing-mealr-nt-nc#0	info	base	식사는 안내된 예약 시각에 두 분과 함께합니다.
-344_narr-closing-mealr-nt-nc#1	info	base	두 분은 남은 촬영을 마친 뒤 합류합니다.
+344_narr-closing-mealr-nt-nc#0	info	base	식사는 안내해 드린 시간에 신랑 신부와 함께할 예정입니다.
+344_narr-closing-mealr-nt-nc#1	info	base	두 사람은 남은 촬영을 마친 뒤에 자리합니다.
 344_narr-closing-mealr-nt-nc#2	base	base	이어서 단체 사진을 찍겠습니다.
-345_guest-w-10m-n10-meal#0	info	base	십 분 뒤 본식을 시작하겠습니다.
+345_guest-w-10m-n10-meal#0	info	base	십 분 뒤 예식을 시작하겠습니다.
 345_guest-w-10m-n10-meal#1	info	base	약 십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.
-345_guest-w-10m-n10-meal#2	info	base	식사는 촬영 뒤에 함께합니다.
-346_guest-w-10m-n15-meal#0	info	base	십 분 뒤 본식을 시작하겠습니다.
+345_guest-w-10m-n10-meal#2	info	base	식사는 촬영을 마친 뒤, 신랑 신부와 함께합니다.
+346_guest-w-10m-n15-meal#0	info	base	십 분 뒤 예식을 시작하겠습니다.
 346_guest-w-10m-n15-meal#1	info	base	약 십오 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.
-346_guest-w-10m-n15-meal#2	info	base	식사는 촬영 뒤에 함께합니다.
-347_guest-w-10m-n20-meal#0	info	base	십 분 뒤 본식을 시작하겠습니다.
+346_guest-w-10m-n15-meal#2	info	base	식사는 촬영을 마친 뒤, 신랑 신부와 함께합니다.
+347_guest-w-10m-n20-meal#0	info	base	십 분 뒤 예식을 시작하겠습니다.
 347_guest-w-10m-n20-meal#1	info	base	약 이십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.
-347_guest-w-10m-n20-meal#2	info	base	식사는 촬영 뒤에 함께합니다.
-348_guest-w-10m-n10-short#0	info	base	십 분 뒤 본식을 시작하겠습니다.
-348_guest-w-10m-n10-short#1	info	base	본식을 마친 뒤에는 기념 촬영이 있습니다.
-349_guest-w-10m-n10-short-meal#0	info	base	십 분 뒤 본식을 시작하겠습니다.
-349_guest-w-10m-n10-short-meal#1	info	base	본식을 마친 뒤에는 기념 촬영이 있습니다.
-349_guest-w-10m-n10-short-meal#2	info	base	식사는 촬영 뒤에 함께합니다.
+347_guest-w-10m-n20-meal#2	info	base	식사는 촬영을 마친 뒤, 신랑 신부와 함께합니다.
+347_guest-w-10m-n20-meal#3	info	base	아직 자리에 앉지 않으셨다면, 천천히 자리를 잡아 주세요.
+348_guest-w-10m-n10-short#0	info	base	십 분 뒤 예식을 시작하겠습니다.
+348_guest-w-10m-n10-short#1	info	base	예식을 마친 뒤에는 기념 촬영이 있습니다.
+349_guest-w-10m-n10-short-meal#0	info	base	십 분 뒤 예식을 시작하겠습니다.
+349_guest-w-10m-n10-short-meal#1	info	base	예식을 마친 뒤에는 기념 촬영이 있습니다.
+349_guest-w-10m-n10-short-meal#2	info	base	식사는 촬영을 마친 뒤, 신랑 신부와 함께합니다.
 350_narr-welcome-in-face#0	guide	guide	신랑 신부는 하객을 향해 서주시기 바랍니다.
 350_narr-welcome-in-face#1	slow	base	이제 두 사람의 감사 인사를 듣겠습니다.
 356_guest-w5-meal#0	info	base	시작 오 분 전입니다.
-356_guest-w5-meal#1	info	base	식사 장소 확인과 사진 올리기는 모바일 청첩장의 하객 안내에서 하실 수 있습니다.
+356_guest-w5-meal#1	info	base	식사 장소와 사진 올리기는 모바일 청첩장의 하객 안내에서 보실 수 있습니다.
 357_guest-w5-meal-online#0	info	base	시작 오 분 전입니다.
-357_guest-w5-meal-online#1	info	base	식사 장소 확인과 사진 올리기는 모바일 청첩장의 하객 안내에서 하실 수 있습니다.
+357_guest-w5-meal-online#1	info	base	식사 장소와 사진 올리기는 모바일 청첩장의 하객 안내에서 보실 수 있습니다.
 357_guest-w5-meal-online#2	info	guide	온라인으로 함께하시는 분들은 화면과 소리를 확인해 주세요.
 38_tribute-in#0	guide	guide	신랑 신부는 천천히 부모님 앞으로 이동하겠습니다.
 39_tribute-out#0	slow	slow	신랑 신부의 감사한 마음이 부모님께 잘 전달되었기를 바랍니다.
@@ -461,13 +466,13 @@
 40_toast-toast#0	slow	base	다음은 신랑 신부의 영원한 사랑과 행복을 위하여 다 같이 축배를 들도록 하겠습니다.
 40_toast-toast#1	base	guide	신랑 신부가 선창하면 '위하여'라고 해 주세요.
 44_end-0-photo#0	base	base	이제 안내에 따라 사진 촬영을 진행하겠습니다.
-45_end-1a-farewell#0	-	base	하객 여러분께 인사를 올리겠습니다.
-45_end-1a-farewell#1	-	base	곧이어 양가 직계 가족분들과의 기념 촬영이 이어집니다.
-45_end-1a-farewell#2	-	guide	촬영에 함께하실 분들께서는 끝까지 자리를 함께해 주세요.
-45_end-1a-farewell#3	-	guide	이후에는 안내에 따라 촬영과 피로연 장소로 이동해 주시면 됩니다.
+45_end-1a-farewell#0	-	base	이제 두 사람이 하객 여러분께 감사 인사를 드리겠습니다.
+45_end-1a-farewell#1	-	base	곧이어 양가 직계 가족분들과 기념 촬영이 이어집니다.
+45_end-1a-farewell#2	-	guide	촬영에 함께하실 분들께서는 끝까지 자리를 함께해 주시길 바랍니다.
+45_end-1a-farewell#3	-	guide	이후에는 안내에 따라 촬영과 식사 장소로 이동해 주시면 됩니다.
 47_end-2-goodbye#0	info	base	끝까지 함께해 주신 하객 여러분께 다시 한 번 진심으로 감사드립니다.
 47_end-2-goodbye#1	base	base	남은 하루 행복하게 보내세요.
-48_online-3-welcome#0	info	base	화면으로 함께해 주시는 여러분, 반갑습니다.
+48_online-3-welcome#0	info	base	화면으로 함께해 주신 여러분, 반갑고 고맙습니다.
 52_narr-entry-out#0	base	slow	두 사람이 나란히 섰습니다.
 52_narr-entry-out#1	base	slow	잠시, 서로를 바라봐 주세요.
 56_narr-toast-out#0	base	guide	편안하게 즐겨 주세요.
@@ -487,13 +492,13 @@
 82_narr-entry-out-E#1	base	slow	잠시, 서로를 바라봐 주세요.
 83_narr-entry-out-F#0	base	slow	오늘부터는 혼자 쓰는 이야기가 아닙니다.
 83_narr-entry-out-F#1	base	slow	잠시, 서로를 바라봐 주세요.
-84_narr-photo-ask#0	info	guide	안내 페이지의 사진 올리기를 통해, 간직하신 장면을 신랑 신부에게 보내실 수 있습니다.
-85_narr-photo-send#0	info	guide	찍어 주신 사진은 하객 안내의 사진 올리기로 공유해 주세요.
+84_narr-photo-ask#0	info	guide	모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 담아 주신 장면을 신랑 신부에게 바로 보내실 수 있어요.
+85_narr-photo-send#0	info	guide	찍어 주신 사진은 모바일 청첩장의 하객 안내에서 사진 올리기로 보내 주시면, 신랑 신부에게 바로 전해져요.
 87_narr-toast-none#0	base	base	축사는 따로 두지 않았습니다.
 87_narr-toast-none#1	base	base	두 사람을 가장 잘 아시는 분들이, 바로 여기 계신 여러분이니까요.
 89_guest-4-1min-pre#0	-	base	다시 한번 말씀드립니다.
 89_guest-4-1min-pre#1	-	base	잠시 후 예식이 시작됩니다.
-89_guest-4-1min-pre#2	-	guide	자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주시기 바랍니다.
+89_guest-4-1min-pre#2	-	guide	자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.
 90_narr-prevideo-in#0	base	base	두 사람의 이야기를 함께 만나보시겠습니다.
 91_narr-candle-in-mothers-ex2#0	slow	slow	우리는 늘 엄마가 당연히 그 자리에 있는 존재라고 생각하지만, 사실 그 자리는 누군가의 수많은 포기와 사랑으로 지켜진 자리입니다.
 91_narr-candle-in-mothers-ex2#1	info	slow	그 시간 속에서 두 분은 한 번도 자신을 앞세우지 않고 늘 자식의 길에서 빛이 되어 주셨습니다.

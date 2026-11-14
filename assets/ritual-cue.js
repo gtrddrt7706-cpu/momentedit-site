@@ -311,12 +311,12 @@
        ★[PHOTO_ASK_R6_1016 라운드 6 · SOURCE_ALL_1016] 자료 G4 표 2 다정 «1분 전 바로 뒤» 글자에 단어 둘만 바꿈(«를 통해 → 로» · «전해 주실 → 보내실»).
          사진 허락(«마음껏 담아 …»)은 라운드 5 에서 10분 전으로 옮겼다 — 첫 문장만으로는 «무엇을 보내나»가 비어 «여러분의 시선이 담긴 장면을»이 그 자리를 채운다.
          옛 둘째 문장(«같은 장면도, 계신 곳마다 …» · 지적 4 · 플레이 01)의 뜻은 «여러분의 시선이 담긴»이 한 문장으로 말한다 · 되살리지 말 것 */
-    'narr-photo-ask': '안내 페이지의 사진 올리기를 통해, 간직하신 장면을 신랑 신부에게 보내실 수 있습니다.',
+    'narr-photo-ask': '모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 담아 주신 장면을 신랑 신부에게 바로 보내실 수 있어요.',   /* ★[FINAL_APPLY_1115 대표님 FINAL2 11/14 · 안내 = 문정] 84 = MJ_1114 mj84n · 옛 글 «안내 페이지의 사진 올리기를 통해, 간직하신 장면을 신랑 신부에게 보내실 수 있습니다.» */
     /* ★[PHOTO_ASK] 버튼 이름을 낫표로 인용하지 않는다 — 타입캐스트가 괄호·낫표를 읽는다.
        이름을 부르는 대신 «보내 주시면 전해집니다»로 행동만 말한다. */
     /* ★[PHOTO_UP_1019 검토 138-2] 85 = 5분 전 안내와 같은 길 · 같은 이름(청첩장 속 하객 안내 → 사진 올리기)으로 한 번 더 · 바로 뒤 45 «받으신 … 에서» 되풀이를 풀었다 · 바깥 링크 날에도 맞는 말(«바로» 뺌)
        옛 글 «사진은, 받으신 안내 페이지에서 신랑 신부에게 바로 보내실 수 있습니다.» · 되살리지 말 것 */
-    'narr-photo-send': '찍어 주신 사진은 하객 안내의 사진 올리기로 공유해 주세요.'   /* ★[QUALITY_REVIEW_1024 검토 160 고침판] 85 = 지금필름 안내영상 «식권 QR로 예쁜 사진 공유해주세요» 뿌리 · «식권 QR» → 우리 메뉴 이름 · «예쁜» 뺌(잘 나온 사진만 보내야 할 부담) · «바로» 없음(바깥 링크 날에도 맞는 말) */,
+    'narr-photo-send': '찍어 주신 사진은 모바일 청첩장의 하객 안내에서 사진 올리기로 보내 주시면, 신랑 신부에게 바로 전해져요.'   /* ★[FINAL_APPLY_1115 대표님 FINAL2 11/14 · 안내 = 문정] 85 = MJT_1114 mj41n · 옛 글 «찍어 주신 사진은 하객 안내의 사진 올리기로 공유해 주세요.» */   /* ★[QUALITY_REVIEW_1024 검토 160 고침판] 85 = 지금필름 안내영상 «식권 QR로 예쁜 사진 공유해주세요» 뿌리 · «식권 QR» → 우리 메뉴 이름 · «예쁜» 뺌(잘 나온 사진만 보내야 할 부담) · «바로» 없음(바깥 링크 날에도 맞는 말) */,
     /* ★[PHOTO_UP_1019 검토 138-2] 264 — 우리 사진 올리기(하객 안내가 열린 날 · 바깥 링크가 없는 날) · [무엇] → [어디서] → [한 동작] → [안심](웹 조사 39곳 · G2 3-3 «가입 없이»)
        «담으신»은 10분 전 «마음껏 담아»를 받는다 · 앞 03 «신랑 신부도»와 겹치지 않게 «두 분께» · «예식이 끝난 뒤에도»(하객 안내는 예식 +30일까지 열린다) */
     'narr-photo-upload': '여러분이 받으신 모바일 청첩장의 하객 안내를 통해 오늘 찍으신 사진을 바로 올리실 수 있습니다.',
@@ -347,9 +347,9 @@
     /* ★[PHOTO_END_LINE_1018 사장님 10/18 18:04 «추천대로»(결정 대기함 [110] 끝맺음)] 첫 문장 «오늘의 예식은 여기까지입니다» → «다 함께하는 촬영은 여기까지입니다» —
        이 줄은 전체 사진 뒤 · 가족사진 · 테이블 전이라 «예식이 끝났다»는 앞선 닫는 인사 · 단체 사진 안내와 «끝»이 세 번 겹쳤다 · 45(식사 있는 날)도 같은 자리라 함께 맞춤 · 46(온라인)은 그대로 ·
        결정 글 «사진은» 대신 «촬영은» — 사진 보내기 날 바로 앞 85 «사진은, 받으신 안내 페이지에서 …»와 첫 낱말이 겹친다(narr-words CHAIN_ECHO_1015) */
-    'end-1a-farewell': '하객 여러분께 인사를 올리겠습니다. 곧이어 양가 직계 가족분들과의 기념 촬영이 이어집니다. 촬영에 함께하실 분들께서는 끝까지 자리를 함께해 주세요. 이후에는 안내에 따라 촬영과 피로연 장소로 이동해 주시면 됩니다.',   /* ★[MODERN_WORDS_1024 검토 164] 45 · 110 «~오니 · 촬영 대상이신 분들» → 요즘 말 · 뜻 그대로 */
+    'end-1a-farewell': '이제 두 사람이 하객 여러분께 감사 인사를 드리겠습니다. 곧이어 양가 직계 가족분들과 기념 촬영이 이어집니다. 촬영에 함께하실 분들께서는 끝까지 자리를 함께해 주시길 바랍니다. 이후에는 안내에 따라 촬영과 식사 장소로 이동해 주시면 됩니다.',   /* ★[FINAL_APPLY_1115 대표님 FINAL2 11/14 · 안내 = 문정] 45 · 110 첫 문장 = MJ36_1114 mj36b(누가 인사하는지 넣음) · «가족분들과의» → «가족분들과» · 옛 글 «하객 여러분께 인사를 올리겠습니다. … 끝까지 자리를 함께해 주세요. … 촬영과 피로연 장소로 …» */   /* ★[MODERN_WORDS_1024 검토 164] 45 · 110 «~오니 · 촬영 대상이신 분들» → 요즘 말 · 뜻 그대로 */
     /* ★★[THANKS_TEXT 2026-09-26 사장님 확인 · 코워크 제안 고친 판 · 덧 7] 식사 없는 날 판(110) — 1 · 2 · 3 · 4 · 7 뒤에 귀가 인사. 같은 글은 한 번 받아 두 판에 함께 쓴다([DUP_ONCE]). */
-    'end-1c-thanks-nomeal': '하객 여러분께 인사를 올리겠습니다. 곧이어 양가 직계 가족분들과의 기념 촬영이 이어질 예정입니다. 촬영하실 분들께서는 끝까지 자리를 함께해 주시기 바랍니다. 오늘 하루 행복한 추억 가득하시길 바랍니다.',
+    'end-1c-thanks-nomeal': '이제 두 사람이 하객 여러분께 감사 인사를 드리겠습니다. 곧이어 양가 직계 가족분들과 기념 촬영이 이어집니다. 촬영하실 분들께서는 끝까지 자리를 함께해 주시길 바랍니다. 오늘 하루 행복한 추억 가득하세요.',
     /* ★[ONLINE_ALREADY_ENDED 2026-08-16] 이 문안은 **더 이상 쓰이지 않는다.**
        마지막 문장(「화면으로 함께해 주신 분들께도, 두 사람이 곧 인사드리겠습니다」)이
        라이브가 이미 끝난 자리에서 나가던 말이라 갈래를 접었다(위 _farewell 주석 참고).
@@ -362,7 +362,7 @@
        자료 U1 «끝까지 함께 해주신 하객 여러분께»의 «끝까지 함께해 주신»으로 · 뒤는 T2 그대로 */
     /* ★[REVIEW30_1023 검토 154] 47 = U1 마지막 인사 + DD ⑦ 그대로 */
     'end-2-goodbye': '끝까지 함께해 주신 하객 여러분께 다시 한 번 진심으로 감사드립니다. 남은 하루 행복하게 보내세요.',
-    'online-3-welcome': '화면으로 함께해 주시는 여러분, 반갑습니다.',   // ★[LISTEN_FIX_1031 검토 176 사장님 실청] «보고 계신 분들» → «함께해 주시는 여러분»
+    'online-3-welcome': '화면으로 함께해 주신 여러분, 반갑고 고맙습니다.',   /* ★[FINAL_APPLY_1115 대표님 FINAL2 11/14 · 안내 = 문정] 48 = RX3_1114 m48a_t2 · 옛 글 «화면으로 함께해 주시는 여러분, 반갑습니다.» */   // ★[LISTEN_FIX_1031 검토 176 사장님 실청] «보고 계신 분들» → «함께해 주시는 여러분»
     'bridge-4-wait-emotion': '잠시 이대로 두겠습니다. 이 시간도, 예식의 한 부분입니다.',
     'bridge-5-wait-setup': '다음 순서를 준비하고 있습니다. 끝나는 대로 이어 가겠습니다.',
     'bridge-6-resume': '기다려 주셔서 감사합니다. 이어서 진행하겠습니다.',
@@ -448,20 +448,25 @@
        살아 있는 판 = 식사 없음 287 · 292 · 325 / 식사 · 예약 시각 342 ~ 344 / 식사 · 예약 시각 없음 339 ~ 341 · 나머지 열한 판은 쉰다(RETIRED · 글 · 받은 소리 그대로 — 5분 전이 빌려 쓴다) */
   var CL_RESV = ['안내', '식사는 안내된 예약 시각에 두 분과 함께합니다.', '321_after-photo-resv-guide#3', '검토 191 · 검토 200 수정 2(촬영 후 안내에서 마무리로 옮김 · 받은 소리 빌림)'], CL_NORESV = ['안내', '식사는 두 분과 함께합니다.', null, '검토 200 수정 2'],
     CL_JOIN = ['안내', '두 분은 남은 촬영을 마친 뒤 합류합니다.', null, '검토 200 수정 2'];
+  /* ★[FINAL_APPLY_1115 대표님 FINAL2 11/14 · 안내 = 문정] 식사 날 마무리 글 — 예약 시각 있음(342 ~ 344) = «안내해 드린 시간 · 신랑 신부 · 두 사람은 … 자리합니다» 두 문장 · 없음(339 ~ 341) = 한 문장으로 합침 · 339 감사는 «진심으로» 없는 판(RX_1114 m339s1b · 342 는 47#0 그대로) ·
+       옛 CL_RESV · CL_NORESV · CL_JOIN 은 옛 녹음 기록(살아 있는 판에 쓰지 않는다) */
+  var CL_RESV2 = ['안내', '식사는 안내해 드린 시간에 신랑 신부와 함께할 예정입니다.', null, '대표님 FINAL2 11/14'], CL_JOIN2 = ['안내', '두 사람은 남은 촬영을 마친 뒤에 자리합니다.', null, '대표님 FINAL2 11/14'],
+    CL_NJ = ['안내', '식사 자리에는 신랑 신부도 남은 촬영을 마친 뒤 합류할 예정이에요.', null, '대표님 FINAL2 11/14 · RX_1114 m339s3b'],
+    CL_THX2 = ['안내', '끝까지 함께해 주신 하객 여러분께 다시 한 번 감사드립니다.', null, '대표님 FINAL2 11/14 · RX_1114 m339s1b'];
   var CLOSING_PARTS = {
     'narr-closing': [CL_THX, CL_CHEER, CL_GA], 'narr-closing-guide': [CL_THX, CL_CHEER, CL_UP, CL_GA],
     'narr-closing-soft': [CL_THX, CL_CHEER, CL_GA], 'narr-closing-soft-guide': [CL_THX, CL_CHEER, CL_UP, CL_GA],
     'narr-closing-meal': [CL_THX, CL_CHEER].concat(CL_MEAL, [CL_UP_MEAL, CL_GA]),   /* [CLOSING_MEAL_DUP] · [INFO_SPLIT_200] 쉬는 판(받은 «오늘 찍으신 사진도 …»를 5분 전이 빌린다) */
-    'narr-closing-mealr': [CL_THX, CL_CHEER, CL_RESV, CL_JOIN, CL_GA], 'narr-closing-mealnr': [CL_THX, CL_CHEER, CL_NORESV, CL_JOIN, CL_GA],   /* [INFO_SPLIT_200] 식사 날 · 예약 시각 ± */
+    'narr-closing-mealr': [CL_THX, CL_CHEER, CL_RESV2, CL_JOIN2, CL_GA], 'narr-closing-mealnr': [CL_THX2, CL_CHEER, CL_NJ, CL_GA],   /* [FINAL_APPLY_1115] */   /* [INFO_SPLIT_200] 식사 날 · 예약 시각 ± */
     /* [CLOSING_SRC_1031] 닫는 멘트 칩 187 «격식 있게»를 고른 날 — 47#0(감사) 없이 · [CLOSING_CHEER_195] 응원 문장이 맨 앞 */
     'narr-closing-nt': [CL_CHEER, CL_GA], 'narr-closing-guide-nt': [CL_CHEER, CL_UP, CL_GA],
     'narr-closing-soft-nt': [CL_CHEER, CL_GA], 'narr-closing-soft-guide-nt': [CL_CHEER, CL_UP, CL_GA],   /* ★[CLOSING_CHEER_195] 294 다시 쓴다 — 응원 한 문장(옛 판: 44 를 빼 남는 문장 0 이라 쉬었다 · [CLOSING_NO_CREW_1031] 44 는 여전히 없다 · CL_CREW 는 옛 녹음 기록) */
     'narr-closing-meal-nt': [CL_CHEER].concat(CL_MEAL, [CL_UP_MEAL, CL_GA]),   /* [CLOSING_MEAL_DUP] · 쉬는 판 */
-    'narr-closing-mealr-nt': [CL_CHEER, CL_RESV, CL_JOIN, CL_GA], 'narr-closing-mealnr-nt': [CL_CHEER, CL_NORESV, CL_JOIN, CL_GA],
+    'narr-closing-mealr-nt': [CL_CHEER, CL_RESV2, CL_JOIN2, CL_GA], 'narr-closing-mealnr-nt': [CL_CHEER, CL_NJ, CL_GA],
     /* [CLOSING_CHEER_195] 칩 186 «다정하게»를 고른 날 — 감사 없이 · 응원 없이(옛 292 · 293 · 295 · 296 글 그대로) */
     'narr-closing-nt-nc': [CL_GA], 'narr-closing-guide-nt-nc': [CL_UP, CL_GA],
     'narr-closing-soft-guide-nt-nc': [CL_UP, CL_GA],
-    'narr-closing-meal-nt-nc': CL_MEAL.concat([CL_UP_MEAL, CL_GA]), 'narr-closing-mealr-nt-nc': [CL_RESV, CL_JOIN, CL_GA], 'narr-closing-mealnr-nt-nc': [CL_NORESV, CL_JOIN, CL_GA]
+    'narr-closing-meal-nt-nc': CL_MEAL.concat([CL_UP_MEAL, CL_GA]), 'narr-closing-mealr-nt-nc': [CL_RESV2, CL_JOIN2, CL_GA], 'narr-closing-mealnr-nt-nc': [CL_NJ, CL_GA]
   };
   Object.keys(CLOSING_PARTS).forEach(function (k) { EXTRA[k] = CLOSING_PARTS[k].map(function (x) { return x[1]; }).join(' '); });
   /* ★★[GUEST_WELCOME_191 · AFTER_PHOTO_191 검토 191] 하객 맞이 · 촬영 후 안내 문장 창고 — 줄 하나 = [줄 주인 · 문장 · 빌려 오는 녹음 · 자료 판정] (CLOSING_PARTS 와 같은 모양) ·
@@ -472,19 +477,25 @@
   var gw = function (t, b) { return ['안내', t, b || null, GW_SRC]; };
   var GW = {
     hi: gw('발걸음해 주신 여러분, 고맙습니다.'), voice: gw('오늘 예식은 신랑 신부가 미리 준비한 목소리로 안내해 드립니다.'), snap: gw('사진은 편하게, 마음껏 담아 주세요.'),
-    up: gw('받으신 모바일 청첩장을 열고, 하객 안내에서 사진 올리기를 누르시면 두 분께 바로 보내실 수 있습니다.'),
-    ten: gw('십 분 뒤 본식을 시작하겠습니다.'),
+    up: gw('모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 신랑 신부에게 바로 보내실 수 있어요.'),   /* ★[FINAL_APPLY_1115 대표님 FINAL2 11/14 · 안내 = 문정] 298 넷째 · 옛 글 «받으신 모바일 청첩장을 열고, 하객 안내에서 사진 올리기를 누르시면 두 분께 바로 보내실 수 있습니다.» */
+    ten: gw('십 분 뒤 예식을 시작하겠습니다.'), oTen: gw('십 분 뒤 본식을 시작하겠습니다.'),   /* [FINAL_APPLY_1115] «본식» → «예식» · oTen = 쉬는 판(-mgr · -mg · -mr · -m) 옛 글 */
+    seat: gw('아직 자리에 앉지 않으셨다면, 천천히 자리를 잡아 주세요.'),   /* [FINAL_APPLY_1115] 본식 이십 분 판(309 · 347) 끝 */
     n10: gw('약 십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.'), n15: gw('약 십오 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.'), n20: gw('약 이십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.'),
-    nShort: gw('본식을 마친 뒤에는 기념 촬영이 있습니다.'),   /* [K3_SHORT_1106] 10분 미만 본식 — 길이를 말하지 않는다(새 문장 · 녹음 대기) */
-    meal: gw('식사는 촬영 뒤에 함께합니다.'),
+    nShort: gw('예식을 마친 뒤에는 기념 촬영이 있습니다.'),   /* [FINAL_APPLY_1115] 옛 글 «본식을 마친 뒤에는 …» */   /* [K3_SHORT_1106] 10분 미만 본식 — 길이를 말하지 않는다(새 문장 · 녹음 대기) */
+    meal: gw('식사는 촬영을 마친 뒤, 신랑 신부와 함께합니다.'), oMeal: gw('식사는 촬영 뒤에 함께합니다.'),   /* [FINAL_APPLY_1115] MJT_1114 mj32a · oMeal = 쉬는 판 옛 글 */
     mgr: gw('장소와 예약 시각은 모바일 청첩장의 하객 안내에서 확인해 주세요.'), mg: gw('장소는 모바일 청첩장의 하객 안내에서 확인해 주세요.'),
     mr: gw('장소와 예약 시각은 현장 디렉터에게 여쭤 주세요.'), m: gw('장소와 시간은 현장 디렉터에게 여쭤 주세요.'),
     five: gw('시작 오 분 전입니다.', '03_guest-3-5min#0'), online5: gw('온라인으로 함께하시는 분들은 화면과 소리를 확인해 주세요.'),
-    soon: gw('잠시 후 순서를 시작하겠습니다.'), sit: gw('자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.'), sitOn: gw('현장에 계신 분들은 자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.'),
+    soon: gw('잠시 후 예식을 시작하겠습니다.'), snapOk: gw('예식 중에도 자리에서 편하게 사진을 찍으셔도 괜찮습니다.'),   /* [FINAL_APPLY_1115] 315 · 316 «순서를» → «예식을» · 315 셋째 문장 더함 */ sit: gw('자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.'), sitOn: gw('현장에 계신 분들은 자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.'),
     /* ★★[END_FLOW_200 최종 · 사장님 17:16 ~ 17:19 «식당 · 사진 업로드 충분히 · 가도 되는 타이밍 · 더 찍고 싶으면 남으라는 멘트»] 촬영 후 안내는 전체 단체 사진 직후 · 가족 사진 전 —
          «단체 사진을 마쳤습니다 → 이어서 가족 사진 → 더 남기고 싶으신 분들은 편하게 남아» · 식사 · 사진 올리기는 마무리 멘트에서 여기로 모았다 · 이동 허락은 맨 끝 ·
          옛 «끝까지 함께해 주셔서 고맙습니다» · «기념 촬영을 모두 마쳤습니다» · «따로 사진을 … 잠시 남아 주세요» · «이어서 두 분과 함께 식사합니다»는 뺐다(되살리지 말 것) */
     done: gw('단체 사진을 마쳤습니다.'), fam: gw('이어서 가족 사진을 찍겠습니다.'), stay: gw('두 분과 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.'),
+    /* ★[FINAL_APPLY_1115 대표님 FINAL2 11/14 · 안내 = 문정] 317 = RX3_1114 «안내 밝게» 여섯 문장(한 톤) — 남기 → 이동 허락 → 물건 → 작별 · 옛 stay · things · goHome · day 는 319 · 324 · 쉬는 판이 쓴다 */
+    stay2: gw('신랑 신부와 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.'), goHome2: gw('다른 분들은 이제 편히 돌아가셔도 좋습니다.'),
+    things2: gw('가실 때 두고 가시는 물건이 없는지 한 번 살펴 주세요.'), day2: gw('남은 하루도 행복하게 보내시길 바랍니다.'),
+    mealWhere: gw('식사 자리는 모바일 청첩장의 하객 안내에서 확인하실 수 있습니다.'),   /* [FINAL_APPLY_1115] 324 끝 */
+    mealUp5: gw('식사 장소와 사진 올리기는 모바일 청첩장의 하객 안내에서 보실 수 있습니다.'),   /* [FINAL_APPLY_1115] 356 · 357 둘째 = MJ_1114 mj34b · 옛 oMealUp 은 쉬는 판(321 · 323)이 쓴다 */
     day: ['안내', '남은 하루 행복하게 보내세요.', '47_end-2-goodbye#1', '자료 — U1 마지막 인사 · DD ⑦ · [END_FLOW_200] 마무리 멘트에서 옮김(기존 소리)'],
     resv: gw('식사는 안내된 예약 시각에 두 분과 함께합니다.'), noResv: gw('식사는 두 분과 함께합니다.'),
     join: gw('두 분은 남은 촬영을 마친 뒤 합류합니다.'),
@@ -497,21 +508,21 @@
     things: gw('두고 가시는 물건이 없는지 한 번 살펴 주세요.'), bye: gw('조심히 돌아가세요.')
   };
   var GUEST_PARTS = { 'guest-w-arrival': [GW.hi, GW.voice, GW.snap], 'guest-w-arrival-guide': [GW.hi, GW.voice, GW.snap, GW.up],
-    'guest-w-5m-online': [GW.five, GW.online5], 'guest-w-1m': [GW.soon, GW.sit], 'guest-w-1m-online': [GW.soon, GW.sitOn],
+    'guest-w-5m-online': [GW.five, GW.online5], 'guest-w-1m': [GW.soon, GW.sit, GW.snapOk], 'guest-w-1m-online': [GW.soon, GW.sitOn],
     /* ★[END_FLOW_200 최종] 앞 셋(마침 · 가족 사진 · 남아 주세요) → 식사(예약 시각 ±) → 경로(하객 안내: 장소 + 사진 · 예외 예식: 현장 디렉터 · 사진 줄 없음) → 식사 날 합류 → 물건 → 이동 허락(맨 끝) ·
          카페 · 다과만인 날은 «식사»라 하지 않고 함께 이동하니 이동 허락 · 귀가 말 없이 물건에서 끝(AFTER_PHOTO_191 그대로) */
     /* ★[INFO_SPLIT_200] 촬영 후 안내 = 남기 · 물건 · 이동 허락(+ 작별) — 식사 있음 324 · 없음 317 · 카페 · 다과만 319(함께 이동하는 날이라 이동 허락 · 귀가 말 없이 · AFTER_PHOTO_191 그대로) · 나머지 다섯 판은 쉰다(글은 옛 기록) */
-    'after-photo': [GW.done, GW.fam, GW.stay, GW.things, GW.goHome, GW.day], 'after-photo-meal': [GW.done, GW.fam, GW.stay, GW.things, GW.goMeal],
-    'after-photo-cafe': [GW.done, GW.fam, GW.stay, GW.things],
+    'after-photo': [GW.done, GW.fam, GW.stay2, GW.goHome2, GW.things2, GW.day2],   /* [FINAL_APPLY_1115] */ 'after-photo-meal': [GW.done, GW.fam, GW.stay2, GW.things2, GW.goMeal, GW.mealWhere],   /* ★[FINAL_APPLY_1115 대본 11/15 «319 · 324 읽은 방식 맞음»] 324 = 317 T3 1 · 2 · 3 · 5문장 + 식사 두 문장 */
+    'after-photo-cafe': [GW.done, GW.fam, GW.stay2, GW.things2],   /* [FINAL_APPLY_1115] 319 = 317 T3 1 · 2 · 3 · 5문장 */
     'after-photo-guide': [GW.oDone, GW.oThx, GW.oStay, GW.pUp, GW.things, GW.day], 'after-photo-cafe-guide': [GW.oDone, GW.oThx, GW.oStay, GW.pUp, GW.things],   /* 쉬는 판 — 옛 글 그대로(받은 소리를 5분 전이 빌린다) */
     'after-photo-resv-guide': [GW.oDone, GW.oThx, GW.oStay, GW.resv, GW.oMealUp, GW.things], 'after-photo-resv': [GW.oDone, GW.oThx, GW.oStay, GW.resv, GW.oResv, GW.things],
     'after-photo-meal-guide': [GW.oDone, GW.oThx, GW.oStay, GW.oNoResv, GW.oMealUp, GW.things] };
   /* ★[INFO_SPLIT_200] 10분 전 = 시작 예고 + 본식 길이 + 식사 날 «식사는 촬영 뒤에 함께합니다.» 뿐 — 확인 경로는 5분 전으로 옮겼다(-mgr · -mg · -mr 는 쉬는 판 · 글은 -m 과 같게) */
-  [10, 15, 20].forEach(function (n) { var b = [GW.ten, GW['n' + n]];
-    GUEST_PARTS['guest-w-10m-n' + n] = b; GUEST_PARTS['guest-w-10m-n' + n + '-meal'] = b.concat([GW.meal]);
+  [10, 15, 20].forEach(function (n) { var b = [GW.ten, GW['n' + n]], e = n === 20 ? [GW.seat] : [], o = [GW.oTen, GW['n' + n]];   /* [FINAL_APPLY_1115] 이십 분 판만 끝에 «아직 자리에 …» */
+    GUEST_PARTS['guest-w-10m-n' + n] = b.concat(e); GUEST_PARTS['guest-w-10m-n' + n + '-meal'] = b.concat([GW.meal], e);
     /* 쉬는 판 — 옛 글 그대로(받은 경로 문장을 5분 전이 빌린다) */
-    GUEST_PARTS['guest-w-10m-n' + n + '-mgr'] = b.concat([GW.meal, GW.mgr]); GUEST_PARTS['guest-w-10m-n' + n + '-mg'] = b.concat([GW.meal, GW.mg]);
-    GUEST_PARTS['guest-w-10m-n' + n + '-mr'] = b.concat([GW.meal, GW.mr]); GUEST_PARTS['guest-w-10m-n' + n + '-m'] = b.concat([GW.meal, GW.m]); });
+    GUEST_PARTS['guest-w-10m-n' + n + '-mgr'] = o.concat([GW.oMeal, GW.mgr]); GUEST_PARTS['guest-w-10m-n' + n + '-mg'] = o.concat([GW.oMeal, GW.mg]);
+    GUEST_PARTS['guest-w-10m-n' + n + '-mr'] = o.concat([GW.oMeal, GW.mr]); GUEST_PARTS['guest-w-10m-n' + n + '-m'] = o.concat([GW.oMeal, GW.m]); });
   /* [K3_SHORT_1106] 299s · 345s = 10분 미만 본식 판(시작 예고 + 길이 없는 촬영 예고 ± 식사) */
   GUEST_PARTS['guest-w-10m-n10-short'] = [GW.ten, GW.nShort]; GUEST_PARTS['guest-w-10m-n10-short-meal'] = [GW.ten, GW.nShort, GW.meal];
   /* ★[INFO_SPLIT_200] 5분 전 = 시작 오 분 전 + 확인 경로(식사 날 · 하객 안내 / 현장 디렉터 × 예약 시각) + 사진(하객 안내) ± 온라인(맨 끝) · 식사도 하객 안내도 없는 날은 03 · 314 그대로 */
@@ -523,7 +534,7 @@
   /* ★[W5M_FIX_1107 대본 22:25 · 사장님 «이게 말이 안 되잖아»] 5분 전은 본식 «전» — «장소와 예약 시각은 …»은 무엇의 장소인지가 없어 예식 장소로 들리고(10분 전 판엔 앞에 «식사는 …»이 있었다) ·
        «오늘 찍으신 · 담으신 사진»은 아직 안 찍은 때라 시제가 어긋난다 → 식사 날은 «식사 장소 확인과 사진 올리기는 …»(321#4 · 받은 소리) · 식사 없는 날은 «시작 오 분 전입니다.»만(03 · 314 와 글이 같다 — 그 클립을 쓴다) ·
        사진 올리기는 닫는 인사(288 · 326 등 · 본식 뒤라 «찍으신» 그대로)가 다시 말한다 · G5 판(329 ~ 338)은 파일을 두고 쓰지 않는다 */
-  GUEST_PARTS['guest-w5-meal'] = [GW.five, GW.oMealUp]; GUEST_PARTS['guest-w5-meal-online'] = [GW.five, GW.oMealUp, GW.online5];
+  GUEST_PARTS['guest-w5-meal'] = [GW.five, GW.mealUp5]; GUEST_PARTS['guest-w5-meal-online'] = [GW.five, GW.mealUp5, GW.online5];   /* [FINAL_APPLY_1115] */
   Object.keys(GUEST_PARTS).forEach(function (k) { EXTRA[k] = GUEST_PARTS[k].map(function (x) { return x[1]; }).join(' '); });
   /* 본식 길이(5분 단위 · 녹음 판 십 · 십오 · 이십) — 테이블 인사 · 축배까지(닫는 인사 앞에 선다) · 넉넉 합의 가운데 · 6천 조합 실측 10 ~ 20(검토 191) */
   /* ★[K3_SHORT_1106] 예상 본식(넉넉 합 가운데 · guestMinOf 와 같은 자)이 10분 미만인가 — 그날은 «약 십 분간»(299 · 345)을 말하지 않는다 · 길이를 모르면(옛 판) 아니다 */

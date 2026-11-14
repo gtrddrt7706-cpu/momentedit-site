@@ -15,8 +15,9 @@ import { fileURLToPath } from 'node:url';
 import { isWholeTake } from '../lib/whole-take.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const GUHO = ['신랑 신부, 입장!', '신랑 신부, 맞절.', '신랑 신부, 하객 여러분께 인사!'];
-const MIN_SLOTS = { '신랑 신부, 입장!': 6, '신랑 신부, 맞절.': 4, '신랑 신부, 하객 여러분께 인사!': 4 };   // 10/18 실측 · 줄면 «자리를 못 읽었다»를 의심한다
+/* ★[FINAL_APPLY_1115 묶음 2 · 대본 11/15] 맞절 구호 글 = 대표님 FINAL1 11/14 다시 녹음 글 «신랑 신부… 맞절.»(161 · 162 · 252 · 258 · 한 테이크) — 옛 «신랑 신부, 맞절.» */
+const GUHO = ['신랑 신부, 입장!', '신랑 신부… 맞절.', '신랑 신부, 하객 여러분께 인사!'];
+const MIN_SLOTS = { '신랑 신부, 입장!': 6, '신랑 신부… 맞절.': 4, '신랑 신부, 하객 여러분께 인사!': 4 };   // 10/18 실측 · 줄면 «자리를 못 읽었다»를 의심한다
 const pad2 = (n) => String(n).padStart(2, '0');
 
 function retired() {

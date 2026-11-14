@@ -261,7 +261,7 @@ ok('[GUEST_WELCOME_191] 10분 전 — 본식 길이 판(십 · 십오 · 이십)
   /* ★[INFO_SPLIT_200 검토 200 수정 2] 10분 전 = 식사 줄만(-meal) · 확인 경로는 5분 전으로 — 옛 경로 판(-mgr · -mg · -mr · -m)은 쉰다 */
   return ten({}) === '' && ['-mgr', '-mg', '-mr', '-m'].every((x) => [10, 15, 20].every((m) => C.RETIRED['guest-w-10m-n' + m + x]))
     && [{ meal: 1, mealFull: 1, guide: 1, resv: 1 }, { meal: 1, mealFull: 1, guide: 1 }, { meal: 1, mealFull: 1, resv: 1, guide: 0 }, { meal: 1, mealFull: 1, guide: 0 }, { meal: 1, mealFull: 1 }].every((o) => ten(o) === '-meal') && ten({ meal: 1, guide: 1, resv: 1 }) === ''
-    && [10, 15, 20].every((m) => /식사는 촬영 뒤에 함께합니다\.$/.test(C.EXTRA['guest-w-10m-n' + m + '-meal'] || '') && !/하객 안내|디렉터/.test(C.EXTRA['guest-w-10m-n' + m + '-meal']))
+    && [10, 15, 20].every((m) => /식사는 촬영을 마친 뒤, 신랑 신부와 함께합니다\.( 아직 자리에 앉지 않으셨다면, 천천히 자리를 잡아 주세요\.)?$/.test(C.EXTRA['guest-w-10m-n' + m + '-meal'] || '')   /* ★[FINAL_APPLY_1115 묶음 3 · 대본 11/15] 안내 = 문정 · 대표님 FINAL2 11/14 확정 글 — 옛 «식사는 촬영 뒤에 함께합니다.» · 이십 분 판 끝 «아직 자리에 …» */ && !/하객 안내|디렉터/.test(C.EXTRA['guest-w-10m-n' + m + '-meal']))
     && n[0] === 10 && n[1] === 20 && [10, 15, 20].every((m) => C.EXTRA['guest-w-10m-n' + m]); })());
 ok('[ONEMIN_FIRST · GUEST_WELCOME_191 · INFO_SPLIT_200] 식전 영상이 없어도 시각 같음(-10 · -5 · -1) · 5분 전 = 경로 · 사진 판(329 ~ 338 · 디지털 날 -online) · 식사 없는 날은 하객 안내와 상관없이 333(디지털 날 334 · PHOTO_ALWAYS_NI02) · 현장 디렉터 판도 사진 문장 · 온라인은 맨 끝 · 1분 전 315(디지털 날 316)', (() => {
   const f5 = (o) => slugs(Object.assign({ course: 'open', on: {} }, o)).find((y) => /^guest-(w-5m|w5-|3-5min)/.test(y || '')) || '';
@@ -270,7 +270,7 @@ ok('[ONEMIN_FIRST · GUEST_WELCOME_191 · INFO_SPLIT_200] 식전 영상이 없�
     /* ★[W5M_FIX_1107 대본 22:25] 5분 전 = 본식 전 — 식사 없는 날은 시작 예고만(03 · 디지털 날 314) · 식사 날은 356 · 357(«식사 장소 확인과 사진 올리기는 …») · 하객 안내 · 예약 시각과 상관없이 · «장소와 …» · «찍으신 · 담으신 사진» 없음 */
     && f5({}) === 'guest-3-5min' && f5({ digital: 1 }) === 'guest-w-5m-online' && f5({ guide: 0 }) === 'guest-3-5min' && f5({ guide: 0, digital: 1 }) === 'guest-w-5m-online'
     && [Object.assign({ resv: 1 }, M), M, Object.assign({ resv: 1, guide: 0 }, M), Object.assign({ guide: 0 }, M)].every((o) => f5(o) === 'guest-w5-meal') && f5(Object.assign({ resv: 1, digital: 1 }, M)) === 'guest-w5-meal-online' && f5({ meal: 1, resv: 1 }) === 'guest-3-5min'
-    && C.EXTRA['guest-w5-meal'] === '시작 오 분 전입니다. 식사 장소 확인과 사진 올리기는 모바일 청첩장의 하객 안내에서 하실 수 있습니다.' && /온라인으로 함께하시는 분들은 화면과 소리를 확인해 주세요\.$/.test(C.EXTRA['guest-w5-meal-online'] || '')
+    && C.EXTRA['guest-w5-meal'] === '시작 오 분 전입니다. 식사 장소와 사진 올리기는 모바일 청첩장의 하객 안내에서 보실 수 있습니다.' /* ★[FINAL_APPLY_1115 묶음 3 · 대본 11/15] 안내 = 문정 · 대표님 FINAL2 11/14 확정 글 */ && /온라인으로 함께하시는 분들은 화면과 소리를 확인해 주세요\.$/.test(C.EXTRA['guest-w5-meal-online'] || '')
     && ['guest-w-5m-mgr', 'guest-w-5m-mg', 'guest-w-5m-g', 'guest-w-5m-mgr-online', 'guest-w-5m-mg-online', 'guest-w-5m-g-online'].every((x) => C.RETIRED[x])
     && slugs({ course: 'open', on: {}, digital: 1 }).indexOf('guest-w-1m-online') > -1 && slugs({ course: 'open', on: {} }).indexOf('guest-w-1m') > -1; })());
 ok('[GUEST_WELCOME_191] 화촉이 뒤에 와도 1분 전은 315(89 는 쉰다)', (() => { const s = slugs({ course: 'open', on: { candle: 1 } }); return s.indexOf('guest-w-1m') > -1 && s.indexOf('guest-4-1min-pre') < 0 && s.indexOf('guest-4-1min') < 0 && C.RETIRED['guest-4-1min-pre']; })());
@@ -280,8 +280,9 @@ ok('[AFTER_PHOTO_191 · POST_FLOW_200 · INFO_SPLIT_200 · AFTER_BEFORE_FAMILY_2
   const pre = C.build({ course: 'open', on: {} }, { mode: 'preview' }).cues.some((x) => /^after-photo/.test(x.slug || ''));
   return a.slug === 'after-photo' && a.name === '촬영 후 안내' && a.fire === 'manual' && a.hint === '전체 단체 사진을 마치면' && a._prev === 'photo-all' && a._next === 'photo-family' && b.slug === 'after-photo-meal' && c.slug === 'after-photo-cafe' && d.slug === 'after-photo-meal' && !pre && a2.slug === 'after-photo'
     && ['after-photo-guide', 'after-photo-cafe-guide', 'after-photo-resv-guide', 'after-photo-resv', 'after-photo-meal-guide'].every((x) => C.RETIRED[x])
-    && /그 밖의 분들은 이제 편히 돌아가셔도 좋습니다\. 남은 하루 행복하게 보내세요\.$/.test(a.text) && /^단체 사진을 마쳤습니다\. 이어서 가족 사진을 찍겠습니다\./.test(a.text) && /그 밖의 분들은 먼저 식사 자리로 이동하셔도 좋습니다\.$/.test(b.text) && !/남은 하루|그 밖의/.test(c.text)
-    && [a, b, c, d].every((x) => /두 분과 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요\. 두고 가시는 물건이 없는지 한 번 살펴 주세요\./.test(x.text) && !/하객 안내|디렉터|예약 시각/.test(x.text)); })());   /* [END_FLOW_200 2] · [INFO_SPLIT_200] 경로 · 사진은 5분 전 · 식사 시각은 마무리 */
+    /* ★[FINAL_APPLY_1115 묶음 3 · 대본 11/15] 안내 = 문정 · 대표님 FINAL2 11/14 확정 글 — 317 = 남기 → 이동 허락 → 물건 → 작별(T3 여섯) · 319 = 넷 · 324 = 넷 + «그 밖의 분들은 먼저 식사 자리로 …» + «식사 자리는 모바일 청첩장의 하객 안내에서 …»(대표님 확정 글이 INFO_SPLIT_200 «경로는 5분 전»을 324 에서만 넘는다 · 대본 11/15 확인) */
+    && /다른 분들은 이제 편히 돌아가셔도 좋습니다\. 가실 때 두고 가시는 물건이 없는지 한 번 살펴 주세요\. 남은 하루도 행복하게 보내시길 바랍니다\.$/.test(a.text) && /^단체 사진을 마쳤습니다\. 이어서 가족 사진을 찍겠습니다\./.test(a.text) && /그 밖의 분들은 먼저 식사 자리로 이동하셔도 좋습니다\. 식사 자리는 모바일 청첩장의 하객 안내에서 확인하실 수 있습니다\.$/.test(b.text) && !/남은 하루|그 밖의|다른 분들은/.test(c.text)
+    && [a, b, c, d].every((x) => /신랑 신부와 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요\. (다른 분들은 이제 편히 돌아가셔도 좋습니다\. )?가실 때 두고 가시는 물건이 없는지 한 번 살펴 주세요\./.test(x.text) && !/디렉터|예약 시각/.test(x.text)) && ![a, c].some((x) => /하객 안내/.test(x.text)); })());   /* [END_FLOW_200 2] · [INFO_SPLIT_200] 경로 · 사진은 5분 전 · 식사 시각은 마무리 */
 ok('두 분 목소리면 04 는 그대로(첫 줄이 이미 맞다)', slugs({ course: 'open', on: { candle: 1 }, guestVoice: 'couple' }).indexOf('guest-4-1min') > -1);
 ok('화촉 서는 분 → 여는 말 판', ['mothers', 'fathers', 'others'].every((w) => slugs({ course: 'open', on: { candle: 1 }, candleWho: w }).indexOf('narr-candle-in-' + w) > -1));
 /* ★[DECLARE_BY_PERSON 2026-10-12 사장님] 선언 박수 판(96 · 97)은 걷었다 — 옛 초안의 clap 값이 와도 여는 말 136 → 사람 낭독 → 맺는 말 57 */
@@ -488,7 +489,7 @@ ok('[BASE_SWAP_1023 검토 156] 기본 = 151 «담백하게» · 160 «격식 �
 ok('[REVIEW31_1023 검토 157] 01 · 02 · 09 · 131 · 213 · 257 글 · 선언 칩 «힘차게» · MOOD 밝게 3 · 뭉클 2 · 반지 둘째 동작 앞 8초 · 덕담 박수 뒤 축가 202 는 seamFit 이 넘긴다', (() => {
   const man = JSON.parse(fs.readFileSync(P('docs/plans/식순연구/타입캐스트/manifest.json'), 'utf8')), hold = (no) => { const c = man.clips.find((x) => x.no === no); return c ? c.sents.map((x) => x.after).join(',') : ''; };
   const S = { course: 'open', on: { declare: 1, bless: 1, song: 1 }, narEx: { song: 1 } }, clash = C.moodClash(S, 'song'); C.seamFit(S, 'song');
-  return /신랑 신부가 정성껏 고른 목소리로 진행됩니다\.$/.test(D.GUEST[0][1]) && /저희가 정성껏 고른 목소리/.test(D.GUEST[0][2])   // [REVIEW33_1023 검토 159] 01 · 02 첫 문장은 159 에서 다시 바뀜(아래 검사)
+  return /신랑 신부가 정성껏 고른 목소리로 진행됩니다\. 예식이 시작될 때까지 편안히 기다려 주세요\.$/.test(D.GUEST[0][1]) && /저희가 정성껏 고른 목소리/.test(D.GUEST[0][2])   /* [FINAL_APPLY_1115 묶음 3] 01 셋째 문장 */   // [REVIEW33_1023 검토 159] 01 · 02 첫 문장은 159 에서 다시 바뀜(아래 검사)
     && / 오늘 하루의 자연스러운 모습을, 곁에서 마음껏 사진으로/.test(D.GUEST[1][1]) /* [MODERN_WORDS_1024 검토 164] */ && D.ENTRY.E.nar.indexOf('신랑 신부의 입장이 있겠습니다.') < 0
     && D.NARR.tableIn.indexOf('테이블에 도착했을 때') < 0 && O.NAR_EX.candle.lines['narr-candle-out'][2] === '촛불이 밝혀졌습니다.' && /^바쁘신 와중에도 .*시작하겠습니다\.$/.test(O.NAR_EX.open.lines['narr-open'][4])
     && O.NAR_EX.declare.names.join() === '담백하게,격식 있게,엄숙하게,힘차게' && O.MOOD.bright.narEx.declare === 3 && O.MOOD.moving.narEx.declare === 2
@@ -508,11 +509,11 @@ ok('[PV_PHOTO_OFF_1023 검토 158] 식전 영상 글(카드 · 흐름 설명 · 
 /* ★★[REVIEW33_1023 검토 159 · ADAPT_OK_1023 사장님 2026-10-23 «자료 없는 자리는 실제 멘트를 단어 몇 개만 고쳐 써도 된다»] 하객 맞이 · 사진 올리기 · 식전 영상 격식 · 두 분 예시 · 축배 예시를 실제 자료 글로 */
 ok('[REVIEW33_1023 검토 159-2] 01 · 02 · 116 · 119 · 122 · 124 · 264 = 실제 자료 글 · 130 = 대표님 새 글[FINAL_APPLY_1115] · 두 분 판은 «저희»', (() => {
   const N = O.NAR, X = C.EXTRA || {};
-  return D.GUEST[0][1] === '바쁘신 가운데 시간을 내어, 오늘 결혼식에 참석해 주셔서 감사드립니다. 오늘 모든 안내는 신랑 신부가 정성껏 고른 목소리로 진행됩니다.'
-    && D.GUEST[0][2] === D.GUEST[0][1].replace('신랑 신부가', '저희가') && N.guestEx[0][0] !== D.GUEST[0][1]
-    && D.GUEST[1][1].indexOf('잠시 후 신랑 신부의 결혼식이 진행될 예정입니다. ') === 0 && D.GUEST[1][2].indexOf('잠시 후 저희의 결혼식이 진행될 예정입니다. ') === 0
-    && N.guestEx[0][1].indexOf('잠시 후 아름다운 두 사람의 시작을 함께하게 될 텐데요. ') === 0 && N.guestEx[1][0].indexOf('귀한 걸음 해 주신 여러분, 고맙습니다. ') === 0 /* [WEEKDAY_SAFE_1030] */
-    && N.guestEx[1][3] === '잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주시기 바랍니다.'   /* [YUKWAE_MODERN_1024] 122 다시 */
+  return D.GUEST[0][1] === '바쁘신 가운데 시간을 내어, 오늘 결혼식에 참석해 주셔서 감사드립니다. 오늘 모든 안내는 신랑 신부가 정성껏 고른 목소리로 진행됩니다. 예식이 시작될 때까지 편안히 기다려 주세요.'   /* ★[FINAL_APPLY_1115 묶음 3 · 대본 11/15] 안내 = 문정 · 대표님 FINAL2 11/14 확정 글 01 셋째 문장 · 02 «시작됩니다» · 116 «됩니다» · 119 «고맙습니다!» · 122 «바꿔 주세요» */
+    && D.GUEST[0][2] === D.GUEST[0][1].replace('신랑 신부가', '저희가').replace(' 예식이 시작될 때까지 편안히 기다려 주세요.', '') && N.guestEx[0][0] !== D.GUEST[0][1]   /* [FINAL_APPLY_1115] 두 분 판은 cast 녹음 글 그대로(셋째 문장 없음) */
+    && D.GUEST[1][1].indexOf('잠시 후 신랑 신부의 결혼식이 시작됩니다. ') === 0 && D.GUEST[1][2].indexOf('잠시 후 저희의 결혼식이 진행될 예정입니다. ') === 0 /* 두 분 판 cast 글 그대로 */
+    && N.guestEx[0][1].indexOf('잠시 후 아름다운 두 사람의 시작을 함께하게 됩니다. ') === 0 && N.guestEx[1][0].indexOf('귀한 걸음 해 주신 여러분, 고맙습니다! ') === 0 /* [WEEKDAY_SAFE_1030] */
+    && N.guestEx[1][3] === '잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.'   /* [YUKWAE_MODERN_1024] 122 다시 */
     && N.guestEx[2][1].indexOf('잠시 후 신랑 신부의 예식이 시작될 예정입니다. ') === 0 && N.pvEx[2] === '예식에 앞서 두 사람이 준비한 영상을 함께 보겠습니다.' /* ★[FINAL_APPLY_1115] 130 대표님 FINAL2 새 글 · 옛 기대(«스크린에 주목해 주시기 바랍니다» 자료 G2 121) 은퇴 */
     && /'narr-photo-upload': '여러분이 받으신 모바일 청첩장의 하객 안내를 통해 오늘 찍으신 사진을 바로 올리실 수 있습니다\.'/.test(fs.readFileSync(P('assets/ritual-cue.js'), 'utf8')); })());
 ok('[REVIEW33_1023 검토 159-3 · 159-4] 두 분 예시(다정 g0 · 격식 g0 · 유쾌 g3 · 입장 E) · 축배 예시 다섯 = 새 글 · 옛 글은 _OLD 에', (() => {
@@ -541,8 +542,8 @@ ok('[YUKWAE_MODERN_1024 · QUALITY_REVIEW_1024] 유쾌 120 · 122 · 85 = 요즘
   const w = {}; new Function('window', fs.readFileSync(P('assets/ritual-ref.js'), 'utf8'))(w);
   const t = (id) => (w.RITUAL_REF.rows.filter((r) => r.id === id)[0] || {}).text || '';
   const old = /주시길 바랍니다|간혹 .*하는데|너무나도 좋을 것 같습니다|사랑의 이름으로|확인해 봐 주십시오/;
-  return N[1] === '십 분 뒤 예식이 시작됩니다. 오늘은 자연스러운 모습을 사진으로 남기니, 여러분도 곁에서 마음껏 사진으로 담아 주세요.' && N[3] === '잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주시기 바랍니다.'
-    && /'narr-photo-send': '찍어 주신 사진은 하객 안내의 사진 올리기로 공유해 주세요\.'/.test(X) && /'online-3-welcome': '화면으로 함께해 주시는 여러분, 반갑습니다\.'/.test(X)
+  return N[1] === '십 분 뒤 예식이 시작됩니다. 오늘은 자연스러운 모습을 사진으로 남기니, 여러분도 곁에서 마음껏 담아 주세요.' && N[3] === '잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.'   /* ★[FINAL_APPLY_1115 묶음 3 · 대본 11/15] 안내 = 문정 · 대표님 FINAL2 11/14 확정 글 120 «사진으로» 뺌 · 85 · 48 새 글 */
+    && /'narr-photo-send': '찍어 주신 사진은 모바일 청첩장의 하객 안내에서 사진 올리기로 보내 주시면, 신랑 신부에게 바로 전해져요\.'/.test(X) && /'online-3-welcome': '화면으로 함께해 주신 여러분, 반갑고 고맙습니다\.'/.test(X)
     && /\['유쾌하게',\["귀한 걸음 해 주신 여러분, 고맙습니다\. 오늘 모든 안내는 저희가 미리 준비한 목소리로 진행됩니다\.",\s*"십 분 뒤 저희의 결혼식이 시작됩니다\./.test(B)
     && ![N[0], N[1], N[3]].some((x) => old.test(x)) && /^각자의 길을 걸어온 저희가/.test(D.ENTRY.A.self) && t('717_toast-groom') === '멋지게 잘 살겠습니다!' /* [NO_FORCED_JOKE_1024] 163 의 717 바꾸기는 걷었다 */; })());
 /* ★★[REF_GUIDED_1024 검토 163] 실제 자료가 없는 자리 = 베스트 실제 대사의 낱말을 빌려 다듬은 글 · 출처 줄은 «빌린 대사» */
@@ -565,8 +566,8 @@ ok('[MODERN_WORDS_1024 검토 164] 녹음 목록에 낡은 낱말 0(91 빼고) �
   const R = /내빈 여러분들|거행|할애하시어|소지하고 계신|정숙한 진행|혼인서약 낭독\.|모셔볼 텐데요|점화하도록|낭독하시겠습니다|예정이오니|기록되오니|하도록 하겠습니다|^네, /;
   const bad = man.clips.filter((c) => c.file !== 'narr-candle-in-mothers-ex2').filter((c) => c.sents.some((x) => R.test(x.text)));
   const B2 = fs.readFileSync(P('order-preview.html'), 'utf8'), N = O.NAR_EX;
-  return !bad.length && D.GUEST[0][1].indexOf('바쁘신 가운데 시간을 내어, ') === 0 && D.GUEST[0][2] === D.GUEST[0][1].replace('신랑 신부가', '저희가')
-    && D.GUEST[3][1] === '다시 한번 말씀드립니다. 잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주시기 바랍니다.' && D.GUEST[3][2] === D.GUEST[3][1]
+  return !bad.length && D.GUEST[0][1].indexOf('바쁘신 가운데 시간을 내어, ') === 0 && D.GUEST[0][2] === D.GUEST[0][1].replace('신랑 신부가', '저희가').replace(' 예식이 시작될 때까지 편안히 기다려 주세요.', '')
+    && D.GUEST[3][1] === '다시 한번 말씀드립니다. 잠시 후 예식이 시작됩니다. 자리에 앉아 주시고, 휴대폰은 무음으로 바꿔 주세요.' && D.GUEST[3][2] === D.GUEST[3][1].replace('바꿔 주세요.', '바꿔 주시기 바랍니다.')   /* [FINAL_APPLY_1115] 두 분 판은 cast 녹음 글 그대로 */
     && /신랑님, 혼인 서약을 읽어 주세요\.$/.test(D.NARR.vow.nar) && D.NARR.declareFamilyOut === '큰 박수로 두 사람을 축하해 주세요.'
     && N.open.lines['narr-open'][0].endsWith('신랑 신부의 결혼식을 시작하겠습니다.') && N.declare.lines['narr-declare-in-friend'][0].indexOf('다음은 두 사람이 부부가 되었음을 선언하는 성혼 선언입니다.') === 0
     && /'위하여!'로 답해 주세요\.$/.test(D.TOAST.both.nar2) && /주세요\|맞아\)/.test(fs.readFileSync(P('assets/ritual-cue.js'), 'utf8').match(/var CLAP_ASK = [^;]+;/)[0])

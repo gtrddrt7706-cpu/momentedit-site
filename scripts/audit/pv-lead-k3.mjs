@@ -20,8 +20,9 @@ const loadCue = (src) => { if (src == null) return require(P('assets/ritual-cue.
   ['ritual-data.js', 'ritual-open.js'].forEach((n) => fs.copyFileSync(P('assets/' + n), path.join(d, n))); fs.writeFileSync(path.join(d, 'ritual-cue.js'), src); return require(path.join(d, 'ritual-cue.js')); };
 
 /* ── ① 엔진 — 개식 칩마다 개식 → 다음 큐 */
-const TEXT_299S = '십 분 뒤 본식을 시작하겠습니다. 본식을 마친 뒤에는 기념 촬영이 있습니다.';
-const TEXT_345S = TEXT_299S + ' 식사는 촬영 뒤에 함께합니다.';
+/* ★[FINAL_APPLY_1115 묶음 3 · 대표님 FINAL2 11/14 · 안내 = 문정] «본식» → «예식» · 식사 줄 «촬영을 마친 뒤, 신랑 신부와» — 옛 «십 분 뒤 본식을 …» · «본식을 마친 뒤에는 …» · «식사는 촬영 뒤에 함께합니다.» */
+const TEXT_299S = '십 분 뒤 예식을 시작하겠습니다. 예식을 마친 뒤에는 기념 촬영이 있습니다.';
+const TEXT_345S = TEXT_299S + ' 식사는 촬영을 마친 뒤, 신랑 신부와 함께합니다.';
 function pvRows(C) {
   const out = [];
   for (const on of [{ prevideo: 1 }, { prevideo: 1, candle: 1 }]) for (const digital of [0, 1]) for (const mode of ['console', 'preview']) for (let n = 0; n < 6; n++) {
@@ -77,7 +78,7 @@ function k3Check(C, label) {
 const C2 = C;
 ok('② [K3_SHORT_1106] 글 = 결정 문안 그대로(299s · 345s) · 소리 번호 348 · 349 · 녹음 대기(파일 없음)',
   C2.EXTRA['guest-w-10m-n10-short'] === TEXT_299S && C2.EXTRA['guest-w-10m-n10-short-meal'] === TEXT_345S && C2.fileOf('guest-w-10m-n10-short') === '348_guest-w-10m-n10-short' && C2.fileOf('guest-w-10m-n10-short-meal') === '349_guest-w-10m-n10-short-meal'
-  && !C2.RETIRED['guest-w-10m-n10-short'] && !/약 /.test(TEXT_299S) && C2.EXTRA['guest-w-10m-n10'] === '십 분 뒤 본식을 시작하겠습니다. 약 십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.',
+  && !C2.RETIRED['guest-w-10m-n10-short'] && !/약 /.test(TEXT_299S) && C2.EXTRA['guest-w-10m-n10'] === '십 분 뒤 예식을 시작하겠습니다. 약 십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.',
   [C2.EXTRA['guest-w-10m-n10-short'], C2.EXTRA['guest-w-10m-n10-short-meal']]);
 k3Check(C2, '② 10분 전 판 고르기 — 예상 본식 10분 미만 = short(± 식사) · 10분 이상 = 종전 n10 · n15 · n20(± 식사) · 큐 · 화면 글 같음');
 { const bS = O.applyExample({ course: 'open' }, 'brief'); bS.course = 'open'; const pv = C2.build(bS, { mode: 'preview' }).cues.find((c) => /^guest-w-10m-/.test(c.slug || '')) || {};
@@ -88,7 +89,7 @@ k3Check(C2, '② 10분 전 판 고르기 — 예상 본식 10분 미만 = short(
   /* 이미 받은 두 문장(«십 분 뒤 …» · «식사는 촬영 뒤에 …»)은 창고에서 빌려 왔다(sent-lib --borrow) — 다시 받는 것은 새 문장 하나 */
   /* ★[REC_K3_1106] 녹음이 들어오면(348 · 349 mp3 · _recorded) 대기 명단 · 다시받기에서 빠져야 맞다 — 들어오기 전엔 종전대로 대기에 있다 */
   const recK3 = ['348_guest-w-10m-n10-short', '349_guest-w-10m-n10-short-meal'].every((f) => fs.existsSync(P('assets/audio/narration/' + f + '.mp3'))) && (() => { try { const r = JSON.parse(fs.readFileSync(P('assets/audio/narration/_recorded.json'), 'utf8')); const c = r.clips || {}; return !!(c['348_guest-w-10m-n10-short'] && c['349_guest-w-10m-n10-short-meal']); } catch (e) { return false; } })();
-  if (recK3) ok('② [REC_K3_1106] 녹음 받음 — 348 · 349 소리 · 녹음 기록이 있고 대기 명단 · 다시받기(전체)에서 빠졌다', !/\[348\] guest-w-10m-n10-short/.test(red) && !/\[349\] guest-w-10m-n10-short-meal/.test(red) && !all.some((l) => /본식을 마친 뒤에는 기념 촬영이 있습니다|십 분 뒤 본식을 시작하겠습니다|식사는 촬영 뒤에 함께합니다/.test(l)));
+  if (recK3) ok('② [REC_K3_1106] 녹음 받음 — 348 · 349 소리 · 녹음 기록이 있고 대기 명단 · 다시받기(전체)에서 빠졌다', !/\[348\] guest-w-10m-n10-short/.test(red) && !/\[349\] guest-w-10m-n10-short-meal/.test(red) && !all.some((l) => /예식을 마친 뒤에는 기념 촬영이 있습니다|십 분 뒤 예식을 시작하겠습니다|식사는 촬영을 마친 뒤, 신랑 신부와 함께합니다/.test(l)));   /* [FINAL_APPLY_1115] 받은 문정 문장 */
   else ok('② 녹음 대기 명단에 348 · 349 · 다시받기(전체)에는 진희 새 문장 한 줄만', /\[348\] guest-w-10m-n10-short/.test(red) && /\[349\] guest-w-10m-n10-short-meal/.test(red) && all.filter((l) => l.trim() === '진희: 본식을 마친 뒤에는 기념 촬영이 있습니다.').length === 1 && !all.some((l) => /십 분 뒤 본식을 시작하겠습니다|식사는 촬영 뒤에 함께합니다/.test(l))); }
 
 /* ── 실브라우저 — 당일 콘솔 기다림 · 식순 화면 글 */
