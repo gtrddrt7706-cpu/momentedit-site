@@ -814,6 +814,11 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .op-stepb{border:0;background:none;padding:6px 0 0;min-height:44px;width:100%;font:inherit;line-height:inherit;color:inherit;cursor:pointer;text-decoration:none;display:flex;align-items:flex-start;justify-content:center}   /* ★지난 걸음(고르기 · 하나씩 만들기 · 연습하기) 밑줄 금지 — 2026-10-07 사용자 지시로 삭제 [STEPB_NOLINE] (사장님 «고르기 · 하나씩 만들기 밑에 줄 삭제 · 연습하기 · 완성도 마찬가지») · 누를 수 있다는 것은 윗선 금빛 · 진한 글자로 */
 @media (hover:hover){ .op-stepb:hover{text-decoration:underline;text-underline-offset:3px} }   /* [STEPB_NOLINE] 마우스를 올렸을 때만 */   /* [POLISH_0925 2-11] 지난 걸음 글줄을 지금 걸음과 맞춘다(단추는 가운데 정렬이라 몇 px 낮게 앉았다) */
 .op-steps li.done{padding-top:0}   /* [STEP_BASELINE 코워크 회신4 4-e] 글줄은 단추 안 6px 로 맞춘다 — li 여백을 빼고 단추 padding 0 이던 때 지난 걸음이 6px 위에 앉았다 */
+/* ★[STEP_ROW_STILL_1114 · HALLMARK O-1] 순간을 하나 담으면 «연습하기»가 단추(.op-stepb)로 바뀐다 — 지난 걸음(.done)이 아니라서
+   칸 위 여백 6px + 단추 위 여백 6px 이 겹쳐 그 글자만 내려앉았고, 단추 높이 44px 이 줄을 키워 제목이 23px 밀렸다(실측).
+   단추가 든 칸은 어느 걸음이든 칸 여백을 빼고, 줄 높이는 단추가 있든 없든 46px(윗선 2 + 단추 44)로 고정한다. */
+.op-steps li:has(> .op-stepb){padding-top:0}
+.op-steps{min-height:46px}
 .op-note{display:flex;flex-direction:column;gap:6px}
 .op-note-t{border:0;background:none;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:default;line-height:1.55}
 .op-note-a{display:flex;flex-wrap:wrap;gap:8px}
