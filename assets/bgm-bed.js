@@ -144,6 +144,11 @@
   function entAt(k,st0){ var o=BUF[ENT_F], x=o&&o.ext; if(!x) return 0; var t;
     if(k==='entry'&&!entRest()){ if(st0){ var c0=callOf(st0,x); t=x.H-c0.hd-c0.v-0.3; } else t=x.H-6-(x.V!=null?x.V:15)-0.3; } else { var need=entNeed(k); t=x.arrive; if(t+need>x.end) t=x.end-need; }   /* [ENTRY_UNDER_1101] ② */
     t=Math.max(x.o,Math.min(t,x.end-1)); return t-x.o; }
+  /* ★★[ENTRY_LATE_FILE_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 14] 화촉 직후 입장(뜸 없는 길) — 입장 곡 파일이 구호 시작보다 늦게 오면(LTE · 큰 곡) 그동안 지난 시간만큼 뒤에서 시작한다.
+       종전: 늦게 와도 «구호와 함께 시작했을 때»의 자리(entAt)에서 시작 — 강조 자리가 늦은 만큼 밀렸다(1.5초 늦으면 말끝 +1.8초 · 재 본 값 +2.3초 · 설계 0.3초).
+       고침 = 시작 자리 = 구호 말끝 + 0.3초가 강조 자리가 되는 곡 자리(callOf 셈 그대로 · ENTRY_HOOK_PV_1114) + 구호가 시작된 뒤 지난 초 · 곡 끝 1초 앞을 넘지 않는다 · 돌려준 값이 음수면 곡 앞부분이 모자란 것.
+       그대로: 크기 · 1.5초 올림 · 화촉 곡 2초 내림 + 정적 1초(ENTRY_HUSH) · 제때 온 곡의 자리 · 검사 scripts/audit/pv-r3-1115.mjs 14 */
+  function entHushAt(st0,el){ var o=BUF[ENT_F], x=o&&o.ext; if(!x) return 0; var c0=callOf(st0,x); return Math.min(x.H-c0.hd-c0.v-0.3+(el||0),x.end-1)-x.o; }
   function atOf(f,st){ if(BED.cur.f===f&&BED.cur.src) return 0; if(f===ENT_F) return entAt(st&&st.k); if(LPB.keep[f]!=null) return LPB.keep[f]; try{ if(st&&!entMulti()&&dayAt(st.k)===f&&ordOf('M4').filter(has)[0]!==f) return hookOf(f); }catch(x){} return 0; }   /* ★[SCREEN_SOUND_1102 2] 순간 하나 = 당일 시간표 그 자리 곡 · 목록 둘째 곡부터는 강조 자리에서(당일 목록이 넘길 때와 같다) · 첫 곡은 처음(0초) */
 
   /* ── 있는 곡(드라이브 목록) · 곡 받기 — 마이페이지 안에서만 ── */
@@ -439,7 +444,7 @@
       if(v.want>db+0.5) setTimeout(function(){ if(BED.cur===v&&LPB.on&&curStep()===st) ramp(v,db,p.down); },Math.max(0,ms-p.down-p.aft)); };   /* ★[LAYER7_DUCK_1108] 뜸 끝 — 1.6초에 말 아래로 · 다 낮아진 뒤 0.4초에 첫 말(종전 0.8초) */
     /* ★[MEANING_R2_1102 ENTRY_HUSH] 입장 첫 줄 — 흐르던 화촉 곡을 2초에 −90 → 정적 1초 → 입장 곡은 무음에서 입장 구호 아래(그 줄 크기 −12 · 뜸 없음) · 두 곡이 겹치는 자리 0 */
     if(f===ENT_F&&st.k==='entry'&&BED.who==='lp'&&BED.cur.src&&BED.cur.f!==ENT_F){ var _v0=BED.cur, _tkh=++LPB.lt; LPB.on=true; if(_v0.want>-60) ramp(_v0,-90,2000); if(!BUF[f]) want(f);
-      setTimeout(function(){ if(LPB.lt!==_tkh) return; var q=curStep(); if(!q||q.k!=='entry') return; var _put=function(){ var q2=curStep(); if(LPB.lt!==_tkh||!q2||q2.k!=='entry'||!(BUF[f]&&BUF[f].st==='ok')) return; var nv=startVoice(f,lvOf(q2,f),1500,entAt('entry',st)); if(!nv) return;   /* [ENTRY_HOOK_PV_1114] 뜸 없는 길 — 구호 말끝 0.3초 뒤가 강조 자리 */ if(BED.cur.src) stopVoice(BED.cur,200); BED.cur=nv; LPB.f=f; BED.who='lp'; };
+      setTimeout(function(){ if(LPB.lt!==_tkh) return; var q=curStep(); if(!q||q.k!=='entry') return; var _t3=Date.now();   /* [ENTRY_LATE_FILE_1115] 구호가 시작된 때 */ var _put=function(){ var q2=curStep(); if(LPB.lt!==_tkh||!q2||q2.k!=='entry'||!(BUF[f]&&BUF[f].st==='ok')) return; var nv=startVoice(f,lvOf(q2,f),1500,Math.max(0,entHushAt(st,(Date.now()-_t3)/1000))); if(!nv) return;   /* [ENTRY_HOOK_PV_1114] 뜸 없는 길 — 구호 말끝 0.3초 뒤가 강조 자리 */ if(BED.cur.src) stopVoice(BED.cur,200); BED.cur=nv; LPB.f=f; BED.who='lp'; };
         if(BUF[f]&&BUF[f].st==='ok') _put(); else want(f,function(b){ if(b) _put(); }); },3000);
       return 3000; }
     if(BUF[f]&&BUF[f].st==='ok'){ go(); return ms; }

@@ -23362,7 +23362,7 @@ chk 'SONG_OPEN_FADE_PV_1114' scripts/audit/pv-fix-1114.mjs 1
 # ★★[ENTRY_HOOK_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 후보 ③] 미리 듣기 · 연습 — 화촉 직후 입장(뜸 없는 길)은 입장 곡 시작 자리에서 «먼저 흐른 6초»를 빼지 않는다(구호 말끝 0.3초 뒤가 강조 자리 · 종전 5.3초) · 뜸 있는 길은 종전 셈 · 소리는 pv-fix-1114 ③ 이 잰다
 chk 'ENTRY_HOOK_PV_1114' assets/bgm-bed.js 2
 chk "if(st0){ var c0=callOf(st0,x); t=x.H-c0.hd-c0.v-0.3; } else t=x.H-6-(x.V!=null?x.V:15)-0.3; }" assets/bgm-bed.js 1
-chk "startVoice(f,lvOf(q2,f),1500,entAt('entry',st));" assets/bgm-bed.js 1
+chk "startVoice(f,lvOf(q2,f),1500,Math.max(0,entHushAt(st,(Date.now()-_t3)/1000)));" assets/bgm-bed.js 1   # [ENTRY_LATE_FILE_1115] 시작 자리 = 같은 셈(callOf) + 구호가 시작된 뒤 지난 초
 chk 'ENTRY_HOOK_PV_1114' scripts/audit/pv-fix-1114.mjs 1
 # ★★[BGM_OFF_STAYS_OFF_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 검증 12] 미리 듣기 · 연습 — 선언 뒤 박수 곡(새 곡)을 받는 중에 «음악 끄기» · «잠시 멈춤»을 눌렀으면 늦게 온 곡을 틀지 않는다(차례 번호 · 멈춤을 시작 직전에 다시 본다 · PR_BGM_197) · 소리는 pv-fix-1114 ④ 가 잰다
 chk 'BGM_OFF_STAYS_OFF_1114' assets/bgm-bed.js 1
@@ -23485,3 +23485,7 @@ chk "function arrLeave(st){ if(LPB.arr&&LPB.arr.st!==st) LPB.arr=null; }" assets
 chk "if(pzNow()){ holdOn(st); return; }   /\* \[REG_P17\] \*/ arrLeave(st); " assets/bgm-bed.js 1
 chk "if(pzNow()){ holdOn(st); return 0; }   /\* \[REG_P17\] \*/ arrLeave(st);" assets/bgm-bed.js 1
 chk 'ARRIVE_ONCE_VISIT_1115' scripts/audit/pv-r3-1115.mjs 1
+# ★★[ENTRY_LATE_FILE_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 14] 미리 듣기 · 연습 — 화촉 직후 입장 곡 파일이 구호보다 늦게 오면 지난 시간만큼 뒤에서 시작(강조 = 구호 말끝 + 0.3초 · 1.5초 늦게 와도 · 종전 +1.8초)
+chk 'ENTRY_LATE_FILE_1115' assets/bgm-bed.js 2
+chk "function entHushAt(st0,el){ var o=BUF\[ENT_F\], x=o&&o.ext; if(!x) return 0; var c0=callOf(st0,x); return Math.min(x.H-c0.hd-c0.v-0.3+(el||0),x.end-1)-x.o; }" assets/bgm-bed.js 1
+chk 'ENTRY_LATE_FILE_1115' scripts/audit/pv-r3-1115.mjs 1
