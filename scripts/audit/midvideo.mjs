@@ -36,13 +36,17 @@ ok(C._mvcOn({}) === null, '식순이 아직 없으면 → 모름(null)');
 ok(C._mvcLen(rd(true, 'video', '5')) === 5 && C._mvcLen(rd(true, 'video', '99')) === 3, '길이 = 식순 길이 칸(1~10분 · 모르면 3분)');
 const row = (v, on, left) => { C.LEFT = left; return C._mvcRow(v, on); };
 let r = row({ st: '' }, false, 20);
-ok(r.done === true && r.label === '넣기' && r.tag === '선택', '꺼짐 → «넣기 · 선택» · 할 일 아님(done)', JSON.stringify(r));
+ok(r === null, '식순에 없음 → 줄 없음(고르지 않은 분께는 안 보임 · [VIDEO_NAME_1114] · 11/07 «넣기 · 선택» 걷음)', JSON.stringify(r));
+r = row({ st: '' }, null, 20);
+ok(r === null, '식순이 아직 없음 → 줄 없음 [VIDEO_NAME_1114]', JSON.stringify(r));
 r = row({ st: 'done' }, false, 20);
 ok(r.label === '보기' && r.tag === '식순 확인', '확정한 뒤 식순에서 빼면 «식순 확인»(«넣기»로 덮지 않는다 · 검토 1604-3)', JSON.stringify(r));
 r = row({ st: '', due: '2020-05-01' }, false, -2);
-ok(r.label === '보기' && r.tag === '기한 지남', '식순에 없고 기한도 지났으면 «넣기»를 권하지 않는다(재검토 1604)', JSON.stringify(r));
+ok(r === null, '식순에 없고 받은 것도 없으면 기한이 지나도 줄 없음 [VIDEO_NAME_1114]', JSON.stringify(r));
 r = row({ st: '', due: '2099-05-01' }, true, 10);
-ok(r.done === false && r.label === '올리기' && r.tag === '5월 1일까지', '미제출 → «올리기» · 14일 안이면 기한', JSON.stringify(r));
+ok(r.done === false && r.label === '시작하기' && r.tag === '5월 1일까지', '미제출 → «시작하기»(식전 영상 줄과 같은 말 · [VIDEO_NAME_1114]) · 14일 안이면 기한', JSON.stringify(r));
+r = row({ st: 'draft', due: '2099-05-01', d: { link: 'https://x' } }, true, 10);
+ok(r.label === '이어하기', '링크를 적다 두면 «이어하기»(식전 영상 줄과 같음)', JSON.stringify(r));
 r = row({ st: 'checking', due: '2099-05-01' }, true, 10);
 ok(r.done === false && r.tag === '스튜디오 확인 중', '제출 → «스튜디오 확인 중»', JSON.stringify(r));
 r = row({ st: 'review', due: '2099-05-01' }, true, 10);
@@ -53,6 +57,22 @@ r = row({ st: 'draft', due: '2099-05-01' }, true, -1);
 ok(r.done === true && r.tag === '영상 없이 진행', '기한 지남 · 미확정 → «영상 없이 진행»', JSON.stringify(r));
 r = row({ st: 'review', due: '2099-05-01' }, true, -1);
 ok(r.tag === '확인 필요', '기한 전에 보낸 미리보기는 기한 뒤에도 «확인 필요»(서버가 확정을 받는다)', JSON.stringify(r));
+/* ★[VIDEO_NAME_1114 · GPT 1-08] 식전 줄은 늘 식전으로 판정 — 마지막에 연 식중 화면(식순에서 뺀 상태)이 남긴 PVCFLOW 를 읽어 식전 줄에 «식순 확인»이 붙던 것 */
+{ const need2 = ['_pvcRow', '_pvcClash', '_pvcRitOn', '_pvcNewD', '_pvcMd'], s2 = need2.map((x) => fnSrc(my, x));
+  if (s2.every(Boolean)) { const C2 = vm.createContext({ window: { _lastProd: { ritualDraft: { _v: 3, S: { on: { prevideo: 1 } } } } }, PVCFLOW: { kind: 'mid', on: false } });
+    vm.runInContext('function _kstDdayOf(d){ return 20; }\n' + s2.join('\n'), C2);
+    const r2 = C2._pvcRow({ st: 'done', conf: { at: 'x' }, due: '2099-01-01' });
+    ok(r2 && r2.tag !== '식순 확인', '식중 화면을 연 뒤에도 식전 줄은 식전으로 판정(«식순 확인»이 옮겨 붙지 않는다) [VIDEO_NAME_1114]', JSON.stringify(r2)); }
+  else ok(false, '_pvcRow 판정 함수들을 못 찾았다', need2.filter((x, i) => !s2[i]).join(' · ')); }
+/* ★[VIDEO_NAME_1114 · GPT 1-20 · 2-25] 옛 초안의 영상 갈래 장면 이름 = «식중 영상»(이름만 맞춘 판 · 장면 목록만 실린 10/12 판 둘 다) · 선물 · 축사 갈래는 그대로 */
+{ const a = my.indexOf('var PHOTO_SCENE=['), b = my.indexOf('];', a);
+  const src3 = (a > -1 && b > a ? my.slice(a, b + 2) : '') + '\n' + fnSrc(my, '_flowFix') + '\n' + fnSrc(my, 'photoSceneList');
+  if (a > -1 && fnSrc(my, 'photoSceneList') && fnSrc(my, '_flowFix')) { const C3 = vm.createContext({}); vm.runInContext(src3, C3);
+    const nm = (rd) => ((C3.photoSceneList(rd) || []).map((x) => x.n));
+    const v1 = nm({ S: { freeWhat: 'video' }, summary: { flow: ['준비한 순서'] } }), v2 = nm({ S: { freeWhat: 'video' }, summary: { open: true, scenes: [{ n: '준비한 순서', s: '함께 보며 웃는 하객들' }] } }),
+      g1 = nm({ S: { freeWhat: 'gift' }, summary: { open: true, scenes: [{ n: '준비한 순서', s: 'x' }] } });
+    ok(v1.indexOf('식중 영상') > -1 && v2.indexOf('식중 영상') > -1 && g1.indexOf('준비한 순서') > -1, '옛 초안 영상 갈래 장면 이름 «식중 영상»(두 저장 판) · 선물 갈래는 그대로 [VIDEO_NAME_1114]', JSON.stringify({ v1, v2, g1 })); }
+  else ok(false, 'photoSceneList · PHOTO_SCENE 를 못 찾았다'); }
 // 화면 글 · 길
 const blk = my.slice(my.indexOf('var PVC_ON='), my.indexOf('function renderSnap(p)'));
 const mstart = fnSrc(my, '_mvcStart');
@@ -114,11 +134,11 @@ ok(r && r.ok === false && r.consent === false && /식중 영상 동의가 필요
 { const R0 = RIT, S0 = J(store); RIT = { on: { free: 1 }, freeWhat: 'speech' };
   store['T1#mid'] = { d: { mode: 'upload', link: 'https://drive.google.com/x' }, m: { st: 'review', prev: { id: 'MVX' }, consent: { at: 'x' } } };
   const rc = save('confirm', null);
-  ok(rc && rc.ok === false && /먼저 골라 주세요/.test(rc.error || '') && store['T1#mid'].m.st === 'review', '식순에서 뺀 식중 영상은 서버도 확정하지 않는다(재검토 1604)', JSON.stringify(rc));
+  ok(rc && rc.ok === false && /«식중 영상»을 먼저 담아 주세요/.test(rc.error || '') && store['T1#mid'].m.st === 'review', '식순에서 뺀 식중 영상은 서버도 확정하지 않는다(재검토 1604)', JSON.stringify(rc));
   store = S0; RIT = R0; }
 { const R0 = RIT; RIT = { on: { free: 1 }, freeWhat: 'speech' };
   const rr = save('submit', { link: 'https://drive.google.com/x' }, { pvConsent: 1 });
-  ok(rr && rr.ok === false && /먼저 골라 주세요/.test(rr.error || ''), '식순이 영상이 아니면 서버도 보내기를 막는다', JSON.stringify(rr)); RIT = R0; }
+  ok(rr && rr.ok === false && /«식중 영상»을 먼저 담아 주세요/.test(rr.error || ''), '식순이 영상이 아니면 서버도 보내기를 막는다', JSON.stringify(rr)); RIT = R0; }
 r = save('submit', { link: 'https://youtu.be/x' }, { pvConsent: 1 });
 ok(r && r.ok === false && /유튜브/.test(r.error || ''), '유튜브 링크 → 거절', JSON.stringify(r));
 mails = []; folders = [];
@@ -192,8 +212,23 @@ console.log('━━ ④ 기한 안내(예식 14일 · 7일 전)');
 console.log('━━ ⑤ 길');
 { const priv = read('privacy.html') || '', mf = (gs.match(/midFrom: '([^']*)'/) || [])[1];
   if (mf) { const top = (priv.match(/개정 시행일자 · (\d{4})\.(\d{2})\.(\d{2})/) || []).slice(1, 4).join('-');
-    ok(/식중 영상/.test(priv) && top >= mf, '식중 영상을 켰으면(midFrom ' + mf + ') 처리방침에 «식중 영상»이 있고 개정 시행일이 그 날 이후', top); }
-  else ok(mf === '', '식중 영상 꺼짐(midFrom 비어 있음) — 처리방침에 «식중 영상»을 넣은 날 midFrom 을 적어 켠다'); }
+    ok(/식중 영상/.test(priv) && top >= mf, '식중 영상을 켰으면(midFrom ' + mf + ') 처리방침에 «식중 영상»이 있고 개정 시행일이 그 날 이후', top);
+    /* ★[MID_OPEN_1114] 문을 연 날 = 처리방침에 «식중 영상»을 넣은 개정의 시행일(같은 날) — 처리방침보다 먼저 받지 않는다 · 수집 줄(#midvideo) · 동의 판이 그 줄을 가리킨다 */
+    const [y, m, d] = mf.split('-').map(Number), ko = y + '년 ' + m + '월 ' + d + '일';
+    ok(priv.indexOf(ko + ' (식중 영상 항목 추가') > -1, '개정 이력에 «' + ko + ' (식중 영상 항목 추가 …)» — midFrom 과 같은 날 [MID_OPEN_1114]');
+    ok(/id="midvideo"[\s\S]{0,400}?식중 영상/.test(priv), '처리방침 수집 항목에 «식중 영상» 줄(#midvideo) [MID_OPEN_1114]');
+    /* ★[MID_OPEN_1114 · GPT 3-29] 이 개정이 맨 위(가장 최근)인 동안은 날짜 다섯이 한 날 — 맨 위 시행 · 공고 · 개정 공고일자 · 시행일자 첫 날 · midFrom.
+       승인일로 옮길 때 한 곳만 놓쳐도 빨강(다음 개정이 위에 오면 이력 한 줄 = midFrom 만 본다) */
+    const yk = (t) => { const q = String(t || '').match(/(\d{4})년 (\d{1,2})월 (\d{1,2})일/); return q ? q[1] + '-' + ('0' + q[2]).slice(-2) + '-' + ('0' + q[3]).slice(-2) : ''; };
+    const dot = (t) => (String(t || '').match(/(\d{4})\.(\d{2})\.(\d{2})/) || []).slice(1, 4).join('-');
+    const hero = (priv.match(/개정 시행일자 · ([\d.]+) \(공고 ([\d.]+)\)/) || []), pub = (priv.match(/개정 공고일자<\/span>\s*<span class="spec-val">([^<]+)</) || [])[1], eff = (priv.match(/시행일자<\/span>\s*<span class="spec-val">([^<]+)</) || [])[1] || '';
+    if (/^\d{4}년 \d{1,2}월 \d{1,2}일 \(식중 영상 항목 추가/.test(eff)) {
+      const five = { 맨위시행: dot(hero[1]), 맨위공고: dot(hero[2]), 공고일자: yk(pub), 시행일자: yk(eff), midFrom: mf };
+      ok(Object.values(five).every((v) => v === mf), '식중 영상 개정이 맨 위인 동안 날짜 다섯이 같은 날(맨 위 시행 · 공고 · 개정 공고일자 · 시행일자 · midFrom) [MID_OPEN_1114]', JSON.stringify(five)); }
+    ok(/privacy\.html#'\+\(PVCFLOW\.kind==='mid'\?'midvideo':'prevideo'\)/.test(fnSrc(my, '_pvcAgree')), '식중 동의 판의 처리방침 링크 = #midvideo [MID_OPEN_1114]'); }
+  else { /* ★[MID_OPEN_1114 · GPT 4-32] 처리방침 맨 위 개정이 «식중 영상 항목 추가»인데 midFrom 이 비면 — 줄 · 받기가 닫혀 «담았는데 보낼 곳이 없음»이 돌아온다 */
+    const eff0 = (priv.match(/시행일자<\/span>\s*<span class="spec-val">([^<]+)</) || [])[1] || '';
+    ok(mf === '' && !/^\d{4}년 \d{1,2}월 \d{1,2}일 \(식중 영상 항목 추가/.test(eff0) && !/id="midvideo"/.test(priv), '식중 영상 꺼짐(midFrom 비어 있음)은 처리방침에 «식중 영상» 개정 · 수집 줄(#midvideo)이 없을 때만 — 넣었으면 midFrom 을 그 날로 [MID_OPEN_1114 · GPT 5-37]', eff0.slice(0, 40)); } }
 ok(/midvideo: \(typeof _pvPublic === 'function'\) \? _pvPublic\(.*?, r, 'mid'\)/.test(pr), 'buildProductionState 가 midvideo 를 싣는다');
 ok(/fn: 'sendVideoDueNotices',\s+hour: 10/.test(jr), 'setupAllTriggers — 매일 10시 기한 안내');
 ok(/'cust\.videoDue':\s+\{ to: 'customer'/.test(nt) && /case 'cust\.videoDue':/.test(nt) && /'cust\.videoDue':\s+\{ subj:/.test(nt), '알림 이벤트 cust.videoDue — 표 · 글 · 메일 제목');
