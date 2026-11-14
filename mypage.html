@@ -138,7 +138,9 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .subtitle .nb{white-space:nowrap}   /* [AUTH_BOX_WRAP] 말 덩어리(«진행 상황을 볼 수 있어요» · «자동으로 로그인돼요»)는 한 줄로 — 폰에서 그 앞에서 끊긴다 */
 
 .field{position:relative;margin-bottom:15px}
-.field input{width:100%;border:1px solid var(--border);border-radius:6px;padding:17px 15px;font-family:var(--sans);font-size:16px;color:var(--accent);background:var(--bg);outline:none;transition:border-color .3s}   /* MPD_B9 입력 16px — iOS 포커스 자동 줌 방지(15px 이하 금지 · 2026-07-25) */
+/* ★[INPUT_EDGE_SEEN_1114 · HALLMARK I-3] 로그인 입력칸 테두리가 --border(#DDD8D1 · 바탕 대비 1.36:1)라 칸의 경계가 거의 안 보였다 —
+   칸의 경계는 글이 아닌 표시라 하한 3:1(WCAG 1.4.11) · #93897D(3.29:1). 굵기 · 모서리 · 초점 색 · 글자는 그대로 · 이 다섯 칸(.field)만. */
+.field input{width:100%;border:1px solid #93897D;border-radius:6px;padding:17px 15px;font-family:var(--sans);font-size:16px;color:var(--accent);background:var(--bg);outline:none;transition:border-color .3s}   /* MPD_B9 입력 16px — iOS 포커스 자동 줌 방지(15px 이하 금지 · 2026-07-25) */
 .field input:focus{border-color:var(--gold)}
 /* 자동완성(autofill) 시 브라우저가 입히는 연보라/노랑 배경 제거 — 페이지 톤 유지 */
 .field input:-webkit-autofill,.field input:-webkit-autofill:hover,.field input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 1000px var(--bg) inset;-webkit-text-fill-color:var(--accent);caret-color:var(--accent);transition:background-color 9999s ease 0s}
