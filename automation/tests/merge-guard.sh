@@ -23383,3 +23383,7 @@ chk 'soft = !off && duckWant != null && duckWant <= -60' console.html 1
 chk 'M4_HANDOFF_NONE_1115' console.html 2
 chk 'function m4Flows(){' console.html 1
 chk '이어받을 본식 피아노 파일이 없어 음악 없이 이어 가요' console.html 1
+# ★[NO_RELIFT_FB_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 03] 당일 콘솔 — Web Audio 가 없는 대체 경로(el.volume)도 정적 뒤 새 곡을 여는 동안 앞 곡을 꺼 둔다(bedVolFb 가 hushK 를 0 으로) · 소리는 console-relift ⑨
+chk 'NO_RELIFT_FB_1115' console.html 2
+chk 'function bedHushFb(){' console.html 1
+chk 'k !== BED.hushK' console.html 1
