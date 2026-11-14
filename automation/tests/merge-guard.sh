@@ -4797,7 +4797,7 @@ chk 'VIDEO_NAME_1114' order-preview.html 3
 chk 'VIDEO_NAME_1114' admin.html 1
 chk 'VIDEO_NAME_1114' automation/platform/89_prevideo.gs 1
 chk 'VIDEO_NAME_1114' scripts/audit/midvideo.mjs 8
-chk 'VIDEO_NAME_1114' scripts/audit/mid17-pick.mjs 4
+chk 'VIDEO_NAME_1114' scripts/audit/mid17-pick.mjs 5
 chk '(!CUST||CUST.midUp===true)' order-preview.html 1     # [GPT 1-01 · 2-21] 마이페이지 안에서는 서버가 받는다고 알려 온 때만 «마이페이지 «식중 영상»에서 준비해요»
 chk "_pvcClash(st, v.conf, 'pre')" mypage.html 1   # [GPT 1-08] 식전 줄은 늘 식전으로 판정
 nochk "label:'넣기', tag:'선택'" mypage.html 0            # [VIDEO_NAME_1114] 고르지 않은 분께 «식중 영상 · 넣기 · 선택» 줄을 되살리지 말 것
@@ -4807,7 +4807,16 @@ nochk '«준비한 순서»에서 «영상»을 먼저 골라' automation/platfo
 #   날짜가 서로 맞는지 · 동의 판 링크는 midvideo.mjs ⑤ 가 잰다(되돌리면 빨강 확인)
 chk 'MID_OPEN_1114' privacy.html 3
 chk 'MID_OPEN_1114' automation/platform/89_prevideo.gs 2
-#   ★홈 FAQ · AI 상담 · 빌더 AI 글(«마이페이지 «식중 영상»에서 링크로»)은 가지 claude/video-name-1114-copy(PR 따로) — GAS 재배포로 줄이 열린 것을 본 뒤 병합(GPT 2-22)
+# ★[VIDEO_NAME_1114 · MID_OPEN_1114 홈 · AI 글] GAS 재배포로 마이페이지 «식중 영상» 줄이 열린 것을 본 뒤 병합(GPT 2-22) — 홈 FAQ · JSON-LD · AI 상담 · 빌더 AI · 상담 질문
+chk 'MID_OPEN_1114' api/_kb.js 1
+chk 'VIDEO_NAME_1114' api/_ritual-kb.js 4   # 빌더 AI — 준비한 영상은 식전 · 식중 둘 · 영상 속 노래 · D-7 식중 영상 확정 · 공개 · 계약 고객 공통 한 줄
+chk '마이페이지 «식중 영상»에서 링크로 보내실 수 있습니다.' index.html 2
+chk '본식 중에는 축사 대신 «식중 영상»으로 틀 수 있어요' assets/advisor-kb.js 1   # [GPT 2-12] 홈 고정 답변 ①
+chk '«식전 영상»이나, 축사 대신 «식중 영상»으로 틀 수 있어요' assets/advisor-kb.js 1   # [GPT 2-12] 홈 고정 답변 ②
+chk "freeVideo:\['식중 영상은 어디로 보내나요?'" order-preview.html 1   # [GPT 2-23] 식중 영상 칸 상담 질문
+nochk '보내는 방법은 상담 때 안내' index.html 0
+nochk '보내는 방법은 상담 때 안내' api/_kb.js 0
+nochk '영상 속 노래는 「식전 영상」으로 담는다' api/_ritual-kb.js 0
 chk "_recordHandler(code, _pvName_(kind) + ' 동의 · 처리방침 ' + ver)" automation/platform/89_prevideo.gs 1   # [GPT 1-03] 처리이력 = 동의한 처리방침 날짜
 chk 'MID_OPEN_1114' mypage.html 1
 chk 'MID_OPEN_1114' scripts/audit/midvideo.mjs 8

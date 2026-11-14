@@ -11972,6 +11972,7 @@ var RITUAL_CHIPS={
  candle:['화촉은 누가 밝히나요?','초와 불은 누가 준비하나요?','화촉을 빼도 되나요?'],
  prevideo:['식전 영상은 어떻게 보내나요?','영상이 없으면 어떻게 하나요?','영상은 몇 분까지 되나요?'],
  free:['축사는 누가 하면 좋을까요?','축사는 몇 분이 알맞나요?','축사 원고는 어떻게 하나요?'],   /* ★[SPEECH_TILE_1012] 축사 칸 */
+ freeVideo:['식중 영상은 어디로 보내나요?','언제까지 확정하나요?','제작 비용은 누가 내나요?'],   /* [VIDEO_NAME_1114 · GPT 2-23] 같은 free 칸이라도 영상 갈래면 영상 질문 */
  _close:['단체 사진은 어떻게 찍나요?','닫는 인사는 무슨 말을 하나요?','단체 사진은 몇 분인가요?'],
  table:['테이블 인사는 얼마나 걸리나요?','테이블 수는 어디서 정해지나요?','테이블 인사를 빼도 되나요?']   /* [TABLE_GREET_1008] */
 };
@@ -12011,7 +12012,7 @@ function ritualAiStateData(){
 window.ME_ADV_PAGE={
   page:'식순', endpoint:'/api/ritual-advisor', stateMax:2600,
   greeting:'식순을 만들다 순서가 궁금하면 물어보세요. 예시와 순간 하나하나의 진행 방식과 문안을 알고 있어요.',
-  chips:function(){ var k=(typeof STEPS!=='undefined'&&STEPS[idx]&&STEPS[idx].k)||'_def'; if(k==='listen'&&typeof LS!=='undefined'&&LS.open&&RITUAL_CHIPS[LS.open]) k=LS.open;   /* [LISTEN_PAGE] 열린 줄의 순간 질문 */ var a=RITUAL_CHIPS[k]||RITUAL_CHIPS._def; return a.map(function(t){ return {label:t}; }); },
+  chips:function(){ var k=(typeof STEPS!=='undefined'&&STEPS[idx]&&STEPS[idx].k)||'_def'; if(k==='listen'&&typeof LS!=='undefined'&&LS.open&&RITUAL_CHIPS[LS.open]) k=LS.open;   /* [LISTEN_PAGE] 열린 줄의 순간 질문 */ try{ if(k==='free'&&RitualOpen.FREE_KIND[RitualOpen.chipOf('free',S)]==='video') k='freeVideo'; }catch(e){}   /* [VIDEO_NAME_1114 · GPT 2-23] */ var a=RITUAL_CHIPS[k]||RITUAL_CHIPS._def; return a.map(function(t){ return {label:t}; }); },
   state:ritualAiState,
   customer:function(){ return CUST?{name:CUST.name||'',code:CUST.code||'',phone:CUST.phone||'',stage:'식순 작성'}:null; },
   advExtra:function(){ return { embed:(EMBED&&!!CUST), customer:(CUST?{name:CUST.name||'',code:CUST.code||''}:undefined), auth:((CUST&&CUST.aiToken)||undefined), stateData:(ritualAiStateData()||undefined) }; },   // [AI_WIDGET_HMAC] GAS 서명 토큰 전송(없으면 생략 · 서버가 시크릿 미설정이면 종전 동작)
