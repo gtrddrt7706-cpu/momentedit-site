@@ -428,6 +428,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .acct-copy-btn svg{width:14px;height:14px}
 .acct-amt-wrap{margin-top:9px;text-align:center}
 .acct-amt-link{background:none;border:none;font-family:var(--serif-ko);font-size:12px;color:var(--light);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.acct-amt-link{min-height:44px;padding:0 8px}   /* ★[MYPAGE_ALL_1114 F3] 누름 칸 17px → 44px(계약금 · 중도금 · 잔금 · 수수료 · 추가보정 공통) · 글 크기 · 밑줄은 그대로 */
 .acct-amt-link u{text-decoration-color:var(--gold-deep);text-underline-offset:3px}
 .cc-btn-ghost:hover{border-color:var(--gold);color:var(--accent)}
 /* 카드결제(대안 수단) — 계좌이체 CTA 아래 '또는' 헤어라인으로 구분(경쟁 아닌 대안임을 명확히). 플래그 OFF면 미노출. */
@@ -917,6 +918,7 @@ span.snp-pv{cursor:default}
 .snp-restored::before{content:'';position:absolute;left:0;top:.62em;width:5px;height:5px;border-radius:999px;background:var(--gold-deep)}
 /* [SNAP_PRECONSENT_EXIT] 동의 전 · 읽기 전용에는 머리 «저장» 알약이 없다 — 저장은 5걸음의 동의와 «저장하고 마치기» 한 곳 */
 #mp_snapOverlay.snp-pre [data-wiz-save],#mp_snapOverlay.snp-ro [data-wiz-save]{display:none}
+.pvc-card.pvc-ro [data-wiz-save]{display:none}   /* ★[MYPAGE_ALL_1114 F2] 식전 · 식중 영상 «확정 기한이 지났어요» 화면 — 저장할 것이 없는데 «저장»이 서 있었다(_pvcLocked) */
 /* [SNAP_NUM_GOTHIC] 360px 이하 — «다음 · 사진작가에게 전해요»가 320 에서 세 줄(막대 115px)이었다. 뒤 이름은 aria-label 로 */
 @media (max-width:360px){ .snp-nx{display:none} }
 /* [SNAP_MODAL_A11Y] 입력칸 초점 = 2px 링(테두리 색만 바뀌던 것) · 단추 링도 타일과 같은 2px */
@@ -5641,9 +5643,9 @@ function renderConsult(c, product, d, boxArg, demo){
                칸이 줄지 못해 행이 카드 밖으로 밀렸다 — 320 에서 44px(쪽 가로 스크롤 · 글자 잘림) · 340 에서 24px · 360 에서 4px(실측).
                → 375px 이상은 종전 그대로 한 덩어리, 그보다 좁으면 「최대」 뒤에서만 끊는다(.fit-cap-br · 가운뎃점은 줄 가운데에 남는다). 문구·숫자는 그대로다. */
             + '<div class="vg-row"><span class="vg-k">계약</span><span class="vg-v"><span class="ln-bal">정식 계약은 상담 후 보내드리는 <b style="white-space:nowrap">본 계약서 서명</b>으로 확정돼요.</span><span class="ln-bal">시착 후 계약하지 않으시면 진행한 벌수만큼<span style="white-space:nowrap">(1벌당 50,000원 · 최대<span class="fit-cap-br"> </span>100,000원)</span> 예약금에서 차감돼요.</span><span class="vg-sub">상담 당일 쓰는 시착 동의서는 정식 계약과 달라요.</span></span></div>')
-         + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">'+(isSnap
+         + (locked ? '' : '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">'+(isSnap
               ? '<b>촬영 전</b>에 마이페이지로 계약서를 보내드려요.<br>서명·입금을 마치면 촬영을 진행해요.'
-              : '상담 후 마이페이지에서 <b>계약 정보를 입력해 요청</b>하시면<br><b>24시간 안에</b> 계약서를 보내드려요.')+'</span></div>'
+              : '상담 후 마이페이지에서 <b>계약 정보를 입력해 요청</b>하시면<br><b>24시간 안에</b> 계약서를 보내드려요.')+'</span></div>')   /* ★[MYPAGE_ALL_1114 F6] 서명한 스냅 고객([SNAP_SIGNED_LOCK] locked)에게 «계약서를 보내드려요»는 지난 일 — 줄을 뺀다 · 서명 전 · 시그니처는 그대로 */
          + '<div class="vg-row"><span class="vg-k">진행 알림</span><span class="vg-v">계약서 도착·입금 확인 같은 진행 소식은 카카오톡으로도 알려드려요.</span></div>'
          + '</div></details>';
     if (locked){   // [SNAP_SIGNED_LOCK] 서명 뒤 스냅 — 셀프 변경·취소 대신 계약서 조항 안내 한 줄
@@ -8608,7 +8610,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
       // 확인·전달 그룹 — 준비 트랙이 아니라 '만들어진 것을 확인·내보내는' 행이라 구분선 아래로(2026-07-18 사용자 지시).
       //   하객 안내=오프라인 청첩장 속 파생 페이지(제목만으론 소속이 헷갈려 부제로 명시) · 예식 확인서=최종 종합 확인이라 맨 마지막.
       + '<div class="trk-sep"><span>확인 · 전달</span></div>'
-      + row('하객 안내', (_gTok&&!_gClosed)?'완료':'', 'mp_guideOpen', gLabel,
+      + row('하객 안내', '', 'mp_guideOpen', gLabel,   /* ★[MYPAGE_ALL_1114 F4] 종전 (_gTok&&!_gClosed)?'완료' — 11/06 [B2_MA_02]부터 링크가 제작 단계 첫날 자동으로 생겨 ✓가 아무것도 안 한 고객에게도 켜졌다(디자인 헌장 9 «✓는 고객이 한 일에만»). 이 줄은 할 일이 아니라 «확인 · 전달»이라 ✓를 두지 않는다 · 단추(링크·QR)가 상태를 말한다 */
           (_invLinkAlive(inv,'family')   /* [INV_LINK_LIVE] 은퇴한 오프라인 링크(청첩장 없이 · 개인 제작으로 마침)는 «청첩장에 들어가는» 안내가 아니다 */
             ? '청첩장에 자동으로 들어가는 안내예요'
             : '식사·자리를 담는 하객 안내 페이지예요'))   // TRK_NO_SUB 예외(2026-07-25 사용자 지시 "하객안내랑 예식확인서는 밑에 설명있어도 괜찮아"): '확인·전달' 그룹 2행은 설명 유지 — 그룹 안에서는 둘 다 있어 리듬이 맞음   // 한 줄로 축약(2026-07-21 사용자 지시) — '링크·QR로 보내요'는 우측 버튼(링크·QR)과 중복이라 제거. 오프라인 청첩장 없는 구성엔 '청첩장에 들어가요'가 거짓이라 구성별 문구 유지(2026-07-18 리뷰)
@@ -11881,6 +11883,7 @@ function _pvcRow(v){
   if(st==='making') return {done:false, st:'', label:'보기', tag:'만드는 중'};
   if(st==='checking') return {done:false, st:'', label:'보기', tag:'스튜디오 확인 중'};
   if(st==='review') return {done:false, st:'', label:'영상 확인', tag:'확인 필요'};
+  if(left!=null && left<0 && (st===''||st==='draft')) return {done:true, st:'', label:'보기', tag:'영상 없이 진행'};   /* ★[MYPAGE_ALL_1114 F1] 기한이 지난 미확정 식전 영상 — 종전 «기한 지남 · 시작하기»는 누르면 «확정 기한이 지났어요»만 여는 막힌 단추였다. 식중 줄([MID_VIDEO_1106] _mvcRow)과 같은 말 · 같은 모양 */
   if(st==='draft' && d.mode==='make') return {done:false, st:'', label:'시작하기', tag:urgent()};   /* ★[PN07_MAKE_RESUME 2026-11-06 5차 P-N07] 옛 «사진으로 만들기» 초안 — «이어하기 · 사진 단계»로 접은 길에 다시 들이지 않는다(첫 화면에서 방법을 다시 고른다) */
   if(st==='draft' && d.mode) return {done:false, st:'', label:'이어하기', tag:urgent()};
   return {done:false, st:'', label:'시작하기', tag:urgent()};
@@ -12023,7 +12026,7 @@ function _pvcPoster(k){
 }
 function renderPvc(){
   var inner=$('mp_pvcInner'), F=PVCFLOW; if(!inner||!F.active) return;
-  var s=F.scr||'start', h='<div class="consult-card pvc-card">'+_pvcHead();
+  var s=F.scr||'start', h='<div class="consult-card pvc-card'+(s==='locked'?' pvc-ro':'')+'">'+_pvcHead();   /* [MYPAGE_ALL_1114 F2] 기한 지난 화면은 «나가기»만 */
   if(s==='start') h+=(F.kind==='mid'?_mvcStart():_pvcStart());   // [MID_VIDEO_1106]
   else if(s==='locked') h+=_pvcLocked();
   else if(s==='style') h+=_pvcSteps(0)+_pvcStyle();
