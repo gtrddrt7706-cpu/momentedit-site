@@ -23345,7 +23345,7 @@ chk 'if (BED.bad) delete BED.bad\[sid\];' console.html 1
 chk '^  BED.bad = {};$' console.html 1
 chk 'BED_BAD_RESET_1114' scripts/audit/console-bed-1114.mjs 3
 chk 'SEG_FIRST_FAIL_1114' console.html 4   # 흐르는 곡이 없을 때(하객 맞이) 구간 첫 곡이 안 열리면 같은 구간 다음 곡을 한 번씩 — 앞 곡이 흐르면 종전 그대로(DETAIL_R3_1101 ②)
-chk 'function segFirstFail(id){' console.html 1
+chk 'function segFirstFail(id, h4){' console.html 1   # [SEG_FIRST_FAIL_1114] · h4 = [M4_HANDOFF_NEXT_1115] 인계 몫
 chk 'function segNeedTxt(d, pl){' console.html 1
 chk '지금 파일이 없어 음악 없이 진행돼요' console.html 1   # 파일 없는 하객 맞이 — 이어질 앞 곡이 없다(«앞 곡이 이어져요» 아님)
 chk 'SEG_FIRST_FAIL_1114' scripts/audit/console-bed-1114.mjs 3
@@ -23353,7 +23353,7 @@ chk 'SEG_FIRST_FAIL_1114' scripts/audit/console-bed-1114.mjs 3
 chk 'ARRIVE_SETTLE_PV_1114' assets/bgm-bed.js 4
 chk 'var ARRIVE_LEAD=1000;' assets/bgm-bed.js 1
 chk 'ARRIVE_SETTLE_PV_1114' scripts/audit/pv-fix-1114.mjs 1
-chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115' }" .github/workflows/merge-guard.yml 1   # [PV_FIX_1114] · [CONSOLE_R2_1115] 같은 칸
+chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115 console-r3-1115' }" .github/workflows/merge-guard.yml 1   # [PV_FIX_1114] · [CONSOLE_R2_1115] 같은 칸
 chk 'PV_FIX_1114' scripts/audit/pv-fix-1114.mjs 1   # 검사 머리 이름(묶음) — CI bgm-sound f 칸
 # ★★[SONG_OPEN_FADE_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 후보 ⑦] 미리 듣기 · 연습 — 축가 여는 말 뒤 본식 피아노는 줄이 끝난 때부터 1.5초에 걸쳐 정적(엔진 큐 post 값 그대로 · 종전 0.3초 · MEANING_R1_1102 8) · 소리는 pv-fix-1114 ② 가 잰다
 chk 'SONG_OPEN_FADE_PV_1114' assets/bgm-bed.js 2
@@ -23395,7 +23395,7 @@ chk 'M4_HANDOFF_NONE_1115' scripts/audit/console-relift.mjs 2
 chk 'NO_RELIFT_FB_1115' scripts/audit/console-relift.mjs 3
 # ★★[FILL_XF_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 10] 곡 계획 — 목록 칸 길이(NEED) 판정은 곡 길이 합 − 곡 수 × 겹침(xfOf) · 콘솔 · 미리 듣기가 곡마다 그만큼 일찍 넘긴다(단순합 30:29 테이블 인사가 29:41 에 첫 곡 반복) · 검사 console-r2-1115 E
 chk 'FILL_XF_1115' assets/bgm-picks.js 2
-chk "0) - out.length \* xfOf(sg); }" assets/bgm-picks.js 2
+chk "0) - out.length \* xfOf(sg)" assets/bgm-picks.js 2   # [FILL_XF_1115] 두 셈(계획 · 들린 기록) — 들린 기록 셈 꼬리에 [CARRY_HEARD_1115] 이어받은 곡 자리 빼기가 붙는다
 chk 'FILL_XF_1115' scripts/audit/console-r2-1115.mjs 3
 # ★★[BACK_DROP_OPEN_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 04] 당일 콘솔 «뒤로» — 떠난 큐가 건 구간 곡 요청이 아직 열리는 중이면 거둔다(재생 번호 · 여는 재생기 · 미룬 요청 · 구간 자리) · 정적 뒤 꺼 둔 앞 곡은 되살리지 않는다 · 검사 console-r2-1115 A
 chk 'BACK_DROP_OPEN_1115' console.html 3
@@ -23416,8 +23416,58 @@ chk "setAttribute('aria-pressed', String(muted));" console.html 1
 chk 'MUTE_PRESSED_1115' scripts/audit/console-r2-1115.mjs 3
 # ★[CONSOLE_R2_1115 2026-11-15 BGM 섹션 · GPT 라운드 2] 당일 콘솔 · 곡 계획 묶음 검사 — CI bgm-sound f 칸(가장 짧은 칸)에서 돈다
 chk 'CONSOLE_R2_1115' .github/workflows/merge-guard.yml 1
-chk "tests: 'pv-fix-1114 console-r2-1115' }" .github/workflows/merge-guard.yml 1
+chk "tests: 'pv-fix-1114 console-r2-1115 console-r3-1115' }" .github/workflows/merge-guard.yml 1
 # ★[GEN_ON_OPEN_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 검증 중 찾음] 새 곡이 재생기를 받을 때 세대 번호를 올린다 — 앞 겹침 뒷정리 타이머가 늦게 여는 곡 재생기를 세우지 않게(검사 console-r2-1115 F)
 chk 'GEN_ON_OPEN_1115' console.html 1
 chk '  BED.gen\[nx\] = (BED.gen\[nx\] || 0) + 1;' console.html 1
 chk 'GEN_ON_OPEN_1115' scripts/audit/console-r2-1115.mjs 3
+# ★★[CONSOLE_R3_1115 2026-11-15 BGM 섹션 · GPT 라운드 3] 당일 콘솔 · 곡 계획 고침 묶음 — 검사 scripts/audit/console-r3-1115.mjs(A ~ K · CI bgm-sound f 칸)
+chk 'CONSOLE_R3_1115' .github/workflows/merge-guard.yml 1
+chk 'CONSOLE_R3_1115' scripts/audit/console-r3-1115.mjs 1
+# [LATER_DROP_1115] (01) 새 요청이 재생기를 얻으면 앞서 미뤄 둔 요청을 버린다(DETAIL_R3_1101 ③ 마지막 요청이 이긴다)
+chk 'LATER_DROP_1115' console.html 1
+chk '^  BED.later = null;   /\* ★\[LATER_DROP_1115' console.html 1
+chk 'LATER_DROP_1115' scripts/audit/console-r3-1115.mjs 3
+# [M4_NONE_DROP_1115] (03) 음악 없이 이을 때 여는 중 · 실패 뒤 다음 곡 · 미룬 요청을 거둔다(멈춘 곡을 «못 연 곡»으로 적지 않는다)
+chk 'M4_NONE_DROP_1115' console.html 1
+chk 'function m4None(){ var _op = BED.opening; BED.tk = (BED.tk || 0) + 1; BED.opening = null; BED.onFail = null; BED.later = null;' console.html 1
+chk 'M4_NONE_DROP_1115' scripts/audit/console-r3-1115.mjs 3
+# [M4_HANDOFF_NEXT_1115] (02) 짧은 입장 곡 인계에서 첫 본식 곡을 못 열면 다음 곡 · 다 못 열면 m4None(NO_RELIFT_1102 · SEG_FIRST_FAIL_1114)
+chk 'M4_HANDOFF_NEXT_1115' console.html 3
+chk "BED.m4h = 1; segGo('M4'); BED.m4h = 0;" console.html 1
+chk 'if (h4) { m4None(); return; }' console.html 1
+chk 'M4_HANDOFF_NEXT_1115' scripts/audit/console-r3-1115.mjs 3
+# [HUSH_SOFT_FREE_1115] (04) 0.5초 정적이 끝나면 조용해진 앞 재생기를 비우고 미룬 요청을 바로(BED.gen 이 같을 때만)
+chk 'HUSH_SOFT_FREE_1115' console.html 1
+chk 'else sk.push(\[k, BED.gen\[k\]\]); continue; }' console.html 1
+chk 'HUSH_SOFT_FREE_1115' scripts/audit/console-r3-1115.mjs 3
+# [BACK_DROP_ORIGIN_1115] (05) 여는 요청이 저를 건 큐 자리(bk)를 들고 있어 그 큐 밖으로 «뒤로» 나가면 거둔다(BACK_DROP_OPEN_1115 확장)
+chk 'BACK_DROP_ORIGIN_1115' console.html 3
+chk '_o.bk.i === i) g = _o.bk;' console.html 1
+chk 'BED.bkNow = _bk; segGo(segOfCue(c)); BED.bkNow = null;' console.html 1
+chk 'BACK_DROP_ORIGIN_1115' scripts/audit/console-r3-1115.mjs 3
+# [FINISH_NO_NEXT_1115] (06) 끝내기 뒤 3초 잦아드는 동안 목록 감시가 다음 곡을 열지 않는다(AFTER_PHOTO_LOOP_1102)
+chk 'FINISH_NO_NEXT_1115' console.html 1
+chk 'BED.fin = 1; BED.tk = (BED.tk || 0) + 1;' console.html 1
+chk "if (BED.mode !== 'seg' || BED.xing || BED.fin) return;" console.html 1
+chk 'FINISH_NO_NEXT_1115' scripts/audit/console-r3-1115.mjs 3
+# [RESET_PLAYERS_1115] (07 · 08) 새 판은 앞 판 재생기를 멈추고 크기를 처음 값으로(0번 1 · 나머지 0)
+chk 'RESET_PLAYERS_1115' console.html 1
+chk 'g.gain.setValueAtTime(k ? 0.0001 : 1, AC.currentTime)' console.html 1
+chk 'RESET_PLAYERS_1115' scripts/audit/console-r3-1115.mjs 6
+# [PAUSE_REOPEN_1115] (09) 여는 중 «잠시 멈춤»이면 그 요청을 거두어 두었다가 이어 들을 때 다시 연다(GUEST_PAUSE · NO_RELIFT_1102)
+chk 'PAUSE_REOPEN_1115' console.html 3
+chk 'BED.reopen = _op;' console.html 1
+chk 'var _ro = BED.reopen; BED.reopen = null;' console.html 1
+chk 'PAUSE_REOPEN_1115' scripts/audit/console-r3-1115.mjs 3
+# [DECLARE_ONE_1115] (10) 선언 뒤 박수 — 본식 곡이 한 곡뿐이어도 그 곡을 강조 자리부터 새로(DECLARE_LIFT 주석 «없으면 지금 곡을 강조 자리부터»)
+chk 'DECLARE_ONE_1115' console.html 1
+chk 'if (_j < 0) _j = BED.li;' console.html 1
+nochk 'if (_j < 0 && BED.id !== _hz) _j = BED.li;' console.html 0
+chk 'DECLARE_ONE_1115' scripts/audit/console-r3-1115.mjs 3
+# [CARRY_HEARD_1115] (11) 들린 기록으로 다시 짠 목록 — 이어받은 곡은 지금 자리(curAt)만큼 빼고 칸 길이를 센다(REPEAT_RULE_1107 · FILL_XF_1115)
+chk 'CARRY_HEARD_1115' assets/bgm-picks.js 1
+chk 'out.indexOf(c) > -1 ? cAt : 0' assets/bgm-picks.js 1
+chk 'CARRY_HEARD_1115' console.html 1
+chk 'curAt: (cur && BED.id === cur' console.html 1
+chk 'CARRY_HEARD_1115' scripts/audit/console-r3-1115.mjs 3
