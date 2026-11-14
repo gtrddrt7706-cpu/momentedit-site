@@ -139,7 +139,7 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 
 .field{position:relative;margin-bottom:15px}
 .field input{width:100%;border:1px solid var(--field-line);border-radius:6px;padding:17px 15px;font-family:var(--sans);font-size:16px;color:var(--accent);background:var(--bg);outline:none;transition:border-color .3s}   /* MPD_B9 입력 16px — iOS 포커스 자동 줌 방지(15px 이하 금지 · 2026-07-25) */
-.field input:focus{border-color:var(--gold)}
+.field input:focus{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}   /* ★[FOCUS_ONE · FIELD_LINE_1115] 로그인 칸도 초점 한 벌(짙은 금빛 테 두 겹) — 옅은 금빛 한 겹은 새 경계선(--field-line)보다 흐려 초점이 오히려 약해 보였다 */
 /* 자동완성(autofill) 시 브라우저가 입히는 연보라/노랑 배경 제거 — 페이지 톤 유지 */
 .field input:-webkit-autofill,.field input:-webkit-autofill:hover,.field input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 1000px var(--bg) inset;-webkit-text-fill-color:var(--accent);caret-color:var(--accent);transition:background-color 9999s ease 0s}
 .cc-input:-webkit-autofill,.cc-input:-webkit-autofill:hover,.cc-input:-webkit-autofill:focus,.cc-input:-webkit-autofill:active{-webkit-box-shadow:0 0 0 1000px #fff inset;box-shadow:0 0 0 1000px #fff inset;-webkit-text-fill-color:var(--accent);caret-color:var(--accent);transition:background-color 9999s ease 0s}
@@ -586,7 +586,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .dt-year-sel{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);background:transparent;border:none;border-bottom:1px solid var(--field-line);padding:2px 2px;cursor:pointer;outline:none}
 /* 생년월일 — 개별 박스 3개 → 테두리 하나로 묶은 통합 필드(년│월│일). 내부 구분선으로 구획 */
 .birth-group{display:flex;align-items:stretch;border:1px solid var(--field-line);border-radius:8px;background:#fff;overflow:hidden;transition:border-color .2s,box-shadow .2s}
-.birth-group:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft,rgba(184,154,117,.28))}
+.birth-group:focus-within{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}
 .birth-sel{-webkit-appearance:none;-moz-appearance:none;appearance:none;box-sizing:border-box;flex:1;min-width:0;font-family:var(--serif-ko);font-size:14px;font-weight:300;color:var(--accent);background-color:transparent;border:none;border-radius:0;padding:12px 26px 12px 14px;outline:none;cursor:pointer;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23B89A75' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 9px center}
 .birth-sel+.birth-sel{border-left:1px solid var(--border)}
 .ci-terms-link{background:none;border:none;padding:0;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep,#7A5F37);text-decoration:underline;cursor:pointer}
@@ -1769,7 +1769,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     /* 골랐던 것을 되돌리는 길 — 옛 판엔 없어서 한 번 고르면 '미정'으로 못 돌아갔다(×는 창을 닫을 뿐이다) */
     /* [SEAT_ONE_CARD] 이름칸이 창 안으로 들어왔다 — 캔버스의 70px 칸과 달리 넓게 서고, 포커스 크기 16px(iOS 확대 방지·MPD_B9와 같은 이유) */
     .sdb-nm{display:block;width:100%;box-sizing:border-box;margin-bottom:10px;padding:11px 12px;border:1px solid var(--field-line);border-radius:10px;background:#fff;font-family:var(--serif-ko);font-size:16px;color:var(--accent);text-align:center}
-    .sdb-nm:focus{outline:none;border-color:var(--gold-deep)}
+    .sdb-nm:focus{outline:none;border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}
     .sdb-nm::placeholder{color:var(--light);font-size:14px}
     .sdb-opts.n4,.sdb-opts.n5{grid-template-columns:repeat(2,1fr)}   /* [ALC_ONE]·[KID_CHAIR] 알콜이 정해지면 넷(그 알콜·논알콜·유아·어린이) · 아직이면 다섯 */
     .sdb-opts.n5 .dk-chip:nth-child(5){grid-column:1/-1}   /* 홀수로 남는 마지막 칸은 한 줄 통째로 — 빈 칸을 남기지 않는다 */

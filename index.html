@@ -7040,8 +7040,9 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
     box-shadow 0.25s;
 }
 .faq-ask-form:focus-within {
-  border-color: var(--gold);
-  box-shadow: 0 4px 16px rgba(184, 154, 117, 0.14);
+  /* [FOCUS_ONE · FIELD_LINE_1115] 초점 = 짙은 금빛 테 두 겹(마이페이지와 한 벌) · 옅은 금빛 + 번짐은 새 경계선보다 흐렸다 */
+  border-color: var(--gold-text);
+  box-shadow: inset 0 0 0 1px var(--gold-text);
 }
 .faq-ask-ic {
   width: 18px;
@@ -8903,7 +8904,8 @@ function replayHeroAnimation(){
   transition: border-color 0.3s;
 }
 .me-adv-input:focus {
-  border-color: var(--gold);
+  border-color: var(--gold-text);
+  box-shadow: inset 0 0 0 1px var(--gold-text); /* [FOCUS_ONE · FIELD_LINE_1115] */
 }
 .me-adv-send {
   flex: 0 0 auto;
