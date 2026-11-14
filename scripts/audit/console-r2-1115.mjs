@@ -112,7 +112,7 @@ try {
     const iG = c.ix(/^guest-w-arrival/), iO = c.ix(/^narr-open/), iC = c.ix(/^narr-candle-in/);
     if (!c.ok || [iG, iO, iC].some((x) => x < 0)) skip('A — 콘솔 점검 고리 · 큐 · 곡 파일 칸을 못 찾았다 ' + JSON.stringify({ ok: c.ok, put: c.put, iG, iO, iC }));
     else {
-      await c.on(); await c.fire(iG); const g1 = await c.waitDb('M1', 'v != null && v > -30', 15000);
+      await c.on(); await c.fire(iG); const g1 = await c.waitDb('M1', 'v != null && v > -30', 15000); await c.pg.waitForTimeout(4000);   /* 하객 맞이 곡이 자리를 잡은 겹침 뒷정리(3.1초)가 끝난 뒤에 — 그 전에 화촉 곡을 열면 뒷정리가 여는 재생기를 세운다(이 검사 밖의 좁은 창 · 보고에 적음) */
       await c.fire(iO); const q1 = await c.waitDb('M1', 'v == null || v <= -60', 15000); await c.pg.waitForTimeout(600);
       await c.pg.evaluate(() => { window.__slowName = 'M2'; window.__slowMs = 1300; });
       const tGo = await c.fire(iC); await c.pg.waitForTimeout(200);
@@ -137,7 +137,7 @@ try {
     /* 대조 — 뒤로 없이 늦게 열리면 종전대로 오른다 */
     const d = await open(SOF('standard'));
     if (d.ok && iG >= 0) {
-      await d.on(); await d.fire(iG); const g2 = await d.waitDb('M1', 'v != null && v > -30', 15000); await d.fire(iO); const q2 = await d.waitDb('M1', 'v == null || v <= -60', 15000); await d.pg.waitForTimeout(600);
+      await d.on(); await d.fire(iG); const g2 = await d.waitDb('M1', 'v != null && v > -30', 15000); await d.pg.waitForTimeout(4000); await d.fire(iO); const q2 = await d.waitDb('M1', 'v == null || v <= -60', 15000); await d.pg.waitForTimeout(600);
       await d.pg.evaluate(() => { window.__slowName = 'M2'; window.__slowMs = 1300; }); const t0 = await d.fire(iC); await d.pg.waitForTimeout(6000);
       const W = win(await d.smp(), t0, 6000), rA4 = { 준비: [g2, q2], 화촉곡최고: peak(W, 'M2'), 앞곡최고: peak(W, 'M1') };
       console.log('  재 본 값 A ④', JSON.stringify(rA4));
@@ -184,7 +184,7 @@ try {
     const ready = c.ok && iG >= 0 && await c.pg.evaluate(() => typeof window.__heard === 'function');
     if (!ready) skip('C — 콘솔 점검 고리(__heard) · 큐 · 곡 파일 칸을 못 찾았다');
     else {
-      await c.on(); await c.fire(iG); const g = await c.waitDb('M1', 'v != null && v > -30', 15000); await c.pg.waitForTimeout(1500);
+      await c.on(); await c.fire(iG); const g = await c.waitDb('M1', 'v != null && v > -30', 15000); await c.pg.waitForTimeout(4500);   /* 첫 겹침(약 3.1초 · 그동안 곡 끝 감시기는 쉰다) 뒤 */
       const hs = () => c.pg.evaluate(() => { const h = window.__heard(), k = Object.keys(h); return k.length ? Math.round(k.reduce((a, f) => a + (h[f].sec || 0), 0) * 100) / 100 : 0; });
       const h0 = await hs(); await c.pg.click('#bMute'); await c.pg.waitForTimeout(300); const h1 = await hs(); await c.pg.waitForTimeout(5000); const h2 = await hs();
       await c.pg.click('#bMute'); await c.pg.waitForTimeout(3000); const h3 = await hs();
