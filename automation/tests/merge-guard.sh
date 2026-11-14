@@ -11606,6 +11606,14 @@ chk 'LETTER_PREVIEW_PAPER' live.html 1
 chk '^\.letter-preview \.lp-message-box{' live.html 1
 chk '<span class="lf-mark" aria-hidden="true">From.</span>' live.html 2
 chk 'NAV_FOCUS_BG' index.html 1
+# ── [HALLMARK_FIX_1114 묶음 1] 화면 점검(docs/design-audit-20261114.md)에서 넣기로 한 것 — 되돌리면 겹침 · 줄 꺾임 · 머리 줄 덜컥임이 돌아온다 ──
+chk 'NAV_SOLID_BG_1114' index.html 3                    # H-1·2 위로 올려 나타난 PC 메뉴 = 종이색 단색 + 헤어라인(반투명 · blur 금지) · 680 이하는 끔
+chk 'CTA_NARROW_1114' index.html 1                      # H-3 폰 360 전환 CTA 한 줄(좌우 여백만 24px · 글자 격은 CTA_TYPE_QUIET 그대로)
+chk 'GA_TAB_NARROW_1114' index.html 1                   # H-4 폰 360 탭 한 줄(좌우 여백 10px)
+chk 'FAQ_EG_GRID_1114' index.html 1                     # H-5 칩 넷이 한 줄에 안 들어가는 폭(389 이하)은 2 × 2
+chk 'STEP_ROW_STILL_1114' order-preview.html 1          # O-1 순간을 담아도 단계 줄 · 제목이 움직이지 않는다
+chk '.op-steps li:has(> .op-stepb){padding-top:0}' order-preview.html 1
+chk '.op-steps{min-height:46px}' order-preview.html 1
 chk 'CC_BTN_TRACK' mypage.html 1
 nochk 'letter-spacing:\.16em;background:#4E3F31' mypage.html
 chk 'SKILL_SEATED30' .claude/skills/momentedit-design/SKILL.md 1
