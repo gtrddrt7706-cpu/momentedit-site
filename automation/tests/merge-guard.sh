@@ -23514,3 +23514,9 @@ chk "function lpEnd(keepHold){ if(!keepHold){ LPB.hold=null; LPB.nsw=null; }" as
 chk "var _ns=LPB.nsw; if(_ns&&emb()&&curStep()===_ns.st&&!(BED.cur.src&&BED.cur.f===_ns.f)){ LPB.pz=null;" assets/bgm-bed.js 1
 chk "if(!b||LPB.nsw!==_ns||LPB.lt!==_tk||curStep()!==_ns.st||pzNow()) return; var nv=startVoice(_ns.f,lvOf(_ns.st,_ns.f),RESUME_MS,reHook(_ns.f,b));" assets/bgm-bed.js 1
 chk 'CLAP_PEND_KEEP_1115' scripts/audit/pv-r3-1115.mjs 1
+# ★[DAY_KEY_READY_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 19] 미리 듣기 · 화면 — 순간 시간표(daySec)는 큐 엔진으로 다 센 뒤에만 기억(곡 목록이 엔진보다 먼저 와도 축사 · 축가가 첫 곡으로 굳지 않게)
+chk 'DAY_KEY_READY_1115' assets/bgm-bed.js 1
+chk "if(DAY.key===key) return DAY.v; var v={};" assets/bgm-bed.js 1
+chk "DAY.key=key; DAY.v=v; }catch(x){} return v; }" assets/bgm-bed.js 1
+nochk "DAY.key=key; DAY.v={};" assets/bgm-bed.js 0
+chk 'DAY_KEY_READY_1115' scripts/audit/pv-r3-1115.mjs 1

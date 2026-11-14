@@ -296,8 +296,10 @@
   function cueBy(slug){ if(!slug) return null; var g=null, key=''; try{ g=window.ENG; key=JSON.stringify(St()); }catch(x){} if(!g||!g.RitualCue) return null;
     if(CQ.key!==key){ CQ.key=key; CQ.m={}; CQ.l=[]; try{ CQ.l=g.RitualCue.build(St(),{mode:'console'}).cues||[]; CQ.l.forEach(function(c){ if(c.slug&&!CQ.m[c.slug]) CQ.m[c.slug]=c; }); }catch(x){} } return CQ.m[slug]||null; }
   function liveBy(st){ var c=st&&st.of?cueBy(st.of):null; return c&&c.live?c.live:null; }
-  function daySec(){ var g=null, key=''; try{ g=window.ENG; key=JSON.stringify(St()); }catch(x){} if(DAY.key===key) return DAY.v; DAY.key=key; DAY.v={};
-    if(!g||!g.RitualCue) return DAY.v; try{ (g.RitualCue.build(St(),{mode:'console'}).cues||[]).forEach(function(c){ DAY.v[c.k]=(DAY.v[c.k]||0)+(+c.est||0)+((c.live&&(+(c.live.fullEst||c.live.est)||0))||0); }); }catch(x){} return DAY.v; }
+  /* ★[DAY_KEY_READY_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 19] 시간표는 큐 엔진으로 다 센 뒤에만 기억한다(DAY.key) — 마이페이지에서 곡 목록이 엔진보다 먼저 와 서약 줄을 한 번 그리면
+       빈 시간표가 같은 초안 열쇠로 기억돼, 엔진이 온 뒤에도 축사 · 축가가 첫 곡(B09 · B09)이었다(엔진 먼저면 B10 · B11). 엔진이 없거나 셈이 깨지면 이번 한 번만 빈 표 · 검사 scripts/audit/pv-r3-1115.mjs 19 */
+  function daySec(){ var g=null, key=''; try{ g=window.ENG; key=JSON.stringify(St()); }catch(x){} if(DAY.key===key) return DAY.v; var v={};
+    if(!g||!g.RitualCue) return v; try{ (g.RitualCue.build(St(),{mode:'console'}).cues||[]).forEach(function(c){ v[c.k]=(v[c.k]||0)+(+c.est||0)+((c.live&&(+(c.live.fullEst||c.live.est)||0))||0); }); DAY.key=key; DAY.v=v; }catch(x){} return v; }
   function dayAt(k){ if(segAt(k)!=='M4') return ''; var L=ordOf('M4').filter(has); if(!L.length) return '';
     var q=seq().filter(onOf).filter(function(x){ return segAt(x)==='M4'; }), i=q.indexOf(k); if(i<=0) return L[0];
     /* ★★[LISTEN_LEN_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 검증 14] 곡마다 등록된 길이(BgmPicks.lenOf · REPEAT_FIX_1107 ③ · B09 117.9초)로 센다 — 종전엔 모든 곡을 240초로 세어
