@@ -328,7 +328,14 @@
     var _lvn=liveBy(st); if(_lvn&&_lvn.newSong&&(st.act||st.quiet)&&emb()){ var _of=BED.cur.src?BED.cur.f:'', _ord=ordOf('M4').filter(has), _av={}, _nf='', _i0=_ord.indexOf(_of); (LPB.hzL&&LPB.hzL.length?LPB.hzL:[_of]).forEach(function(x){ _av[x]=1; });   /* 피할 곡 = 선언 전에 들리던 곡(정적 동안 목록이 넘어가 지금 곡이 다르면 지금 곡을 강조 자리부터 새로 써도 된다) */
       for(var _j=1;_j<=_ord.length;_j++){ var _x=_ord[(Math.max(0,_i0)+_j)%_ord.length]; if(_x&&!_av[_x]){ _nf=_x; break; } } if(!_nf&&LPB.hzL&&LPB.hzL.length){ for(var _q=LPB.hzL.length-1;_q>=0&&!_nf;_q--){ if(_ord.indexOf(LPB.hzL[_q])>-1) _nf=LPB.hzL[_q]; } }   /* 다 들린 곡이면 가장 오래전에 들린 곡 */
       if(!_nf) _nf=lfNext('M4',_of)||m4();   /* 선언 전에 들리던 곡 · 지금 곡이 아닌 목록 다음 곡(덕담 곡이 같으면 그다음) */
-      var _go=function(){ var q=curStep(); if(q!==st||!_nf||!(BUF[_nf]&&BUF[_nf].st==='ok')) return; var nv=startVoice(_nf,lvOf(st,_nf),_lvn.upMs||600,reHook(_nf,BUF[_nf]&&BUF[_nf].b)); if(!nv) return; LPB.cut=null;   /* [ONE_FLOW_1106 ⑥] 선언 뒤 박수 = 새 곡(끊긴 곡 잇기 예외) */ if(BED.cur.src) stopVoice(BED.cur,300); BED.cur=nv; LPB.on=true; BED.who='lp'; LPB.f=_nf; LPB.lf={ sg:'M4', f:_nf }; };
+      /* ★★[BGM_OFF_STAYS_OFF_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 검증 12] 박수 곡(새 곡)을 받는 동안 «음악 끄기» · «잠시 멈춤»을 눌렀으면, 늦게 온 곡을 틀지 않는다.
+           종전: 이 콜백은 «아직 그 줄인가 · 곡이 왔나»만 봤다 — 끈 뒤에 곡이 오면 −8 로 시작했고(단추는 «음악 켜기» 그대로) 다음 멘트 위에서도 −8(말 아래로 낮추는 길이 꺼져 있어서) · 결정 PR_BGM_197 · B5_P17 «음악 끄기 = 끈다».
+           고침 = 박수 줄에 들어설 때의 차례 번호(LPB.lt · 끄기 · 멈춤 · 끝내기 · 새 시작이 모두 올린다)와 멈춤 상태를 시작 직전에 다시 본다 — 달라졌으면 새 소리를 만들지 않는다.
+           멈춘 동안 온 곡은 이어 들을 때 그 곡 · 강조 자리 · 그 줄 크기로(멈춤 기록 LPB.pz 를 새 곡으로 · 앞 곡을 되살리지 않는다 NO_RELIFT) · 검사 scripts/audit/pv-fix-1114.mjs ④ */
+      var _tkn=LPB.lt;
+      var _go=function(){ var q=curStep(); if(q!==st||!_nf||!(BUF[_nf]&&BUF[_nf].st==='ok')) return;
+        if(LPB.lt!==_tkn||pzNow()){ if(pzNow()){ var _z=LPB.pz; if(_z&&_z.keep&&_z.st===st){ _z.f=_nf; _z.pos=reHook(_nf,BUF[_nf].b); LPB.lf={ sg:'M4', f:_nf }; } else if(LPB.lt===_tkn) holdOn(st); } return; }
+        var nv=startVoice(_nf,lvOf(st,_nf),_lvn.upMs||600,reHook(_nf,BUF[_nf]&&BUF[_nf].b)); if(!nv) return; LPB.cut=null;   /* [ONE_FLOW_1106 ⑥] 선언 뒤 박수 = 새 곡(끊긴 곡 잇기 예외) */ if(BED.cur.src) stopVoice(BED.cur,300); BED.cur=nv; LPB.on=true; BED.who='lp'; LPB.f=_nf; LPB.lf={ sg:'M4', f:_nf }; };
       if(_nf&&_nf!==_of){ if(BUF[_nf]&&BUF[_nf].st==='ok') _go(); else want(_nf,function(b){ if(b) _go(); }); return; } }
     if(st.k==='declare'&&emb()){ var _pn=lfNext('M4',BED.cur.src?BED.cur.f:''); if(_pn&&!BUF[_pn]) want(_pn); }   /* 박수 곡 미리 받기 */
     /* ★[MEANING_R2_1102 ENTRY_SETTLE] 도착 멘트 — 엔진 fadeMs(4.5초)에 걸쳐 −90(박수 아래로 · 뚝 끊지 않음) */

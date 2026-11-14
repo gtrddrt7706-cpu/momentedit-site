@@ -7,6 +7,7 @@
         대조: 내림은 한 번(다음 줄이 시작돼도 다시 걸지 않는다) · MR 자리 · 맺는 말은 정적 · 사이를 늘리지 않았다 · 정석(축가 앞이 이미 정적)은 내림 예약 0
    ③ [ENTRY_HOOK_PV_1114] 화촉 직후 입장(뜸 없는 길) — «입장!» 구호 말끝 → 입장 곡 강조 자리(문 열림) 0 ~ 0.8초(설계 0.3초 · 종전 5.3초 · 구호 길이를 모르면 1.4초) · 구호는 저장소의 실제 소리(약 20초)
         대조: 뜸 있는 길(입장부터 듣기)의 시작 자리는 종전 셈(H − 6 − V − 0.3) 그대로 · 입장만 따로 듣기(장면)의 설계 값 0.3초 · 화촉 곡과 입장 곡 사이 정적 1초 이상 · 곡 · 구호가 함께 시작
+   ④ [BGM_OFF_STAYS_OFF_1114] 가족 코스 선언 뒤 박수 곡(새 곡)을 받는 중에 «음악 끄기» → 곡이 늦게 와도 새 소리 0 · «잠시 멈춤» → 멈춘 동안 새 소리 0 · 이어 들으면 그 새 곡이 그 줄 크기(−8)로
    ONLY=1,2 … · BP_BED · BP_OP · BP_CUE = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -120,7 +121,27 @@ async function hook(key, vKnown) { const { ctx, f, errs } = await open(Bv.port, 
   const pd = PAD.of(pl.src) || [0, 0], hookAt = s0.T + (x.H - x.o - s0.off) * 1000, last = d.o.filter((q) => q.t < s0.T && q.f && q.f !== '@ENT' && q.want > -60).pop();
   return { key, vKnown, errs, V: x.V, off: r1(s0.off), callSec: r1((en.T - pl.T) / 1000), after: Math.round((hookAt - (en.T - pd[1])) / 10) / 100, together: Math.round(pl.T - s0.T), hush: last ? Math.round(s0.T - last.t) : null, lead, leadWant: x.V != null ? r1(Math.max(0, x.H - 6 - x.V - 0.3 - x.o)) : null, scene: scene ? r1((scene.th - (scene.tv + scene.V)) * 10) / 10 : null }; }
 
+/* ④ 박수 곡을 받는 중 끄기(off) · 멈춤(pause) — 박수 곡 응답을 붙잡아 두었다가 누른 뒤에 풀어 준다 */
+async function lateClap(mode) { const { ctx, pg, f, errs } = await open(A.port, 'family', { mu: false, pre: () => { H.hold.B10 = true; } }); await start(f, 'flow', ['declare', 'bless'], 1500);
+  const got = await f.evaluate(() => new Promise((res) => { const B = BgmBed._t, t0 = performance.now(), sl = ((ENG.RitualCue.build(S, { mode: 'console' }).cues || []).find((c) => c.live && c.live.newSong) || {}).slug || '';
+    (LP.q || []).forEach((x) => { if (x.of === sl && (x.act || x.quiet)) x.ms = 25000; });   /* 박수 줄에 머문다 */
+    const iv = setInterval(() => { const st = LP.q && LP.q[LP.i], b = B.BUF.B10; if (st && st.of === sl && (st.act || st.quiet) && b && b.st === 'wait' && b.cb && b.cb.length) { clearInterval(iv); res({ ok: true, sl, old: B.BED.cur && B.BED.cur.f }); } else if (performance.now() - t0 > 90000) { clearInterval(iv); res({ ok: false, sl, i: LP.i, b: b && b.st }); } }, 30); }));
+  if (!got.ok) { await ctx.close(); return { mode, none: true, got, errs }; }
+  const snap = () => f.evaluate(() => { const B = BgmBed._t, c = B.BED.cur, E = window.__pv, btn = document.querySelector('[data-fk="prmu"]'); return { T: performance.now(), src: !!(c && c.src), f: c && c.src ? c.f : '', want: c && c.src ? c.want : null, g: c && c.src && c.g ? c.g.gain.value : 0, st: E.st.length, btn: btn ? btn.textContent.trim() : '', pz: !!LP.paused, music: (typeof _prMusic === 'function') ? _prMusic() : null }; });
+  const a0 = await snap(); let how = '';
+  if (mode === 'off') how = await f.evaluate(() => { const b = document.querySelector('[data-fk="prmu"]'); if (b && b.offsetParent) { b.click(); return 'click'; } prMusicTgl(); return 'call'; }); else { await f.evaluate(() => { lsToggle(); }); how = 'lsToggle'; }
+  await f.waitForTimeout(450); const a1 = await snap(); await pg.evaluate(() => { H.hold.B10 = false; }); await f.waitForTimeout(2600); const a2 = await snap(); let a3 = null;
+  if (mode === 'pause') { await f.evaluate(() => { lsToggle(); }); await f.waitForTimeout(1600); a3 = await snap(); }
+  await stop(f); await ctx.close();
+  return { mode, how, errs, old: got.old, st0: a0.st, btn: a1.btn, music: a1.music, lateStarts: a2.st - a1.st, lateSrc: a2.src, lateF: a2.f, lateG: a2.g, pz: a2.pz, res: a3 ? { f: a3.f, want: a3.want, g: r1(dB(a3.g)), st: a3.st - a2.st, pz: a3.pz } : null }; }
+
 try {
+  if (want(4)) { const [off, pz] = await Promise.all([lateClap('off'), lateClap('pause')]);
+    console.log('  재 본 값 ④ ' + JSON.stringify(off) + ' · ' + JSON.stringify(pz));
+    ok('④ 박수 곡을 받는 중 «음악 끄기» → 곡이 늦게 와도 새 소리 0(곡 시작 0 · 흐르는 곡 없음 · 음악 설정 꺼짐 그대로)', !off.none && off.music === false && off.lateStarts === 0 && !off.lateSrc, off);
+    ok('④ 박수 곡을 받는 중 «잠시 멈춤» → 멈춘 동안 새 소리 0', !pz.none && pz.pz && pz.lateStarts === 0 && !pz.lateSrc, pz);
+    ok('④ 대조 — 이어 들으면 그 새 곡(앞 곡 아님)이 박수 줄 크기(−8)로 · 들린다', !pz.none && pz.res && pz.res.f === 'B10' && pz.res.f !== pz.old && pz.res.want === -8 && pz.res.g > -60 && pz.res.st >= 1 && !pz.res.pz, pz);
+    ok('④ 쪽 오류 0', !off.errs.length && !pz.errs.length, [off.errs, pz.errs]); }
   if (want(3)) { const [k1, k0] = await Promise.all([hook('standard', true), hook('standard', false)]), k2 = await hook('family', true);
     console.log('  재 본 값 ③ ' + [k1, k0, k2].map((x) => JSON.stringify(x)).join(' · '));
     ok('③ 화촉 직후 입장 — 구호 말끝 → 강조 자리 0 ~ 0.8초(정석 · 가족 · 구호 길이를 아는 날)', [k1, k2].every((x) => !x.none && x.V > 1 && x.after >= 0 && x.after <= 0.8), [k1, k2].map((x) => [x.key, x.V, x.after, x.off]));

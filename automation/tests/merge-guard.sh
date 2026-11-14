@@ -23364,3 +23364,7 @@ chk 'ENTRY_HOOK_PV_1114' assets/bgm-bed.js 2
 chk "if(st0){ var c0=callOf(st0,x); t=x.H-c0.hd-c0.v-0.3; } else t=x.H-6-(x.V!=null?x.V:15)-0.3; }" assets/bgm-bed.js 1
 chk "startVoice(f,lvOf(q2,f),1500,entAt('entry',st));" assets/bgm-bed.js 1
 chk 'ENTRY_HOOK_PV_1114' scripts/audit/pv-fix-1114.mjs 1
+# ★★[BGM_OFF_STAYS_OFF_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 검증 12] 미리 듣기 · 연습 — 선언 뒤 박수 곡(새 곡)을 받는 중에 «음악 끄기» · «잠시 멈춤»을 눌렀으면 늦게 온 곡을 틀지 않는다(차례 번호 · 멈춤을 시작 직전에 다시 본다 · PR_BGM_197) · 소리는 pv-fix-1114 ④ 가 잰다
+chk 'BGM_OFF_STAYS_OFF_1114' assets/bgm-bed.js 1
+chk "if(LPB.lt!==_tkn||pzNow()){ if(pzNow()){ var _z=LPB.pz;" assets/bgm-bed.js 1
+chk 'BGM_OFF_STAYS_OFF_1114' scripts/audit/pv-fix-1114.mjs 1
