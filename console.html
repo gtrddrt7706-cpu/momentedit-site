@@ -1298,7 +1298,7 @@ function bedPlay(sid, xf, at){ if (!SEGF[sid]) return false;
   BED.gen[nx] = (BED.gen[nx] || 0) + 1;   /* ★[GEN_ON_OPEN_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 검증 중 찾음] 이 재생기를 새 곡이 쓴다 — 앞 겹침의 뒷정리 타이머(아래 setTimeout · was)는 손을 뗀다.
        종전: 소리 없던 재생기는 «잦아드는 중»(BED.fade)이 안 걸려 겹침 3초 안에 다음 곡이 그 재생기를 받을 수 있었고, 그 곡이 늦게 열리는 중이면 뒷정리가 여는 재생기를 세워 «곡 파일을 열지 못했어요» + 앞 곡 되돌림(하객 맞이 시작 3초 안 화촉 GO) · NO_RELIFT_ALL_1115 의 BED.gen 을 같이 쓴다 */
   BED.plays = (BED.plays || 0) + 1; var el = BED.el[nx], m = SEGST.meta[sid] || {}, tk = BED.tk = (BED.tk || 0) + 1;
-  bedWire(); BED.opening = { sid: sid, tk: tk, nx: nx, bk: BED.bkNow || null }; var _ofl = BED.onFail; BED.onFail = null;   /* [BACK_DROP_ORIGIN_1115] bk = 이 요청을 건 큐의 «바꾸기 전 자리»(GO 로 건 요청만) */   /* [DETAIL_R5_1101 규칙 5] 이 재생 차례의 «실패하면 다음 곡»만 — 다른 재생으로 새지 않는다 */
+  bedWire(); var _ofl = BED.onFail; BED.onFail = null; BED.opening = { sid: sid, tk: tk, nx: nx, bk: BED.bkNow || null, xf: xf, at: at, ofl: _ofl };   /* [PAUSE_REOPEN_1115] xf · at · ofl = 멈춤 뒤 같은 요청으로 다시 열 때 */   /* [BACK_DROP_ORIGIN_1115] bk = 이 요청을 건 큐의 «바꾸기 전 자리»(GO 로 건 요청만) */   /* [DETAIL_R5_1101 규칙 5] 이 재생 차례의 «실패하면 다음 곡»만 — 다른 재생으로 새지 않는다 */
   try { if (BED.xg[nx] && AC) { BED.xg[nx].gain.cancelScheduledValues(AC.currentTime); BED.xg[nx].gain.setValueAtTime(0.0001, AC.currentTime); } else el.volume = 0; } catch (e) {}
   el.loop = false; el.src = SEGF[sid]; try { el.currentTime = (at != null ? at : (m.head || 0)); } catch (e) {}
   var t0 = null, done = false, fin = function(ok){ if (done) return; done = true; clearTimeout(to); clearInterval(iv); el.removeEventListener('playing', onPl); el.removeEventListener('error', onEr);
@@ -2084,11 +2084,16 @@ function setPaused(on){
     HELD_LATER = (LATER || []).map(function(o){ return { fn: o.fn, left: Math.max(0, o.at - now) }; });   // [B2_NA_63] 남은 시간째
     clearT();                                              // clearT 가 stopProg 까지 한다
     progS = keep;
+    /* ★[PAUSE_REOPEN_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 09] 곡 파일을 여는 중 멈춤 — 그 요청을 거두어 두었다가(재생 번호를 올려 늦은 결과를 버린다) 이어 들을 때 같은 요청으로 다시 연다 · 꺼 둔 앞 곡 되돌림 타이머도 멈춘 동안은 쉰다.
+         종전: 멈춤이 여는 재생기를 세워 play() 가 중단(AbortError)으로 끝나 멀쩡한 화촉 곡이 «못 연 곡»(BED.bad)이 되고, 이어 들으면 꺼 둔 하객 맞이 곡이 되살아났다(GUEST_PAUSE «같은 자리에서 잇는다» · NO_RELIFT_1102) */
+    var _op = BED.opening; if (_op) { BED.tk = (BED.tk || 0) + 1; BED.opening = null; BED.reopen = _op; try { BED.el[_op.nx].pause(); } catch (e) {} } clearTimeout(BED.hushT);
     bgmWas = BED.el.map(function(e){ return !e.paused; });   // [PREVIEW_LINK_SONGS_1101] 구간 곡 재생기 셋 모두
     try { aNarr.pause(); } catch (e) {}
     try { BED.el.forEach(function(e){ e.pause(); }); } catch (e) {}
   } else {
     if (bgmWas) { BED.el.forEach(function(e, k){ if (bgmWas[k]) { try { var pp = e.play(); if (pp && pp.catch) pp.catch(function(){}); } catch (x) {} } }); }
+    var _ro = BED.reopen; BED.reopen = null; if (_ro && BED.mode !== 'off') { BED.onFail = _ro.ofl || null; BED.bkNow = _ro.bk; bedPlay(_ro.sid, _ro.xf, _ro.at); BED.bkNow = null; BED.onFail = null; }   /* [PAUSE_REOPEN_1115] */
+    if (BED.hushK > -1) { clearTimeout(BED.hushT); BED.hushT = setTimeout(bedUnhush, BED_OPEN_MS * 2 + 600); }
     var hl = HELD_LATER || [], hs = HELD_SETTLE; HELD_LATER = null; HELD_SETTLE = null;
     var reLater = function(){ hl.forEach(function(h){ later(h.fn, h.left); }); };   // [B2_NA_63] 남은 시간만 · 한 번
     if (hs) { reLater(); hs(); render(); return; }   // [B2_NA_63] 멈춤 중에 끝난 소리 — 이제 한 번 마무리한다
