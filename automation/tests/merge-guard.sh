@@ -23507,3 +23507,10 @@ chk 'ENTRY_RATE_1115' assets/bgm-bed.js 2
 chk "function rateOf(st0){ var r=1; try{ if(st0&&st0.up&&st0.couple&&typeof _upRate==='function') r=+_upRate(st0.up)||1; }catch(e){} return (r>0.3&&r<3)?r:1; }" assets/bgm-bed.js 1
 chk "var r=rateOf(st0); if(pd&&d>0) return { hd:pd\[0\]/1000/r, v:Math.max(0.5,d-(pd\[0\]+pd\[1\])/1000)/r };" assets/bgm-bed.js 1
 chk 'ENTRY_RATE_1115' scripts/audit/pv-r3-1115.mjs 1
+# ★★[CLAP_PEND_KEEP_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 17] 미리 듣기 · 연습 — 선언 뒤 박수 곡(새 곡)을 받는 중 멈췄다가 곡이 오기 전에 이어 들으면 앞 곡(선언 앞 곡)을 되살리지 않고 정적으로 기다려 온 새 곡을 그 줄 크기로(DECLARE_LIFT · NO_RELIFT · 종전 B09 −8 되살아남 · B10 0회)
+chk 'CLAP_PEND_KEEP_1115' assets/bgm-bed.js 4
+chk "else { LPB.nsw={ st:st, f:_nf }; want(_nf,function(b){ if(b) _go(); }); } return; } }" assets/bgm-bed.js 1
+chk "function lpEnd(keepHold){ if(!keepHold){ LPB.hold=null; LPB.nsw=null; }" assets/bgm-bed.js 1
+chk "var _ns=LPB.nsw; if(_ns&&emb()&&curStep()===_ns.st&&!(BED.cur.src&&BED.cur.f===_ns.f)){ LPB.pz=null;" assets/bgm-bed.js 1
+chk "if(!b||LPB.nsw!==_ns||LPB.lt!==_tk||curStep()!==_ns.st||pzNow()) return; var nv=startVoice(_ns.f,lvOf(_ns.st,_ns.f),RESUME_MS,reHook(_ns.f,b));" assets/bgm-bed.js 1
+chk 'CLAP_PEND_KEEP_1115' scripts/audit/pv-r3-1115.mjs 1
