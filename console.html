@@ -1708,6 +1708,11 @@ function resetRun(){
   /* ★[BED_BAD_RESET_1114 2026-11-14 BGM 섹션 · 검증 중 찾음] «못 연 곡» 표시(BED.bad · DETAIL_R5_1101 규칙 5 «이 예식에서 다시 시도하지 않는다»)는 그 판 안에서만 — 새로 시작하면 비우고, 파일을 바꿔 넣으면 그 곡만 지운다(segAddFile).
        종전엔 지우는 곳이 없어 깨진 파일을 멀쩡한 파일로 바꿔 넣어도(설정 글 ✓) · 끝내고 다시 시작해도 그 탭 내내 그 곡을 건너뛰었다 */
   BED.bad = {};
+  /* ★[RESET_PLAYERS_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 07 · 08] 새 판은 빈 재생기에서 — 앞 판 재생기 셋을 멈추고 크기(BED.xg)를 처음 값(0번 1 · 나머지 0)으로 · 재생 번호를 올려 늦은 결과 · 미룬 요청 · 꺼 둔 곡 되돌림을 버린다.
+       종전 ① 끝내고 바로 «처음으로» → 첫 GO 면 끝내기의 3.2초 정리 타이머가 GO(clearT)에 지워져 앞 판 사진곡이 새 판 하객 맞이(곡 파일 없음) 크기 −15 dB 로 돌아왔다(AFTER_PHOTO_LOOP_1102 · HEARD_RESET_1114)
+       ② 구간 곡으로 진행 → 나가기 → 공용 «배경 음악 파일» 한 곡으로 새로 시작하면 0번 재생기 크기가 앞 판 겹침에서 내려간 채(0.0001)라 재생 중인데 −88 dB(PREVIEW_LINK_SONGS_1101 · 새 탭은 −8) */
+  try { BED.el.forEach(function(e, k){ e.pause(); var g = BED.xg[k]; if (g && AC) { g.gain.cancelScheduledValues(AC.currentTime); g.gain.setValueAtTime(k ? 0.0001 : 1, AC.currentTime); } }); } catch (e) {}
+  FBF.tk++; clearInterval(FBF.iv); clearTimeout(BED.hushT); BED.on = 0; BED.hushK = -1; BED.tk = (BED.tk || 0) + 1; BED.later = null; BED.opening = null; BED.onFail = null; BED.reopen = null; BED.fade = [0, 0, 0]; BED.xing = 0; BED.fin = 0; BED.seg = ''; BED.mode = ''; BED.id = ''; BED.list = []; BED.li = 0; BED.res = null; BED.cut = null; BED.goBk = null;
 }
 
 /* ★ALT_CLIP — 바로 앞 사람 구간이 overSec을 넘었으면 문안을 바꿔 내보낸다.
