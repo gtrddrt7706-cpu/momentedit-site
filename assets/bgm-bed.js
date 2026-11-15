@@ -300,6 +300,7 @@
        빈 시간표가 같은 초안 열쇠로 기억돼, 엔진이 온 뒤에도 축사 · 축가가 첫 곡(B09 · B09)이었다(엔진 먼저면 B10 · B11). 엔진이 없거나 셈이 깨지면 이번 한 번만 빈 표 · 검사 scripts/audit/pv-r3-1115.mjs 19 */
   function daySec(){ var g=null, key=''; try{ g=window.ENG; key=JSON.stringify(St()); }catch(x){} if(DAY.key===key) return DAY.v; var v={};
     if(!g||!g.RitualCue) return v; try{ (g.RitualCue.build(St(),{mode:'console'}).cues||[]).forEach(function(c){ v[c.k]=(v[c.k]||0)+(+c.est||0)+((c.live&&(+(c.live.fullEst||c.live.est)||0))||0); }); DAY.key=key; DAY.v=v; }catch(x){} return v; }
+  /* ★[FREE_SONG_SHOW_KEEP_1115 2026-11-15 대본 결정 A · BGM 결정 카드 ②] 정석 축사 «음악 없이»에서 이 셈(화면 · 순간 하나 듣기)은 B10, 당일 콘솔은 말하는 동안 곡을 넘기지 않아(LIST_HOLD) B09 — 그대로 둔다 · 들리는 차이는 여는 말 10초뿐이고 화면을 당일에 맞추면 SCREEN_SOUND_1102 · 콘솔이 순간마다 넘기면 ONE_FLOW_1106 과 부딪힌다 */
   function dayAt(k){ if(segAt(k)!=='M4') return ''; var L=ordOf('M4').filter(has); if(!L.length) return '';
     var q=seq().filter(onOf).filter(function(x){ return segAt(x)==='M4'; }), i=q.indexOf(k); if(i<=0) return L[0];
     /* ★★[LISTEN_LEN_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 검증 14] 곡마다 등록된 길이(BgmPicks.lenOf · REPEAT_FIX_1107 ③ · B09 117.9초)로 센다 — 종전엔 모든 곡을 240초로 세어
