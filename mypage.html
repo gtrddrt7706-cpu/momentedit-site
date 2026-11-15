@@ -1271,8 +1271,8 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .trk.vu-head{border-bottom:none;padding-bottom:0}
 .trk.vu-head .trk-nm{font-weight:500}   /* [GPT 1-d] 묶음 제목만 한 단계 · 아래 두 줄과 붙게(아래 여백 0) · 두 줄 이름은 다른 줄과 같은 14px(같은 역할 같은 크기 · 릴스 방 점검 B) — 묶음은 들여쓰기와 머리 굵기로만 나눈다 */
 .vu-due{font-family:var(--serif-ko);font-size:12px;color:var(--label-soft);letter-spacing:.02em;white-space:nowrap}
-.trk.vu-row{padding-left:14px;padding-top:9px;padding-bottom:9px}
-.trk.vu-row:not(.vu-last){border-bottom-color:transparent;background:linear-gradient(var(--border),var(--border)) right bottom/calc(100% - 14px) 1px no-repeat}
+.trk.vu-row{padding-left:10px;padding-top:9px;padding-bottom:9px}   /* [릴스 방 점검 · bb8687b] 14 → 10px — 390 «스튜디오 확인 중» 꼬리표가 둘째 줄로 내려가 그 줄만 55 → 69px 이던 것(네 상태 147px 로 같게) */
+.trk.vu-row:not(.vu-last){border-bottom-color:transparent;background:linear-gradient(var(--border),var(--border)) right bottom/calc(100% - 10px) 1px no-repeat}
 .vu-when{font-size:12px;color:var(--label-soft);margin-left:6px;letter-spacing:.02em;white-space:nowrap}
 .vu-cf{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:4px}   /* [GPT 1-c] 이름 · 상태는 왼쪽에서 읽고 단추는 같은 오른쪽 끝에서 찾는다 */
 .vu-cf:first-of-type{margin-top:10px}

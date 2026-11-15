@@ -31,9 +31,10 @@ const CASES = {
   none: { mid: false, pv: { st: 'review' }, mv: null },
   both: { mid: true, pv: { st: 'review' }, mv: { st: 'draft', d: { link: 'https://drive.google.com/x', mode: 'upload' } } },
   done: { mid: true, pv: { st: 'done' }, mv: { st: 'done' } },
-  fresh: { mid: true, pv: { st: '' }, mv: { st: '' } },   // ⑥ 안쪽 첫 화면(둘 다 시작 전)
+  fresh: { mid: true, pv: { st: '' }, mv: { st: '' } },
+  late: { mid: true, pv: { st: 'done' }, mv: { st: 'checking' } },   // 식전 확정 + 식중 «스튜디오 확인 중»(390 에서 꼬리표가 가장 긴 때)   // ⑥ 안쪽 첫 화면(둘 다 시작 전)
 };
-let CUR = null;
+let CUR = null; const HB = {};
 function setWorld(c) {
   world(Object.assign({}, BASE, { 예식일: WED }), { 상태: '확정', 입금확인: '확인', 선택날짜: WED, 선택시간: '14:00', 토큰: 'BT1' });
   const ref = G.findCustomerByCode('ME-TEST'); G.resolveSession = () => ({ ok: true, row: ref });
@@ -68,7 +69,7 @@ try {
       const rr = (e) => e && e.getBoundingClientRect();
       const plain = [...box.querySelectorAll('.trk')].filter((e) => !e.classList.contains('vu-row') && /^식전 영상/.test(t(e.querySelector('.trk-nm'))));
       const cf = document.getElementById('mp_cfPanel');
-      return { head: head.length, headTxt: t(head[0]), due: t(head[0] && head[0].querySelector('.vu-due')), rows: rows.map((e) => ({ nm: [...e.querySelectorAll('.trk-nm > *, .trk-nm')].filter((x) => x.offsetParent !== null || x === e.querySelector('.trk-nm')).map((x) => (x.classList && x.classList.contains('trk-nm')) ? [...x.childNodes].filter((n) => n.nodeType === 3 || (n.offsetParent !== null)).map((n) => n.textContent).join('') : '').join('').replace(/\s+/g, ' ').trim(), tag: t(e.querySelector('.trk-tag')), btn: t(e.querySelector('.trk-act')) })), hRows: rows.map((e) => Math.round(e.getBoundingClientRect().height)),
+      return { head: head.length, headTxt: t(head[0]), due: t(head[0] && head[0].querySelector('.vu-due')), rows: rows.map((e) => ({ nm: [...e.querySelectorAll('.trk-nm > *, .trk-nm')].filter((x) => x.offsetParent !== null || x === e.querySelector('.trk-nm')).map((x) => (x.classList && x.classList.contains('trk-nm')) ? [...x.childNodes].filter((n) => n.nodeType === 3 || (n.offsetParent !== null)).map((n) => n.textContent).join('') : '').join('').replace(/\s+/g, ' ').trim(), tag: t(e.querySelector('.trk-tag')), btn: t(e.querySelector('.trk-act')) })), hRows: rows.map((e) => Math.round(e.getBoundingClientRect().height)), hHead: (() => { const h = box.querySelector('.vu-head'), r2 = rows[rows.length - 1]; return h && r2 ? Math.round(r2.getBoundingClientRect().bottom - h.getBoundingClientRect().top) : 0; })(),
         plain: plain.length, pv: !!pvB, mv: !!mvB, pvR: pvB ? rr(pvB).right : 0, mvR: mvB ? rr(mvB).right : 0, pvW: pvB ? rr(pvB).width : 0, mvW: mvB ? rr(mvB).width : 0,
         cf: cf ? { vu: cf.querySelectorAll('.vu-cf').length, p: cf.querySelectorAll('[data-cfpvc]').length, m: cf.querySelectorAll('[data-cfmvc]').length, txt: t(cf) } : null,
         sw: document.documentElement.scrollWidth, iw: innerWidth };
@@ -87,6 +88,7 @@ try {
       }
     }
     const tag = `${W} ${name}`;
+    if (R.hHead) HB[W + name] = R.hHead;
     ok(`⑤ ${tag} 가로 넘침 0 · 쪽 오류 0`, R.sw <= R.iw && !errs.length, R.sw + '/' + R.iw + ' ' + errs.join(' | '));
     if (name === 'fresh') {
       for (const k of ['pre', 'mid']) { const f = FL && FL[k];
@@ -105,12 +107,13 @@ try {
         ok(`③ ${tag} 머리 기한 «확정 기한 · N월 N일(요일) · D-n»`, /^확정 기한 · \d+월 \d+일\([일월화수목금토]\) · D-5$/.test(R.due), R.due);
         ok(`③ ${tag} 상태 꼬리표는 줄마다(식전 «확인 필요»)`, R.rows[0].tag === '확인 필요', JSON.stringify(R.rows));
         ok(`④ ${tag} 확인서 — 이름 줄 + 영상마다 상태 · 열기`, R.cf && R.cf.vu === 2 && R.cf.p === 1 && R.cf.m === 1 && R.cf.txt.indexOf(nm(MP) + '은 각 영상 화면에서 따로 확정해요.') > -1 && /식전 영상 · 확인해 주세요영상 확인/.test(R.cf.txt) && /식중 영상 · 준비 중이에요이어하기/.test(R.cf.txt), JSON.stringify(R.cf));
-      } else {
+      } else if (name === 'done') {
         ok(`③ ${tag} 둘 다 확정 — 머리 ✓ · 기한 없음`, /✓/.test(R.headTxt) && !R.due, R.headTxt + ' / ' + R.due);
       }
     }
     await ctx.close();
   }
 } finally { await b.close(); srv.kill(); }
+for (const W of [390, 1280]) { const hs = ['both', 'done', 'late'].map((n) => HB[W + n]); ok(`⑦ ${W} 묶음 높이가 상태마다 같다(흔들림 0)`, hs.every((h) => h && h === hs[0]), hs.join(' / ')); }
 console.log(fail ? 'VIDEO UMBRELLA FAIL' : 'VIDEO UMBRELLA OK');
 process.exit(fail);
