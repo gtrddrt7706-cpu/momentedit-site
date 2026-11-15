@@ -50,9 +50,9 @@
         "한 문장 = 한 줄입니다. 다운로드는 반드시 '문장별 분리'로 받으세요 — 순서가 곧 파일명이 되고, node scripts/assemble-narration.mjs 가 그 순서로 클립을 다시 붙입니다."
       ],
       "dir": "assets/audio/narration",
-      "clips": 50,
-      "sents": 110,
-      "chars": 3656
+      "clips": 71,
+      "sents": 131,
+      "chars": 4590
     },
     {
       "file": "3_진행_후반.txt",
@@ -2876,6 +2876,405 @@
         {
           "i": 0,
           "text": "영상을 준비한 두 사람에게 따뜻한 박수 부탁드립니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "358",
+      "id": "G3-NR1",
+      "label": "덕담 한 분 · 신랑 아버님 (NARR_ROLE_1115)",
+      "file": "bless-one-gf",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이제 두 사람의 행복한 가정을 기원하는 신랑 아버님의 귀중한 덕담 말씀이 있겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "359",
+      "id": "G3-NR2",
+      "label": "덕담 한 분 · 신부 아버님 (NARR_ROLE_1115)",
+      "file": "bless-one-bf",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이제 두 사람의 행복한 가정을 기원하는 신부 아버님의 귀중한 덕담 말씀이 있겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "360",
+      "id": "G3-NR3",
+      "label": "덕담 한 분 · 신랑 어머님 (NARR_ROLE_1115)",
+      "file": "bless-one-gm",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이제 두 사람의 행복한 가정을 기원하는 신랑 어머님의 귀중한 덕담 말씀이 있겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "361",
+      "id": "G3-NR4",
+      "label": "덕담 한 분 · 신부 어머님 (NARR_ROLE_1115)",
+      "file": "bless-one-bm",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이제 두 사람의 행복한 가정을 기원하는 신부 어머님의 귀중한 덕담 말씀이 있겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "362",
+      "id": "G3-NR5",
+      "label": "덕담 여러 분 · 첫 분 신랑 아버님 (NARR_ROLE_1115)",
+      "file": "bless-first-gf",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "먼저, 신랑 아버님의 따뜻한 덕담 말씀 듣겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "363",
+      "id": "G3-NR6",
+      "label": "덕담 여러 분 · 첫 분 신부 아버님 (NARR_ROLE_1115)",
+      "file": "bless-first-bf",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "먼저, 신부 아버님의 따뜻한 덕담 말씀 듣겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "364",
+      "id": "G3-NR7",
+      "label": "덕담 여러 분 · 첫 분 신랑 어머님 (NARR_ROLE_1115)",
+      "file": "bless-first-gm",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "먼저, 신랑 어머님의 따뜻한 덕담 말씀 듣겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "365",
+      "id": "G3-NR8",
+      "label": "덕담 여러 분 · 첫 분 신부 어머님 (NARR_ROLE_1115)",
+      "file": "bless-first-bm",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "먼저, 신부 어머님의 따뜻한 덕담 말씀 듣겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "366",
+      "id": "G3-NR9",
+      "label": "축사 여는 말 · 신랑 친구 (NARR_ROLE_1115)",
+      "file": "speech-gfr",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "오늘의 축사는요, 신랑의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "367",
+      "id": "G3-NR10",
+      "label": "축사 여는 말 · 신부 친구 (NARR_ROLE_1115)",
+      "file": "speech-bfr",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "오늘의 축사는요, 신부의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "368",
+      "id": "G3-NR11",
+      "label": "축사 여는 말 · 신랑 가족 (NARR_ROLE_1115)",
+      "file": "speech-gfa",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "오늘의 축사는요, 신랑의 가족분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "369",
+      "id": "G3-NR12",
+      "label": "축사 여는 말 · 신부 가족 (NARR_ROLE_1115)",
+      "file": "speech-bfa",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "오늘의 축사는요, 신부의 가족분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "370",
+      "id": "G3-NR13",
+      "label": "축사 여는 말 · 두 사람 친구 (NARR_ROLE_1115)",
+      "file": "speech-cfr",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "오늘의 축사는요, 신랑 신부의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "371",
+      "id": "G3-NR14",
+      "label": "축가 누가 · 신랑 친구 (NARR_ROLE_1115)",
+      "file": "song-who-gfr",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "신랑의 친구분께서 축가를 준비해 주셨습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "372",
+      "id": "G3-NR15",
+      "label": "축가 누가 · 신부 친구 (NARR_ROLE_1115)",
+      "file": "song-who-bfr",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "신부의 친구분께서 축가를 준비해 주셨습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "373",
+      "id": "G3-NR16",
+      "label": "축가 누가 · 신랑 가족 (NARR_ROLE_1115)",
+      "file": "song-who-gfa",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "신랑의 가족분께서 축가를 준비해 주셨습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "374",
+      "id": "G3-NR17",
+      "label": "축가 누가 · 신부 가족 (NARR_ROLE_1115)",
+      "file": "song-who-bfa",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "신부의 가족분께서 축가를 준비해 주셨습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "375",
+      "id": "G3-NR18",
+      "label": "축가 누가 · 두 사람 친구 (NARR_ROLE_1115)",
+      "file": "song-who-cfr",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "신랑 신부의 친구분께서 축가를 준비해 주셨습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "376",
+      "id": "G3-NR19",
+      "label": "축가 두 분 직접 · 신랑 (NARR_ROLE_1115)",
+      "file": "song-self-g",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "다음은 신부를 위한 신랑의 축가가 있겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "377",
+      "id": "G3-NR20",
+      "label": "축가 두 분 직접 · 신부 (NARR_ROLE_1115)",
+      "file": "song-self-b",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "다음은 신랑을 위한 신부의 축가가 있겠습니다.",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "378",
+      "id": "G3-NR21",
+      "label": "축가 두 분 직접 · 둘이 함께 (NARR_ROLE_1115)",
+      "file": "song-self-c",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "다음은 신랑 신부가 직접 부르는 축가가 있겠습니다.",
           "before": 0,
           "after": 0
         }
