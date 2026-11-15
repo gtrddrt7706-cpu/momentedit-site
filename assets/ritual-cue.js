@@ -656,6 +656,7 @@
        ★옛 코스 초안에는 아무것도 안 바뀐다 — 아래는 open 일 때만 돈다(Q1 ② · 초안을 옮기지 않는다). */
     if (D.COURSES[s.course].open) {
       O.migrateCakeToast(s);   // [CAKE_TOAST_SPLIT] 옛 초안 on.toast + S.toast → on.cake · on.toast
+      if (O.midMigrate) O.midMigrate(s);   // ★[SPEECH_SONG_1115] 옛 free 영상 갈래 → 식중 영상(midvid) · 축사 · 축가 둘 다 담은 옛 초안은 하나로
       var on = {};
       if (s.on && typeof s.on === 'object') for (k in s.on) if (s.on[k] && O.PICKABLE.indexOf(k) > -1 && !(O.RETIRED && O.RETIRED[k])) on[k] = 1;   // [CAKE_OLD_OFF_1017] 걷은 순간(케이크)은 옛 초안에 담겨 있어도 거른다
       s.on = on; s.extra = {}; s.off = {}; s.ord = null;
@@ -667,6 +668,7 @@
       if (!O.CANDLE_WHO.some(function (c) { return c[0] === s.candleWho; })) s.candleWho = O.DEF.candleWho;
       s.freeWhat = O.chipOf('free', s);   // [FREE_WHAT] · [DETAIL_0925 E] 옛 칩 값(dance · show · hand)은 갈래(stage · gift)로 · 모르는 값은 기본
       s.freeLen = O.chipOf('freeLen', s);
+      s.midLen = O.chipOf('midLen', s);   // [SPEECH_SONG_1115] 식중 영상 길이
       s.guestEx = /^[0-3]$/.test(String(s.guestEx)) ? +s.guestEx : 0;
       s.pvEx = /^[0-2]$/.test(String(s.pvEx)) ? +s.pvEx : 0;   /* ★[B2_GEUL_01 d-01] 3(130 시선 명령 예시)은 고르는 목록에서 빠졌다 — 저장된 3 은 기본 90 으로 */   // [PV_EX_NAR] 식전 영상 소개 나레이션 예시(0 = 90 그대로)   // [GUEST_EX_NAR] 하객 맞이 나레이션 예시(0 = 01~04 그대로)   // [FREE_LEN10] 1~10분(직접 적는다 · 계약서 v1.12) · 모르는 값은 기본
       /* ★[EX_MANY_1017] 나레이션 멘트 예시(S.narEx[순간] = 1 ~ (예시 수 − 1) · 0 = 예시 1) — 모르는 순간 · 범위 밖 값만 지운다 · «맞는 날»(when)은 쓸 때 본다(서약 ↔ 감사문을 오가도 고른 값은 남는다) */
@@ -1344,6 +1346,12 @@
        ★무엇이 올지 모르므로 문안이 **지목하지 않는다**. "노래를"·"영상을" 이라 적는 순간
          다른 것을 넣은 예식에서 거짓말이 된다. 그게 이 두 줄이 이렇게 밋밋한 이유다.
        ★길이도 모른다 → est 는 넉넉히 잡고 끝은 사람이 낸다(앞에 live 가 있어 다음 큐가 자동 manual). */
+    /* ★★[SPEECH_SONG_1115 2026-11-15 대표님] 식중 영상 = 따로 넣고 빼는 순간 — 소리 · 메모 · [재생 안 됨]은 옛 free 영상 갈래(58 → 129 → 영상) 그대로, 길이만 S.midLen · 큐 열쇠 midvid.
+         자리 = 축사 · 축가 뒤 · 편지 앞(ORDER) · 이음매 새 녹음 0(축사 246 · 축가 250 박수 → 58 · 영상 → 편지 28 · 닫는 인사 108 · 2026-11-15 엔진으로 잼) */
+    midvid: function (S, seq) {
+      var S2 = {}; for (var _k in S) S2[_k] = S[_k]; S2.freeWhat = 'video'; S2.freeLen = O.chipOf('midLen', S);
+      return (BUILD.free(S2, seq) || []).map(function (c) { if (c.k === 'free') c.k = 'midvid'; if (c.name) c.name = c.name.replace(/^식중 영상/, '식중 영상'); return c; });
+    },
     free: function (S, seq) {
       /* ★★[FREE_WHAT 2026-09-25 코워크 4-4] 새 코스는 무엇을 · 길이를 안다 — 여는 말이 그것을 지목해도 거짓말이 안 된다.
          (옛 판이 «지목하지 않았던» 까닭은 무엇이 올지 몰라서였다 · 옛 코스는 아래 그대로)

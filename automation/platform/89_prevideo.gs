@@ -37,7 +37,8 @@ function _pvName_(kind) { return _pvKind_(kind) === 'mid' ? '식중 영상' : '�
 function _mvOn_(cust) {
   var S = null; try { S = ((_prodLoad(cust) || {}).ritualDraft || {}).S || null; } catch (e) { S = null; }
   if (!S) return { on: null, len: 0 };
-  var on = !!(S.on && S.on.free) && String(S.freeWhat || '') === 'video', n = parseInt(S.freeLen, 10);
+  // [SPEECH_SONG_1115] 식중 영상 = 따로 넣고 빼는 순간(S.on.midvid · 길이 S.midLen) · 옛 초안 free + video(길이 freeLen)도 켜짐
+  var mid = !!(S.on && S.on.midvid), on = mid || (!!(S.on && S.on.free) && String(S.freeWhat || '') === 'video'), n = parseInt(mid ? S.midLen : S.freeLen, 10);
   return { on: on, len: (n >= 1 && n <= 10) ? n : 3 };
 }
 // [MID_VIDEO_1106 · 검토 1604-5] 식중 영상은 처리방침에 «식중 영상»이 들어간 날(midFrom)부터 받는다 — 비어 있으면 꺼짐(줄 · 화면 · 받기 · 안내 모두)
@@ -246,7 +247,7 @@ function handlePvSave(body) { _gsr_();
       var fUrl = 'https://drive.google.com/drive/folders/' + m.folder;
       mail = d.mode === 'make'
         ? ('식전 영상 만들기 요청 · ' + code + ' · 예식 ' + (wed || '-') + ' · 분위기 ' + d.style + ' · 곡 ' + d.song + ' · 사진 ' + d.photos.length + '장 · 확정 기한 ' + (due || '-') + ' · 다 만들면 폴더에 «미리보기»로 시작하는 이름의 영상을 넣어 주세요 · 폴더 ' + fUrl)
-        : ((kind === 'mid' ? '식중 영상 도착(덕담 뒤 · 축가 앞) · ' : '준비한 식전 영상 도착 · ') + code + ' · 예식 ' + (wed || '-') + ' · 링크 ' + d.link + ' · 원본을 받아 재생을 확인한 뒤 폴더에 «미리보기»로 시작하는 이름으로 넣어 주세요 · 폴더 ' + fUrl);   // [MID_VIDEO_1106]
+        : ((kind === 'mid' ? '식중 영상 도착(축사 · 축가 뒤 · 편지 앞) · ' : '준비한 식전 영상 도착 · ') + code + ' · 예식 ' + (wed || '-') + ' · 링크 ' + d.link + ' · 원본을 받아 재생을 확인한 뒤 폴더에 «미리보기»로 시작하는 이름으로 넣어 주세요 · 폴더 ' + fUrl);   // [MID_VIDEO_1106]   // [SPEECH_SONG_1115] 자리 글 = 축사 · 축가 뒤 · 편지 앞
     } else if (op === 'confirm') {
       if (st !== 'review' || !(m.prev && m.prev.id)) return { ok: false, error: '확정할 영상이 아직 없어요.' };
       if (kind === 'mid' && _mvOn_(cust).on !== true) return { ok: false, error: '식순에서 «식중 영상»을 먼저 담아 주세요.' };   // [MID_VIDEO_1106 · 재검토 1604] 식순에서 뺀 식중 영상은 확정하지 않는다
