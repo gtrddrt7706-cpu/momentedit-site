@@ -354,6 +354,20 @@
   function pairSet(S, which) { if (!S.on) S.on = {}; delete S.on.free; delete S.on.song; if (which === 'free') { S.on.free = 1; S.freeWhat = 'speech'; } else if (which === 'song') S.on.song = 1; return S; }
   function pairOf(S) { return onOf(S, 'song') ? 'song' : (onOf(S, 'free') && isSpeech(S)) ? 'free' : ''; }
 
+  /* ★★[NARR_ROLE_1115 2026-11-15 대본 · 릴스 방 교통정리 2차(docs runbook 나레이션_교통정리_NARR_ROLE_1115 4절 · 3351677)] «누가» — 하객이 어느 분이 나오는지 듣게.
+       덕담 = 말씀하실 분 · 순서(S.blessWho 'bf,gf' · 첫 분이 먼저) · 축사 = 하시는 분(S.speechWho) · 축가 = 부르시는 분(S.songWho · 두 분 직접이면 S.songSelf).
+       안 고른 날은 지금 판 줄 그대로(엔진 RitualCue 가 고른 날만 역할 줄로) · 이름은 소리로 읽지 않는다(역할만) · 새 녹음 21문장(음성 방 11/16) */
+  var BLESS_WHO = [['gf', '신랑 아버님'], ['bf', '신부 아버님'], ['gm', '신랑 어머님'], ['bm', '신부 어머님']];
+  var GUEST_WHO = [['gfr', '신랑 친구'], ['bfr', '신부 친구'], ['gfa', '신랑 가족'], ['bfa', '신부 가족'], ['cfr', '두 사람 친구']];
+  var SONG_SELF = [['g', '신랑'], ['b', '신부'], ['c', '둘이 함께']];
+  var MID_TONE = { plain: ['midvideo-in-plain', 'midvideo-out-story'], story: ['midvideo-in-story', 'midvideo-out-story'], thanks: ['midvideo-in-thanks', 'midvideo-out-thanks'] };   // 353 → 355 기본 · 352 → 355 · 351 → 354
+  function _whoOk(list, v) { return list.some(function (c) { return c[0] === v; }); }
+  function blessWhoOf(S) { var seen = {}; return String((S && S.blessWho) || '').split(',').filter(function (x) { if (!_whoOk(BLESS_WHO, x) || seen[x]) return false; seen[x] = 1; return true; }).slice(0, 4); }
+  function speechWhoOf(S) { return S && _whoOk(GUEST_WHO, S.speechWho) ? S.speechWho : ''; }
+  function songWhoOf(S) { return S && S.songBy !== 'self' && _whoOk(GUEST_WHO, S.songWho) ? S.songWho : ''; }
+  function songSelfOf(S) { return S && S.songBy === 'self' && _whoOk(SONG_SELF, S.songSelf) ? S.songSelf : ''; }
+  function whoLabel(list, v) { var c = list.filter(function (x) { return x[0] === v; })[0]; return c ? c[1] : ''; }
+
   /* ── 순서 계산 ── */
   function onOf(S, k) { return !!(ALWAYS[k] || (!RETIRED[k] && S && S.on && S.on[k])); }   // [CAKE_OLD_OFF_1017] 걷은 순간은 담아 둔 옛 초안에서도 «안 담김»
   /* [CAKE_TOAST_SPLIT] 엔진 판(S.toast)은 두 칸에서 따라 정한다 — 둘 다 both · 케이크만 cake · 축배만 toast */
@@ -1764,7 +1778,8 @@
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, WALK: WALK /* [WALK_HALF_1106] */, TOAST_SEC: TOAST_SEC /* [TOAST_EST60_1106] */, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, countOf: countOf, countNo: countNo, COUNT_MSG: COUNT_MSG, CNT_PICK: CNT_PICK, CNT_LONG: CNT_LONG, CNT_MAX: CNT_MAX, CNT_LONG_MAX: CNT_LONG_MAX, bodyRaw: bodyRaw, tableSecOf: tableSecOf, tableFull: tableFull, tableCut: tableCut, tableEachTxt: tableEachTxt, PSCENE: PSCENE, SCENE_SHOW: SCENE_SHOW, sceneShow: sceneShow, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneImgs: sceneImgs, SCENE_AT: SCENE_AT, SCENE_N: SCENE_N, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
     MID_NAME: MID_NAME,
-    midMigrate: midMigrate, pairSet: pairSet, pairOf: pairOf, PAIR: PAIR,   /* [SPEECH_SONG_1115] */   /* [MID17_NAME] 빌더 ① 식중 영상 칸 · 알림이 같은 이름을 쓴다 */
+    midMigrate: midMigrate, pairSet: pairSet, pairOf: pairOf, PAIR: PAIR,   /* [SPEECH_SONG_1115] */
+    BLESS_WHO: BLESS_WHO, GUEST_WHO: GUEST_WHO, SONG_SELF: SONG_SELF, MID_TONE: MID_TONE, blessWhoOf: blessWhoOf, speechWhoOf: speechWhoOf, songWhoOf: songWhoOf, songSelfOf: songSelfOf, whoLabel: whoLabel,   /* [NARR_ROLE_1115] */   /* [MID17_NAME] 빌더 ① 식중 영상 칸 · 알림이 같은 이름을 쓴다 */
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, textSec: textSec, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, POST_FLOW: POST_FLOW, postOf: postOf, postDur: postDur, postLine: postLine, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,
