@@ -724,6 +724,8 @@
     'narr-closing-guide': 1, 'narr-closing-soft': 1, 'narr-closing-soft-guide': 1, 'narr-closing-guide-nt': 1, 'narr-closing-soft-nt': 1, 'narr-closing-soft-guide-nt': 1,
     'narr-closing-guide-nt-nc': 1, 'narr-closing-soft-guide-nt-nc': 1, 'narr-closing-meal': 1, 'narr-closing-meal-nt': 1, 'narr-closing-meal-nt-nc': 1,
     'guest-w-10m-n10-m': 1, 'guest-w-10m-n15-m': 1, 'guest-w-10m-n20-m': 1,
+    /* ★[NARR_FIX_1115_1 대표님 11/15 12:09 «추천대로» · EARLY_EAT_OWNER_1115] 식사 날 마무리 판(339 ~ 344 · 예약 시각 ±)은 쉰다 — 식사 날도 식사 없는 판(287 · 292 · 325) · 식사 · 인사는 촬영 후 안내(324) 한 곳(파일 · 문안 그대로 · 되살리지 말 것) */
+    'narr-closing-mealr': 1, 'narr-closing-mealnr': 1, 'narr-closing-mealr-nt': 1, 'narr-closing-mealnr-nt': 1, 'narr-closing-mealr-nt-nc': 1, 'narr-closing-mealnr-nt-nc': 1,
     'after-photo-guide': 1, 'after-photo-cafe-guide': 1, 'after-photo-resv-guide': 1, 'after-photo-resv': 1, 'after-photo-meal-guide': 1,
     'guest-w-5m-mgr': 1, 'guest-w-5m-mg': 1, 'guest-w-5m-g': 1, 'guest-w-5m-mgr-online': 1, 'guest-w-5m-mg-online': 1, 'guest-w-5m-g-online': 1,   /* ★[W5M_FIX_1107] 329 · 330 · 333 · 334 · 335 · 338 — 본식 전 «장소» · «찍으신 사진» 판(파일은 둔다) */
     'guest-w-5m-mr': 1, 'guest-w-5m-m': 1, 'guest-w-5m-mr-online': 1, 'guest-w-5m-m-online': 1,   /* ★[MEAL_NODIR_1107] 331 · 332 · 336 · 337 «현장 디렉터에게 여쭤 주세요» — 식사 날은 늘 mg · mgr(파일은 둔다) */
