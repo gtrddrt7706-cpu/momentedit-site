@@ -23467,7 +23467,7 @@ chk "setAttribute('aria-pressed', String(muted));" console.html 1
 chk 'MUTE_PRESSED_1115' scripts/audit/console-r2-1115.mjs 3
 # ★[CONSOLE_R2_1115 2026-11-15 BGM 섹션 · GPT 라운드 2] 당일 콘솔 · 곡 계획 묶음 검사 — CI bgm-sound f 칸(가장 짧은 칸)에서 돈다
 chk 'CONSOLE_R2_1115' .github/workflows/merge-guard.yml 1
-chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115' }" .github/workflows/merge-guard.yml 1
+chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115' }" .github/workflows/merge-guard.yml 1
 # ★[GEN_ON_OPEN_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 검증 중 찾음] 새 곡이 재생기를 받을 때 세대 번호를 올린다 — 앞 겹침 뒷정리 타이머가 늦게 여는 곡 재생기를 세우지 않게(검사 console-r2-1115 F)
 chk 'GEN_ON_OPEN_1115' console.html 1
 chk '  BED.gen\[nx\] = (BED.gen\[nx\] || 0) + 1;' console.html 1
@@ -23529,7 +23529,7 @@ chk 'PV_R3_1115' scripts/audit/pv-r3-1115.mjs 1
 chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115' }" .github/workflows/merge-guard.yml 1
 # ★[CI_SPLIT_G_1115 2026-11-15] bgm-sound g 칸 — 라운드 3 검사 둘(console-r3-1115 · pv-r3-1115) · f 칸이 20분에 가까워 나눔
 chk 'CI_SPLIT_G_1115' .github/workflows/merge-guard.yml 1
-chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115' }" .github/workflows/merge-guard.yml 1
+chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115' }" .github/workflows/merge-guard.yml 1
 # ★★[ARRIVE_ONCE_VISIT_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 01] 미리 듣기 · 연습 — «이 줄 몫으로 도는 내림» 기록(LPB.arr)은 그 줄의 이번 방문에만 · 다른 줄을 보여 주면 지운다(크게 보기에서 이전 줄 → 다음 줄로 도착 멘트 · MR 자리에 다시 들어와도 내림을 다시 건다)
 chk 'ARRIVE_ONCE_VISIT_1115' assets/bgm-bed.js 2
 chk "function arrLeave(st){ if(LPB.arr&&LPB.arr.st!==st) LPB.arr=null; }" assets/bgm-bed.js 1
@@ -23614,3 +23614,12 @@ nochk 'x.t < a.T - 50' scripts/audit/seam-bg.mjs
 chk '양가 아버님, 맞절.' assets/ritual-open.js 2
 nochk '화면으로 보고 계신 분들께 인사를 올리겠습니다.' assets/ritual-data.js
 nochk '이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해 서도록 하겠습니다.' assets/ritual-open.js
+# ★★[ENTRY_NOFILE_OWNER_1115 2026-11-15 대표님 결정 A · BGM 결정 카드 ①] 입장곡을 골랐는데 당일 파일을 못 받은 날 — 꺼 둔 화촉 곡을 되살리지 않고 본식 피아노(M4) 첫 곡을 새로(검사 entry-nofile-1115 · CI bgm-sound g)
+chk 'ENTRY_NOFILE_OWNER_1115' console.html 2
+chk "if (k === 'entry' && esdMain(c) && esdWant() && !esdReady(c)) return 'M4';" console.html 1
+chk 'ENTRY_NOFILE_OWNER_1115' scripts/audit/entry-nofile-1115.mjs 2
+# ★[TRIBUTE_DUCK_OWNER_1115 2026-11-15 대표님 «추천대로» · BGM 결정 카드 ③ A] 부모님께 인사 구호 · 포옹 청하는 줄 아래 음악 −12 그대로(일반 말 −15 로 맞추지 않는다)
+chk 'TRIBUTE_DUCK_OWNER_1115' assets/ritual-cue.js 1
+chk "if (/\^tribute-in/.test(_rs) && _rc.live) _rc.live.walkDuck = PARAM.duckMove != null ? PARAM.duckMove : -12;" assets/ritual-cue.js 1
+# ★[FREE_SONG_SHOW_KEEP_1115 2026-11-15 대본 결정 A · BGM 결정 카드 ②] 축사 «음악 없이» 화면 곡(B10) ↔ 당일(B09) 차이는 그대로(SCREEN_SOUND_1102 · ONE_FLOW_1106)
+chk 'FREE_SONG_SHOW_KEEP_1115' assets/bgm-bed.js 1
