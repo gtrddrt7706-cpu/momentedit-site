@@ -366,6 +366,7 @@
   function speechWhoOf(S) { return S && _whoOk(GUEST_WHO, S.speechWho) ? S.speechWho : ''; }
   function songWhoOf(S) { return S && S.songBy !== 'self' && _whoOk(GUEST_WHO, S.songWho) ? S.songWho : ''; }
   function songSelfOf(S) { return S && S.songBy === 'self' && _whoOk(SONG_SELF, S.songSelf) ? S.songSelf : ''; }
+  function midToneOf(S) { return (S && S.midTone && MID_TONE[S.midTone]) ? S.midTone : 'plain'; }   /* [SPEECH_SONG_1115] 식중 영상 소개 결 · 기본 plain(353 → 355) */
   function whoLabel(list, v) { var c = list.filter(function (x) { return x[0] === v; })[0]; return c ? c[1] : ''; }
 
   /* ── 순서 계산 ── */
@@ -1779,7 +1780,7 @@
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, countOf: countOf, countNo: countNo, COUNT_MSG: COUNT_MSG, CNT_PICK: CNT_PICK, CNT_LONG: CNT_LONG, CNT_MAX: CNT_MAX, CNT_LONG_MAX: CNT_LONG_MAX, bodyRaw: bodyRaw, tableSecOf: tableSecOf, tableFull: tableFull, tableCut: tableCut, tableEachTxt: tableEachTxt, PSCENE: PSCENE, SCENE_SHOW: SCENE_SHOW, sceneShow: sceneShow, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneImgs: sceneImgs, SCENE_AT: SCENE_AT, SCENE_N: SCENE_N, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
     MID_NAME: MID_NAME,
     midMigrate: midMigrate, pairSet: pairSet, pairOf: pairOf, PAIR: PAIR,   /* [SPEECH_SONG_1115] */
-    BLESS_WHO: BLESS_WHO, GUEST_WHO: GUEST_WHO, SONG_SELF: SONG_SELF, MID_TONE: MID_TONE, blessWhoOf: blessWhoOf, speechWhoOf: speechWhoOf, songWhoOf: songWhoOf, songSelfOf: songSelfOf, whoLabel: whoLabel,   /* [NARR_ROLE_1115] */   /* [MID17_NAME] 빌더 ① 식중 영상 칸 · 알림이 같은 이름을 쓴다 */
+    BLESS_WHO: BLESS_WHO, GUEST_WHO: GUEST_WHO, SONG_SELF: SONG_SELF, MID_TONE: MID_TONE, blessWhoOf: blessWhoOf, speechWhoOf: speechWhoOf, songWhoOf: songWhoOf, songSelfOf: songSelfOf, midToneOf: midToneOf, whoLabel: whoLabel,   /* [NARR_ROLE_1115] */   /* [MID17_NAME] 빌더 ① 식중 영상 칸 · 알림이 같은 이름을 쓴다 */
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, textSec: textSec, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, POST_FLOW: POST_FLOW, postOf: postOf, postDur: postDur, postLine: postLine, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,

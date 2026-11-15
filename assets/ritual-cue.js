@@ -1383,7 +1383,7 @@
       var cs = (BUILD.free(S2, seq) || []).map(function (c) { if (c.k === 'free') c.k = 'midvid'; return c; });
       /* ★★[NARR_ROLE_1115 2026-11-15 대본 · 릴스 방 교통정리 2차] 58 + 129 대신 353 «두 사람이 준비한 영상 한 편, 함께 보시겠습니다.» → 영상 → 355 «영상을 준비한 두 사람에게 따뜻한 박수 부탁드립니다.»(새 녹음 0 · 대표님 11/14 FINAL2 승인 소리) ·
            S.midTone story = 352 → 355 · thanks = 351 → 354 · ★부딪힘: 351 · 354 바로 뒤가 «부모님께» 편지(27 «신랑 신부가 부모님께 꼭 전하고 싶은 말이 있다고 합니다»)면 같은 말이 두 번 → 353 · 355 */
-      var tone = (S.midTone && O.MID_TONE && O.MID_TONE[S.midTone]) ? S.midTone : 'plain', bi = seq ? seq.indexOf('midvid') : -1, nx = bi > -1 ? seq[bi + 1] : '';
+      var tone = O.midToneOf ? O.midToneOf(S) : 'plain',   /* [SPEECH_SONG_1115] 고르는 칩은 아직 없다(대본 결정 4) — 화면이 값을 만들기 전까지 주소에 싣지 않는다 */ bi = seq ? seq.indexOf('midvid') : -1, nx = bi > -1 ? seq[bi + 1] : '';
       if (tone === 'thanks' && nx === 'letter' && S.letter === 'parent') tone = 'plain';
       var pr = O.MID_TONE ? O.MID_TONE[tone] : null; if (!pr || !EXTRA[pr[0]] || !EXTRA[pr[1]] || !cs.length) return cs;
       var keep = cs.filter(function (c) { return c.live; })[0] || cs[0], ln = O.chipOf('midLen', S);
