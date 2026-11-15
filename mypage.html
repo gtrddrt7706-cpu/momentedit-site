@@ -1266,6 +1266,17 @@ button.dn-showtgl.on{border:0;background:none;font-weight:500;color:var(--accent
 input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진사(인장색) — 파란 기본색 대체, 마이페이지 전역 */
 /* 다이닝·식순 트랙 — 대시보드 완료표시 + 식순 12종 선택칩 */
 .trk-ok{color:var(--seal,#6B2A24);font-weight:600;font-size:12px}   /* 완료 체크 = 진사(낙관) 색 — 도장 찍듯 또렷하게(2026-07-17 사용자 요청) */
+/* ★[VIDEO_UMBRELLA_1115] «상영 영상» 묶음 — 머리 줄(이름 · 기한) 아래 식전 · 식중 두 줄이 한 덩어리로 읽히게.
+   칠한 상자 · 왼쪽 세로줄 없이([NO_SIDE_STRIPE] · [NOTE_DOT]) 들여쓰기와 안쪽 가는 선만 · 단추 칸 · 크기는 다른 줄과 같다(오른쪽 끝 정렬) */
+.trk.vu-head{border-bottom:none;padding-bottom:2px}
+.vu-due{font-family:var(--serif-ko);font-size:12px;color:var(--label-soft);letter-spacing:.02em;white-space:nowrap}
+.trk.vu-row{padding-left:14px;padding-top:9px;padding-bottom:9px}
+.trk.vu-row .trk-nm{font-size:13px}
+.trk.vu-row:not(.vu-last){border-bottom-color:transparent;background:linear-gradient(var(--border),var(--border)) right bottom/calc(100% - 14px) 1px no-repeat}
+.vu-when{font-size:12px;color:var(--label-soft);margin-left:6px;letter-spacing:.02em;white-space:nowrap}
+@media (max-width:480px){.trk.vu-row .trk-nm:has(.trk-tag) .vu-when{display:none}}   /* 폰에서 상태 꼬리표가 서면 «입장 전 · 덕담 뒤»를 접는다 — 꼬리표가 둘째 줄로 떨어져 두 줄 높이가 달라지던 것(390 실측) · 상태가 자리보다 먼저 */
+.vu-cf{display:block;margin-top:2px}
+.vu-cf-k{color:var(--accent)}
 .trk-chips{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:8px 0 2px}
 .trk-chip{display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:8px;padding:10px 11px;cursor:pointer;font-family:var(--serif-ko);font-size:13px;color:var(--accent);user-select:none}
 .trk-chip.on{border-color:var(--gold);background:var(--gold-bg,#faf6ef)}
@@ -8479,7 +8490,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     //     기한 임박한 '최종 확정'만 opt.tag(제목 옆)로 D-n을 남긴다(놓치면 잔금·진행에 영향).
     //   예외(2026-07-25 추가 지시 "하객안내랑 예식확인서는 밑에 설명있어도 괜찮아"): 구분선 아래 '확인·전달' 그룹 2행은 설명을 유지한다
     //     — 그 그룹 안에서는 둘 다 설명이 있어 리듬이 맞고, 무엇을 확인·전달하는지 목록에서 바로 읽히는 편이 낫다.
-    return '<div class="trk'+(sub?' has-sub':'')+(opt.pre&&opt.pre2?' trk-two':'')+'"'+(sub?' style="border-bottom:none"':'')+'><span class="trk-nm">'+escapeHtml(name)+(opt.tag?' <span class="trk-tag">'+escapeHtml(opt.tag)+'</span>':'')+(done?'&nbsp;<span class="trk-ok">✓</span>':'')+'</span>'   /* [TRK_OK_GLUE] ✓ 는 마지막 낱말에 붙는다 — 320 에서 «가족 · 친구 스냅»의 ✓ 만 홀로 다음 줄로 떨어졌다 */
+    return '<div class="trk'+(sub?' has-sub':'')+(opt.pre&&opt.pre2?' trk-two':'')+(opt.cls?' '+opt.cls:'')+'"'+(sub?' style="border-bottom:none"':'')+'><span class="trk-nm">'+escapeHtml(name)+(opt.when?'<span class="vu-when">'+escapeHtml(opt.when)+'</span>':'')+(opt.tag?' <span class="trk-tag">'+escapeHtml(opt.tag)+'</span>':'')+(done?'&nbsp;<span class="trk-ok">✓</span>':'')+'</span>'   /* [TRK_OK_GLUE] ✓ 는 마지막 낱말에 붙는다 — 320 에서 «가족 · 친구 스냅»의 ✓ 만 홀로 다음 줄로 떨어졌다 */
       + ((opt.pre||opt.pre2)?'<span class="trk-mins">':'')+(opt.pre?'<button type="button" class="cc-btn-ghost trk-act trk-act-min" id="'+opt.pre.id+'">'+escapeHtml(opt.pre.label)+'</button>':'')
       + (opt.pre2?'<button type="button" class="cc-btn-ghost trk-act trk-act-min trk-act-fold" id="'+opt.pre2.id+'" aria-expanded="'+!!opt.pre2.open+'" aria-controls="'+opt.pre2.ctl+'">'+escapeHtml(opt.pre2.label)+'<i class="trk-chev" aria-hidden="true"></i></button>':'')+((opt.pre||opt.pre2)?'</span>':'')   /* [PREP_LINK] 둘째 보조 = 누르면 줄 아래 목록을 여닫는다 */   /* opt.pre = 주 버튼 왼쪽 보조 동작(작은 규격). 행을 새로 만들지 않는다 — 목록 길이를 늘리지 말라는 지시(2026-07-25)와, 설명줄(sub) 금지(TRK_NO_SUB)를 둘 다 지키는 유일한 자리. */
       + '<button type="button" class="cc-btn-ghost trk-act" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>'   /* PROD_BTN_UNIFORM(2026-07-25 사용자 지시 "우측 버튼 통일감·연속성"): 행 버튼 min-width 104px로 폭 통일 + primary(채움)도 ghost와 같은 국문 서체·자간 — 채움/테두리 대비는 유지(지금 할 차례 강조) */
@@ -8560,6 +8571,19 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   var _mvRow={ done:true, html:'' };   // [MID_VIDEO_1106] 식중 영상 줄 — [VIDEO_NAME_1114] 식순에 식중 영상을 담은 분께만(없으면 줄 없음)
   try{ if(typeof MVC_ON!=='undefined' && MVC_ON && p && p.midvideo && p.midvideo.up && (window._mpStateD||{}).product!=='웨딩스냅'){ var _mvR=_mvcRow(p.midvideo, _mvcOn(p)); if(_mvR) _mvRow={ done:_mvR.done, html:row('식중 영상', _mvR.st, 'mp_mvcStart', _mvR.label, null, {tag:_mvR.tag}) }; } }catch(e){}   /* [VIDEO_NAME_1114] null = 식순에 없음 → 줄 없음 */
   try{ if(typeof PVC_ON!=='undefined' && PVC_ON && p && p.prevideo && p.prevideo.up && (window._mpStateD||{}).product!=='웨딩스냅'){ var _pvR=_pvcRow(p.prevideo); _pvRow={ done:_pvR.done, html:row('식전 영상', _pvR.st, 'mp_pvcStart', _pvR.label, null, {tag:_pvR.tag}) }; } }catch(e){}
+  /* ★[VIDEO_UMBRELLA_1115 2026-11-15 대표님 «식전영상만이 아니라 식중영상도 있으니 이름도 바꿔야 · 그 안에 디자인도 멋지게»]
+     식중 영상 줄이 있는 분(식순에 식중 영상을 담았거나 보낸 식중 영상이 남은 분)께만 두 줄을 «상영 영상» 한 묶음으로 —
+     머리 줄 = 묶음 이름 + 확정 기한(두 영상 같은 날 · 예식 7일 전) · 아래 두 줄 = 식전 · 식중(언제 트는지 한 낱말 · 상태 꼬리표 · 단추).
+     기한 꼬리표는 머리 줄 하나로 모은다(같은 날짜를 두 줄에 되풀이하지 않는다 · 상태 꼬리표는 줄마다 그대로).
+     식중 영상이 없는 분은 지금처럼 «식전 영상» 한 줄(묶음 머리 없음) · 단추 id(mp_pvcStart · mp_mvcStart) · 상태 판정(_pvcRow · _mvcRow)은 그대로.
+     준비 목록의 셈(done)은 두 칸 그대로 둔다 — 머리는 첫 칸 html 에 함께 싣고 둘째 칸 html 은 비운다. 검사 scripts/audit/video-umbrella.mjs */
+  try{ if(_pvRow.html && _mvRow.html){
+    var _vuDue=function(t){ return /까지$|^기한 지남$/.test(String(t||'')); }, _vuP=_pvcRow(p.prevideo), _vuM=_mvcRow(p.midvideo, _mvcOn(p));
+    var _vuAll=!!(_vuP.done && _vuM.done && _vuP.st==='완료' && _vuM.st==='완료');
+    var _vuHead='<div class="trk vu-head"><span class="trk-nm">'+escapeHtml(VU_NAME)+(_vuAll?'&nbsp;<span class="trk-ok">✓</span>':'')+'</span>'+(_vuAll?'':'<span class="vu-due">'+escapeHtml(_vuDueTxt((p.prevideo||{}).due||(p.midvideo||{}).due))+'</span>')+'</div>';
+    _pvRow={ done:_vuP.done, html:_vuHead+row('식전 영상', _vuP.st, 'mp_pvcStart', _vuP.label, null, {tag:_vuDue(_vuP.tag)?null:_vuP.tag, cls:'vu-row', when:'입장 전'})+row('식중 영상', _vuM.st, 'mp_mvcStart', _vuM.label, null, {tag:_vuDue(_vuM.tag)?null:_vuM.tag, cls:'vu-row vu-last', when:'덕담 뒤'}) };
+    _mvRow={ done:_vuM.done, html:'' };
+  } }catch(e){}
   var _prepRows=[
     /* ★★[PREP_ORDER_0926 2026-09-26 사장님 지시 «위에서부터 청첩장, 좌석·음료, 애프터웨딩, 식순, 단체사진 순으로 하자»]
        종전 순서는 청첩장 · 식순 · 애프터 웨딩 · 좌석·음료 · 단체 사진이었다. 식순 아래 접힘 두 줄(준비 목록 · 부케)은 식순에 딸린 것이라 식순과 함께 옮긴다.
@@ -11826,6 +11850,8 @@ var PVC_ON=true;   // [PV_CAT_1031] 기능 스위치 · 사장님 «켜도 상�
    · 켜고 끄는 원천은 식순 초안 하나(S.on.free + S.freeWhat 'video') — 마이페이지 단추는 식순 화면의 그 칸을 연다(개수 · 시간 · 축사 택1 계산을 한 곳에서 · 마이페이지가 식순을 따로 쓰지 않는다)
    · 링크 · 상태 · 기한 · 확인 · 확정은 식전 영상 흐름(PVCFLOW)을 kind 'mid' 로 그대로 쓴다 · 서버 89_prevideo «개인코드#mid» 줄 · production.midvideo
    · 제작 비용은 두 분 부담(쿠폰 · 기본 템플릿은 식전 영상 1편에만) · 기한 예식 7일 전 23:59 · 기한까지 확정하지 않으면 영상 없이 진행 */
+var VU_NAME='상영 영상';   // ★[VIDEO_UMBRELLA_1115] 식전 · 식중 영상 묶음 이름 — 바꿀 땐 이 한 곳 + order-preview.html VU_NAME(같아야 · scripts/audit/video-umbrella.mjs) · «예식 영상»은 결과물 이름이라 쓰지 않는다(MPD_G10)
+function _vuDueTxt(due){ var l=null; try{ l=due?_kstDdayOf(due):null; }catch(e){} if(l==null) return ''; if(l<0) return '기한 지남'; if(l===0) return '오늘까지'; var t=_pvcDueTxt(due); return t?(t.replace(' 23:59','')+'까지'):''; }   // [VIDEO_UMBRELLA_1115] 묶음 머리 줄 기한 — 날짜는 서버 due 그대로(예식 7일 전 23:59)
 var MVC_ON=true;   // [MID_VIDEO_1106] 기능 스위치 — 서버가 midvideo 를 보내지 않으면(옛 GAS) 어차피 줄이 안 보인다
 function _mvcOn(p){ var S=(p&&p.ritualDraft&&p.ritualDraft._v===3&&p.ritualDraft.S)||null; if(!S) return null; return !!(S.on&&S.on.free)&&String(S.freeWhat||'')==='video'; }   // [MID_VIDEO_1106] null = 식순 아직 없음
 function _mvcLen(p){ var S=(p&&p.ritualDraft&&p.ritualDraft.S)||{}, n=parseInt(S.freeLen,10); return (n>=1&&n<=10)?n:3; }
@@ -12458,6 +12484,12 @@ function _cfPvLine(p){ var v=(p&&p.prevideo)||null; if(!(typeof PVC_ON!=='undefi
 function _cfMvLine(p){ var v=(p&&p.midvideo)||null; if(!(typeof MVC_ON!=='undefined' && MVC_ON && v && v.up && (window._mpStateD||{}).product!=='웨딩스냅' && _mvcOn(p)===true)) return ''; var st=String(v.st||'');   // [MID_VIDEO_1106] 식중 영상도 확인서에 한 줄(M01 과 같은 방식)
   var t=(st==='done')?'식중 영상은 따로 확정했어요.':'식중 영상은 해당 화면에서 따로 확인 · 확정해 주세요.';
   return '<span class="ln-bal">'+t+' <button type="button" class="pvc-a cf-pvc" data-cfmvc>식중 영상 열기</button></span>'; }
+/* ★[VIDEO_UMBRELLA_1115] 확인서 — 식전 · 식중 두 줄이 다 서면 «상영 영상» 한 묶음(이름 줄 하나 + 영상마다 상태 · 열기). 하나만 서면 그 한 줄 그대로. 단추 표식(data-cfpvc · data-cfmvc)은 그대로 */
+function _cfVuLine(p){ var a=_cfPvLine(p), b=_cfMvLine(p); if(!(a && b)) return a+b;
+  var w=function(v){ var t=String((v||{}).st||''); return t==='done'?'확정했어요':t==='off'?'사용하지 않기로 하셨어요':'아직 확정 전이에요'; };
+  return '<span class="ln-bal">'+escapeHtml(VU_NAME)+'은 이 확인서와 따로 확정해요.</span>'
+    +'<span class="vu-cf"><span class="vu-cf-k">식전 영상</span> · '+w(p.prevideo)+' <button type="button" class="pvc-a cf-pvc" data-cfpvc aria-label="식전 영상 열기">열기</button></span>'
+    +'<span class="vu-cf"><span class="vu-cf-k">식중 영상</span> · '+w(p.midvideo)+' <button type="button" class="pvc-a cf-pvc" data-cfmvc aria-label="식중 영상 열기">열기</button></span>'; }
 function prodConfirmHtml(p, inv){
   p=p||{}; inv=inv||{};
   var t=p.tracks||{}, dd=p.diningDraft||{}, fd=p.finalDraft||{}, rd=p.ritualDraft||{}, sd=p.seatDraft||{}, gi=p.guideinfoDraft||{};
@@ -12696,12 +12728,12 @@ function prodConfirmHtml(p, inv){
     var _need=[]; if(!_rDone) _need.push('식순'); if(!_fHas) _need.push('좌석 · 음료');
     var _over=(_named>MP_FINAL_POLICY.max);
     if(!_need.length) C+='<button type="button" class="cc-btn" id="cf_go" style="margin-top:10px">위 내용으로 확정합니다</button>'
-      +'<div class="cc-note" style="text-align:center;margin-top:6px"><span class="cc-mini"><span class="ln-bal">누르신 날짜와 시각이 함께 기록돼요.</span><span class="ln-bal">저희는 확정된 내용 그대로 준비해요. 이후 내용을 고치시면 확정이 풀려요.</span>'+_cfPvLine(p)+_cfMvLine(p)+'</span></div>';   // [DOT_SPLIT_0926] 2026-09-26 통합 점검 L5 · 360 · 390 «…함께 기록돼요 · / 저희는…» 줄 끝 점(전역 cc-note balance) → 마침표 두 덩어리
+      +'<div class="cc-note" style="text-align:center;margin-top:6px"><span class="cc-mini"><span class="ln-bal">누르신 날짜와 시각이 함께 기록돼요.</span><span class="ln-bal">저희는 확정된 내용 그대로 준비해요. 이후 내용을 고치시면 확정이 풀려요.</span>'+_cfVuLine(p)+'</span></div>';   // [DOT_SPLIT_0926] 2026-09-26 통합 점검 L5 · 360 · 390 «…함께 기록돼요 · / 저희는…» 줄 끝 점(전역 cc-note balance) → 마침표 두 덩어리
     /* 이름을 「」로 감싸 붙인다 — 「좌석 · 음료」 자체에 가운뎃점이 들어 있어, 맨 이름을 나열하면
        '식순 · 좌석 · 음료'가 세 항목으로 읽힌다. 조사(을/를·이/가)도 함께 피할 수 있다. */
     /* [CF_LEFT_LINES 2026-10-09] 문장마다 한 줄(.ln-bal) — «…확정하실 수 / 있어요 · 섹션마다 … / 돼요.»(320) · «…있어요 · / 섹션마다…»(360 · 390)처럼 외톨이 · 줄 끝 점이 났다 */
     else C+='<div class="cc-note" style="text-align:left;margin-top:8px"><span class="cc-mini"><span class="ln-bal">아직 남은 것&nbsp;· '+_need.map(function(n){ return '<b>「'+n+'」</b>'; }).join(' ')+'</span>'
-      +'<span class="ln-bal">다 마치면 여기에서 한&nbsp;번에 확정하실&nbsp;수&nbsp;있어요.</span><span class="ln-bal">섹션마다 따로 확인하지 않으셔도&nbsp;돼요.</span>'+_cfPvLine(p)+_cfMvLine(p)
+      +'<span class="ln-bal">다 마치면 여기에서 한&nbsp;번에 확정하실&nbsp;수&nbsp;있어요.</span><span class="ln-bal">섹션마다 따로 확인하지 않으셔도&nbsp;돼요.</span>'+_cfVuLine(p)
       /* 좌석·음료가 남았을 때의 이유는 **세 가지가 다르다.** 한 문장으로 뭉뜽그리면 그중 둘에게 거짓말이 된다. */
       /* [CF_HEADS_MISSING] 갈래 판정도 `_fHas` 기준으로 — 위 게이트와 같은 잣대를 쓴다(다르면 또 갈린다).
          「인원이 저장되지 않았어요」는 위 대조 경고가 이미 자세히 말하므로 여기선 되풀이하지 않는다. */

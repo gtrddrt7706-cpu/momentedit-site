@@ -5531,6 +5531,7 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
   return h; }
 /* ★★[PV_MYPAGE_1102 2026-11-02 사장님 «여기도 개선해야지 최신화 · 저기서 영상을 받을 필요도 없잖아»] 식전 영상은 마이페이지 «식전 영상» 카드에서 준비하고 받는다(협력사 연결형 · [PV_PARTNER_1101]).
    식순에는 링크 칸을 두지 않는다 — 이름 · 기한 한 줄([PV_SEND_ONE] 모양) + «어디서» 한 줄. 받는 곳이 둘이면 두 분이 어디에 보냈는지 헷갈리고 준비 목록이 두 번 셌다. */
+var VU_NAME='상영 영상';   // ★[VIDEO_UMBRELLA_1115] 마이페이지 «상영 영상» 묶음과 같은 이름(mypage.html VU_NAME · scripts/audit/video-umbrella.mjs)
 function _pvMyRow(wed, nm){ nm=nm||'식전 영상'; return '<section class="mk-sec mk-prep mk-send1 mk-pvmy"><ul class="mk-vlist"><li class="mk-vr"><span class="mk-vt"><span class="mk-vn">'+esc(nm)+'</span><span class="mk-vs">'+esc(_ndd(RitualOpen.dueWord({due:7},wed)))+'</span></span></li>'
   +'<li class="mk-vx"><p class="mk-note mk-pvmyt">마이페이지 «'+esc(nm)+'»에서 준비해요</p></li></ul></section>'; }   /* [VIDEO_NAME_1114] 식전 · 식중 같은 한 덩어리(nm) */
 function _pvOkTg(v){ var o=document.getElementById('mkPvOk'); if(o) o.style.display=_linkOk(v)?'':'none'; }
@@ -9359,12 +9360,13 @@ function _openWrite(){
   // 보낼 것 — 식전 영상 링크 칸 · 녹음 올리기 · 나머지 목록
   var send=two.filter(function(q){ return q.cat==='send' && q.k!=='guest' && q.k!=='entry' && q.k!=='prevideo'; });
   /* ★[PREVIDEO_PICK 2026-09-27 사장님] 식전 영상을 담았을 때만 링크 칸 · 설명 · «식전 영상 사진» 보내기 — 보낼 것이 하나도 없으면 칸째 뺀다 */
-  var _pv=R.onOf(S,'prevideo'), _voice=(S.guestVoice==='couple'||S.entryVoice==='couple');
-  if(_pv||send.length||_voice){
+  var _pv=R.onOf(S,'prevideo'), _mvS=R.onOf(S,'free')&&R.FREE_KIND[R.chipOf('free',S)]==='video'&&(!CUST||CUST.midUp===true), _voice=(S.guestVoice==='couple'||S.entryVoice==='couple');   /* ★[VIDEO_UMBRELLA_1115] 식중 영상도 «보낼 것»에 — 하나씩 만들기 _mkPrep 의 mvMy 와 같은 조건 */
+  if(_pv||_mvS||send.length||_voice){
   h+='<div class="wr-sec"><div class="wr-sub">보낼 것</div>';
-  if(_pv){
-  h+='<div class="wr-item">식전 영상 <span class="wr-due">· '+esc(R.dueWord({due:7},wed))+'</span></div>';   // [PREVIDEO_NAME 코워크 회신4 4-c] ④ · 마이페이지와 같은 이름
-  h+='<div class="wd" style="margin-top:6px">마이페이지 «식전 영상»에서 준비해요</div>';   /* ★[PV_MYPAGE_1102 2026-11-02 사장님] 링크 칸 · 주소 안내를 걷었다 — 식전 영상은 마이페이지 카드가 받는다 · 되살리지 말 것 */
+  if(_pv||_mvS){
+  if(_pv) h+='<div class="wr-item">식전 영상 <span class="wr-due">· '+esc(R.dueWord({due:7},wed))+'</span></div>';   // [PREVIDEO_NAME 코워크 회신4 4-c] ④ · 마이페이지와 같은 이름
+  if(_mvS) h+='<div class="wr-item">'+esc(R.MID_NAME)+' <span class="wr-due">· '+esc(R.dueWord({due:7},wed))+'</span></div>';   // [VIDEO_UMBRELLA_1115] 식중 영상 — 식전 영상과 같은 모양 · 기한
+  h+='<div class="wd" style="margin-top:6px">'+((_pv&&_mvS)?('두 영상 모두 마이페이지 «'+esc(VU_NAME)+'»에서 준비해요'):('마이페이지 «'+esc(_pv?'식전 영상':R.MID_NAME)+'»에서 준비해요'))+'</div>';   /* [VIDEO_UMBRELLA_1115] 둘 다면 마이페이지 묶음 이름 · 하나면 그 이름 */   /* ★[PV_MYPAGE_1102 2026-11-02 사장님] 링크 칸 · 주소 안내를 걷었다 — 식전 영상은 마이페이지 카드가 받는다 · 되살리지 말 것 */
   /* ★[PV_PHOTO_OFF_1023 검토 158 · PV_LINK_ONE 2026-10-04 사장님 «무조건 영상»] «사진을 올린 링크 … 영상으로 만들어요» 줄 뺌 · 되살리지 말 것 · 옛 줄 표식 [UPLOAD_HONEST 2-8] · [PREVIDEO_FREE] */
   }
   /* ★[H2_SEND_LUMP 2026-09-26 코워크 최종판 5-2] 식전 영상(링크 칸 · 설명 · 카톡 · 메일 · 25MB 안내)을 한 덩어리로 — 종전엔 축배 음료 줄이

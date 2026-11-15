@@ -93,7 +93,7 @@ ok(!/saveProductionTrack[^\n]*track:'ritual'[^\n]*free/.test(blk), '식중 영�
 ok(/\n    _pvRow,   _mvRow,/.test(my) && my.indexOf("row('식중 영상'") > -1 && my.indexOf("$('mp_mvcStart')") > -1, '예식 준비 줄 — 식전 영상 바로 뒤 · 단추 연결');
 ok(/body\.kind='mid'/.test(fnSrc(my, '_pvcSave')) && /d\.production\[_pvcKey\(\)\]/.test(fnSrc(my, '_pvcRecheck')), '저장 · 다시 확인이 식중 줄(kind mid · midvideo)을 쓴다');
 ok(/_mvAct/.test(my) && /head = '식중 영상을 확인해 주세요';/.test(my) && /식중 영상 준비가 남아 있어요\./.test(my), '첫 화면(NOW) — 식중 영상 확인 · 준비 남음(M01 과 같은 방식)');
-ok((my.match(/\+_cfPvLine\(p\)\+_cfMvLine\(p\)/g) || []).length === 2 && /data-cfmvc/.test(fnSrc(my, 'wireProdConfirm')), '예식 확인서 두 갈래에 식중 영상 한 줄 · 열기 단추');
+ok((my.match(/\+_cfVuLine\(p\)/g) || []).length === 2 && /_cfPvLine\(p\), b=_cfMvLine\(p\)/.test(fnSrc(my, '_cfVuLine')) && /data-cfmvc/.test(fnSrc(my, 'wireProdConfirm')), '예식 확인서 두 갈래에 식중 영상 한 줄 · 열기 단추(★[VIDEO_UMBRELLA_1115] 둘 다 서면 «상영 영상» 한 묶음 · 화면은 video-umbrella.mjs 가 잰다)');
 ok((blk.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '').match(/'[^'\n]*—[^'\n]*'/g) || []).length === 0, '화면 글에 전각 줄표(—) 없음');
 
 console.log('━━ ③ 서버(진짜 89_prevideo 함수 · 시트 · 드라이브만 가로챈다)');

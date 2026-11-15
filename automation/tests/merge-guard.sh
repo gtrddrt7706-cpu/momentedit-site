@@ -4807,7 +4807,7 @@ chk 'VIDEO_NAME_1114' admin.html 1
 chk 'VIDEO_NAME_1114' automation/platform/89_prevideo.gs 1
 chk 'VIDEO_NAME_1114' scripts/audit/midvideo.mjs 8
 chk 'VIDEO_NAME_1114' scripts/audit/mid17-pick.mjs 4
-chk '(!CUST||CUST.midUp===true)' order-preview.html 1     # [GPT 1-01 · 2-21] 마이페이지 안에서는 서버가 받는다고 알려 온 때만 «마이페이지 «식중 영상»에서 준비해요»
+chk '(!CUST||CUST.midUp===true)' order-preview.html 2     # [GPT 1-01 · 2-21] 마이페이지 안에서는 서버가 받는다고 알려 온 때만 «마이페이지 «식중 영상»에서 준비해요»   # [VIDEO_UMBRELLA_1115] 완성 «보낼 것»의 식중 영상 줄도 같은 조건(2)
 chk "_pvcClash(st, v.conf, 'pre')" mypage.html 1   # [GPT 1-08] 식전 줄은 늘 식전으로 판정
 nochk "label:'넣기', tag:'선택'" mypage.html 0            # [VIDEO_NAME_1114] 고르지 않은 분께 «식중 영상 · 넣기 · 선택» 줄을 되살리지 말 것
 nochk '「준비한 순서」에서 «영상»을 고르면' mypage.html 0     # [VIDEO_NAME_1114] 옛 이름 — 빌더 칸 이름은 «식중 영상»
@@ -4828,6 +4828,19 @@ if command -v node >/dev/null 2>&1; then _m17=$(node scripts/audit/mid17-pick.mj
     0) echo 'ok mid17-pick: 식중 영상 칸 · 이름 · 바꿔 담기 · 길이 · at:midvideo · 시간' ;;
     1) echo 'FAIL mid17-pick: 식중 영상 고르기 · 시간이 어긋났다 — node scripts/audit/mid17-pick.mjs'; printf '%s\n' "$_m17" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
     *) echo 'ok mid17-pick: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+# ★[VIDEO_UMBRELLA_1115 2026-11-15 대표님 «식전영상만이 아니라 식중영상도 있으니 이름도 바꿔야 · 그 안에 디자인도 멋지게»] 식중 영상 줄이 있는 분만
+#   준비 목록 «상영 영상» 묶음(머리 = 이름 + 기한 · 아래 식전 · 식중 두 줄) · 확인서 한 묶음 · 빌더 완성 «보낼 것»에 식중 영상 줄 + «두 영상 모두 마이페이지 «상영 영상»».
+#   식중 없는 분은 지금 그대로 · 이름은 mypage · order-preview VU_NAME 한 벌(«예식 영상»은 결과물 이름 · MPD_G10) — 390 · 1280 실렌더(되돌리면 빨강 확인)
+chk 'VIDEO_UMBRELLA_1115' mypage.html 5
+chk 'VIDEO_UMBRELLA_1115' order-preview.html 4
+nochk "var VU_NAME='예식 영상'" mypage.html 0
+if command -v node >/dev/null 2>&1; then _vu=$(node scripts/audit/video-umbrella.mjs 2>&1); _vur=$?
+  case "$_vur" in
+    0) echo 'ok video-umbrella: 상영 영상 묶음 · 확인서 · 식중 없는 분 그대로' ;;
+    1) echo 'FAIL video-umbrella: 상영 영상 묶음이 어긋났다 — node scripts/audit/video-umbrella.mjs'; printf '%s\n' "$_vu" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
+    *) echo 'ok video-umbrella: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
 fi
 chk 'MID17_TILE' order-preview.html 14
