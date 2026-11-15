@@ -14114,8 +14114,8 @@ chk "{lead:'오전 예식이라 하객은 11시쯤부터 식당에 도착해요.
 chk "{lead:'저녁 예식이라 하객은 5시 40분쯤부터 식당에 도착해요." mypage.html 1
 chk '_dnSayClock(arr2)' mypage.html 2
 chk '_dnSayClock(arr)' mypage.html 1
-chk "'&nbsp;·&nbsp;하객&nbsp;도착 '+_dnSayClock(arr2).replace(/ /g,'&nbsp;')+'&nbsp;기준'" mypage.html 1
-chk "'&nbsp;·&nbsp;하객 '+_dnSayClock(arr).replace(/ /g,'&nbsp;')+'&nbsp;도착&nbsp;기준'" mypage.html 1
+chk "'&nbsp;·&nbsp;하객&nbsp;도착&nbsp;예상 '+_dnSayClock(arr2).replace(/ /g,'&nbsp;')+'쯤'" mypage.html 1
+chk "'&nbsp;·&nbsp;하객&nbsp;도착&nbsp;예상 '+_dnSayClock(arr).replace(/ /g,'&nbsp;')+'쯤'" mypage.html 1
 nochk "' · 예식 후 '+arr+' 도착 기준'" mypage.html
 nochk "'결혼식 후 '+(arr2?arr2+' 도착, '" mypage.html
 nochk "'식사 도착')+' '+arr2+' 기준'" mypage.html
@@ -22637,6 +22637,7 @@ chk "var _DN_ARR={'10:00':'11:00','13:20':'14:20','16:40':'17:40'};" mypage.html
 nochk "'11:50','13:20':'15:00'" mypage.html                           # 옛 두 분 정리 뒤 기준
 chk "'하객이 먼저 도착하고, 저희 두 사람은 촬영과 정리를 마치고 합류해요. '" mypage.html 1
 chk "먼저 오신 분부터 식사하실 수 있을까요?" mypage.html 1
+chk "(headTxt?'저희 둘을 포함해 '+headTxt:'')" mypage.html 1   # 인원은 두 분 포함(GPT 8회차)
 chk 'JOIN_GAP_REHEARSAL' mypage.html 2                                  # «약 ○○분 뒤» 숫자는 리허설에서 잰 값으로 넣을 자리
 nochk '먼저 식사 장소로 이동하셔도 돼요' guide.html
 chk 'CAFE_OPEN_OWNER_1115' mypage.html 4

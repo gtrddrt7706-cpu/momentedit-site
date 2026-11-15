@@ -13711,7 +13711,7 @@ function dineFilterUI(d, wt){
   var _cntTxt=(_dnVerifiedN>0)?('검증 '+_dnVerifiedN+'곳'):((shown.length<list.length)?('추천순 '+shown.length+'곳 먼저'):('추천 '+list.length+'곳'));
   var _hasFilter=false; for(var _fk in fl){ if(fl[_fk]){ _hasFilter=true; break; } }   // 컨셉·필터가 걸려 있으면 '고른 조건에 맞는 곳'(디렉터 추천 여부와 무관하게 컨셉 리스트로 읽히게)
   var _headT=_hasFilter?'고른 조건에 맞는 곳':('디렉터 '+(_dnVerifiedN>0?'검증':'추천')+' 리스트');
-  var head='<div class="dn-head"><span class="dn-head-t">'+_headT+'</span><span class="dn-head-c">'+_cntTxt+(arr?'&nbsp;·&nbsp;하객 '+_dnSayClock(arr).replace(/ /g,'&nbsp;')+'&nbsp;도착&nbsp;기준':'')+'</span></div>';   // [DN_CLOCK_SAY] 말하는 꼴은 길어져(«오전 11시 50분») 320 에서 «… 도착 / 기준» 꼬리가 났다 — 가운뎃점은 앞뒤 낱말에, 시각은 «도착 기준»까지 한 덩어리로 묶어 «… 예식 후 / 오전 11시 50분 도착 기준»으로만 꺾인다
+  var head='<div class="dn-head"><span class="dn-head-t">'+_headT+'</span><span class="dn-head-c">'+_cntTxt+(arr?'&nbsp;·&nbsp;하객&nbsp;도착&nbsp;예상 '+_dnSayClock(arr).replace(/ /g,'&nbsp;')+'쯤':'')+'</span></div>';   // [DN_CLOCK_SAY] 말하는 꼴은 길어져(«오전 11시 50분») 320 에서 «… 도착 / 기준» 꼬리가 났다 — 가운뎃점은 앞뒤 낱말에, 시각은 «도착 기준»까지 한 덩어리로 묶어 «… 예식 후 / 오전 11시 50분 도착 기준»으로만 꺾인다
   /* [DN_TRUE_COPY] 2026-09-26 사장님 결정 ⑰ · 「그 부분부터 먼저 살펴 둔 곳들이라, 두 분은 분위기만 고르시면 돼요」를 뺐다 —
      기본 추천 8곳이 모두 주차 미상(pk:null)이고 3곳은 전화번호도 없다. 살펴 둔 근거가 없는 안심이었다.
      대신 할 일을 말한다 · 통화 문구도 이미 «룸(또는 단체석)·주차 가능할까요?»를 묻는다. 결과 0곳이면 숨김(종전대로). */
@@ -13962,7 +13962,7 @@ function renderDining(box){
           : '<div class="cc-note" style="margin:10px 0 0">지도에서 매장 번호를 확인해 예약해 주세요.</div>';   // [DN_TEL_MAP] 2026-09-26 사장님 결정 ⑰ · 종전 «전화번호는 확정되는 대로 안내해 드릴게요»는 누가 언제 알려 주는지가 없었다(기본 추천 8곳 중 3곳이 번호 없음) — 바로 아래 지도 단추에 매장 번호가 있다
         var mapLine='<a class="cc-btn-ghost" href="'+escapeHtml(mUrl)+'" target="_blank" rel="noopener" style="display:block;text-align:center;margin:7px 0 4px;text-decoration:none">지도 · 길찾기 보기</a>';
         var isCafe=(R2&&R2.th==='cafe');   // 카페면 '식사·룸' 대신 '차·디저트' 멘트(2026-06-16)
-        var script=(dpart?dpart+' ':'')+'결혼식 후 '+(arr2?_dnSayClock(arr2).replace(/ /g,'&nbsp;')+'쯤부터 ':'')+'하객이 먼저 도착하고, 저희 두 사람은 촬영과 정리를 마치고 합류해요. '+headTxt   /* ★[EARLY_EAT_OWNER_1115] 예약 = 하객 도착 시각(_DN_ARR) · 두 분은 뒤에 합류(숫자는 [JOIN_GAP_REHEARSAL] 리허설 뒤) · [DN_HEAD_FROM_SEAT] · [DN_CLOCK_SAY] 시각은 «오전 / 11시»로 안 갈리게 한 덩어리 */
+        var script=(dpart?dpart+' ':'')+'결혼식 후 '+(arr2?_dnSayClock(arr2).replace(/ /g,'&nbsp;')+'쯤부터 ':'')+'하객이 먼저 도착하고, 저희 두 사람은 촬영과 정리를 마치고 합류해요. '+(headTxt?'저희 둘을 포함해 '+headTxt:'')   /* ★[EARLY_EAT_OWNER_1115] 예약 = 하객 도착 시각(_DN_ARR) · 두 분은 뒤에 합류(숫자는 [JOIN_GAP_REHEARSAL] 리허설 뒤) · 인원은 두 분을 포함한 수라 «저희 둘을 포함해»(GPT 8회차) · 목록 위 «하객 도착 예상 … 쯤»(확정 시각으로 읽히지 않게) · [DN_HEAD_FROM_SEAT] · [DN_CLOCK_SAY] 시각은 «오전 / 11시»로 안 갈리게 한 덩어리 */
           + (isCafe ? '단체로 차⁠·⁠디저트 자리를 예약하고 싶어요. 단체석⁠·⁠주차 가능할까요?' : '단체 식사 예약하고 싶어요. 먼저 오신 분부터 식사하실 수 있을까요? 룸(또는 단체석)⁠·⁠주차 가능할까요?');   // [DN_DOT_SPLIT] 가운뎃점 양옆 U+2060 · ★[EARLY_EAT_OWNER_1115] 식사는 «먼저 오신 분부터»를 통화에서 묻는다(아래 줄에 따로 적지 않는다 · 한 곳 한 번)
         return callLine + mapLine
           + '<div class="inv-side-l" style="margin:14px 0 5px">예약 시 이렇게 말해보세요</div>'
@@ -14031,7 +14031,7 @@ function renderDining(box){
           var isCafe=(R.th==='cafe');
           body2b='<div class="cc-note" style="margin:0 0 12px;color:var(--sub)">부부가 되어 처음 함께 앉는 자리예요. 아래로 예약만 마치면, 그날의 마지막 순간까지 준비가 끝나요.</div>'   // [심리] 선택 확언+첫 식탁 프레임+완결감 · 2026-07-10
             +'<div class="inv-side-l" style="margin:2px 0 4px">'+(isCafe?'방문 장소':'식사 장소')+'</div>'
-            + '<div class="cc-note" style="margin:0 0 4px">'+escapeHtml(R.n)+(arr2?'&nbsp;·&nbsp;하객&nbsp;도착 '+_dnSayClock(arr2).replace(/ /g,'&nbsp;')+'&nbsp;기준':'')+'</div>'   // [DN_CLOCK_SAY] 시각이 길어져 320 에서 «향동점 · 식사 / 도착 …»으로 갈렸다 — «이름 · 식사 도착» · «오전 11시 50분 기준» 두 덩어리로만 꺾이게
+            + '<div class="cc-note" style="margin:0 0 4px">'+escapeHtml(R.n)+(arr2?'&nbsp;·&nbsp;하객&nbsp;도착&nbsp;예상 '+_dnSayClock(arr2).replace(/ /g,'&nbsp;')+'쯤':'')+'</div>'   // [DN_CLOCK_SAY] 시각이 길어져 320 에서 «향동점 · 식사 / 도착 …»으로 갈렸다 — «이름 · 식사 도착» · «오전 11시 50분 기준» 두 덩어리로만 꺾이게
             + _bookBlock(R.n,R.tel,'');
         } else {
           body2b='<div class="inv-side-l" style="margin:2px 0 4px">식사 장소</div>'
