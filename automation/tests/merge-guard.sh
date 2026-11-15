@@ -5364,7 +5364,8 @@ chk 'NARR_DEPLOY_1116' assets/ritual-preview-link.js 2
 chk 'NARR_DEPLOY_1116' assets/ritual-open.js 1
 chk 'NARR_DEPLOY_1116' scripts/audit/closing-line.mjs 2
 chk 'NARR_DEPLOY_1116' scripts/audit/console-inject.mjs 3
-chk 'NARR_DEPLOY_1116' scripts/audit/open-course.mjs 5   # [GUIDE_ON_1019] guide 더함   # [PHOTO_PRE_PICK_1030] mealFull · resv 더함(사진 전 안내 266 고르기)
+chk 'NARR_DEPLOY_1116' scripts/audit/open-course.mjs 5   # (위 INJECT 핀의 옛 주석: [GUIDE_ON_1019] guide 더함 · [PHOTO_PRE_PICK_1030] mealFull · resv 더함 — resv 는 NARR_DEPLOY_1116 에 뺌)
+chk 'NARR_DEPLOY_1116' scripts/audit/screen-sound.mjs 1
 # ★주소를 미리듣기가 «옮기지» 말 것 — 유무 boolean 만 간다.
 # ★[NOCHK_SHAPE] 이름('photoShareUrl')이 아니라 **KEYS 에 실리는 모양**을 잡는다 — 처음엔 이름으로
 #   걸었다가 정당하게 읽는 photoShareOf() 와 그 주석을 스스로 물었다(자가덫 9번째).

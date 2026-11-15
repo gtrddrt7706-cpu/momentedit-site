@@ -52,7 +52,7 @@ try {
     return out; });
   const uniq = (a) => [...new Set(a)];
   const CL = Object.keys(res.files).filter((f) => /_narr-closing/.test(f)).sort(), ONL = Object.keys(res.files).filter((f) => /^62_/.test(f));
-  ok(`잰 상태에 마무리 멘트 아홉 판(★[INFO_SPLIT_200] 식사 없음 287 · 292 · 325 · 식사 + 예약 시각 342 ~ 344 · 예약 시각 없음 339 ~ 341 · 하객 안내 판은 쉰다)과 온라인 인사(62)가 다 들어 있다 — ${CL.length} · ${ONL.length}`, CL.length === 9 && ONL.length === 1, CL);
+  ok(`잰 상태에 마무리 멘트 세 판(★[NARR_DEPLOY_1116 검사 기대 갱신] NARR_FIX_1115_1 식사 날도 287 · 292 · 325 — 식사 판 339 ~ 344 쉼 · 옛 기대 아홉 판)과 온라인 인사(62)가 다 들어 있다 — ${CL.length} · ${ONL.length}`, CL.join() === '287_narr-closing,292_narr-closing-nt,325_narr-closing-nt-nc' && ONL.length === 1, CL);
   ok(`콘솔이 틀 수 있는 나레이션 ⊆ 식순 화면 나레이션 줄 — 상태 ${res.n}개 · 파일 ${Object.keys(res.files).length}개`, !res.over.length, uniq(res.over).slice(0, 12));
   ok('[AFTER_SCRIPT_195 · INFO_SPLIT_200] 촬영 후 안내 여덟 상태(살아 있는 판 317 · 319 · 324)가 전체 대본에 글 전체로 한 번씩(두 번 아님) — ' + res.afterN + '판', res.afterN === 8 && !res.after.length, res.after);
   ok('콘솔 나레이션 글이 전체 대본에 있다(복사 · 파일 저장)', !res.noScript.length, uniq(res.noScript).slice(0, 12));
