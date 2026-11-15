@@ -54,7 +54,8 @@ try {
   ok('[MID17_NAME · SPEECH_SONG_1115] 식중 영상 = 따로 넣고 빼는 순간 midvid — 이름 «식중 영상» · chipLabel «식중 영상 · 3분» · ORDER 에서 축가 뒤 · 편지 앞 · 축사 칸 칩에 영상 갈래 없음',
     O.nameOf('midvid', V) === '식중 영상' && O.chipLabel('midvid', V) === '식중 영상 · 3분' && O.ORDER.indexOf('song') + 1 === O.ORDER.indexOf('midvid') && O.ORDER.indexOf('midvid') + 1 === O.ORDER.indexOf('letter') && !O.CHIPS.free.some((c) => c[0] === 'video'),
     [O.nameOf('midvid', V), O.chipLabel('midvid', V), O.ORDER.join(','), O.CHIPS.free.map((c) => c[0])]);
-  ok('[MID17_NAME] 축사는 «축사» · 옛 초안 선물 · 기타는 «준비한 순서» 그대로', O.nameOf('free', { course: 'open', on: { free: 1 }, freeWhat: 'speech' }) === '축사' && O.nameOf('free', { course: 'open', on: { free: 1 }, freeWhat: 'gift' }) === '준비한 순서' && O.nameOf('free', { course: 'open', on: { free: 1 }, freeWhat: 'etc' }) === '준비한 순서');
+  /* ★[SHOW_PAIR_1116 · RULES_SLIM ⑧] 옛 기대 «옛 초안 선물 · 기타는 «준비한 순서» 그대로» → 선물 · 기타 칩은 걷혔다(상담 메모 · 옛 초안은 midMigrate 가 끈다) · 새 갈래 축하 공연(stage) */
+  ok('[MID17_NAME · SHOW_PAIR_1116] 축사는 «축사» · 축하 공연은 «축하 공연» · 칩 = 축사 · 축하 공연(선물 · 기타 없음)', O.nameOf('free', { course: 'open', on: { free: 1 }, freeWhat: 'speech' }) === '축사' && O.nameOf('free', { course: 'open', on: { free: 1 }, freeWhat: 'stage' }) === '축하 공연' && O.CHIPS.free.map((c) => c[0]).join(',') === 'speech,stage', O.CHIPS.free);
   ok('[MID17_NAME] 식중 영상 칸 글 · ② 머리 한 줄이 영상 글(축사 글이 아니게)', /영상/.test(O.tileOf('midvid', V)) && /영상/.test(O.oneOf('midvid', V)) && !/축하의 말/.test(O.tileOf('midvid', V) + O.oneOf('midvid', V)), [O.tileOf('midvid', V), O.oneOf('midvid', V)]);
   const pr = O.prepOf('midvid', V);
   ok('[MID17_PREP] 준비 목록 — 식중 영상은 빈 목록(마이페이지가 받는다 · 식전 영상과 같은 결정)', Array.isArray(pr) && pr.length === 0, pr);
@@ -64,17 +65,21 @@ try {
   { const a = O.pairSet({ on: { midvid: 1, song: 1 }, freeWhat: 'gift' }, 'free'), b = O.pairSet({ on: { midvid: 1, free: 1 }, freeWhat: 'speech' }, 'song'), c = O.pairSet({ on: { midvid: 1, free: 1, song: 1 } }, '');
     ok('[SPEECH_SONG_1115] pairSet — 축사를 고르면 축가가 빠지고(갈래는 축사) · 축가를 고르면 축사가 빠지고 · 빈 값은 둘 다 뺀다 · 식중 영상은 그대로',
       keys(a) === 'free,midvid' && a.freeWhat === 'speech' && keys(b) === 'midvid,song' && keys(c) === 'midvid', [keys(a), a.freeWhat, keys(b), keys(c)]);
+    const st = O.pairSet({ on: { midvid: 1, song: 1 } }, 'stage');
+    ok('[SHOW_PAIR_1116] pairSet · pairOf 셋째 갈래 — 공연(stage)을 고르면 축가가 빠지고 free 칸이 축하 공연으로 · pairOf = stage · 식중 영상 그대로', keys(st) === 'free,midvid' && st.freeWhat === 'stage' && O.pairOf(st) === 'stage' && O.pairOf({ on: { free: 1 }, freeWhat: 'dance' }) === 'stage' && O.PAIR.join(',') === 'free,song,stage', [keys(st), st.freeWhat, O.pairOf(st), O.PAIR]);
     ok('[SPEECH_SONG_1115] pairOf — 담긴 쪽(축가 · 축사) · 안 담겼으면 빈 값 · 옛 선물 · 기타 칸은 축사가 아니다', O.pairOf({ on: { song: 1 } }) === 'song' && O.pairOf({ on: { free: 1 }, freeWhat: 'speech' }) === 'free' && O.pairOf({ on: { midvid: 1 } }) === '' && O.pairOf({ on: { free: 1 }, freeWhat: 'gift' }) === '',
       [O.pairOf({ on: { song: 1 } }), O.pairOf({ on: { free: 1 }, freeWhat: 'speech' }), O.pairOf({ on: { midvid: 1 } }), O.pairOf({ on: { free: 1 }, freeWhat: 'gift' })]); }
   /* [SPEECH_SONG_1115] 옛 초안 옮기기 — midMigrate */
   { const m = (S) => O.midMigrate(J(S));
     const a = m({ course: 'open', on: { bless: 1, free: 1 }, freeWhat: 'video', freeLen: '5' }), b = m({ course: 'open', on: { free: 1, song: 1 }, freeWhat: 'video', freeLen: '7' }),
       c = m({ course: 'open', on: { free: 1, song: 1 }, freeWhat: 'speech' }), d = m({ course: 'open', on: { free: 1, song: 1 }, freeWhat: 'gift' }),
-      e = m({ course: 'open', on: { free: 1, midvid: 1 }, freeWhat: 'speech', midLen: '2' }), f = m({ course: 'open', on: { free: 1 }, freeWhat: 'video' }), g = m(a);
+      e = m({ course: 'open', on: { free: 1, midvid: 1 }, freeWhat: 'speech', midLen: '2' }), f = m({ course: 'open', on: { free: 1 }, freeWhat: 'video' }), g = m(a),
+      h = m({ course: 'open', on: { free: 1, bless: 1 }, freeWhat: 'etc' }), i = m({ course: 'open', on: { free: 1, song: 1 }, freeWhat: 'stage' }), j = m({ course: 'open', on: { free: 1 }, freeWhat: 'show' });   /* [SHOW_PAIR_1116] */
     ok('[SPEECH_SONG_1115] midMigrate — 옛 free + video → 식중 영상(midvid · 길이 freeLen → midLen) · free 는 빠지고 갈래는 축사로',
       keys(a) === 'bless,midvid' && a.midLen === '5' && a.freeWhat === 'speech' && keys(b) === 'midvid,song' && b.midLen === '7' && keys(f) === 'midvid' && O.chipOf('midLen', f) === '3', [keys(a), a.midLen, a.freeWhat, keys(b), b.midLen, keys(f), f.midLen]);
-    ok('[SPEECH_SONG_1115] midMigrate — 축사 + 축가 둘 다 담은 옛 초안은 축가만 · 옛 선물 · 기타는 축가와 함께 둔다 · 새 꼴(축사 + 식중 영상)은 그대로 · 두 번 돌려도 같다',
-      keys(c) === 'song' && keys(d) === 'free,song' && d.freeWhat === 'gift' && keys(e) === 'free,midvid' && e.midLen === '2' && JSON.stringify(g) === JSON.stringify(a), [keys(c), keys(d), keys(e), JSON.stringify(g) === JSON.stringify(a)]); }
+    /* ★[SHOW_PAIR_1116 · RULES_SLIM ⑧] 옛 기대 «옛 선물 · 기타는 축가와 함께 둔다(free,song · gift)» → 선물 · 기타 = 상담 메모 · 옛 초안은 free 를 끄고 갈래는 축사로 · 둘이 켜진 옛 초안(축하 공연 + 축가도)은 축가를 남긴다 · 공연만은 그대로 */
+    ok('[SPEECH_SONG_1115 · SHOW_PAIR_1116] midMigrate — 축사 + 축가 둘 다 담은 옛 초안은 축가만 · 옛 선물 · 기타는 꺼진다(갈래 축사) · 공연 + 축가도 축가만 · 공연만은 그대로 · 새 꼴(축사 + 식중 영상)은 그대로 · 두 번 돌려도 같다',
+      keys(c) === 'song' && keys(d) === 'song' && d.freeWhat === 'speech' && keys(h) === 'bless' && h.freeWhat === 'speech' && keys(i) === 'song' && keys(j) === 'free' && O.pairOf(j) === 'stage' && keys(e) === 'free,midvid' && e.midLen === '2' && JSON.stringify(g) === JSON.stringify(a), [keys(c), keys(d), d.freeWhat, keys(h), keys(i), keys(j), keys(e), JSON.stringify(g) === JSON.stringify(a)]); }
   /* 시간 — 60 × 분 + 8 · 본식 · 단체 사진 띠가 그만큼 · 40분 안 */
   const b = ex('brief'), rows = [1, 5, 10].map((L) => { const t = mv(b, L), sp = O.span(t); return { L, p: O.partsOf('midvid', t), hi: O.bodySec(t)[1], sp, sum: sp.tb + sp.tm + sp.pm + sp.pa, txt: O.spanText(t) }; });
   ok('[MID17_TIME] 영상 몫 = 60 × 분 + 8(1 · 5 · 10분 → 68 · 308 · 608초 · midLen)', rows.every((r) => r.p[2] === 60 * r.L + 8), rows.map((r) => r.p));
@@ -150,13 +155,15 @@ try {
       /* 고르기 칩 «축가» → 바꾸기(개수 그대로 · 알림) */
       await chip('song'); out.s3 = on(); out.u3 = undo(); out.pr3 = tile('free'); out.cnt3 = cnt();
       await chip('free'); out.s4 = on(); out.u4 = undo(); out.pr4 = tile('free');
+      /* [SHOW_PAIR_1116] 칩 «공연» → 바꾸기(free 칸이 축하 공연으로 · 식중 영상 그대로) → 칩 «축사»로 되돌림 */
+      await chip('stage'); out.s4b = on(); out.fw4b = S.freeWhat; out.u4b = undo(); out.pr4b = tile('free'); await chip('free'); out.fw4c = S.freeWhat;
       /* ✓ = 담긴 쪽 빼기(식중 영상은 그대로) */
       await tap('free'); out.s5 = on(); out.pr5 = tile('free');
       /* 담기 전 칩 «축가» = 축가 담기(바꾸기 알림 없음) */
       await chip('song'); out.s6 = on(); out.u6 = undo(); out.pr6 = tile('free');
       /* 식중 영상 ✓ = 빼기(축가는 그대로) */
       await tap('midvid'); out.s7 = on(); out.mv7 = tile('midvid');
-      out.swap = (typeof PAIR_SWAP !== 'undefined') ? [PAIR_SWAP.free, PAIR_SWAP.song] : null;
+      out.swap = (typeof PN !== 'undefined' && typeof PN_O !== 'undefined') ? ['free', 'song', 'stage'].flatMap((a) => ['free', 'song', 'stage'].filter((b) => b !== a).map((b) => PN[a] + ' 대신 ' + PN_O[b] + ' 담았어요')) : null;   /* ★[SHOW_PAIR_1116] 옛 PAIR_SWAP 표(둘) → opPair · opTgl 이 같은 꼴로 만드는 여섯 */
       /* 네 길 — ② 흐름(opTgl) · 고르기(opPair) · ② 다시 담기(lsAdd) · 되돌리기(lsUndo) */
       S.on = { bless: 1, song: 1, midvid: 1 }; opSync(); await w(150);
       await call(() => opTgl('free')); out.p1 = [on(), S.freeWhat];
@@ -175,7 +182,7 @@ try {
       const cl = (q) => { const e = document.querySelector(q); if (e) e.click(); return !!e; };   /* 옛 판(selftest)엔 칸이 없다 — 멈추지 않고 빨강으로 센다 */
       const pvOf = () => { const pv = document.getElementById('pvSheet'); if (!pv) return null; const wd = pv.querySelector('#pvWho');
         return { t: (pv.querySelector('#pvT') || {}).textContent, q: (pv.querySelector('#pvQ') || {}).textContent, line: (typeof _pvLine === 'function' && _pvLine(PV.k)) || null, act: (pv.querySelector('#pvAct') || {}).textContent,
-          who: wd && !wd.hidden ? (pv.querySelector('#pvWhoT') || {}).textContent : null, vid: (() => { const v = pv.querySelector('#pvM video'); return v ? v.getAttribute('src') || '' : ''; })() }; };
+          who: wd && !wd.hidden ? (pv.querySelector('#pvWhoT') || {}).textContent : null, sw: (() => { const e = pv.querySelector('#pvSw'); return e && !e.hidden ? [...e.querySelectorAll('button')].map((b) => b.textContent).join('|') : ''; })(), vid: (() => { const v = pv.querySelector('#pvM video'); return v ? v.getAttribute('src') || '' : ''; })() }; };
       const pvBtn = async (re) => { const pv = document.getElementById('pvSheet'), b = pv && [...pv.querySelectorAll('#pvAct button')].find((x) => re.test(x.textContent)); if (b) b.click(); await w(400); return !!b; };
       try { const g = (typeof engine === 'function') ? await engine() : ENG; out.mvIn = ((g.RitualCue.build({ course: 'open', on: { midvid: 1 }, midLen: '3' }, { mode: 'preview' }).cues || []).find((c) => c.k === 'midvid') || {}).text || ''; } catch (e) { out.mvIn = ''; }
       cl('[data-fk="pto:midvid"]'); await w(1500); out.pv = pvOf();
@@ -185,20 +192,22 @@ try {
       S.on = { midvid: 1 }; opSync(); await w(200);
       cl('[data-fk="pto:free"]'); await w(1500); out.pvP0 = pvOf();
       await pvBtn(/^축가 담기$/); out.pvP1 = Object.assign({ s: on() }, pvOf());
+      cl('[data-fk="pvsw:free"]'); await w(700); out.pvP1b = pvOf();   /* ★[SHOW_PAIR_1116] 담긴 쪽을 보는 동안엔 «바꾸기»가 없다 — 보기를 축사로 옮기면 «축사로 바꾸기» */
       await pvBtn(/축사로 바꾸기/); out.pvP2 = Object.assign({ s: on(), u: undo() }, pvOf());
       try { opPvClose(); } catch (e) {} await w(300);
       return out; });
-    ok(W + ' [SPEECH_SONG_1115] 마음의 순간 = 부모님 덕담 · 축사 · 축가(한 카드) · 식중 영상 · 편지 낭독 = 4장', JSON.stringify(r.heart) === JSON.stringify(['부모님 덕담', '축사 · 축가', '식중 영상', '편지 낭독']), r.heart);
+    ok(W + ' [SPEECH_SONG_1115] 마음의 순간 = 부모님 덕담 · 축사 · 축가(한 카드) · 식중 영상 · 편지 낭독 = 4장', JSON.stringify(r.heart) === JSON.stringify(['부모님 덕담', '축사 · 축가 · 공연', '식중 영상', '편지 낭독'])   /* [SHOW_PAIR_1116] 옛 '축사 · 축가' */, r.heart);
     ok(W + ' [MID17_TILE] 식중 영상 칸 이름 · 칸 글 두 줄 안(잘림 없음)', !!r.mv0 && r.mv0.n === '식중 영상' && /영상/.test(r.mv0.s) && r.mv0.lines >= 1 && r.mv0.lines <= 2 && r.mv0.clip <= 1, r.mv0);
-    ok(W + ' [SPEECH_SONG_1115] 축사 · 축가 카드 — 담기 전엔 고르기 칩 둘 다 안 눌린 모양 · ＋(안 눌림) · 칸 글 두 줄 안', !!r.pr0 && r.pr0.chips === '축사|축가' && !r.pr0.on && r.pr0.pressed === 'false' && r.pr0.lines >= 1 && r.pr0.lines <= 2 && r.pr0.clip <= 1, r.pr0);
-    ok(W + ' [SPEECH_SONG_1115] 식중 영상 ＋ → midvid 만 담김(축사 · 축가 카드는 그대로 안 담김) · 개수 «1/6 · 1/3»', r.add && r.s1 === 'midvid' && r.mv1.on && r.mv1.pressed === 'true' && !r.pr1.on && r.pr1.chips === '축사|축가' && r.cnt1 === '고른 본식 순간 1/6 · 긴 순간 1/3', { s: r.s1, mv: r.mv1, pr: r.pr1, c: r.cnt1 });
-    ok(W + ' [SPEECH_SONG_1115 · PAIR_PLUS_PV_1115] 고른 게 없을 때 카드 ＋ = 아무것도 담지 않고 고르기 창(축사 담기 · 축가 담기)', r.plus.s === 'midvid' && r.plus.pv === 'free' && /축사 담기/.test(r.plus.act) && /축가 담기/.test(r.plus.act), r.plus);
-    ok(W + ' [SPEECH_SONG_1115] 식중 영상이 담긴 채 칩 «축사» → 축사 담김 · 식중 영상과 함께 켜짐 · 칩 «축사» 눌린 모양 · 개수 «2/6 · 2/3»', r.s2 === 'free,midvid' && r.fw2 === 'speech' && r.pr2.on && r.pr2.chips === '축사*|축가' && r.mv2.on && r.cnt2 === '고른 본식 순간 2/6 · 긴 순간 2/3', { s: r.s2, pr: r.pr2, c: r.cnt2 });
-    ok(W + ' [SPEECH_SONG_1115] 칩 «축가» → 바꾸기(축사 빠짐 · 식중 영상 그대로 · 개수 그대로) · 알림 «' + (r.swap && r.swap[1]) + '»', r.s3 === 'midvid,song' && r.u3 === '축사 대신 축가를 담았어요' && r.pr3.chips === '축사|축가*' && r.cnt3 === r.cnt2, { s: r.s3, u: r.u3, c: r.cnt3 });
-    ok(W + ' [SPEECH_SONG_1115] 칩 «축사» → 되돌려 바꾸기 · 알림 «' + (r.swap && r.swap[0]) + '»', r.s4 === 'free,midvid' && r.u4 === '축가 대신 축사를 담았어요' && r.pr4.chips === '축사*|축가', { s: r.s4, u: r.u4 });
-    for (const t of (r.swap || ['(PAIR_SWAP 없음)', '(PAIR_SWAP 없음)'])) ok(`${W} [TOAST_MIN] 바꾸기 알림 20자 안 · «·» 한 번까지 «${t}» ${vis(t).length}자`, !!r.swap && vis(t).length <= 20 && (t.match(/·/g) || []).length <= 1);
-    ok(W + ' [SPEECH_SONG_1115] 카드 ✓ → 담긴 쪽(축사) 빼기 · 식중 영상은 그대로 · 칩 둘 다 안 눌린 모양', r.s5 === 'midvid' && !r.pr5.on && r.pr5.chips === '축사|축가', { s: r.s5, pr: r.pr5 });
-    ok(W + ' [SPEECH_SONG_1115] 담기 전 칩 «축가» = 축가 담기(바꾸기 알림 없음)', r.s6 === 'midvid,song' && !r.u6 && r.pr6.chips === '축사|축가*' && r.pr6.on, { s: r.s6, u: r.u6, pr: r.pr6 });
+    ok(W + ' [SPEECH_SONG_1115] 축사 · 축가 카드 — 담기 전엔 고르기 칩 둘 다 안 눌린 모양 · ＋(안 눌림) · 칸 글 두 줄 안', !!r.pr0 && r.pr0.chips === '축사|축가|공연' && !r.pr0.on && r.pr0.pressed === 'false' && r.pr0.lines >= 1 && r.pr0.lines <= 2 && r.pr0.clip <= 1, r.pr0);
+    ok(W + ' [SPEECH_SONG_1115] 식중 영상 ＋ → midvid 만 담김(축사 · 축가 카드는 그대로 안 담김) · 개수 «1/6 · 1/3»', r.add && r.s1 === 'midvid' && r.mv1.on && r.mv1.pressed === 'true' && !r.pr1.on && r.pr1.chips === '축사|축가|공연' && r.cnt1 === '고른 본식 순간 1/6 · 긴 순간 1/3', { s: r.s1, mv: r.mv1, pr: r.pr1, c: r.cnt1 });
+    ok(W + ' [SPEECH_SONG_1115 · PAIR_PLUS_PV_1115] 고른 게 없을 때 카드 ＋ = 아무것도 담지 않고 고르기 창(축사 담기 · 축가 담기)', r.plus.s === 'midvid' && r.plus.pv === 'free' && /축사 담기/.test(r.plus.act) && /축가 담기/.test(r.plus.act) && /공연 담기/.test(r.plus.act), r.plus);   // [SHOW_PAIR_1116] 셋
+    ok(W + ' [SPEECH_SONG_1115] 식중 영상이 담긴 채 칩 «축사» → 축사 담김 · 식중 영상과 함께 켜짐 · 칩 «축사» 눌린 모양 · 개수 «2/6 · 2/3»', r.s2 === 'free,midvid' && r.fw2 === 'speech' && r.pr2.on && r.pr2.chips === '축사*|축가|공연' && r.mv2.on && r.cnt2 === '고른 본식 순간 2/6 · 긴 순간 2/3', { s: r.s2, pr: r.pr2, c: r.cnt2 });
+    ok(W + ' [SPEECH_SONG_1115] 칩 «축가» → 바꾸기(축사 빠짐 · 식중 영상 그대로 · 개수 그대로) · 알림 «축사 대신 축가를 담았어요»', r.s3 === 'midvid,song' && r.u3 === '축사 대신 축가를 담았어요' && r.pr3.chips === '축사|축가*|공연' && r.cnt3 === r.cnt2, { s: r.s3, u: r.u3, c: r.cnt3 });
+    ok(W + ' [SPEECH_SONG_1115] 칩 «축사» → 되돌려 바꾸기 · 알림 «축가 대신 축사를 담았어요»', r.s4 === 'free,midvid' && r.u4 === '축가 대신 축사를 담았어요' && r.pr4.chips === '축사*|축가|공연', { s: r.s4, u: r.u4 });
+    ok(W + ' [SHOW_PAIR_1116] 칩 «공연» → 바꾸기(free 칸이 축하 공연 · 식중 영상 그대로) · 알림 «축사 대신 공연을 담았어요» · 칩 «공연» 눌린 모양 · 칩 «축사»로 되돌리면 갈래도 축사', r.s4b === 'free,midvid' && r.fw4b === 'stage' && r.u4b === '축사 대신 공연을 담았어요' && r.pr4b.chips === '축사|축가|공연*' && r.pr4b.on && r.fw4c === 'speech', { s: r.s4b, fw: r.fw4b, u: r.u4b, pr: r.pr4b, fw4c: r.fw4c });
+    for (const t of (r.swap || ['(PN 없음)'])) ok(`${W} [TOAST_MIN] 바꾸기 알림 20자 안 · «·» 한 번까지 «${t}» ${vis(t).length}자`, !!r.swap && vis(t).length <= 20 && (t.match(/·/g) || []).length <= 1);
+    ok(W + ' [SPEECH_SONG_1115] 카드 ✓ → 담긴 쪽(축사) 빼기 · 식중 영상은 그대로 · 칩 둘 다 안 눌린 모양', r.s5 === 'midvid' && !r.pr5.on && r.pr5.chips === '축사|축가|공연', { s: r.s5, pr: r.pr5 });
+    ok(W + ' [SPEECH_SONG_1115] 담기 전 칩 «축가» = 축가 담기(바꾸기 알림 없음)', r.s6 === 'midvid,song' && !r.u6 && r.pr6.chips === '축사|축가*|공연' && r.pr6.on, { s: r.s6, u: r.u6, pr: r.pr6 });
     ok(W + ' [SPEECH_SONG_1115] 식중 영상 ✓ → 빼기(축가는 그대로)', r.s7 === 'song' && !r.mv7.on, { s: r.s7 });
     ok(W + ' [SPEECH_SONG_1115] 네 길 모두 둘 중 하나 — opTgl(② 흐름) · opPair(고르기) · lsAdd(② 다시 담기) · lsUndo(되돌리기) · 식중 영상은 늘 그대로',
       !r.err && r.p1[0] === 'bless,free,midvid' && r.p1[1] === 'speech' && r.p2 === 'bless,midvid,song' && r.p3 === 'bless,free,midvid' && r.p4 === 'bless,midvid,song' && r.p5 === 'bless,free,midvid' && r.p6 === 'bless,midvid,song' && r.p7 === 'bless,song',
@@ -209,9 +218,11 @@ try {
     ok(W + ' [MID17_TILE · NARR_ROLE_1115] 미리 보기 창 = 식중 영상 판(이름 · 설명 · 대표 나레이션 = 엔진의 식중 영상 첫 줄 «' + r.mvIn + '» · 장면 영상 free.mp4 · «누가 하나요?»가 축사 · 축가와 따로라고 말한다)', !!r.pv && r.pv.t === '식중 영상' && /영상/.test(r.pv.q) && !/축하의 말/.test(r.pv.q) && !!r.mvIn && !!r.pv.line && r.pv.line.text === r.mvIn && r.pv.line.text !== MID_OLD58 && /\/free\.mp4/.test(r.pv.vid) && /축사/.test(r.pv.who || '') && /축가/.test(r.pv.who || ''), r.pv);
     ok(W + ' [MID17_TILE] 창 «이 순간 담기» → 식중 영상 담김 · 창이 «✓ 담겨 있어요»', r.pvAdd.s === 'midvid' && /담겨 있어요/.test(r.pvAdd.act || ''), r.pvAdd);
     ok(W + ' [SPEECH_SONG_1115] 축사 · 축가 창(안 담김) — 이름 축사 쪽(«축사 · 축가» 또는 보고 있는 쪽 «축사» · PAIR_VIEW_1115) · 단추 «축사 담기 · 축가 담기» · «누가 하나요?»(부모님 말씀은 덕담) · 대표 나레이션은 축사 여는 말(식중 영상 줄 아님)',
-      !!r.pvP0 && /^(축사 · 축가|축사)$/.test(r.pvP0.t) && /축사 담기/.test(r.pvP0.act) && /축가 담기/.test(r.pvP0.act) && /부모님 덕담/.test(r.pvP0.who || '') && !!r.pvP0.line && r.pvP0.line.text !== r.mvIn && /축사/.test(r.pvP0.line.text), r.pvP0);
-    ok(W + ' [SPEECH_SONG_1115] 창 «축가 담기» → 축가 담김(식중 영상 그대로) · «✓ 축가 담겨 있어요 · 축사로 바꾸기 · 빼기» · 대표 나레이션 = 축가 여는 말',
-      !!r.pvP1 && r.pvP1.s === 'midvid,song' && /✓ 축가 담겨 있어요/.test(r.pvP1.act) && /축사로 바꾸기/.test(r.pvP1.act) && /빼기/.test(r.pvP1.act) && !!r.pvP1.line && /축가/.test(r.pvP1.line.text), r.pvP1);
+      !!r.pvP0 && /^(축사 · 축가|축사)$/.test(r.pvP0.t) && /축사 담기/.test(r.pvP0.act) && /축가 담기/.test(r.pvP0.act) && /공연 담기/.test(r.pvP0.act) && /부모님 덕담/.test(r.pvP0.who || '') && !!r.pvP0.line && r.pvP0.line.text !== r.mvIn && /축사/.test(r.pvP0.line.text), r.pvP0);
+    /* ★[SHOW_PAIR_1116 · RULES_SLIM ⑧] 옛 기대 «✓ 축가 담겨 있어요 · 축사로 바꾸기 · 빼기» → 담긴 쪽을 보는 동안엔 «✓ … · 축가 빼기»만 · 다른 둘은 머리의 «… 보기» 링크(축사 보기 · 공연 보기) · 보기를 옮기면 «축사로 바꾸기» */
+    ok(W + ' [SPEECH_SONG_1115 · SHOW_PAIR_1116] 창 «축가 담기» → 축가 담김(식중 영상 그대로) · «✓ 축가 담겨 있어요 · 축가 빼기»(바꾸기 없음) · 머리 링크 «축사 보기 · 공연 보기» · 대표 나레이션 = 축가 여는 말',
+      !!r.pvP1 && r.pvP1.s === 'midvid,song' && /✓ 축가 담겨 있어요/.test(r.pvP1.act) && !/바꾸기/.test(r.pvP1.act) && /축가 빼기/.test(r.pvP1.act) && r.pvP1.sw === '축사 보기|공연 보기' && !!r.pvP1.line && /축가/.test(r.pvP1.line.text), r.pvP1);
+    ok(W + ' [SHOW_PAIR_1116] 창 «축사 보기» → 축사 판으로 · «✓ 축가 담겨 있어요 · 축사로 바꾸기 · 축가 빼기» · 머리 링크 «축가 보기 · 공연 보기»', !!r.pvP1b && /✓ 축가 담겨 있어요/.test(r.pvP1b.act) && /축사로 바꾸기/.test(r.pvP1b.act) && /축가 빼기/.test(r.pvP1b.act) && r.pvP1b.sw === '축가 보기|공연 보기', r.pvP1b);
     ok(W + ' [SPEECH_SONG_1115] 창 «축사로 바꾸기» → 축사 담김 · 축가 빠짐 · 알림 «축가 대신 축사를 담았어요»', !!r.pvP2 && r.pvP2.s === 'free,midvid' && /✓ 축사 담겨 있어요/.test(r.pvP2.act) && r.pvP2.u === '축가 대신 축사를 담았어요', r.pvP2);
     if (SHOT) { await pg.evaluate(async () => { S.on = { bless: 1, free: 1, midvid: 1 }; S.freeWhat = 'speech'; opSync(); }); await wait(400);
       const h = await pg.$('.pk-act:nth-of-type(3)'); fs.mkdirSync(SHOT, { recursive: true }); if (h) { await h.scrollIntoViewIfNeeded(); await wait(500); await h.screenshot({ path: path.join(SHOT, `pick-heart-${W}.png`) }); } }

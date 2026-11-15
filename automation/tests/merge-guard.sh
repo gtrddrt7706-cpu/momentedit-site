@@ -4876,16 +4876,16 @@ chk 'SPEECH_SONG_1115' scripts/audit/mid17-engine.mjs 3
 chk 'SPEECH_SONG_1115' scripts/audit/mid17-console.mjs 2
 # ★[DECISION_GUARD] SPEECH_SONG_1115 의 GPT 검토 1 · 2라운드 결정(c1c2af0b · 84dd1ccb) — 표식 + 동작 한 줄씩(화면 동작은 mid17-pick 이 잰다)
 chk 'PAIR_CELLS_1115' order-preview.html 1
-chk '.pk-pair{display:grid;grid-template-columns:1fr 1fr;' order-preview.html 1          # 축사 · 축가 같은 폭 두 칸(가운데 점 없음)
+chk '.pk-pair{display:grid;grid-template-columns:1fr 1fr 1fr;' order-preview.html 1          # 축사 · 축가 · 공연 같은 폭 세 칸(가운데 점 없음) · ★[SHOW_PAIR_1116] 옛 핀 «1fr 1fr;»(두 칸)
 nochk "chip('free','축사')+'<i aria-hidden" order-preview.html 0                        # 옛 가운데 점 — 되살리지 말 것
 chk 'PAIR_PLUS_PV_1115' order-preview.html 1
 chk "var w=R.pairOf(S); if(!w){ opPv('free'); return; }" order-preview.html 1            # 고른 게 없을 때 ＋ = 고르기 창(축사를 미리 담지 않는다)
 chk 'PAIR_PLUS_PV_1115' scripts/audit/mid17-pick.mjs 1
 chk 'PAIR_VIEW_1115' order-preview.html 5
-chk 'window.pvPairView=function()' order-preview.html 1                                  # 창에서 담지 않고 다른 쪽 «보기»
+chk 'window.pvPairView=function(v)' order-preview.html 1                                  # 창에서 담지 않고 다른 쪽 «보기» · ★[SHOW_PAIR_1116] 셋이라 보기를 고른다(옛 핀 «function()»)
 chk 'id="pvSw"' order-preview.html 1
 chk 'PAIR_OUT_NAME_1115' order-preview.html 1
-chk "+(_pw==='song'?'축가':'축사')+' 빼기</button>'" order-preview.html 1                  # 빼기 단추가 무엇을 빼는지 말한다
+chk "+PN\[_pw\]+' 빼기</button>'" order-preview.html 1                  # 빼기 단추가 무엇을 빼는지 말한다 · ★[SHOW_PAIR_1116] 셋(축사 · 축가 · 공연) — 옛 핀 «(_pw==='song'?'축가':'축사')»
 chk 'PAIR_TILE_ON_1115' order-preview.html 1
 chk 'w?PICK_COPY.tileOn\[w\]:PICK_COPY.tile.free' order-preview.html 1                      # 담은 뒤 카드 한 줄 = 고른 쪽
 chk 'MID_COST_NEAR_1115' order-preview.html 2
@@ -17097,7 +17097,7 @@ chk '신랑분은 원하시면 큰절을 올리셔도 돼요' order-preview.html
 chk 'GROOM_BOW_TIP' assets/ritual-cue.js 1
 nochk "\['bowGroom', '신랑 큰절'\]" assets/ritual-open.js
 chk 'FREE_ETC' assets/ritual-open.js 2
-chk "\['etc', '기타'\]" assets/ritual-open.js 1
+nochk "\['etc', '기타'\]" assets/ritual-open.js   # ★[SHOW_PAIR_1116 · RULES_SLIM ⑧] 기타 칩은 걷었다(상담 메모) — 옛 핀 chk 1
 nochk "\['stage', '춤 · 공연'\]" assets/ritual-open.js
 chk 'FREE_ETC' order-preview.html 2
 chk 'data-fk="freeetc"' order-preview.html 1
@@ -22272,6 +22272,22 @@ chk 'ONE_FLOW_1106 ⑤' assets/ritual-cue.js 1
 chk 'T08 끊긴 곡 이어 듣기' scripts/audit/one-flow.mjs 1
 chk 'meaning-r2 gpt-r1 one-flow' .github/workflows/merge-guard.yml 1
 chk 'SPEECH_SONG_1115' scripts/audit/one-flow.mjs 6   # ★[SPEECH_SONG_1115 · RULES_SLIM ⑧] one-flow 판 둘(축사 쪽 · 축가 쪽) · T05 새 기대(옛 저장본 축사 + 축가 = 축가만 · 여는 말 −15) · T08 꺼진 자리 = 축가 줄 안 첫 끊김 — 깨 보기: BP_CUE 로 midMigrate 를 끄면 T05 빨강
+# ★★[SHOW_PAIR_1116 2026-11-16 대본 ALL_GO_1116] 한 카드 = 축사 · 축가 · 축하 공연 중 하나 · 선물 · 기타 칩은 걷음(상담 메모 · 옛 초안은 midMigrate 가 끈다) · 창 보기 셋 · 공연 여는 말 58 그대로
+chk 'SHOW_PAIR_1116' assets/ritual-open.js 6
+chk 'SHOW_PAIR_1116' order-preview.html 10
+chk "var PAIR = \['free', 'song', 'stage'\];" assets/ritual-open.js 1
+chk "free: \[\['speech', '축사'\], \['stage', '축하 공연'\]\]," assets/ritual-open.js 1
+nochk "\['gift', '깜짝 선물 · 전달'\]" assets/ritual-open.js
+chk "if (fk2 === 'gift' || fk2 === 'etc') { delete S.on.free; S.freeWhat = 'speech'; }" assets/ritual-open.js 1   # 옛 선물 · 기타 초안은 꺼 둔다
+chk "fk === 'stage' ? '축하 공연'" assets/ritual-cue.js 1   # 공연 큐 블록 이름
+chk "PN\[_pOutK\]+' 대신 '+PN_O\[" order-preview.html 1   # ② 흐름(opTgl)에서 바꿔 담는 알림도 opPair 와 같은 꼴 — 걷힌 PAIR_SWAP 표를 부르던 자리가 «PAIR_SWAP is not defined»로 멈췄다
+nochk "PAIR_SWAP\[" order-preview.html   # 깨 보기: 옛 opTgl 줄로 되돌리면 빨강(mid17-pick «네 길» 도 빨강)
+chk '축사 · 축가 · 축하 공연 중 하나' index.html 2
+chk '축사 · 축가 · 축하 공연 중 하나' api/_ritual-kb.js 1
+chk 'SHOW_PAIR_1116' scripts/audit/mid17-pick.mjs 10
+chk 'SHOW_PAIR_1116' scripts/audit/open-course.mjs 4
+chk 'SHOW_PAIR_1116' scripts/audit/mid17-engine.mjs 2
+chk 'SHOW_PAIR_1116' scripts/audit/mid17-console.mjs 2
 nochk "ok('T05 «음악과 함께» 축사 뒤 축가 여는 말" scripts/audit/one-flow.mjs   # [SPEECH_SONG_1115] 은퇴한 옛 T05(축사 뒤 축가 여는 말 정적)
 chk '①-T01' scripts/audit/gpt-r1.mjs 1
 chk '④-T01' scripts/audit/gpt-r1.mjs 1
