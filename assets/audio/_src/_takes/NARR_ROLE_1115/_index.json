@@ -1,0 +1,2273 @@
+{
+ "_왜": "[NARR_ROLE_1115 · 대본 23:23 · 릴스 방 2차 목록 21문장(docs 3351677 4절 글 그대로)] 우성 카드 문장 하나씩 6테이크(t0 = 처음 소리 · t1~t5 = 재생성 Take 1~5) 받은 원본 그대로(wav→flac 무손실). 16 은 t2 = t3 같은 소리(적용 한 번 빠짐). 사이트 반영은 대표님 전후 듣기 승인 뒤.",
+ "takes": {
+  "10_speech-bfr_t0.flac": {
+   "n": 10,
+   "key": "speech-bfr",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신부의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "3a7abc7e9ef25d5415cfdbef74252053",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.7,
+    "d_bright": -6.2
+   }
+  },
+  "10_speech-bfr_t1.flac": {
+   "n": 10,
+   "key": "speech-bfr",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신부의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "04b53b9a6c04ea729632e9f73fcd2dde",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.3,
+    "d_bright": -2.8
+   }
+  },
+  "10_speech-bfr_t2.flac": {
+   "n": 10,
+   "key": "speech-bfr",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신부의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "38bb932bf47bf81b93e675d723d038c0",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.4,
+    "d_bright": 3.8
+   }
+  },
+  "10_speech-bfr_t3.flac": {
+   "n": 10,
+   "key": "speech-bfr",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신부의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "420aa2dd58913020e8a55fb2a0682582",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.5,
+    "d_bright": -1.4
+   }
+  },
+  "10_speech-bfr_t4.flac": {
+   "n": 10,
+   "key": "speech-bfr",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신부의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "5f2c576df29a6dcf85bc08dcaf229f2b",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -0.4,
+    "d_bright": -9.8
+   }
+  },
+  "10_speech-bfr_t5.flac": {
+   "n": 10,
+   "key": "speech-bfr",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신부의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "fde5a9489c782a0c4a5a916c503a3475",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 3.5,
+    "d_bright": 3.2
+   }
+  },
+  "11_speech-gfa_t0.flac": {
+   "n": 11,
+   "key": "speech-gfa",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신랑의 가족분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "8845e9d52a8c80fb5f67e6adf3249fb6",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.7,
+    "d_bright": -3.2
+   }
+  },
+  "11_speech-gfa_t1.flac": {
+   "n": 11,
+   "key": "speech-gfa",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신랑의 가족분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "1b30c67b67b8bbb184f1311457c72792",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -0.25,
+    "d_bright": -6.9
+   }
+  },
+  "11_speech-gfa_t2.flac": {
+   "n": 11,
+   "key": "speech-gfa",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신랑의 가족분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "01baa2da00616e376e35e69f1892fa64",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 2.2,
+    "d_bright": 4.8
+   }
+  },
+  "11_speech-gfa_t3.flac": {
+   "n": 11,
+   "key": "speech-gfa",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신랑의 가족분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "5b69f50bc3add55458e67cd176cd3519",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.5,
+    "d_bright": -4.7
+   }
+  },
+  "11_speech-gfa_t4.flac": {
+   "n": 11,
+   "key": "speech-gfa",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신랑의 가족분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "2325feef67ec82b88d5ad7372cd11670",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.6,
+    "d_bright": 0.3
+   }
+  },
+  "11_speech-gfa_t5.flac": {
+   "n": 11,
+   "key": "speech-gfa",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신랑의 가족분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "aa52b218b091e416bb2383e0a5f0bf1a",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.6,
+    "d_bright": 2.5
+   }
+  },
+  "12_speech-bfa_t0.flac": {
+   "n": 12,
+   "key": "speech-bfa",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신부의 가족분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "308ba693c4f607745e66fee051e9ab36",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.95,
+    "d_bright": -2.6
+   }
+  },
+  "12_speech-bfa_t1.flac": {
+   "n": 12,
+   "key": "speech-bfa",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신부의 가족분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "ff08611182034b9f30b3ccc2d62caa8e",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 2.2,
+    "d_bright": 7.3
+   }
+  },
+  "12_speech-bfa_t2.flac": {
+   "n": 12,
+   "key": "speech-bfa",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신부의 가족분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "a9f3537d6e5af063362416bc797db939",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.8,
+    "d_bright": -2.5
+   }
+  },
+  "12_speech-bfa_t3.flac": {
+   "n": 12,
+   "key": "speech-bfa",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신부의 가족분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "7881682c6296237f3ac28e577093e09e",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -0.8,
+    "d_bright": 0.6
+   }
+  },
+  "12_speech-bfa_t4.flac": {
+   "n": 12,
+   "key": "speech-bfa",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신부의 가족분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "7c47c75e7550734dd86ffa01edf1934b",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 2.7,
+    "d_bright": 1.7
+   }
+  },
+  "12_speech-bfa_t5.flac": {
+   "n": 12,
+   "key": "speech-bfa",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신부의 가족분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "0fcf1fe8fc2df404aca355c2d2664e37",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.5,
+    "d_bright": -2.4
+   }
+  },
+  "13_speech-cfr_t0.flac": {
+   "n": 13,
+   "key": "speech-cfr",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신랑 신부의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "fcf252d8c789596f9da31bb1c192aa88",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.3,
+    "d_bright": -1.7
+   }
+  },
+  "13_speech-cfr_t1.flac": {
+   "n": 13,
+   "key": "speech-cfr",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신랑 신부의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "1c133fbab499a2d51a6cab4bc86ebde0",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.1,
+    "d_bright": -4.2
+   }
+  },
+  "13_speech-cfr_t2.flac": {
+   "n": 13,
+   "key": "speech-cfr",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신랑 신부의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "ac79f684c9d8f3f13a9435eb698fd2ad",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.4,
+    "d_bright": -1.5
+   }
+  },
+  "13_speech-cfr_t3.flac": {
+   "n": 13,
+   "key": "speech-cfr",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신랑 신부의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "5e06dcb11e8f6369104a3e99335e944d",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 2.25,
+    "d_bright": -2.5
+   }
+  },
+  "13_speech-cfr_t4.flac": {
+   "n": 13,
+   "key": "speech-cfr",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신랑 신부의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "b51175be2ef9a588257b99b386ebd0e8",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 3.1,
+    "d_bright": 2.0
+   }
+  },
+  "13_speech-cfr_t5.flac": {
+   "n": 13,
+   "key": "speech-cfr",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신랑 신부의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "a3ce32e6fd6d6cf71560f9623aa14206",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.3,
+    "d_bright": 2.9
+   }
+  },
+  "14_song-who-gfr_t0.flac": {
+   "n": 14,
+   "key": "song-who-gfr",
+   "seat": "축가(19 뒤)",
+   "text": "신랑의 친구분께서 축가를 준비해 주셨습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "90c2cc5f7c29f9f1894911d899a10471",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.85,
+    "d_bright": -6.6
+   }
+  },
+  "14_song-who-gfr_t1.flac": {
+   "n": 14,
+   "key": "song-who-gfr",
+   "seat": "축가(19 뒤)",
+   "text": "신랑의 친구분께서 축가를 준비해 주셨습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "f1b8a81e22971a0cb3efc8fc9d97f7f2",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.8,
+    "d_bright": -0.3
+   }
+  },
+  "14_song-who-gfr_t2.flac": {
+   "n": 14,
+   "key": "song-who-gfr",
+   "seat": "축가(19 뒤)",
+   "text": "신랑의 친구분께서 축가를 준비해 주셨습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "fdf6142def7fddb2ebbbee305c5fa553",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.65,
+    "d_bright": 1.8
+   }
+  },
+  "14_song-who-gfr_t3.flac": {
+   "n": 14,
+   "key": "song-who-gfr",
+   "seat": "축가(19 뒤)",
+   "text": "신랑의 친구분께서 축가를 준비해 주셨습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "127f6001732a8b7cf47ba58274ebcba3",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.35,
+    "d_bright": 3.6
+   }
+  },
+  "14_song-who-gfr_t4.flac": {
+   "n": 14,
+   "key": "song-who-gfr",
+   "seat": "축가(19 뒤)",
+   "text": "신랑의 친구분께서 축가를 준비해 주셨습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "547dd7285642fc9d06c4f161bc1a0c9c",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -5.1,
+    "d_bright": -5.8
+   }
+  },
+  "14_song-who-gfr_t5.flac": {
+   "n": 14,
+   "key": "song-who-gfr",
+   "seat": "축가(19 뒤)",
+   "text": "신랑의 친구분께서 축가를 준비해 주셨습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "e12151004714413f5e87efbbfc43a876",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.9,
+    "d_bright": -2.6
+   }
+  },
+  "15_song-who-bfr_t0.flac": {
+   "n": 15,
+   "key": "song-who-bfr",
+   "seat": "축가(19 뒤)",
+   "text": "신부의 친구분께서 축가를 준비해 주셨습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "46cd5562d2d75ad93e139c71e1a3affc",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.7,
+    "d_bright": -10.0
+   }
+  },
+  "15_song-who-bfr_t1.flac": {
+   "n": 15,
+   "key": "song-who-bfr",
+   "seat": "축가(19 뒤)",
+   "text": "신부의 친구분께서 축가를 준비해 주셨습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "7544dc3c4d10f3c23006406bff0ea674",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.4,
+    "d_bright": -9.4
+   }
+  },
+  "15_song-who-bfr_t2.flac": {
+   "n": 15,
+   "key": "song-who-bfr",
+   "seat": "축가(19 뒤)",
+   "text": "신부의 친구분께서 축가를 준비해 주셨습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "17cc5367788faa67c29ae9c9f8786cae",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -1.5,
+    "d_bright": -8.7
+   }
+  },
+  "15_song-who-bfr_t3.flac": {
+   "n": 15,
+   "key": "song-who-bfr",
+   "seat": "축가(19 뒤)",
+   "text": "신부의 친구분께서 축가를 준비해 주셨습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "8fe3a610f3d2ffd27357866bd6ede8ed",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.5,
+    "d_bright": -12.3
+   }
+  },
+  "15_song-who-bfr_t4.flac": {
+   "n": 15,
+   "key": "song-who-bfr",
+   "seat": "축가(19 뒤)",
+   "text": "신부의 친구분께서 축가를 준비해 주셨습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "854943c11cce66884bedb737a8fcb5d9",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -3.3,
+    "d_bright": -10.0
+   }
+  },
+  "15_song-who-bfr_t5.flac": {
+   "n": 15,
+   "key": "song-who-bfr",
+   "seat": "축가(19 뒤)",
+   "text": "신부의 친구분께서 축가를 준비해 주셨습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "eb0d822eb442266479fd3d8d99077d14",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.8,
+    "d_bright": -6.3
+   }
+  },
+  "16_song-who-gfa_t0.flac": {
+   "n": 16,
+   "key": "song-who-gfa",
+   "seat": "축가(19 뒤)",
+   "text": "신랑의 가족분께서 축가를 준비해 주셨습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "42ebaa54405a01985967ae6303dc4071",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.3,
+    "d_bright": -2.6
+   }
+  },
+  "16_song-who-gfa_t1.flac": {
+   "n": 16,
+   "key": "song-who-gfa",
+   "seat": "축가(19 뒤)",
+   "text": "신랑의 가족분께서 축가를 준비해 주셨습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "248819d89dcd88b369dfcf0f21bedd53",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.65,
+    "d_bright": 5.7
+   }
+  },
+  "16_song-who-gfa_t2.flac": {
+   "n": 16,
+   "key": "song-who-gfa",
+   "seat": "축가(19 뒤)",
+   "text": "신랑의 가족분께서 축가를 준비해 주셨습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "4cf69b0ae6a0a1e7bbcd735be3441682",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.7,
+    "d_bright": 4.2
+   }
+  },
+  "16_song-who-gfa_t3.flac": {
+   "n": 16,
+   "key": "song-who-gfa",
+   "seat": "축가(19 뒤)",
+   "text": "신랑의 가족분께서 축가를 준비해 주셨습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "4cf69b0ae6a0a1e7bbcd735be3441682",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.7,
+    "d_bright": 4.2
+   }
+  },
+  "16_song-who-gfa_t4.flac": {
+   "n": 16,
+   "key": "song-who-gfa",
+   "seat": "축가(19 뒤)",
+   "text": "신랑의 가족분께서 축가를 준비해 주셨습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "936dbca836fcb0ed6f94887bfa861f64",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -4.55,
+    "d_bright": -5.6
+   }
+  },
+  "16_song-who-gfa_t5.flac": {
+   "n": 16,
+   "key": "song-who-gfa",
+   "seat": "축가(19 뒤)",
+   "text": "신랑의 가족분께서 축가를 준비해 주셨습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "cbb656dd4d31015523f0f2e7b7ae0bf7",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -3.0,
+    "d_bright": 2.7
+   }
+  },
+  "17_song-who-bfa_t0.flac": {
+   "n": 17,
+   "key": "song-who-bfa",
+   "seat": "축가(19 뒤)",
+   "text": "신부의 가족분께서 축가를 준비해 주셨습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "fbc4536bb7d242caa87d5ff277c21370",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.6,
+    "d_bright": -3.6
+   }
+  },
+  "17_song-who-bfa_t1.flac": {
+   "n": 17,
+   "key": "song-who-bfa",
+   "seat": "축가(19 뒤)",
+   "text": "신부의 가족분께서 축가를 준비해 주셨습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "d413c027301ea6c4b6579df5e47fedd1",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -4.1,
+    "d_bright": -1.2
+   }
+  },
+  "17_song-who-bfa_t2.flac": {
+   "n": 17,
+   "key": "song-who-bfa",
+   "seat": "축가(19 뒤)",
+   "text": "신부의 가족분께서 축가를 준비해 주셨습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "b52802464d8460dc10d96cbc1eba2a32",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -4.1,
+    "d_bright": -5.3
+   }
+  },
+  "17_song-who-bfa_t3.flac": {
+   "n": 17,
+   "key": "song-who-bfa",
+   "seat": "축가(19 뒤)",
+   "text": "신부의 가족분께서 축가를 준비해 주셨습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "76108a36602ed47bc538c908034bd911",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.0,
+    "d_bright": 0.4
+   }
+  },
+  "17_song-who-bfa_t4.flac": {
+   "n": 17,
+   "key": "song-who-bfa",
+   "seat": "축가(19 뒤)",
+   "text": "신부의 가족분께서 축가를 준비해 주셨습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "cce543dd1dbfb45d89d8d5e3d1af8c1c",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -5.0,
+    "d_bright": -7.6
+   }
+  },
+  "17_song-who-bfa_t5.flac": {
+   "n": 17,
+   "key": "song-who-bfa",
+   "seat": "축가(19 뒤)",
+   "text": "신부의 가족분께서 축가를 준비해 주셨습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "9bf58ef8db64be636b178d85ac34fa5f",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -4.8,
+    "d_bright": -13.5
+   }
+  },
+  "18_song-who-cfr_t0.flac": {
+   "n": 18,
+   "key": "song-who-cfr",
+   "seat": "축가(19 뒤)",
+   "text": "신랑 신부의 친구분께서 축가를 준비해 주셨습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "73b6d6d576fb523c6a5f8555820c5035",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -0.2,
+    "d_bright": -1.5
+   }
+  },
+  "18_song-who-cfr_t1.flac": {
+   "n": 18,
+   "key": "song-who-cfr",
+   "seat": "축가(19 뒤)",
+   "text": "신랑 신부의 친구분께서 축가를 준비해 주셨습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "c4377c210d393a410d9f8c1b2d36674c",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -1.7,
+    "d_bright": -2.9
+   }
+  },
+  "18_song-who-cfr_t2.flac": {
+   "n": 18,
+   "key": "song-who-cfr",
+   "seat": "축가(19 뒤)",
+   "text": "신랑 신부의 친구분께서 축가를 준비해 주셨습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "e34fb0bccc4b927248d96b0ba97c9364",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.8,
+    "d_bright": -6.9
+   }
+  },
+  "18_song-who-cfr_t3.flac": {
+   "n": 18,
+   "key": "song-who-cfr",
+   "seat": "축가(19 뒤)",
+   "text": "신랑 신부의 친구분께서 축가를 준비해 주셨습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "9220c0aaacfeecd98f8671386c1bb06f",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.9,
+    "d_bright": -7.0
+   }
+  },
+  "18_song-who-cfr_t4.flac": {
+   "n": 18,
+   "key": "song-who-cfr",
+   "seat": "축가(19 뒤)",
+   "text": "신랑 신부의 친구분께서 축가를 준비해 주셨습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "aa77ccb1c7c78c510ef866830a62a29f",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -0.8,
+    "d_bright": -4.6
+   }
+  },
+  "18_song-who-cfr_t5.flac": {
+   "n": 18,
+   "key": "song-who-cfr",
+   "seat": "축가(19 뒤)",
+   "text": "신랑 신부의 친구분께서 축가를 준비해 주셨습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "f3f2c15a7d1f07ee60587979be688414",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.6,
+    "d_bright": 4.4
+   }
+  },
+  "19_song-self-g_t0.flac": {
+   "n": 19,
+   "key": "song-self-g",
+   "seat": "축가 · 두 분 직접(19 대신)",
+   "text": "다음은 신부를 위한 신랑의 축가가 있겠습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "57f357b9676dfdb76691c571cbe8e680",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -0.25,
+    "d_bright": 6.0
+   }
+  },
+  "19_song-self-g_t1.flac": {
+   "n": 19,
+   "key": "song-self-g",
+   "seat": "축가 · 두 분 직접(19 대신)",
+   "text": "다음은 신부를 위한 신랑의 축가가 있겠습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "32d39914b9ee22c288060ef644e5d624",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.6,
+    "d_bright": -2.1
+   }
+  },
+  "19_song-self-g_t2.flac": {
+   "n": 19,
+   "key": "song-self-g",
+   "seat": "축가 · 두 분 직접(19 대신)",
+   "text": "다음은 신부를 위한 신랑의 축가가 있겠습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "37e344ac93a0980a8635e5be1daa0d4b",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -3.9,
+    "d_bright": -2.1
+   }
+  },
+  "19_song-self-g_t3.flac": {
+   "n": 19,
+   "key": "song-self-g",
+   "seat": "축가 · 두 분 직접(19 대신)",
+   "text": "다음은 신부를 위한 신랑의 축가가 있겠습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "d759aa7dbc4b5eac3817d22b96ed15a9",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -5.8,
+    "d_bright": -13.5
+   }
+  },
+  "19_song-self-g_t4.flac": {
+   "n": 19,
+   "key": "song-self-g",
+   "seat": "축가 · 두 분 직접(19 대신)",
+   "text": "다음은 신부를 위한 신랑의 축가가 있겠습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "4bd08122821e1b46b6e1674ed3138b2a",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -5.05,
+    "d_bright": -5.1
+   }
+  },
+  "19_song-self-g_t5.flac": {
+   "n": 19,
+   "key": "song-self-g",
+   "seat": "축가 · 두 분 직접(19 대신)",
+   "text": "다음은 신부를 위한 신랑의 축가가 있겠습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "6f0e38be263307f4cdf98127de47df2d",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -4.8,
+    "d_bright": -6.9
+   }
+  },
+  "01_bless-one-gf_t0.flac": {
+   "n": 1,
+   "key": "bless-one-gf",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신랑 아버님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "ce47b62ba8724b30d675f728748419e4",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 3.1,
+    "d_bright": 11.5
+   }
+  },
+  "01_bless-one-gf_t1.flac": {
+   "n": 1,
+   "key": "bless-one-gf",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신랑 아버님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "ae00a9ea3a30fda3183b09b81fa8acc2",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.4,
+    "d_bright": 7.5
+   }
+  },
+  "01_bless-one-gf_t2.flac": {
+   "n": 1,
+   "key": "bless-one-gf",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신랑 아버님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "eee1c48ebd2ffecab9359c6baa5505f9",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.8,
+    "d_bright": 3.2
+   }
+  },
+  "01_bless-one-gf_t3.flac": {
+   "n": 1,
+   "key": "bless-one-gf",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신랑 아버님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "367accfa7e04a6eeb3d9d0a031c1ddcc",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.7,
+    "d_bright": 9.3
+   }
+  },
+  "01_bless-one-gf_t4.flac": {
+   "n": 1,
+   "key": "bless-one-gf",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신랑 아버님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "1bf255be80d99bdc07db901bfd5a39b3",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.8,
+    "d_bright": 0.9
+   }
+  },
+  "01_bless-one-gf_t5.flac": {
+   "n": 1,
+   "key": "bless-one-gf",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신랑 아버님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "9f419ba3f4e58e6b1192bc4b35666712",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 3.7,
+    "d_bright": 12.9
+   }
+  },
+  "20_song-self-b_t0.flac": {
+   "n": 20,
+   "key": "song-self-b",
+   "seat": "축가 · 두 분 직접(19 대신)",
+   "text": "다음은 신랑을 위한 신부의 축가가 있겠습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "d11392d0dc044e9056333e4151281d36",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -4.3,
+    "d_bright": 1.7
+   }
+  },
+  "20_song-self-b_t1.flac": {
+   "n": 20,
+   "key": "song-self-b",
+   "seat": "축가 · 두 분 직접(19 대신)",
+   "text": "다음은 신랑을 위한 신부의 축가가 있겠습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "353fe2249aca7a441a29551edf00f198",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -4.1,
+    "d_bright": -6.4
+   }
+  },
+  "20_song-self-b_t2.flac": {
+   "n": 20,
+   "key": "song-self-b",
+   "seat": "축가 · 두 분 직접(19 대신)",
+   "text": "다음은 신랑을 위한 신부의 축가가 있겠습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "4de57510e5ce18ab486449bf070bd97f",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -5.5,
+    "d_bright": -3.3
+   }
+  },
+  "20_song-self-b_t3.flac": {
+   "n": 20,
+   "key": "song-self-b",
+   "seat": "축가 · 두 분 직접(19 대신)",
+   "text": "다음은 신랑을 위한 신부의 축가가 있겠습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "77563992e14ba7fbbbe5d7acfd8527ee",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -3.75,
+    "d_bright": -0.5
+   }
+  },
+  "20_song-self-b_t4.flac": {
+   "n": 20,
+   "key": "song-self-b",
+   "seat": "축가 · 두 분 직접(19 대신)",
+   "text": "다음은 신랑을 위한 신부의 축가가 있겠습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "d7779610d6b0562426cd928951b6e7d1",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -4.0,
+    "d_bright": -1.5
+   }
+  },
+  "20_song-self-b_t5.flac": {
+   "n": 20,
+   "key": "song-self-b",
+   "seat": "축가 · 두 분 직접(19 대신)",
+   "text": "다음은 신랑을 위한 신부의 축가가 있겠습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "f796a92915e2f006b198481423a97fa7",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -4.2,
+    "d_bright": -2.2
+   }
+  },
+  "21_song-self-c_t0.flac": {
+   "n": 21,
+   "key": "song-self-c",
+   "seat": "축가 · 두 분 직접(19 대신)",
+   "text": "다음은 신랑 신부가 직접 부르는 축가가 있겠습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "825e65b8f7a8b684c996c74dfd7259e5",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -3.4,
+    "d_bright": -5.2
+   }
+  },
+  "21_song-self-c_t1.flac": {
+   "n": 21,
+   "key": "song-self-c",
+   "seat": "축가 · 두 분 직접(19 대신)",
+   "text": "다음은 신랑 신부가 직접 부르는 축가가 있겠습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "37e925fcab4140c43525bc117697f44b",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.3,
+    "d_bright": 0.7
+   }
+  },
+  "21_song-self-c_t2.flac": {
+   "n": 21,
+   "key": "song-self-c",
+   "seat": "축가 · 두 분 직접(19 대신)",
+   "text": "다음은 신랑 신부가 직접 부르는 축가가 있겠습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "f59c4feec33fa23c962a9b4e1d6ed7fc",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.3,
+    "d_bright": -2.3
+   }
+  },
+  "21_song-self-c_t3.flac": {
+   "n": 21,
+   "key": "song-self-c",
+   "seat": "축가 · 두 분 직접(19 대신)",
+   "text": "다음은 신랑 신부가 직접 부르는 축가가 있겠습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "c4d425b05cc17e67364c12c7e9ecddf6",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -2.65,
+    "d_bright": -11.5
+   }
+  },
+  "21_song-self-c_t4.flac": {
+   "n": 21,
+   "key": "song-self-c",
+   "seat": "축가 · 두 분 직접(19 대신)",
+   "text": "다음은 신랑 신부가 직접 부르는 축가가 있겠습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "ad4416ffccfabdb2dbe628e261658f3b",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -3.0,
+    "d_bright": -5.0
+   }
+  },
+  "21_song-self-c_t5.flac": {
+   "n": 21,
+   "key": "song-self-c",
+   "seat": "축가 · 두 분 직접(19 대신)",
+   "text": "다음은 신랑 신부가 직접 부르는 축가가 있겠습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "b3813cb61e21b4f2e8a8a56dc7e5a41c",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -3.55,
+    "d_bright": -5.2
+   }
+  },
+  "02_bless-one-bf_t0.flac": {
+   "n": 2,
+   "key": "bless-one-bf",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신부 아버님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "d5e0d40b8ace20580012e3f70b016cc4",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 2.9,
+    "d_bright": 11.6
+   }
+  },
+  "02_bless-one-bf_t1.flac": {
+   "n": 2,
+   "key": "bless-one-bf",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신부 아버님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "f1171eb8c782087aa7356093d23087fd",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.4,
+    "d_bright": 6.6
+   }
+  },
+  "02_bless-one-bf_t2.flac": {
+   "n": 2,
+   "key": "bless-one-bf",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신부 아버님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "d1a7789dce989e7b46b1fe6b560c5872",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.55,
+    "d_bright": 3.6
+   }
+  },
+  "02_bless-one-bf_t3.flac": {
+   "n": 2,
+   "key": "bless-one-bf",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신부 아버님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "a7727f4ea46fa1c2b3b053ff12b4752f",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.5,
+    "d_bright": 10.5
+   }
+  },
+  "02_bless-one-bf_t4.flac": {
+   "n": 2,
+   "key": "bless-one-bf",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신부 아버님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "8f5161df0bc2321c49aba86f01df7c6a",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 2.3,
+    "d_bright": 7.6
+   }
+  },
+  "02_bless-one-bf_t5.flac": {
+   "n": 2,
+   "key": "bless-one-bf",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신부 아버님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "5c2058bef451c11c4dc4a42d4c613067",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 3.0,
+    "d_bright": 4.8
+   }
+  },
+  "03_bless-one-gm_t0.flac": {
+   "n": 3,
+   "key": "bless-one-gm",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신랑 어머님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "f5eef1a0745f6aa79fe2e29cde74feb0",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.9,
+    "d_bright": 4.9
+   }
+  },
+  "03_bless-one-gm_t1.flac": {
+   "n": 3,
+   "key": "bless-one-gm",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신랑 어머님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "a867da680fe40538876f5d1775efd5e5",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.5,
+    "d_bright": 5.6
+   }
+  },
+  "03_bless-one-gm_t2.flac": {
+   "n": 3,
+   "key": "bless-one-gm",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신랑 어머님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "acc096abb0f04fac0fb6fbb8b8b6d6ff",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.7,
+    "d_bright": 5.9
+   }
+  },
+  "03_bless-one-gm_t3.flac": {
+   "n": 3,
+   "key": "bless-one-gm",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신랑 어머님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "c4d5ed419d2767d989382fa6cbc5f71b",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 2.05,
+    "d_bright": 6.4
+   }
+  },
+  "03_bless-one-gm_t4.flac": {
+   "n": 3,
+   "key": "bless-one-gm",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신랑 어머님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "9fed6d7429c88093a2c412784d9e965e",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.8,
+    "d_bright": 9.0
+   }
+  },
+  "03_bless-one-gm_t5.flac": {
+   "n": 3,
+   "key": "bless-one-gm",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신랑 어머님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "5ca26f10252f9c6226a752664065d7ac",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.5,
+    "d_bright": 8.2
+   }
+  },
+  "04_bless-one-bm_t0.flac": {
+   "n": 4,
+   "key": "bless-one-bm",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신부 어머님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "7e9f9b7eb587e912dd17dda9d1c88250",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 2.3,
+    "d_bright": 7.1
+   }
+  },
+  "04_bless-one-bm_t1.flac": {
+   "n": 4,
+   "key": "bless-one-bm",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신부 어머님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "67c31cee3238eb8f5925cb859c90f710",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.55,
+    "d_bright": 8.3
+   }
+  },
+  "04_bless-one-bm_t2.flac": {
+   "n": 4,
+   "key": "bless-one-bm",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신부 어머님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "3db0de50790c82be5d22d091ce1269bf",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.1,
+    "d_bright": 10.3
+   }
+  },
+  "04_bless-one-bm_t3.flac": {
+   "n": 4,
+   "key": "bless-one-bm",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신부 어머님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "49212faa29155f26631648ea7de34ede",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.2,
+    "d_bright": 8.9
+   }
+  },
+  "04_bless-one-bm_t4.flac": {
+   "n": 4,
+   "key": "bless-one-bm",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신부 어머님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "569c485e628f245c03510811d4287757",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 2.7,
+    "d_bright": 6.3
+   }
+  },
+  "04_bless-one-bm_t5.flac": {
+   "n": 4,
+   "key": "bless-one-bm",
+   "seat": "덕담 · 한 분(23 대신)",
+   "text": "이제 두 사람의 행복한 가정을 기원하는 신부 어머님의 귀중한 덕담 말씀이 있겠습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "b5b25642c40d008fc8841cecf683e187",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 2.2,
+    "d_bright": 11.1
+   }
+  },
+  "05_bless-first-gf_t0.flac": {
+   "n": 5,
+   "key": "bless-first-gf",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신랑 아버님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "daf9411de58a653bbc3d52da1ac6bfb4",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.15,
+    "d_bright": -1.8
+   }
+  },
+  "05_bless-first-gf_t1.flac": {
+   "n": 5,
+   "key": "bless-first-gf",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신랑 아버님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "d0a3995bb257db15080a9d16dde68e7a",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 3.0,
+    "d_bright": 0.5
+   }
+  },
+  "05_bless-first-gf_t2.flac": {
+   "n": 5,
+   "key": "bless-first-gf",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신랑 아버님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "8cfdc2b56bc3ab8f915b3cd25586b56d",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.6,
+    "d_bright": 5.0
+   }
+  },
+  "05_bless-first-gf_t3.flac": {
+   "n": 5,
+   "key": "bless-first-gf",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신랑 아버님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "5a26264c862f42165f4af2e0788e0f6c",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.0,
+    "d_bright": -4.5
+   }
+  },
+  "05_bless-first-gf_t4.flac": {
+   "n": 5,
+   "key": "bless-first-gf",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신랑 아버님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "b3f21d813889c93a68288406d4bb52b9",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.7,
+    "d_bright": -1.7
+   }
+  },
+  "05_bless-first-gf_t5.flac": {
+   "n": 5,
+   "key": "bless-first-gf",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신랑 아버님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "196dcac558562085072838d66bee12d3",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.1,
+    "d_bright": 7.1
+   }
+  },
+  "06_bless-first-bf_t0.flac": {
+   "n": 6,
+   "key": "bless-first-bf",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신부 아버님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "8b848640cb63f849dd62ac94a98d2ff7",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 2.9,
+    "d_bright": -1.7
+   }
+  },
+  "06_bless-first-bf_t1.flac": {
+   "n": 6,
+   "key": "bless-first-bf",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신부 아버님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "9fdfe0ad3d745c8dcfa89c6a1cc9d88b",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 2.9,
+    "d_bright": -3.8
+   }
+  },
+  "06_bless-first-bf_t2.flac": {
+   "n": 6,
+   "key": "bless-first-bf",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신부 아버님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "8dbda96fbe113f20a51486433f1501d7",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.45,
+    "d_bright": -4.3
+   }
+  },
+  "06_bless-first-bf_t3.flac": {
+   "n": 6,
+   "key": "bless-first-bf",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신부 아버님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "59cdef50a19413f4cc75a7058e6b6391",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 2.95,
+    "d_bright": -6.9
+   }
+  },
+  "06_bless-first-bf_t4.flac": {
+   "n": 6,
+   "key": "bless-first-bf",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신부 아버님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "661bdd39ade4bd9ff9a30d2ba1c66a28",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 2.3,
+    "d_bright": 1.7
+   }
+  },
+  "06_bless-first-bf_t5.flac": {
+   "n": 6,
+   "key": "bless-first-bf",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신부 아버님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "e99cfb017467c80fd4405400080bf397",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.1,
+    "d_bright": -5.2
+   }
+  },
+  "07_bless-first-gm_t0.flac": {
+   "n": 7,
+   "key": "bless-first-gm",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신랑 어머님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "637455701d7aedd7bab8b319927ecc9c",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.2,
+    "d_bright": 0.3
+   }
+  },
+  "07_bless-first-gm_t1.flac": {
+   "n": 7,
+   "key": "bless-first-gm",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신랑 어머님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "52d8414dcc865d0fdd5c817961dedfcf",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -0.8,
+    "d_bright": -2.8
+   }
+  },
+  "07_bless-first-gm_t2.flac": {
+   "n": 7,
+   "key": "bless-first-gm",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신랑 어머님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "7220ebe8ea42795c6d78ca6601367df6",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.9,
+    "d_bright": 6.2
+   }
+  },
+  "07_bless-first-gm_t3.flac": {
+   "n": 7,
+   "key": "bless-first-gm",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신랑 어머님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "82a013fcb95f4c38fadc46d8656632a5",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 2.2,
+    "d_bright": 3.1
+   }
+  },
+  "07_bless-first-gm_t4.flac": {
+   "n": 7,
+   "key": "bless-first-gm",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신랑 어머님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "ae6c6b5779a83738530cdea081f6658a",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.8,
+    "d_bright": -0.7
+   }
+  },
+  "07_bless-first-gm_t5.flac": {
+   "n": 7,
+   "key": "bless-first-gm",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신랑 어머님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "969bf0d738d18d39c4e024f204b11c2a",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.7,
+    "d_bright": -0.6
+   }
+  },
+  "08_bless-first-bm_t0.flac": {
+   "n": 8,
+   "key": "bless-first-bm",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신부 어머님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "9d500227f03ae6e7b297d4105285b278",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.9,
+    "d_bright": 2.4
+   }
+  },
+  "08_bless-first-bm_t1.flac": {
+   "n": 8,
+   "key": "bless-first-bm",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신부 어머님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "912cea32bdd8149eb7e6aedec5bb055b",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.3,
+    "d_bright": -2.3
+   }
+  },
+  "08_bless-first-bm_t2.flac": {
+   "n": 8,
+   "key": "bless-first-bm",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신부 어머님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "48b31d02f07dcd700ecf8e210dc53db5",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.5,
+    "d_bright": -2.0
+   }
+  },
+  "08_bless-first-bm_t3.flac": {
+   "n": 8,
+   "key": "bless-first-bm",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신부 어머님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "f709f0f5661daa90623075f5eec0ec27",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 2.55,
+    "d_bright": -0.0
+   }
+  },
+  "08_bless-first-bm_t4.flac": {
+   "n": 8,
+   "key": "bless-first-bm",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신부 어머님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "6b444337e10c0fc465584724e6127c00",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.6,
+    "d_bright": -5.6
+   }
+  },
+  "08_bless-first-bm_t5.flac": {
+   "n": 8,
+   "key": "bless-first-bm",
+   "seat": "덕담 · 여러 분(23 뒤 · 첫 분)",
+   "text": "먼저, 신부 어머님의 따뜻한 덕담 말씀 듣겠습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "f444d01318211de80d9661b192e961c7",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -1.2,
+    "d_bright": -10.1
+   }
+  },
+  "09_speech-gfr_t0.flac": {
+   "n": 9,
+   "key": "speech-gfr",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신랑의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "ab7930f2e82b9f88ac01d2f50ad85a48",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.7,
+    "d_bright": -2.0
+   }
+  },
+  "09_speech-gfr_t1.flac": {
+   "n": 9,
+   "key": "speech-gfr",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신랑의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "0f0c32559eba0b876efe4c4bb1cdc1e2",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.5,
+    "d_bright": -0.4
+   }
+  },
+  "09_speech-gfr_t2.flac": {
+   "n": 9,
+   "key": "speech-gfr",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신랑의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "7c4e353bcd6b645d55fdf1a9936b8553",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": -0.4,
+    "d_bright": 0.1
+   }
+  },
+  "09_speech-gfr_t3.flac": {
+   "n": 9,
+   "key": "speech-gfr",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신랑의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "f247d1bb76c0f8af0402c8a9e527d318",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 1.0,
+    "d_bright": -1.0
+   }
+  },
+  "09_speech-gfr_t4.flac": {
+   "n": 9,
+   "key": "speech-gfr",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신랑의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "f38531fa6bde9e46d7d995262423a9f8",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 0.45,
+    "d_bright": -1.4
+   }
+  },
+  "09_speech-gfr_t5.flac": {
+   "n": 9,
+   "key": "speech-gfr",
+   "seat": "축사(174 대신)",
+   "text": "오늘의 축사는요, 신랑의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE_1115_우성 (6af9c5eac57b0f9ddcdf5034)",
+   "when": "2026-11-16",
+   "md5_wav": "b3191edffe4095d3cf5b6255f976e3ee",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true,
+    "d_semi": 2.3,
+    "d_bright": 2.5
+   }
+  }
+ }
+}
