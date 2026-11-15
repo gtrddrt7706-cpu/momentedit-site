@@ -8227,6 +8227,7 @@ node scripts/audit/narr-words.mjs --selftest || fail=1
 # ★★[NARR_ENGINE_GATE_1014] 3단계 원고를 엔진에 옮겼다(PR B) — 이제 엔진 줄도 같은 자로 막는다 · 봐주는 것은 «녹음 대기»(원고 글은 자 통과 · 새 문장은 타입캐스트_<n>판 목록에 맡김)뿐
 #   깨 보기: 편지 맺는 말에 «따뜻한»을 넣으면 rc 1(10/14 확인) · 녹음이 오면 그 줄은 엔진에 들어가 대기에서 빠진다
 chk 'NARR_ENGINE_GATE_1014' scripts/audit/narr-words.mjs 1
+chk 'MIDV_OUT_CLAP_1115' scripts/audit/narr-words.mjs 3   # ★[MIDV_OUT_CLAP_1115 · NARR_ROLE_1115] 식중 영상 닫는 말 355(354) «… 따뜻한 박수 부탁드립니다.»(대표님 FINAL2 승인 소리 · 엔진이 박수를 그 자리에 둔다) — 그 두 slug 만 W1 · W7 밖 · 깨 보기 포함
 node scripts/audit/narr-words.mjs --engine || fail=1
 # ★★[NAR_ENGINE_1014 · PR B] 원고 3단계 글을 엔진에 — 받은 녹음 + 옛 통녹음에서 잘라 낸 문장으로 49클립(원고 0-6)
 #   기립 말은 나레이션 예시에도 되살리지 않는다(W3 · W12) · 1분 전 감사는 개식 선언 몫(라운드 1 결정)
