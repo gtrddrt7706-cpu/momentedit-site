@@ -14109,13 +14109,13 @@ chk '_dnRefocus(function' mypage.html 3
 # [DN_CLOCK_SAY] 애프터 웨딩 도착 시각은 말하는 꼴(«오후 3시» · «오전 11시 50분») — SLOT_CLOCK · wedTimeKo 를 거치지 않는다 · 브레이크 셈은 원값
 chk 'DN_CLOCK_SAY' mypage.html 5
 chk 'function _dnSayClock(hm)' mypage.html 1
-chk "{lead:'오후 예식은 3시 도착 기준이라" mypage.html 1
-chk "{lead:'오전 예식이라 식사는 11시 50분 도착 기준이에요." mypage.html 1
-chk "{lead:'저녁 예식이라 식사는 6시 10분 도착 기준이에요." mypage.html 1
+chk "{lead:'오후 예식은 하객이 2시 20분쯤부터 도착해" mypage.html 1   # [EARLY_EAT_OWNER_1115] 하객 도착 기준
+chk "{lead:'오전 예식이라 하객은 11시쯤부터 식당에 도착해요." mypage.html 1
+chk "{lead:'저녁 예식이라 하객은 5시 40분쯤부터 식당에 도착해요." mypage.html 1
 chk '_dnSayClock(arr2)' mypage.html 2
 chk '_dnSayClock(arr)' mypage.html 1
-chk "'식사&nbsp;도착')+' '+_dnSayClock(arr2).replace(/ /g,'&nbsp;')+'&nbsp;기준'" mypage.html 1
-chk "'&nbsp;·&nbsp;예식 후 '+_dnSayClock(arr).replace(/ /g,'&nbsp;')+'&nbsp;도착&nbsp;기준'" mypage.html 1
+chk "'&nbsp;·&nbsp;하객&nbsp;도착 '+_dnSayClock(arr2).replace(/ /g,'&nbsp;')+'&nbsp;기준'" mypage.html 1
+chk "'&nbsp;·&nbsp;하객 '+_dnSayClock(arr).replace(/ /g,'&nbsp;')+'&nbsp;도착&nbsp;기준'" mypage.html 1
 nochk "' · 예식 후 '+arr+' 도착 기준'" mypage.html
 nochk "'결혼식 후 '+(arr2?arr2+' 도착, '" mypage.html
 nochk "'식사 도착')+' '+arr2+' 기준'" mypage.html
@@ -21624,7 +21624,7 @@ chk "'narr-closing', 'narr-closing-guide', 'narr-closing-soft', 'narr-closing-so
 chk "'narr-photo-pre': 1, 'narr-photo-pre-meal': 1, 'narr-photo-free': 1, 'narr-close-ex2': 1," assets/ritual-cue.js 1
 chk "actId: 'photo-all'" assets/ritual-cue.js 1
 chk '작가님 안내에 따라' mypage.html 1
-chk '<p>전체 단체 사진을 찍고, 촬영 후 안내가 이어져요.</p><p>가족 사진 · 추가 촬영을 하지 않는 분은 식사 장소로 먼저 가셔서, 도착하시는 대로 편하게 드세요.</p><p>두 분은 촬영을 마친 뒤 식사 장소로 인사드리러 가요.</p>' guide.html 1   # [GATHER_200 → G08_GATHER_1106 2026-11-06 대본 4차 G08] 한 덩어리를 차례대로 세 줄로
+chk '<p>전체 단체 사진을 찍고, 촬영 후 안내가 이어져요.</p><p>가족 사진 · 추가 촬영을 하지 않는 분은 식사 장소로 먼저 가셔서, 도착하시는 대로 편하게 드세요.</p><p>두 분은 촬영과 정리를 마친 뒤 식사 장소로 인사드리러 가요.</p>' guide.html 1   # [GATHER_200 → G08_GATHER_1106 2026-11-06 대본 4차 G08] 한 덩어리를 차례대로 세 줄로
 nochk '예식 뒤: 모두 함께 단체 사진 한 장 → 이후 가족 사진' guide.html
 nochk '차례가 아닌 분은 자리에서 편히 쉬어 주세요' guide.html
 nochk "slug: 'narr-photo-free', name: '자유 사진 여는 말'" assets/ritual-cue.js
@@ -22626,16 +22626,22 @@ chk '>하객 안내 · 사진 올리기</a>' live.html 1                   # 모
 # ★[CAFE_OPEN_OWNER_1115 2026-11-15 대표님 «편하게 오시는 자리»] 카페 · 다과만 날 하객 안내 = «차 한잔 하실 분은» + 합류 한 줄 · «모여요» · «이동하셔도» 없음(K7 11/06 «현행 유지»를 바꿈)
 chk 'CAFE_OPEN_OWNER_1115' guide.html 3
 chk "_pk==='cafe'?'차 한잔 하실 분은':'여기로 모여요'" guide.html 1   # 칸 이름 — 식사 날 · 분류 모름은 그대로
-chk '<p>단체 사진 뒤에는 가족 사진과 추가 촬영이 이어져요.</p><p>두 분은 촬영을 마친 뒤 그곳으로 인사드리러 가요.</p>' guide.html 1
+chk '<p>단체 사진 뒤에는 가족 사진과 추가 촬영이 이어져요.</p><p>두 분은 촬영과 정리를 마친 뒤 그곳으로 인사드리러 가요.</p>' guide.html 1
 nochk 'K7 결정 전 더하지 않는다' guide.html                       # 옛 «결정 전» 주석이 남으면 결정이 안 들어간 것으로 읽힌다
 # ★[EARLY_EAT_OWNER_1115 2026-11-15 11:26 대표님 «어른들이 기다린다는 게 좀 그렇지 않아?»] 식사 날 = 하객은 도착하는 대로 드시고 두 분은 촬영 뒤 찾아가 인사 · 기다리라는 말 0(앞서 정한 EARLY_WAIT 를 바꿈) · 위 G08_GATHER 세 줄 검사도 새 기대로 바꿨다
 chk 'EARLY_EAT_OWNER_1115' guide.html 3
 chk 'EARLY_EAT_OWNER_1115' mypage.html 2
 nochk "'식사는 두 분과 함께해요.'" guide.html             # 하객 화면에 «식사는 … 두 분과 함께해요»(기다리라는 말)가 돌아오면 빨강
 nochk "' · 식사는 예약 시간에 두 분과 함께 시작해요'" mypage.html
-chk '<span class="ln-bal">먼저 도착한 하객부터 바로 드실 수 있는지 식당에 미리 확인해 주세요.</span>' mypage.html 1
+chk "var _DN_ARR={'10:00':'11:00','13:20':'14:20','16:40':'17:40'};" mypage.html 1   # [EARLY_EAT_OWNER_1115] 예약 = 하객 도착 시각(단체 사진 끝 + 나서는 5분 + 차 가운데 7분)
+nochk "'11:50','13:20':'15:00'" mypage.html                           # 옛 두 분 정리 뒤 기준
+chk "'하객이 먼저 도착하고, 저희 두 사람은 촬영과 정리를 마치고 합류해요. '" mypage.html 1
+chk "먼저 오신 분부터 식사하실 수 있을까요?" mypage.html 1
+chk 'JOIN_GAP_REHEARSAL' mypage.html 2                                  # «약 ○○분 뒤» 숫자는 리허설에서 잰 값으로 넣을 자리
 nochk '먼저 식사 장소로 이동하셔도 돼요' guide.html
-chk 'CAFE_OPEN_OWNER_1115' mypage.html 2
+chk 'CAFE_OPEN_OWNER_1115' mypage.html 4
+chk "meal:(meal==='yes'||meal==='no'||meal==='cafe')?meal:''" mypage.html 1   # 사진 차례 화면이 카페 날을 안다
+nochk '카페 이동 문장은 K7 결정 전 더하지 않는다' mypage.html
 chk '<span class="ln-bal">카페는 단체 예약이 어려운 곳이 많아요.</span> <span class="ln-bal">예약이 안 되면 예상 인원이라도 미리 알려 두세요.</span>' mypage.html 1   # 부부 화면 · 카페 통화 문구 아래 한 줄
 chk "'차 한잔 하실 분은\\\\'으로" mypage.html 1                  # 부부 화면 «하객 안내에 … 공개돼요»도 같은 칸 이름
 chk 'B2_MA_03' live.html 2                        # [d-11] 실패해도 자동 재조회를 시작 · 끝나면 «다시 불러오기»
