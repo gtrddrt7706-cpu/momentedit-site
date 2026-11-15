@@ -4799,6 +4799,28 @@ chk 'MID_VIDEO_1106' automation/platform/70_journey.gs 2
 # ★[PVNORM_KIND_1107 2026-11-07 MID17-8] handlePvSave 의 _pvNorm_ 은 모두 kind 를 넘긴다(식중 줄은 링크만) — #1618 이 넣은 «다른 기기 사진 지키기» 줄에 kind 가 빠졌었다 · 동작은 midvideo.mjs 가 잰다
 chk 'PVNORM_KIND_1107' automation/platform/89_prevideo.gs 1
 chk 'PVNORM_KIND_1107' scripts/audit/midvideo.mjs 2
+# ★[VIDEO_NAME_1114 2026-11-14 대본 · 사장님 «이름도 식전영상으로 그대로인데 식중영상도 있는데»] 식중 영상은 식순에 담은 분께만 마이페이지 줄(기한 · 시작하기 · 식전 영상과 같은 말) ·
+#   빌더 식중 영상 칸 아래 «마이페이지 «식중 영상»에서 준비해요» · 고객 글 · 관리 · 서버 오류 글의 옛 이름 «준비한 순서 · 영상»을 «식중 영상»으로 · 동작은 midvideo.mjs · mid17-pick.mjs 가 잰다
+chk 'VIDEO_NAME_1114' mypage.html 10
+chk 'VIDEO_NAME_1114' order-preview.html 3
+chk 'VIDEO_NAME_1114' admin.html 1
+chk 'VIDEO_NAME_1114' automation/platform/89_prevideo.gs 1
+chk 'VIDEO_NAME_1114' scripts/audit/midvideo.mjs 8
+chk 'VIDEO_NAME_1114' scripts/audit/mid17-pick.mjs 4
+chk '(!CUST||CUST.midUp===true)' order-preview.html 2     # [GPT 1-01 · 2-21] 마이페이지 안에서는 서버가 받는다고 알려 온 때만 «마이페이지 «식중 영상»에서 준비해요»   # [VIDEO_UMBRELLA_1115] 완성 «보낼 것»의 식중 영상 줄도 같은 조건(2)
+chk "_pvcClash(st, v.conf, 'pre')" mypage.html 1   # [GPT 1-08] 식전 줄은 늘 식전으로 판정
+nochk "label:'넣기', tag:'선택'" mypage.html 0            # [VIDEO_NAME_1114] 고르지 않은 분께 «식중 영상 · 넣기 · 선택» 줄을 되살리지 말 것
+nochk '「준비한 순서」에서 «영상»을 고르면' mypage.html 0     # [VIDEO_NAME_1114] 옛 이름 — 빌더 칸 이름은 «식중 영상»
+nochk '«준비한 순서»에서 «영상»을 먼저 골라' automation/platform/89_prevideo.gs 0
+# ★[MID_OPEN_1114 2026-11-14 · ★사장님 승인 전 · 병합하는 날로 넷을 같은 날로] 처리방침 «식중 영상» 항목(수집 #midvideo · 목적 · 보관) + 89_prevideo PV_UP.midFrom = 그 시행일 → 식중 영상 줄 · 받기가 열린다
+#   날짜가 서로 맞는지 · 동의 판 링크는 midvideo.mjs ⑤ 가 잰다(되돌리면 빨강 확인)
+chk 'MID_OPEN_1114' privacy.html 3
+chk 'MID_OPEN_1114' automation/platform/89_prevideo.gs 2
+#   ★홈 FAQ · AI 상담 · 빌더 AI 글(«마이페이지 «식중 영상»에서 링크로»)은 가지 claude/video-name-1114-copy(PR 따로) — GAS 재배포로 줄이 열린 것을 본 뒤 병합(GPT 2-22)
+chk "_recordHandler(code, _pvName_(kind) + ' 동의 · 처리방침 ' + ver)" automation/platform/89_prevideo.gs 1   # [GPT 1-03] 처리이력 = 동의한 처리방침 날짜
+chk 'MID_OPEN_1114' mypage.html 1
+chk 'MID_OPEN_1114' scripts/audit/midvideo.mjs 8
+chk 'id="midvideo"' privacy.html 1
 # ★★[MID17_PICK 2026-11-07 재검증 재수정 · 사장님 «마음의 순간에 식중 영상 칸을 따로 하나»] MID17 줄 1 · 2 — ① 식중 영상 칸(축사와 둘 중 하나 · 바꿔 담기 · 알림 한 줄) ·
 #   이름 «식중 영상»(nameOf · 칩 · 칸 글) · ② 길이 칸 + 택1 한 줄 · at:'midvideo' · 준비 목록 빈 칸 · 시간 띠(60 × 분 + 8 · 40분 상한) — 390 · 360 화면을 돌린다
 if command -v node >/dev/null 2>&1; then _m17=$(node scripts/audit/mid17-pick.mjs 2>&1); _m17r=$?
@@ -4806,6 +4828,19 @@ if command -v node >/dev/null 2>&1; then _m17=$(node scripts/audit/mid17-pick.mj
     0) echo 'ok mid17-pick: 식중 영상 칸 · 이름 · 바꿔 담기 · 길이 · at:midvideo · 시간' ;;
     1) echo 'FAIL mid17-pick: 식중 영상 고르기 · 시간이 어긋났다 — node scripts/audit/mid17-pick.mjs'; printf '%s\n' "$_m17" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
     *) echo 'ok mid17-pick: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+# ★[VIDEO_UMBRELLA_1115 2026-11-15 대표님 «식전영상만이 아니라 식중영상도 있으니 이름도 바꿔야 · 그 안에 디자인도 멋지게»] 식중 영상 줄이 있는 분만
+#   준비 목록 «상영 영상» 묶음(머리 = 이름 + 기한 · 아래 식전 · 식중 두 줄) · 확인서 한 묶음 · 빌더 완성 «보낼 것»에 식중 영상 줄 + «두 영상 모두 마이페이지 «상영 영상»».
+#   식중 없는 분은 지금 그대로 · 이름은 mypage · order-preview VU_NAME 한 벌(«예식 영상»은 결과물 이름 · MPD_G10) — 390 · 1280 실렌더(되돌리면 빨강 확인)
+chk 'VIDEO_UMBRELLA_1115' mypage.html 5
+chk 'VIDEO_UMBRELLA_1115' order-preview.html 4
+nochk "var VU_NAME='예식 영상'" mypage.html 0
+if command -v node >/dev/null 2>&1; then _vu=$(node scripts/audit/video-umbrella.mjs 2>&1); _vur=$?
+  case "$_vur" in
+    0) echo 'ok video-umbrella: 상영 영상 묶음 · 확인서 · 식중 없는 분 그대로' ;;
+    1) echo 'FAIL video-umbrella: 상영 영상 묶음이 어긋났다 — node scripts/audit/video-umbrella.mjs'; printf '%s\n' "$_vu" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
+    *) echo 'ok video-umbrella: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
 fi
 chk 'MID17_TILE' order-preview.html 14
@@ -4850,8 +4885,18 @@ chk 'PV_FEEL_1106' api/_kb.js 1
 nochk 'data-pvcmode="make"' mypage.html
 # ★[PV_ONE_WAY_1107 2026-11-07 사장님 «필메이커에서 만들어 여기에 올리는 건 똑같잖아» · 대본 «한 갈래로»] 식전 · 식중 첫 화면 = 큰 단추 «영상 올리기» 하나 + 필메이커 안내 한 줄 — 두 칸 갈래를 되살리지 않는다
 chk 'PV_ONE_WAY_1107' mypage.html 8
-chk "function _pvcFeelIn()" mypage.html 1
-chk "h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode=\"upload\"'));   // \[PV_ONE_WAY_1107\]" mypage.html 1
+chk "function _pvcFeelIn(m)" mypage.html 1   # [VIDEO_UMBRELLA_1115] 첫 화면에선 단계 셋 «영상 준비» 안 «만드는 법 보기»(m='link') · 함수는 그대로 하나
+# ★[VU_COUPON_ONCE_1115 2026-11-15 릴스 점검 A] 식중 «영상 준비» 걸음에 쿠폰 범위 문장을 다시 넣지 않는다(머리 조건 줄 · «만드는 법 보기» 와 세 번째 같은 말)
+chk 'VU_COUPON_ONCE_1115' mypage.html 1
+nochk '중 하나로 준비해 주세요. 쿠폰 · 기본 템플릿은 식전 영상에만 적용돼요.' mypage.html 0
+# ★[VU_SUBS_BAR_1115 2026-11-15 대본 · 릴스 점검 B] 첫 화면 보조 길(«나중에 준비하기 · 사용하지 않기» · «식순에서 빼기»)은 막대 안 단추 위 한 줄 — 본문 끝으로 되돌리면 폰 첫 화면에서 단추 뒤로 걸린다(video-umbrella ⑥ 실측이 막는다)
+chk 'VU_SUBS_BAR_1115' mypage.html 4
+# ★[VU_MID_HERO_1115 2026-11-15 22:58 대표님 «좋아요»] 식중 첫 화면 결과 먼저 한 컷 = 영상 방 mid-final(37c319f9) 640 webp · 파일과 자리 둘 다(video-umbrella ⑥ 이 실제로 뜨는지 잰다)
+#   23:12 대본 정정 — 대표님이 붓결 · 왼쪽 위 화면 틀을 고치라 해 영상 방이 다시 그린다 · 자리 · 코드만(mid:'') · 그림이 들어오면 아래 줄을 chk 로 되돌린다
+chk 'VU_MID_HERO_1115' mypage.html 1
+grep -q "mid:'/assets/video/moments/midvideo-640.webp'" mypage.html && { [ -f assets/video/moments/midvideo-640.webp ] || { echo 'FAIL VU_MID_HERO_1115: 자리는 그림을 가리키는데 assets/video/moments/midvideo-640.webp 없음'; fail=1; }; }
+nochk "_pvcThree()+'<div class=\"pvc-subs\">" mypage.html 0
+chk "h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode=\"upload\"'), '<div class=\"pvc-subs\">.*');   // \[PV_ONE_WAY_1107\]" mypage.html 1   # [VU_SUBS_BAR_1115] 큰 단추 하나 + 그 위 보조 길 한 줄
 nochk '<b>준비한 영상 올리기</b>' mypage.html
 nochk '<b>필메이커에서 만들기</b><span>' mypage.html
 nochk '필메이커에서 만들거나 준비한 영상을' mypage.html
@@ -17530,9 +17575,8 @@ chk '네오사피엔스㈜ (타입캐스트 Typecast, 국내)' privacy.html 1
 chk '2026년 10월 8일' privacy.html 2   # [PRIVACY_REV_1031] 3 → 2 — 개정 공고일자 줄이 10/31 로 넘어갔다 · 남는 둘 = «AI 목소리 생성» 위탁 줄 «부터» · 개정 이력 «직전 개정»
 # ★[PRIVACY_REV_1031 2026-10-31 사장님 승인] 처리방침 개정 공고 · 시행 10/31 — 두 분 목소리 보관 기간 구체화(VC_DECISIONS_1030 · 7일 전 AI 목소리 삭제 · 예식일 없음 90일).
 #   보관을 줄이기만 해 정보주체에게 불리하지 않다 → 10조 단서로 공고일 시행. 맨 위 날짜는 VOICE_UP.from 보다 늦어도 된다(voice-open.mjs) · «부터» 날짜 10/8 은 그대로
-chk '개정 시행일자 · 2026.10.31 (공고 2026.10.31)' privacy.html 1
-chk '2026년 10월 31일 (두 분 목소리 보관 기간 구체화' privacy.html 1
-chk '직전 개정 2026년 10월 8일 (두 분 목소리 항목 추가' privacy.html 1
+chk '2026년 10월 31일 (두 분 목소리 보관 기간 구체화' privacy.html 1   # [MID_OPEN_1114] 맨 위는 11/14 로 넘어갔다 · 10/31 은 «직전 개정»으로 남는다
+chk '그 전 개정 2026년 10월 8일 (두 분 목소리 항목 추가' privacy.html 1
 chk 'PRIVACY_REV_1031' privacy.html 2
 chk 'PRIVACY_REV_1031' scripts/audit/voice-open.mjs 4
 chk 'VOICE_OPEN_1008' deploy-marks.json 1
