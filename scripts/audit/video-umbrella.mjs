@@ -82,9 +82,9 @@ try {
       ok(`③ ${tag} 단추 id 그대로 · 오른쪽 끝 같은 자리 · 같은 폭`, R.pv && R.mv && Math.abs(R.pvR - R.mvR) < 1 && Math.abs(R.pvW - R.mvW) < 1, R.pvR + '/' + R.mvR + ' ' + R.pvW + '/' + R.mvW);
       ok(`③ ${tag} 기한 꼬리표는 머리에만(줄마다 되풀이 없음)`, R.rows.every((x) => !/까지$|기한 지남/.test(x.tag)), JSON.stringify(R.rows));
       if (name === 'both') {
-        ok(`③ ${tag} 머리 기한 «D-n · N월 N일(요일)까지»`, /^D-5 · \d+월 \d+일\([일월화수목금토]\)까지 확정$/.test(R.due), R.due);
+        ok(`③ ${tag} 머리 기한 «확정 기한 · N월 N일(요일) · D-n»`, /^확정 기한 · \d+월 \d+일\([일월화수목금토]\) · D-5$/.test(R.due), R.due);
         ok(`③ ${tag} 상태 꼬리표는 줄마다(식전 «확인 필요»)`, R.rows[0].tag === '확인 필요', JSON.stringify(R.rows));
-        ok(`④ ${tag} 확인서 — 이름 줄 + 영상마다 상태 · 열기`, R.cf && R.cf.vu === 2 && R.cf.p === 1 && R.cf.m === 1 && R.cf.txt.indexOf(nm(MP) + '은 각 영상 화면에서 따로 확정해요.') > -1 && /식전 영상 · 확인해 주세요영상 확인/.test(R.cf.txt) && /식중 영상 · 아직 확정 전이에요이어하기/.test(R.cf.txt), JSON.stringify(R.cf));
+        ok(`④ ${tag} 확인서 — 이름 줄 + 영상마다 상태 · 열기`, R.cf && R.cf.vu === 2 && R.cf.p === 1 && R.cf.m === 1 && R.cf.txt.indexOf(nm(MP) + '은 각 영상 화면에서 따로 확정해요.') > -1 && /식전 영상 · 확인해 주세요영상 확인/.test(R.cf.txt) && /식중 영상 · 준비 중이에요이어하기/.test(R.cf.txt), JSON.stringify(R.cf));
       } else {
         ok(`③ ${tag} 둘 다 확정 — 머리 ✓ · 기한 없음`, /✓/.test(R.headTxt) && !R.due, R.headTxt + ' / ' + R.due);
       }

@@ -11853,7 +11853,7 @@ var PVC_ON=true;   // [PV_CAT_1031] 기능 스위치 · 사장님 «켜도 상�
    · 링크 · 상태 · 기한 · 확인 · 확정은 식전 영상 흐름(PVCFLOW)을 kind 'mid' 로 그대로 쓴다 · 서버 89_prevideo «개인코드#mid» 줄 · production.midvideo
    · 제작 비용은 두 분 부담(쿠폰 · 기본 템플릿은 식전 영상 1편에만) · 기한 예식 7일 전 23:59 · 기한까지 확정하지 않으면 영상 없이 진행 */
 var VU_NAME='상영 영상';   // ★[VIDEO_UMBRELLA_1115] 식전 · 식중 영상 묶음 이름 — 바꿀 땐 이 한 곳 + order-preview.html VU_NAME(같아야 · scripts/audit/video-umbrella.mjs) · «예식 영상»은 결과물 이름이라 쓰지 않는다(MPD_G10)
-function _vuDueTxt(due){ var l=null; try{ l=due?_kstDdayOf(due):null; }catch(e){} if(l==null) return ''; if(l<0) return '기한 지남'; if(l===0) return '오늘까지 확정'; var t=_pvcDueTxt(due); return t?('D-'+l+' · '+t.replace(' 23:59','')+'까지 확정'):''; }   // [VIDEO_UMBRELLA_1115] 묶음 머리 줄 기한 — 날짜는 서버 due 그대로(예식 7일 전 23:59) · 웹 레퍼런스 TOP 7 ② «D-숫자 + 실제 날짜(요일)» · 숫자를 키우지 않는다(같은 12px)
+function _vuDueTxt(due){ var l=null; try{ l=due?_kstDdayOf(due):null; }catch(e){} if(l==null) return ''; if(l<0) return '확정 기한 지남'; var t=_pvcDueTxt(due); return t?('확정 기한 · '+t.replace(' 23:59','')+' · '+(l===0?'오늘':'D-'+l)):''; }   // [VIDEO_UMBRELLA_1115] 묶음 머리 줄 기한 — 날짜는 서버 due 그대로(예식 7일 전 23:59) · 웹 레퍼런스(BGM 방 고친 판) «무엇 · 날짜(요일)» 먼저 · D-숫자는 뒤에 작게(같은 12px) · 영상 화면의 «확정 기한 · …»(_pvcDueLine)과 같은 말
 var MVC_ON=true;   // [MID_VIDEO_1106] 기능 스위치 — 서버가 midvideo 를 보내지 않으면(옛 GAS) 어차피 줄이 안 보인다
 function _mvcOn(p){ var S=(p&&p.ritualDraft&&p.ritualDraft._v===3&&p.ritualDraft.S)||null; if(!S) return null; return !!(S.on&&S.on.free)&&String(S.freeWhat||'')==='video'; }   // [MID_VIDEO_1106] null = 식순 아직 없음
 function _mvcLen(p){ var S=(p&&p.ritualDraft&&p.ritualDraft.S)||{}, n=parseInt(S.freeLen,10); return (n>=1&&n<=10)?n:3; }
@@ -12488,7 +12488,7 @@ function _cfMvLine(p){ var v=(p&&p.midvideo)||null; if(!(typeof MVC_ON!=='undefi
   return '<span class="ln-bal">'+t+' <button type="button" class="pvc-a cf-pvc" data-cfmvc>식중 영상 열기</button></span>'; }
 /* ★[VIDEO_UMBRELLA_1115] 확인서 — 식전 · 식중 두 줄이 다 서면 «상영 영상» 한 묶음(이름 줄 하나 + 영상마다 상태 · 열기). 하나만 서면 그 한 줄 그대로. 단추 표식(data-cfpvc · data-cfmvc)은 그대로 */
 function _cfVuLine(p){ var a=_cfPvLine(p), b=_cfMvLine(p); if(!(a && b)) return a+b;
-  var w=function(v){ var t=String((v||{}).st||''); return t==='done'?'확정했어요':t==='off'?'사용하지 않기로 하셨어요':t==='review'?'확인해 주세요':t==='checking'?'스튜디오가 확인하고 있어요':t==='making'?'만들고 있어요':t==='editing'?'수정 중이에요':'아직 확정 전이에요'; };   // [VIDEO_UMBRELLA_1115 · GPT 1-a] 준비 목록 꼬리표와 같은 뜻 — «확인 필요»와 «이어하기»가 확인서에서 같은 말로 뭉치지 않게
+  var w=function(v){ var t=String((v||{}).st||''); return t==='done'?'확정했어요':t==='off'?'사용하지 않기로 하셨어요':t==='review'?'확인해 주세요':t==='checking'?'스튜디오가 확인하고 있어요':t==='making'?'만들고 있어요':t==='editing'?'수정 중이에요':t==='draft'?'준비 중이에요':'시작 전이에요'; };   /* [BGM 웹 레퍼런스 고친 판] «아직» 대신 실제 상황 말 */   // [VIDEO_UMBRELLA_1115 · GPT 1-a] 준비 목록 꼬리표와 같은 뜻 — «확인 필요»와 «이어하기»가 확인서에서 같은 말로 뭉치지 않게
   var lb=function(r){ return escapeHtml((r&&r.label)||'열기'); }, rp=_pvcRow(p.prevideo), rm=_mvcRow(p.midvideo, _mvcOn(p));   // [VIDEO_UMBRELLA_1115 · GPT 1-a] 단추 글 = 준비 목록 단추 글(이름 한 벌 · 영상 확인 · 이어하기 …)
   return '<span class="ln-bal">'+escapeHtml(VU_NAME)+'은 각 영상 화면에서 따로 확정해요.</span>'   /* [GPT 1-b] «어디서» 확정하나까지 — 위 «한 번에 확정 · 섹션마다 따로 확인하지 않으셔도» 줄의 예외라는 것이 바로 읽히게 */
     +'<span class="vu-cf"><span><span class="vu-cf-k">식전 영상</span> · '+w(p.prevideo)+'</span><button type="button" class="pvc-a cf-pvc" data-cfpvc aria-label="식전 영상 '+lb(rp)+'">'+lb(rp)+'</button></span>'
