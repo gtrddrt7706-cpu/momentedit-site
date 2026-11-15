@@ -5359,7 +5359,12 @@ chk 'photoShare' scripts/lib/engine-calls.mjs 1       # ★축을 안 흔들면 
 # ★[ENGINE_CALLS 2026-08-17] 이 축 표는 check-listen-cover 안에 있었다. 쓰는 곳이 셋이 되어 lib 으로 옮겼다.
 #   옮긴 것이지 폐지한 것이 아니다 — 파일만 바뀌고 규칙은 그대로다.
 # ★[MEAL_GUIDE 2026-09-23] 식사 자리 안내 스위치가 셋째로 들어왔다 — 같은 규칙(유무 boolean 만)
-chk "INJECT = \['digital', 'photoShare', 'meal', 'guide', 'mealFull', 'resv', 'photoN', 'photoWishN'\]" assets/ritual-preview-link.js 1   # [GUIDE_ON_1019] guide 더함   # [PHOTO_PRE_PICK_1030] mealFull · resv 더함(사진 전 안내 266 고르기)
+chk "INJECT = \['digital', 'photoShare', 'meal', 'guide', 'mealFull', 'photoN', 'photoWishN'\]" assets/ritual-preview-link.js 1   # ★[NARR_DEPLOY_1116 대본 11/16 03:09 «정말 낡은 기대만»] resv 뺌 — NARR_FIX_1115_1 식사 날 마무리 287 로 엔진이 S.resv 를 안 읽음(PREVIEW_KEYS 죽은 키) · 옛 핀 'mealFull', 'resv' 은퇴
+chk 'NARR_DEPLOY_1116' assets/ritual-preview-link.js 2
+chk 'NARR_DEPLOY_1116' assets/ritual-open.js 1
+chk 'NARR_DEPLOY_1116' scripts/audit/closing-line.mjs 2
+chk 'NARR_DEPLOY_1116' scripts/audit/console-inject.mjs 3
+chk 'NARR_DEPLOY_1116' scripts/audit/open-course.mjs 5   # [GUIDE_ON_1019] guide 더함   # [PHOTO_PRE_PICK_1030] mealFull · resv 더함(사진 전 안내 266 고르기)
 # ★주소를 미리듣기가 «옮기지» 말 것 — 유무 boolean 만 간다.
 # ★[NOCHK_SHAPE] 이름('photoShareUrl')이 아니라 **KEYS 에 실리는 모양**을 잡는다 — 처음엔 이름으로
 #   걸었다가 정당하게 읽는 photoShareOf() 와 그 주석을 스스로 물었다(자가덫 9번째).
@@ -21168,7 +21173,7 @@ chk 'VC_DECISIONS_1030' scripts/audit/vc-decisions-1030.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-decisions-1030.mjs >/dev/null 2>&1; _vdc=$?; if [ "$_vdc" != 0 ]; then echo 'FAIL vc-decisions-1030: AI 두 분 목소리 대표 결정 아홉(나눠 읽는 줄 거절 · 동의 글 · 나레이션 한 줄 · 90일 · 스튜디오 확인 · 3만 자 · 7일 전 모델 지우기 · 콘솔 기기 보관 · 디렉터 글) 판정이 어긋났습니다 — node scripts/audit/vc-decisions-1030.mjs'; fail=1; else echo "ok vc-decisions-1030 ($_vdc)"; fi; fi
 # ── 2026-10-30 [PAUSE_PREF_1030 · PHOTO_PRE_PICK_1030 · PHOTO_PRE_GAP_1030] 사장님 검수본 쉼 · 사진 전 안내 판 고르기 · 온라인 인사 뒤 2초
 chk 'const FLOW_FORCE = new Map(' scripts/build-typecast-import.mjs 1
-chk "function closingOf(S) { S = S || {}; var b = (S.meal && S.mealFull) ? (S.resv ? 'narr-closing-mealr' : 'narr-closing-mealnr') : 'narr-closing';" assets/ritual-cue.js 1   # ★[INFO_SPLIT_200] 식사 자리 × 예약 시각 · 하객 안내 갈래 없음   # ★[CLOSING_LINE_1031] 266 이 서던 조건 그대로 → 마무리 멘트 판
+chk "function closingOf(S) { S = S || {}; var b = 'narr-closing';" assets/ritual-cue.js 1   # ★[NARR_DEPLOY_1116 대본 11/16 03:09 «정말 낡은 기대만»] NARR_FIX_1115_1(대표님 11/15 12:09 · 12:24) 식사 날도 287 · 옛 핀(식사 × 예약 시각 342 · 339) 은퇴 ·   # ★[INFO_SPLIT_200] 식사 자리 × 예약 시각 · 하객 안내 갈래 없음   # ★[CLOSING_LINE_1031] 266 이 서던 조건 그대로 → 마무리 멘트 판
 chk 'function mealFullOf(dd, placeholders)' assets/ritual-preview-link.js 1
 chk 'c.goLeadMs || 0' console.html 1
 chk 'PHOTO_PRE_PICK_1030' scripts/audit/console-inject.mjs 1
@@ -21521,7 +21526,7 @@ nochk '첫 시작을 큰 박수와 함성으로' assets/ritual-data.js
 nochk '첫 시작을 큰 박수와 함성으로' order-preview.html
 # ── 2026-11-01 [GUEST_WELCOME_191 · AFTER_PHOTO_191 검토 191 · 사장님 14:50 «하객 맞이를 좀 더 친절하게» · «촬영 종료 후 멘트도 식순에 나오게» · 191 정정 «사진은 촬영 작가님이 컨트롤»]
 chk "var GUEST_PARTS = { 'guest-w-arrival': \[GW.hi, GW.voice, GW.snap\]" assets/ritual-cue.js 1
-chk "up: gw('모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 신랑 신부에게 바로 보내실 수 있어요.')" assets/ritual-cue.js 1   # ★[FINAL_APPLY_1115 묶음 3 · 대본 11/15 «핀을 새 글로»] 대표님 FINAL2 11/14 확정 문정 글 — 옛 «up: gw('받으신 모바일 청첩장을 열고, 하객 안내에서 사진 올리기를…»
+chk "up: gw('모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 신랑 신부에게 바로 보내실 수 있습니다.')" assets/ritual-cue.js 1   # ★[NARR_DEPLOY_1116 대본 11/16 03:09 «정말 낡은 기대만»] NARR_FIX_1115_1 R11 «있어요 → 있습니다» · 옛 핀 은퇴 ·   # ★[FINAL_APPLY_1115 묶음 3 · 대본 11/15 «핀을 새 글로»] 대표님 FINAL2 11/14 확정 문정 글 — 옛 «up: gw('받으신 모바일 청첩장을 열고, 하객 안내에서 사진 올리기를…»
 chk "five: gw('시작 오 분 전입니다.', '03_guest-3-5min#0')" assets/ritual-cue.js 1
 chk "function guestPick(S, i)" assets/ritual-cue.js 1
 chk "function afterPhotoOf(S)" assets/ritual-cue.js 1
@@ -22991,7 +22996,7 @@ chk 'LISTEN_RESUME_1106' scripts/audit/listen-resume.mjs 1   # 위 넷(+축배 6
 chk 'PV_LEAD_NOCLAP_1106' assets/ritual-cue.js 1   # [J_A A11 · B2-쉼01] 박수 없는 개식(칩 1 ~ 5) 뒤 식전 영상 소개는 뜸 없이 사슬 3초만(당일 콘솔 6초 → 3초)
 chk "if (!_pvNoClap) _pc.goLeadMs" assets/ritual-cue.js 1
 chk 'K3_SHORT_1106' assets/ritual-cue.js 5   # [결정 K3 · D03] 예상 본식 10분 미만 = 10분 전 299s · 345s(guest-w-10m-n10-short · -meal · 348 · 349 · 녹음 대기)
-chk "nShort: gw('예식을 마친 뒤에는 기념 촬영이 있습니다.')" assets/ritual-cue.js 1   # ★[FINAL_APPLY_1115 묶음 3 · 대본 11/15 «핀을 새 글로»] 대표님 FINAL2 11/14 확정 문정 글 — 옛 «nShort: gw('본식을 마친 뒤에는 기념 촬영이 있습니다.')…»
+chk "nShort: gw('예식을 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.')" assets/ritual-cue.js 1   # ★[NARR_DEPLOY_1116 대본 11/16 03:09 «정말 낡은 기대만»] NARR_FIX_1115_1 R10 새 글 · 옛 핀 «기념 촬영이 있습니다» 은퇴 ·   # ★[FINAL_APPLY_1115 묶음 3 · 대본 11/15 «핀을 새 글로»] 대표님 FINAL2 11/14 확정 문정 글 — 옛 «nShort: gw('본식을 마친 뒤에는 기념 촬영이 있습니다.')…»
 chk 'PV_LEAD_NOCLAP_1106 · K3_SHORT_1106' scripts/audit/pv-lead-k3.mjs 1   # 두 결정 검사 파일이 살아 있는가
 chk 'REC_K3_1106' scripts/audit/pv-lead-k3.mjs 2   # [REC_K3_1106] 348 · 349 녹음이 들어오면 대기 명단 · 다시받기에서 빠졌는지 본다(들어오기 전엔 종전대로 대기)
 if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi
@@ -23446,7 +23451,7 @@ chk '예식이 시작될 때까지 편안히 기다려 주세요.' assets/ritual
 chk '예식이 시작될 때까지 편안히 기다려 주세요.' assets/ritual-open.js 3
 chk "'guest-w-1m': \[GW.soon, GW.sit, GW.snapOk\]" assets/ritual-cue.js 1
 chk "'after-photo': \[GW.done, GW.fam, GW.stay2, GW.goHome2, GW.things2, GW.day2\]" assets/ritual-cue.js 1
-chk "'after-photo-meal': \[GW.done, GW.fam, GW.stay2, GW.things2, GW.goMeal, GW.mealWhere\]" assets/ritual-cue.js 1
+chk "'after-photo-meal': \[GW.done, GW.fam, GW.stay2, GW.eatArr, GW.placeAt, GW.visitAfter\]" assets/ritual-cue.js 1   # ★[NARR_DEPLOY_1116 대본 11/16 03:09 «정말 낡은 기대만»] NARR_FIX_1115_1 · MEAL_SHORT_OWNER_1115 324 = 물건 줄 빼고 R1 · R2 · R3 · 옛 핀(things2 · goMeal · mealWhere) 은퇴
 chk "'narr-closing-mealnr': \[CL_THX2, CL_CHEER, CL_NJ, CL_GA\]" assets/ritual-cue.js 1
 nochk '식사는 두 분과 함께합니다.' docs/plans/식순연구/타입캐스트/manifest.json
 chk 'FINAL_APPLY_1115' assets/audio/_src/_layers/끊김_허용_1114.json 1
