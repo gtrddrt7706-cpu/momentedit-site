@@ -116,9 +116,9 @@ const firstAbove = (smp, t0, nm, db) => { const s = smp.find((x) => x.t >= t0 &&
 /* 입장 장면 흉내 — 입장 곡이 흐르는 동안 배경음은 −90(duckTo 가 ESD.run 을 본다) · 짧은 곡 끝(ended) = esdEnd 인계 */
 const entryEnd = (c, iE) => c.pg.evaluate((iE) => { window.__bgmGo.duck(-90, 10); return new Promise((ok) => setTimeout(() => { window.__r3i('cur = ' + iE + "; phase = 'clip'; ESD.short = true; ESD.run = { i: " + iE + ' }; esdEnd(ESD.run, true);'); ok(performance.now()); }, 300)); }, iE);
 try {
-  /* ── A [LATER_DROP_1115] (01) — 옛 판: 정적 뒤 화촉 곡이 자리를 얻은 뒤 옛 겹침 끝이 미뤄 둔 본식 요청(B12)을 틀어 화촉 곡을 밀어낸다(① 빨강) ── */
+  /* ── A [LATER_DROP_1115] (01) — 옛 판: 정적 뒤 화촉 곡이 자리를 얻은 뒤 옛 겹침 끝이 미뤄 둔 본식 요청(B10 · SONGS_5_1115 뒤 B12 는 테이블 배경 곡이라 B10)을 틀어 화촉 곡을 밀어낸다(① 빨강) ── */
   if (want('A')) {
-    const c = await open(SOF('record'), { files: ['B01', 'B12', 'B23', 'B05'] });
+    const c = await open(SOF('record'), { files: ['B01', 'B10', 'B23', 'B05'] });
     if (!c.ok) skip('A — 콘솔 점검 고리를 못 찾았다');
     else {
       await c.on(); await c.fire(0); const g = await c.waitDb('B01', 'v != null && v > -30', 15000); await c.w(4000);
@@ -126,7 +126,7 @@ try {
       const L0 = await c.st(); await c.pg.evaluate(() => window.__bgmGo.duck(-90, 10)); await c.w(250);
       const tC = await c.fire(7); await c.w(7000);
       const s1 = await c.st(), W = win(await c.smp(), tC + 1500, 5500);
-      const rA = { 준비: g, 미룬요청: L0.later, 지금곡: s1.id, 화촉곡최고: peak(W, 'B05'), 본식곡최고: peak(W, 'B12'), 테이블곡최고: peak(W, 'B23') };
+      const rA = { 준비: g, 미룬요청: L0.later, 지금곡: s1.id, 화촉곡최고: peak(W, 'B05'), 본식곡최고: peak(W, 'B10'), 테이블곡최고: peak(W, 'B23') };
       console.log('  재 본 값 A', JSON.stringify(rA));
       if (!g || !L0.later) skip('A — 준비(재생기 셋이 차 요청이 미뤄짐)를 못 만들었다 ' + JSON.stringify(rA));
       else {

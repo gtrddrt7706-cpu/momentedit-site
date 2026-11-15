@@ -23467,7 +23467,7 @@ chk "setAttribute('aria-pressed', String(muted));" console.html 1
 chk 'MUTE_PRESSED_1115' scripts/audit/console-r2-1115.mjs 3
 # ★[CONSOLE_R2_1115 2026-11-15 BGM 섹션 · GPT 라운드 2] 당일 콘솔 · 곡 계획 묶음 검사 — CI bgm-sound f 칸(가장 짧은 칸)에서 돈다
 chk 'CONSOLE_R2_1115' .github/workflows/merge-guard.yml 1
-chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115' }" .github/workflows/merge-guard.yml 1
+chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115' }" .github/workflows/merge-guard.yml 1
 # ★[GEN_ON_OPEN_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 검증 중 찾음] 새 곡이 재생기를 받을 때 세대 번호를 올린다 — 앞 겹침 뒷정리 타이머가 늦게 여는 곡 재생기를 세우지 않게(검사 console-r2-1115 F)
 chk 'GEN_ON_OPEN_1115' console.html 1
 chk '  BED.gen\[nx\] = (BED.gen\[nx\] || 0) + 1;' console.html 1
@@ -23529,7 +23529,7 @@ chk 'PV_R3_1115' scripts/audit/pv-r3-1115.mjs 1
 chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115' }" .github/workflows/merge-guard.yml 1
 # ★[CI_SPLIT_G_1115 2026-11-15] bgm-sound g 칸 — 라운드 3 검사 둘(console-r3-1115 · pv-r3-1115) · f 칸이 20분에 가까워 나눔
 chk 'CI_SPLIT_G_1115' .github/workflows/merge-guard.yml 1
-chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115' }" .github/workflows/merge-guard.yml 1
+chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115' }" .github/workflows/merge-guard.yml 1
 # ★★[ARRIVE_ONCE_VISIT_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 01] 미리 듣기 · 연습 — «이 줄 몫으로 도는 내림» 기록(LPB.arr)은 그 줄의 이번 방문에만 · 다른 줄을 보여 주면 지운다(크게 보기에서 이전 줄 → 다음 줄로 도착 멘트 · MR 자리에 다시 들어와도 내림을 다시 건다)
 chk 'ARRIVE_ONCE_VISIT_1115' assets/bgm-bed.js 2
 chk "function arrLeave(st){ if(LPB.arr&&LPB.arr.st!==st) LPB.arr=null; }" assets/bgm-bed.js 1
@@ -23648,6 +23648,16 @@ nochk 'B35_' assets/bgm-picks.js
 # ★[DECL_DAYSONG_1115] detail-r2 ③ 선언 따로 듣기 — 늦출 곡 = 당일 시간표 그 자리 곡(재 본 뒤) · B09 를 못 박지 않는다
 chk 'DECL_DAYSONG_1115' scripts/audit/detail-r2.mjs 1
 nochk 'H.dly.B09 = d; }, dly); await go' scripts/audit/detail-r2.mjs
+# ★★[ENTRY_FIVE_1115 2026-11-15 대본 «입장 장면 콘솔 5 를 #1655 에 같이»] 입장 장면 다섯 — 도착 GO 에 장면 목소리 거두기 · 구호 전 정지 → 잇기에 목소리 다시 · 정지 두 번에 멈춘 자리 지키기 · 인계 중 정지 · 뒤로에 잦아드는 입장 곡 거두기 · 미리 듣기 짧은 곡 끝 잦아듦(검사 entry-five-1115 · CI g · 옛 판 다섯 다 빨강)
+chk 'ENTRY_VOICE_CUT_1115' console.html 2
+chk 'else if (ESD.run && i !== ESD.run.i) esdVoiceCut(ESD.run);' console.html 1
+chk 'ENTRY_CALL_RESUME_1115' console.html 2
+chk 'ENTRY_PAUSE_TWICE_1115' console.html 1
+chk 'if (!_esd && ESD.paused && !ESD.run) ESD.pzKeep = true;' console.html 1
+chk 'ENTRY_FADE_CUT_1115' console.html 3
+chk 'SHORT_SONG_FADE_1115' assets/entry-scene.js 1
+nochk 'else if(x<PL.th+after) d=0;' assets/entry-scene.js
+chk 'ENTRY_FIVE_1115' scripts/audit/entry-five-1115.mjs 1
 # ★[TRIBUTE_DUCK_OWNER_1115 2026-11-15 대표님 «추천대로» · BGM 결정 카드 ③ A] 부모님께 인사 구호 · 포옹 청하는 줄 아래 음악 −12 그대로(일반 말 −15 로 맞추지 않는다)
 chk 'TRIBUTE_DUCK_OWNER_1115' assets/ritual-cue.js 1
 chk "if (/\^tribute-in/.test(_rs) && _rc.live) _rc.live.walkDuck = PARAM.duckMove != null ? PARAM.duckMove : -12;" assets/ritual-cue.js 1
@@ -23675,4 +23685,4 @@ chk 'HEARD_XF_1115' scripts/audit/r4-1115.mjs 2
 chk 'DECLARE_PLAYABLE_1115' scripts/audit/r4-1115.mjs 2
 chk 'ENTRY_WAIT_HUSH_1115' scripts/audit/r4-1115.mjs 3
 chk 'R4_1115' .github/workflows/merge-guard.yml 1
-chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115' }" .github/workflows/merge-guard.yml 1
+chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115' }" .github/workflows/merge-guard.yml 1
