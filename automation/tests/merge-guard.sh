@@ -22654,6 +22654,9 @@ nochk '예약 시각에 두 분과 함께 시작' index.html
 nochk '예약 시각에 함께 식사' api/_kb.js
 nochk '예약 시각에 두 분과 함께 시작' api/_kb.js
 nochk '예약 시간에 맞춰 함께 시작' api/_ritual-kb.js
+chk 'MEAL_SHORT_OWNER_1115' mypage.html 1   # 사진 차례 «촬영 후 안내» 설명 — 식사 · 카페 날은 물건 말 없음(324 · 319 줄인 판과 같게)
+nochk '고, 그 밖의 분들께 식사 장소로 먼저' mypage.html   # 옛 판(식사 날도 «물건을 챙기고, …») 되살림 막기
+nochk '고, 차 한잔 함께하실 분께' mypage.html   # 카페 날 옛 판 되살림 막기
 nochk '촬영 뒤 함께 식사한다고' api/_ritual-kb.js
 chk 'EARLY_EAT_OWNER_1115' api/_kb.js 2
 chk 'EARLY_EAT_OWNER_1115' api/_ritual-kb.js 2
