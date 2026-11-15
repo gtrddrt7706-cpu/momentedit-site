@@ -179,7 +179,7 @@ try {
     const tb6 = await f.evaluate(() => BgmBed._t.toastBed ? BgmBed._t.toastBed() : '');
     ok(`${W} D6 축배 — «위하여» 전은 테이블 · 앞 순간 곡(${tb6}) · 뒤는 축배 곡(B28) · 축배 크기(0)`, ch > -1 && !!tb6 && tb6 !== 'B17' && pre.length > 0 && pre.every((x) => x.f === tb6) && post.some((x) => x.f === 'B28' && x.want === 0), { ch, seq: [...new Set(b6.map((x) => (x.cheer ? '!' : '') + x.slug + ':' + x.f + ':' + x.want))].slice(0, 20) });
     /* 6 축사 · 편지 */
-    await go(f, 'free'); const dk7 = await f.evaluate(() => BgmBed.dayAt('free') || 'B09'); const b7 = await listen(f, 'free', 9000); const t7 = b7.filter((x) => x.talk && x.src);   /* ★[SCREEN_SOUND_1102 2] 축사만 들으면 당일 시간표 그 자리 곡 */
+    await go(f, 'free'); const dk7 = await f.evaluate(() => BgmBed.dayAt('free') || 'B09'); const b7 = await listen(f, 'free', 9000); const t7 = b7.filter((x, j) => x.talk && x.src && !(j > 0 && b7[j - 1].i !== x.i && b7[j + 1] && b7[j + 1].i === x.i && b7[j + 1].want === -90));   /* ★[PV6_EDGE_1115 2026-11-15 BGM 섹션 · GPT 라운드 4 덧붙임] 줄 경계 표본 하나는 뺀다 — 빌더가 줄 번호(LP.i)를 먼저 올리고 같은 차례의 lpGap 이 setTimeout(0)으로 «다음 줄 크기로 미리 낮추기»를 거는 사이(수 ms)에 표본(0.12초마다)이 들면 앞 줄(여는 말 −15)의 want 가 말씀 줄로 찍혔다(세 번에 한 번 빨강 · 바탕 판도 같다 · 실측 6번: 말씀 줄 첫 표본 want −90 · 실제 크기 −14 → −22 → −90.5 dB 로 이미 내려가는 중 · 말씀 줄이 −15 를 청한 적 없음 = 표본 시점 문제) · 바로 다음 표본이 같은 줄 −90 일 때만 뺀다(말씀 줄이 정말 다른 크기를 청하면 다음 표본에서 잡힌다) */   /* ★[SCREEN_SOUND_1102 2] 축사만 들으면 당일 시간표 그 자리 곡 */
     ok(`${W} 6 축사 «음악 없이» — 말씀 동안 −90 · 곡 ${dk7}(본식 목록 그 자리 곡)`, t7.length && t7.every((x) => x.want === -90 && x.f === dk7), t7.slice(0, 3));
     await f.click('[data-fk="bgm:S5:bed"]'); await wait(f, 400); const rs = await row(f, 'M4S5');
     await shot(f, W, 'free', '.ls-bgm[data-slot="S5"]');

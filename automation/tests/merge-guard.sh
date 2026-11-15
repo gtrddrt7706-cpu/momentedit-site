@@ -23636,3 +23636,6 @@ chk "BED.onFail = (_sid !== BED.id && _dok(BED.id)) ?" console.html 1
 chk 'ENTRY_WAIT_HUSH_1115' assets/bgm-bed.js 2
 chk "if(!(BUF\[f\]&&BUF\[f\].st==='ok')) LPB.entLate={ st:st, tk:_tkh };" assets/bgm-bed.js 1
 chk "else if(LPB.entLate&&LPB.entLate.tk===_tkh){ LPB.entLate=null; note('fail',ec); }" assets/bgm-bed.js 1
+# ★[PV6_EDGE_1115 2026-11-15 BGM 섹션 · GPT 라운드 4 덧붙임] bgm-preview 6(축사 «음악 없이») — 줄 번호가 먼저 오르고 미리 낮추기가 setTimeout(0)인 줄 경계 표본 하나는 뺀다(표본 시점 문제 · 다음 표본이 같은 줄 −90 일 때만)
+chk 'PV6_EDGE_1115' scripts/audit/bgm-preview.mjs 1
+chk "b7\[j - 1\].i !== x.i && b7\[j + 1\] && b7\[j + 1\].i === x.i && b7\[j + 1\].want === -90" scripts/audit/bgm-preview.mjs 1
