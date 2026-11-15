@@ -2022,11 +2022,13 @@ function fire(i, opt){
   /* ★[BGM_CONSOLE2_1023 PRE_DUCK] 음악을 내려야 하는 큐는 음성보다 leadMs(0.4초) 먼저 내린다 — 종전엔 음성과 동시에 0.4초 동안 내려 첫 음절이 큰 음악 위에 놓였다.
      이어지는 큐는 사이 끝 0.4초 전에 이미 내려 두어(아래 preDuck) 여기서 기다리지 않는다 · 입장 장면은 제 시계(10초 앞 음악)가 맡아 빼고 · 고객 미리 듣기는 종전 그대로 */
   /* ★[BGM_FIX_1030 GPT③ R1-3] 미리 낮추기 = 보통 0.8초(leadMs) · 박수 뒤 큐는 1.5초(fadeMs) · 이미 그 크기 이하면 낮추지 않는다 · 음성은 실제 내림이 끝난 뒤에(대기 = 내림 시간) */
+  var _cdk = (esdMain(c) && esdWant() && !esdReady(c)) ? PARAM.duckSpeech : c.duck;   /* ★[ENTRY_NOFILE_DUCK15_1115 2026-11-15 대본 판단] 입장곡을 못 받은 날(ENTRY_NOFILE_OWNER_1115 · 본식 피아노로 걷는 날) 입장 멘트(약 20초) 아래는 말 아래 표준 −15 — 입장 큐 값 −12 는 입장 장면(곡이 무음에서 구호 아래로)의 값이다.
+       보통 날(장면 · 실측 걷기보다 13.9 dB 아래) 귀와 맞춘다: 종전 −12 = 걷기보다 12 dB 아래 → −15 = 15 dB 아래 · 보통 날 값은 그대로 */
   var _need = (MODE !== 'preview' && !esdMain(c) && !c.fadeWith && duckWant > c.duck + 0.5),   /* [MEANING_R2_1102 ENTRY_SETTLE] fadeWith = 멘트와 함께 잦아듦(도착 멘트 4.5초 · 음성은 기다리지 않는다) */ _dms = c.fadeMs || PARAM.fadeDownMs, _aft = (PARAM.duck && PARAM.duck.afterMs != null) ? +PARAM.duck.afterMs : 0;   /* ★[LAYER7_DUCK_1108] 내리는 시간(1.6초 · 박수 뒤 큐는 fadeMs) + 다 낮아진 뒤 0.4초에 첫 말 */
   var _lead = Math.max(_need ? _dms + _aft : 0, c.goLeadMs || 0); if (c.fadeWith && MODE !== 'preview') _lead = Math.max(_lead, ARRIVE_LEAD_MS);   /* ★[EAR_D_1106 ②] 도착 멘트 — 잦아듦(4.5초)은 GO 에서 바로 · 멘트는 1초 뒤(첫 단어가 입장 곡에 묻히지 않게 · −18 dB 아래) · 나머지 R2 그대로 */   // ★[PHOTO_PRE_GAP_1030] goLeadMs = 손으로 연 큐를 그만큼 쉬고 튼다(디지털 참석 날 온라인 인사 끝 → 사진 전 안내 2초)
   cheerAt = -1;   // [TOAST_GO] 축배 오름은 그 큐에서 한 번
   var _ldL = PARAM.fadeDownMs + _aft, _ldb = (c.leadDb != null && _lead > _ldL) ? c.leadDb : null;   /* [LAYER7_DUCK_1108] 말 크기로 내리는 끝 구간 = 내림 1.6초 + 0.4초(종전 0.8초) */   // ★[PREVIDEO_AFTER_1101] 무음에서 새 곡을 먼저 −8 로 올리고(goLeadMs 동안) 멘트 0.8초 앞에서 말 아래로
-  duckTo(PRE_HOLD === i ? -90 : (_ldb != null ? _ldb : c.duck), _ldb != null ? (PARAM.fadeUpMs || 1200) : (_need ? _dms : (c.fadeMs || PARAM.fadeDownMs)));   // [BRIDGE_FIRST_1101] PRE_HOLD · [CLAP_GO] 박수(사람 순간) 뒤 큐는 1.5초에 걸쳐 내린다(엔진이 fadeMs 를 싣는다)
+  duckTo(PRE_HOLD === i ? -90 : (_ldb != null ? _ldb : _cdk), _ldb != null ? (PARAM.fadeUpMs || 1200) : (_need ? _dms : (c.fadeMs || PARAM.fadeDownMs)));   // [BRIDGE_FIRST_1101] PRE_HOLD · [CLAP_GO] 박수(사람 순간) 뒤 큐는 1.5초에 걸쳐 내린다(엔진이 fadeMs 를 싣는다)
   if (_ldb != null) later(function(){ duckTo(c.duck, PARAM.fadeDownMs); }, _lead - _ldL);   // [BRIDGE_FIRST_1101] PRE_HOLD · [CLAP_GO] 박수(사람 순간) 뒤 큐는 1.5초에 걸쳐 내린다(엔진이 fadeMs 를 싣는다)
 
   var _run = function(){ playClip(c, function(){

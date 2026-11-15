@@ -3,6 +3,7 @@
    ① 화촉(M2 곡) → 입장 준비(정적 · ENTRY_HUSH) → 입장 GO — 꺼 둔 화촉 곡 재생기가 GO 뒤 8초 내내 −60 dB 아래(되살아나지 않는다)
    ② 같은 GO 에서 본식 피아노(M4) 첫 곡이 새로 시작해 6초 안에 −30 dB 위로(걷기 크기로 · 짧은 입장곡 인계 ENTRY_SHORT 와 같은 곡)
    ③ 쪽 오류 0
+   ④ [ENTRY_NOFILE_DUCK15_1115 대본 판단] 그 GO 에서 입장 멘트 아래 크기(duckWant) = 말 아래 표준 −15(입장 장면 값 −12 가 아니라)
    깨 보기: BP_CON=<옛 console.html> 이면 ① ② 빨강(종전 ENTRY_SCENE_DAY «못 받으면 배경음» = 화촉 곡이 걷기 크기로 되살아남)
    하네스는 console-relift.mjs 와 같다(시험 사인파 · 나레이션 0.6초 · 큐는 __bgmGo.fire) · 종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
@@ -70,15 +71,16 @@ try {
   await fire(iC); const g2 = await wait('M2', 'v != null && v > -40', 15000);
   await fire(iR); const q2 = await wait('M2', 'v == null || v <= -60', 15000); await pg.waitForTimeout(800);
   const esd = await pg.evaluate(() => { try { return (window.__esd && window.__esd()) || null; } catch (e) { return null; } });
-  const tE = await fire(iE); await pg.waitForTimeout(8000);
+  const tE = await fire(iE); await pg.waitForTimeout(250); const want = await pg.evaluate(() => window.__bgmSt && window.__bgmSt().want); await pg.waitForTimeout(7750);
   const sm = await pg.evaluate(() => { window.__rl.on = false; return window.__rl.smp; });
   const W = sm.filter((x) => x.t >= tE && x.t <= tE + 8000), pk = (nm, a, b) => { const v = W.filter((x) => x.t >= tE + a && x.t <= tE + b && x.s[nm] != null).map((x) => x.s[nm]); return v.length ? Math.max(...v) : -140; };
-  const r = { 준비: [g1, g2, q2], 화촉곡최고: pk('M2', 0, 8000), 피아노최고_6초: pk('M4', 0, 6000), 피아노최고_8초: pk('M4', 0, 8000), 표본: W.length, 입장장면: esd };
+  const r = { 준비: [g1, g2, q2], 화촉곡최고: pk('M2', 0, 8000), 피아노최고_6초: pk('M4', 0, 6000), 피아노최고_8초: pk('M4', 0, 8000), 멘트아래: want, 표본: W.length, 입장장면: esd };
   console.log('  재 본 값', JSON.stringify(r));
   if (!g1 || !g2 || !q2 || W.length < 100) { console.log('못 쟀다 — 준비(하객 맞이 · 화촉 곡 · 입장 준비 정적)가 안 됐다'); await br.close(); srv.close(); process.exit(2); }
   obs(sm, tE, 8000, 'M2', '①');
   ok('① 입장곡을 못 받은 날 입장 GO — 꺼 둔 화촉 곡이 8초 내내 −60 dB 아래(되살아나지 않는다) [ENTRY_NOFILE_OWNER_1115]', r.화촉곡최고 <= -60, r);
   ok('② 같은 GO 에서 본식 피아노(M4) 첫 곡이 새로 시작해 6초 안에 −30 dB 위로(걷기 크기)', r.피아노최고_6초 > -30, r);
+  ok('④ 입장 멘트 아래 크기 −15(말 아래 표준) [ENTRY_NOFILE_DUCK15_1115]', want === -15, { want });
   ok('③ 쪽 오류 0', !errs.length, errs.slice(0, 3));
   await ctx.close();
 } catch (e) { console.log('못 쟀다 —', String(e && e.stack || e).slice(0, 500)); try { await br.close(); } catch {} srv.close(); process.exit(2); }

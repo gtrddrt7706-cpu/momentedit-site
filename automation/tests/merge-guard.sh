@@ -23618,6 +23618,11 @@ nochk '이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해
 chk 'ENTRY_NOFILE_OWNER_1115' console.html 2
 chk "if (k === 'entry' && esdMain(c) && esdWant() && !esdReady(c)) return 'M4';" console.html 1
 chk 'ENTRY_NOFILE_OWNER_1115' scripts/audit/entry-nofile-1115.mjs 2
+# ★[ENTRY_NOFILE_DUCK15_1115 2026-11-15 대본 판단] 입장곡을 못 받은 날 입장 멘트 아래 = 말 아래 표준 −15(보통 날 장면 귀와 맞춤 · 입장 장면 값 −12 는 보통 날 길 그대로 · 검사 entry-nofile-1115 ④)
+chk 'ENTRY_NOFILE_DUCK15_1115' console.html 1
+chk 'var _cdk = (esdMain(c) && esdWant() && !esdReady(c)) ? PARAM.duckSpeech : c.duck;' console.html 1
+chk '(_ldb != null ? _ldb : _cdk)' console.html 1
+chk 'ENTRY_NOFILE_DUCK15_1115' scripts/audit/entry-nofile-1115.mjs 2
 # ★[TRIBUTE_DUCK_OWNER_1115 2026-11-15 대표님 «추천대로» · BGM 결정 카드 ③ A] 부모님께 인사 구호 · 포옹 청하는 줄 아래 음악 −12 그대로(일반 말 −15 로 맞추지 않는다)
 chk 'TRIBUTE_DUCK_OWNER_1115' assets/ritual-cue.js 1
 chk "if (/\^tribute-in/.test(_rs) && _rc.live) _rc.live.walkDuck = PARAM.duckMove != null ? PARAM.duckMove : -12;" assets/ritual-cue.js 1
