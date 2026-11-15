@@ -50,6 +50,7 @@ const GENS = [
 
 /* 이 검사가 «일부러» 안 보는 경로 — 반드시 왜를 적는다. */
 const KNOWN_OUT = {
+  'docs/plans/식순연구/층_씀목록_1108.json': '[LAYER_PLAN_1108] layer-used 엔진 훑기(약 500만 번 · 15분)의 결과다 — 게이트마다 다시 뽑지 않고 layer-targets 가 읽어 대조한다',
   'docs/plans/식순연구': '장면 대본 6편은 [STORY_STALE](build-course-story.mjs --check)이 이미 대조한다. 두 번 재지 않는다',
   'docs/plans/식순연구/배역_예시_대사.txt': '생성물이 아니라 «사람이 쓰는 원천»이다. 다시 뽑을 것이 아니다',
   'docs/plans/식순연구/타입캐스트/manifest.json': '타입캐스트 폴더 안에 있어 이미 대조된다(같은 것을 두 번 적은 자리)',

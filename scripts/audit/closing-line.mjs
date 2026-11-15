@@ -22,14 +22,14 @@ const rd = (f) => { try { return fs.readFileSync(path.join(ROOT, f), 'utf8'); } 
 let bad = 0;
 const ok = (m, c, d) => { if (c) console.log('ok   ' + m); else { bad++; console.log('FAIL ' + m + (d !== undefined ? '  → ' + (typeof d === 'string' ? d : JSON.stringify(d)).slice(0, 400) : '')); } };
 const sents = (t) => String(t || '').match(/[^.!?]+[.!?]/g).map((x) => x.trim());
-const RESV = '식사는 안내된 예약 시각에 두 분과 함께합니다.', NORESV = '식사는 두 분과 함께합니다.', JOIN = '두 분은 남은 촬영을 마친 뒤 합류합니다.';   // [INFO_SPLIT_200]
+const RESV = '식사는 안내해 드린 시간에 신랑 신부와 함께할 예정입니다.', JOIN = '두 사람은 남은 촬영을 마친 뒤에 자리합니다.', NJ = '식사 자리에는 신랑 신부도 남은 촬영을 마친 뒤 합류할 예정이에요.', THX2 = '끝까지 함께해 주신 하객 여러분께 다시 한 번 감사드립니다.';   // [INFO_SPLIT_200] · ★[FINAL_APPLY_1115 묶음 3 · 대표님 FINAL2 11/14] 예약 시각 있음 = 두 문장 새 글 · 없음 = 한 문장(NJ) · 없음 판 감사 = «진심으로» 없는 THX2(339)
 const E = C.EXTRA, A = sents(E['end-2-goodbye']), M = sents(E['narr-photo-pre-meal']).slice(3, 5), U = E['narr-photo-upload'], UM = '오늘 찍으신 사진도 그곳에서 바로 올리실 수 있습니다.', W = E['end-0-photo'], CH = '두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.', GA = ['이어서 단체 사진을 찍겠습니다.'];   // [END_FLOW_200 사장님 17:08] 한 문장   // ★[END_FLOW_200] 마무리 멘트 끝 = 늘 모이기 두 문장(새 녹음)   // ★[CLOSING_CHEER_195]   // ★[CLOSING_MEAL_DUP 검토 185] 식사 판 마지막 문장
 
 export function want(o) {
   const meal = o.meal && o.mealFull, nt = o.close === 2 || o.close === 3;   /* ★[INFO_SPLIT_200 검토 200 수정 2] 식사 날(식사 자리) × 예약 시각 · 하객 안내 갈래 없음 */   /* ★[CLOSING_SRC_1031 검토 179] 닫는 멘트 186(2) · 187(3) = 47#0 «… 진심으로 감사드립니다» 없이 */
   const nc = o.close === 2;   /* ★[CLOSING_CHEER_195 검토 195] 186 «다정하게»는 칩이 이미 응원을 부탁해 응원 문장(CH)도 뺀다 */
-  const thx = (nt ? [] : [A[0]]).concat(nc ? [] : [CH]);
-  const body = meal ? thx.concat([o.resv ? RESV : NORESV, JOIN]) : thx;   /* ★[INFO_SPLIT_200] 식사 시각 · 합류만 — 경로 · 사진은 5분 전 · «남은 하루»는 촬영 후 안내 */
+  const thx = (nt ? [] : [meal && !o.resv ? THX2 : A[0]]).concat(nc ? [] : [CH]);   /* [FINAL_APPLY_1115] 339 감사 = THX2 */
+  const body = meal ? thx.concat(o.resv ? [RESV, JOIN] : [NJ]) : thx;   /* ★[INFO_SPLIT_200] 식사 시각 · 합류만 — 경로 · 사진은 5분 전 · «남은 하루»는 촬영 후 안내 */
   const parts = body.concat(GA);   /* [CLOSING_NO_CREW_1031] 44(W)는 없다 */
   const sl = (meal ? (o.resv ? 'narr-closing-mealr' : 'narr-closing-mealnr') : 'narr-closing') + (nt ? (nc ? '-nt-nc' : '-nt') : '');
   return { slug: sl,
@@ -76,7 +76,7 @@ if (direct) {
   /* ④ 소리 */
   const idx = JSON.parse(rd('assets/audio/_src/_index.json') || '{}').slots || {};
   const man = JSON.parse(rd('docs/plans/식순연구/타입캐스트/manifest.json') || '{}');
-  const s4 = [], NEW = new Set(), redub = rd('docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt');
+  const s4 = [], NEW = new Set(), redub = rd('docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt'), VA = (man.voice || {})['안내'] || '문정';   /* [FINAL_APPLY_1115] 안내 목소리는 대장에서(진희 → 문정) */
   for (const [sl, parts] of Object.entries(C.CLOSING_PARTS || {})) {
     const id = C.noOf(sl) + '_' + sl;
     const allNew = parts.every((p, i) => p[2] === null && !idx[id + '#' + i]);   /* ★[CLOSING_CHEER_195] 294 = 응원 한 문장(새 녹음 대기) — 받기 전엔 옛 소리(44)를 지우고 «녹음 대기»로 둔다 */
@@ -89,20 +89,23 @@ if (direct) {
       if (p[0] !== '안내') s4.push(`${id}#${i} 줄 주인 ${p[0]} — 마무리는 진희(안내) 한 목소리 [CLOSING_ONE_VOICE_1031]`);
       if (/여기서부터는 작가님이 안내해/.test(p[1])) s4.push(`${id}#${i} 44 가 살아 있는 판에 있다 [CLOSING_NO_CREW_1031]`);
       if (p[2] === null) { NEW.add(p[1]);
-        const okBorrow = e && e.from && idx[e.from] && idx[e.from].text === p[1] && idx[e.from].voice === '진희' && !idx[e.from].from;   /* [INFO_SPLIT_200] 같은 글 · 진희가 이미 받은 소리를 빌린 자리(287#1 응원 문장 등)는 된다 */
-        if (e && !okBorrow && (e.from || e.voice !== '진희' || e.text !== p[1])) s4.push(`${id}#${i} 새 녹음 자리에 빌린 · 다른 목소리 소리(${e.from || e.voice})`);
-        if (!e && redub.indexOf('진희: ' + p[1]) < 0) s4.push(`${id}#${i} 아직 안 받은 새 문장이 «다시 받기»에 진희로 없다`);
+        const okBorrow = e && e.from && idx[e.from] && idx[e.from].text === p[1] && idx[e.from].voice === VA && !idx[e.from].from;   /* [INFO_SPLIT_200] 같은 글 · 진희가 이미 받은 소리를 빌린 자리(287#1 응원 문장 등)는 된다 */
+        if (e && !okBorrow && (e.from || e.voice !== VA || e.text !== p[1])) s4.push(`${id}#${i} 새 녹음 자리에 빌린 · 다른 목소리 소리(${e.from || e.voice})`);
+        if (!e && redub.indexOf(VA + ': ' + p[1]) < 0) s4.push(`${id}#${i} 아직 안 받은 새 문장이 «다시 받기»에 ${VA}로 없다`);
         const ms = mc && mc.sents[i]; if (!ms || ms.text !== p[1] || (ms.role || mc.role) !== p[0]) s4.push(`${id}#${i} 대장 줄 주인 · 글이 다르다`);
         if (!String(p[3] || '').trim()) s4.push(`${id}#${i} 자료 판정(src) 칸이 비었다`); return; }
-      if (!e || !e.from) s4.push(`${id}#${i} 창고 자리가 빌려 온 소리가 아니다`);
-      else if (e.from !== p[2]) s4.push(`${id}#${i} 빌려 온 자리 ${e.from} ≠ ${p[2]}`);
+      /* ★[FINAL_APPLY_1115 묶음 3] 문정 판은 원천 자리(47#0 등)와 같은 원본 테이크를 자리마다 직접 넣었다 — 빌림(from) 없이 «같은 글 · 같은 목소리(안내 = 문정)»면 된다 */
+      if (!e) s4.push(`${id}#${i} 창고 자리가 비었다`);
+      else if (e.from && e.from !== p[2]) s4.push(`${id}#${i} 빌려 온 자리 ${e.from} ≠ ${p[2]}`);
       if (!src || src.text !== p[1]) s4.push(`${id}#${i} 원천 ${p[2]} 글이 다르다`);
+      if (e && (e.voice !== VA || e.text !== p[1])) s4.push(`${id}#${i} 목소리 · 글 ${e.voice} «${e.text}» — 안내(${VA}) · «${p[1]}» 여야`);
       if (src && e && src.voice !== e.voice) s4.push(`${id}#${i} 목소리 ${e.voice} ≠ 원천 ${src.voice}`);
       const ms = mc && mc.sents[i]; if (!ms || ms.text !== p[1] || (ms.role || mc.role) !== p[0]) s4.push(`${id}#${i} 대장 줄 주인 · 글이 다르다`);
       if (!String(p[3] || '').trim()) s4.push(`${id}#${i} 자료 판정(src) 칸이 비었다`); });
   }
-  if (NEW.size !== 4 || [...NEW].some((t) => t !== CH && t !== NORESV && t !== JOIN && GA.indexOf(t) < 0)) s4.push(`새 녹음 문장 ${NEW.size}개 — 응원 한 줄(CLOSING_CHEER_195) + 모이기 한 줄(END_FLOW_200) + 식사 예약 시각 없음 · 합류 두 줄(INFO_SPLIT_200)만이어야 한다 · 예약 시각 있음은 321 을 빌린다`);
-  ok('④ 마무리 = 진희 한 목소리 · 새 녹음 3문장(266 식사 두 줄 진희판 · 식사 판 사진 올리기 «오늘 찍으신 사진도 그곳에서 …» [CLOSING_MEAL_DUP]) · 나머지는 빌려 온 진희 녹음 · 44 없음 · mp3 · 문장마다 자료 판정(src) [CLOSING_ONE_VOICE_1031 · CLOSING_NO_CREW_1031]', !s4.length, s4);
+  /* ★[FINAL_APPLY_1115 묶음 3] 새 문장 = 응원 · 모이기 + 식사 날 새 글 넷(RESV · JOIN · NJ · THX2 · 대표님 FINAL2) */
+  if (NEW.size !== 6 || [...NEW].some((t) => t !== CH && t !== RESV && t !== JOIN && t !== NJ && t !== THX2 && GA.indexOf(t) < 0)) s4.push(`새 녹음 문장 ${NEW.size}개 — 응원 한 줄(CLOSING_CHEER_195) + 모이기 한 줄(END_FLOW_200) + 식사 예약 시각 없음 · 합류 두 줄(INFO_SPLIT_200)만이어야 한다 · 예약 시각 있음은 321 을 빌린다`);
+  ok('④ 마무리 = 안내 한 목소리(문정 · FINAL_APPLY_1115 · 옛 진희) · 새 녹음 3문장(266 식사 두 줄 진희판 · 식사 판 사진 올리기 «오늘 찍으신 사진도 그곳에서 …» [CLOSING_MEAL_DUP]) · 나머지는 빌려 온 진희 녹음 · 44 없음 · mp3 · 문장마다 자료 판정(src) [CLOSING_ONE_VOICE_1031 · CLOSING_NO_CREW_1031]', !s4.length, s4);
   /* ⑤ 흐름 쉼 */
   const s5 = [];
   /* ★[CLOSING_CHEER_195 검토 195] 47 두 문장 사이에 응원 문장이 들어가 «47 의 쉼 1.35 그대로» 판은 없어졌다 — 감사 → 응원 → 남은 하루 차례와 문장 사이 쉼(1초 이상)만 본다 */
@@ -120,6 +123,6 @@ if (direct) {
   if (!check(brk((q) => q.map((c) => /^narr-closing/.test(c.slug || '') ? Object.assign({}, c, { goLeadMs: 2000 }) : c))).length) { dead++; console.log('FAIL 깨 보기 «간격 2초를 늘 줌» — 빨강이 안 됐다'); }
   if (!check(brk((q) => q.map((c) => /^narr-closing.*-nt$/.test(c.slug || '') ? Object.assign({}, c, { slug: c.slug.replace(/-nt$/, ''), text: A[0] + ' ' + c.text }) : c))).length) { dead++; console.log('FAIL 깨 보기 «186 · 187 날에 감사 판» — 빨강이 안 됐다'); }
   if (bad || dead) { console.log(`✗ CLOSING_LINE_1031 실패 ${bad + dead}건`); process.exit(1); }
-  console.log('ok closing-line — 마무리 멘트 48 조합 · 44 없음 · 사진 구간 나레이션 0 · «진심으로 감사» 한 번 · 진희 한 목소리(새 녹음 2문장 · 나머지 빌림 · 자료 판정) · 흐름 쉼 · 화면 글 · 깨 보기 4개 맞음');
+  console.log('ok closing-line — 마무리 멘트 48 조합 · 44 없음 · 사진 구간 나레이션 0 · «진심으로 감사» 한 번 · 안내(문정) 한 목소리(새 녹음 2문장 · 나머지 빌림 · 자료 판정) · 흐름 쉼 · 화면 글 · 깨 보기 4개 맞음');
   process.exit(0);
 }
