@@ -2268,6 +2268,139 @@
     "d_semi": 2.3,
     "d_bright": 2.5
    }
+  },
+  "00_song-intro-19_t0.flac": {
+   "n": 0,
+   "key": "19_narr-song",
+   "seat": "축가 여는 말 19(바꾸는 줄 · 대본 11/16 01:1x)",
+   "text": "두 사람의 앞날을 축복하는 축가가 있겠습니다.",
+   "take": "t0",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE19_1116_우성 (6af9da30f6e207162757cfc8)",
+   "when": "2026-11-16",
+   "md5_wav": "95098022301da7327684d3f0fc7ce8d2",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true
+   }
+  },
+  "00_song-intro-19_t1.flac": {
+   "n": 0,
+   "key": "19_narr-song",
+   "seat": "축가 여는 말 19(바꾸는 줄 · 대본 11/16 01:1x)",
+   "text": "두 사람의 앞날을 축복하는 축가가 있겠습니다.",
+   "take": "t1",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE19_1116_우성 (6af9da30f6e207162757cfc8)",
+   "when": "2026-11-16",
+   "md5_wav": "d209acba3d201668a71c3ef1deab8f75",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true
+   }
+  },
+  "00_song-intro-19_t2.flac": {
+   "n": 0,
+   "key": "19_narr-song",
+   "seat": "축가 여는 말 19(바꾸는 줄 · 대본 11/16 01:1x)",
+   "text": "두 사람의 앞날을 축복하는 축가가 있겠습니다.",
+   "take": "t2",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE19_1116_우성 (6af9da30f6e207162757cfc8)",
+   "when": "2026-11-16",
+   "md5_wav": "380956b0038e20122c438765ec2cd42a",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true
+   }
+  },
+  "00_song-intro-19_t3.flac": {
+   "n": 0,
+   "key": "19_narr-song",
+   "seat": "축가 여는 말 19(바꾸는 줄 · 대본 11/16 01:1x)",
+   "text": "두 사람의 앞날을 축복하는 축가가 있겠습니다.",
+   "take": "t3",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE19_1116_우성 (6af9da30f6e207162757cfc8)",
+   "when": "2026-11-16",
+   "md5_wav": "156aa2235753a83687f7fb685411393a",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true
+   }
+  },
+  "00_song-intro-19_t4.flac": {
+   "n": 0,
+   "key": "19_narr-song",
+   "seat": "축가 여는 말 19(바꾸는 줄 · 대본 11/16 01:1x)",
+   "text": "두 사람의 앞날을 축복하는 축가가 있겠습니다.",
+   "take": "t4",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE19_1116_우성 (6af9da30f6e207162757cfc8)",
+   "when": "2026-11-16",
+   "md5_wav": "047a3c812c37790a16cea9c8abfa43d4",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true
+   }
+  },
+  "00_song-intro-19_t5.flac": {
+   "n": 0,
+   "key": "19_narr-song",
+   "seat": "축가 여는 말 19(바꾸는 줄 · 대본 11/16 01:1x)",
+   "text": "두 사람의 앞날을 축복하는 축가가 있겠습니다.",
+   "take": "t5",
+   "voice": "우성 SSFM 3.0 «일반» 1.0x 피치 0 · 스마트 이모션 끔",
+   "project": "NARR_ROLE19_1116_우성 (6af9da30f6e207162757cfc8)",
+   "when": "2026-11-16",
+   "md5_wav": "5080b3b7c492615d4d0c79a5bd1e7993",
+   "qc": {
+    "heard_ok": true,
+    "end_ok": true,
+    "break_ok": true
+   }
+  }
+ },
+ "pick_1116": {
+  "_왜": "대본 11/16 01:1x — 받은 테이크 안에서 바꿈(3→t5 · 5→t4 · 6→t5 · 7→t0 · 8→t2 · 12→t0) · 19 는 우성 보통 결(191클립 387문장 가운데값) 가장 가까운 t3",
+  "lines": {
+   "1": "t2",
+   "2": "t1",
+   "3": "t5",
+   "4": "t3",
+   "5": "t4",
+   "6": "t5",
+   "7": "t0",
+   "8": "t2",
+   "9": "t4",
+   "10": "t3",
+   "11": "t4",
+   "12": "t0",
+   "13": "t0",
+   "14": "t3",
+   "15": "t2",
+   "16": "t0",
+   "17": "t3",
+   "18": "t0",
+   "19": "t0",
+   "20": "t3",
+   "21": "t1"
+  },
+  "19": {
+   "take": "t3",
+   "fac": 0.878,
+   "cps": 8.155,
+   "d_semi_norm": -0.35,
+   "d_bright_norm": 3.7,
+   "old_d_semi_norm": 3.5500000000000007,
+   "semi": 6.225,
+   "cent": 1404.3,
+   "dur": 3.78
   }
  }
 }
