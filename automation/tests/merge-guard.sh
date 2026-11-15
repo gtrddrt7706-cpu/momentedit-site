@@ -23500,7 +23500,7 @@ chk '신랑 신부… 맞절.' assets/ritual-open.js 4
 chk '화면으로 함께해 주시는 분들께도 두 사람이 인사드리겠습니다.' assets/ritual-data.js 1
 chk '이제 안내에 따라 사진 촬영을 진행하겠습니다.' assets/ritual-cue.js 1
 # ★[FINAL_APPLY_1115 · CI guard 11/15] 문체 자를 넘은 대표님 확정 세 자리 — 그 자리 · 그 낱말만 봐준다(깨 보기가 다른 자리는 그대로 걸리는지 본다) · 결정 docs/rules/나레이션.md 묶음 3 «문체 자를 넘은 자리»
-chk "const FINAL_OK = \[\['W1', /^tribute-hug\$/, '따뜻하게 안아'\], \['W2', /^guest-w-10m-n20/, '천천히 자리를 잡아'\], \['W13', /^guest-w-10m-n10-short/, '예식을'\]\];" scripts/audit/narr-words.mjs 1
+chk "const FINAL_OK = \[\['W1', MIDV_OUT, '따뜻한 박수'\], \['W1', /^tribute-hug\$/, '따뜻하게 안아'\], \['W2', /^guest-w-10m-n20/, '천천히 자리를 잡아'\], \['W13', /^guest-w-10m-n10-short/, '예식을'\]\];" scripts/audit/narr-words.mjs 1   # ★[MIDV_OUT_CLAP_1115 · NARR_ROLE_1115] 식중 영상 닫는 말 355(354) 한 칸 더 · 옛 핀은 셋째 자리부터 같은 줄
 chk '\[FINAL_APPLY_1115\] 깨 보기 — 대표님 확정 세 자리는 통과' scripts/audit/narr-words.mjs 1
 chk '문체 자(`scripts/audit/narr-words.mjs` W1 · W2 · W13)를 넘은 자리' docs/rules/나레이션.md 1
 # ★[SEAM_SAMPLE_1115] seam-bg «앞 명령» 경계 = 바뀌기 전 마지막 표본(0.1초 표본 늦음에 흔들리지 않게) — 옛 «a.T - 50» 되살리지 말 것
