@@ -261,6 +261,12 @@ for (_a, _b) in ((('91','narr-candle-in-mothers'), ('91','narr-candle-in-mothers
     if _a in SKIP: SKIP.setdefault(_b, SKIP[_a] + ' · [BASE_SWAP_1023] 이제 예시 2 이름(번호 그대로)')
 SKIP.setdefault(('151','narr-candle-in-mothers'), '2026-10-17 신설 — 화촉 어머님 예시 2 «담백하게» [EX_MANY_1017] · G 원본 그대로 · [BASE_SWAP_1023 검토 156] 10/23 부터 기본(번호 151 그대로)')
 SKIP.setdefault(('160','narr-entry-bow'), '2026-10-17 신설 — 맞절 예시 2 «격식 있게» [EX_MANY_1017] · 자료 그대로 · [BASE_SWAP_1023 검토 156] 10/23 부터 기본(번호 160 그대로)')
+# ★[NARR_ROLE_1115 2026-11-15 대본 · 릴스 방 교통정리 2차 확정 21문장] 358 ~ 378 «누가» 줄(덕담 한 분 · 첫 분 · 축사 · 축가 · 두 분 직접) — 판정 회차 뒤에 태어났다 ·
+#   자료 U1 176 ~ 180 · 185 ~ 187 · NN 186 · 12_축가 376 · 321 원문의 이름 칸에 역할만 넣은 글(SOURCE_FIRST_1016 ①)이라 문체 회차에 올리지 않는다 · 녹음 대기(음성 방 11/16 · 소리 오기 전엔 글로).
+#   ★21줄을 손으로 적지 않고 번호 · 이름 꼴로 고른다 — 번호 밖 · 꼴 밖 새 클립은 여전히 «미착수»로 붉다.
+for _no, _sl, *_r in rows:
+    if _no.isdigit() and 358 <= int(_no) <= 378 and re.match(r'^(bless-(one|first)-[gb][fm]|speech-[gbc]f[ra]|song-who-[gbc]f[ra]|song-self-[gbc])$', _sl):
+        SKIP.setdefault((_no, _sl), '2026-11-15 신설 — «누가» 줄 [NARR_ROLE_1115 · 대본 · 릴스 방 교통정리 2차 확정 21문장] · 자료 원문의 이름 칸에 역할만(SOURCE_FIRST_1016 ①) · 녹음 대기(음성 방 11/16 · 녹음 전엔 글로)')
 LETTERS = {('10','letter-parent'),('11','letter-each'),('12','bless-father'),
            ('13','bless-mother'),('14','tribute'),('27','tribute-reply'),('43','parents-letter')}
 
