@@ -4885,7 +4885,7 @@ chk 'PV_FEEL_1106' api/_kb.js 1
 nochk 'data-pvcmode="make"' mypage.html
 # ★[PV_ONE_WAY_1107 2026-11-07 사장님 «필메이커에서 만들어 여기에 올리는 건 똑같잖아» · 대본 «한 갈래로»] 식전 · 식중 첫 화면 = 큰 단추 «영상 올리기» 하나 + 필메이커 안내 한 줄 — 두 칸 갈래를 되살리지 않는다
 chk 'PV_ONE_WAY_1107' mypage.html 8
-chk "function _pvcFeelIn()" mypage.html 1
+chk "function _pvcFeelIn(m)" mypage.html 1   # [VIDEO_UMBRELLA_1115] 첫 화면에선 단계 셋 «영상 준비» 안 «만드는 법 보기»(m='link') · 함수는 그대로 하나
 chk "h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode=\"upload\"'));   // \[PV_ONE_WAY_1107\]" mypage.html 1
 nochk '<b>준비한 영상 올리기</b>' mypage.html
 nochk '<b>필메이커에서 만들기</b><span>' mypage.html

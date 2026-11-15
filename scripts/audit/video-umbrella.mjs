@@ -5,6 +5,7 @@
 //   ③ 식중 있는 분: 머리 줄(이름 + 기한) 하나 · 아래 식전 · 식중 두 줄(입장 전 · 덕담 뒤) · 기한 꼬리표는 머리에만 · 상태 꼬리표는 줄마다 · 단추 id 그대로 · 단추 오른쪽 끝 같은 자리
 //   ④ 확인서: 이름 줄 하나 + 영상마다 상태 · 열기(data-cfpvc · data-cfmvc)
 //   ⑤ 가로 넘침 0 · 쪽 오류 0
+//   ⑥ 안쪽 화면(식전 · 식중 첫 화면): 맨 위 «지금 하실 일 · 확정 기한» 띠 하나 · 날짜는 한 번만 · 단계 셋 · 식중은 «선택 사항 · 축사 대신 상영 · 제작비는 두 분 부담» · 진사 단추 0(첫 화면) · 흰 상자 0
 // 종료 0 = 통과 · 1 = 실패 · 2 = 재지 못함(브라우저 없음)
 import fs from 'node:fs';
 import path from 'node:path';
@@ -30,6 +31,7 @@ const CASES = {
   none: { mid: false, pv: { st: 'review' }, mv: null },
   both: { mid: true, pv: { st: 'review' }, mv: { st: 'draft', d: { link: 'https://drive.google.com/x', mode: 'upload' } } },
   done: { mid: true, pv: { st: 'done' }, mv: { st: 'done' } },
+  fresh: { mid: true, pv: { st: '' }, mv: { st: '' } },   // ⑥ 안쪽 첫 화면(둘 다 시작 전)
 };
 let CUR = null;
 function setWorld(c) {
@@ -71,9 +73,27 @@ try {
         cf: cf ? { vu: cf.querySelectorAll('.vu-cf').length, p: cf.querySelectorAll('[data-cfpvc]').length, m: cf.querySelectorAll('[data-cfmvc]').length, txt: t(cf) } : null,
         sw: document.documentElement.scrollWidth, iw: innerWidth };
     });
+    let FL = null;
+    if (name === 'fresh') {   // ⑥ 안쪽 화면 — 식전 · 식중 첫 화면을 차례로 연다(닫을 땐 쪽을 다시 연다)
+      FL = {};
+      for (const [k, id] of [['pre', 'mp_pvcStart'], ['mid', 'mp_mvcStart']]) {
+        if (k === 'mid') { await page.reload({ waitUntil: 'load' }); await page.waitForFunction(() => window._curView === 'mypageView', null, { timeout: 25000 }).catch(() => {}); await page.waitForTimeout(900); }
+        await page.evaluate((id) => { const b = document.getElementById(id); if (b) b.click(); }, id); await page.waitForTimeout(700);
+        FL[k] = await page.evaluate(() => { const c = document.getElementById('mp_pvcInner'); if (!c) return null; const tx = c.innerText;
+          const now = c.querySelectorAll('.pvc-now'); const due = (tx.match(/\d+월 \d+일\([일월화수목금토]\)/g) || []).length;
+          const cond = [...c.querySelectorAll('.pvc-cond span')].map((e) => e.textContent.trim());
+          const boxes = [...c.querySelectorAll('.pvc-card *')].filter((e) => { const cs = getComputedStyle(e); return cs.borderTopStyle !== 'none' && parseFloat(cs.borderTopWidth) > 0 && cs.borderLeftStyle !== 'none' && parseFloat(cs.borderLeftWidth) > 0 && cs.borderRightStyle !== 'none' && parseFloat(cs.borderRightWidth) > 0 && !/^(BUTTON|INPUT|A)$/.test(e.tagName) && !e.closest('button') && !e.closest('.wz-bar') && !e.closest('.inv-head') && e.getBoundingClientRect().height > 30; }).length;
+          return { now: now.length, nowTxt: now[0] ? now[0].innerText.replace(/\s+/g, ' ') : '', due, steps: c.querySelectorAll('.pvc-3 > li').length, cond, seal: c.querySelectorAll('.cc-btn.seal,.cc-btn-seal,[class*="seal"]').length, boxes, sw: document.documentElement.scrollWidth, iw: innerWidth }; });
+      }
+    }
     const tag = `${W} ${name}`;
     ok(`⑤ ${tag} 가로 넘침 0 · 쪽 오류 0`, R.sw <= R.iw && !errs.length, R.sw + '/' + R.iw + ' ' + errs.join(' | '));
-    if (name === 'none') {
+    if (name === 'fresh') {
+      for (const k of ['pre', 'mid']) { const f = FL && FL[k];
+        ok(`⑥ ${tag} ${k} 첫 화면 — 맨 위 «지금 하실 일 · 확정 기한» 띠 하나 · 날짜 한 번`, f && f.now === 1 && /지금 하실 일 영상 링크 보내기/.test(f.nowTxt) && /확정 기한 \d+월 \d+일\([일월화수목금토]\) · D-5/.test(f.nowTxt) && f.due === 1, JSON.stringify(f));
+        ok(`⑥ ${tag} ${k} 첫 화면 — 단계 셋 · 진사 단추 없음 · 흰 상자 없음 · 가로 넘침 0`, f && f.steps === 3 && f.seal === 0 && f.boxes === 0 && f.sw <= f.iw, JSON.stringify(f)); }
+      ok(`⑥ ${tag} 식중 첫 화면 — «선택 사항 · 축사 대신 상영 · 제작비는 두 분 부담»`, FL && FL.mid && FL.mid.cond.join('|') === '선택 사항|축사 대신 상영|제작비는 두 분 부담' && FL.pre && FL.pre.cond.length === 0, JSON.stringify(FL && FL.mid && FL.mid.cond));
+    } else if (name === 'none') {
       ok(`② ${tag} 식중 없는 분 — 묶음 머리 없음 · «식전 영상» 한 줄`, R.head === 0 && R.rows.length === 0 && R.plain === 1 && R.pv && !R.mv, JSON.stringify(R));
       ok(`② ${tag} 확인서 — «식전 영상 열기» 한 줄 그대로`, R.cf && R.cf.vu === 0 && R.cf.p === 1 && R.cf.m === 0 && /식전 영상 열기/.test(R.cf.txt), JSON.stringify(R.cf));
     } else {
