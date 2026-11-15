@@ -4821,11 +4821,12 @@ chk "_recordHandler(code, _pvName_(kind) + ' 동의 · 처리방침 ' + ver)" au
 chk 'MID_OPEN_1114' mypage.html 1
 chk 'MID_OPEN_1114' scripts/audit/midvideo.mjs 8
 chk 'id="midvideo"' privacy.html 1
-# ★★[MID17_PICK 2026-11-07 재검증 재수정 · 사장님 «마음의 순간에 식중 영상 칸을 따로 하나»] MID17 줄 1 · 2 — ① 식중 영상 칸(축사와 둘 중 하나 · 바꿔 담기 · 알림 한 줄) ·
-#   이름 «식중 영상»(nameOf · 칩 · 칸 글) · ② 길이 칸 + 택1 한 줄 · at:'midvideo' · 준비 목록 빈 칸 · 시간 띠(60 × 분 + 8 · 40분 상한) — 390 · 360 화면을 돌린다
+# ★★[MID17_PICK 2026-11-07 재검증 재수정 · 사장님 «마음의 순간에 식중 영상 칸을 따로 하나»] MID17 줄 1 · 2 — 이름 «식중 영상» · 길이 칸 · at:'midvideo' · 준비 목록 빈 칸 · 시간 띠(60 × 분 + 8 · 40분 상한)
+#   ★★[SPEECH_SONG_1115 2026-11-15 대표님] 새 기대 — 식중 영상 = 따로 넣고 빼는 순간 midvid(축사 · 축가와 함께) · 축사 · 축가 = 한 카드 · 둘 중 하나(opTgl · opPair · lsAdd · lsUndo) ·
+#   마음의 순간 카드 넷 · 옛 초안 옮기기(midMigrate) — 옛 기대(축사와 바꿔 담기 MID_SWAP · ② 택1 한 줄 · 뺀 갈래 되담기 MID17_FREE_BACK)는 은퇴(RULES_SLIM_1107 ⑧) — 390 · 360 화면을 돌린다
 if command -v node >/dev/null 2>&1; then _m17=$(node scripts/audit/mid17-pick.mjs 2>&1); _m17r=$?
   case "$_m17r" in
-    0) echo 'ok mid17-pick: 식중 영상 칸 · 이름 · 바꿔 담기 · 길이 · at:midvideo · 시간' ;;
+    0) echo 'ok mid17-pick: 식중 영상 칸 · 축사 · 축가 둘 중 하나 · 길이 · at:midvideo · 시간 · 옛 초안 옮기기' ;;
     1) echo 'FAIL mid17-pick: 식중 영상 고르기 · 시간이 어긋났다 — node scripts/audit/mid17-pick.mjs'; printf '%s\n' "$_m17" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
     *) echo 'ok mid17-pick: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
@@ -4843,15 +4844,38 @@ if command -v node >/dev/null 2>&1; then _vu=$(node scripts/audit/video-umbrella
     *) echo 'ok video-umbrella: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
 fi
-chk 'MID17_TILE' order-preview.html 14
+chk 'MID17_TILE' order-preview.html 13   # [SPEECH_SONG_1115] 바꿔 담기(_mvSwap · MID_SWAP) 자리가 걷혀 14 → 13
 chk 'MID17_NAME' assets/ritual-open.js 6
 chk 'MID17_NAME' order-preview.html 1
 chk 'MID17_PREP' assets/ritual-open.js 1
-chk 'MID17_LEN' order-preview.html 2
+chk 'MID17_LEN' order-preview.html 1   # [SPEECH_SONG_1115] ② 택1 한 줄(«축사와 같은 자리라 둘 중 하나만») 걷음 · 2 → 1
 chk 'MID17_AT' order-preview.html 3
-chk 'MID17_FREE_BACK' order-preview.html 11   # [MID17_FREE_BACK 2026-11-07 대본] 이번 방문에 뺀 free 칸은 다시 담으면 뺄 때 갈래(칸을 지정하면 그 칸 · 처음 담는 축사 칸은 축사)
+# [MID17_FREE_BACK 2026-11-07 대본] «이번 방문에 뺀 free 칸은 뺄 때 갈래로 되담기» — ★[SPEECH_SONG_1115] 은퇴: 축사 칸은 늘 축사(_freeBack → 'speech') · 식중 영상은 따로라 되담을 갈래가 없다(옛 chk … 11 걷음)
+chk "function _freeBack(){ return 'speech'; }" order-preview.html 1
+# ★★[SPEECH_SONG_1115 2026-11-15 대표님 23:05] 축사 · 축가 = 한 카드 · 둘 중 하나 / 식중 영상 = 따로 넣고 빼는 순간(midvid · 축가 뒤 · 편지 앞) / 정석 = 축가만 / 옛 초안 옮기기 — 동작은 mid17-pick · mid17-engine · mid17-console · open-course 가 잰다
+chk 'SPEECH_SONG_1115' assets/ritual-open.js 20
+chk 'SPEECH_SONG_1115' order-preview.html 20
+chk 'SPEECH_SONG_1115' mypage.html 4
+chk 'function midMigrate(S)' assets/ritual-open.js 1
+chk 'function pairSet(S, which)' assets/ritual-open.js 1
+chk 'function pairOf(S)' assets/ritual-open.js 1
+chk 'if (O.midMigrate) O.midMigrate(s);' assets/ritual-cue.js 1      # 엔진 norm — 옛 초안 free + video · 축사 + 축가
+chk 'RitualOpen.midMigrate(S)' order-preview.html 1                   # 빌더가 초안을 읽을 때(_applySaved)
+chk 'window.opPair=function(w)' order-preview.html 1
+chk "'song','midvid','letter'" assets/ritual-data.js 1                # COURSES.open.seq = ORDER(open-course 가 대조)
+nochk 'var MID_SWAP=' order-preview.html 0                           # 옛 «축사 ↔ 식중 영상 바꿔 담기» — 되살리지 말 것
+nochk 'function _mvSwap(' order-preview.html 0
+nochk '축사와 같은 자리라 둘 중 하나만 담을 수 있어요' order-preview.html 0
+nochk '<span>축사 대신 상영</span>' mypage.html 0
+nochk '축사와 같은 칸이라 둘 중 하나만 고를 수 있어요' mypage.html 0
+nochk '축사 자리(덕담 뒤 · 축가 앞)에 축사 대신' api/_kb.js 0
+nochk '축사 자리(덕담 뒤 · 축가 앞)에 축사 대신' index.html 0
+chk '축사 · 축가 뒤(편지 낭독 앞)에 두 분이 준비한 영상을 틀 수 있고, 축사나 축가와 함께 담을 수 있습니다.' index.html 2   # 홈 FAQ 본문 · JSON-LD
+chk 'SPEECH_SONG_1115' scripts/audit/mid17-pick.mjs 10
+chk 'SPEECH_SONG_1115' scripts/audit/mid17-engine.mjs 3
+chk 'SPEECH_SONG_1115' scripts/audit/mid17-console.mjs 2
 chk 'MID17_PICK' scripts/audit/mid17-pick.mjs 1
-chk 'window.opPkTgl=function(k)' order-preview.html 1   # [MID17_TILE] ① 칸 · 창의 담기는 이 길(바꿔 담기) · ② 흐름 빼기는 opTgl 그대로
+chk 'window.opPkTgl=function(k)' order-preview.html 1   # [MID17_TILE · SPEECH_SONG_1115] ① 칸 · 창의 담기는 이 길(식중 영상 = 따로 · 축사 · 축가 카드 = 고른 쪽 · 안 골랐으면 고르기 창) · ② 흐름 빼기는 opTgl 그대로
 chk "MID_NAME = '식중 영상'" assets/ritual-open.js 1
 nochk "'준비한 순서 영상(휴대폰" assets/ritual-open.js 0   # [MID17_PREP] 식중 영상은 마이페이지가 받는다 — 옛 할 일 줄 되살리지 말 것
 # ★[PV_REMOTION_1101 2026-11-01 사장님 «뼈대를 만들어 무료로 계속 쓸 수 있게» · «웃기게 하지 말고»] 식전 영상 뼈대(automation/prevideo · Remotion) —
@@ -7814,7 +7838,7 @@ chk 'EX_STD_1012' scripts/audit/open-course.mjs 6
 chk 'EX_STD_1012' scripts/check-ritual-cue.js 2
 chk 'EX_STD_1012' scripts/audit/source-basis.mjs 6
 chk "{ k: 'standard', nm: '정석', title: '실제 예식에서 가장 많이 하는 순서', feel: '익숙하고 편안하게 · 가장 많이 하는 순서'," assets/ritual-open.js 1
-chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'free', 'song', 'tribute'], set: { entry: 'A', tribute: 'long', free: 'speech', narEx: { speech: 1 } } }" assets/ritual-open.js 1   # [SPEECH_TILE_1012] 정석 + 축사 3분 · [TOAST_LAST_1013] 축배는 기록에만   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'A', tribute: 'long', free»
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'song', 'tribute'\], set: { entry: 'A', tribute: 'long', free: 'speech', narEx: { speech: 1 } } }" assets/ritual-open.js 1   # ★[SPEECH_SONG_1115] 정석 = 축가만(옛 핀 «'vow', 'free', 'song'» · 축사 3분) · [SPEECH_TILE_1012] · [TOAST_LAST_1013] 축배는 기록에만   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'A', tribute: 'long', free»
 chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'tribute', 'toast', 'table'], set: { entry: 'B', tribute: 'none', narEx: { close: 3 } } }" assets/ritual-open.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'B', tribute: 'none' } }»
 chk "on: \['prevideo', 'candle', 'welcome', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long', narEx: { open: 1, candle: { mothers: 1 }, bless: 1 } } }" assets/ritual-open.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · [EX_CHIP_DEF_1019] 기본 칩   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'E', tribute: 'long', narE»
 chk "on: \['prevideo', 'candle', 'vow', 'tribute'], set: { entry: 'C', tribute: 'none', narEx: { open: 2, matjeol: 4 } } }" assets/ritual-open.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · [EX_CHIP_DEF_1019] 기본 칩   # ★[REVIEW26_1023 검토 150] 옛 핀 «candle: { mothers: 2 }, matjeol: 4 } } }»
@@ -7828,7 +7852,7 @@ chk 'CAKE_OFF_1013' assets/ritual-open.js 3
 chk 'var RETIRED = { cake: 1 };' assets/ritual-open.js 1
 chk 'var OFFER = PICKABLE.filter(function (k) { return !RETIRED\[k\]; });' assets/ritual-open.js 1
 chk 'RETIRED: RETIRED, OFFER: OFFER' assets/ritual-open.js 1
-chk "ORDER = \['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'\]" assets/ritual-open.js 1   # 옛 초안 — ORDER 에서 빼지 않는다 · 맞절은 입장 바로 뒤
+chk "ORDER = \['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'midvid', 'letter', 'tribute', 'cake', 'toast', 'table'\]" assets/ritual-open.js 1   # ★[SPEECH_SONG_1115] 식중 영상 = 축가 뒤 · 편지 앞 · 옛 초안 — ORDER 에서 빼지 않는다 · 맞절은 입장 바로 뒤
 chk 'CAKE_OFF_1013' order-preview.html 3
 chk 'function _pkShow(k)' order-preview.html 1
 chk 'a.ks.filter(_pkShow).map(_pkTile)' order-preview.html 1   # [FIX_FLOW_204 A] 늘 있는 진행 카드는 ① 칸에서 뺐다(진행 줄)
@@ -8095,13 +8119,13 @@ chk 'BLESS_AFTER_DECLARE' scripts/audit/listen-page.mjs 2
 #   open-course 가 차례 · 막 · 까닭 · 사슬 알림(인사 있으면 «말 없이» · 없으면 «축가») · 축가 3분 · 콘솔 메모를 잰다
 chk 'HEART_ORDER_1012' assets/ritual-open.js 12   # [TOAST_LAST_1013] «끝이 조용한 편» 알림 줄(이 표식 한 자리)을 걷어 13 → 12
 chk "ks: \['welcome', 'vow', 'ring', 'declare'] }" assets/ritual-open.js 1   # [ACTS_SHIFT_1013] 맞절 칸이 생겨 막 경계를 한 칸씩 — 막마다 넷(PC 한 줄) · 덕담은 마음의 순간 첫 칸으로 돌아갔다
-chk "ks: \['bless', 'free', 'song', 'letter'] }" assets/ritual-open.js 1
+chk "ks: \['bless', 'free', 'song', 'midvid', 'letter'] }" assets/ritual-open.js 1   # ★[SPEECH_SONG_1115] 엔진 막 칸 다섯(빌더 ① 은 축사 · 축가 한 카드로 넷 · mid17-pick)
 nochk "ks: \['vow', 'ring', 'declare', 'bless'] }" assets/ritual-open.js   # 옛 막 경계(맞절 칸 전) — 되살리면 여는 순간이 다섯 칸
 chk 'HEART_ORDER_1012' assets/ritual-data.js 1
 chk 'HEART_ORDER_1012' assets/ritual-story.js 1
 chk 'HEART_ORDER_1012' api/_ritual-kb.js 2
 chk 'HEART_ORDER_1012' scripts/audit/open-course.mjs 12
-chk "var ORDER = \['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'];" assets/ritual-open.js 1
+chk "var ORDER = \['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'midvid', 'letter', 'tribute', 'cake', 'toast', 'table'];" assets/ritual-open.js 1   # [SPEECH_SONG_1115]
 nochk "'candle', 'entry', 'welcome', 'vow'" assets/ritual-open.js 0   # 옛 차례(맞절 순간 전) · [MATJEOL_SPLIT_1013]
 nochk "'bless', 'song', 'tribute', 'free', 'letter'" assets/ritual-open.js 0   # 옛 v4 차례(인사 뒤 준비한 순서 · 편지) · 되살리지 말 것
 nochk "'bless','song','tribute','free','letter'" assets/ritual-data.js 0
@@ -15321,7 +15345,8 @@ chk "toastStay: '잠시 자리를 지켜 주시면 감사하겠습니다.'" asse
 chk "slug: S.songBy === 'self' ? 'narr-song-end' : 'narr-song-end-friend'" assets/ritual-cue.js 1
 chk 'songEndFriend:"노래해 주신 분께 뜨거운 박수 부탁드립니다."' assets/ritual-data.js 1
 chk 'SONG_END_FRIEND="노래해 주신 분께 뜨거운 박수 부탁드립니다."' order-preview.html 1
-chk "L('songBy','부르는 분'" order-preview.html 1
+chk "key:'songWho',l:'누가 부르나요'" order-preview.html 1   # ★[SONG_WHO_ONE_1115 c1c2af0b] «부르는 분» · «누가 부르나요» 두 줄을 한 질문으로(가족 · 친구 / 두 분이 직접 · 칩 sw:friend · sw:self) — 옛 핀 L('songBy','부르는 분'
+nochk "L('songBy','부르는 분'" order-preview.html 0
 chk "'songBy'," assets/ritual-preview-link.js 1
 chk '여기서부터는 작가님이 안내해 드립니다.' assets/ritual-cue.js 1   # 44 · 사장님 10/10 확인 글 — 검토 65 는 결정 대기함으로
 chk '| 검토 56 |' docs/handoff/insta-find.md 1
@@ -20927,7 +20952,7 @@ chk "if (cur && L\\[li\\] === cur) { bedFade(BED.on, 1, SEG_XF); return false; }
 chk "return (f&&b)?((P.carryOf&&P.carryOf(St(),'M4',f))||m4()):f;" assets/bgm-bed.js 1   # [CARRY_SAME_1101] «음악과 함께» 곡이 본식 목록에도 있으면 그대로(콘솔 segGo 와 같다)
 chk 'CARRY_SAME_1101' scripts/audit/carry-same.mjs 1
 chk 'function loopy(seg)' assets/bgm-picks.js 1   # ★[DAYLONG_1101] 감사 인사 ~ 덕담 · 닫는 인사 = 고르는 칸 + 이어 트는 목록
-chk "{ id: 'M4', nm: '감사 인사 ~ 덕담', ks: \['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter'\], cust: true, loop: true," assets/bgm-picks.js 1   # [DAYLONG_1101]
+chk "{ id: 'M4', nm: '감사 인사 ~ 덕담', ks: \['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'midvid', 'letter'\], cust: true, loop: true," assets/bgm-picks.js 1   # ★[SPEECH_SONG_1115] 식중 영상도 M4 묶음(BGM 방 확인 대기)   # [DAYLONG_1101]
 chk "{ id: 'M6', nm: '닫는 인사', ks: \['_close'\], cust: true, loop: true," assets/bgm-picks.js 1   # [DAYLONG_1101]
 chk 'function listArm(v)' assets/bgm-bed.js 1   # [DAYLONG_1101] 미리 이어 듣기 — 곡 끝 3초 전 목록의 다음 곡
 chk 'function longLine(sg)' assets/bgm-bed.js 1   # [DAYLONG_1101] 고른 곡 아래 한 줄(분 = 큐 시간 합)
@@ -21170,7 +21195,8 @@ nochk "tok=escapeHtml(getToken()||'')" mypage.html   # [DL_GUARD] 내려받기 �
 nochk "btn.addEventListener('click', function(){ try{ _tabKeepUnkept(); }catch(e){} try{ location.reload(); }catch(e){} });" mypage.html   # [KEEP_FAIL_STOP] 못 맡겨도 새로 열던 옛 줄
 if command -v node >/dev/null 2>&1; then node scripts/audit/tab-guard.mjs >/dev/null 2>&1; _tgd=$?; if [ "$_tgd" != 0 ]; then echo 'FAIL tab-guard: 옛 창(다른 창이 로그인 · 로그아웃 · 되돌리기 · 차례)의 쓰기 · 지우기 · 보내기(목소리 중계 포함) 멈춤 · 맡김 합치기 · 스냅 고친 때 · 비운 표시 · 공개 미리보기 칸 판정이 어긋났습니다 — node scripts/audit/tab-guard.mjs'; fail=1; else echo "ok tab-guard ($_tgd)"; fi; fi
 
-chk "L('blessN','말씀하실 분'" order-preview.html 1
+chk "key:'blessWho',l:'말씀하실 분 · 순서'" order-preview.html 1   # ★[NARR_ROLE_1115 d262d560] 인원 칩(blessN) 대신 «말씀하실 분 · 순서»(누른 차례 = 말씀 순서 · 인원 = 고른 수 · 안 고르면 두 분 셈) — 옛 핀 L('blessN','말씀하실 분'
+chk 'window.lsBlessWho=function(r)' order-preview.html 1
 chk "if(k==='song'&&R.onOf(S,'song')) return {v:'live',lab:'당일 노래'};" order-preview.html 1
 nochk "hint: '노래가 끝나고 박수가 잦아들면'" assets/ritual-cue.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/combo-171.mjs >/dev/null 2>&1; _c171=$?; [ "$_c171" = 1 ] && { echo 'FAIL combo-171: 순간 조합 · 진행 틈(인사 받는 분 · 255 · 축가 힌트 · 덕담 시간 · 연습 목록)이 되돌아갔습니다 — node scripts/audit/combo-171.mjs'; fail=1; }; :; fi
@@ -21634,8 +21660,8 @@ chk "'narr-closing-meal-nt': \[CL_CHEER\].concat(CL_MEAL, \[CL_UP_MEAL, CL_GA\])
 chk "'narr-closing-meal-nt-nc': CL_MEAL.concat(\[CL_UP_MEAL, CL_GA\])" assets/ritual-cue.js 1
 chk 'CLOSING_MEAL_DUP' scripts/audit/closing-line.mjs 3   # [INFO_SPLIT_200] 식사 판 사진 줄이 마무리에서 빠져 한 자리 줄었다
 # ── 2026-11-01 [EVENT_COUNT_CAP 검토 183 · 사장님 10:33 «추천대로 진행»] 본식 상한 = 개수 규칙(6개 · 긴 3개 · 테이블 인사 = 2) · 넘는 드문 조합은 테이블 인사 자동 맞춤
-chk "var CNT_PICK = \['candle', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'toast', 'table'\];" assets/ritual-open.js 1
-chk "var CNT_LONG = { bless: 1, free: 1, song: 1, letter: 1, tribute: 1, table: 2 };" assets/ritual-open.js 1
+chk "var CNT_PICK = \['candle', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'midvid', 'letter', 'tribute', 'toast', 'table'\];" assets/ritual-open.js 1   # ★[SPEECH_SONG_1115] 식중 영상도 하나
+chk "var CNT_LONG = { bless: 1, free: 1, song: 1, midvid: 1, letter: 1, tribute: 1, table: 2 };" assets/ritual-open.js 1   # ★[SPEECH_SONG_1115] 식중 영상도 긴 순간
 chk "var CNT_MAX = 6, CNT_LONG_MAX = 3;" assets/ritual-open.js 1
 chk "title: '본식 순간은 6개까지예요'" assets/ritual-open.js 1
 chk "title: '긴 순간은 3개까지예요'" assets/ritual-open.js 1
@@ -23135,7 +23161,7 @@ chk '시착하시면 상담 예약금은 시착 비용으로 전환돼요' asset
 chk '종교 의식도, 주례자를 모시는 것도 가능해요' assets/advisor-kb.js 1           # [H4_RELIGION]
 chk '조건은 상담 때 안내해 드려요' api/_kb.js 1                                    # [H4_HONOR] 오픈 혜택 조건
 chk '본식 동안이에요(고른 순서에 따라 약 7~25분)' api/_kb.js 1                     # [H4_LIVE] 디지털 참석
-chk '식중 영상은 선택이에요. 축사 자리(덕담 뒤 · 축가 앞)에 축사 대신 넣고, 제작 비용은 두 분이 부담해요. 예식 7일 전까지 확정해 주세요. 확정하지 않으면 영상 없이 진행해요.' api/_kb.js 1   # [H4_MIDVIDEO · MID17_14] 사장님 11/06 · 계약서 v1.16 3조②
+chk '식중 영상은 선택이에요. 축사 · 축가 뒤(편지 낭독 앞)에 넣고, 축사나 축가와 함께 담을 수 있어요. 제작 비용은 두 분이 부담해요. 예식 7일 전까지 확정해 주세요. 확정하지 않으면 영상 없이 진행해요.' api/_kb.js 1   # ★[SPEECH_SONG_1115] 자리 · 함께 담기(옛 «축사 자리(덕담 뒤 · 축가 앞)에 축사 대신») · [H4_MIDVIDEO · MID17_14] 사장님 11/06 · 계약서 v1.16 3조②
 # ★[MID17_14 2026-11-07 대본 줄 14] 홈 FAQ · JSON-LD · 별도 표에 식중 영상(선택 · 제작 비용 두 분 · 7일 전 · 없으면 영상 없이) — «포함» 칸 · 업체 이름 · 쿠폰 금지
 chk '기한까지 확정하지 않으면 영상 없이 진행합니다.' index.html 2
 chk '<li>식중 영상 <span class="li-meta">선택 · 제작 비용 두 분</span></li>' index.html 1
@@ -23224,6 +23250,7 @@ nochk '저희가 검증한' api/_kb.js
 nochk '프라이버시까지 확인해 추천' index.html
 nochk '검증한 인근 식당' index.html
 chk 'ESD_DAY_1106' scripts/audit/entry-scene-day.mjs 2   # [ESD_DAY_1106] 맞절 큐 −90(ENTRY_SETTLE) 기대 · 갈래 칩 390 · 360 폭 확인
+# ★[SPEECH_SONG_1115 · NARR_ROLE_1115] 새 기대 — 큐 열쇠 midvid · 353 여는 말(영상 · [재생 안 됨] · 메모) → 355 박수 · 식전 소개 판과 상관없이 같은 두 줄(아래 옛 58 + 129 설명은 엔진 free() 영상 판 코드 핀으로만 남는다)
 # ★★[MID17_ENGINE 2026-11-07 사장님 결정 · 식중 영상 · midvideo-17 줄 3 · 4 · 6] 영상 갈래 = 58 여는 말 → 129(식전 영상 소개 예시 3 녹음 그대로 · 사슬 1.25초) → 영상 · 같은 날 식전 소개가 129 면 58 하나 · 새 녹음 0
 chk 'MID17_ENGINE' assets/ritual-cue.js 3
 chk 'function pvSlugOf(S)' assets/ritual-cue.js 1          # 식전 영상 · 식중 영상이 같은 슬러그 셈을 본다
@@ -23237,7 +23264,7 @@ chk 'MID17_SCRIPT' order-preview.html 2                    # 줄 이름(129 = �
 chk "'식중 영상 소개':'이어서'" order-preview.html 1
 nochk "what=fk==='video'?'준비한 영상이 흘러요'" order-preview.html   # 옛 카드 글 — 되살리지 말 것
 chk 'MID17_ENGINE' scripts/audit/mid17-engine.mjs 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/mid17-engine.mjs >/dev/null 2>&1; _m17e=$?; node scripts/audit/mid17-engine.mjs --selftest >/dev/null 2>&1; _m17es=$?; if [ "$_m17e" = 2 ]; then echo 'ok mid17-engine — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_m17e" != 0 ] || [ "$_m17es" != 0 ]; then echo "REVERT? mid17-engine: 식중 영상 엔진 58 + 129 · 전체 대본 · 연습 카드가 어긋났습니다 ($_m17e/$_m17es) — node scripts/audit/mid17-engine.mjs"; fail=1; else echo 'ok mid17-engine'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/mid17-engine.mjs >/dev/null 2>&1; _m17e=$?; node scripts/audit/mid17-engine.mjs --selftest >/dev/null 2>&1; _m17es=$?; if [ "$_m17e" = 2 ]; then echo 'ok mid17-engine — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_m17e" != 0 ] || [ "$_m17es" != 0 ]; then echo "REVERT? mid17-engine: 식중 영상 엔진(midvid · 353 여는 말 → 영상 → 355 박수 · 옛 초안 옮기기 · 축가 뒤 · 편지 앞) · 전체 대본 · 연습 카드가 어긋났습니다 ($_m17e/$_m17es) — node scripts/audit/mid17-engine.mjs"; fail=1; else echo 'ok mid17-engine'; fi; fi
 # ★★[MID17_CONSOLE 2026-11-07 사장님 결정 · 식중 영상 · midvideo-17 줄 10 · 11] 당일 콘솔 — 식중 영상 디렉터 메모(식전 영상 메모와 같은 꼴 · 영상 사람 순간을 든 큐에) · 재생 순서 기록 · 디지털 날 같음
 chk 'MID17_CONSOLE' assets/ritual-cue.js 2
 chk "note: fk === 'video' ? '영상 링크는 D-7 까지 받는다(마이페이지 «식중 영상» 확정 기한과 같다" assets/ritual-cue.js 1
