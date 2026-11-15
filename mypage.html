@@ -12067,7 +12067,7 @@ function _pvcPoster(k){
 }
 function renderPvc(){
   var inner=$('mp_pvcInner'), F=PVCFLOW; if(!inner||!F.active) return;
-  F._nowDue=false;   // [VIDEO_UMBRELLA_1115] 띠는 화면마다 다시 판단
+  F._nowDue=false; F._doneAt=false;   // [VIDEO_UMBRELLA_1115] 띠는 화면마다 다시 판단
   var s=F.scr||'start', h='<div class="consult-card pvc-card">'+_pvcHead();
   if(s==='start') h+=(F.kind==='mid'?_mvcStart():_pvcStart());   // [MID_VIDEO_1106]
   else if(s==='locked') h+=_pvcLocked();
@@ -12109,18 +12109,21 @@ function _pvcNowDo(){ var F=PVCFLOW, s=F.scr||'start';
   if(s==='sent') return '스튜디오 확인 기다리기';
   if(s==='confirm') return (F.kind==='mid'&&F.on!==true)?'':(F.st==='done'?'다 됐어요':'영상 보고 확정하기');
   return ''; }
-function _pvcNow(){   // [VIDEO_UMBRELLA_1115] 날짜는 준비 목록 머리 줄과 같은 꼴(«11월 20일(금) · D-5» · 23:59 는 그날 끝까지라 줄였다)
+function _pvcNow(){   // [VIDEO_UMBRELLA_1115] 날짜는 준비 목록 머리 줄과 같은 꼴(«11월 20일(금) · D-5» · 23:59 는 아래 «보낸 뒤» 한 줄이 말한다)
   var F=PVCFLOW, d=_pvcNowDo(); if(!d) return ''; var t=_pvcDueTxt(F.due), l=null; try{ l=F.due?_kstDdayOf(F.due):null; }catch(e){}
   if(t) F._nowDue=true;
+  if((F.scr||'')==='confirm' && F.st==='done'){   /* [GPT 3-6] 확정한 뒤 «다 됐어요» 옆 «D-5»가 한 번 더 누르라는 말로 읽혔다 — 확정한 날 · 바꿀 수 있는 때로 */
+    var ca=(F.conf&&F.conf.at)?_pvcMd(F.conf.at):''; F._doneAt=!!ca;
+    return '<div class="pvc-now"><p><span class="pvc-now-k">확정</span><b>'+(ca?escapeHtml(ca)+' 확정했어요':'확정했어요')+'</b></p>'+(t&&!(l!=null&&l<0)?'<p><span class="pvc-now-k">바꿀 수 있는 때</span><b>'+escapeHtml(t.replace(' 23:59',''))+'까지</b></p>':'')+'</div>'; }
   return '<div class="pvc-now"><p><span class="pvc-now-k">지금 하실 일</span><b>'+escapeHtml(d)+'</b></p>'
     +(t?'<p><span class="pvc-now-k">확정 기한</span><b>'+escapeHtml(t.replace(' 23:59',''))+(l!=null?('<span class="pvc-now-d"> · '+(l<0?'지남':(l===0?'오늘':'D-'+l))+'</span>'):'')+'</b></p>':'')+'</div>'; }
 function _pvcHero(){ var u=PVC_HERO[PVCFLOW.kind==='mid'?'mid':'pre']; if(!u) return '';
-  return '<figure class="pvc-hero"><img src="'+escapeHtml(u)+'" alt="예식 날 하객이 함께 영상을 보는 모습(그림)" loading="lazy" decoding="async"><figcaption>예식 날, 이 자리에서 함께 봐요</figcaption></figure>'; }
+  return '<figure class="pvc-hero"><img src="'+escapeHtml(u)+'" alt="예식 날 하객이 영상을 보는 모습(그림)" loading="lazy" decoding="async"><figcaption>예식 날 '+_pvcNm()+'이 상영되는 모습(그림)</figcaption></figure>'; }
 function _pvcThree(){ var mid=PVCFLOW.kind==='mid';
   return '<ol class="pvc-feel pvc-3">'
-    +'<li><b>영상 준비</b><span>'+(mid?'필메이커 템플릿이나 업체 · 직접 만든 영상':'필메이커 템플릿'+(PVC_FEEL_ON?'(쿠폰으로 무료)':'')+'이나 업체 · 직접 만든 영상')+'</span>'+_pvcFeelIn('link')+'</li>'
-    +'<li><b>링크 보내기</b><span>원본 파일을 받을 수 있는 링크 하나면 돼요.</span></li>'
-    +'<li><b>보고 확정</b><span>스튜디오가 재생을 확인하면 이 화면에서 보고 확정해요.</span></li></ol>'; }
+    +'<li><b>영상 준비</b><span>'+(mid?('식순에 정한 길이 · '+(+PVCFLOW.len||3)+'분에 맞춰 필메이커 템플릿이나 업체 · 직접 만든 영상'):'필메이커 템플릿'+(PVC_FEEL_ON?'(쿠폰으로 무료)':'')+'이나 업체 · 직접 만든 영상')+'</span>'+_pvcFeelIn('link')+'</li>'
+    +'<li><b>영상 보내기</b><span>원본 파일을 받을 수 있는 링크 하나면 돼요.</span></li>'
+    +'<li><b>확인 · 확정</b><span>스튜디오가 재생을 확인하면 이 화면에서 보고 확정해요.</span></li></ol>'; }   /* [GPT 3-c] 걸음 이름 = 다음 화면 진행 표시(영상 보내기 · 확인)와 같은 말 */
 function _mvcCond(on){ return '<p class="pvc-cond"><span>선택 사항</span>'+(on?'<span>축사 대신 상영</span>':'')+'<span>제작비는 두 분 부담</span></p>'; }
 function _pvcStart(){
   var h='';
@@ -12146,7 +12149,7 @@ function _mvcStart(){
   h+='<p class="pvc-eye">MID-CEREMONY FILM</p><h2 class="pvc-h">'+(on?'식중 영상을 보내 주세요':'식중 영상을 넣을까요?')+'</h2><p class="pvc-sub pvc-when">식순 「식중 영상」 자리(덕담 뒤 · 축가 앞)에서 상영해요.</p>'+_mvcCond(on)+_pvcNow();   // [VIDEO_UMBRELLA_1115] 열기 전에 «선택 사항 · 축사 대신 · 제작비 두 분» · 지금 할 일
   if(on){
     h+=_pvcHero()+_pvcThree()+'<div class="pvc-subs"><button type="button" class="pvc-lk" data-mvcrit>식순에서 빼기</button></div>';   // [VIDEO_UMBRELLA_1115] 결과 먼저(그림이 승인되면) · 단계 셋   // [MID_FEEL_1107] 만드는 길 안내 · [PV_ONE_WAY_1107] 식전과 같은 한 줄
-    h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots(['식순에 정한 길이 · '+(+F.len||3)+'분 · 길면 「식순」에서 바꿔 주세요', '쿠폰 · 기본 템플릿은 식전 영상에만', _pvcDueLine('기한까지 확정하지 않으면 영상 없이 진행해요.')])+'</div>';
+    h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots(['길이는 「식순」에서 바꿀 수 있어요 · 쿠폰 · 기본 템플릿은 식전 영상에만', _pvcDueLine('기한까지 확정하지 않으면 영상 없이 진행해요.')])   /* [GPT 3-2] «식순에 정한 길이 · n분»은 «영상 준비» 걸음 안으로(만들기 전에 읽히게) */+'</div>';
     h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode="upload"'));   // [MID_VIDEO_1106 · 검토 1604] 꺼짐 · 켜짐 같은 틀(아래 막대 단추 하나)
     return h;
   }
@@ -12251,13 +12254,13 @@ function _pvcConfirm(){
   var F=PVCFLOW, done=F.st==='done', up=F.d.mode==='upload', pv=F.prev, h='';
   var _mOff=(F.kind==='mid'&&F.on!==true);   // [MID_VIDEO_1106 · 검토 1604-3] 식순에서 뺀 식중 영상 — «진행해요 · 상영해요»를 말하지 않는다
   h+='<h2 class="pvc-h">'+(done?'확정한 영상':'영상 확인하기')+'</h2>';
-  h+='<p class="pvc-sub">'+(_mOff?'식순에 이 영상이 없어요.':(done?'이 영상으로 진행해요.':(up?'소리를 켜고 영상을 확인해 주세요. 확정하면 이 영상으로 진행해요.':'소리를 켜고 사진·문구·음악을 확인해 주세요. 확정하면 이 영상으로 진행해요.')))+'</p>';
-  h+=_pvcNow();   // [VIDEO_UMBRELLA_1115] 지금 할 일 · 기한   // [MID_VIDEO_1106 · 검토 1604] 링크로 받은 영상은 «사진·문구·음악»이 아니다
+  h+=_pvcNow();   // [VIDEO_UMBRELLA_1115 · GPT 3-a] 제목 바로 아래 할 일 · 기한 → 그 아래 «소리를 켜고…»가 재생 자리 바로 위
+  h+='<p class="pvc-sub">'+(_mOff?'식순에 이 영상이 없어요.':(done?'이 영상으로 진행해요.':(up?'소리를 켜고 영상을 확인해 주세요. 확정하면 이 영상으로 진행해요.':'소리를 켜고 사진·문구·음악을 확인해 주세요. 확정하면 이 영상으로 진행해요.')))+'</p>';   // [MID_VIDEO_1106 · 검토 1604] 링크로 받은 영상은 «사진·문구·음악»이 아니다
   h+=(pv&&pv.url)?'<div class="pvc-player"><iframe src="'+escapeHtml(pv.url)+'" allow="autoplay; fullscreen" allowfullscreen title="'+_pvcNm()+' 미리보기"></iframe></div>':'<div class="pvc-poster pvc-wait"><span class="pvc-mk">영상을 불러오지 못했어요</span></div>';
   h+='<p class="pvc-summ">'+_pvcSum()+'</p>';
   if(!F.past && !_mOff) h+='<button type="button" class="pvc-lk pvc-relink" data-pvcfix>다른 영상으로 다시 보내기</button>';   /* [VIDEO_UMBRELLA_1115] 한 화면 한 행동 — 큰 단추는 아래 «이 영상으로 확정» 하나 · 다시 보내기는 «링크를 받았어요» 화면과 같은 낮은 글 단추 */   // [PN07_MAKE_RESUME] 옛 «사진으로 만들기» 확정본도 «고치기»(사진 · 음악 걸음) 대신 방법부터 · [MID_VIDEO_1106] 식순에서 뺀 식중 영상은 다시 보내기도 없음(서버가 거절한다)
   h+=(F.kind==='mid'?(_mOff?'':'<div class="pvc-flow"><p class="pvc-flow-h">예식 속 자리</p><p class="pvc-sub pvc-flow-t">식순 「식중 영상」 자리(덕담 뒤 · 축가 앞)에서 상영해요.</p></div>'):_pvcFlowDots());   // [MID_VIDEO_1106]
-  var cAt=(done&&F.conf&&F.conf.at)?(_pvcMd(F.conf.at)+' 확정'):'';
+  var cAt=(done&&F.conf&&F.conf.at&&!F._doneAt)?(_pvcMd(F.conf.at)+' 확정'):'';   // [VIDEO_UMBRELLA_1115] 띠가 확정한 날을 말하면 점 줄에서 뺀다
   h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots([cAt, done?'':_pvcOldLine(), _pvcDueLine((F.past||_mOff)?'':(done?'기한까지 다른 영상으로 바꿔 다시 확정할 수 있어요.':'확정한 뒤에도 기한까지 다른 영상으로 바꿀 수 있어요.'))])+'</div>';
   h+=(done||_mOff)?_pvcBar('', _pvcBtn('마이페이지로','data-pvcclosefl')):_pvcBar((F.past||!up)?'':_pvcBtn('이전','data-pvcgo="upload"','ghost'), _pvcBtn('이 영상으로 확정','data-pvcconfirm','seal'))   /* [PN07_MAKE_RESUME · 검토 1609-2] 사진으로 만들기 미리보기는 «이전»(음악 걸음) 없이 · 바꾸려면 «다른 영상으로 다시 보내기» */;   // [MID_VIDEO_1106 · 재검토 1604] 식순에서 뺀 식중 영상은 확정 단추를 두지 않는다(서버도 막는다)
   return h;
@@ -12294,7 +12297,7 @@ function _pvcUpload(){
   var F=PVCFLOW, h='<h2 class="pvc-h">'+(F.kind==='mid'?'식중 영상 올리기':'식전 영상 올리기')+'</h2><p class="pvc-sub">보내 주신 영상은 길이 · 내용 · 소리 그대로 틀어요. 배경 음악은 영상에 넣어 주세요.</p>'+_pvcNow();   /* ★[PV_MYPAGE_1102 2026-11-02] 식순 링크 칸 아래 있던 «영상 소리 그대로 · 배경 음악은 영상에» 한 줄([BGM_R3_1023])을 받는 곳으로 옮겼다 */
   h+='<div class="pvc-up"><label for="mp_pvcLink" class="pvc-lab">링크로 보내기</label><input id="mp_pvcLink" class="cc-input" type="url" inputmode="url" maxlength="400" autocomplete="off" spellcheck="false" placeholder="구글 드라이브 · 업체 공유 링크" value="'+escapeHtml(F.d.link||'')+'">'
     +'<p class="pvc-help">원본 파일을 받을 수 있는 링크로 보내 주세요. 파일만 있으면 구글 드라이브에 올려 링크를 보내 주세요.</p></div>';
-  h+='<div class="pvc-after"><p class="pvc-flow-h">보낸 뒤</p>'+_pvcDots(['스튜디오가 원본을 받아 재생을 확인하면 이 화면에서 보고 확정해 주세요.', F.kind==='mid'?('식순에 정한 길이 · '+(+F.len||3)+'분 · 길면 「식순」에서 바꿔 주세요'):'', _pvcConfLine(), _pvcDueLine('')])+'</div>';   // [PN07_MAKE_RESUME · 검토 1609] 확정 상태에서 와도 확정본 줄   // [MID_VIDEO_1106] 식중은 식순 길이 칸과 맞춘다   // [PV_STATE_1106 M09] 링크 칸에도 기한
+  h+='<div class="pvc-after"><p class="pvc-flow-h">보낸 뒤</p>'+_pvcDots(['스튜디오가 원본을 받아 재생을 확인하면 이 화면에서 보고 '+(_pvcDueTxt(F.due)?escapeHtml(_pvcDueTxt(F.due))+'까지 ':'')+'확정해 주세요.',   /* [GPT 3-4] 기한까지 마칠 것은 «보내기»가 아니라 «확정» — 날짜 · 23:59 를 그 말에 붙였다 */ F.kind==='mid'?('식순에 정한 길이 · '+(+F.len||3)+'분 · 길면 「식순」에서 바꿔 주세요'):'', _pvcConfLine(), _pvcDueLine('')])+'</div>';   // [PN07_MAKE_RESUME · 검토 1609] 확정 상태에서 와도 확정본 줄   // [MID_VIDEO_1106] 식중은 식순 길이 칸과 맞춘다   // [PV_STATE_1106 M09] 링크 칸에도 기한
   h+=_pvcBar(_pvcBtn('이전','data-pvcgo="start"','ghost'), _pvcBtn('보내기','data-pvcsubmit'));
   return h;
 }
