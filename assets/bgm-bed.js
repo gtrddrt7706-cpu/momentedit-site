@@ -457,8 +457,12 @@
       if(v.want>db+0.5) setTimeout(function(){ if(BED.cur===v&&LPB.on&&curStep()===st) ramp(v,db,p.down); },Math.max(0,ms-p.down-p.aft)); };   /* ★[LAYER7_DUCK_1108] 뜸 끝 — 1.6초에 말 아래로 · 다 낮아진 뒤 0.4초에 첫 말(종전 0.8초) */
     /* ★[MEANING_R2_1102 ENTRY_HUSH] 입장 첫 줄 — 흐르던 화촉 곡을 2초에 −90 → 정적 1초 → 입장 곡은 무음에서 입장 구호 아래(그 줄 크기 −12 · 뜸 없음) · 두 곡이 겹치는 자리 0 */
     if(f===ENT_F&&st.k==='entry'&&BED.who==='lp'&&BED.cur.src&&BED.cur.f!==ENT_F){ var _v0=BED.cur, _tkh=++LPB.lt; LPB.on=true; if(_v0.want>-60) ramp(_v0,-90,2000); if(!BUF[f]) want(f);
+      /* ★★[ENTRY_WAIT_HUSH_1115 2026-11-15 BGM 섹션 · GPT 라운드 4 14] 입장 곡이 아직 안 왔으면 — 구호 줄(lpShow)이 화촉 곡을 그 줄 크기로 되살리거나 늦게 온 입장 곡을 따로 틀지 않게 처음부터 «기다림»(LPB.entLate)으로 둔다.
+           종전: 기다리는 동안 lpShow 의 «새 곡을 받는 동안 흐르는 곡도 지금 줄 크기로»(DETAIL_R5_1101 규칙 4)가 꺼 둔 화촉 곡을 −90 → −9.2 dB 로 올렸고(재 본 값 · 1.5초 늦은 곡 · NO_RELIFT_1102 어긋남), 곡이 오면 lpShow 의 받기 콜백과 아래 _put 이 따로 틀어
+           강조 0:05 곡은 처음부터 두 번(강조가 구호 말끝 −12.3초 · +0.2초) · 입장 곡 시작은 아래 _put 한 길(ENTRY_LATE_FILE_1115 지난 초 · ENTRY_LATE_MUSIC_1115 모자라는 만큼 늦게) · 못 받으면 «불러오지 못했어요» 한 줄 · 정적 그대로 */
+      if(!(BUF[f]&&BUF[f].st==='ok')) LPB.entLate={ st:st, tk:_tkh };
       setTimeout(function(){ if(LPB.lt!==_tkh) return; var q=curStep(); if(!q||q.k!=='entry') return; var _t3=Date.now();   /* [ENTRY_LATE_FILE_1115] 구호가 시작된 때 */ var _put=function(_w){ var q2=curStep(); if(LPB.lt!==_tkh||!q2||q2.k!=='entry'||!(BUF[f]&&BUF[f].st==='ok')) return; var _at=entHushAt(st,(Date.now()-_t3)/1000); if(_at<-0.05&&!_w){ LPB.entLate={ st:q2, tk:_tkh }; setTimeout(function(){ _put(1); },Math.round(-_at*1000)); return; } LPB.entLate=null;   /* ★[ENTRY_LATE_MUSIC_1115] 곡 앞부분이 구호보다 짧다 — 모자라는 만큼 늦게(곡 처음부터) · 그동안 이 줄의 lpShow 가 곡을 먼저 걸지 않는다 */ var nv=startVoice(f,lvOf(q2,f),1500,Math.max(0,_at)); if(!nv) return;   /* [ENTRY_HOOK_PV_1114] 뜸 없는 길 — 구호 말끝 0.3초 뒤가 강조 자리 */ if(BED.cur.src) stopVoice(BED.cur,200); BED.cur=nv; LPB.f=f; BED.who='lp'; };
-        if(BUF[f]&&BUF[f].st==='ok') _put(); else want(f,function(b){ if(b) _put(); }); },3000);
+        if(BUF[f]&&BUF[f].st==='ok') _put(); else want(f,function(b,ec){ if(b) _put(); else if(LPB.entLate&&LPB.entLate.tk===_tkh){ LPB.entLate=null; note('fail',ec); } }); },3000);   /* [ENTRY_WAIT_HUSH_1115] */
       return 3000; }
     if(BUF[f]&&BUF[f].st==='ok'){ go(); return ms; }
     /* ★★[BED_LOAD_1101 ②] 곡이 아직 안 왔다(LTE · GAS base64) — 뜸이 곡 없이 지나가지 않게 최대 8초 기다린다 · 1.5초 넘으면 지금 줄 아래 «음악을 불러오는 중이에요» ·

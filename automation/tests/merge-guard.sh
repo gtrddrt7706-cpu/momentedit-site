@@ -23632,3 +23632,7 @@ nochk "_h.sec += 0.25" console.html 0
 chk 'DECLARE_PLAYABLE_1115' console.html 2
 chk "BED.list && BED.list.some(_dok)) { var _hz" console.html 1
 chk "BED.onFail = (_sid !== BED.id && _dok(BED.id)) ?" console.html 1
+# ★★[ENTRY_WAIT_HUSH_1115 2026-11-15 BGM 섹션 · GPT 라운드 4 14] 미리 듣기 화촉 → 입장(뜸 없는 길) — 입장 곡이 아직이면 구호 줄이 «기다림»(LPB.entLate) · 화촉 곡을 되살리지 않고 입장 곡 시작은 _put 한 길 · 검사 r4-1115 C
+chk 'ENTRY_WAIT_HUSH_1115' assets/bgm-bed.js 2
+chk "if(!(BUF\[f\]&&BUF\[f\].st==='ok')) LPB.entLate={ st:st, tk:_tkh };" assets/bgm-bed.js 1
+chk "else if(LPB.entLate&&LPB.entLate.tk===_tkh){ LPB.entLate=null; note('fail',ec); }" assets/bgm-bed.js 1
