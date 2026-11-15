@@ -10706,7 +10706,7 @@ function renderPhoto(box){
          ③ narr-photo-split 가족 구도(«작가님이 순서대로 불러 드립니다»)  ④ narr-online-in 온라인 인사(디지털 참석 날만)  ⑤ narr-photo-out 남는 시간 자유 사진.
        ★셈 · 상한 · 저장 모양([PHOTO_CAP_40] · photo/photoWish/photoCaller/photoFriend)은 그대로 — 자리만 옮겼다. 흐름 줄(알약)을 되살리지 말 것. */
   var _scn=photoSceneList(PHOTOFLOW.rd);   // [PHOTO_SCENE] 요청 칸(1번)의 접힘 글이 먼저 읽는다 — 절 자체는 번호 줄 뒤에 그린다
-  h+='<div class="cc-note" style="text-align:left;margin:0 0 4px">본식 뒤 <b>단체 사진</b> 시간은 아래 차례로 흘러요. 마무리 인사가 끝나면 작가님 안내에 따라 진행해요'+(PHOTOFLOW.meal==='yes'?' · 식사는 예약 시간에 두 분과 함께 시작해요':(PHOTOFLOW.meal==='no'?' · 촬영을 마치신 분들은 편히 돌아가셔요':''))+'.</div>';   /* ★[CLOSING_LINE_1031 검토 178] 사진 «모여 달라»는 안내 음성이 아니라 작가님 몫 · 식사 · 귀가 말은 마무리 멘트(287 ~ 291)와 같은 말 */ /* [END_FLOW_1030 검토 167] 감사 인사는 닫는 인사가 맡는다 */   /* [PHOTO_THANKS 2026-09-26 사장님 결정] 문 앞 배웅 대신 전체 사진 뒤 감사 인사 */   // MPD_E10 산재 노트 통합 · [PHOTO_GATHER_OFF] '모두 앞으로'는 뺐다 — 바로 아래 조부모님 줄이 '앉으신 채로'라 한 화면에서 서로를 부정했다
+  h+='<div class="cc-note" style="text-align:left;margin:0 0 4px">본식 뒤 <b>단체 사진</b> 시간은 아래 차례로 흘러요. 마무리 인사가 끝나면 작가님 안내에 따라 진행해요'+(PHOTOFLOW.meal==='yes'?' · 식사는 하객분들이 도착하시는 대로 드시고, 두 분은 촬영을 마친 뒤 인사드리러 가요':(PHOTOFLOW.meal==='no'?' · 촬영을 마치신 분들은 편히 돌아가셔요':''))+'.</div>';   /* ★[CLOSING_LINE_1031 검토 178] 사진 «모여 달라»는 안내 음성이 아니라 작가님 몫 · 식사 · 귀가 말은 마무리 멘트(287 ~ 291)와 같은 말 */   /* ★[EARLY_EAT_OWNER_1115 2026-11-15 대표님] 식사 날 = 하객은 도착하는 대로 · 두 분은 촬영 뒤 찾아가 인사(옛 «예약 시간에 두 분과 함께 시작해요»는 기다리라는 말 · 되살리지 말 것) */ /* [END_FLOW_1030 검토 167] 감사 인사는 닫는 인사가 맡는다 */   /* [PHOTO_THANKS 2026-09-26 사장님 결정] 문 앞 배웅 대신 전체 사진 뒤 감사 인사 */   // MPD_E10 산재 노트 통합 · [PHOTO_GATHER_OFF] '모두 앞으로'는 뺐다 — 바로 아래 조부모님 줄이 '앉으신 채로'라 한 화면에서 서로를 부정했다
   /* ★[PHOTO_RECONFIRM 2026-09-27] 예식 확인서를 이미 확정했으면 한 줄 — 여기서 고쳐 저장하면 확정이 풀린다(guideinfo 도 확정 스냅샷에 든다 · 80_production _prodConfirmVoid).
        말은 확인서 판의 «고치시면 확정이 풀려요» · 행의 «다시 확정»과 같게. 풀린 뒤(confirmStale)는 확인서 자리가 스스로 말하니 여기선 안 띄운다. */
   var _pdc=null; try{ _pdc=((window._mpStateD||{}).production)||null; }catch(e){}
@@ -13963,7 +13963,9 @@ function renderDining(box){
         return callLine + mapLine
           + '<div class="inv-side-l" style="margin:14px 0 5px">예약 시 이렇게 말해보세요</div>'
           + '<div class="inv-prev" style="margin:0;text-align:left;font-family:var(--serif-ko);font-size:13px;color:var(--accent);line-height:1.7">'+script+'</div>'
-          + '<div class="cc-note" style="margin-top:10px">메뉴 · 세부는 통화로 정하시면 돼요.</div>';   // [DN_ONE_CAUTION_1102]
+          + (isCafe
+            ? '<div class="cc-note" style="margin-top:10px"><span class="ln-bal">카페는 단체 예약이 어려운 곳이 많아요.</span> <span class="ln-bal">예약이 안 되면 예상 인원이라도 미리 알려 두세요.</span></div>'   /* ★[CAFE_OPEN_OWNER_1115 2026-11-15 대표님 «카페는 단체 예약이 어려운 곳이 많아요 · 오실 인원을 미리 카페에 알려 두세요»] 카페면 이 한 줄이 아래 줄 자리를 맡는다(한 곳 한 줄 · DN_ONE_CAUTION_1102) · «오실 인원»은 확정 인원으로 읽혀 «예상 인원»(GPT 5회차) */
+            : '<div class="cc-note" style="margin-top:10px"><span class="ln-bal">먼저 도착한 하객부터 바로 드실 수 있는지 식당에 미리 확인해 주세요.</span> <span class="ln-bal">메뉴 · 세부는 통화로 정하시면 돼요.</span></div>');   // [DN_ONE_CAUTION_1102] · ★[EARLY_EAT_OWNER_1115] 하객은 예약 시각보다 먼저 닿는다(단체 사진 뒤 바로 · 차 1 ~ 18분) — 먼저 온 하객을 바로 받아 줄 수 있는지 부부가 미리 확인하게(«말해 두세요»는 알리는 데서 끝날 수 있어 «확인해 주세요» · GPT 7회차)
       };
       var favs=d._favs||[];
       if(favs.length){
@@ -13985,7 +13987,7 @@ function renderDining(box){
             +(v.m?'<div class="m">'+escapeHtml(v.m)+'</div>':'')
             +(function(){ var _t=r?[_DN_GROUP[r.g]||'단체석 확인 필요', r.eld?'좌식':'', r.pk==='good'?'주차 넉넉':'주차 확인 필요'].filter(Boolean).join(' · '):'단체석 · 주차 확인 필요'; return '<div class="m">'+escapeHtml(_t)+'</div>';   /* [GPT 2라운드 05] 모르는 항목은 항목마다 «확인 필요» */ })()   /* ★[DN_AGG_INFO_1102 사장님 «추천대로»] 고를 때 본 단체석 · 주차를 비교 화면에도 · 모르면 «전화로 확인» */
             +(isRep   // 대표는 아래 예약 블록에 전화·지도가 크게 나오므로 작은 링크 줄은 생략(중복 방지). 나머지는 결정 전 빠른 확인용으로 노출
-                ? '<div class="dn-aggbook">'+_bookBlock(v.n,v.tel,v.url)+'</div><div class="dn-showlock">하객 안내에 \'여기로 모여요\'로 공개돼요</div>'
+                ? '<div class="dn-aggbook">'+_bookBlock(v.n,v.tel,v.url)+'</div><div class="dn-showlock">하객 안내에 '+((function(){ try{ return RitualPreviewLink.diningStatusOf(d, DN_PLACEHOLDER)==='cafe'; }catch(e){ return false; } })()?'\'차 한잔 하실 분은\'으로':'\'여기로 모여요\'로')+' 공개돼요</div>'   /* ★[CAFE_OPEN_OWNER_1115] 하객 안내 칸 이름과 같게 — 카페 · 다과만이면 «차 한잔 하실 분은»(guide.html pickKind 와 같은 근거 · diningStatusOf) */
                 : '<div class="a">'+(tel?('<a href="tel:'+tel+'">전화</a>'):'')+'<a href="'+escapeHtml(mUrl)+'" target="_blank" rel="noopener">지도</a></div>'
                   +'<button type="button" class="dn-repbtn" data-trkopt="venuePick" data-v="'+escapeHtml(v.n)+'" data-vpid="'+escapeHtml(v.pid||'')+'">예약할 곳으로 정하기</button>'   /* ★[DN_REP_LABEL_1102 사장님 «추천대로»] «여기로 예약할래요» → «예약할 곳으로 정하기» · 꼬리표 «예약할 곳» */+_showBtn(v))
             +'</div>';
