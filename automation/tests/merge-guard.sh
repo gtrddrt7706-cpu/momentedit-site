@@ -23459,7 +23459,7 @@ chk "_lv < duckWant - 0.5) ? PARAM.fadeDownMs : PARAM.fadeUpMs); segLive(c); duc
 chk 'LIVE_DOWN_MS_1115' scripts/audit/console-r2-1115.mjs 3
 # ★★[HEARD_AUDIBLE_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 기존 07 확장] 당일 콘솔 — 들린 기록(HEARD · REPEAT_FIX_1107 ①)은 음악만 멈춤 · 전체 볼륨 0 · 실효 출력 −60 dB 아래 동안 쌓지 않는다 · 검사 console-r2-1115 C
 chk 'HEARD_AUDIBLE_1115' console.html 1
-chk "duckWant <= -60) && bedHeardOn()) { var _h = HEARD" console.html 1
+chk "if (!f || seen\[f\] || !bedHeardOn(k)) continue;" console.html 1   # [HEARD_XF_1115] 셈이 heardTick 으로 옮겼다(재생기마다 · 같은 실효 출력 셈)
 chk 'HEARD_AUDIBLE_1115' scripts/audit/console-r2-1115.mjs 3
 # ★★[MUTE_PRESSED_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 12] 당일 콘솔 «음악만 멈춤» — aria-pressed 가 상태와 같다 · 켜진 동안 아랫줄 «지금 멈춰 있음» · 금색 바탕 위 아랫줄 글은 단추 글색 · 검사 console-r2-1115 D
 chk 'MUTE_PRESSED_1115' console.html 3
@@ -23623,3 +23623,8 @@ chk 'TRIBUTE_DUCK_OWNER_1115' assets/ritual-cue.js 1
 chk "if (/\^tribute-in/.test(_rs) && _rc.live) _rc.live.walkDuck = PARAM.duckMove != null ? PARAM.duckMove : -12;" assets/ritual-cue.js 1
 # ★[FREE_SONG_SHOW_KEEP_1115 2026-11-15 대본 결정 A · BGM 결정 카드 ②] 축사 «음악 없이» 화면 곡(B10) ↔ 당일(B09) 차이는 그대로(SCREEN_SOUND_1102 · ONE_FLOW_1106)
 chk 'FREE_SONG_SHOW_KEEP_1115' assets/bgm-bed.js 1
+# ★★[HEARD_XF_1115 2026-11-15 BGM 섹션 · GPT 라운드 4 07] 당일 콘솔 — 들린 초(HEARD · REPEAT_FIX_1107 ①)는 겹침(BED.xing) 동안에도 센다 · 재생기마다 실효 출력 −60 dB 위인 곡 · 같은 곡이 두 재생기로 이어지면 한 번 · 검사 r4-1115 A
+chk 'HEARD_XF_1115' console.html 2
+chk "heardTick();" console.html 1
+chk "if (!f || seen\[f\] || !bedHeardOn(k)) continue; seen\[f\] = 1;" console.html 1
+nochk "_h.sec += 0.25" console.html 0
