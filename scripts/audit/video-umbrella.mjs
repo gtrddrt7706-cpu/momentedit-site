@@ -5,7 +5,7 @@
 //   ③ 식중 있는 분: 머리 줄(이름 + 기한) 하나 · 아래 식전 · 식중 두 줄(입장 전 · 덕담 뒤) · 기한 꼬리표는 머리에만 · 상태 꼬리표는 줄마다 · 단추 id 그대로 · 단추 오른쪽 끝 같은 자리
 //   ④ 확인서: 이름 줄 하나 + 영상마다 상태 · 열기(data-cfpvc · data-cfmvc)
 //   ⑤ 가로 넘침 0 · 쪽 오류 0
-//   ⑥ 안쪽 화면(식전 · 식중 첫 화면): 맨 위 «지금 하실 일 · 확정 기한» 띠 하나 · 날짜는 한 번만 · 단계 셋 · 식중은 «선택 사항 · 축사 대신 상영 · 제작비는 두 분 부담» · 진사 단추 0(첫 화면) · 흰 상자 0
+//   ⑥ 안쪽 화면(식전 · 식중 첫 화면): 보조 길은 단추 위 한 줄(첫 눈에 다 보임 · [VU_SUBS_BAR_1115]) · 맨 위 «지금 하실 일 · 확정 기한» 띠 하나 · 날짜는 한 번만 · 단계 셋 · 식중은 «선택 사항 · 축사 대신 상영 · 제작비는 두 분 부담» · 진사 단추 0(첫 화면) · 흰 상자 0
 // 종료 0 = 통과 · 1 = 실패 · 2 = 재지 못함(브라우저 없음)
 import fs from 'node:fs';
 import path from 'node:path';
@@ -84,7 +84,9 @@ try {
           const now = c.querySelectorAll('.pvc-now'); const due = (tx.match(/\d+월 \d+일\([일월화수목금토]\)/g) || []).length;
           const cond = [...c.querySelectorAll('.pvc-cond span')].map((e) => e.textContent.trim());
           const boxes = [...c.querySelectorAll('.pvc-card *')].filter((e) => { const cs = getComputedStyle(e); return cs.borderTopStyle !== 'none' && parseFloat(cs.borderTopWidth) > 0 && cs.borderLeftStyle !== 'none' && parseFloat(cs.borderLeftWidth) > 0 && cs.borderRightStyle !== 'none' && parseFloat(cs.borderRightWidth) > 0 && !/^(BUTTON|INPUT|A)$/.test(e.tagName) && !e.closest('button') && !e.closest('.wz-bar') && !e.closest('.inv-head') && e.getBoundingClientRect().height > 30; }).length;
-          return { now: now.length, nowTxt: now[0] ? now[0].innerText.replace(/\s+/g, ' ') : '', due, steps: c.querySelectorAll('.pvc-3 > li').length, cond, seal: c.querySelectorAll('.cc-btn.seal,.cc-btn-seal,[class*="seal"]').length, boxes, sw: document.documentElement.scrollWidth, iw: innerWidth }; });
+          const bt = c.querySelector('.wz-bar .cc-btn'), btR = bt ? bt.getBoundingClientRect() : null;   // [VU_SUBS_BAR_1115] 첫 눈에 보조 길이 단추 뒤로 걸리지 않나
+          const subs = [...c.querySelectorAll('.pvc-subs .pvc-lk')].map((e) => { const r = e.getBoundingClientRect(); return { t: e.textContent.trim(), top: Math.round(r.top), bot: Math.round(r.bottom), h: Math.round(r.height) }; });
+          return { subs, btTop: btR ? Math.round(btR.top) : -1, vh: innerHeight, now: now.length, nowTxt: now[0] ? now[0].innerText.replace(/\s+/g, ' ') : '', due, steps: c.querySelectorAll('.pvc-3 > li').length, cond, seal: c.querySelectorAll('.cc-btn.seal,.cc-btn-seal,[class*="seal"]').length, boxes, sw: document.documentElement.scrollWidth, iw: innerWidth }; });
       }
     }
     const tag = `${W} ${name}`;
@@ -94,6 +96,8 @@ try {
       for (const k of ['pre', 'mid']) { const f = FL && FL[k];
         ok(`⑥ ${tag} ${k} 첫 화면 — 맨 위 «지금 하실 일 · 확정 기한» 띠 하나 · 날짜 한 번`, f && f.now === 1 && /지금 하실 일 영상 링크 보내기/.test(f.nowTxt) && /확정 기한 \d+월 \d+일\([일월화수목금토]\) · D-5/.test(f.nowTxt) && f.due === 1, JSON.stringify(f));
         ok(`⑥ ${tag} ${k} 첫 화면 — 단계 셋 · 진사 단추 없음 · 흰 상자 없음 · 가로 넘침 0`, f && f.steps === 3 && f.seal === 0 && f.boxes === 0 && f.sw <= f.iw, JSON.stringify(f)); }
+      for (const k of ['pre', 'mid']) { const f = FL && FL[k]; const want = k === 'pre' ? '나중에 준비하기|사용하지 않기' : '식순에서 빼기';
+        ok(`⑥ ${tag} ${k} 첫 화면 — 보조 길(${want})이 첫 눈에 다 보이고 단추 뒤로 걸리지 않는다 [VU_SUBS_BAR_1115]`, f && f.subs.map((x) => x.t).join('|') === want && f.subs.every((x) => x.h >= 44 && x.top >= 0 && x.bot <= f.vh && x.bot <= f.btTop), JSON.stringify(f && { subs: f.subs, btTop: f.btTop, vh: f.vh })); }
       ok(`⑥ ${tag} 식중 첫 화면 — «선택 사항 · 축사 대신 상영 · 제작비는 두 분 부담»`, FL && FL.mid && FL.mid.cond.join('|') === '선택 사항|축사 대신 상영|제작비는 두 분 부담' && FL.pre && FL.pre.cond.length === 0, JSON.stringify(FL && FL.mid && FL.mid.cond));
     } else if (name === 'none') {
       ok(`② ${tag} 식중 없는 분 — 묶음 머리 없음 · «식전 영상» 한 줄`, R.head === 0 && R.rows.length === 0 && R.plain === 1 && R.pv && !R.mv, JSON.stringify(R));

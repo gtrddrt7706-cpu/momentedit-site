@@ -4886,7 +4886,13 @@ nochk 'data-pvcmode="make"' mypage.html
 # ★[PV_ONE_WAY_1107 2026-11-07 사장님 «필메이커에서 만들어 여기에 올리는 건 똑같잖아» · 대본 «한 갈래로»] 식전 · 식중 첫 화면 = 큰 단추 «영상 올리기» 하나 + 필메이커 안내 한 줄 — 두 칸 갈래를 되살리지 않는다
 chk 'PV_ONE_WAY_1107' mypage.html 8
 chk "function _pvcFeelIn(m)" mypage.html 1   # [VIDEO_UMBRELLA_1115] 첫 화면에선 단계 셋 «영상 준비» 안 «만드는 법 보기»(m='link') · 함수는 그대로 하나
-chk "h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode=\"upload\"'));   // \[PV_ONE_WAY_1107\]" mypage.html 1
+# ★[VU_COUPON_ONCE_1115 2026-11-15 릴스 점검 A] 식중 «영상 준비» 걸음에 쿠폰 범위 문장을 다시 넣지 않는다(머리 조건 줄 · «만드는 법 보기» 와 세 번째 같은 말)
+chk 'VU_COUPON_ONCE_1115' mypage.html 1
+nochk '중 하나로 준비해 주세요. 쿠폰 · 기본 템플릿은 식전 영상에만 적용돼요.' mypage.html 0
+# ★[VU_SUBS_BAR_1115 2026-11-15 대본 · 릴스 점검 B] 첫 화면 보조 길(«나중에 준비하기 · 사용하지 않기» · «식순에서 빼기»)은 막대 안 단추 위 한 줄 — 본문 끝으로 되돌리면 폰 첫 화면에서 단추 뒤로 걸린다(video-umbrella ⑥ 실측이 막는다)
+chk 'VU_SUBS_BAR_1115' mypage.html 4
+nochk "_pvcThree()+'<div class=\"pvc-subs\">" mypage.html 0
+chk "h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode=\"upload\"'), '<div class=\"pvc-subs\">.*');   // \[PV_ONE_WAY_1107\]" mypage.html 1   # [VU_SUBS_BAR_1115] 큰 단추 하나 + 그 위 보조 길 한 줄
 nochk '<b>준비한 영상 올리기</b>' mypage.html
 nochk '<b>필메이커에서 만들기</b><span>' mypage.html
 nochk '필메이커에서 만들거나 준비한 영상을' mypage.html
