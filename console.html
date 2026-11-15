@@ -1377,6 +1377,7 @@ function segOfCue(c){ if (!c || !BP) return ''; var k = c.k, sl = String(c.slug 
   if (k === 'entry' || k === 'matjeol') return '';   /* M3 = 입장 곡(장면이 맡는다 · 배경음은 −90) · ★[BGM_FIX_1030] 맞절도 입장 곡이 잇는다 — M4 는 감사 인사부터(옛 «곡이 짧은 날 맞절에서 피아노를 미리 깐다» 걷음) */
   /* ★[BGM_TIMING2_1101] 축사 · 편지 — 여는 말은 M4(앞 곡) · «음악과 함께»면 사람 구간(낭독 · 말씀) 시작에서 segLive 가 M4S5 · M4S6 로 3초 겹친다 · 맺는 말 · 마무리는 그 곡 그대로('') · 축가는 M4 로 못 박는다(축사 곡이 새지 않게) */
   if (k === 'free') return /^narr-free-in/.test(sl) ? 'M4' : '';
+  if (k === 'midvid') return /^midvideo-in-/.test(sl) ? 'M4' : '';   /* ★[SPEECH_SONG_1115 · NARR_ROLE_1115] 식중 영상 = 따로 넣고 빼는 순간 · 여는 말(353 · 352 · 351)은 앞 곡 M4 · 맺는 말은 바꾸지 않는다(옛 free 영상 갈래 58 과 같은 몫 · BGM 방 확인 대기) */
   if (k === 'letter') return /^letter-/.test(sl) ? 'M4' : '';
   if (k === 'song') return 'M4';
   if (/^(welcome|vow|ring|declare|bless)$/.test(k)) return 'M4';
