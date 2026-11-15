@@ -80,7 +80,7 @@ try {
   const wi = await pg.evaluate(() => window.__bgmR().findIndex((c) => c.k === 'welcome'));
   await pg.evaluate((i) => window.__bgmGo.fire(i), wi); await pg.waitForTimeout(800);
   const D = await seg(pg);
-  ok('③ 파일 없는 구간(감사 인사 · M4) — 앞 곡(화촉)이 그대로 잇는다(정적 없음)', D.seg === 'M2' && D.src[D.on] === C.src[C.on] && !D.paused[D.on], D);
+  ok('③ 감사 인사(M4) — 곡 파일이 없으면 앞 곡(화촉)이 그대로 · 있으면 그 곡으로 겹쳐 넘어간다(정적 없음)', !D.paused[D.on] && (D.seg === 'M2' ? D.src[D.on] === C.src[C.on] : (D.seg === 'M4' && D.list.length > 0 && D.id === D.list[0])), D);   /* ★[SEAM_WORD_1107 J06] 맞절 뒤 b8(구간 '')이 없어져 감사 인사 첫 큐가 바로 M4 로 든다 — M4 1순위(B01)는 하객 맞이 1순위와 같은 곡이라 ② 에서 넣은 파일이 있다 · 종전엔 b8 을 눌러 M4 에 닿지 않았다 */
   /* ④ 축가 뒤 돌아옴 */
   const si = await pg.evaluate(() => window.__bgmR().findIndex((c) => c.slug === 'narr-song'));
   await pg.evaluate((i) => window.__bgmGo.fire(i), si);
