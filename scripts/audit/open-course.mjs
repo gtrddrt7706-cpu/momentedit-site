@@ -273,6 +273,19 @@ ok('[ONEMIN_FIRST · GUEST_WELCOME_191 · INFO_SPLIT_200] 식전 영상이 없�
     && C.EXTRA['guest-w5-meal'] === '시작 오 분 전입니다. 식사 장소와 사진 올리기는 모바일 청첩장의 하객 안내에서 보실 수 있습니다.' /* ★[FINAL_APPLY_1115 묶음 3 · 대본 11/15] 안내 = 문정 · 대표님 FINAL2 11/14 확정 글 */ && /온라인으로 함께하시는 분들은 화면과 소리를 확인해 주세요\.$/.test(C.EXTRA['guest-w5-meal-online'] || '')
     && ['guest-w-5m-mgr', 'guest-w-5m-mg', 'guest-w-5m-g', 'guest-w-5m-mgr-online', 'guest-w-5m-mg-online', 'guest-w-5m-g-online'].every((x) => C.RETIRED[x])
     && slugs({ course: 'open', on: {}, digital: 1 }).indexOf('guest-w-1m-online') > -1 && slugs({ course: 'open', on: {} }).indexOf('guest-w-1m') > -1; })());
+ok('[GA_W5_1115] 빌더 하객 안내 네 칸(입장 · 10 · 5 · 1분 전) 틀이 엔진 시계 큐 이름을 전부 제 칸으로 — 식사 · 예약 · 온라인 · 하객 안내 16 조합 · 깨 보기: 옛 5분 전 틀 /^guest-(w-5m|3-5min)/ 이면 식사 날이 빠진다', (() => {
+  const OP = fs.readFileSync(P('order-preview.html'), 'utf8'), m = OP.match(/_GA=\[([^\n]*?)\];/); if (!m) return false;
+  const GA = Function('return [' + m[1] + ']')(), OLD5 = /^guest-(w-5m|3-5min)/, want = [/^guest-w-arrival|^guest-1-arrival/, /^guest-w-10m-|^guest-2-10min/, /^guest-(w-5m|w5-|3-5min)/, /^guest-(w-1m|4-1min)/];
+  let all = true, oldMiss = 0;
+  for (const meal of [0, 1]) for (const resv of [0, 1]) for (const digital of [0, 1]) for (const guide of [0, 1]) {
+    const o = Object.assign({ course: 'open', on: {}, resv, digital, guide }, meal ? { meal: 1, mealFull: 1 } : {});
+    const cs = C.build(o, { mode: 'console' }).cues.filter((c) => c.k === 'guest' && c.text && /^guest-(w-|w5-|[1-4]-)/.test(c.slug || ''));
+    const five = cs.find((c) => c.atMin === -5); if (!five) { all = false; continue; }
+    const hit = GA.map((re, j) => re.test(five.slug) ? j : -1).filter((j) => j > -1); if (hit.join() !== '2') all = false;
+    if (!OLD5.test(five.slug)) oldMiss++;
+    cs.forEach((c) => { const j = GA.findIndex((re) => re.test(c.slug)); const k = want.findIndex((re) => re.test(c.slug)); if (k > -1 && j > -1 && j !== k) all = false; });
+  }
+  return all && oldMiss > 0; })());
 ok('[GUEST_WELCOME_191] 화촉이 뒤에 와도 1분 전은 315(89 는 쉰다)', (() => { const s = slugs({ course: 'open', on: { candle: 1 } }); return s.indexOf('guest-w-1m') > -1 && s.indexOf('guest-4-1min-pre') < 0 && s.indexOf('guest-4-1min') < 0 && C.RETIRED['guest-4-1min-pre']; })());
 ok('[AFTER_PHOTO_191 · POST_FLOW_200 · INFO_SPLIT_200 · AFTER_BEFORE_FAMILY_200] 촬영 후 안내 — 전체 하객 뒤 · 가족 구도 앞 · 작가님이 누름(manual · 힌트) · 판(식사 · 카페 · 없음 · 하객 안내 갈래 없음) · 미리 듣기 빌드엔 없다', (() => {
   const ap = (o) => { const r = C.build(Object.assign({ course: 'open', on: {} }, o), { mode: 'console' }), cs = r.cues, c = cs.find((x) => /^after-photo/.test(x.slug || '')) || {}, i = cs.indexOf(c); c._next = (cs[i + 1] || {}).actId; c._prev = (cs[i - 1] || {}).actId; return c; };

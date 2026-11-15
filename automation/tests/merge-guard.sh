@@ -23413,6 +23413,10 @@ nochk 'x.t < a.T - 50' scripts/audit/seam-bg.mjs
 chk '^315_guest-w-1m#0	base	0\.9233	' assets/audio/_src/_layers/빠르기표_최종_1109.tsv 1
 chk '^316_guest-w-1m-online#0	base	0\.9233	' assets/audio/_src/_layers/빠르기표_최종_1109.tsv 1
 chk 'PICK315_1115 대표님 11/15 09:55' docs/rules/나레이션.md 1
+# ★[GA_W5_1115 릴스 분석 방 발견 · 대본 11/15 10:35] 빌더 5분 전 칸 틀이 식사 날 큐 guest-w5-meal(-online)을 안다 — 옛 틀이면 그 글이 10분 전 칸 끝에 붙는다 · 깨 보기는 open-course «[GA_W5_1115]»(16 조합)
+chk '_GA=\[/\^guest-w-arrival/,/\^guest-w-10m-/,/\^guest-(w-5m|w5-|3-5min)/,' order-preview.html 1
+nochk '/\^guest-(w-5m|3-5min)/,/\^guest-(w-1m' order-preview.html
+chk "ok('\[GA_W5_1115\] 빌더 하객 안내 네 칸" scripts/audit/open-course.mjs 1
 chk '양가 아버님, 맞절.' assets/ritual-open.js 2
 nochk '화면으로 보고 계신 분들께 인사를 올리겠습니다.' assets/ritual-data.js
 nochk '이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해 서도록 하겠습니다.' assets/ritual-open.js
