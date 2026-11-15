@@ -1466,10 +1466,15 @@ function segCheer(){ if ((MODE === 'preview' || GUEST) && !pvsOn()) return; var 
 /* [BGM_FIX_1030] 사람 순간이 시작될 때 바꾸는 구간 — 닫는 인사의 목례 · 박수(narr-close-bow) → M6 */
 function segLive(c){ if (c && c.slug === 'narr-close-bow') segGo('M6');
   /* ★[MEANING_R2_1102 DECLARE_LIFT] 선언 뒤 축하 박수 = 새 곡 — 목록 다음 곡을 강조 자리(BgmPicks start)에서 0.6초에(앞 곡을 멈춘 자리부터 되살리지 않는다 · 크기는 아래 duckTo live −8 · upMs 600) */
-  if (c && c.live && c.live.newSong && BED.mode === 'seg' && BED.seg === 'M4' && BED.list && BED.list.length) { var _hz = BED.hushId || BED.id, _j = -1, _c = BED.li; for (var _n = 0; _n < BED.list.length; _n++) { _c = listNext(_c); if (_c < 0) break; if (BED.list[_c] !== _hz) { _j = _c; break; } } if (_j < 0) _j = BED.li;   /* 선언 전에 들리던 곡이 아닌 목록 다음 곡(없으면 지금 곡을 강조 자리부터 · 엄숙 → 기쁨 · 새 곡) */
+  /* ★★[DECLARE_PLAYABLE_1115 2026-11-15 BGM 섹션 · GPT 라운드 4 01] 박수 곡은 «본식 목록 ∩ 이 기기 파일 − 못 연 곡(BED.bad)» 안에서만 — 0곡이면 정적(요청 0) · 1곡이면 그 곡을 강조 자리부터 ·
+       못 열면 되돌아가는 곡도 그 안의 곡(선언 전 본식 곡)만 · 정적에 꺼진 다른 곡(입장 동안 꺼 둔 화촉 곡 등)은 어떤 길로도 되살리지 않는다.
+       종전: 짧은 입장 곡 인계에서 본식 곡을 다 못 열어 음악 없이(m4None) 이은 날, 목록 넘김이 −1 이라 «지금 자리 곡»(못 연 곡)을 다시 열고 실패 뒤 «지금 곡»(꺼 둔 화촉 곡)을 −8 dB 로 틀었다 ·
+       결정 기록 NO_RELIFT_1102 · M4_HANDOFF_NONE_1115 · DECLARE_ONE_1115(1곡이면 강조 자리부터 그대로) · DETAIL_R5_1101 규칙 5(못 연 곡은 다시 시도하지 않는다) */
+  var _dbd = BED.bad || {}, _dok = function(f){ return !!(f && SEGF[f] && !_dbd[f] && BED.list.indexOf(f) > -1); };
+  if (c && c.live && c.live.newSong && BED.mode === 'seg' && BED.seg === 'M4' && BED.list && BED.list.some(_dok)) { var _hz = BED.hushId || BED.id, _j = -1, _c = BED.li; for (var _n = 0; _n < BED.list.length; _n++) { _c = listNext(_c); if (_c < 0) break; if (BED.list[_c] !== _hz) { _j = _c; break; } } if (_j < 0) _j = _dok(BED.list[BED.li]) ? BED.li : BED.list.findIndex(_dok);   /* 선언 전에 들리던 곡이 아닌 목록 다음 곡(없으면 지금 곡을 강조 자리부터 · 엄숙 → 기쁨 · 새 곡) */
     /* ★[DECLARE_ONE_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 10] 위 괄호(«없으면 지금 곡을 강조 자리부터»)대로 — 틀 수 있는 본식 곡이 선언 전에 들리던 그 곡 하나뿐이어도 강조 자리부터 새로(미리 듣기 bgm-bed 도 같은 곡을 강조 자리에서 연다) ·
          다음 곡을 끝내 못 열면 지금 곡을 강조 자리부터(실패 뒤 다음 곡 onFail) · 종전엔 «BED.id !== 들리던 곡»일 때만이라 한 곡뿐이면 새 곡 요청 0회 · 정적 동안 흐른 자리에서 −8 dB 로 그대로 올랐다(ONE_FLOW_1106 ⑥ 선언 뒤 = 새 곡) */
-    if (_j >= 0) { var _sid = BED.list[_j], _sg = BP && BP.song ? BP.song(_sid) : null; BED.cut = null;   /* [ONE_FLOW_1106 ⑥] 선언 뒤 = 새 곡(끊긴 곡 잇기 예외) */ BED.li = _j; BED.onFail = (_sid !== BED.id) ? function(){ if (BED.seg === 'M4' && BED.id) bedPlay(BED.id, 0.6, reHookC(BED.id)); } : null; bedPlay(_sid, 0.6, reHookC(_sid)); BED.onFail = null; } }   /* [REPEAT_RULE_1107 ②] 강조 자리(이 예식 값 > 곡 성질 SONGS.start > 40%) */
+    if (_j >= 0) { var _sid = BED.list[_j], _sg = BP && BP.song ? BP.song(_sid) : null; BED.cut = null;   /* [ONE_FLOW_1106 ⑥] 선언 뒤 = 새 곡(끊긴 곡 잇기 예외) */ BED.li = _j; BED.onFail = (_sid !== BED.id && _dok(BED.id)) ? function(){ if (BED.seg === 'M4' && _dok(BED.id)) bedPlay(BED.id, 0.6, reHookC(BED.id)); } : null;   /* [DECLARE_PLAYABLE_1115] */ bedPlay(_sid, 0.6, reHookC(_sid)); BED.onFail = null; } }   /* [REPEAT_RULE_1107 ②] 강조 자리(이 예식 값 > 곡 성질 SONGS.start > 40%) */
   /* ★[ONE_FLOW_1106 · 옛 BGM_TIMING2_1101 걷음] «음악과 함께» 축사 · 편지 — 따로 곡을 걸지 않는다(옛 M4S5 · M4S6 로 3초 겹침 걷음) · 흐르던 본식 곡(M4)이 사람 구간 크기(live −20)로 그대로 잇는다 · 되살리지 말 것 */ }
 /* [BGM_FIX_1030] 지금 깔린 곡이 가사가 있는 곡인가(assets/bgm-picks.js vocal) — duckTo 가 나레이션 · 사람 구간을 vocalExtra 만큼 더 낮춘다 */
 function bedVocal(){ if (!BP || !BP.song || BED.mode !== 'seg' || !BED.id) return false; var s = BP.song(BED.id); return !!(s && s.vocal); }

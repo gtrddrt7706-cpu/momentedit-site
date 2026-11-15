@@ -23513,7 +23513,7 @@ chk 'var _ro = BED.reopen; BED.reopen = null;' console.html 1
 chk 'PAUSE_REOPEN_1115' scripts/audit/console-r3-1115.mjs 3
 # [DECLARE_ONE_1115] (10) 선언 뒤 박수 — 본식 곡이 한 곡뿐이어도 그 곡을 강조 자리부터 새로(DECLARE_LIFT 주석 «없으면 지금 곡을 강조 자리부터»)
 chk 'DECLARE_ONE_1115' console.html 1
-chk 'if (_j < 0) _j = BED.li;' console.html 1
+chk 'if (_j < 0) _j = _dok(BED.list' console.html 1   # [DECLARE_PLAYABLE_1115] 한 곡 자리 = 지금 자리 곡이 틀 수 있을 때(아니면 틀 수 있는 첫 곡)
 nochk 'if (_j < 0 && BED.id !== _hz) _j = BED.li;' console.html 0
 chk 'DECLARE_ONE_1115' scripts/audit/console-r3-1115.mjs 3
 # [CARRY_HEARD_1115] (11) 들린 기록으로 다시 짠 목록 — 이어받은 곡은 지금 자리(curAt)만큼 빼고 칸 길이를 센다(REPEAT_RULE_1107 · FILL_XF_1115)
@@ -23628,3 +23628,7 @@ chk 'HEARD_XF_1115' console.html 2
 chk "heardTick();" console.html 1
 chk "if (!f || seen\[f\] || !bedHeardOn(k)) continue; seen\[f\] = 1;" console.html 1
 nochk "_h.sec += 0.25" console.html 0
+# ★★[DECLARE_PLAYABLE_1115 2026-11-15 BGM 섹션 · GPT 라운드 4 01] 당일 콘솔 선언 뒤 박수 — 곡은 «본식 목록 ∩ 파일 − 못 연 곡» 안에서만 · 0곡이면 정적 · 실패 뒤 되돌아가는 곡도 그 안에서 · 정적에 꺼진 다른 곡은 되살리지 않는다(NO_RELIFT_1102) · 검사 r4-1115 B
+chk 'DECLARE_PLAYABLE_1115' console.html 2
+chk "BED.list && BED.list.some(_dok)) { var _hz" console.html 1
+chk "BED.onFail = (_sid !== BED.id && _dok(BED.id)) ?" console.html 1
