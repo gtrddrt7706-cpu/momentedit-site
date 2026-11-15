@@ -3075,7 +3075,7 @@ function prodTracksHtml(prod, d){
   if(rd&&rd._v===3){ var s3=rd.summary||{}; var q3=[]; if(s3.course)q3.push(esc(s3.course)); if(s3.count)q3.push(esc(String(s3.count))+'개 순간'); if(s3.min)q3.push(esc(String(s3.min))); if(q3.length)h+=' · '+q3.join(' · '); }   /* [ADM_SUM_ESC 2026-08-13 점검] count 도 esc — 초안(summary)은 고객 기기가 만든 값이라 전부 외부 데이터다 */
   else if(rd){ var q=[]; if(rd.mc)q.push('사회: '+esc(rd.mc)); if(rd.events&&rd.events.length)q.push('순서 '+rd.events.length+'개'); if(rd.songTitle)q.push('축가 '+esc(rd.songTitle)+(rd.songArtist?('/'+esc(rd.songArtist)):'')); if(rd.accompaniment)q.push(esc(rd.accompaniment)); if(q.length)h+=' · '+q.join(' · '); }
   h+='</div>';
-  /* ★[MID_VIDEO_1106 체크리스트 12] 식전 · 식중 영상 — 상태 · 확정 기한(예식 7일 전) · 식중은 식순 «준비한 순서 · 영상»이 켜고 끈다 · 기한날 아직 안 보냈으면 아침 10시 관리자 메일(89_prevideo sendVideoDueNotices) */
+  /* ★[MID_VIDEO_1106 체크리스트 12] 식전 · 식중 영상 — 상태 · 확정 기한(예식 7일 전) · 식중은 식순 «식중 영상»(S.on.midvid · [SPEECH_SONG_1115] · 옛 초안은 «준비한 순서 · 영상»)이 켜고 끈다 · 기한날 아직 안 보냈으면 아침 10시 관리자 메일(89_prevideo sendVideoDueNotices) */
   h+=_admVideoLines(prod, d);
   h+='<div class="cnote">최종확정 <b>'+esc(_tstat(t.final))+'</b>';
   if(fd&&fd.headcount){ var f=[]; f.push('하객 '+esc(String(fd.headcount))+'명'); if(Number(fd.standing)>0)f.push('스탠딩 '+fd.standing+(_moneyNum(fd.extraFee)>0?(' · 추가 '+_moneyNum(fd.extraFee).toLocaleString()+'원(잔금 합산)'):' · 추가 요금 없음'));   /* [ADMIN_NOFEE_LINE] 초과단가 0 이면 「추가 0원」을 찍지 않는다 */ if(fd.drink)f.push(esc(fd.drink)); if(Number(fd.softCount)>0)f.push('논알콜 '+esc(String(fd.softCount))+'잔'); if(fd.allergy)f.push('특이사항✓'); h+=' · '+f.join(' · '); }
@@ -3154,8 +3154,9 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn,d){
       /* [R4-02] 두 분이 «원고 없이 부모님이 현장에서 바로»를 골랐으면(덕담 부탁 칸 mkc 'p:bless:N' = 'site') 숨은 원고를 보이지 않는다 — 카드를 만들 원고가 아니다 */
       +((s3d.mkc&&Object.keys(s3d.mkc).some(function(id){ return /^p:bless:/.test(id)&&s3d.mkc[id]==='site'; }))?'<div class="kv"><span class="k">덕담 원고</span><span class="v">원고 없이 부모님이 현장에서 바로</span></div>'
       :(s3d.tx&&String(s3d.tx['bless.p']||'').trim())?'<div class="kv"><span class="k">덕담 원고</span><span class="v" style="white-space:pre-wrap">'+esc(String(s3d.tx['bless.p']).trim())+'</span></div>':'')
-      /* [SPEECH_SCRIPT 2026-10-07] 축사 원고 — 덕담과 같은 두 갈래(«원고 없이»면 숨은 원고를 보이지 않는다) · 준비한 순서가 축사일 때만 */
-      +(s3d.freeWhat!=='speech'?'':(s3d.mkc&&s3d.mkc['p:free:0']==='site')?'<div class="kv"><span class="k">축사 원고</span><span class="v">원고 없이 현장에서 바로</span></div>'
+      /* [SPEECH_SCRIPT 2026-10-07] 축사 원고 — 덕담과 같은 두 갈래(«원고 없이»면 숨은 원고를 보이지 않는다) · 준비한 순서가 축사일 때만
+         ★[SPEECH_SONG_1115] 새 코스는 축사를 담았을 때만 — 축사 · 축가는 둘 중 하나라 축가로 바꾼 초안에 남은 축사 원고(tx free.p)를 보이지 않는다 */
+      +((s3d.freeWhat!=='speech'||(s3d.course==='open'&&!(s3d.on&&s3d.on.free)))?'':(s3d.mkc&&s3d.mkc['p:free:0']==='site')?'<div class="kv"><span class="k">축사 원고</span><span class="v">원고 없이 현장에서 바로</span></div>'
       :(s3d.tx&&String(s3d.tx['free.p']||'').trim())?'<div class="kv"><span class="k">축사 원고</span><span class="v" style="white-space:pre-wrap">'+esc(String(s3d.tx['free.p']).trim())+'</span></div>':'')   /* [R2-06] 두 분이 붙여 둔 부모님 덕담 원고(큰 글씨 카드로 준비) — 저장 초안 S.tx 그대로(GAS 변경 없음) */
       +row('직접 쓰는 글', [s3d.vowText?(s3d.vowKind==='thanks'?'감사문':'서약문')+'(카드 인쇄)':null /* [THANKS_IN_VOW] · [VOW_CARD_PRINT_1014] */, s3d.letterText?'편지':null, s3d.welcomeText?'감사 인사(카드 인쇄)':null /* [WELCOME_CARD_1014] */, s3d.tributeText?'부모님께 드릴 말(카드 인쇄)':null, (s3d.tx&&(String(s3d.tx['toast.g']||'').trim()||String(s3d.tx['toast.b']||'').trim()))?'축배 한마디':null /* [TOAST_SAY 2026-10-07] S.tx 두 칸 */].filter(function(x){return x;}).join(' · ')||'아직 없음')
       +(s3d.growth==='on'?lrow('식전 성장영상', s3d.growthLink||'켬 · 링크 미첨부'):'');   /* [ADM_LINK_CLICK] */
