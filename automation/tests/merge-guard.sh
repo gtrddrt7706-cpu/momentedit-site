@@ -23409,6 +23409,10 @@ chk '문체 자(`scripts/audit/narr-words.mjs` W1 · W2 · W13)를 넘은 자리
 # ★[SEAM_SAMPLE_1115] seam-bg «앞 명령» 경계 = 바뀌기 전 마지막 표본(0.1초 표본 늦음에 흔들리지 않게) — 옛 «a.T - 50» 되살리지 말 것
 chk '\[SEAM_SAMPLE_1115\]' scripts/audit/seam-bg.mjs 1
 nochk 'x.t < a.T - 50' scripts/audit/seam-bg.mjs
+# ★[PICK315_1115 대표님 11/15 09:55 · 듣기 페이지 315] 315 · 316 첫 문장 «잠시 후 예식을 시작하겠습니다.» = ×0.9233(11% 느리게) · 두 클립 같은 값 — 결정 docs/rules/나레이션.md
+chk '^315_guest-w-1m#0	base	0\.9233	' assets/audio/_src/_layers/빠르기표_최종_1109.tsv 1
+chk '^316_guest-w-1m-online#0	base	0\.9233	' assets/audio/_src/_layers/빠르기표_최종_1109.tsv 1
+chk 'PICK315_1115 대표님 11/15 09:55' docs/rules/나레이션.md 1
 chk '양가 아버님, 맞절.' assets/ritual-open.js 2
 nochk '화면으로 보고 계신 분들께 인사를 올리겠습니다.' assets/ritual-data.js
 nochk '이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해 서도록 하겠습니다.' assets/ritual-open.js
