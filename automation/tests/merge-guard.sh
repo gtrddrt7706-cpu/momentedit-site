@@ -22267,6 +22267,8 @@ chk 'BED.cut = { id: BED.id, t: _ce.currentTime' console.html 1
 chk 'ONE_FLOW_1106 ⑤' assets/ritual-cue.js 1
 chk 'T08 끊긴 곡 이어 듣기' scripts/audit/one-flow.mjs 1
 chk 'meaning-r2 gpt-r1 one-flow' .github/workflows/merge-guard.yml 1
+chk 'SPEECH_SONG_1115' scripts/audit/one-flow.mjs 6   # ★[SPEECH_SONG_1115 · RULES_SLIM ⑧] one-flow 판 둘(축사 쪽 · 축가 쪽) · T05 새 기대(옛 저장본 축사 + 축가 = 축가만 · 여는 말 −15) · T08 꺼진 자리 = 축가 줄 안 첫 끊김 — 깨 보기: BP_CUE 로 midMigrate 를 끄면 T05 빨강
+nochk "ok('T05 «음악과 함께» 축사 뒤 축가 여는 말" scripts/audit/one-flow.mjs   # [SPEECH_SONG_1115] 은퇴한 옛 T05(축사 뒤 축가 여는 말 정적)
 chk '①-T01' scripts/audit/gpt-r1.mjs 1
 chk '④-T01' scripts/audit/gpt-r1.mjs 1
 chk "meaning-r2 gpt-r1" .github/workflows/merge-guard.yml 1
