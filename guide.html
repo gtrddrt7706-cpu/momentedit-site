@@ -46,6 +46,9 @@ html{font-synthesis:weight}/* ★★[KO_NO_FAUX_ITALIC 2026-09-25 코워크 3편
 body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--serif-ko);color:var(--accent);-webkit-text-size-adjust:100%;line-height:1.7}
 .wrap{max-width:440px;margin:0 auto;position:relative}
 .brand{text-align:center;font-family:var(--serif);font-size:12px;letter-spacing:.24em;color:var(--gold-deep);text-transform:uppercase;margin-bottom:16px}
+/* ★[GUIDE_NAME_OWNER_1115 2026-11-15 대표님 «화면을 하객 안내로»] 안내 음성이 늘 «모바일 청첩장의 하객 안내»라고 부른다 — 링크 · QR · 청첩장 단추 어느 길로 열어도 맨 위에 그 이름이 보이게.
+   불러오는 중 · 기간 종료 · 실패 화면에도 보이도록 그리기 전 HTML 에 둔다 · «애프터 웨딩» · «여기로 모여요»는 안쪽 칸 제목 그대로 · 이 줄을 빼면 음성이 부르는 이름이 화면에서 사라진다 */
+.page-t{text-align:center;font-family:var(--serif-ko);font-size:18px;font-weight:600;letter-spacing:.04em;color:var(--accent);margin:-6px 0 16px;line-height:1.4}
 .backbar{position:absolute;left:0;top:-4px}   /* 브랜드 줄과 같은 높이 왼쪽 — 홀로 뜬 알약이 상단 리듬을 깨던 것 통합(2026-07-18 사용자 지적) */
 .backbar button{font-family:var(--serif-ko);font-size:12.5px;color:var(--faint);background:transparent;border:none;padding:6px 8px;cursor:pointer}
 .backbar button:active{color:var(--gold-deep)}
@@ -407,6 +410,7 @@ body{
 <div class="wrap">
   <div class="backbar" id="backBar" style="display:none"><button type="button" id="backBtn">‹ 뒤로</button></div>
   <div class="brand">Moment Edit</div>
+  <p class="page-t">하객 안내</p><!-- [GUIDE_NAME_OWNER_1115] 음성이 부르는 이름 · 모든 상태(불러오는 중 · 종료 · 실패)에 보인다 -->
   <main id="root"><div class="card"><div class="state" role="status"><span class="bdot"></span>안내를 불러오는 중이에요…</div></div></main>
 <script src="/assets/dining-data.js?v=1105a"></script><!-- [B2_MA_64] 식사 · 카페 판정 목록(마이페이지 · 당일 콘솔과 같은 원천 · DINE_DATA_NI16) -->
 </div>

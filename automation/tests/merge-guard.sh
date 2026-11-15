@@ -22612,6 +22612,14 @@ chk 'B2_MA_81' automation/platform/80_production.gs 2   # 첫 발급 때 «안�
 chk 'B2_MA_17' guide.html 2                       # #photos — 온라인 청첩장 · 디지털 참석의 «사진 올리기»
 chk 'B2_MA_17' live.html 3
 chk 'B2_MA_17' shared/hydrate.js 2
+# ── [GUIDE_NAME_OWNER_1115] 2026-11-15 대표님 «화면을 하객 안내로» — 안내 음성이 부르는 «모바일 청첩장의 하객 안내»가 화면 맨 위 · 모든 입구에 보이게(녹음은 그대로)
+chk 'GUIDE_NAME_OWNER_1115' guide.html 2
+chk '<p class="page-t">하객 안내</p>' guide.html 1          # 그리기 전 HTML — 불러오는 중 · 종료 · 실패 화면에도
+chk 'GUIDE_NAME_OWNER_1115' shared/hydrate.js 2
+chk "'하객 안내 · 사진 올리기'" shared/hydrate.js 1           # 온라인 청첩장 입구(누르면 종전처럼 #photos)
+nochk "'Photos' : 'Guest Guide'" shared/hydrate.js
+chk 'GUIDE_NAME_OWNER_1115' live.html 1
+chk '>하객 안내 · 사진 올리기</a>' live.html 1                   # 모바일 참석 화면 입구
 chk 'B2_MA_03' live.html 2                        # [d-11] 실패해도 자동 재조회를 시작 · 끝나면 «다시 불러오기»
 chk '예식 정보를 불러오지 못했어요. 다시 불러와 주세요.' live.html 2
 chk '아직 영상이 준비되지 않았어요. 화면을 새로 고쳐 다시 확인해 주세요.' live.html 2
