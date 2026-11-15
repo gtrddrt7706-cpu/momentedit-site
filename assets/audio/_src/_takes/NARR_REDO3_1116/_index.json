@@ -1,0 +1,654 @@
+{
+ "note": "NARR_REDO 3차(대본 01:30) · 문정 SSFM 3.0 «일반» 피치 0 · X=지금 글 8테이크 · E=끝음 조절 +0.5 4테이크 · P=쉼표 자리 바꾼 글 4테이크 · Typecast 프로젝트 NARR_REDO3_1116_문정",
+ "ptext": {
+  "R8": "약 십오 분간 진행되고, 마친 뒤에는 다 함께, 단체 사진 한 장을 찍습니다.",
+  "D4": "가실 때 두고 가시는 물건이 없는지, 한 번 살펴 주세요.",
+  "D3": "다른 분들은, 이제 편히 돌아가셔도 좋습니다."
+ },
+ "picks": {
+  "R8": {
+   "X1": "X_t4",
+   "X2": "X_t1",
+   "E": "E_t4",
+   "P": "P_t4"
+  },
+  "D4": {
+   "X1": "X_t5",
+   "X2": "X_t1",
+   "E": "E_t1",
+   "P": "P_t4"
+  },
+  "D3": {
+   "X1": "X_t8",
+   "X2": "X_t1",
+   "E": "E_t4",
+   "P": "P_t3"
+  }
+ },
+ "qc": {
+  "D3__E__t1": {
+   "heard": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "semi": 12.956,
+   "cent": 1481.6,
+   "end": -4.6,
+   "cps": 5.96,
+   "long": 0,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D3__E__t2": {
+   "heard": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "semi": 14.256,
+   "cent": 1413.1,
+   "end": -11.1,
+   "cps": 6.429,
+   "long": 0,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D3__E__t3": {
+   "heard": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "semi": 13.156,
+   "cent": 1271.0,
+   "end": -2.75,
+   "cps": 6.061,
+   "long": 0,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D3__E__t4": {
+   "heard": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "semi": 13.956,
+   "cent": 1340.1,
+   "end": -1.2,
+   "cps": 5.66,
+   "long": 0.18,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D3__P__t1": {
+   "heard": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "semi": 12.456,
+   "cent": 1473.8,
+   "end": -1.6,
+   "cps": 6.818,
+   "long": 0.28,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D3__P__t2": {
+   "heard": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "semi": 13.706,
+   "cent": 1364.6,
+   "end": -0.25,
+   "cps": 6.36,
+   "long": 0,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D3__P__t3": {
+   "heard": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "semi": 15.856,
+   "cent": 1365.7,
+   "end": -0.6,
+   "cps": 6.272,
+   "long": 0,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D3__P__t4": {
+   "heard": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "semi": 14.906,
+   "cent": 1393.9,
+   "end": 2.95,
+   "cps": 6.522,
+   "long": 0.45,
+   "ok": {
+    "text": true,
+    "end": false,
+    "break": true
+   }
+  },
+  "D3__X__t1": {
+   "heard": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "semi": 13.056,
+   "cent": 1412.0,
+   "end": -9.9,
+   "cps": 6.36,
+   "long": 0.14,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D3__X__t2": {
+   "heard": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "semi": 13.856,
+   "cent": 1246.6,
+   "end": -1.95,
+   "cps": 6.742,
+   "long": 0.2,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D3__X__t3": {
+   "heard": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "semi": 14.856,
+   "cent": 1409.2,
+   "end": -11.7,
+   "cps": 6.792,
+   "long": 0.24,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D3__X__t4": {
+   "heard": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "semi": 13.356,
+   "cent": 1394.5,
+   "end": -9.9,
+   "cps": 6,
+   "long": 0.14,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D3__X__t5": {
+   "heard": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "semi": 15.206,
+   "cent": 1395.4,
+   "end": -0.65,
+   "cps": 6.475,
+   "long": 0,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D3__X__t6": {
+   "heard": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "semi": 13.256,
+   "cent": 1400.1,
+   "end": 0.0,
+   "cps": 6.792,
+   "long": 0.23,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D3__X__t7": {
+   "heard": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "semi": 15.256,
+   "cent": 1362.3,
+   "end": -3.0,
+   "cps": 6,
+   "long": 0.38,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D3__X__t8": {
+   "heard": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "semi": 14.556,
+   "cent": 1209.9,
+   "end": -0.6,
+   "cps": 6.498,
+   "long": 0,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D4__E__t1": {
+   "heard": "가실 때 두고 가시는 물건이 없는지 한번 살펴주세요.",
+   "semi": 16.156,
+   "cent": 1408.7,
+   "end": -1.25,
+   "cps": 6.087,
+   "long": 0.21,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D4__E__t2": {
+   "heard": "가실 때 두고 가시는 물건이 없는지 한번 살펴주세요.",
+   "semi": 14.356,
+   "cent": 1274.7,
+   "end": -6.7,
+   "cps": 6.885,
+   "long": 0.33,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D4__E__t3": {
+   "heard": "가실 때 두고 가시는 물건이 없는지 한번 살펴주세요.",
+   "semi": 17.556,
+   "cent": 1662.1,
+   "end": -8.5,
+   "cps": 6.542,
+   "long": 0.21,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D4__E__t4": {
+   "heard": "가실 때 두고 가시는 물건이 없는지 한 번 살펴주세요.",
+   "semi": 14.556,
+   "cent": 1428.4,
+   "end": -1.15,
+   "cps": 5.949,
+   "long": 0.53,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": false
+   }
+  },
+  "D4__P__t1": {
+   "heard": "가실 때 두고 가시는 물건이 없는지 한번 살펴주세요.",
+   "semi": 17.606,
+   "cent": 1528.5,
+   "end": -4.3,
+   "cps": 5.966,
+   "long": 0.37,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D4__P__t2": {
+   "heard": "가실 때 두고 가시는 물건이 없는지 한 번 살펴주세요.",
+   "semi": 14.206,
+   "cent": 1332.7,
+   "end": -6.15,
+   "cps": 5.85,
+   "long": 0.52,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": false
+   }
+  },
+  "D4__P__t3": {
+   "heard": "가실 때 두고 가시는 물건이 없는지 한 번 살펴주세요.",
+   "semi": 15.406,
+   "cent": 1428.4,
+   "end": -2.75,
+   "cps": 6.25,
+   "long": 0.48,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": false
+   }
+  },
+  "D4__P__t4": {
+   "heard": "가실 때 두고 가시는 물건이 없는지 한번 살펴주세요.",
+   "semi": 17.056,
+   "cent": 1491.7,
+   "end": -1.85,
+   "cps": 6.646,
+   "long": 0.31,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D4__X__t1": {
+   "heard": "가실 때 두고 가시는 물건이 없는지 한번 살펴주세요.",
+   "semi": 17.456,
+   "cent": 1730.0,
+   "end": -5.8,
+   "cps": 6.325,
+   "long": 0.32,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D4__X__t2": {
+   "heard": "가실 때 두고 가시는 물건이 없는지 한번 살펴주세요.",
+   "semi": 14.656,
+   "cent": 1306.5,
+   "end": -0.5,
+   "cps": 6.402,
+   "long": 0.23,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D4__X__t3": {
+   "heard": "가실 때 두고 가시는 물건이 없는지 한번 살펴주세요.",
+   "semi": 14.056,
+   "cent": 1449.2,
+   "end": -10.9,
+   "cps": 6.176,
+   "long": 0,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D4__X__t4": {
+   "heard": "가실 때 두고 가시는 물건이 없는지 한번 살펴주세요.",
+   "semi": 15.656,
+   "cent": 1303.0,
+   "end": -2.85,
+   "cps": 6.306,
+   "long": 0.24,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D4__X__t5": {
+   "heard": "가실 때 두고 가시는 물건이 없는지 한 번 살펴주세요.",
+   "semi": 13.956,
+   "cent": 1484.1,
+   "end": -10.8,
+   "cps": 6.105,
+   "long": 0.37,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D4__X__t6": {
+   "heard": "가실 때 두고 가시는 물건이 없는지 한번 살펴주세요.",
+   "semi": 15.956,
+   "cent": 1397.9,
+   "end": -2.65,
+   "cps": 6,
+   "long": 0.22,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D4__X__t7": {
+   "heard": "가실 때 두고 가시는 물건이 없는지 한번 살펴주세요.",
+   "semi": 17.706,
+   "cent": 1412.7,
+   "end": -4.15,
+   "cps": 6.213,
+   "long": 0.3,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "D4__X__t8": {
+   "heard": "가실 때 두고 가시는 물건이 없는지 한번 살펴주세요.",
+   "semi": 14.756,
+   "cent": 1407.4,
+   "end": -0.45,
+   "cps": 6.344,
+   "long": 0.37,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "R8__E__t1": {
+   "heard": "약 15분간 진행되고 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "semi": 14.056,
+   "cent": 1421.1,
+   "end": -6.1,
+   "cps": 6.573,
+   "long": 0.24,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "R8__E__t2": {
+   "heard": "약 15분간 진행되고 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "semi": 16.156,
+   "cent": 1487.3,
+   "end": -8.75,
+   "cps": 6.048,
+   "long": 0.26,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "R8__E__t3": {
+   "heard": "약 15분간 진행되고 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "semi": 13.556,
+   "cent": 1345.6,
+   "end": -10.4,
+   "cps": 6.306,
+   "long": 0.34,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "R8__E__t4": {
+   "heard": "약 15분간 진행되고 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "semi": 15.756,
+   "cent": 1466.1,
+   "end": -3.0,
+   "cps": 6.481,
+   "long": 0.27,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "R8__P__t1": {
+   "heard": "약 15분간 진행되고 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "semi": 15.556,
+   "cent": 1463.7,
+   "end": -5.8,
+   "cps": 6.195,
+   "long": 0.32,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "R8__P__t2": {
+   "heard": "약 15분간 진행되고 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "semi": 15.756,
+   "cent": 1487.0,
+   "end": -4.75,
+   "cps": 6.763,
+   "long": 0.28,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "R8__P__t3": {
+   "heard": "약 15분간 진행되고 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "semi": 17.356,
+   "cent": 1436.8,
+   "end": 0.9,
+   "cps": 6.667,
+   "long": 0.42,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "R8__P__t4": {
+   "heard": "약 15분간 진행되고 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "semi": 15.656,
+   "cent": 1505.9,
+   "end": -12.5,
+   "cps": 6.335,
+   "long": 0.26,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "R8__X__t1": {
+   "heard": "약 15분간 진행되고 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "semi": 16.256,
+   "cent": 1480.7,
+   "end": 0.45,
+   "cps": 6.236,
+   "long": 0.24,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "R8__X__t2": {
+   "heard": "약 15분간 진행되고 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "semi": 15.156,
+   "cent": 1436.9,
+   "end": -7.65,
+   "cps": 6.114,
+   "long": 0.17,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "R8__X__t3": {
+   "heard": "약 15분간 진행되고 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "semi": 16.456,
+   "cent": 1431.2,
+   "end": -2.9,
+   "cps": 6.321,
+   "long": 0,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "R8__X__t4": {
+   "heard": "약 15분간 진행되고 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "semi": 14.956,
+   "cent": 1493.7,
+   "end": -4.6,
+   "cps": 6.127,
+   "long": 0.33,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "R8__X__t5": {
+   "heard": "약 15분간 진행되고 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "semi": 14.406,
+   "cent": 1309.8,
+   "end": 1.35,
+   "cps": 6.25,
+   "long": 0.21,
+   "ok": {
+    "text": true,
+    "end": false,
+    "break": true
+   }
+  },
+  "R8__X__t6": {
+   "heard": "약 15분간 진행되고 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "semi": 16.556,
+   "cent": 1640.7,
+   "end": -3.5,
+   "cps": 6.321,
+   "long": 0.29,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  },
+  "R8__X__t7": {
+   "heard": "약 15분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "semi": 15.556,
+   "cent": 1504.9,
+   "end": 2.55,
+   "cps": 6.378,
+   "long": 0.22,
+   "ok": {
+    "text": true,
+    "end": false,
+    "break": true
+   }
+  },
+  "R8__X__t8": {
+   "heard": "약 15분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "semi": 16.706,
+   "cent": 1478.3,
+   "end": -4.15,
+   "cps": 6.306,
+   "long": 0.31,
+   "ok": {
+    "text": true,
+    "end": true,
+    "break": true
+   }
+  }
+ }
+}
