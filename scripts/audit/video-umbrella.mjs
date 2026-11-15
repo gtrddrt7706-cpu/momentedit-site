@@ -86,7 +86,9 @@ try {
           const boxes = [...c.querySelectorAll('.pvc-card *')].filter((e) => { const cs = getComputedStyle(e); return cs.borderTopStyle !== 'none' && parseFloat(cs.borderTopWidth) > 0 && cs.borderLeftStyle !== 'none' && parseFloat(cs.borderLeftWidth) > 0 && cs.borderRightStyle !== 'none' && parseFloat(cs.borderRightWidth) > 0 && !/^(BUTTON|INPUT|A)$/.test(e.tagName) && !e.closest('button') && !e.closest('.wz-bar') && !e.closest('.inv-head') && e.getBoundingClientRect().height > 30; }).length;
           const bt = c.querySelector('.wz-bar .cc-btn'), btR = bt ? bt.getBoundingClientRect() : null;   // [VU_SUBS_BAR_1115] 첫 눈에 보조 길이 단추 뒤로 걸리지 않나
           const subs = [...c.querySelectorAll('.pvc-subs .pvc-lk')].map((e) => { const r = e.getBoundingClientRect(); return { t: e.textContent.trim(), top: Math.round(r.top), bot: Math.round(r.bottom), h: Math.round(r.height) }; });
-          return { subs, btTop: btR ? Math.round(btR.top) : -1, vh: innerHeight, now: now.length, nowTxt: now[0] ? now[0].innerText.replace(/\s+/g, ' ') : '', due, steps: c.querySelectorAll('.pvc-3 > li').length, cond, seal: c.querySelectorAll('.cc-btn.seal,.cc-btn-seal,[class*="seal"]').length, boxes, sw: document.documentElement.scrollWidth, iw: innerWidth }; });
+          const hi = c.querySelector('.pvc-hero img'), hc = c.querySelector('.pvc-hero figcaption');   // [VU_MID_HERO_1115] 결과 먼저 한 컷이 실제로 뜨나
+          const hero = hi ? { ok: hi.complete && hi.naturalWidth >= 640, src: hi.getAttribute('src'), cap: hc ? hc.textContent.trim() : '' } : null;
+          return { hero, subs, btTop: btR ? Math.round(btR.top) : -1, vh: innerHeight, now: now.length, nowTxt: now[0] ? now[0].innerText.replace(/\s+/g, ' ') : '', due, steps: c.querySelectorAll('.pvc-3 > li').length, cond, seal: c.querySelectorAll('.cc-btn.seal,.cc-btn-seal,[class*="seal"]').length, boxes, sw: document.documentElement.scrollWidth, iw: innerWidth }; });
       }
     }
     const tag = `${W} ${name}`;
@@ -98,6 +100,8 @@ try {
         ok(`⑥ ${tag} ${k} 첫 화면 — 단계 셋 · 진사 단추 없음 · 흰 상자 없음 · 가로 넘침 0`, f && f.steps === 3 && f.seal === 0 && f.boxes === 0 && f.sw <= f.iw, JSON.stringify(f)); }
       for (const k of ['pre', 'mid']) { const f = FL && FL[k]; const want = k === 'pre' ? '나중에 준비하기|사용하지 않기' : '식순에서 빼기';
         ok(`⑥ ${tag} ${k} 첫 화면 — 보조 길(${want})이 첫 눈에 다 보이고 단추 뒤로 걸리지 않는다 [VU_SUBS_BAR_1115]`, f && f.subs.map((x) => x.t).join('|') === want && f.subs.every((x) => x.h >= 44 && x.top >= 0 && x.bot <= f.vh && x.bot <= f.btTop), JSON.stringify(f && { subs: f.subs, btTop: f.btTop, vh: f.vh })); }
+      for (const [k, nm, f0] of [['pre', '식전', 'prevideo-640.webp'], ['mid', '식중', 'midvideo-640.webp']]) { const f = FL && FL[k];
+        ok(`⑥ ${tag} ${nm} 첫 화면 — 결과 먼저 한 컷(${f0})이 뜨고 캡션 «예식 날 ${nm} 영상이 상영되는 모습(그림)» [VU_MID_HERO_1115]`, f && f.hero && f.hero.ok && f.hero.src.endsWith(f0) && f.hero.cap === `예식 날 ${nm} 영상이 상영되는 모습(그림)`, JSON.stringify(f && f.hero)); }
       ok(`⑥ ${tag} 식중 첫 화면 — «선택 사항 · 축사 대신 상영 · 제작비는 두 분 부담»`, FL && FL.mid && FL.mid.cond.join('|') === '선택 사항|축사 대신 상영|제작비는 두 분 부담' && FL.pre && FL.pre.cond.length === 0, JSON.stringify(FL && FL.mid && FL.mid.cond));
     } else if (name === 'none') {
       ok(`② ${tag} 식중 없는 분 — 묶음 머리 없음 · «식전 영상» 한 줄`, R.head === 0 && R.rows.length === 0 && R.plain === 1 && R.pv && !R.mv, JSON.stringify(R));
