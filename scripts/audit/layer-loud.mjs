@@ -16,11 +16,7 @@ const D6 = {}; for (const [k, a] of Object.entries(by)) { if (a.length < 2) cont
   for (const q of ms) D6[q.id] = +(q.rms - med).toFixed(2); }
 const bad = [];
 for (const [id, r] of Object.entries(T)) { if (done[id] !== r.gain) bad.push(`${id} 표 ${r.gain} · 만들기 ${done[id]}`);
-  const d = D6[id]; if (d == null) { bad.push(`${id} mp3 에서 못 잼`); continue; }
-  /* ★[LOUD_NB_1115 · 대본 11/15 14:45 · 결정 기록 docs runbook/결정기록_크기이웃맞춤_1115.md] nb 줄 = «가운데 쪽으로»가 아니라 이웃 문장(LUFS ±0.5 dB · 릴스 측정 자)에 맞춘 새 녹음 문장 —
-     가운데값 문장(3문장 클립의 가운데 = 5층 d 0)은 «줄어듦»을 잴 수 없어 이 자에서는 ±1.5 안만 본다(표 = 만들기 이득 대조는 그대로) */
-  if (r.nb) { if (Math.abs(d) > 1.5) bad.push(`${id} 이웃 맞춤 6층 ${d} (±1.5 밖)`); continue; }
-  if (!(Math.abs(d) < Math.abs(r.d)) || Math.sign(d) === -Math.sign(r.d) && Math.abs(d) > 1.5) bad.push(`${id} 5층 ${r.d} → 6층 ${d}`); }
+  const d = D6[id]; if (d == null) { bad.push(`${id} mp3 에서 못 잼`); continue; } if (!(Math.abs(d) < Math.abs(r.d)) || Math.sign(d) === -Math.sign(r.d) && Math.abs(d) > 1.5) bad.push(`${id} 5층 ${r.d} → 6층 ${d}`); }
 for (const id of Object.keys(done)) if (!T[id]) bad.push(`${id} 표에 없는데 이득을 줬다`);
 const over6 = Object.values(D6).filter((d) => Math.abs(d) > 1.5).length, ch = Object.keys(T).map((id) => Math.abs(D6[id] ?? 99) - Math.abs(T[id].d));
 console.log(`${bad.length ? 'FAIL' : 'ok  '} layer-loud — 바꾼 문장 ${Object.keys(T).length} · 가운데 쪽으로 평균 ${(-ch.reduce((s, x) => s + x, 0) / ch.length).toFixed(2)} dB · ±1.5 넘음 5층 ${Object.keys(T).length} → 6층 ${over6}(잰 문장 ${Object.keys(D6).length}) · 밖 ${bad.length}`);
