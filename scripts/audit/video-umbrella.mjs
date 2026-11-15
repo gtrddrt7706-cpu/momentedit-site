@@ -66,7 +66,7 @@ try {
       const rr = (e) => e && e.getBoundingClientRect();
       const plain = [...box.querySelectorAll('.trk')].filter((e) => !e.classList.contains('vu-row') && /^식전 영상/.test(t(e.querySelector('.trk-nm'))));
       const cf = document.getElementById('mp_cfPanel');
-      return { head: head.length, headTxt: t(head[0]), due: t(head[0] && head[0].querySelector('.vu-due')), rows: rows.map((e) => ({ nm: [...e.querySelectorAll('.trk-nm > *, .trk-nm')].filter((x) => x.offsetParent !== null || x === e.querySelector('.trk-nm')).map((x) => (x.classList && x.classList.contains('trk-nm')) ? [...x.childNodes].filter((n) => n.nodeType === 3 || (n.offsetParent !== null)).map((n) => n.textContent).join('') : '').join('').replace(/\s+/g, ' ').trim(), tag: t(e.querySelector('.trk-tag')) })), hRows: rows.map((e) => Math.round(e.getBoundingClientRect().height)),
+      return { head: head.length, headTxt: t(head[0]), due: t(head[0] && head[0].querySelector('.vu-due')), rows: rows.map((e) => ({ nm: [...e.querySelectorAll('.trk-nm > *, .trk-nm')].filter((x) => x.offsetParent !== null || x === e.querySelector('.trk-nm')).map((x) => (x.classList && x.classList.contains('trk-nm')) ? [...x.childNodes].filter((n) => n.nodeType === 3 || (n.offsetParent !== null)).map((n) => n.textContent).join('') : '').join('').replace(/\s+/g, ' ').trim(), tag: t(e.querySelector('.trk-tag')), btn: t(e.querySelector('.trk-act')) })), hRows: rows.map((e) => Math.round(e.getBoundingClientRect().height)),
         plain: plain.length, pv: !!pvB, mv: !!mvB, pvR: pvB ? rr(pvB).right : 0, mvR: mvB ? rr(mvB).right : 0, pvW: pvB ? rr(pvB).width : 0, mvW: mvB ? rr(mvB).width : 0,
         cf: cf ? { vu: cf.querySelectorAll('.vu-cf').length, p: cf.querySelectorAll('[data-cfpvc]').length, m: cf.querySelectorAll('[data-cfmvc]').length, txt: t(cf) } : null,
         sw: document.documentElement.scrollWidth, iw: innerWidth };
@@ -78,13 +78,13 @@ try {
       ok(`② ${tag} 확인서 — «식전 영상 열기» 한 줄 그대로`, R.cf && R.cf.vu === 0 && R.cf.p === 1 && R.cf.m === 0 && /식전 영상 열기/.test(R.cf.txt), JSON.stringify(R.cf));
     } else {
       ok(`③ ${tag} 머리 줄 하나(이름)`, R.head === 1 && R.headTxt.indexOf(nm(MP)) === 0, R.headTxt);
-      ok(`③ ${tag} 두 줄 식전 · 식중(입장 전 · 덕담 뒤 · 폰에서 꼬리표가 서면 접음) · 두 줄 높이 같음`, R.rows.length === 2 && /^식전 영상/.test(R.rows[0].nm) && /^식중 영상/.test(R.rows[1].nm) && R.rows.every((x, i) => (W < 481 && x.tag) || x.nm.indexOf(i ? '덕담 뒤' : '입장 전') > -1) && R.hRows[0] === R.hRows[1], JSON.stringify(R.rows));
+      ok(`③ ${tag} 두 줄 식전 · 식중 · «입장 전 · 덕담 뒤»는 시작 전에만 · 두 줄 높이 같음`, R.rows.length === 2 && /^식전 영상/.test(R.rows[0].nm) && /^식중 영상/.test(R.rows[1].nm) && R.rows.every((x, i) => (x.nm.indexOf(i ? '덕담 뒤' : '입장 전') > -1) === (!x.tag && !/✓/.test(x.nm) && x.btn === '시작하기')) && R.hRows[0] === R.hRows[1], JSON.stringify(R.rows));
       ok(`③ ${tag} 단추 id 그대로 · 오른쪽 끝 같은 자리 · 같은 폭`, R.pv && R.mv && Math.abs(R.pvR - R.mvR) < 1 && Math.abs(R.pvW - R.mvW) < 1, R.pvR + '/' + R.mvR + ' ' + R.pvW + '/' + R.mvW);
       ok(`③ ${tag} 기한 꼬리표는 머리에만(줄마다 되풀이 없음)`, R.rows.every((x) => !/까지$|기한 지남/.test(x.tag)), JSON.stringify(R.rows));
       if (name === 'both') {
-        ok(`③ ${tag} 머리 기한 «D-n · N월 N일(요일)까지»`, /^D-5 · \d+월 \d+일\([일월화수목금토]\)까지$/.test(R.due), R.due);
+        ok(`③ ${tag} 머리 기한 «D-n · N월 N일(요일)까지»`, /^D-5 · \d+월 \d+일\([일월화수목금토]\)까지 확정$/.test(R.due), R.due);
         ok(`③ ${tag} 상태 꼬리표는 줄마다(식전 «확인 필요»)`, R.rows[0].tag === '확인 필요', JSON.stringify(R.rows));
-        ok(`④ ${tag} 확인서 — 이름 줄 + 영상마다 상태 · 열기`, R.cf && R.cf.vu === 2 && R.cf.p === 1 && R.cf.m === 1 && R.cf.txt.indexOf(nm(MP) + '은 이 확인서와 따로 확정해요.') > -1, JSON.stringify(R.cf));
+        ok(`④ ${tag} 확인서 — 이름 줄 + 영상마다 상태 · 열기`, R.cf && R.cf.vu === 2 && R.cf.p === 1 && R.cf.m === 1 && R.cf.txt.indexOf(nm(MP) + '은 각 영상 화면에서 따로 확정해요.') > -1 && /식전 영상 · 확인해 주세요영상 확인/.test(R.cf.txt) && /식중 영상 · 아직 확정 전이에요이어하기/.test(R.cf.txt), JSON.stringify(R.cf));
       } else {
         ok(`③ ${tag} 둘 다 확정 — 머리 ✓ · 기한 없음`, /✓/.test(R.headTxt) && !R.due, R.headTxt + ' / ' + R.due);
       }
