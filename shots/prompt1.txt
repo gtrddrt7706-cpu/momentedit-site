@@ -1,0 +1,37 @@
+웨딩 스튜디오 「모먼트 에디트」 식순 빌더(고객이 예식 순서를 고르는 화면)의 시안 검토를 부탁해요. 아래 이미지 주소를 직접 열어 실제 화면을 보고 판단해 주세요. 데모 화면이에요.
+
+[바뀐 것 · 대표님 결정]
+1) «축사 · 축가»를 한 카드로 — 둘 중 하나만 고름(카드 안에서 축사 / 축가 고르기 · 담기 전엔 둘 다 안 눌린 모양 · 그림은 고른 쪽 · 안 고르면 축사 그림).
+2) «식중 영상»(두 분이 준비한 영상을 예식 중간에 상영)은 독립 카드 — 축사 · 축가와 상관없이 따로 넣고 뺌(전에는 축사와 둘 중 하나였음).
+3) 그래서 «마음의 순간» = 부모님 덕담 · 축사/축가 · 식중 영상 · 편지 낭독 = 4장(전에는 5장이라 PC 에서 편지 하나가 아랫줄로 혼자 내려갔음).
+4) 카드를 누르면 열리는 미리 보기 창에 «누가 하나요?» 펼침 한 줄(헷갈리는 사람용 · 아버지 축사는 «덕담», 친구는 «축사 · 축가», 감사 인사는 두 분).
+5) 다음 단계(하나씩 만들기)에 «누가» 칸: 덕담 «말씀하실 분 · 순서»(신랑 · 신부 × 아버님 · 어머님 · 누른 차례가 순서) / 축사 «축사하실 분» / 축가 «누가 부르나요»(신랑 친구 · 신부 친구 · 신랑 가족 · 신부 가족 · 두 사람 친구 · 두 분 직접이면 신랑 · 신부 · 둘이 함께). 고르면 나레이션이 역할을 불러 줘요(예: «오늘의 축사는요, 신부의 친구분께서 …»).
+
+[지켜야 할 것] 브랜드 색 · 글꼴 그대로(크림 바탕 · 먹색 글 · 진사 #6B2A24 는 점 · 번호에만) · 칠한 상자 · 왼쪽 굵은 세로줄 · 이모지 · 새 색 금지 · 고른 표시 = 금빛 테 한 겹 + 옅은 금빛 바탕 · 기본값을 눌린 모양으로 두지 않기 · 누르는 칸 44px 안팎 · 문구는 짧게 · 해요체.
+
+[이미지]
+1) 지금(main) 폰 390 마음의 순간 5장: https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/claude/ss-1115-gptshots/shots/before_1empty_390.jpg
+2) 바꾼 뒤 폰 390 · 아무것도 안 담음: https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/claude/ss-1115-gptshots/shots/after_1empty_390.jpg
+3) 바꾼 뒤 폰 · 축가 + 식중 영상 담음: https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/claude/ss-1115-gptshots/shots/after_2song_mid_390.jpg
+4) 바꾼 뒤 폰 · 축사로 바꾼 뒤: https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/claude/ss-1115-gptshots/shots/after_3speech_mid_390.jpg
+5) 지금 PC 1280(편지 혼자 아랫줄): https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/claude/ss-1115-gptshots/shots/before_1empty_1280.jpg
+6) 바꾼 뒤 PC 1280 · 축가 + 식중: https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/claude/ss-1115-gptshots/shots/after_2song_mid_1280.jpg
+7) 미리 보기 창 지금(축사 카드): https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/claude/ss-1115-gptshots/shots/before_4pv_390.jpg
+8) 미리 보기 창 바꾼 뒤(축사 · 축가 카드 · 누가 하나요 펼침): https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/claude/ss-1115-gptshots/shots/after_4pv_390.jpg
+9) 다음 단계 덕담 «말씀하실 분 · 순서»(바꾼 뒤): https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/claude/ss-1115-gptshots/shots/after_mk_bless_390.jpg
+10) 같은 자리 지금(한 분 · 두 분 … 인원만): https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/claude/ss-1115-gptshots/shots/before_mk_bless_390.jpg
+11) 다음 단계 축사 «축사하실 분»: https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/claude/ss-1115-gptshots/shots/after_mk_free_390.jpg
+12) 다음 단계 축가 «누가 부르나요»: https://raw.githubusercontent.com/gtrddrt7706-cpu/momentedit-site/claude/ss-1115-gptshots/shots/after_mk_song_390.jpg
+
+[문구 3안 — 카드 한 줄 / 누가 하나요(창 안 펼침 · 창 설명 바로 아래)]
+부모님 덕담: 카드 A «부모님이 두 분께 덕담을 전해요» · B «아버님 · 어머님의 축하와 당부» · C «부모님이 두 분께 건네는 말씀» / 누가 A «아버님 · 어머님 누구든 하셔도 돼요. ‘아버지 축사’도 이 순간이에요.» · B «양가 부모님이 하세요. 아버님 축사도 여기서 하시면 돼요.» · C «하시는 분: 부모님(아버님 · 어머님) · 친구나 지인은 «축사 · 축가»에서»
+축사 · 축가: 카드 A «가까운 분이 말 또는 노래로 축하해요» · B «친구 · 지인의 축하, 말이나 노래로» · C «가까운 분의 축사나 축가 중 하나» / 누가 A «말(축사)이나 노래(축가) 중 하나를 골라요. 부모님 말씀은 «부모님 덕담»에서 해요.» · B «친구 · 형제자매 · 은사님 등 가까운 분이 하세요. 축사와 축가는 둘 중 하나예요.» · C «하시는 분: 친구 · 가까운 지인 · 축사나 축가 중 하나 · 부모님은 «부모님 덕담»에서»
+감사 인사: 카드 A «두 분이 하객께 짧게 감사 인사를 드려요» · B «두 분이 하객께 드리는 인사» · C «두 분이 하객께 고마움을 전해요» / 누가 A «부모님(혼주)이 하객께 따로 인사하는 순서는 없어요. 부모님 말씀은 «부모님 덕담»에서 해요.» · B «두 분이 직접 하세요. 부모님이 하객께 하시는 인사는 따로 두지 않아요.» · C «하시는 분: 두 분 · 부모님 말씀은 «부모님 덕담»에서»
+식중 영상: 카드 A «두 분이 준비한 영상을 함께 봐요» · B «두 분이 준비한 영상 한 편» · C «두 분이 만든 영상을 함께 봐요» / 누가 A «축사 · 축가와 상관없이 따로 넣고 뺄 수 있어요. 제작 비용은 두 분 부담이에요.» · B «두 분이 준비한 영상을 저희가 틀어 드려요. 축사나 축가와 함께 담을 수 있어요.» · C «준비하시는 분: 두 분 · 축사 · 축가와 따로»
+(지금 화면에는 A 가 들어가 있어요. 창 설명(큰 글)이 이미 «누가»를 말하는 순간은 누가 하나요 줄이 같은 말을 되풀이하지 않게 했어요.)
+
+[부탁]
+1. 고객(예비 신랑 신부) 눈으로, 헷갈림 → 불편 → 실망 순서로 번호 목록: 어디 · 무엇이 문제 · 왜(고객 입장) · 고칠 방법(위 지킬 것 안에서) · 영향 큼/중간/작음.
+2. 문구 3안: 순간마다 카드 한 줄 · 누가 하나요 각각 추천 하나와 한 줄 이유(섞어 써도 돼요 · 더 나은 안이 있으면 제안).
+3. «축사 · 축가» 카드 안 고르기 방식(이름 자리 = 고르기 둘)이 고객에게 바로 읽히는지 · 더 나은 꼴이 있으면 하나.
+근거 없는 칭찬은 빼 주세요.
