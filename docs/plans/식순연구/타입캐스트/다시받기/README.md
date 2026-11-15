@@ -13,22 +13,13 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_문정.txt | 문정 | 25 | 15 |
-| 2_우성.txt | 우성 | 2 | 1 |
+| 1_문정.txt | 문정 | 6 | 3 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
 ```
-# 문정 — 25줄 · 15클립
+# 문정 — 6줄 · 3클립
 node scripts/assemble-narration.mjs --in <문정_받은폴더> \
-  --clip =264_narr-photo-upload,=88_guide-meal,=297_guest-w-arrival,=298_guest-w-arrival-guide,=316_guest-w-1m-online,=324_after-photo-meal,=319_after-photo-cafe,=299_guest-w-10m-n10,=345_guest-w-10m-n10-meal,=304_guest-w-10m-n15,=346_guest-w-10m-n15-meal,=309_guest-w-10m-n20,=347_guest-w-10m-n20-meal,=348_guest-w-10m-n10-short,=349_guest-w-10m-n10-short-meal
+  --clip =264_narr-photo-upload,=88_guide-meal,=297_guest-w-arrival
 ```
-★298_guest-w-arrival-guide · 316_guest-w-1m-online · 324_after-photo-meal · 319_after-photo-cafe · 299_guest-w-10m-n10 · 345_guest-w-10m-n10-meal · 304_guest-w-10m-n15 · 346_guest-w-10m-n15-meal · 309_guest-w-10m-n20 · 347_guest-w-10m-n20-meal · 348_guest-w-10m-n10-short · 349_guest-w-10m-n10-short-meal 은 두 사람이 한 클립에 섞여 있습니다. 문정 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
-
-```
-# 우성 — 2줄 · 1클립
-node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =62_narr-online-in
-```
-★62_narr-online-in 은 두 사람이 한 클립에 섞여 있습니다. 우성 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
 
