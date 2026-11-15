@@ -12121,9 +12121,9 @@ function _pvcHero(){ var u=PVC_HERO[PVCFLOW.kind==='mid'?'mid':'pre']; if(!u) re
   return '<figure class="pvc-hero"><img src="'+escapeHtml(u)+'" alt="예식 날 하객이 영상을 보는 모습(그림)" loading="lazy" decoding="async"><figcaption>예식 날 '+_pvcNm()+'이 상영되는 모습(그림)</figcaption></figure>'; }
 function _pvcThree(){ var mid=PVCFLOW.kind==='mid';
   return '<ol class="pvc-feel pvc-3">'
-    +'<li><b>영상 준비</b><span>'+(mid?('식순에 정한 길이 · '+(+PVCFLOW.len||3)+'분에 맞춰 필메이커 템플릿이나 업체 · 직접 만든 영상'):'필메이커 템플릿'+(PVC_FEEL_ON?'(쿠폰으로 무료)':'')+'이나 업체 · 직접 만든 영상')+'</span>'+_pvcFeelIn('link')+'</li>'
+    +'<li><b>영상 준비</b><span>'+(mid?('식순에 정한 길이는 '+(+PVCFLOW.len||3)+'분이에요. 필메이커 템플릿 · 업체 제작 · 직접 만든 영상 중 하나로 준비해 주세요. 쿠폰 · 기본 템플릿은 식전 영상에만 적용돼요.'):'필메이커 템플릿'+(PVC_FEEL_ON?'(쿠폰으로 무료)':'')+' · 업체 제작 · 직접 만든 영상 중 하나로 준비해 주세요.')+'</span>'+_pvcFeelIn('link')+'</li>'   /* [GPT 4-2 · 4-새] 길이와 고를 것을 두 문장으로 · 쿠폰 범위도 만들기 전에 */
     +'<li><b>영상 보내기</b><span>원본 파일을 받을 수 있는 링크 하나면 돼요.</span></li>'
-    +'<li><b>확인 · 확정</b><span>스튜디오가 재생을 확인하면 이 화면에서 보고 확정해요.</span></li></ol>'; }   /* [GPT 3-c] 걸음 이름 = 다음 화면 진행 표시(영상 보내기 · 확인)와 같은 말 */
+    +'<li><b>확인</b><span>스튜디오가 재생을 확인하면 이 화면에서 보고 확정해요.</span></li></ol>'; }   /* [GPT 3-c · 4-③] 걸음 이름 = 다음 화면 진행 표시(영상 보내기 · 확인)와 같은 말 · 진행 표시 이름은 네 글자 안([WZ_STEPS])이라 이쪽을 맞췄다 */
 function _mvcCond(on){ return '<p class="pvc-cond"><span>선택 사항</span>'+(on?'<span>축사 대신 상영</span>':'')+'<span>제작비는 두 분 부담</span></p>'; }
 function _pvcStart(){
   var h='';
@@ -12149,7 +12149,7 @@ function _mvcStart(){
   h+='<p class="pvc-eye">MID-CEREMONY FILM</p><h2 class="pvc-h">'+(on?'식중 영상을 보내 주세요':'식중 영상을 넣을까요?')+'</h2><p class="pvc-sub pvc-when">식순 「식중 영상」 자리(덕담 뒤 · 축가 앞)에서 상영해요.</p>'+_mvcCond(on)+_pvcNow();   // [VIDEO_UMBRELLA_1115] 열기 전에 «선택 사항 · 축사 대신 · 제작비 두 분» · 지금 할 일
   if(on){
     h+=_pvcHero()+_pvcThree()+'<div class="pvc-subs"><button type="button" class="pvc-lk" data-mvcrit>식순에서 빼기</button></div>';   // [VIDEO_UMBRELLA_1115] 결과 먼저(그림이 승인되면) · 단계 셋   // [MID_FEEL_1107] 만드는 길 안내 · [PV_ONE_WAY_1107] 식전과 같은 한 줄
-    h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots(['길이는 「식순」에서 바꿀 수 있어요 · 쿠폰 · 기본 템플릿은 식전 영상에만', _pvcDueLine('기한까지 확정하지 않으면 영상 없이 진행해요.')])   /* [GPT 3-2] «식순에 정한 길이 · n분»은 «영상 준비» 걸음 안으로(만들기 전에 읽히게) */+'</div>';
+    h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots(['길이는 「식순」에서 바꿀 수 있어요', _pvcDueLine('기한까지 확정하지 않으면 영상 없이 진행해요.')])   /* [GPT 3-2] «식순에 정한 길이 · n분»은 «영상 준비» 걸음 안으로(만들기 전에 읽히게) */+'</div>';
     h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode="upload"'));   // [MID_VIDEO_1106 · 검토 1604] 꺼짐 · 켜짐 같은 틀(아래 막대 단추 하나)
     return h;
   }
