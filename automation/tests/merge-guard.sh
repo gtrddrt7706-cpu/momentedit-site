@@ -21624,7 +21624,7 @@ chk "'narr-closing', 'narr-closing-guide', 'narr-closing-soft', 'narr-closing-so
 chk "'narr-photo-pre': 1, 'narr-photo-pre-meal': 1, 'narr-photo-free': 1, 'narr-close-ex2': 1," assets/ritual-cue.js 1
 chk "actId: 'photo-all'" assets/ritual-cue.js 1
 chk '작가님 안내에 따라' mypage.html 1
-chk '<p>전체 단체 사진을 찍고, 촬영 후 안내가 이어져요.</p><p>가족 사진 · 추가 촬영을 하지 않는 분은 식사 장소로 먼저 가셔서, 도착하시는 대로 편하게 드세요.</p><p>두 분은 촬영과 정리로 약 30분 늦게 식사 장소로 인사드리러 가요.</p>' guide.html 1   # [GATHER_200 → G08_GATHER_1106 2026-11-06 대본 4차 G08] 한 덩어리를 차례대로 세 줄로
+chk '<p>전체 단체 사진을 찍고, 촬영 후 안내가 이어져요.</p><p>가족 사진 · 추가 촬영을 하지 않는 분은 식사 장소로 먼저 가셔서, 도착하시는 대로 편하게 드세요.</p><p>두 분은 촬영과 정리를 마치고, 먼저 가신 하객보다 약 30분 뒤에 도착해 인사드려요.</p>' guide.html 1   # [GATHER_200 → G08_GATHER_1106 2026-11-06 대본 4차 G08] 한 덩어리를 차례대로 세 줄로
 nochk '예식 뒤: 모두 함께 단체 사진 한 장 → 이후 가족 사진' guide.html
 nochk '차례가 아닌 분은 자리에서 편히 쉬어 주세요' guide.html
 nochk "slug: 'narr-photo-free', name: '자유 사진 여는 말'" assets/ritual-cue.js
@@ -22626,7 +22626,7 @@ chk '>하객 안내 · 사진 올리기</a>' live.html 1                   # 모
 # ★[CAFE_OPEN_OWNER_1115 2026-11-15 대표님 «편하게 오시는 자리»] 카페 · 다과만 날 하객 안내 = «차 한잔 하실 분은» + 합류 한 줄 · «모여요» · «이동하셔도» 없음(K7 11/06 «현행 유지»를 바꿈)
 chk 'CAFE_OPEN_OWNER_1115' guide.html 3
 chk "_pk==='cafe'?'차 한잔 하실 분은':'여기로 모여요'" guide.html 1   # 칸 이름 — 식사 날 · 분류 모름은 그대로
-chk '<p>단체 사진 뒤에는 가족 사진과 추가 촬영이 이어져요.</p><p>두 분은 촬영과 정리로 약 30분 늦게 그곳으로 인사드리러 가요.</p>' guide.html 1
+chk '<p>단체 사진 뒤에는 가족 사진과 추가 촬영이 이어져요.</p><p>두 분은 촬영과 정리를 마치고, 먼저 가신 하객보다 약 30분 뒤에 도착해 인사드려요.</p>' guide.html 1   # 카페 판(식사 판과 같은 합류 줄 · GPT 10회차)
 nochk 'K7 결정 전 더하지 않는다' guide.html                       # 옛 «결정 전» 주석이 남으면 결정이 안 들어간 것으로 읽힌다
 # ★[EARLY_EAT_OWNER_1115 2026-11-15 11:26 대표님 «어른들이 기다린다는 게 좀 그렇지 않아?»] 식사 날 = 하객은 도착하는 대로 드시고 두 분은 촬영 뒤 찾아가 인사 · 기다리라는 말 0(앞서 정한 EARLY_WAIT 를 바꿈) · 위 G08_GATHER 세 줄 검사도 새 기대로 바꿨다
 chk 'EARLY_EAT_OWNER_1115' guide.html 3
@@ -22639,7 +22639,7 @@ chk "'하객이 먼저 도착하고, 저희 두 사람은 촬영과 정리로 30
 # ★[JOIN_GAP_30_OWNER_1115 2026-11-15 12:06 대표님 «약 30분으로 여유 주자»] 두 분 합류 = 약 30분 뒤(통화 문구 · 사진 차례 머리 줄 · 하객 안내) · 녹음은 숫자 없이 · 리허설에서 다시 확인(JOIN_GAP_REHEARSAL)
 chk 'JOIN_GAP_30_OWNER_1115' guide.html 1
 chk 'JOIN_GAP_30_OWNER_1115' mypage.html 3
-chk '두 분은 촬영과 정리로 약 30분 늦게 인사드리러 가요' mypage.html 1
+chk '두 분은 촬영과 정리를 마치고 먼저 가신 하객보다 약 30분 뒤에 도착해 인사드려요' mypage.html 1
 nochk '정리를 마치고 약 30분 뒤' mypage.html                     # «마친 다음 30분 더»로 읽히던 꼴(GPT 9회차)
 nochk '정리를 마치고 약 30분 뒤' guide.html   # 식사 · 카페 두 판이 한 줄
 nochk '숫자는 오픈 전 리허설에서 잰 값으로 넣을 자리' mypage.html
