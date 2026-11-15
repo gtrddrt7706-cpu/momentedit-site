@@ -1746,7 +1746,7 @@
     if (k === 'midvid' || (k === 'free' && FREE_KIND[chipOf('free', S)] === 'video')) return MID_ONE;   // [SPEECH_SONG_1115]   /* ★[MID17_NAME 2026-11-07] ② 머리 한 줄 — 축사 설명이 영상 날에 나오지 않게 */
     return (k === 'vow' && S && S.vowKind === 'thanks' && c.oneT) ? c.oneT : (c.one || ''); }
   /* [SPEECH_TILE_1012] 칸 이름 — 축사 칸(free)에 옛 초안의 영상 · 선물 · 기타가 켜져 있으면 옛 이름 «준비한 순서»(새로 담으면 늘 축사 · 빌더 opTgl) */
-  function nameOf(k, S) { if (k === 'free' && S && onOf(S, 'free') && FREE_KIND[chipOf('free', S)] !== 'speech') return FREE_KIND[chipOf('free', S)] === 'video' ? MID_NAME : '준비한 순서'; return CARDS[k] ? CARDS[k].n : k; }   /* ★[MID17_NAME 2026-11-07 재검증 재수정] 영상 갈래 = «식중 영상»(빌더 ① 식중 영상 칸 · 축사와 같은 한 칸) · 선물 · 기타(옛 초안)는 «준비한 순서» 그대로 */
+  function nameOf(k, S) { if (k === 'free' && S && onOf(S, 'free') && FREE_KIND[chipOf('free', S)] !== 'speech') return FREE_KIND[chipOf('free', S)] === 'video' ? MID_NAME : '준비한 순서'; return CARDS[k] ? CARDS[k].n : k; }   /* ★[MID17_NAME 2026-11-07 재검증 재수정] 영상 갈래 = «식중 영상»(옛 초안만 · [SPEECH_SONG_1115] 새 식중 영상은 따로 넣고 빼는 순간 midvid · midMigrate 가 옮긴다) · 선물 · 기타(옛 초안)는 «준비한 순서» 그대로 */
   function talkOf(k, S) {
     var fk, n, p = 0;
     try { p = (partsOf(k, S) || [])[1] || 0; } catch (e) { p = 0; }

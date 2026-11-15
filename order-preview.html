@@ -4412,7 +4412,6 @@ function _cntLine(cls){ var R=RitualOpen; if(!R||!R.countOf||!isOpen()) return '
    한쪽을 담은 채 다른 칸 ＋ = 바꿔 담기 + 아래 알림 한 줄(_pkUndo · 개수 · 상한은 _capNo 그대로) — 되돌리기 단추는 [UNDO_OFF](사장님 9/28 «되돌리기는 삭제»)대로 없다 · 다른 칸 ＋ 가 되돌리는 길.
    [SPEECH_TILE_1012] 는 그대로 — 축사 칸으로 새로 담으면 늘 축사(opTgl) · 식중 영상은 이 칸으로만 담는다. 검사 scripts/audit/mid17-pick.mjs */
 var MIDV='midvid';
-function _mvKind(T){ var R=RitualOpen; return R.FREE_KIND[R.chipOf('free',T||S)]; }
 function _mvOn(T){ T=T||S; return RitualOpen.onOf(T,'midvid'); }   /* ★[SPEECH_SONG_1115] 식중 영상 = 따로 넣고 빼는 순간(midvid) · 옛 free 영상 갈래는 RitualOpen.midMigrate 가 옮긴다 */
 /* 칸 · 미리 보기 창이 보는 판 — {엔진 열쇠, 그 칸으로 본 S, 담김} */
 var PAIR_NAME='축사 · 축가', PAIR_SWAP={free:'축가 대신 축사를 담았어요',song:'축사 대신 축가를 담았어요'};   /* ★[SPEECH_SONG_1115] [TOAST_MIN] 둘 다 13자 */
@@ -4431,12 +4430,7 @@ function _freeOff(){ _freeWas=null; }   /* [SPEECH_SONG_1115] 축사 칸은 늘 
    선물 · 기타는 ② 줄 · 흐름 줄 · ① free 빈 칸이 «준비한 순서»(누르면 그 갈래) · 식중 영상을 뺀 날 ① 축사 칸은 «축사»로 담는다(칸 지정이 이긴다) */
 function _freeOffName(){ return ''; }   /* [SPEECH_SONG_1115] */
 function _freeBack(){ return 'speech'; }   /* [SPEECH_SONG_1115] 축사 칸으로 담으면 늘 축사 */
-var MID_SWAP={video:'축사 대신 식중 영상을 담았어요',other:'식중 영상으로 바꿔 담았어요',speech:'식중 영상 대신 축사를 담았어요'};   /* [TOAST_MIN] 셋 다 20자 안(17 · 13 · 17 · mid17-pick 이 잰다) */
-function _mvSwap(to){ var R=RitualOpen, from=_mvKind();
-  if(_capNo(function(t){ t.freeWhat=to; },true,'free')) return;   /* 같은 한 칸이라 개수는 그대로 · 길이 셈(본식 상한)만 다시 잰다 */
-  _opPrev=_pkSnap(); S.freeWhat=to; _mkForget(['free']);
-  var msg=to==='video'?(from==='speech'?MID_SWAP.video:MID_SWAP.other):MID_SWAP.speech;
-  _pkMsg=msg+' · '+R.spanText(S); opSync(); if(PV.k) _pvActs(); _pkUndo(msg); }
+/* ★[SPEECH_SONG_1115 2026-11-15 대표님] 옛 «축사 ↔ 식중 영상 바꿔 담기»(MID_SWAP · _mvSwap · _mvKind)는 걷었다 — 식중 영상은 따로 넣고 빼는 순간(midvid)이라 바꿀 상대가 없다. 되살리지 말 것 */
 function _mvTgl(){ opTgl('midvid',1); }   /* [SPEECH_SONG_1115] 바꿔 담기 없음 — 축사 · 축가와 상관없이 따로 */
 /* ① 칸 · 미리 보기 창의 ＋ · ✓ · 빼기 — 식중 영상 칸 · 영상 날의 축사 칸은 바꿔 담기 · 나머지는 opTgl 그대로(② 흐름 빼기는 opTgl 을 바로 부른다 · 바꿔 담지 않는다) */
 /* ★[MID17_AT 2026-11-07] at:'midvideo' — 식중 영상이 담겨 있으면 ② 그 칸(길이) · 안 담겼으면 ① 식중 영상 칸으로 내려가 한 번 깜빡(② «다시 담았어요» 줄과 같은 빛 · lsAdd) */
@@ -4676,7 +4670,7 @@ function _lGroups(k){
        ★[FREE_LEN10 2026-10-06 사장님 «3분 이상 할 수 있는 건데» → 10분까지] 길이는 모든 판에서 분을 직접 적는다(1~10 · 길이 칩 3 · 2 · 1 대신) · 계약서 v1.12 ①-2 */
     if(R.chipOf('free',S)==='etc') g.push({key:'freeEtc',l:'직접 적기',list:[],cur:'',q:true,note:'',html:'<input class="tin fe-what" type="text" maxlength="40" data-fk="freeetc" aria-label="무엇을 준비하나요" placeholder="예) 형제가 준비한 깜짝 영상편지" value="'+esc(S.freeEtc||'')+'" oninput="setv(\'freeEtc\',this.value)" onchange="lsFreeEtc()">'});
     g.push({key:'freeLen',l:'길이',list:R.CHIPS.freeLen,cur:R.chipOf('freeLen',S),q:true,note:'',html:'<label class="fe-len"><input class="tin" type="number" inputmode="numeric" min="1" max="10" data-fk="freelen" aria-label="길이 · 분" value="'+esc(R.chipOf('freeLen',S))+'" onchange="lsFreeLen(this.value)"><span>분 · 10분까지 · 길어지면 단체 사진 시간이 줄어요</span></label>'});
-    if(_fk2==='video') g[g.length-1].unote='축사와 같은 자리라 둘 중 하나만 담을 수 있어요';   /* ★[MID17_LEN] 누르기 전에 읽혀야 하는 한 줄(택1) · 영상 길이는 영상이 아직 안 왔어도 이 분으로 잰다 */ }
+    /* [SPEECH_SONG_1115] «축사와 같은 자리라 둘 중 하나» 한 줄 걷음 — 영상 갈래는 midvid 로 갔다 */ }
   if(k==='free'&&R.onOf(S,'free')&&R.FREE_KIND[R.chipOf('free',S)]==='speech'){ L('speechWho','축사하실 분',R.GUEST_WHO,R.speechWhoOf(S),false); g[g.length-1].up=1; }   /* ★[NARR_ROLE_1115] 고르면 «오늘의 축사는요, 신부의 친구분께서 …» 한 줄 · 안 고르면 지금 여는 말 */
   if(k==='midvid') g.push({key:'midLen',l:'길이',list:R.CHIPS.midLen,cur:R.chipOf('midLen',S),q:true,note:'',html:'<label class="fe-len"><input class="tin" type="number" inputmode="numeric" min="1" max="10" data-fk="midlen" aria-label="식중 영상 길이 · 분" value="'+esc(R.chipOf('midLen',S))+'" onchange="lsMidLen(this.value)"><span>분 · 10분까지 · 길어지면 단체 사진 시간이 줄어요</span></label>'});   /* ★[SPEECH_SONG_1115] 식중 영상 길이(따로 · 택1 한 줄 없음) */
   if(k==='letter') L('letter','받는 분',R.CHIPS.letter,R.chipOf('letter',S));

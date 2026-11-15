@@ -12099,7 +12099,7 @@ var PVC_FEEL_PICKS=[];   // [PV_FEEL_1106] 우리 톤에 맞춰 고른 템플릿
 /* ★★[VIDEO_UMBRELLA_1115 · 안쪽 화면 2026-11-15 대본 «그 안에 디자인도 멋지게» · 레퍼런스 두 장(릴스 인스타 4절 · BGM 웹 TOP 7)]
    ① 맨 위 «지금 하실 일 하나 · 확정 기한(무엇 · 날짜(요일) · D-숫자)» 띠 — 화면마다 할 일이 하나라 머리에 한 줄로(_pvcNow) · 같은 날짜는 아래 점 줄에서 뺀다(_pvcDueLine)
    ② 첫 화면은 «결과 먼저 · 단계 셋» — 완성 모습 한 컷(PVC_HERO · 우리 승인 그림만 · 비면 그 자리 없이) → 영상 준비 · 링크 보내기 · 보고 확정(_pvcThree)
-   ③ 식중은 처음부터 «선택 사항 · 축사 대신 상영 · 제작비는 두 분 부담»(_mvcCond · 열기 전에 보이는 머리 한 줄)
+   ③ 식중은 처음부터 «선택 사항 · 제작비는 두 분 부담»(_mvcCond · 열기 전에 보이는 머리 한 줄 · [SPEECH_SONG_1115] «축사 대신 상영»은 걷었다 — 식중 영상은 따로 넣고 뺀다)
    ④ 한 화면 한 행동 — 진사 단추는 «이 영상으로 확정» 하나 · 상자 안 상자 없이 가는 선과 여백으로만(링크 칸 · 다시 보내기)
    기능(올리기 · 저장 · 확정 · GAS)은 그대로 — 화면 글과 모양만. 검사 scripts/audit/video-umbrella.mjs ⑥ */
 var PVC_HERO={ pre:'/assets/video/moments/prevideo-640.webp', mid:'' };   // [VIDEO_UMBRELLA_1115] 결과 먼저 한 컷 — 식전 = 식순 화면에 쓰는 «식전 영상» 순간 그림(승인됨 · 대본 «식전 C3» 받으면 갈아 끼움) · ★[VU_MID_HERO_1115 2026-11-15 22:58 대표님 «좋아요» → 23:12 보류(붓결 · 왼쪽 위 화면 틀 고친 판을 영상 방이 다시 그림)] 지금은 빈칸(그 자리 없이 단계 셋부터) · 고친 판이 오면 이 칸에 '/assets/video/moments/midvideo-640.webp' 한 줄 + 그 파일 · 옛 판 = 영상 방 mid-final(사이트 claude/dn-review-shots 37c319f9 docs/handoff/scene17-g0/final/mid-final.png → 640×360 webp · 식전과 같은 크기) · 이름 midvideo 는 식순 순간 영상 이름(VIDEO_READY)이 아니라 영상 방 파일(free-*)과 겹치지 않는다 · 캡션은 _pvcHero 가 «예식 날 식중 영상이 상영되는 모습(그림)»으로 만든다
@@ -12148,7 +12148,7 @@ function _pvcFeelIn(m){
 /* [MID_VIDEO_1106] 식중 영상 첫 화면 — 식순에 없으면 «식순에서 넣기» 하나 · 켜져 있으면 «영상 올리기» + 필메이커 안내 한 줄(PV_ONE_WAY_1107) + «식순에서 빼기»(둘 다 식순 화면의 «준비한 순서» 칸을 연다) */
 function _mvcStart(){
   var F=PVCFLOW, on=F.on===true, h='';
-  h+='<p class="pvc-eye">MID-CEREMONY FILM</p><h2 class="pvc-h">'+(on?'식중 영상을 보내 주세요':'식중 영상을 넣을까요?')+'</h2><p class="pvc-sub pvc-when">식순 「식중 영상」 자리(축사 · 축가 뒤 · 편지 앞)에서 상영해요.</p>'+_mvcCond(on)+_pvcNow();   // [VIDEO_UMBRELLA_1115] 열기 전에 «선택 사항 · 축사 대신 · 제작비 두 분» · 지금 할 일
+  h+='<p class="pvc-eye">MID-CEREMONY FILM</p><h2 class="pvc-h">'+(on?'식중 영상을 보내 주세요':'식중 영상을 넣을까요?')+'</h2><p class="pvc-sub pvc-when">식순 「식중 영상」 자리(축사 · 축가 뒤 · 편지 앞)에서 상영해요.</p>'+_mvcCond(on)+_pvcNow();   // [VIDEO_UMBRELLA_1115] 열기 전에 «선택 사항 · 제작비 두 분»([SPEECH_SONG_1115]) · 지금 할 일
   if(on){
     h+=_pvcHero()+_pvcThree();   // [VIDEO_UMBRELLA_1115] 결과 먼저(그림이 승인되면) · 단계 셋   // [MID_FEEL_1107] 만드는 길 안내 · [PV_ONE_WAY_1107] 식전과 같은 한 줄
     h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots(['길이는 「식순」에서 바꿀 수 있어요', _pvcDueLine('기한까지 확정하지 않으면 영상 없이 진행해요.')])   /* [GPT 3-2] «식순에 정한 길이 · n분»은 «영상 준비» 걸음 안으로(만들기 전에 읽히게) */+'</div>';
