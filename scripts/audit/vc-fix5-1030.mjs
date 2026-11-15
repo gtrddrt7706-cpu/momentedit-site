@@ -104,7 +104,7 @@ const CS = fs.readFileSync(path.join(ROOT, 'console.html'), 'utf8');
     const aN = { paused: false, onended: prev, onerror: prev, onloadedmetadata: prev, pause() { this.paused = true; } };
     const c1 = { k: 'entry', slug: 'entry-A', name: '입장', duck: -20 };
     const sb = { R: { cues: [{ k: 'g', name: '화촉', duck: -20 }, c1] }, aNarr: aN, finish: () => {}, clearT: () => {}, conMark: () => {}, STALL: -1, cur: 0, fired: {}, shown: {}, GWHY: null, liveT0: 0, castNow: null, blkFresh: false, blkNow: '', phase: 'live', cheerAt: -1,
-      resolve: (c) => c, ESD: { run: null }, esdIn: () => true, esdMain: () => true, esdStop: () => {}, doorMark: () => {}, segGo: () => {}, segOfCue: () => '', render: () => {}, audioOn: () => {}, duckTo: () => {}, playClip: () => {}, toast: () => {}, later: () => {},
+      resolve: (c) => c, ESD: { run: null }, esdIn: () => true, esdMain: () => true, esdStop: () => {}, esdWant: () => false, esdReady: () => true, esdResume: () => {}, BED: { seg: '', list: [], li: 0, cut: null, res: null, id: '', tk: 0, later: null, fin: 0 },   /* [BACK_DROP_OPEN_1115 · FINISH_NO_NEXT_1115 · ENTRY_NOFILE_DUCK15_1115] fire 가 새로 읽는 이름 */ doorMark: () => {}, segGo: () => {}, segOfCue: () => '', render: () => {}, audioOn: () => {}, duckTo: () => {}, playClip: () => {}, toast: () => {}, later: () => {},
       PARAM: { duck: { leadMs: 800 }, fadeDownMs: 400 }, MODE: 'console', duckWant: -20, GUEST: false, fmt: (x) => String(x) };
     vm.createContext(sb); vm.runInContext(code, sb); sb.fire(1); return { paused: aN.paused, ended: aN.onended === null }; };
   let r = run9(CS); ok('⑨ [FIRE_STOP_PREV] 큐 목록에서 입장으로 건너뛰면 앞 말소리를 멈추고 끝 처리를 떼어 낸다', r.paused && r.ended, r);
