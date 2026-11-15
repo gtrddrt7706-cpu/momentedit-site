@@ -11852,7 +11852,7 @@ var PVC_ON=true;   // [PV_CAT_1031] 기능 스위치 · 사장님 «켜도 상�
    · 켜고 끄는 원천은 식순 초안 하나(S.on.free + S.freeWhat 'video') — 마이페이지 단추는 식순 화면의 그 칸을 연다(개수 · 시간 · 축사 택1 계산을 한 곳에서 · 마이페이지가 식순을 따로 쓰지 않는다)
    · 링크 · 상태 · 기한 · 확인 · 확정은 식전 영상 흐름(PVCFLOW)을 kind 'mid' 로 그대로 쓴다 · 서버 89_prevideo «개인코드#mid» 줄 · production.midvideo
    · 제작 비용은 두 분 부담(쿠폰 · 기본 템플릿은 식전 영상 1편에만) · 기한 예식 7일 전 23:59 · 기한까지 확정하지 않으면 영상 없이 진행 */
-var VU_NAME='상영 영상';   // ★[VIDEO_UMBRELLA_1115] 식전 · 식중 영상 묶음 이름 — 바꿀 땐 이 한 곳 + order-preview.html VU_NAME(같아야 · scripts/audit/video-umbrella.mjs) · «예식 영상»은 결과물 이름이라 쓰지 않는다(MPD_G10)
+var VU_NAME='상영 영상';   // ★[VIDEO_UMBRELLA_1115] 식전 · 식중 영상 묶음 이름(2026-11-15 18:08 대본 확정 · 릴스 · BGM 방 같은 추천) — 바꿀 땐 이 한 곳 + order-preview.html VU_NAME(같아야 · scripts/audit/video-umbrella.mjs) · «예식 영상»은 결과물 이름이라 쓰지 않는다(MPD_G10)
 function _vuDueTxt(due){ var l=null; try{ l=due?_kstDdayOf(due):null; }catch(e){} if(l==null) return ''; if(l<0) return '확정 기한 지남'; var t=_pvcDueTxt(due); return t?('확정 기한 · '+t.replace(' 23:59','')+' · '+(l===0?'오늘':'D-'+l)):''; }   // [VIDEO_UMBRELLA_1115] 묶음 머리 줄 기한 — 날짜는 서버 due 그대로(예식 7일 전 23:59) · 웹 레퍼런스(BGM 방 고친 판) «무엇 · 날짜(요일)» 먼저 · D-숫자는 뒤에 작게(같은 12px) · 영상 화면의 «확정 기한 · …»(_pvcDueLine)과 같은 말
 var MVC_ON=true;   // [MID_VIDEO_1106] 기능 스위치 — 서버가 midvideo 를 보내지 않으면(옛 GAS) 어차피 줄이 안 보인다
 function _mvcOn(p){ var S=(p&&p.ritualDraft&&p.ritualDraft._v===3&&p.ritualDraft.S)||null; if(!S) return null; return !!(S.on&&S.on.free)&&String(S.freeWhat||'')==='video'; }   // [MID_VIDEO_1106] null = 식순 아직 없음

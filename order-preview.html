@@ -5531,7 +5531,7 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
   return h; }
 /* ★★[PV_MYPAGE_1102 2026-11-02 사장님 «여기도 개선해야지 최신화 · 저기서 영상을 받을 필요도 없잖아»] 식전 영상은 마이페이지 «식전 영상» 카드에서 준비하고 받는다(협력사 연결형 · [PV_PARTNER_1101]).
    식순에는 링크 칸을 두지 않는다 — 이름 · 기한 한 줄([PV_SEND_ONE] 모양) + «어디서» 한 줄. 받는 곳이 둘이면 두 분이 어디에 보냈는지 헷갈리고 준비 목록이 두 번 셌다. */
-var VU_NAME='상영 영상';   // ★[VIDEO_UMBRELLA_1115] 마이페이지 «상영 영상» 묶음과 같은 이름(mypage.html VU_NAME · scripts/audit/video-umbrella.mjs)
+var VU_NAME='상영 영상';   // ★[VIDEO_UMBRELLA_1115 · 11/15 18:08 대본 확정] 마이페이지 «상영 영상» 묶음과 같은 이름(mypage.html VU_NAME · scripts/audit/video-umbrella.mjs)
 function _pvMyRow(wed, nm){ nm=nm||'식전 영상'; return '<section class="mk-sec mk-prep mk-send1 mk-pvmy"><ul class="mk-vlist"><li class="mk-vr"><span class="mk-vt"><span class="mk-vn">'+esc(nm)+'</span><span class="mk-vs">'+esc(_ndd(RitualOpen.dueWord({due:7},wed)))+'</span></span></li>'
   +'<li class="mk-vx"><p class="mk-note mk-pvmyt">마이페이지 «'+esc(nm)+'»에서 준비해요</p></li></ul></section>'; }   /* [VIDEO_NAME_1114] 식전 · 식중 같은 한 덩어리(nm) */
 function _pvOkTg(v){ var o=document.getElementById('mkPvOk'); if(o) o.style.display=_linkOk(v)?'':'none'; }
