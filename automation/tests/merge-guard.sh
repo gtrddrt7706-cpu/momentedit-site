@@ -20902,6 +20902,8 @@ nochk '비어 있는 칸이 있어요' order-preview.html
 chk 'var Q_TAG=/ · (말없이|말 없이|미리 듣기에서는 넘겨요|연습에서는 넘겨요)' order-preview.html 1
 # ── 2026-10-30 [REVIEW_166_1030 검토 166 B] 동작 — 한 사람 판 예시에도 두 분 글 · 받은 원고 · 현장에서면 글 보관 · 말없이면 인사 글 빼기 · 인용 줄 묶기 · 축가 직접 · 한눈에 보기 말 · 선언 안내 · 같은 소리 칩 숨김 · 칩 바꾸면 재생 멈춤 · 검사 review-166
 chk 'REVIEW_166_1030' scripts/audit/review-166.mjs 3
+chk 'SPEECH_SONG_1115' scripts/audit/review-166.mjs 1   # ★[SPEECH_SONG_1115] B2 는 축사 쪽(가족 예시가 축가를 켜 옛 «S.on.free = 1» 이면 midMigrate 가 축사를 떨군다)
+chk 'SPEECH_SONG_1115' scripts/audit/ux1-1023.mjs 1   # ★[SPEECH_SONG_1115] 정석 = 축가만 — ② 축사 예시 접기는 축사로 바꿔 담고 잰다
 chk 'function _sentJoinQ(L)' order-preview.html 1
 chk 'function _declNoWho()' order-preview.html 1
 chk "need: function (S, n) { var q = seqOf(S), i = q.indexOf('tribute');" assets/ritual-open.js 1
