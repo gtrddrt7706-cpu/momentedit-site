@@ -817,7 +817,7 @@
     entry: { slug: 'entry-A', cut: 2 }, matjeol: { slug: 'narr-entry-bow' } /* [MATJEOL_SPLIT_1013] 132 통째(14음절) · 녹음 전엔 글로 */, welcome: { slug: 'narr-welcome-in' }, bless: { slug: 'narr-bless-mid' } /* [BLESS_AFTER_DECLARE 10/12] 새 코스의 덕담 여는 말은 늘 가운데 문안(23) — «서약의 문을 여는»(22)은 옛 가족 코스만 */,
     vow: { slug: 'narr-vow-in', cut: 2 }, ring: { slug: 'narr-ring-in', cut: 2 },
     declare: { slug: 'narr-declare-in-friend' } /* [DECLARE_BY_PERSON] 옛 30 나레이션 선언 걷음 · 여는 말(녹음 전 · 글로 먼저) */, song: { slug: 'narr-song' } /* [SONG_BACK_1011] 여는 말 통째(10초 안) */, tribute: { slug: 'tribute-in', cut: 2 },
-    free: { slug: 'narr-free-in-speech' } /* [SPEECH_TILE_1012] 103 축사 여는 말 */, midvid: { slug: 'narr-free-in' } /* [SPEECH_SONG_1115] 58 식중 영상 여는 말(옛 free 영상 갈래 미리 보기와 같은 줄) */, letter: { slug: 'letter-each' },
+    free: { slug: 'narr-free-in-speech' } /* [SPEECH_TILE_1012] 103 축사 여는 말 */, midvid: { slug: 'midvideo-in-plain' } /* [SPEECH_SONG_1115] 58 식중 영상 여는 말(옛 free 영상 갈래 미리 보기와 같은 줄) */, letter: { slug: 'letter-each' },
     /* ★[CAKE_FILES_OFF_1110 사장님 11/10 «케이크는 없어졌잖아 삭제해»] 케이크 대표 줄(옛 SAMPLE_CAKE · 42 toast-both)은 걷었다 — 케이크 순간 RETIRED · 소리 파일까지 지움 · 되살리기 금지 */
     /* ★[SAMPLE_TOAST_LIVE 2026-10-03] 축배 대표 줄 = 지금 예식에서 나는 76 toast-both-b(글자 그대로 · 화면은 따옴표).
        종전 107 toast-both-pour-b 는 [WINE_POUR_OFF](09-27)가 sampleS 를 «붓지 않음»으로 바꾼 뒤 미리 보기 엔진에 없는 줄이 되어

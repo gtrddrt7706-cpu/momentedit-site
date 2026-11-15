@@ -1387,7 +1387,7 @@
       if (tone === 'thanks' && nx === 'letter' && S.letter === 'parent') tone = 'plain';
       var pr = O.MID_TONE ? O.MID_TONE[tone] : null; if (!pr || !EXTRA[pr[0]] || !EXTRA[pr[1]] || !cs.length) return cs;
       var keep = cs.filter(function (c) { return c.live; })[0] || cs[0], ln = O.chipOf('midLen', S);
-      var cIn = cue({ k: 'midvid', blockN: '식중 영상', slug: pr[0], name: '식중 영상 시작 · ' + ln + '분', text: EXTRA[pr[0]], duck: cs[0].duck, pick: cs[0].pick, live: keep.live, rescue: keep.rescue, note: keep.note });
+      var cIn = cue({ k: 'midvid', blockN: '식중 영상', slug: pr[0], name: '식중 영상 시작 · ' + ln + '분', text: EXTRA[pr[0]], duck: cs[0].duck, pick: (cs[0].pick ? '식중 영상 · ' + ln + '분' : cs[0].pick),   /* [SPEECH_SONG_1115] 콘솔 칩이 «축사 · n분»으로 뜨지 않게 */ live: keep.live, rescue: keep.rescue, note: keep.note });
       var cOut = cue({ k: 'midvid', blockN: '식중 영상', slug: pr[1], name: '식중 영상 마무리', text: EXTRA[pr[1]], duck: PARAM.duckOff, hint: '영상이 끝나면',
         live: clapUp(applause('하객 박수 · 영상을 준비한 두 사람께', PARAM.declare.applauseMs / 1000)) });
       return [cIn, cOut];

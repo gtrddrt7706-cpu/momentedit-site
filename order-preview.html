@@ -1027,7 +1027,7 @@ body.pk2 .nav{background:linear-gradient(180deg,rgba(250,250,248,0) 0,var(--bg) 
 .pv-h{display:flex;align-items:center;gap:8px;min-height:44px}
 .pv-h h3{margin:0;font-size:16px;font-weight:600;color:var(--accent);line-height:1.4}
 .pv-tag{font-size:11px;font-weight:600;color:var(--sub);background:var(--bg2);border-radius:999px;padding:1px 8px;white-space:nowrap}
-.pv-sw{min-height:44px;font-size:13px;white-space:nowrap}   /* ★[PAIR_VIEW_1115] «축가 보기» — 담지 않고 다른 쪽 장면 · 나레이션을 본다(누르는 칸 44px) */
+.pv-sw{min-height:44px;font-size:12.5px;white-space:nowrap}   /* ★[PAIR_VIEW_1115] «축가 보기» — 담지 않고 다른 쪽 장면 · 나레이션을 본다(누르는 칸 44px) */
 .pv-x{margin-left:auto;width:44px;height:44px;flex:none;border:0;background:none;font:inherit;font-size:20px;color:var(--sub);cursor:pointer;border-radius:50%}
 .pv-x:focus-visible,.pv-act button:focus-visible{outline:2px solid var(--gold-deeper);outline-offset:2px}
 .pv-media{position:relative;aspect-ratio:2.39/1;border-radius:12px;background:var(--bg2);display:grid;place-items:center;overflow:hidden}
@@ -1047,8 +1047,8 @@ body.pk2 .nav{background:linear-gradient(180deg,rgba(250,250,248,0) 0,var(--bg) 
 .pv-st{font-size:12.5px;color:var(--light);margin:5px 0 0}
 .pv-st.bad{color:var(--seal)}   /* [ERR_CODE_BUILDER] 틀지 못한 까닭(코드)은 진사 — «녹음 전»(옅은 글)과 가른다 */
 .bw-n{font-weight:600;color:var(--seal)}
-.sw-sub{flex:1 0 100%;font-size:12px;color:var(--sub);letter-spacing:.02em;margin:2px 0 -2px}.sw-sub~.sw-sub{margin-top:8px}   /* ★[SONG_WHO_ONE_1115] 한 질문 안 작은 소제목(가족 · 친구 / 두 분이 직접) */   /* ★[NARR_ROLE_1115] 말씀 차례 번호 — 진사는 «점»에만(고른 순서 번호 · SNAP_TONE) */
-.pv-who{margin:2px 0 8px;font-size:13px;color:var(--sub)}   /* ★[SPEECH_SONG_1115] 누가 하나요? — 펼침 한 줄(상자 없음) */
+.sw-sub{flex:1 0 100%;font-size:12.5px;color:var(--sub);letter-spacing:.02em;margin:2px 0 -2px}.sw-sub~.sw-sub{margin-top:8px}   /* ★[SONG_WHO_ONE_1115] 한 질문 안 작은 소제목(가족 · 친구 / 두 분이 직접) */   /* ★[NARR_ROLE_1115] 말씀 차례 번호 — 진사는 «점»에만(고른 순서 번호 · SNAP_TONE) */
+.pv-who{margin:2px 0 8px;font-size:14px;color:var(--sub)}   /* ★[SPEECH_SONG_1115] 누가 하나요? — 펼침 한 줄(상자 없음) */
 .pv-who summary{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding-right:12px;cursor:pointer;font-size:14px;color:var(--gold-deeper);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;list-style:none}
 .pv-who summary::after{content:'';width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin:-3px 0 0 2px}.pv-who[open] summary::after{transform:rotate(-135deg);margin-top:3px}   /* ★[PV_WHO_FOLD_1115 GPT 검토 1라운드] 같은 창 «장면 사진 N장 보기 ⌄»(.ps-chip)와 같은 글 고리 · 같은 꺾쇠 · 같은 14px */
 .pv-who summary::-webkit-details-marker{display:none}
@@ -1102,7 +1102,7 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .pv-add{flex:1;background:#4E3F31;border:0;color:#fff}
 .pv-add.out{flex:0 0 auto;background:var(--card);border:1px solid var(--gold-btn);color:var(--accent)}
 .pv-in{flex:1;text-align:right;font-size:14px;font-weight:600;color:var(--ink2)}
-.pv-in.pv-cost{font-size:13px;font-weight:400;color:var(--sub)}   /* [MID_COST_NEAR_1115] */
+.pv-in.pv-cost{font-size:12.5px;font-weight:400;color:var(--sub)}   /* [MID_COST_NEAR_1115] */
 .pv-fn{font-size:12.5px;color:var(--light);margin:10px 0 0;text-align:center}
 /* 예시 확인 알림 줄 — 3초 · [UNDO_OFF] 되돌리기 단추 없음 */
 .pk-undo{position:fixed;left:50%;bottom:calc(128px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:80;display:flex;align-items:center;gap:6px;max-width:calc(100vw - 32px);background:#4E3F31;color:#fff;font-size:12.5px;font-weight:500;border-radius:999px;padding:12px 22px;box-shadow:0 6px 20px rgba(58,45,34,.18);word-break:keep-all;pointer-events:none}   /* [UNDO_OFF] 단추가 없으니 여백을 고르게 · 누를 것이 없어 아래를 가리지 않게 터치는 통과 */
@@ -5515,7 +5515,7 @@ function _mkCopied(key){ var cp=(MK.copied&&MK.copied.k===key)?MK.copied:null; r
 function _mkCopyTo(key,t,msg){ var done=function(ok){ MK.copied={k:key,ok:ok,msg:msg}; clearTimeout(MK.copiedT); MK.copiedT=setTimeout(function(){ MK.copied=null; document.querySelectorAll('.mk-copied').forEach(function(e){ e.textContent=''; e.classList.remove('bad'); }); },6000); render(); };
   try{ navigator.clipboard.writeText(t).then(function(){ done(true); },function(){ done(false); }); }catch(e){ done(false); } }
 window.mkAskCopyPage=function(k){ var qs=_mkItems(k).filter(function(q){ return q.cat==='ask'; }); if(qs.length) _mkCopyTo('ask:'+k,_mkAskText(qs),'복사됐어요 · 부모님께 카톡으로 붙여 보내세요'); };
-function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddingDate)||'', c=_mkChk(), pvMy=k==='prevideo'&&R.onOf(S,k), mvMy=k==='free'&&R.onOf(S,'free')&&R.FREE_KIND[R.chipOf('free',S)]==='video'&&(!CUST||CUST.midUp===true);   /* [GPT 1-01 · 2-21] 마이페이지 안에서는 서버가 받는다고 알려 온 때만(옛 탭은 midUp 을 안 보낸다) · 로그인 없는 빌더는 식전 영상과 같이 그린다 */ if(!items.length&&!pvMy&&!mvMy) return '';   /* [VIDEO_NAME_1114] 식중 영상도 «어디서 준비하나» 한 덩어리(마이페이지 «식중 영상») */   /* [PV_MYPAGE_1102] 식전 영상은 할 일이 없어도 «어디서 준비하나» 한 덩어리는 그린다 */
+function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddingDate)||'', c=_mkChk(), pvMy=k==='prevideo'&&R.onOf(S,k), mvMy=k==='midvid'&&R.onOf(S,'midvid')&&(!CUST||CUST.midUp===true);   /* [SPEECH_SONG_1115] 식중 영상 = midvid 칸 */   /* [GPT 1-01 · 2-21] 마이페이지 안에서는 서버가 받는다고 알려 온 때만(옛 탭은 midUp 을 안 보낸다) · 로그인 없는 빌더는 식전 영상과 같이 그린다 */ if(!items.length&&!pvMy&&!mvMy) return '';   /* [VIDEO_NAME_1114] 식중 영상도 «어디서 준비하나» 한 덩어리(마이페이지 «식중 영상») */   /* [PV_MYPAGE_1102] 식전 영상은 할 일이 없어도 «어디서 준비하나» 한 덩어리는 그린다 */
   var h='', gn=(R.onOf(S,k)?_lGroups(k):[]).map(function(g){ return (g.unote||'')+' '+(g.tip||''); }).join(' ');   /* [NOTE_TOAST] 덧말(note)은 칩 아래에 없다 — 보이는 줄만 겹침으로 친다 */
   var ups=items.filter(function(q){ return q.up; }); if(ups.length) h+=_mkVoice(k,ups,wed);
   if(pvMy) h+=_pvMyRow(wed); if(mvMy) h+=_pvMyRow(wed, RitualOpen.MID_NAME);   /* [VIDEO_NAME_1114] 식중 영상 — 같은 모양 · 이름 · 기한(예식 7일 전)은 식전 영상과 같다 */   /* ★[PV_MYPAGE_1102] 링크 칸 대신 마이페이지 «식전 영상» 안내 한 덩어리 — 되살리지 말 것 */
@@ -9387,7 +9387,7 @@ function _openWrite(){
   // 보낼 것 — 식전 영상 링크 칸 · 녹음 올리기 · 나머지 목록
   var send=two.filter(function(q){ return q.cat==='send' && q.k!=='guest' && q.k!=='entry' && q.k!=='prevideo'; });
   /* ★[PREVIDEO_PICK 2026-09-27 사장님] 식전 영상을 담았을 때만 링크 칸 · 설명 · «식전 영상 사진» 보내기 — 보낼 것이 하나도 없으면 칸째 뺀다 */
-  var _pv=R.onOf(S,'prevideo'), _mvS=R.onOf(S,'free')&&R.FREE_KIND[R.chipOf('free',S)]==='video'&&(!CUST||CUST.midUp===true), _voice=(S.guestVoice==='couple'||S.entryVoice==='couple');   /* ★[VIDEO_UMBRELLA_1115] 식중 영상도 «보낼 것»에 — 하나씩 만들기 _mkPrep 의 mvMy 와 같은 조건 */
+  var _pv=R.onOf(S,'prevideo'), _mvS=R.onOf(S,'midvid')&&(!CUST||CUST.midUp===true)   /* [SPEECH_SONG_1115] */, _voice=(S.guestVoice==='couple'||S.entryVoice==='couple');   /* ★[VIDEO_UMBRELLA_1115] 식중 영상도 «보낼 것»에 — 하나씩 만들기 _mkPrep 의 mvMy 와 같은 조건 */
   if(_pv||_mvS||send.length||_voice){
   h+='<div class="wr-sec"><div class="wr-sub">보낼 것</div>';
   if(_pv||_mvS){
@@ -9707,8 +9707,9 @@ function _pvAud(){ if(!PV.au){ PV.au=new Audio(); PV.au.preload='auto'; } return
 /* 대표 한 줄 — 엔진 큐의 글을 원천에서(부모 클립 글의 앞 두 문장 · 손으로 옮겨 적지 않는다) */
 function _pvLine(k){
   if(k==='_after') return _afterLine();   /* [AFTER_FIX_196] 대표 나레이션 = 그날 판 촬영 후 안내 */
-  var R=RitualOpen, mv=(k===MIDV), sm=mv?{slug:'narr-free-in',cut:0,screen:''}:R.sampleOf((k==='free'&&isOpen()&&_pairView()==='song')?'song':k,S);   /* [SPEECH_SONG_1115] */ if(!sm||!ENG) return null;   /* ★[MID17_TILE] 식중 영상 칸 = 영상 갈래 여는 말(58 · 엔진 free() 영상 판) · 축사 판(103)이 아니게 */
-  var cue=null, SS=R.sampleS(S); if(mv) SS.freeWhat='video';
+  var R=RitualOpen, mv=(k===MIDV), sm=mv?{slug:'midvideo-in-plain',cut:0,screen:''}:R.sampleOf((k==='free'&&isOpen()&&_pairView()==='song')?'song':k,S);   /* [SPEECH_SONG_1115] */ if(!sm||!ENG) return null;   /* ★[MID17_TILE] 식중 영상 칸 = 영상 갈래 여는 말(58 · 엔진 free() 영상 판) · 축사 판(103)이 아니게 */
+  var cue=null, SS=R.sampleS(S); if(mv) SS.on.midvid=1;   /* [SPEECH_SONG_1115] 식중 영상 = midvid(353) */
+  if(SS.on){ if(k==='free'&&_pairView()==='song') delete SS.on.free; else if(k==='free'||k==='speech') delete SS.on.song; }   /* ★[SPEECH_SONG_1115 검사 mid17-pick] 축사 · 축가 둘 다 켠 대표 판은 엔진이 축사를 걷는다 — 보는 쪽만 남긴다 */
   try{ var r=ENG.RitualCue.build(SS,{mode:'preview'}), cs=Array.isArray(r)?r:(r.cues||[]); for(var i=0;i<cs.length;i++){ if(cs[i].slug===sm.slug){ cue=cs[i]; break; } } }catch(e){}
   if(!cue) return null;
   var full=String(cue.text||''), text=sm.screen||(sm.cut?R.firstSentences(full,sm.cut):full);

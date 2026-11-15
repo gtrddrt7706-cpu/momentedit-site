@@ -8598,7 +8598,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     var _vuDue=function(t){ return /까지$|^기한 지남$/.test(String(t||'')); }, _vuNew=function(r){ return !!r && r.label==='시작하기' && (!r.tag || _vuDue(r.tag)); },   /* [GPT 1-e] 시작 전에는 «언제 트나», 시작한 뒤에는 상태 하나(꼬리표 · ✓ · 단추)만 — 폰 · PC 같은 규칙 */ _vuP=_pvcRow(p.prevideo), _vuM=_mvcRow(p.midvideo, _mvcOn(p));
     var _vuAll=!!(_vuP.done && _vuM.done && _vuP.st==='완료' && _vuM.st==='완료');
     var _vuHead='<div class="trk vu-head"><span class="trk-nm">'+escapeHtml(VU_NAME)+(_vuAll?'&nbsp;<span class="trk-ok">✓</span>':'')+'</span>'+(_vuAll?'':'<span class="vu-due">'+escapeHtml(_vuDueTxt((p.prevideo||{}).due||(p.midvideo||{}).due))+'</span>')+'</div>';
-    _pvRow={ done:_vuP.done, html:_vuHead+row('식전 영상', _vuP.st, 'mp_pvcStart', _vuP.label, null, {tag:_vuDue(_vuP.tag)?null:_vuP.tag, cls:'vu-row', when:_vuNew(_vuP)?'입장 전':''})+row('식중 영상', _vuM.st, 'mp_mvcStart', _vuM.label, null, {tag:_vuDue(_vuM.tag)?null:_vuM.tag, cls:'vu-row vu-last', when:_vuNew(_vuM)?'덕담 뒤':''}) };
+    _pvRow={ done:_vuP.done, html:_vuHead+row('식전 영상', _vuP.st, 'mp_pvcStart', _vuP.label, null, {tag:_vuDue(_vuP.tag)?null:_vuP.tag, cls:'vu-row', when:_vuNew(_vuP)?'입장 전':''})+row('식중 영상', _vuM.st, 'mp_mvcStart', _vuM.label, null, {tag:_vuDue(_vuM.tag)?null:_vuM.tag, cls:'vu-row vu-last', when:_vuNew(_vuM)?'축사 · 축가 뒤':''}) };
     _mvRow={ done:_vuM.done, html:'' };
   } }catch(e){}
   var _prepRows=[
