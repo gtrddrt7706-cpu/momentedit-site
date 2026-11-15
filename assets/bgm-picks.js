@@ -69,7 +69,14 @@
     B31: { t: '언제나 몇 번이라도', src: '센과 치히로의 행방불명', a: 'Elizabeth Bright', v: 'Piano Ghibli', why: '단정한 피아노' , len: 320.9},
     B32: { t: '너를 태우고', src: '천공의 성 라퓨타', a: 'Elizabeth Bright', v: 'Piano Ghibli', why: '차분한 여운' , len: 230.4},
     B33: { t: '바람이 지나가는 길', src: '이웃집 토토로', a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Beautiful Songs~', why: '산들바람 같은 재즈 피아노' , len: 268.3},
-    B34: { t: '산책', src: '이웃집 토토로', a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Memorable Songs~', why: '경쾌한 재즈 피아노' , len: 166.5}
+    B34: { t: '산책', src: '이웃집 토토로', a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Memorable Songs~', why: '경쾌한 재즈 피아노' , len: 166.5},
+    /* ★★[SONGS_5_1115 2026-11-15 대표님 구매 · BGM 결정 카드 ⑤] 하객 맞이 · 테이블 인사 배경 곡 다섯 — 같은 앨범(Peace of Mind - STUDIO GHIBLI meets JAZZ BEST - · 2021) · 파일은 저장소 밖(완성 폴더 · 드라이브 «ME_구간곡») ·
+         −23 LUFS · 피크 −2 dBTP 이하 · 앞뒤 무음 자름 · 한 번만(되풀이 편집 없음 · len 없음 = 파일 길이) · 고객이 고르는 3곡 목록(PICKS)에는 넣지 않고 fill 로만 */
+    B35: { t: '이웃집 토토로', src: '이웃집 토토로', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '밝고 반가운 재즈 피아노' },
+    B36: { t: '벼랑 위의 포뇨', src: '벼랑 위의 포뇨', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '가볍고 경쾌하게' },
+    B37: { t: '때로는 옛날 이야기를', src: '붉은 돼지', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '따뜻하고 차분하게' },
+    B38: { t: '안녕 여름', src: '코쿠리코 언덕에서', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '잔잔하게 오래' },
+    B39: { t: '비행기 구름', src: '바람이 분다', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '담백한 피아노 트리오' }
   };
   /* 구간 → 곡 번호(위가 1순위 · 2026-10-30 표 그대로) */
   /* ★★[PICKS_THREE_1101 사장님 «구간마다 노래를 3개로 추리고 너무 힙한 건 공감 못 하니 빼자» · GPT 확인 «없음»] 구간마다 3곡(위가 1순위) —
@@ -91,7 +98,9 @@
   /* ★★[BGM_FILL_1101 2026-11-01 사장님 «하객 맞이 음악은 계속 흐르는 건가? 한 곡만으로는 힘들지 않아?»] 목록 칸(multi · M1 · M8)은 30분을 채운다 —
        고객이 고르는 곡은 3곡 그대로 · 당일 콘솔이 트는 차례 끝에 «배경으로만 이어 트는 곡»(fill)을 붙인다(고객 화면 곡 줄 · 곡 카드 · 미리 듣기에는 없다 · 순서 줄에는 보인다)
        차례 = 고른 곡(없으면 1순위) → 그 구간 나머지 → fill · 한 바퀴 뒤 처음으로 · ★[GHIBLI_ADD_1101] fill 이 다른 구간에서 두 분이 고른 곡이면 건너뛴다(겹쳐 들리지 않게) */
-  var FILL = { M1: ['B16', 'B33'], M8: ['B13', 'B14'], M6: ['B07', 'B16'], M4: ['B12', 'B14'], M8L: ['B26', 'B33'] };   /* ★[REPEAT_RULE_1107 ①] 본식 피아노(M4 · 약 18분 · 3곡)와 마지막 곡(M8L)에도 배경 곡 — 목록에 없던 피아노 B12 «Under the Willow» · B26 «Bluebird» 등 · 고객이 보는 3곡은 그대로 · 드라이브에 파일이 없으면 엔진이 건너뛴다(have) */   /* ★[DAYLONG_1101] 닫는 인사 → 사진(약 15분) 뒤에 이어 트는 곡 */
+  var FILL = { M1: ['B33', 'B35', 'B36', 'B37'], M8: ['B38', 'B39', 'B12', 'B14', 'B13'], M6: ['B07', 'B16'], M4: ['B12', 'B14'], M8L: ['B26', 'B33'] };   /* ★[REPEAT_RULE_1107 ①] 본식 피아노(M4 · 약 18분 · 3곡)와 마지막 곡(M8L)에도 배경 곡 — 목록에 없던 피아노 B12 «Under the Willow» · B26 «Bluebird» 등 · 고객이 보는 3곡은 그대로 · 드라이브에 파일이 없으면 엔진이 건너뛴다(have) */   /* ★[DAYLONG_1101] 닫는 인사 → 사진(약 15분) 뒤에 이어 트는 곡 */
+  /* ★★[SONGS_5_1115] 하객 맞이 fill = B33 → 토토로 → 포뇨 → 때로는 옛날 이야기를(시작 직전 쪽) · 고른 곡 3 + fill 4 = 겹침 빼고 약 30분(부모님께 인사에 B16 을 골라도 그대로 · B16 은 하객 맞이 fill 에서 빼 테이블 인사 몫으로) ·
+       테이블 인사 fill = 안녕 여름 → 비행기 구름 → 본식 배경 피아노(B12 · B14 · 본식에서 안 들린 날) → B13 · 옛 fill(M1 B16 · B33 / M8 B13 · B14) 되살리지 말 것 · 검사 scripts/audit/fill-30-1115.mjs */
   /* 본식 차례(«앞 구간» · 같은 곡 두 구간 한 줄) — 테이블 인사 → 축배 → 닫는 인사(END_FLOW_1030) */
   var CORDER = ['M1', 'M2', 'M4', 'M5', 'M8', 'M7', 'M6', 'M8L'];   /* [AFTER_PHOTO_LOOP_1102] 마지막 곡(M8L)도 하루 계획 맨 끝 — 앞 칸에서 흐른 곡은 빼지 말고 뒤로 */
 

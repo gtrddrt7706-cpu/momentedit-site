@@ -8,7 +8,8 @@
    ⑤ 새 곡을 끝내 못 열 때(정적 뒤 화촉 곡 파일이 4초 안에 안 열림 · BED_OPEN_MS) — 꺼 두었던 앞 곡(하객 맞이)은 «앞 곡 그대로»(DETAIL_R3_1101 ②)로 돌아오되 계단 없이 0.8초에 걸쳐 오른다(bedUnhush) · 빨간 한 줄 «재생 중인 곡은 그대로»
    ★★[NO_RELIFT_ALL_1115 · NO_RELIFT_WANT_1115 · M4_HANDOFF_NONE_1115 · NO_RELIFT_FB_1115 2026-11-15 BGM 섹션 · GPT 라운드 2] 칸을 더했다
    ⑥ 본식 피아노 목록 넘김(두 재생기 8초 겹침) 중 정적 → 부모님께 인사 큐 — 잦아들던 재생기까지 요청 뒤 5초 내내 −60 dB 아래 · 새 곡은 오른다
-   ⑦ 선언처럼 4초에 걸쳐 내려가는 중(gBgm −60 ~ −54 dB · 청한 크기 −90)에 다른 구간(부모님께 인사)으로 점프 — 앞 곡이 점프 때 크기보다 오르지 않고 0.7초 뒤부터 −60 dB 아래(0.5초에 걸쳐 끈다)
+   ⑦ 선언처럼 4초에 걸쳐 내려가는 중(gBgm −60 ~ −54 dB · 청한 크기 −90)에 다른 구간(부모님께 인사)으로 점프 — 앞 곡이 점프 때 크기보다 오르지 않고 3.3초 뒤부터 −60 dB 아래(3초에 걸쳐 계속 내린다 · DUCK_SKIP_3S_OWNER_1115 · 종전 0.5초)
+   ★[DUCK_SKIP_3S_OWNER_1115 2026-11-15 대표님 «추천대로» · BGM 결정 카드 ④ B] ⑩ 같은 내림의 «아직 들리는» 자리(0.6초째 · 약 −30 dB)에서 점프 — 앞 곡이 점프 때 크기보다 오르지 않고(새 큐가 전체 크기를 올려도) · 1.2 ~ 1.8초에도 아직 들리고(0.5초에 끄지 않는다) · 3.3초 뒤 −60 dB 아래
    ⑧ 짧은 입장 곡이 끝났는데 이어받을 본식 피아노(M4) 파일이 하나도 없다 — 꺼져 있던 화촉 곡이 입장 끝 뒤 8초 내내 −60 dB 아래 · 디렉터 상태 한 줄 «음악 없이 이어 가요»
    ⑨ Web Audio 가 없는 대체 경로(el.volume) — 정적 뒤 화촉 곡을 여는 데 1.5초 걸려도 하객 맞이 곡 볼륨이 요청 뒤 5초 내내 −60 dB 아래
    ★[RELIFT_OBS_1115] «앞 곡을 못 봤는데 −140 으로 초록»을 막는다 — 탐침은 재생 중 · 멈춤(src 그대로) · 길 끊김을 가려 적고, 판정 창 시작 ±0.3초 안에 앞 곡 재생기가 보이지 않거나(누락)
@@ -172,12 +173,27 @@ try {
     const at = await c.pg.evaluate(() => { const b = window.__earD().b; return Math.round(20 * Math.log10(Math.max(1e-9, b)) * 10) / 10; });
     const t7 = await c.fire(iT); await c.pg.waitForTimeout(5600); const sm = await c.smp(), w = sm.filter((x) => x.t >= t7 && x.t <= t7 + 5000);
     const j0 = sm.filter((x) => x.t >= t7 - 120 && x.t <= t7 + 60 && x.s.M4 != null).map((x) => x.s.M4), lv0 = j0.length ? Math.max(...j0) : null;
-    const r7 = { 준비: [c.n, a7, hit], 점프때_gBgm: at, 점프때_앞곡: lv0, M4최고: peakW(w, 'M4'), 뒤_M4최고: peakW(w.filter((x) => x.t >= t7 + 700), 'M4'), M4_60위_ms: above(w, 'M4', -60), 새곡최고: peakW(sm.filter((x) => x.t >= t7 && x.t <= t7 + 3500), 'M5'), n: w.length };
+    const r7 = { 준비: [c.n, a7, hit], 점프때_gBgm: at, 점프때_앞곡: lv0, M4최고: peakW(w, 'M4'), 뒤_M4최고: peakW(w.filter((x) => x.t >= t7 + 3300), 'M4'), M4_60위_ms: above(w, 'M4', -60), 새곡최고: peakW(sm.filter((x) => x.t >= t7 && x.t <= t7 + 3500), 'M5'), n: w.length };
     console.log('  재 본 값 ⑦', JSON.stringify(r7));
     if (c.n < 3 || !a7 || !hit || !(at > -60) || lv0 == null || w.length < 60) skip('⑦ 준비(본식 곡 · 내림 중 −60 위 자리)가 안 됐다 · 점프 때 ' + at + ' dB');
     else { const o = obs(sm, t7, 5000, 'M4', '⑦');
-      ok('⑦ 정적으로 내려가는 중(청한 크기 −90 · 지금 −60 위)에 다른 구간으로 점프 — 앞 곡이 점프 때 크기보다 오르지 않고(1 dB 안) 0.7초 뒤부터 5초까지 −60 dB 아래 [NO_RELIFT_WANT_1115]', lv0 != null && r7.M4최고 <= Math.max(lv0, -60) + 1 && r7.뒤_M4최고 <= -60, Object.assign({ o }, r7));
+      ok('⑦ 정적으로 내려가는 중(청한 크기 −90 · 지금 −60 위)에 다른 구간으로 점프 — 앞 곡이 점프 때 크기보다 오르지 않고(1 dB 안) 3.3초 뒤부터 5초까지 −60 dB 아래 [NO_RELIFT_WANT_1115 · DUCK_SKIP_3S_OWNER_1115]', lv0 != null && r7.M4최고 <= Math.max(lv0, -60) + 1 && r7.뒤_M4최고 <= -60, Object.assign({ o }, r7));
       ok('⑦ 새 곡은 3.5초 안에 −20 dB 위로 · 쪽 오류 0', r7.새곡최고 > -20 && !c.er.length, { r7, er: c.er.slice(0, 3) }); }
+    await c.cx.close(); }
+  /* ⑩ [DUCK_SKIP_3S_OWNER_1115] 같은 4초 내림의 0.6초째(아직 들림)에 부모님께 인사로 점프 — 앞 곡은 3초에 걸쳐 계속 내려간다 */
+  { const c = await open({ files: [['M1', 220, 30], ['M4', 330, 30], ['M5', 392, 30]] }); await c.pg.click('#go'); await c.pg.waitForTimeout(500); await c.on();
+    await c.fire(iG); await c.wait('M1', 'v != null && v > -30', 15000); await c.fire(iW); const a10 = await c.wait('M4', 'v != null && v > -30', 15000); await c.pg.waitForFunction(() => window.__bgmSt().phase === 'live', null, { timeout: 15000 }).catch(() => {}); await c.pg.waitForTimeout(3000);
+    await c.pg.evaluate(() => window.__bgmGo.duck(-90, 4000)); await c.pg.waitForTimeout(600);
+    const t10 = await c.fire(iT); await c.pg.waitForTimeout(5600); const sm = await c.smp(), w = sm.filter((x) => x.t >= t10 && x.t <= t10 + 5000);
+    const j0 = sm.filter((x) => x.t >= t10 - 120 && x.t <= t10 + 60 && x.s.M4 != null).map((x) => x.s.M4), lv0 = j0.length ? Math.max(...j0) : null;
+    const mid = w.filter((x) => x.t >= t10 + 1200 && x.t <= t10 + 1800 && x.s.M4 != null).map((x) => x.s.M4);
+    const r10 = { 준비: [c.n, a10], 점프때_앞곡: lv0, M4최고: peakW(w, 'M4'), 중간_M4최저: mid.length ? Math.min(...mid) : null, 뒤_M4최고: peakW(w.filter((x) => x.t >= t10 + 3300), 'M4'), 새곡최고: peakW(sm.filter((x) => x.t >= t10 && x.t <= t10 + 3500), 'M5'), n: w.length };
+    console.log('  재 본 값 ⑩', JSON.stringify(r10));
+    if (c.n < 3 || !a10 || lv0 == null || !(lv0 > -45) || w.length < 60) skip('⑩ 준비(본식 곡 · 내림 0.6초째 들리는 자리)가 안 됐다 · 점프 때 ' + lv0 + ' dB');
+    else { const o = obs(sm, t10, 5000, 'M4', '⑩');
+      ok('⑩ 들리는 크기에서 내려가던 중 점프 — 앞 곡이 점프 때 크기보다 오르지 않는다(1 dB 안 · 새 큐가 전체 크기를 올려도) [DUCK_SKIP_3S_OWNER_1115]', r10.M4최고 <= lv0 + 1, Object.assign({ o }, r10));
+      ok('⑩ 앞 곡은 3초에 걸쳐 계속 내린다 — 1.2 ~ 1.8초에도 −60 dB 위(0.5초에 끄지 않는다) · 3.3초 뒤부터 −60 dB 아래 [DUCK_SKIP_3S_OWNER_1115]', mid.length > 3 && r10.중간_M4최저 > -60 && r10.뒤_M4최고 <= -60, r10);
+      ok('⑩ 새 곡은 3.5초 안에 −20 dB 위로 · 쪽 오류 0', r10.새곡최고 > -20 && !c.er.length, { r10, er: c.er.slice(0, 3) }); }
     await c.cx.close(); }
   /* ⑧ 짧은 입장 곡(32초 · 강조 24초) · 본식 피아노(M4) 파일 없음 · 화촉 곡(M2) 있음 */
   { const SR = 22050, sec = 32, hook = 24, SONG = wav(sec, 220, SR).toString('base64'), FID = 'SONGID0123456789abcd';
