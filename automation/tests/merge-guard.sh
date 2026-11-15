@@ -13076,7 +13076,7 @@ nochk "'인사 사진'" assets/sequence-modal.js
 chk "['단체 사진', '15~33분쯤', ['10:40', '14:00', '17:20']" assets/sequence-modal.js 1   # [TOAST_LAST_1013] 15~32 → 15~33
 chk 'Private Snap 60분 · Ceremony 7~25분 · 단체 사진 15~33분' index.html 1   # [TOAST_LAST_1013]
 nochk '전체 사진과 두 분의 감사 인사 뒤 식사 자리로' index.html   # ★[END_FLOW_1030 검토 167] 감사 인사는 닫는 인사 · 식사는 예약 시간에 함께 — 옛 «감사 인사 뒤 식사 자리로 가시고 · 11시까지»를 되살리지 말 것
-chk '하객분들은 <strong>10시 입장 · 10시 20분 본식</strong>, 두 분의 감사 인사로 본식을 마친 뒤 전체 사진과 가족 · 친구 사진이 이어집니다. 식사를 예약하셨다면 정리를 마친 뒤 예약 시각에 두 분과 함께 시작합니다' index.html 1   # [FAQ_SLOT_WORD] · [END_FLOW_1030] · [H4_05] 식사는 140분 밖
+chk '하객분들은 <strong>10시 입장 · 10시 20분 본식</strong>, 두 분의 감사 인사로 본식을 마친 뒤 전체 사진과 가족 · 친구 사진이 이어집니다. 식사를 예약하셨다면 하객분들은 도착하시는 대로 드시고, 두 분은 정리를 마친 뒤 찾아가 인사드립니다' index.html 1   # [FAQ_SLOT_WORD] · [END_FLOW_1030] · [H4_05] 식사는 140분 밖
 nochk '9시 50분 입장' index.html
 chk 'DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20' mypage.html 1
 chk 'DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20' automation/platform/95_notify.gs 1
@@ -22646,6 +22646,17 @@ nochk '숫자는 오픈 전 리허설에서 잰 값으로 넣을 자리' mypage.
 chk "먼저 오신 분부터 식사하실 수 있을까요?" mypage.html 1
 chk "(headTxt?'저희 둘을 포함해 '+headTxt:'')" mypage.html 1   # 인원은 두 분 포함(GPT 8회차)
 chk 'JOIN_GAP_REHEARSAL' mypage.html 2                                  # «약 ○○분 뒤» 숫자는 리허설에서 잰 값으로 넣을 자리
+# ★[EARLY_EAT_OWNER_1115] 홈 · AI 상담 지식도 «도착하는 대로 · 두 분은 찾아가 인사»(글 승인 카드 13 · 12:09) — 옛 «예약 시각에 (두 분과) 함께 식사 · 시작»은 기다리는 말
+chk '식사를 예약하셨다면 하객분들은 도착하시는 대로 드시고, 두 분은 정리를 마친 뒤 찾아가 인사드립니다.' index.html 2   # 자주 묻는 질문 + 검색용 같은 글(JSON-LD)
+chk '식사를 예약하셨다면, 하객분들은 도착하시는 대로 드시고 두 분은 정리를 마친 뒤 찾아가 인사드립니다.' index.html 1   # 순서 설명
+nochk '예약 시각에 함께 식사' index.html
+nochk '예약 시각에 두 분과 함께 시작' index.html
+nochk '예약 시각에 함께 식사' api/_kb.js
+nochk '예약 시각에 두 분과 함께 시작' api/_kb.js
+nochk '예약 시간에 맞춰 함께 시작' api/_ritual-kb.js
+nochk '촬영 뒤 함께 식사한다고' api/_ritual-kb.js
+chk 'EARLY_EAT_OWNER_1115' api/_kb.js 2
+chk 'EARLY_EAT_OWNER_1115' api/_ritual-kb.js 2
 nochk '먼저 식사 장소로 이동하셔도 돼요' guide.html
 chk 'CAFE_OPEN_OWNER_1115' mypage.html 4
 chk "meal:(meal==='yes'||meal==='no'||meal==='cafe')?meal:''" mypage.html 1   # 사진 차례 화면이 카페 날을 안다
