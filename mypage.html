@@ -12102,7 +12102,7 @@ var PVC_FEEL_PICKS=[];   // [PV_FEEL_1106] 우리 톤에 맞춰 고른 템플릿
    ③ 식중은 처음부터 «선택 사항 · 축사 대신 상영 · 제작비는 두 분 부담»(_mvcCond · 열기 전에 보이는 머리 한 줄)
    ④ 한 화면 한 행동 — 진사 단추는 «이 영상으로 확정» 하나 · 상자 안 상자 없이 가는 선과 여백으로만(링크 칸 · 다시 보내기)
    기능(올리기 · 저장 · 확정 · GAS)은 그대로 — 화면 글과 모양만. 검사 scripts/audit/video-umbrella.mjs ⑥ */
-var PVC_HERO={ pre:'/assets/video/moments/prevideo-640.webp', mid:'' };   // [VIDEO_UMBRELLA_1115] 결과 먼저 한 컷 — 식전 = 식순 화면에 쓰는 «식전 영상» 순간 그림(승인됨 · 대본 «식전 C3» 받으면 갈아 끼움) · ★[VU_MID_HERO_1115 2026-11-15 22:58 대표님 «좋아요» → 23:12 보류(붓결 · 왼쪽 위 화면 틀 고친 판을 영상 방이 다시 그림)] 지금은 빈칸(그 자리 없이 단계 셋부터) · 고친 판이 오면 이 칸에 '/assets/video/moments/midvideo-640.webp' 한 줄 + 그 파일 · 옛 판 = 영상 방 mid-final(사이트 claude/dn-review-shots 37c319f9 docs/handoff/scene17-g0/final/mid-final.png → 640×360 webp · 식전과 같은 크기) · 이름 midvideo 는 식순 순간 영상 이름(VIDEO_READY)이 아니라 영상 방 파일(free-*)과 겹치지 않는다 · 캡션은 _pvcHero 가 «예식 날 식중 영상이 상영되는 모습(그림)»으로 만든다
+var PVC_HERO={ pre:'/assets/video/moments/prevideo-640.webp', mid:'/assets/video/moments/midvideo-640.webp' };   // [VIDEO_UMBRELLA_1115] 결과 먼저 한 컷 — 식전 = 식순 화면에 쓰는 «식전 영상» 순간 그림(승인됨 · 대본 «식전 C3» 받으면 갈아 끼움) · ★[VU_MID_HERO_1115 2026-11-15 22:58 대표님 «좋아요» → 23:12 보류(붓결 · 왼쪽 위 화면 틀 고친 판을 영상 방이 다시 그림)] 지금은 빈칸(그 자리 없이 단계 셋부터) · 고친 판이 오면 이 칸에 '/assets/video/moments/midvideo-640.webp' 한 줄 + 그 파일 · 옛 판 = 영상 방 mid-final(사이트 claude/dn-review-shots 37c319f9 docs/handoff/scene17-g0/final/mid-final.png → 640×360 webp · 식전과 같은 크기) · 이름 midvideo 는 식순 순간 영상 이름(VIDEO_READY)이 아니라 영상 방 파일(free-*)과 겹치지 않는다 · 캡션은 _pvcHero 가 «예식 날 식중 영상이 상영되는 모습(그림)»으로 만든다
 function _pvcNowDo(){ var F=PVCFLOW, s=F.scr||'start';
   if(s==='start') return (F.kind==='mid'&&F.on!==true)?'식순에 넣을지 정하기':'영상 링크 보내기';
   if(s==='feel') return '필메이커에서 영상 만들기';
