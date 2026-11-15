@@ -23645,4 +23645,4 @@ chk 'HEARD_XF_1115' scripts/audit/r4-1115.mjs 2
 chk 'DECLARE_PLAYABLE_1115' scripts/audit/r4-1115.mjs 2
 chk 'ENTRY_WAIT_HUSH_1115' scripts/audit/r4-1115.mjs 3
 chk 'R4_1115' .github/workflows/merge-guard.yml 1
-chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 r4-1115' }" .github/workflows/merge-guard.yml 1
+chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115' }" .github/workflows/merge-guard.yml 1
