@@ -20904,6 +20904,8 @@ chk 'var Q_TAG=/ · (말없이|말 없이|미리 듣기에서는 넘겨요|연�
 chk 'REVIEW_166_1030' scripts/audit/review-166.mjs 3
 chk 'SPEECH_SONG_1115' scripts/audit/review-166.mjs 1   # ★[SPEECH_SONG_1115] B2 는 축사 쪽(가족 예시가 축가를 켜 옛 «S.on.free = 1» 이면 midMigrate 가 축사를 떨군다)
 chk 'SPEECH_SONG_1115' scripts/audit/ux1-1023.mjs 1   # ★[SPEECH_SONG_1115] 정석 = 축가만 — ② 축사 예시 접기는 축사로 바꿔 담고 잰다
+chk 'SPEECH_SONG_1115' scripts/audit/ref-form.mjs 1   # ★[SPEECH_SONG_1115] 전부 켠 판 → 축사 쪽(pairSet free) · 축사 예시를 잰다
+chk 'SPEECH_SONG_1115' scripts/audit/photo-scene.mjs 1   # ★[SPEECH_SONG_1115] 정석 = 축가만 — 축사 창(장면 칸 0)은 축사로 담았다가 되돌려 잰다
 chk 'function _sentJoinQ(L)' order-preview.html 1
 chk 'function _declNoWho()' order-preview.html 1
 chk "need: function (S, n) { var q = seqOf(S), i = q.indexOf('tribute');" assets/ritual-open.js 1

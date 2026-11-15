@@ -26,7 +26,7 @@ try {
   const nx = async () => { if (await pg.isVisible('#next')) await pg.click('#next'); else await pg.click('.pk-go'); await pg.waitForTimeout(500); };
   await nx(); await nx(); await pg.click('[data-fk="opx:family"]'); await pg.waitForTimeout(300);
   /* 모든 순간을 담고 · 성혼 선언 = 가족 낭독 · 준비한 순서 = 축사(3분) — 참고 예시가 붙는 자리를 전부 연다 */
-  await pg.evaluate(() => { const R = RitualOpen; R.ORDER.forEach((k) => { if (!R.ALWAYS[k]) S.on[k] = 1; }); S.declareWho = 'gdad';   /* [DECLARE_BY_PERSON 2026-10-12] 옛 «가족이 낭독» → 읽는 분 «신랑 아버님» */ S.freeWhat = 'speech'; S.freeLen = '3'; opSync(); });
+  await pg.evaluate(() => { const R = RitualOpen; R.ORDER.forEach((k) => { if (!R.ALWAYS[k]) S.on[k] = 1; }); S.declareWho = 'gdad';   /* [DECLARE_BY_PERSON 2026-10-12] 옛 «가족이 낭독» → 읽는 분 «신랑 아버님» */ S.freeWhat = 'speech'; S.freeLen = '3'; R.pairSet(S, 'free'); opSync(); });   /* ★[SPEECH_SONG_1115] 전부 켜면 축사 · 축가 둘 다 — midMigrate 가 축사를 떨군다 · 이 검사는 축사 예시를 재므로 축사 쪽(축가는 재지 않는다) */
   await nx(); await pg.waitForTimeout(1500); await pg.evaluate(() => { try { engine(); } catch (e) {} }); await pg.waitForTimeout(900);
   const go = async (k) => { await pg.evaluate((x) => { try { lsStop(); } catch (e) {} mkGo(x); }, k); await pg.waitForTimeout(350); };
   const look = (k) => pg.evaluate((k) => { const q = (s) => document.querySelector('.mk-pg ' + s), qa = (s) => [...document.querySelectorAll('.mk-pg ' + s)];
