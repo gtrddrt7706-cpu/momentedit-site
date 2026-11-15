@@ -4844,6 +4844,18 @@ chk '.acct-amt-link{min-height:44px;padding:0 8px}' mypage.html 1
 chk "row('하객 안내', '', 'mp_guideOpen', gLabel," mypage.html 1
 nochk "row('하객 안내', (_gTok&&!_gClosed)?'완료'" mypage.html
 chk "+ (locked ? '' : '<div class=\"vg-row\"><span class=\"vg-k\">계약서</span>" mypage.html 1
+# ★[FIELD_LINE_1115 2026-11-15 대본 «입력칸 한 벌»] 입력칸 경계 = --field-line 하나(비텍스트 3:1 · 종전 --border 1.36:1) · 초점 = [FOCUS_ONE] 한 벌
+chk '--field-line:#8A857C;' mypage.html 1
+chk '--field-line:#8A857C;' inquiry.html 1
+chk '  --field-line: #8a857c;' index.html 1
+chk 'var(--field-line)' mypage.html 7
+chk 'var(--field-line)' inquiry.html 2
+chk 'var(--field-line)' index.html 2
+nochk '.field input{width:100%;border:1px solid var(--border);' mypage.html
+nochk '.field input:focus{border-color:var(--gold)}' mypage.html
+nochk 'border:none;border-bottom:1px solid var(--border);background:transparent;padding:22px 0 10px' inquiry.html
+chk '.field input:focus{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}' mypage.html 1
+chk 'box-shadow: inset 0 0 0 1px var(--gold-text);' index.html 2
 # ★★[MID17_PICK 2026-11-07 재검증 재수정 · 사장님 «마음의 순간에 식중 영상 칸을 따로 하나»] MID17 줄 1 · 2 — ① 식중 영상 칸(축사와 둘 중 하나 · 바꿔 담기 · 알림 한 줄) ·
 #   이름 «식중 영상»(nameOf · 칩 · 칸 글) · ② 길이 칸 + 택1 한 줄 · at:'midvideo' · 준비 목록 빈 칸 · 시간 띠(60 × 분 + 8 · 40분 상한) — 390 · 360 화면을 돌린다
 if command -v node >/dev/null 2>&1; then _m17=$(node scripts/audit/mid17-pick.mjs 2>&1); _m17r=$?
