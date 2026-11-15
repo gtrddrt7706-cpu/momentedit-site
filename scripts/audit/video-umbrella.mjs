@@ -100,7 +100,7 @@ try {
         ok(`⑥ ${tag} ${k} 첫 화면 — 단계 셋 · 진사 단추 없음 · 흰 상자 없음 · 가로 넘침 0`, f && f.steps === 3 && f.seal === 0 && f.boxes === 0 && f.sw <= f.iw, JSON.stringify(f)); }
       for (const k of ['pre', 'mid']) { const f = FL && FL[k]; const want = k === 'pre' ? '나중에 준비하기|사용하지 않기' : '식순에서 빼기';
         ok(`⑥ ${tag} ${k} 첫 화면 — 보조 길(${want})이 첫 눈에 다 보이고 단추 뒤로 걸리지 않는다 [VU_SUBS_BAR_1115]`, f && f.subs.map((x) => x.t).join('|') === want && f.subs.every((x) => x.h >= 44 && x.top >= 0 && x.bot <= f.vh && x.bot <= f.btTop), JSON.stringify(f && { subs: f.subs, btTop: f.btTop, vh: f.vh })); }
-      for (const [k, nm, f0] of [['pre', '식전', 'prevideo-640.webp'], ['mid', '식중', 'midvideo-640.webp']]) { const f = FL && FL[k];
+      for (const [k, nm, f0] of [['pre', '식전', 'prevideo-640.webp']].concat(/mid:'\/assets\/video\/moments\/midvideo-640\.webp'/.test(fs.readFileSync(path.join(ROOT, 'mypage.html'), 'utf8')) ? [['mid', '식중', 'midvideo-640.webp']] : [])) { const f = FL && FL[k];   // [VU_MID_HERO_1115] 식중 그림은 고친 판이 들어온 뒤에만 잰다(23:12 보류)
         ok(`⑥ ${tag} ${nm} 첫 화면 — 결과 먼저 한 컷(${f0})이 뜨고 캡션 «예식 날 ${nm} 영상이 상영되는 모습(그림)» [VU_MID_HERO_1115]`, f && f.hero && f.hero.ok && f.hero.src.endsWith(f0) && f.hero.cap === `예식 날 ${nm} 영상이 상영되는 모습(그림)`, JSON.stringify(f && f.hero)); }
       ok(`⑥ ${tag} 식중 첫 화면 — «선택 사항 · 축사 대신 상영 · 제작비는 두 분 부담»`, FL && FL.mid && FL.mid.cond.join('|') === '선택 사항|축사 대신 상영|제작비는 두 분 부담' && FL.pre && FL.pre.cond.length === 0, JSON.stringify(FL && FL.mid && FL.mid.cond));
     } else if (name === 'none') {

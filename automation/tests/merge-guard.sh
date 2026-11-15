@@ -4892,8 +4892,9 @@ nochk '중 하나로 준비해 주세요. 쿠폰 · 기본 템플릿은 식전 �
 # ★[VU_SUBS_BAR_1115 2026-11-15 대본 · 릴스 점검 B] 첫 화면 보조 길(«나중에 준비하기 · 사용하지 않기» · «식순에서 빼기»)은 막대 안 단추 위 한 줄 — 본문 끝으로 되돌리면 폰 첫 화면에서 단추 뒤로 걸린다(video-umbrella ⑥ 실측이 막는다)
 chk 'VU_SUBS_BAR_1115' mypage.html 4
 # ★[VU_MID_HERO_1115 2026-11-15 22:58 대표님 «좋아요»] 식중 첫 화면 결과 먼저 한 컷 = 영상 방 mid-final(37c319f9) 640 webp · 파일과 자리 둘 다(video-umbrella ⑥ 이 실제로 뜨는지 잰다)
-chk "mid:'/assets/video/moments/midvideo-640.webp'" mypage.html 1
-[ -f assets/video/moments/midvideo-640.webp ] || { echo 'FAIL VU_MID_HERO_1115: assets/video/moments/midvideo-640.webp 없음'; fail=1; }
+#   23:12 대본 정정 — 대표님이 붓결 · 왼쪽 위 화면 틀을 고치라 해 영상 방이 다시 그린다 · 자리 · 코드만(mid:'') · 그림이 들어오면 아래 줄을 chk 로 되돌린다
+chk 'VU_MID_HERO_1115' mypage.html 1
+grep -q "mid:'/assets/video/moments/midvideo-640.webp'" mypage.html && { [ -f assets/video/moments/midvideo-640.webp ] || { echo 'FAIL VU_MID_HERO_1115: 자리는 그림을 가리키는데 assets/video/moments/midvideo-640.webp 없음'; fail=1; }; }
 nochk "_pvcThree()+'<div class=\"pvc-subs\">" mypage.html 0
 chk "h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode=\"upload\"'), '<div class=\"pvc-subs\">.*');   // \[PV_ONE_WAY_1107\]" mypage.html 1   # [VU_SUBS_BAR_1115] 큰 단추 하나 + 그 위 보조 길 한 줄
 nochk '<b>준비한 영상 올리기</b>' mypage.html
