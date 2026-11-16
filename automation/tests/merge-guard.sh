@@ -23818,6 +23818,10 @@ chk "ok('\[GA_W5_1115\] 빌더 하객 안내 네 칸" scripts/audit/open-course.
 chk '양가 아버님, 맞절.' assets/ritual-open.js 2
 nochk '화면으로 보고 계신 분들께 인사를 올리겠습니다.' assets/ritual-data.js
 nochk '이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해 서도록 하겠습니다.' assets/ritual-open.js
+# ★[PV_BUF_1115 EVENT_VIDEO_STUTTER 2026-11-15 대본 «이벤트 영상 끊김»] 느린 4G 에서 0.3초씩 여러 번 끊기던 것 — 큰 표지는 영상이 넉넉히 받은 뒤 · waiting 이면 멈추고 canplaythrough(늦어도 6초) 뒤 이어서
+chk 'function _pvBuf(vd,tok){' order-preview.html 1
+chk "_pvBuf(vd,tok); } }" order-preview.html 1
+chk "vd.addEventListener(t,_bigGo,{once:true});" order-preview.html 1
 # ★★[ENTRY_NOFILE_OWNER_1115 2026-11-15 대표님 결정 A · BGM 결정 카드 ①] 입장곡을 골랐는데 당일 파일을 못 받은 날 — 꺼 둔 화촉 곡을 되살리지 않고 본식 피아노(M4) 첫 곡을 새로(검사 entry-nofile-1115 · CI bgm-sound g)
 chk 'ENTRY_NOFILE_OWNER_1115' console.html 2
 chk "if (k === 'entry' && esdMain(c) && esdWant() && !esdReady(c)) return 'M4';" console.html 1
