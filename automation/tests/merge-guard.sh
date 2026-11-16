@@ -8147,7 +8147,7 @@ chk "ks: \['welcome', 'vow', 'ring', 'declare'] }" assets/ritual-open.js 1   # [
 chk "ks: \['bless', 'free', 'song', 'midvid', 'letter'] }" assets/ritual-open.js 1   # ★[SPEECH_SONG_1115] 엔진 막 칸 다섯(빌더 ① 은 축사 · 축가 한 카드로 넷 · mid17-pick)
 nochk "ks: \['vow', 'ring', 'declare', 'bless'] }" assets/ritual-open.js   # 옛 막 경계(맞절 칸 전) — 되살리면 여는 순간이 다섯 칸
 chk 'HEART_ORDER_1012' assets/ritual-data.js 1
-chk 'HEART_ORDER_1012' assets/ritual-story.js 1
+# ★[SHOW_PAIR_1116 · RULES_SLIM ⑧] 옛 줄 chk 'HEART_ORDER_1012' assets/ritual-story.js 1 은퇴 — 이 표식은 걷은 «준비한 순서» 블록(STORY_COVER 죽은 블록) 안에만 있었다 — 옛 핀 chk 1
 chk 'HEART_ORDER_1012' api/_ritual-kb.js 2
 chk 'HEART_ORDER_1012' scripts/audit/open-course.mjs 12
 chk "var ORDER = \['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'midvid', 'letter', 'tribute', 'cake', 'toast', 'table'];" assets/ritual-open.js 1   # [SPEECH_SONG_1115]
@@ -19789,7 +19789,7 @@ chk 'SONG_ANYONE_WORDS_1013' assets/ritual-story.js 2
 nochk '축가를 불러 주실 분께 부탁드리기' assets/ritual-open.js                      # 두 분이 직접 부르는 날 틀린 말
 nochk '두 분은 그 자리에서 들으시면 돼요' assets/ritual-story.js
 chk 'SPEECH_WORDS_1013' assets/ritual-open.js 2
-chk 'SPEECH_WORDS_1013' assets/ritual-story.js 4
+chk 'SPEECH_WORDS_1013' assets/ritual-story.js 3   # ★[SHOW_PAIR_1116] «준비한 순서» 블록을 걷어 4 → 3
 nochk '덕담 뒤, 축가 앞에' assets/ritual-story.js                                  # 이웃 순간을 안 담으면 틀린 말
 nochk '두 분을 오래 지켜본 분이 짧은 축사' assets/ritual-story.js                    # 짐작
 nochk '3분쯤 되면 저희가' assets/ritual-story.js                                    # 길이는 두 분이 정한다(1 ~ 10분)
@@ -23304,7 +23304,7 @@ chk 'MID17_ENGINE' assets/ritual-cue.js 3
 chk 'function pvSlugOf(S)' assets/ritual-cue.js 1          # 식전 영상 · 식중 영상이 같은 슬러그 셈을 본다
 chk "slug: 'narr-prevideo-in-ex3', name: '식중 영상 소개'" assets/ritual-cue.js 1
 chk "pvSlugOf(S) === 'narr-prevideo-in-ex3')) return \[cue(o)\];" assets/ritual-cue.js 1   # 129 겹친 날 58 하나
-chk 'MID17_ENGINE' assets/ritual-story.js 2                # 블록 «식중 영상» 설명(STORY_COVER)
+chk 'MID17_ENGINE' assets/ritual-story.js 1                # 블록 «식중 영상» 설명(STORY_COVER) · ★[SHOW_PAIR_1116] «준비한 순서» 블록을 걷어 2 → 1
 chk "'식중 영상': {" assets/ritual-story.js 1
 chk 'MID17_ENGINE' scripts/audit/open-course.mjs 2         # 블록 · [재생 안 됨] 기대값(의도한 변화 · 옛 값 주석)
 chk 'MID17_PRACTICE' order-preview.html 1                  # 연습 · 미리 듣기 카드 «식중 영상이 흐르는 자리»
