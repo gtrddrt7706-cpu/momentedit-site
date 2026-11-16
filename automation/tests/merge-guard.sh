@@ -23936,11 +23936,14 @@ chk "_pvBuf(vd,tok); } }" order-preview.html 1
 chk "vd.addEventListener(t,_bigGo,{once:true});" order-preview.html 1
 # ★★[ENTRY_NOFILE_OWNER_1115 2026-11-15 대표님 결정 A · BGM 결정 카드 ①] 입장곡을 골랐는데 당일 파일을 못 받은 날 — 꺼 둔 화촉 곡을 되살리지 않고 본식 피아노(M4) 첫 곡을 새로(검사 entry-nofile-1115 · CI bgm-sound g)
 chk 'ENTRY_NOFILE_OWNER_1115' console.html 2
-chk "if (k === 'entry' && esdMain(c) && esdWant() && !esdReady(c)) return 'M4';" console.html 1
+chk "if (k === 'entry' && esdNone(c)) return 'M4';" console.html 1   # [ENTRY_NONE_1116] 못 받은 날 · 아예 없는 날 둘 다
 chk 'ENTRY_NOFILE_OWNER_1115' scripts/audit/entry-nofile-1115.mjs 2
 # ★[ENTRY_NOFILE_DUCK15_1115 2026-11-15 대본 판단] 입장곡을 못 받은 날 입장 멘트 아래 = 말 아래 표준 −15(보통 날 장면 귀와 맞춤 · 입장 장면 값 −12 는 보통 날 길 그대로 · 검사 entry-nofile-1115 ④)
 chk 'ENTRY_NOFILE_DUCK15_1115' console.html 1
-chk 'var _cdk = (esdMain(c) && esdWant() && !esdReady(c)) ? PARAM.duckSpeech : c.duck;' console.html 1
+chk 'var _cdk = esdNone(c) ? PARAM.duckSpeech : c.duck;' console.html 1
+# ★[ENTRY_NONE_1116 2026-11-16 대본 결정 · BGM GPT 라운드 3] «입장 곡이 아예 없는 날»도 결정 A 와 같게(본식 피아노 첫 곡 · 멘트 아래 −15) · 고객 미리 듣기 · 하객 화면은 그대로 · 검사 entry-nofile-1115(없는 날 · 못 받은 날 · 받은 날)
+chk "function esdNone(c){ return !!(esdMain(c) && MODE !== 'preview' && !GUEST && !esdReady(c)); }" console.html 1
+chk 'ENTRY_NONE_1116' scripts/audit/entry-nofile-1115.mjs 1
 chk '(_ldb != null ? _ldb : _cdk)' console.html 1
 chk 'ENTRY_NOFILE_DUCK15_1115' scripts/audit/entry-nofile-1115.mjs 2
 # ★★[DUCK_SKIP_3S_OWNER_1115 2026-11-15 대표님 «추천대로» · BGM 결정 카드 ④ B] 정적으로 내려가는 도중 다른 순간으로 넘기면 앞 곡은 지금 크기에서 3초에 걸쳐 계속 내린다(따로 내리는 길 · 되살아남 없음) — 옛 0.5초 끄기 되살리지 말 것(검사 console-relift ⑦ ⑩)
