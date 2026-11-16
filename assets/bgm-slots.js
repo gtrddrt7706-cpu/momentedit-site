@@ -154,6 +154,7 @@
   function viewOf(k, o) {
     o = o || {};
     if (k === 'prevideo') return null;   /* ★[BGM_R3_1023] 식전 영상 흐름 음악 줄 없음 — 다음 줄 «여기서 두 분의 영상이 흘러요»와 같은 말 두 번 · 안내는 링크 칸 아래 한 줄 · 되살리지 말 것 */
+    if (k === 'midvid') return { kind: 'flow', t: LINE.prevideo, at: 'video' };   /* ★[SPEECH_SONG_1115] 식중 영상(따로 넣고 빼는 순간) — 옛 free 영상 갈래와 같은 줄 · BGM 방 확인 대기 */
     if (k === 'free' && o.freeKind === 'video') return { kind: 'flow', t: LINE.prevideo, at: 'video' };   /* 옛 초안 «영상» 갈래(FREE_KIND video) */
     if (k === 'free' && o.freeKind && o.freeKind !== 'speech') return null;                  /* 옛 초안 선물 · 기타 — 엔진도 그대로 무음 */
     if (k === 'matjeol') return { kind: 'flow', t: LINE.matjeol, at: 'top' };

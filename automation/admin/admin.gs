@@ -263,6 +263,7 @@ function adminCall(token, fn, args) { _gsr_();
       aiRegList: aiRegList, aiRegAdd: aiRegAdd, aiRegSetActive: aiRegSetActive, aiRegDelete: aiRegDelete,
       adminListLeads: adminListLeads, adminResolveLead: adminResolveLead, aiQuestionResolve: aiQuestionResolve,
       adminIssueCoupon: adminIssueCoupon, adminRevokeCoupon: adminRevokeCoupon,
+      adminPvCoupon: adminPvCoupon,   // [FM_COUPON_1116] 협력사(필메이커) 쿠폰 넣기 · 회수 — 화이트리스트에 없으면 큐 단추가 «알 수 없는 요청»으로 죽는다
       solapiUsageSummary: solapiUsageSummary
     };
     var f = FNS[fn];
@@ -630,6 +631,8 @@ function adminHome() {
   var urgent = [], normal = [], queueCodes = {}, resultsList = [];
   var pipe = {}; pipe[P.PRODUCT_SIGNATURE] = {}; pipe[P.PRODUCT_SNAP] = {};
   function pushQ(it) { queueCodes[it.code] = true; if (it._urgent) urgent.push(it); else normal.push(it); }
+  /* ★[FM_COUPON_1116] 협력사(필메이커) 쿠폰 — 시트 «식전영상» 줄 메타(m.cpn)를 한 번 읽어 코드별로 모은다(요청 · 발급 전 · 발급 뒤 취소만) · 시트가 없으면 빈 표 */
+  var _fmQ = {}; try { if (typeof _pvCpnQueue_ === 'function') _fmQ = _pvCpnQueue_() || {}; } catch (e) { _fmQ = {}; }   // [FM_COUPON_1116] 읽기만(시트가 없으면 빈 표 · 만들지 않는다)
   // 만족도 설문 집계(전 고객 — 완료자는 아카이브여도 포함)
   var surveyAgg = { n: 0, byProduct: {}, q: {}, recent: [], unseen: 0 };
   var _svAll = [];   // [SV_UNSEEN] 제출된 응답 전부 — 순회가 끝나면 날짜순으로 줄 세운다
@@ -666,6 +669,18 @@ function adminHome() {
        ★이것은 «보이지 않게»만 한다 — [REVIEW_KEEP_ROWS 2026-09-25 사장님 «추천대로»] 시트의 설문 칸은 비우지 않는다(숨김만).
          다시 정상 단계로 되돌리면 후기가 그대로 돌아온다. 되돌릴 수 없는 삭제를 여기 넣지 말 것. */
     if (STAGE_EXCEPTIONS.indexOf(stage) === -1) surveyTally(rv, code, names, product);
+    /* ★[FM_COUPON_1116] 협력사 쿠폰 — 요청 · 발급 전 = «협력사쿠폰»(코드 넣기) · 발급 뒤 고객 취소 = «협력사쿠폰회수» · 닫힌 고객(취소 · 노쇼 · 미계약)은 띄우지 않는다 · 배지 «제휴 확정 전»(필메이커 제휴 11/03 «오픈 전 재문의» 보류) */
+    if (STAGE_EXCEPTIONS.indexOf(stage) === -1 && _fmQ[code]) _fmQ[code].forEach(function (q) {
+      var _vn = q.kind === 'mid' ? '식중 영상' : '식전 영상';
+      /* ★[COUPON_GATE_1116 2026-11-16 대표님 17:41] 요청 줄 = «협력사 쿠폰 요청 · 식전/식중 · 식순 확정 ✓/✗»(식중만 · 식전은 문이 고르는 카드) · ✗ 이면 넣기 단추가 흐리다(fmOk false · 서버 adminPvCoupon 도 거절) ·
+         식순에서 식중을 뺀 발급 뒤 쿠폰 = 회수 줄(gone) */
+      var _rv = q.st === 'cancel' || q.st === 'gone', _ok = q.kind !== 'mid' || q.rok !== false;
+      pushQ({ code: code, names: names, product: product, kind: _rv ? '협력사쿠폰회수' : '협력사쿠폰', fm: q.kind, fmOk: _rv ? true : _ok,
+        sub: q.st === 'gone' ? (_vn + ' · 식순에서 식중 영상을 뺐어요 · 보낸 쿠폰을 필메이커에서 회수한 뒤 «회수»를 눌러 주세요')
+          : q.st === 'cancel' ? (_vn + ' · 고객이 필메이커 쿠폰을 쓰지 않기로 했어요 · 필메이커에서 회수한 뒤 «회수»를 눌러 주세요')
+          : ('협력사 쿠폰 요청 · ' + (q.kind === 'mid' ? '식중' : '식전') + (q.kind === 'mid' ? (' · 식순 확정 ' + (_ok ? '✓' : '✗')) : '') + ' · ' + (_ok ? '쿠폰 코드(또는 링크)를 넣어 주세요' : '식순이 확정되면 보낼 수 있어요')),
+        badge: { level: 'yellow', text: '제휴 확정 전' }, _urgent: false, _loss: 4, _stage: 8, _wait: _ymdOf(q.req) || createdYmd });
+    });
     var survStatus = String(cget(rv, '설문상태') || '').trim();
     var surveyClosed = (survStatus === '완료' || survStatus === '건너뜀');   // 후기 마감(제출/넘기기) = 아카이브 조건
     // ★STAGE_REVIEW: 아카이브 판정 = 예외 단계 이거나 (결과물전달·후기 중 하나 + 설문 마감).
@@ -2513,6 +2528,41 @@ function adminRevokeCoupon(code) {
     touchCustomer(sheet, colOf, cust.num, { '쿠폰상태': '회수', '쿠폰데이터': '' });
     _recordHandler(code, '커피쿠폰 회수');
     return { ok: true };
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+}
+
+/* ★★[FM_COUPON_1116] 협력사(필메이커) 쿠폰 — 관리자가 넣기(issue · 코드 또는 링크) · 회수(revoke) · 시트 «식전영상» 줄 메타(m.cpn)에만 쓴다(열 추가 없음)
+   넣기는 고객이 요청한 줄에만(요청 없이 나가는 길 없음) · 회수는 발급된 줄에만 · 화면은 «제휴 확정 전» 표시를 함께 단다 */
+function adminPvCoupon(code, kind, op, val) {
+  _requireAdmin();
+  // [FM_COUPON_1116] 협력사 쿠폰 넣기(요청한 줄만) · 회수 — m.cpn 에만 쓴다
+  code = String(code || '').trim().toUpperCase(); kind = _pvKind_(kind); op = String(op || '');
+  if (op !== 'issue' && op !== 'revoke') return { ok: false, error: '알 수 없는 요청이에요.' };
+  var v = String(val || '').trim();
+  if (op === 'issue') {
+    if (!v) return { ok: false, error: '쿠폰 코드나 링크를 넣어 주세요.' };
+    if (v.length > PV_UP.cpnMax) return { ok: false, error: '너무 길어요 · ' + PV_UP.cpnMax + '자 안으로 넣어 주세요.' };
+    if (/^https?:/i.test(v) && !/^https:\/\/[^\s<>"']+$/i.test(v)) return { ok: false, error: '링크는 https 주소로 넣어 주세요.' };
+  }
+  var lock = _adminLock(); if (!lock) return { ok: false, error: _LOCK_BUSY };
+  try {
+    var cust = findCustomerByCode(code);
+    if (!cust) return { ok: false, error: '고객을 찾을 수 없습니다.' };
+    var sh = _pvSheet_(), key = _pvKey_(code, kind), row = _pvRow_(sh, key);
+    if (!row) return { ok: false, error: '쿠폰 요청이 없어요.' };
+    var m = row.m || {}, c = m.cpn || {}, st = _pvCpnState_(c), now = new Date().toISOString();
+    if (op === 'issue') {
+      if (st !== 'req') return { ok: false, error: st === 'issued' ? '이미 보냈어요.' : '고객이 요청한 쿠폰이 없어요.' };   // 요청 없이 나가는 길 없음
+      if (kind === 'mid' && (_mvOn_(cust).on !== true || !_pvRitOk_(cust))) return { ok: false, error: '식순 확정 전이에요 · 식순에 식중 영상이 확정된 뒤 보내 주세요.' };   // [COUPON_GATE_1116] 식중 쿠폰은 식순에 담겼고 순서가 확정된 때만
+      var isLink = /^https:\/\//i.test(v);
+      m.cpn = { req: c.req, code: isLink ? '' : v, link: isLink ? v : '', at: now, revoked: '' };
+    } else {
+      if (st !== 'issued' && st !== 'cancel') return { ok: false, error: '보낸 쿠폰이 없어요.' };
+      m.cpn = { req: c.req, code: '', link: '', at: c.at, revoked: now };   // 코드는 지운다 · 언제 회수했는지만 남긴다
+    }
+    _pvWrite_(sh, row, key, row.d || {}, m);
+    _recordHandler(code, _pvName_(kind) + ' 협력사 쿠폰 ' + (op === 'issue' ? '보냄' : '회수'));
+    return { ok: true, cpn: _pvCpnPub_(m) };
   } finally { try { lock.releaseLock(); } catch (e) {} }
 }
 /* ★★[SV_SEEN 2026-09-25] 후기 «확인» — 관리자가 읽었다는 표시. 알림(새 후기 N건)이 이걸로 사라진다.

@@ -62,7 +62,7 @@ pvCheck(C, '① [PV_LEAD_NOCLAP_1106] 박수 없는 개식(칩 1 ~ 5) → 식전
 
 /* ── ② K3 — 예상 본식 10분 미만이면 299s · 345s */
 const MOM = ['candle', 'welcome', 'vow', 'ring', 'declare', 'free', 'letter', 'song', 'tribute', 'toast', 'table', 'prevideo'];
-function combos() { const out = []; for (let m = 0; m < 1 << 7; m++) { const on = {}; MOM.slice(0, 7).forEach((k, j) => { if (m & (1 << j)) on[k] = 1; }); out.push({ course: 'open', on }); out.push({ course: 'open', on: Object.assign({ song: 1, tribute: 1 }, on) }); } O.EXAMPLES.forEach((e) => { const S = O.applyExample({ course: 'open' }, e.k); S.course = 'open'; out.push(S); }); return out; }
+function combos() { const out = []; for (let m = 0; m < 1 << 7; m++) { const on = {}; MOM.slice(0, 7).forEach((k, j) => { if (m & (1 << j)) on[k] = 1; }); out.push({ course: 'open', on }); { const o2 = Object.assign({ song: 1, tribute: 1 }, on); delete o2.free; out.push({ course: 'open', on: o2 }); } }   /* ★[SPEECH_SONG_1115] 축사 · 축가는 둘 중 하나 — 축가를 더한 판은 축사를 뺀다(둘 다 켠 판은 엔진이 축가만 남겨 화면 셈과 갈린다) */ O.EXAMPLES.forEach((e) => { const S = O.applyExample({ course: 'open' }, e.k); S.course = 'open'; out.push(S); }); return out; }
 function k3Check(C, label) {
   const bad = []; let nS = 0, nL = 0;
   for (const S0 of combos()) for (const meal of [0, 1]) {

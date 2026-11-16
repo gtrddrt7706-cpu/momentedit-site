@@ -8,6 +8,8 @@
    T06 대조 — «조용히» 판 축사 말씀 동안 정적 그대로 · 축사가 없으면 덕담 곡이 흐르다 축가 여는 말 −15(NO_RELIFT E)
    T07 화면 — 축사 · 편지 «곡 고르기» 칸 없음 · «음악과 함께 / 조용히» 고르기만
    T08 끊긴 곡 이어 듣기 — 축가(정적) 뒤 «음악과 함께» 편지에서 본식 곡은 꺼진 그 곡 · 꺼진 자리부터(정적 동안 흘러간 시간이 아니다) · 선언 뒤 새 곡 예외는 meaning-r2 가 지킨다
+   ★[SPEECH_SONG_1115] 축사 · 축가는 한 카드 둘 중 하나 — 둘 다 켠 판은 없다(옛 저장본은 midMigrate 로 축가만). 그래서 판을 둘로: 축사 쪽(prep('free') · T01 T02 T03 T04 T06 T07) · 축가 쪽(prep('song') · T08 T09).
+     T05 의 «축사 뒤 축가 여는 말» 자리는 사라졌다 → 새 기대: 옛 저장본(축사 + 축가 · «음악과 함께») = 축가만(축사 큐 0) · 축가 여는 말 −15(NO_RELIFT E 와 같은 값) · 화면 T05 는 은퇴(축가 MR 자리 음악 0 은 no-relift 가 잰다)
    하네스는 seam-b2 와 같다 · BP_BED · BP_PICKS · BP_CUE = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -85,38 +87,37 @@ const walk = async (f, ks, bgm, extra, msOf) => f.evaluate(async ({ ks, bgm, ext
   const log = [], t0 = Date.now(); let n = 0; while (LP.q && LP.q.length && n < 3000) { n++; await W(100); const st = LP.q[LP.i], v = BB.BED.cur; const au = !!(v && v.src && v.want > -60 && v.g && v.g.gain.value > 0.002);
     log.push({ t: Date.now() - t0, T: Date.now(), i: LP.i, k: st && st.k, slug: st && (st.slug || st.of || ''), act: !!(st && (st.act || st.quiet)), f: au ? v.f : '', w: v ? v.want : null, pos: (v && v.src && v.src.buffer && v.g) ? Math.round(((v.off + (v.g.context.currentTime - v.t0)) % v.src.buffer.duration) * 10) / 10 : null }); }
   try { lsStop(); } catch (e) {} try { lsCloseBig(); } catch (e) {} return { log, rp: (window.__rp || []).slice(), rs: window.__rs, q: [] }; }, { ks, bgm, extra, msOf });
-const KS = ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter'];
-const prep = async () => { const o = await open(390, true, RAMP); await o.f.evaluate(() => { S.freeWhat = 'speech'; S.songBy = 'friend'; S.on.song = 1; S.on.free = 1; S.on.letter = 1; }); return o; };
+const KS = ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter'];   /* [SPEECH_SONG_1115] 옛 판은 free 와 song 을 함께 — 이제 축사 쪽 판(축가 없음) */
+const prep = async (side) => { const o = await open(390, true, RAMP); await o.f.evaluate((side) => { S.freeWhat = 'speech'; S.songBy = 'friend'; S.on.letter = 1; if (side === 'song') { S.on.song = 1; S.on.free = 0; } else { S.on.free = 1; S.on.song = 0; } }, side); return o; };   /* [SPEECH_SONG_1115] 축사 쪽 · 축가 쪽 */
 const outM4 = (log) => [...new Set(log.filter((x) => x.k && x.f && M4.indexOf(x.f) < 0 && x.f !== '@ENT').map((x) => x.f + '@' + x.k + ':' + x.slug))];
 /* 줄이 실제로 시작된 뒤(첫 lpShow · lpLead) 1.6초(1.5초 내림)부터 줄이 끝날 때까지 들리는 곡 */
 const openerHits = (log, rs) => { const rows = {}; log.forEach((x) => { if (x.slug === 'narr-song') (rows[x.i] = rows[x.i] || []).push(x); }); const o = []; Object.keys(rows).forEach((i) => { const s0 = rs && rs[i]; rows[i].forEach((x) => { if (s0 && x.T - s0 > 1600 && x.f) o.push(x.f + '@' + (x.T - s0) + ':' + x.w); }); }); return { n: Object.keys(rows).length, started: Object.keys(rows).every((i) => rs && rs[i]), hit: o, rows: Object.values(rows).map((r) => r.length) }; };
 try {
   await Promise.all([
   (async () => { try { if (want('A')) {
-    const { ctx, f, errs } = await prep();
+    const { ctx, f, errs } = await prep('free');
     const r = await walk(f, KS, { S5: { m: 'bed' }, S6: { m: 'bed' } });
     const out = outM4(r.log), heard = [...new Set(r.log.filter((x) => x.f).map((x) => x.f))], free = r.log.filter((x) => x.k === 'free' && x.f).length;
     ok('T01 축사 · 편지 «음악과 함께» — 감사 인사 ~ 편지 끝 본식 목록(M4) 밖 곡 재생 0 · 축사 동안에도 음악이 흐른다', !out.length && heard.length > 0 && free > 3, { out, heard, free, n: r.log.length });
     const xf = r.rp.filter((ms) => ms > 1000);
     ok('T03 본식 목록 곡 사이 겹침 8초(3초 겹침 0)', xf.some((ms) => Math.abs(ms - 8000) < 400) && !xf.some((ms) => Math.abs(ms - 3000) < 300), { xf: xf.slice(0, 12) });
-    const oh = openerHits(r.log, r.rs);
-    ok('T05 «음악과 함께» 축사 뒤 축가 여는 말 — 줄이 시작되면 1.5초에 내려 정적 · 본식 곡 재생 0', oh.n > 0 && oh.started && oh.rows.every((n) => n > 25) && !oh.hit.length, oh);
+    /* ★[SPEECH_SONG_1115] 화면 T05(«음악과 함께» 축사 뒤 축가 여는 말 정적) 은퇴 — 축사 · 축가가 한 판에 같이 오지 않는다 · 엔진 T05(D)가 새 기대를 잰다 · openerHits 는 남겨 둔다(다른 판이 다시 쓸 수 있게) */
     ok('A 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); } } catch (e) { ok('A 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })(),
   (async () => { try { if (want('B')) {
-    const { ctx, f, errs } = await prep();
+    const { ctx, f, errs } = await prep('free');
     const r = await walk(f, KS, { S5: { m: 'bed', k: 'B13' }, S6: { m: 'bed', k: 'B26' } });   /* [REPEAT_RULE_1107] 옛 저장값은 본식 목록 밖 곡으로(B12 는 이제 본식 배경 곡) */
     const out = outM4(r.log), saved = await f.evaluate(() => JSON.stringify(S.bgm));
     ok('T02 옛 저장본(S5.k B13 · S6.k B26) — 본식 목록 밖 곡 재생 0 · 저장값은 지우지 않는다', !out.length && /"k":"B13"/.test(saved) && /"k":"B26"/.test(saved), { out, saved });
     ok('B 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); } } catch (e) { ok('B 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })(),
   (async () => { try { if (want('C')) {
-    const { ctx, f, errs } = await prep();
+    const { ctx, f, errs } = await prep('free');
     /* T06 대조 — «조용히» 축사 · 편지 */
-    const r = await walk(f, ['bless', 'free', 'song'], {});
+    const r = await walk(f, ['bless', 'free', 'letter'], {});   /* [SPEECH_SONG_1115] 옛 ['bless', 'free', 'song'] */
     const talk = r.log.filter((x) => x.k === 'free' && x.act && x.f);
     ok('T06 대조 — «조용히» 축사 말씀 동안 정적 그대로', r.log.some((x) => x.k === 'free') && !talk.length, { talk: talk.slice(0, 3) });
     /* T04 목록 끝 조각 — 단위(지금 줄 · 의도적 무음 줄까지의 시간) */
     const u = await f.evaluate(async () => { const BB = BgmBed._t, W = (ms) => new Promise((r) => setTimeout(r, ms)); if (typeof BB.hushSoon !== 'function') return { none: true };
-      S.bgm = {}; _lStart(['bless', 'free', 'song'], true, true); await W(400); const q = LP.q, fM = (BB.plan && BB.plan(false).M4 && BB.plan(false).M4.first) || 'B09';
+      S.bgm = {}; _lStart(['bless', 'free', 'letter'], true, true);   /* [SPEECH_SONG_1115] */ await W(400); const q = LP.q, fM = (BB.plan && BB.plan(false).M4 && BB.plan(false).M4.first) || 'B09';
       let r = -1; for (let j = 1; j < q.length; j++) { if (BB.lvOf(q[j], fM) <= -60 && BB.segAt(q[j].k) === 'M4') { r = j; break; } } if (r < 2) return { r, ks: q.map((x) => x.k + ':' + x.dk) };
       LP.i = r - 2; const near = BB.hushSoon(fM, 60); const keep = { act: q[r - 1].act, ms: q[r - 1].ms }; q[r - 1].act = 1; q[r - 1].ms = 70000; const far = BB.hushSoon(fM, 60); q[r - 1].act = keep.act; q[r - 1].ms = keep.ms;
       try { lsStop(); } catch (e) {} return { r, near, far, slug: q[r].slug || q[r].of, k: q[r].k }; });
@@ -127,28 +128,32 @@ try {
     /* T05 엔진 한 표 · T06 NO_RELIFT E 대조 · T03 콘솔 · T07 화면 */
     const B = (S0) => C.build(C.norm(S0), { mode: 'console' }).cues, mk = (on, bgm) => { const S = O.applyExample({ course: 'open' }, 'standard'); S.course = 'open'; S.on = Object.assign({}, S.on, on); S.freeWhat = 'speech'; S.bgm = bgm || {}; return S; };
     const op = (S0) => (B(S0).find((c) => c.slug === 'narr-song') || {}).duck;
-    ok('T05 엔진 — «음악과 함께» 축사 뒤 축가 여는 말 −90(줄 시작에서) · «조용히»도 −90', op(mk({ free: 1, song: 1 }, { S5: { m: 'bed' } })) === -90 && op(mk({ free: 1, song: 1 })) === -90);
+    /* ★[SPEECH_SONG_1115 · RULES_SLIM ⑧] 옛 기대 «축사 뒤 축가 여는 말 −90» → 새 기대: 옛 저장본(축사 + 축가) = 축가만(축사 큐 0) · 축가 여는 말 −15 = 축사가 없는 판(NO_RELIFT E)과 한 값 */
+    const fq = (S0) => B(S0).filter((c) => c.k === 'free').length;
+    ok('T05 엔진 — 옛 저장본 축사 + 축가(«음악과 함께» · «조용히») = 축가만 · 축사 큐 0 · 축가 여는 말 −15(축사 없는 판과 같은 값)', op(mk({ free: 1, song: 1, bless: 1 }, { S5: { m: 'bed' } })) === -15 && op(mk({ free: 1, song: 1, bless: 1 })) === -15 && !fq(mk({ free: 1, song: 1, bless: 1 }, { S5: { m: 'bed' } })) && fq(mk({ free: 1, song: 0, bless: 1 }, { S5: { m: 'bed' } })) > 0);
     ok('T06 대조 — 축사가 없으면 덕담 곡이 흐르다 축가 여는 말 −15 그대로(NO_RELIFT E)', op(mk({ free: 0, song: 1, bless: 1 })) === -15);
     const con = fs.readFileSync(CON || path.join(ROOT, 'console.html'), 'utf8');
     ok('T03 당일 콘솔 — 목록 곡 사이 겹침도 같은 값(본식 8초 · BgmPicks.xfOf) · «음악과 함께» 곡 칸으로 넘기지 않는다', P.xfOf && P.xfOf('M4') === 8 && P.xfOf('M6') === 6 /* [REPEAT_RULE_1107 ⑤] 닫는 인사 6초 */ && /function segXf\(\)/.test(con) && /bedPlay\(BED\.list\[j\], segXfFor\(BED\.list\[j\]\)\)/.test(con) && /function segXfFor\(sid\)/.test(con) && !/segGo\('M4S[56]'\)/.test(con));
     ok('T01 곡 계획 — 축사 · 편지 «음악과 함께» 구간(M4S5 · M4S6)이 없다 · 옛 이름은 M4 로 읽힌다', P.CORDER.indexOf('M4S5') < 0 && P.CORDER.indexOf('M4S6') < 0 && P.oneSeg && P.oneSeg('M4S5') === 'M4' && P.oneSeg('M4S6') === 'M4' && !P.SEGS.some((s) => /^M4S/.test(s.id)));
   }
-  if (want('F')) { const { ctx, f, errs } = await prep();
+  if (want('F')) { const { ctx, f, errs } = await prep('song');
     const r = await walk(f, ['bless', 'song', 'letter'], { S6: { m: 'bed' } }, null, { song: 12000 });
-    const L = r.log, iS = L.findIndex((x) => x.k === 'song'), before = L.slice(0, iS).filter((x) => x.f).pop(), after = L.find((x, j) => j > iS && x.k === 'letter' && x.f);
+    const L = r.log, iS = L.findIndex((x) => x.k === 'song'), iCut = L.findIndex((x, j) => j > iS && x.k === 'song' && !x.f), before = L.slice(0, iCut > -1 ? iCut : iS).filter((x) => x.f).pop(), after = L.find((x, j) => j > iS && x.k === 'letter' && x.f);
+    /* ★[SPEECH_SONG_1115 · NO_RELIFT E] 꺼진 자리 = 축가 줄 안에서 곡이 처음 끊긴 곳. 옛 판은 «음악과 함께» 축사 뒤라 축가 여는 말 첫머리에서 바로 끊겼다(T05 옛 기대) ·
+         이제 축가 앞은 덕담이라 여는 말 동안 곡이 −15 로 흐르다 MR 자리에서 끊긴다 — «축가 줄 앞 마지막 곡»으로 재면 여는 말 길이만큼 어긋난다(뜻은 그대로 · 재는 자리만) */
     const sil = L.filter((x) => x.k === 'song' && x.act).length / 10;
     ok('T08 끊긴 곡 이어 듣기 — 축가 뒤 «음악과 함께» 편지 = 꺼진 그 곡 · 꺼진 자리부터(±4초 · 정적 ' + sil + '초를 건너뛰지 않는다)', !!before && !!after && after.f === before.f && after.pos != null && before.pos != null && Math.abs(after.pos - before.pos) < 4 && sil > 8, { before, after, sil });
     const con = fs.readFileSync(CON || path.join(ROOT, 'console.html'), 'utf8');
     ok('T08 당일 콘솔 — 같은 규칙(끊긴 곡 기억 · 다시 오를 때 그 자리 · 선언 뒤 새 곡 · 다른 구간이면 지움)', /BED\.cut = \{ id: BED\.id, t: _ce\.currentTime/.test(con) && /BED\.cut = null;   \/\* \[ONE_FLOW_1106 ⑥\] 선언 뒤/.test(con) && /if \(id !== 'M4'\) BED\.cut = null;/.test(con));
     ok('F 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); }
-  if (want('G')) { const { ctx, f, errs } = await prep();
+  if (want('G')) { const { ctx, f, errs } = await prep('song');
     /* ★[REPEAT_FIX_1107 ②] 미룬 넘김(LIST_HOLD) — 덕담(두 분이 말하는 줄 40초)이 30초 곡보다 길어 넘김이 미뤄졌다가, 말이 끝난 뒤 축가 무음 직전에 새 곡이 몇 초만 들리던 것(가족 240초 B11 5초) ·
          60초 안 무음이면 넘기지 않고 지금 곡 그대로 → 새 곡 조각(들리기 시작해 8초 안에 무음) 0 */
     const r = await walk(f, ['bless', 'song'], {}, null, { bless: 40000, song: 6000 }), L = r.log, frag = [];
     let run = null; L.forEach((x, j) => { const pf = j ? L[j - 1].f : ''; if (x.f && x.f !== pf) run = { f: x.f, t: x.t, prev: pf, i0: j }; if (run && !x.f && pf === run.f) { const d = x.t - run.t; if (d < 8000 && L.slice(0, run.i0).some((y) => y.f && y.f !== run.f)) frag.push(run.f + ' ' + d + 'ms@' + (L[run.i0].k || '') + '→' + (x.k || '')); run = null; } });
     ok('T09 미룬 넘김도 무음 검사 — 덕담 40초 · 곡 30초 · 축가 앞에서 새 곡 조각(8초 안에 무음) 0', !frag.length && L.some((x) => x.k === 'song'), { frag, heard: [...new Set(L.filter((x) => x.f).map((x) => x.f))] });
     ok('G 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); }
-  if (want('E')) { const { ctx, f, errs } = await prep();
+  if (want('E')) { const { ctx, f, errs } = await prep('free');
     const r = await f.evaluate(async () => { S.bgm = { S5: { m: 'bed', k: 'B13' }, S6: { m: 'bed' } }; _persist(); const out = {}; for (const k of ['free', 'letter']) { try { mkGo(k); } catch (e) {} await new Promise((r) => setTimeout(r, 900)); const g = document.querySelector('.ls-bgm[data-slot="' + (k === 'free' ? 'S5' : 'S6') + '"]'); out[k] = { chips: g ? g.querySelectorAll('[role="radio"]').length : -1, sub: g ? g.querySelectorAll('.bed-sub, .bed-box').length : -1, songs: g ? g.querySelectorAll('[data-seg-pick], .bed-song, [data-bed-pick]').length : -1 }; } return out; });
     ok('T07 화면 — 축사 · 편지 «음악과 함께 / 조용히» 고르기만(곡 고르기 칸 0)', r.free.chips >= 2 && r.free.sub === 0 && r.letter.chips >= 2 && r.letter.sub === 0, r);
     ok('E 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); }

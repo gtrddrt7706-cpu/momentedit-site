@@ -53,7 +53,7 @@ const srv = http.createServer((q, r) => { const u = decodeURIComponent(q.url.spl
 await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const port = srv.address().port;
 let br; try { br = await pw.chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] }); } catch (e) { console.log('못 쟀다 — 브라우저 ' + e.message); srv.close(); process.exit(2); }
 const wait = (f, ms) => f.waitForTimeout(ms);
-const ALL = ['prevideo', 'candle', 'welcome', 'vow', 'ring', 'declare', 'free', 'letter', 'song', 'tribute', 'toast', 'table'];
+const ALL = ['prevideo', 'candle', 'welcome', 'vow', 'ring', 'declare', 'free', 'letter', 'tribute', 'toast', 'table'];   /* ★[SPEECH_SONG_1115] 축가는 축사와 함께 담지 못한다 — 축가 줄은 그 자리에서 pairSet 으로 바꿔 잰다(옛 기대: 둘 다) */
 async function open(W, embed, init) {
   const ctx = await br.newContext({ viewport: { width: W, height: 900 }, hasTouch: W < 1000 }); if (init) await ctx.addInitScript(init); const pg = await ctx.newPage(); const errs = []; pg.on('pageerror', (e) => errs.push(e.message));
   await pg.route('**/*', (rt) => rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, body: '' }));
@@ -84,8 +84,10 @@ async function trace(f, ks, ms, big) {
 const loud = (x) => x.src && x.want != null && x.want > -60;
 try {
   /* ── 엔진 값(당일 콘솔 · 미리 듣기 공통 원천) ── */
-  { const S = { on: { vow: 1, ring: 1, free: 1, song: 1, letter: 1, tribute: 1, toast: 1, table: 1, welcome: 1, declare: 1 }, freeWhat: 'speech', song: 'family', songBy: 'friend', tributeSay: 'short' }, cs = B(S);
-    const fi = by(cs, 'narr-free-in-speech'), ri = by(cs, 'narr-ring-in'), ti = by(cs, 'tribute-in'), tt = by(cs, 'toast-toast'), b13 = by(cs, 'bridge-b13-toast-stay'), b10 = by(cs, 'bridge-b10-speech-clap'), se = cs.find((c) => /^narr-song-end/.test(c.slug || '')) || {}, vi = by(cs, 'narr-vow-in');
+  /* ★[SPEECH_SONG_1115] 축사 · 축가는 둘 중 하나 — 축사 값은 축사 쪽 판(S) · 축가 값은 축가 쪽 판(S2)에서 잰다(옛 판은 둘 다 켰다 · 엔진은 그 판에서 축사를 걷는다) */
+  { const S = { on: { vow: 1, ring: 1, free: 1, letter: 1, tribute: 1, toast: 1, table: 1, welcome: 1, declare: 1 }, freeWhat: 'speech', song: 'family', songBy: 'friend', tributeSay: 'short' }, cs = B(S);
+    const S2 = Object.assign({}, S, { on: Object.assign({}, S.on, { song: 1 }) }); delete S2.on.free; const cs2 = B(S2);
+    const fi = by(cs, 'narr-free-in-speech'), ri = by(cs, 'narr-ring-in'), ti = by(cs, 'tribute-in'), tt = by(cs, 'toast-toast'), b13 = by(cs, 'bridge-b13-toast-stay'), b10 = by(cs, 'bridge-b10-speech-clap'), se = cs2.find((c) => /^narr-song-end/.test(c.slug || '')) || {}, vi = by(cs, 'narr-vow-in');
     ok('d 축사 여는 말 −15 · 반지 행동 −12 · 부모님께 고마운 말 −20 · 서약 낭독 −20 · 축배 여는 말 · «위하여» −15 · 잔 나누는 이음말 말 −15 · 잔 나누는 40초 −8(MEANING_R1_1102 12)',
       fi.duck === -15 && ri.live && ri.live.duck === -12 && ti.live && ti.live.duck === -20 && vi.live && vi.live.duck === -20 && tt.duck === -15 && tt.live && tt.live.duck === -15 && b13.duck === -15 && b13.live && b13.live.duck === -8,
       { fi: fi.duck, ri: ri.live && ri.live.duck, ti: ti.live && ti.live.duck, tt: [tt.duck, tt.live && tt.live.duck], b13: [b13.duck, b13.live && b13.live.duck] });
@@ -102,7 +104,7 @@ try {
     const { ctx, pg, f, errs } = await open(W, true);
     await f.evaluate(() => { S.freeWhat = 'speech'; S.song = 'family'; S.songBy = 'friend'; S.tributeSay = 'short'; delete S.bgm; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); });
     /* d 줄 크기 */
-    { const Q = await f.evaluate(() => { const g = (k) => _lSteps(ENG, [k]).map((x) => ({ slug: x.slug || x.of || '', txt: x.txt || '', dk: x.dk, ldk: x.ldk, q: !!x.quiet, t: !!(x.talk || x.talk2) })); return { ring: g('ring'), vow: g('vow'), tribute: g('tribute'), toast: g('toast'), free: g('free'), song: g('song') }; });
+    { const Q = await f.evaluate(() => { const g = (k) => _lSteps(ENG, [k]).map((x) => ({ slug: x.slug || x.of || '', txt: x.txt || '', dk: x.dk, ldk: x.ldk, q: !!x.quiet, t: !!(x.talk || x.talk2) })); const o = { ring: g('ring'), vow: g('vow'), tribute: g('tribute'), toast: g('toast'), free: g('free') }; const sw = (w) => { RitualOpen.pairSet(S, w); try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} }; sw('song'); o.song = g('song'); sw('free'); _persist(); render(); return o; });
       const ringQ = Q.ring.find((x) => x.q), vowQ = Q.vow.find((x) => x.q && /함께 읽어요$/.test(x.txt)), trT = Q.tribute.find((x) => x.t && x.slug === 'tribute-in'), toN = Q.toast.find((x) => x.slug === 'toast-toast' && !x.t), toT = Q.toast.find((x) => x.slug === 'toast-toast' && x.t), frN = Q.free.find((x) => x.slug === 'narr-free-in-speech' && !x.t), b10 = Q.free.find((x) => x.slug === 'bridge-b10-speech-clap'), sE = Q.song.find((x) => /^narr-song-end/.test(x.slug));
       ok(`${W} d 미리 듣기 줄 크기 — 반지 행동 −12 · 서약 «함께 읽어요» −20 · 부모님 말 −20 · 축배 여는 말 · «위하여» −15 · 축사 여는 말 −15`, ringQ && ringQ.ldk === -12 && vowQ && vowQ.ldk === -20 && trT && trT.ldk === -20 && toN && toN.dk === -15 && toT && toT.ldk === -15 && frN && frN.dk === -15, { ringQ, vowQ, trT, toN, toT, frN });
       ok(`${W} c 미리 듣기 맺는 말(축사 b10 · 축가) −90`, b10 && b10.dk === -90 && sE && sE.dk === -90, { b10, sE }); }
@@ -130,7 +132,8 @@ try {
     await ctx.close();
   }
   /* ── 당일 콘솔 ── */
-  { const S0 = O.applyExample({ course: 'open' }, 'standard'); S0.course = 'open'; S0.on = Object.assign({}, S0.on, { letter: 1, tribute: 1, free: 1, song: 1 }); S0.freeWhat = 'speech'; S0.song = 'family'; S0.songBy = 'friend'; delete S0.bgm;
+  /* ★[SPEECH_SONG_1115] 콘솔도 둘로 — 축사 쪽 판(편지 끝 b · 축사 박수 c) · 축가 쪽 판(축가 박수 c) */
+  for (const [PW, CSL] of [['free', ['bridge-b10-speech-clap']], ['song', ['narr-song-end-friend']]]) { const S0 = O.applyExample({ course: 'open' }, 'standard'); S0.course = 'open'; S0.on = Object.assign({}, S0.on, { letter: 1, tribute: 1 }); O.pairSet(S0, PW); S0.freeWhat = 'speech'; S0.song = 'family'; S0.songBy = 'friend'; delete S0.bgm;
     const ctx = await br.newContext({ viewport: { width: 1280, height: 900 } }), errs = [], pg = await ctx.newPage(); pg.on('pageerror', (e) => errs.push(e.message));
     await pg.addInitScript(() => { window.__ME_PREVIEW_GUARD_TEST_OFF = true; window.__bgmLog = []; });
     await pg.route('**/*', (rt) => (rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: '{"ok":true}' })));
@@ -142,7 +145,7 @@ try {
     /* b 편지 끝 */
     const ci = ix((c) => c.k === 'candle'); await pg.evaluate((i) => window.__bgmGo.fire(i), ci); await pg.waitForTimeout(3600);
     const le = ix((c) => c.slug === 'narr-letter-end'), ti = ix((c, i) => i > le && c.k === 'tribute');
-    if (le < 0 || ti !== le + 1) ok('콘솔 시험 조건 — 편지 끝 바로 뒤가 부모님께 인사', false, { le, ti, R: R.slice(le - 1, le + 3) });
+    if (PW !== 'free') { /* 편지 끝 b 는 축사 쪽 판에서 한 번 */ } else if (le < 0 || ti !== le + 1) ok('콘솔 시험 조건 — 편지 끝 바로 뒤가 부모님께 인사', false, { le, ti, R: R.slice(le - 1, le + 3) });
     else { const T = await pg.evaluate(async (i) => { const o = []; window.__bgmLog.length = 0; const t0 = performance.now(); window.__bgmGo.fire(i);
         await new Promise((res) => { const iv = setInterval(() => { const g = window.__seg.st(), b = window.__bgmSt(); o.push({ t: performance.now() - t0, seg: g.seg, src: g.src[g.on], want: b.want, slug: b.slug, ph: b.phase }); if (performance.now() - t0 > 12000) { clearInterval(iv); res(); } }, 100); });
         return { o, lg: window.__bgmLog.slice() }; }, le);
@@ -152,12 +155,12 @@ try {
       const src3 = (o.filter((x) => x.seg === 'M5').pop() || {}).src, s4 = await seg();
       ok('b 콘솔 — 부모님께 인사 큐에서 곡을 다시 시작하지 않는다(같은 소리 · 크로스페이드 없음)', s4.seg === 'M5' && s4.src[s4.on] === src3 && !s4.paused[s4.on] && o.some((x) => /^tribute|^narr-tribute/.test(x.slug || '')), { s4: s4.seg, same: s4.src[s4.on] === src3, slugs: [...new Set(o.map((x) => x.slug))] }); }
     /* c 축사 · 축가 박수 */
-    for (const sl of ['bridge-b10-speech-clap', 'narr-song-end-friend']) { const i = ix((c) => c.slug === sl); if (i < 0) { ok(`c 콘솔 ${sl} 있다(시험 조건)`, false); continue; }
+    for (const sl of CSL) { const i = ix((c) => c.slug === sl); if (i < 0) { ok(`c 콘솔 ${sl} 있다(시험 조건)`, false); continue; }
       await pg.evaluate(() => { window.__bgmLog.length = 0; }); await pg.evaluate((i) => window.__bgmGo.fire(i), i);
       await pg.waitForFunction(() => window.__bgmSt().phase === 'live', null, { timeout: 30000 }).catch(() => {}); await pg.waitForTimeout(300);
       const lg = await pg.evaluate(() => window.__bgmLog.slice()), st = await pg.evaluate(() => window.__bgmSt());
       ok(`c 콘솔 ${sl} — 맺는 말 −90 · 박수(사람 순간)도 정적(NO_RELIFT_1102 · 앞 곡을 되살리지 않는다)`, lg.length >= 1 && lg[0].db === -90 && !lg.some((x) => x.db > -60) && st.want === -90, { lg: lg.slice(0, 4), want: st.want }); }
-    ok('콘솔 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); }
+    ok('콘솔 쪽 오류 0(' + PW + ')', !errs.length, errs.slice(0, 3)); await ctx.close(); }
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 500)); }
 await br.close(); srv.close();
 console.log(fail ? `BGM TIMING FAIL ${fail}` : 'BGM TIMING OK');

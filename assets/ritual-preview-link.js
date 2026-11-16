@@ -28,7 +28,7 @@
     /* ★[ENTRY_SCENE → LOOK_HOLD 2026-09-26] entryScene(첫 모습)을 싣는다 — 종전엔 소리가 같아 엔진이 안 읽는 죽은 키였는데,
        이제 콘솔의 사람 순간(바라보기 6초 · 맞절 8초)을 가른다(코워크 회신5 4-1). 소리는 여전히 같다. */
     /* ★[ENTRY_OUT_OFF 2026-10-02] entryScene 은 다시 죽은 키다 — 맞절 판을 걷어 엔진이 안 읽는다(STORY_COVER 가 잡았다). 싣지 않는다 */
-    'on', 'wine', 'tributeSay', 'candleWho', 'freeWhat', 'freeLen',
+    'on', 'wine', 'tributeSay', 'candleWho', 'freeWhat', 'freeLen', 'midLen', 'blessWho', 'speechWho', 'songWho', 'songSelf',   /* [NARR_ROLE_1115] 누가 */   /* [SPEECH_SONG_1115] 식중 영상 길이 */
     'guestEx',                                 // [GUEST_EX_NAR 2026-10-06] 하객 맞이 나레이션 예시(0~3 · 숫자 · 글 아님)
     'pvEx',                                    // [PV_EX_NAR 2026-10-07] 식전 영상 소개 나레이션 예시(0~3 · 숫자)
     /* [GROUP_PHOTO 2026-09-26] 가족 구도 수(숫자 · 글 아님) — 콘솔 narr-photo-split est(3분 × 구도 수). 미리듣기는 사진 큐를 안 흘리지만 엔진이 읽으니 싣는다 */
@@ -70,7 +70,7 @@
     'vowKind',                                 // ★[THANKS_IN_VOW 2026-10-11] 무엇을 읽나요 'vow'|'thanks' — 감사문이면 여는 말이 133 · 맺는 말이 없다(값은 판 이름뿐 · 글 아님)
     /* ★[DECLARE_ANYONE 2026-10-12] declareWho 는 뺐다 — 이제 두 분이 칸에 적은 «읽는 분» 글(사람 이름일 수 있다)이라 공개 주소에 싣지 않는다(PREVIEW_KEYS 규칙).
        엔진은 빈칸이어도 같은 소리를 낸다(여는 말은 누가 읽든 하나 · 136). */
-    'valley', 'song', 'toast', 'tribute',      // 사이 순서 · 축가 · 축배 · 부모님 헌정
+    'valley', 'toast', 'tribute',              // 사이 순서 · 축배 · 부모님 헌정 · ★[NO_INSTRUMENT_1116] 'song'(옛 코스 축가 종류 family · live)은 죽은 키 — 엔진이 «어쿠스틱 라이브»를 걷어 안 읽는다(STORY_COVER [PREVIEW_KEYS])
     /* ★[DECL_TITLE_1031 검토 174] 성혼 선언 읽어 주실 분의 호칭 코드('gdad'|'bdad'|'gmom'|'bmom'|'other') · 덕담 이어 하기 답('yes'|'no') · 그 답의 열쇠(코드뿐) — 여는 말 · 자리로 소리가 갈린다.
        ★«그 밖의 분» 칸 글(declareWho · 이름일 수 있다)은 여전히 싣지 않는다 */
     'declTitle', 'declBless', 'declBlessKey',

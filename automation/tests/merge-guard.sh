@@ -4790,7 +4790,7 @@ chk 'MID_VIDEO_1106' mypage.html 35
 chk 'MID_VIDEO_1106' automation/platform/89_prevideo.gs 19
 # ★[MID_FEEL_1107 2026-11-07 대본] 식중 영상의 필메이커 안내 — 쿠폰 걸음 대신 «비용 확인»(두 분 부담 · 쿠폰은 식전에만) · 길이는 식순 분 · 켜진 첫 화면에 «필메이커에서 만들기»
 chk 'MID_FEEL_1107' mypage.html 3
-chk '템플릿 비용은 두 분 부담이에요. 쿠폰은 식전 영상에만 적용돼요.' mypage.html 1
+chk 'USB 배송은 두 분 부담이에요. 앞 화면에서 «쿠폰 요청하기»를 누르시면 디렉터가 보내 드려요.' mypage.html 2   # ★[FM_COUPON_1116 · RULES_SLIM ⑧] 식전 · 식중 «만드는 법» 쿠폰 걸음 같은 말 — 옛 핀 «템플릿 비용은 두 분 부담이에요. 쿠폰은 식전 영상에만 적용돼요.»
 chk "if(PVCFLOW.kind==='mid') return _mvcFeel();" mypage.html 1
 chk 'MID_VIDEO_1106' admin.html 3
 chk 'MID_VIDEO_1106' automation/platform/80_production.gs 1
@@ -4799,24 +4799,215 @@ chk 'MID_VIDEO_1106' automation/platform/70_journey.gs 2
 # ★[PVNORM_KIND_1107 2026-11-07 MID17-8] handlePvSave 의 _pvNorm_ 은 모두 kind 를 넘긴다(식중 줄은 링크만) — #1618 이 넣은 «다른 기기 사진 지키기» 줄에 kind 가 빠졌었다 · 동작은 midvideo.mjs 가 잰다
 chk 'PVNORM_KIND_1107' automation/platform/89_prevideo.gs 1
 chk 'PVNORM_KIND_1107' scripts/audit/midvideo.mjs 2
-# ★★[MID17_PICK 2026-11-07 재검증 재수정 · 사장님 «마음의 순간에 식중 영상 칸을 따로 하나»] MID17 줄 1 · 2 — ① 식중 영상 칸(축사와 둘 중 하나 · 바꿔 담기 · 알림 한 줄) ·
-#   이름 «식중 영상»(nameOf · 칩 · 칸 글) · ② 길이 칸 + 택1 한 줄 · at:'midvideo' · 준비 목록 빈 칸 · 시간 띠(60 × 분 + 8 · 40분 상한) — 390 · 360 화면을 돌린다
+# ★[FIELD_LINE_1115 2026-11-15 대본 «입력칸 한 벌»] 입력칸 경계 = --field-line 하나(비텍스트 3:1 · 종전 --border 1.36:1) · 초점 = [FOCUS_ONE] 한 벌
+chk '--field-line:#8A857C;' mypage.html 1
+chk '--field-line:#8A857C;' inquiry.html 1
+chk '  --field-line: #8a857c;' index.html 1
+chk 'var(--field-line)' mypage.html 7
+chk 'var(--field-line)' inquiry.html 2
+chk 'var(--field-line)' index.html 2
+nochk '.field input{width:100%;border:1px solid var(--border);' mypage.html
+nochk '.field input:focus{border-color:var(--gold)}' mypage.html
+nochk 'border:none;border-bottom:1px solid var(--border);background:transparent;padding:22px 0 10px' inquiry.html
+chk '.field input:focus{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}' mypage.html 1
+chk 'box-shadow: inset 0 0 0 1px var(--gold-text);' index.html 2
+# ★[MYPAGE_ALL_1114 2026-11-14 대본 위임 «마이페이지 전체 걷기» 작은 수정] F1 식전 영상 기한 지남 줄 = «보기 · 영상 없이 진행»(막힌 «시작하기» 걷음)
+#   F2 기한 지난 영상 화면엔 «저장» 없음 · F3 «입금액 복사» 누름 칸 44px · F4 «하객 안내» ✓ 걷음(링크 자동 발급 뒤 첫날부터 켜졌다) · F6 서명한 스냅 고객에겐 «계약서를 보내드려요» 줄 없음
+chk 'MYPAGE_ALL_1114 F1' mypage.html 1
+chk "if(left!=null && left<0 && (st===''||st==='draft')) return {done:true, st:'', label:'보기', tag:'영상 없이 진행'};" mypage.html 1
+chk 'MYPAGE_ALL_1114 F2' mypage.html 2
+chk 'pvc-card.pvc-ro .data-wiz-save.{display:none}' mypage.html 1
+chk "(s==='locked'?' pvc-ro':'')" mypage.html 1
+chk '.acct-amt-link{min-height:44px;padding:0 8px}' mypage.html 1
+chk "row('하객 안내', '', 'mp_guideOpen', gLabel," mypage.html 1
+nochk "row('하객 안내', (_gTok&&!_gClosed)?'완료'" mypage.html
+chk "+ (locked ? '' : '<div class=\"vg-row\"><span class=\"vg-k\">계약서</span>" mypage.html 1
+# ★[VIDEO_NAME_1114 2026-11-14 대본 · 사장님 «이름도 식전영상으로 그대로인데 식중영상도 있는데»] 식중 영상은 식순에 담은 분께만 마이페이지 줄(기한 · 시작하기 · 식전 영상과 같은 말) ·
+#   빌더 식중 영상 칸 아래 «마이페이지 «식중 영상»에서 준비해요» · 고객 글 · 관리 · 서버 오류 글의 옛 이름 «준비한 순서 · 영상»을 «식중 영상»으로 · 동작은 midvideo.mjs · mid17-pick.mjs 가 잰다
+chk 'VIDEO_NAME_1114' mypage.html 10
+chk 'VIDEO_NAME_1114' order-preview.html 3
+chk 'VIDEO_NAME_1114' admin.html 1
+chk 'VIDEO_NAME_1114' automation/platform/89_prevideo.gs 1
+chk 'VIDEO_NAME_1114' scripts/audit/midvideo.mjs 8
+chk 'VIDEO_NAME_1114' scripts/audit/mid17-pick.mjs 6
+chk '(!CUST||CUST.midUp===true)' order-preview.html 1     # [GPT 1-01 · 2-21] 마이페이지 안에서는 서버가 받는다고 알려 온 때만 «마이페이지 «식중 영상»에서 준비해요»
+chk "_pvcClash(st, v.conf, 'pre')" mypage.html 1   # [GPT 1-08] 식전 줄은 늘 식전으로 판정
+nochk "label:'넣기', tag:'선택'" mypage.html 0            # [VIDEO_NAME_1114] 고르지 않은 분께 «식중 영상 · 넣기 · 선택» 줄을 되살리지 말 것
+nochk '「준비한 순서」에서 «영상»을 고르면' mypage.html 0     # [VIDEO_NAME_1114] 옛 이름 — 빌더 칸 이름은 «식중 영상»
+nochk '«준비한 순서»에서 «영상»을 먼저 골라' automation/platform/89_prevideo.gs 0
+# ★[MID_OPEN_1114 2026-11-14 · ★사장님 승인 전 · 병합하는 날로 넷을 같은 날로] 처리방침 «식중 영상» 항목(수집 #midvideo · 목적 · 보관) + 89_prevideo PV_UP.midFrom = 그 시행일 → 식중 영상 줄 · 받기가 열린다
+#   날짜가 서로 맞는지 · 동의 판 링크는 midvideo.mjs ⑤ 가 잰다(되돌리면 빨강 확인)
+chk 'MID_OPEN_1114' privacy.html 3
+chk 'MID_OPEN_1114' automation/platform/89_prevideo.gs 2
+# ★[VIDEO_NAME_1114 · MID_OPEN_1114 홈 · AI 글] GAS 재배포로 마이페이지 «식중 영상» 줄이 열린 것을 본 뒤 병합(GPT 2-22) — 홈 FAQ · JSON-LD · AI 상담 · 빌더 AI · 상담 질문
+chk 'MID_OPEN_1114' api/_kb.js 1
+chk 'VIDEO_NAME_1114' api/_ritual-kb.js 5   # 빌더 AI — 준비한 영상은 식전 · 식중 둘 · 영상 속 노래 · D-7 식중 영상 확정 · 공개 · 계약 고객 공통 한 줄
+chk '마이페이지 «식중 영상»에서 링크로 보내실 수 있습니다.' index.html 2
+chk '본식 중에는 «식중 영상»으로 틀 수 있어요(축사나 축가와 함께 담아도 돼요)' assets/advisor-kb.js 1   # [GPT 2-12] 홈 고정 답변 ① · ★[SPEECH_SONG_1115 · SHOW_PAIR_1116] 식중 영상은 축사 · 축가와 따로(옛 «축사 대신» 은 은퇴)
+chk ' 축사와 축가는 둘 중 하나예요.' assets/advisor-kb.js 1   # ★[NO_SHOW_1116 · RULES_SLIM ⑧] 옛 핀(SHOW_PAIR_1116) chk '«축하 공연»으로 담을 수 있어요(축사 · 축가 · 축하 공연 중 하나)' 1 은퇴 — 대표님 «공연은 빼자»
+nochk '«축하 공연»으로 담을 수 있어요' assets/advisor-kb.js
+chk '두 분이 준비한 영상은 «식전 영상»이나 «식중 영상»으로 틀 수 있어요' assets/advisor-kb.js 1   # [GPT 2-12] 홈 고정 답변 ②
+nochk '축사 대신 «식중 영상»' assets/advisor-kb.js
+nochk '깜짝 선물 · 공연 같은 이벤트 순서는 따로 두지 않아요' assets/advisor-kb.js
+chk "freeVideo:\['식중 영상은 어디로 보내나요?'" order-preview.html 1   # [GPT 2-23] 식중 영상 칸 상담 질문
+nochk '보내는 방법은 상담 때 안내' index.html 0
+nochk '보내는 방법은 상담 때 안내' api/_kb.js 0
+nochk '영상 속 노래는 「식전 영상」으로 담는다' api/_ritual-kb.js 0
+chk '식중 영상(선택 · 2026-11-06 사장님 결정): 본식 중 «식중 영상» 순간에 두 분이 준비한 영상을 틀 수 있다' api/_kb.js 1   # ★[SPEECH_SONG_1115] 식중 영상 = 따로 넣고 빼는 순간 — main #1649 핀 «본식 중 «영상» 자리에»(축사 택1 판)
+chk '예식 7일 전 23:59까지 확정하며' api/_kb.js 1   # [GPT 4-34] 홈 AI 도 마감 시각을 안다
+chk '마이페이지 «식중 영상»에 링크를 보내 미리 봐요. 예식 7일 전 23:59까지 확정하지 않으면 상영하지 않아요.' api/_ritual-kb.js 1   # [GPT 3-27 · 4-35 · 5-36] 공개 · 계약 고객 공통 · 확정 안 하면 상영 안 함까지
+chk "_recordHandler(code, _pvName_(kind) + ' 동의 · 처리방침 ' + ver)" automation/platform/89_prevideo.gs 1   # [GPT 1-03] 처리이력 = 동의한 처리방침 날짜
+chk 'MID_OPEN_1114' mypage.html 1
+chk 'MID_OPEN_1114' scripts/audit/midvideo.mjs 8
+chk 'id="midvideo"' privacy.html 1
+# ★★[MID17_PICK 2026-11-07 재검증 재수정 · 사장님 «마음의 순간에 식중 영상 칸을 따로 하나»] MID17 줄 1 · 2 — 이름 «식중 영상» · 길이 칸 · at:'midvideo' · 준비 목록 빈 칸 · 시간 띠(60 × 분 + 8 · 40분 상한)
+#   ★★[SPEECH_SONG_1115 2026-11-15 대표님] 새 기대 — 식중 영상 = 따로 넣고 빼는 순간 midvid(축사 · 축가와 함께) · 축사 · 축가 = 한 카드 · 둘 중 하나(opTgl · opPair · lsAdd · lsUndo) ·
+#   마음의 순간 카드 넷 · 옛 초안 옮기기(midMigrate) — 옛 기대(축사와 바꿔 담기 MID_SWAP · ② 택1 한 줄 · 뺀 갈래 되담기 MID17_FREE_BACK)는 은퇴(RULES_SLIM_1107 ⑧) — 390 · 360 화면을 돌린다
 if command -v node >/dev/null 2>&1; then _m17=$(node scripts/audit/mid17-pick.mjs 2>&1); _m17r=$?
   case "$_m17r" in
-    0) echo 'ok mid17-pick: 식중 영상 칸 · 이름 · 바꿔 담기 · 길이 · at:midvideo · 시간' ;;
+    0) echo 'ok mid17-pick: 식중 영상 칸 · 축사 · 축가 둘 중 하나 · 길이 · at:midvideo · 시간 · 옛 초안 옮기기' ;;
     1) echo 'FAIL mid17-pick: 식중 영상 고르기 · 시간이 어긋났다 — node scripts/audit/mid17-pick.mjs'; printf '%s\n' "$_m17" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
     *) echo 'ok mid17-pick: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
 fi
-chk 'MID17_TILE' order-preview.html 14
+# ★[VIDEO_UMBRELLA_1115 2026-11-15 대표님 «식전영상만이 아니라 식중영상도 있으니 이름도 바꿔야 · 그 안에 디자인도 멋지게»] 식중 영상 줄이 있는 분만
+#   준비 목록 «상영 영상» 묶음(머리 = 이름 + 기한 · 아래 식전 · 식중 두 줄) · 확인서 한 묶음 · 빌더 완성 «보낼 것»에 식중 영상 줄 + «두 영상 모두 마이페이지 «상영 영상»».
+#   식중 없는 분은 지금 그대로 · 이름은 mypage · order-preview VU_NAME 한 벌(«예식 영상»은 결과물 이름 · MPD_G10) — 390 · 1280 실렌더(되돌리면 빨강 확인)
+chk 'VIDEO_UMBRELLA_1115' mypage.html 5
+chk 'VIDEO_UMBRELLA_1115' order-preview.html 4
+nochk "var VU_NAME='예식 영상'" mypage.html 0
+# ★★[UMBRELLA_ROW_1116 2026-11-16 대본 12:59 · 대표님 캡처 «이것도 이름 바꿔야지 · 식중 영상도 있잖아»] 준비 목록은 늘 «상영 영상» 한 줄 — 식전만 · 식중만이면 그 단추 그대로(mp_pvcStart · mp_mvcStart) ·
+#   둘 다면 한 줄(✓ 둘 다 완료 · 꼬리표 확정 기한 · 단추 mp_vuOpen 시작하기 / 보기) 아래 펼침(mp_vuFold)에 식전 · 식중 두 줄 · 옛 머리 줄(vu-head) · 늘 펼친 두 줄은 은퇴(RULES_SLIM ⑧) — video-umbrella 가 390 · 1280 실렌더로 잰다
+chk 'UMBRELLA_ROW_1116' mypage.html 5
+chk "html:row(VU_NAME, _pvR.st, 'mp_pvcStart'" mypage.html 1
+chk "html:row(VU_NAME, _mvR.st, 'mp_mvcStart'" mypage.html 1
+chk 'aria-controls="mp_vuFold">' mypage.html 1
+chk 'id="mp_vuFold" class="vu-fold"' mypage.html 1
+chk "var _vuB=\$('mp_vuOpen'); if(_vuB) _vuB.addEventListener('click'" mypage.html 1
+nochk "html:row('식전 영상', _pvR.st, 'mp_pvcStart'" mypage.html   # 깨 보기: 옛 이름으로 되돌리면 이 줄 · 위 chk 둘 다 빨강
+nochk 'class="trk vu-head"' mypage.html   # 옛 머리 줄
+chk 'UMBRELLA_ROW_1116' scripts/audit/video-umbrella.mjs 3
+chk 'UMBRELLA_ROW_1116' scripts/audit/prevideo-cat.mjs 2
+# ★[TWO_WAY_1116 2026-11-16 대표님 17:34 «② 다른 곳에 맡기기 · ③ 직접 만든 영상 — 우리 입장에서 같은 거잖아»] «영상 준비» 길은 둘(① 협력사 필메이커 · ② 직접 준비하기)
+nochk '세 가지 중 편한 길로 준비해 주세요' mypage.html
+nochk ' 다른 곳에 맡기기</p>' mypage.html
+chk "var SELF_T='다른 곳에 맡기거나 직접 만든 영상도 좋아요. 비용은 두 분 부담이고, 다 되면 아래 «영상 올리기»로 링크를 보내 주세요.';" mypage.html 1   # ★[COUPON_GATE_1116 · RULES_SLIM ⑧] 글은 그대로 · 자리만 고르는 카드(옛 핀 «직접 준비하기</p><p class=\"pvc-way-t\">…»)
+# ★[NO_SCENE_PIC_1116 2026-11-16 대표님 17:36 «디자인용 그림인데 진짜 저렇게 한다고 이해할 것 같아»] 상영 영상 안쪽 화면의 장면 그림 · «(그림)» 캡션 금지(식순 빌더 순간 카드 그림은 그대로)
+nochk 'class="pvc-hero"' mypage.html
+nochk '상영되는 모습(그림)' mypage.html
+nochk '_pvcHero()' mypage.html
+# ★★[FM_COUPON_1116 2026-11-16 대본 15:55 · 대표님 13:07 «상영 영상 안에서 협력사 필메이커 쿠폰은 무료 · 요청한 분께만(진행 안 하면 안 나간다) · 협력사라고 · 안 쓰면 다른 곳 결제나 직접 만든 영상 링크»]
+#   «영상 준비» 걸음 안 세 길(① 협력사 필메이커 · 쿠폰 요청 ② 다른 곳 ③ 직접) · 쿠폰 상태 = 시트 «식전영상» 메타 m.cpn(열 추가 없음) · 요청 pvCpnReq · 취소 pvCpnCancel(_gsr_ · 한 시간 상한) ·
+#   관리자 «처리할 일» 협력사쿠폰 · 협력사쿠폰회수(제휴 확정 전 표시) · 넣기 · 회수 adminPvCoupon(_requireAdmin · 요청한 줄만) — scripts/audit/fm-coupon.mjs 가 서버 · 큐 · 화면 글을 잰다
+chk 'FM_COUPON_1116' mypage.html 10
+chk 'FM_COUPON_1116' admin.html 4
+chk 'FM_COUPON_1116' automation/platform/89_prevideo.gs 5
+chk 'FM_COUPON_1116' automation/admin/admin.gs 4
+chk "if (st === 'req') return { ok: false, ecode: 'S0', error: '이미 요청하셨어요 · 디렉터가 쿠폰을 보내 드려요', cpn: _pvCpnPub_(m) };" automation/platform/89_prevideo.gs 1   # ★[COUPON_GATE_1116 · RULES_SLIM ⑧] 같은 요청 두 번 = 서버 거절(옛 핀 «ok same»)
+nochk "if (st === 'issued' || st === 'req') return { ok: true, same: true" automation/platform/89_prevideo.gs   # 깨 보기: 옛 «두 번 = 한 번(ok)»으로 되돌리면 빨강
+chk "if (st !== 'req') return { ok: false, error: st === 'issued' ? '이미 보냈어요.' : '고객이 요청한 쿠폰이 없어요.' };" automation/admin/admin.gs 1   # 요청 없이 나가는 길 없음
+chk "if (cn >= PV_UP.cpnHour) return { ok: false, ecode: 'S0'" automation/platform/89_prevideo.gs 1   # 한 시간 상한
+chk "out.cpn = _pvCpnPub_(row.m || {});" automation/platform/89_prevideo.gs 1
+chk "return '<button type=\"button\" class=\"cc-btn-ghost pvc-cpn-btn\" data-pvccpn=\"ask\">쿠폰 요청하기</button>'; }" mypage.html 1   # ★[COUPON_GATE_1116 · RULES_SLIM ⑧] 누르면 화면 안 확인 칸(옛 핀 data-pvccpn="req" 바로 요청)
+nochk "data-pvccpn=\"req\">쿠폰 요청하기<" mypage.html
+chk '요청했어요 · 디렉터가 쿠폰을 보내 드려요' mypage.html 1
+chk '필메이커는 저희 협력사예요. 템플릿 이용 쿠폰은 무료예요. 제작 대행 · USB 같은 추가는 두 분 부담이에요.' mypage.html 1
+chk "'<span>쿠폰으로 기본 템플릿 무료</span><span>추가는 두 분 부담</span>'" mypage.html 1
+nochk "'쿠폰 · 기본 템플릿은 식전 영상에만'" mypage.html   # 옛 식중 말(꺼짐 점 줄)
+nochk '쿠폰은 식전 영상에만 적용돼요' mypage.html
+chk "case 'pvCpnReq':           return jsonOut(handlePvCpnReq(body));" automation/consultation/consultation-booking.gs 1
+chk "adminPvCoupon: adminPvCoupon," automation/admin/admin.gs 1
+chk 'var FM_PENDING=true;' admin.html 1   # «제휴 확정 전» 표시 — 제휴가 확정되면 false
+chk 'FM_COUPON_1116' scripts/audit/fm-coupon.mjs 1
+# ★★[COUPON_GATE_1116 2026-11-16 대표님 17:41 «쿠폰(우리 비용)이 진행 안 하는 팀에 헛되이 나간다 · 식중까지면 한 팀 두 장 · 화면 번호가 두 겹»] 쿠폰 문 —
+#   번호는 큰 단계에만 · 안쪽 길은 번호 없는 고르는 카드 둘(처음 둘 다 안 눌림 · 고른 카드만 [SEL_ONE] · 다음 행동은 그 안) · 고르기 = pvSave op way(메타 m.way · 시트 열 그대로) ·
+#   식중 요청 · 관리자 넣기는 식순 확정(tracks.ritual 완료 · 순서 마감 예식 14일 전) 뒤만 · 한 영상 한 번(이미 요청 · 이미 받음 · 회수 뒤 거절) · 확인은 화면 안 칸 ·
+#   «직접 준비하기» · 식순에서 식중 뺌 = 발급 전 요청 거둠 · 발급 뒤 뺌 = 회수 줄 — scripts/audit/fm-coupon.mjs ⑥ 이 잰다(깨 보기 14건 빨강 확인)
+chk 'COUPON_GATE_1116' mypage.html 8
+chk 'COUPON_GATE_1116' automation/platform/89_prevideo.gs 8
+chk 'COUPON_GATE_1116' automation/admin/admin.gs 2
+chk 'COUPON_GATE_1116' admin.html 3
+chk 'COUPON_GATE_1116' scripts/audit/fm-coupon.mjs 5
+chk "if (op === 'req' && kind === 'mid' && !_pvRitOk_(cust)) return { ok: false, ecode: 'S0', error: '식순을 확정하면 쿠폰을 요청할 수 있어요' };" automation/platform/89_prevideo.gs 1
+chk "if (kind === 'mid' && (_mvOn_(cust).on !== true || !_pvRitOk_(cust))) return { ok: false, error: '식순 확정 전이에요 · 식순에 식중 영상이 확정된 뒤 보내 주세요.' };" automation/admin/admin.gs 1
+chk "if (c.at && c.revoked) return 'used';" automation/platform/89_prevideo.gs 1   # 한 편에 한 장 — 회수 뒤 다시 요청 못 함
+chk "function _pvcCpnOpen(){ var F=PVCFLOW; return F.way==='fm' && (F.kind!=='mid' || F.rok===true); }" mypage.html 1
+chk '쿠폰은 영상 한 편에 한 장이에요 · 받은 뒤 진행하지 않아도 다시 드리지 않아요' mypage.html 1
+chk "var PVC_CPN_WAIT='식순을 확정하면 쿠폰을 요청할 수 있어요';" mypage.html 1
+nochk "'① 협력사 필메이커로 만들기" mypage.html   # 옛 두 겹 번호(큰 단계 안 ① ②)
+nochk "(PVC_FEEL_ON?'② ':'')" mypage.html
+if command -v node >/dev/null 2>&1; then _fmc=$(node scripts/audit/fm-coupon.mjs 2>&1); _fmr=$?
+  case "$_fmr" in
+    0) echo 'ok fm-coupon: 요청 없이 쿠폰 없음 · 요청 → 관리자 줄 · 넣기 → 마이페이지 · 취소 → 회수 줄 · 한 시간 상한' ;;
+    1) echo 'FAIL fm-coupon: 협력사 쿠폰 흐름이 어긋났다 — node scripts/audit/fm-coupon.mjs'; printf '%s\n' "$_fmc" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
+    *) echo 'ok fm-coupon: 재지 못했습니다 — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+if command -v node >/dev/null 2>&1; then _vu=$(node scripts/audit/video-umbrella.mjs 2>&1); _vur=$?
+  case "$_vur" in
+    0) echo 'ok video-umbrella: 상영 영상 묶음 · 확인서 · 식중 없는 분 그대로' ;;
+    1) echo 'FAIL video-umbrella: 상영 영상 묶음이 어긋났다 — node scripts/audit/video-umbrella.mjs'; printf '%s\n' "$_vu" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
+    *) echo 'ok video-umbrella: 재지 못했습니다(브라우저 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
+chk 'MID17_TILE' order-preview.html 13   # [SPEECH_SONG_1115] 바꿔 담기(_mvSwap · MID_SWAP) 자리가 걷혀 14 → 13
 chk 'MID17_NAME' assets/ritual-open.js 6
 chk 'MID17_NAME' order-preview.html 1
 chk 'MID17_PREP' assets/ritual-open.js 1
-chk 'MID17_LEN' order-preview.html 2
+chk 'MID17_LEN' order-preview.html 1   # [SPEECH_SONG_1115] ② 택1 한 줄(«축사와 같은 자리라 둘 중 하나만») 걷음 · 2 → 1
 chk 'MID17_AT' order-preview.html 3
-chk 'MID17_FREE_BACK' order-preview.html 11   # [MID17_FREE_BACK 2026-11-07 대본] 이번 방문에 뺀 free 칸은 다시 담으면 뺄 때 갈래(칸을 지정하면 그 칸 · 처음 담는 축사 칸은 축사)
+# [MID17_FREE_BACK 2026-11-07 대본] «이번 방문에 뺀 free 칸은 뺄 때 갈래로 되담기» — ★[SPEECH_SONG_1115] 은퇴: 축사 칸은 늘 축사(_freeBack → 'speech') · 식중 영상은 따로라 되담을 갈래가 없다(옛 chk … 11 걷음)
+chk "function _freeBack(){ return 'speech'; }" order-preview.html 1
+# ★★[SPEECH_SONG_1115 2026-11-15 대표님 23:05] 축사 · 축가 = 한 카드 · 둘 중 하나 / 식중 영상 = 따로 넣고 빼는 순간(midvid · 축가 뒤 · 편지 앞) / 정석 = 축가만 / 옛 초안 옮기기 — 동작은 mid17-pick · mid17-engine · mid17-console · open-course 가 잰다
+chk 'SPEECH_SONG_1115' assets/ritual-open.js 20
+chk 'SPEECH_SONG_1115' order-preview.html 20
+chk 'SPEECH_SONG_1115' mypage.html 4
+chk 'function midMigrate(S)' assets/ritual-open.js 1
+chk 'function pairSet(S, which)' assets/ritual-open.js 1
+chk 'function pairOf(S)' assets/ritual-open.js 1
+chk 'if (O.midMigrate) O.midMigrate(s);' assets/ritual-cue.js 1      # 엔진 norm — 옛 초안 free + video · 축사 + 축가
+chk 'RitualOpen.midMigrate(S)' order-preview.html 1                   # 빌더가 초안을 읽을 때(_applySaved)
+chk 'window.opPair=function(w)' order-preview.html 1
+chk "'song','midvid','letter'" assets/ritual-data.js 1                # COURSES.open.seq = ORDER(open-course 가 대조)
+nochk 'var MID_SWAP=' order-preview.html 0                           # 옛 «축사 ↔ 식중 영상 바꿔 담기» — 되살리지 말 것
+nochk 'function _mvSwap(' order-preview.html 0
+nochk '축사와 같은 자리라 둘 중 하나만 담을 수 있어요' order-preview.html 0
+nochk '<span>축사 대신 상영</span>' mypage.html 0
+nochk '축사와 같은 칸이라 둘 중 하나만 고를 수 있어요' mypage.html 0
+nochk '축사 자리(덕담 뒤 · 축가 앞)에 축사 대신' api/_kb.js 0
+nochk '축사 자리(덕담 뒤 · 축가 앞)에 축사 대신' index.html 0
+chk '축사 · 축가 뒤(편지 낭독 앞)에 두 분이 준비한 영상을 틀 수 있고, 축사나 축가와 함께 담을 수 있습니다.' index.html 2   # 홈 FAQ 본문 · JSON-LD
+chk 'SPEECH_SONG_1115' scripts/audit/mid17-pick.mjs 10
+chk 'SPEECH_SONG_1115' scripts/audit/mid17-engine.mjs 3
+chk 'SPEECH_SONG_1115' scripts/audit/mid17-console.mjs 2
+# ★[DECISION_GUARD] SPEECH_SONG_1115 의 GPT 검토 1 · 2라운드 결정(c1c2af0b · 84dd1ccb) — 표식 + 동작 한 줄씩(화면 동작은 mid17-pick 이 잰다)
+chk 'PAIR_CELLS_1115' order-preview.html 1
+chk '.pk-pair{display:grid;grid-template-columns:1fr 1fr;gap:6px;' order-preview.html 1          # 축사 · 축가 같은 폭 두 칸(가운데 점 없음) · ★[NO_SHOW_1116 · RULES_SLIM ⑧] SHOW_PAIR_1116 의 세 칸 핀 «1fr 1fr 1fr;» → 다시 두 칸
+nochk '.pk-pair{display:grid;grid-template-columns:1fr 1fr 1fr;' order-preview.html
+nochk "chip('free','축사')+'<i aria-hidden" order-preview.html 0                        # 옛 가운데 점 — 되살리지 말 것
+chk 'PAIR_PLUS_PV_1115' order-preview.html 1
+chk "var w=R.pairOf(S); if(!w){ opPv('free'); return; }" order-preview.html 1            # 고른 게 없을 때 ＋ = 고르기 창(축사를 미리 담지 않는다)
+chk 'PAIR_PLUS_PV_1115' scripts/audit/mid17-pick.mjs 1
+chk 'PAIR_VIEW_1115' order-preview.html 5
+chk 'window.pvPairView=function(v)' order-preview.html 1                                  # 창에서 담지 않고 다른 쪽 «보기» · ★[SHOW_PAIR_1116] 셋이라 보기를 고른다(옛 핀 «function()»)
+chk 'id="pvSw"' order-preview.html 1
+chk 'PAIR_OUT_NAME_1115' order-preview.html 1
+chk "+PN\[_pw\]+' 빼기</button>'" order-preview.html 1                  # 빼기 단추가 무엇을 빼는지 말한다 · ★[SHOW_PAIR_1116] 셋(축사 · 축가 · 공연) — 옛 핀 «(_pw==='song'?'축가':'축사')»
+chk 'PAIR_TILE_ON_1115' order-preview.html 1
+chk 'w?PICK_COPY.tileOn\[w\]:PICK_COPY.tile.free' order-preview.html 1                      # 담은 뒤 카드 한 줄 = 고른 쪽
+chk 'MID_COST_NEAR_1115' order-preview.html 2
+chk '<span class="pv-in pv-cost">쿠폰으로 기본 템플릿 무료 · 추가는 두 분 부담이에요</span>' order-preview.html 1     # 식중 영상 비용은 담기 단추 옆(펼침 안 아님) · ★[FM_COUPON_1116] 옛 핀 «제작비는 두 분 부담이에요»
+chk 'PV_WHO_FOLD_1115' order-preview.html 1
+chk '.pv-who\[open\] summary::after{transform:rotate(-135deg)' order-preview.html 1         # «누가 하나요?» 꺾쇠(같은 창 장면 사진 칩과 같은 꼴)
+chk 'SONG_WHO_ONE_1115' order-preview.html 3
+chk 'window.lsSongWho=function(kind,v)' order-preview.html 1                              # 축가 «누가 부르나요» 한 질문(sw:friend · sw:self)
+chk 'WHO_ETC_1115' order-preview.html 1
+chk "var WHO_ETC=\['etc','그 밖의 분'\];" order-preview.html 1                              # 축사 · 축가 «그 밖의 분»(엔진은 역할 줄 없이 지금 판 줄)
+chk 'BLESS_ORDER_SAY_1115' order-preview.html 2
+chk 'function _bwOrder()' order-preview.html 1                                            # 덕담 흐름 차례 줄에 고른 차례(① ②)
+chk "_noteToast('누른 차례가 말씀 순서예요')" order-preview.html 1
 chk 'MID17_PICK' scripts/audit/mid17-pick.mjs 1
-chk 'window.opPkTgl=function(k)' order-preview.html 1   # [MID17_TILE] ① 칸 · 창의 담기는 이 길(바꿔 담기) · ② 흐름 빼기는 opTgl 그대로
+chk 'window.opPkTgl=function(k)' order-preview.html 1   # [MID17_TILE · SPEECH_SONG_1115] ① 칸 · 창의 담기는 이 길(식중 영상 = 따로 · 축사 · 축가 카드 = 고른 쪽 · 안 골랐으면 고르기 창) · ② 흐름 빼기는 opTgl 그대로
 chk "MID_NAME = '식중 영상'" assets/ritual-open.js 1
 nochk "'준비한 순서 영상(휴대폰" assets/ritual-open.js 0   # [MID17_PREP] 식중 영상은 마이페이지가 받는다 — 옛 할 일 줄 되살리지 말 것
 # ★[PV_REMOTION_1101 2026-11-01 사장님 «뼈대를 만들어 무료로 계속 쓸 수 있게» · «웃기게 하지 말고»] 식전 영상 뼈대(automation/prevideo · Remotion) —
@@ -4850,8 +5041,18 @@ chk 'PV_FEEL_1106' api/_kb.js 1
 nochk 'data-pvcmode="make"' mypage.html
 # ★[PV_ONE_WAY_1107 2026-11-07 사장님 «필메이커에서 만들어 여기에 올리는 건 똑같잖아» · 대본 «한 갈래로»] 식전 · 식중 첫 화면 = 큰 단추 «영상 올리기» 하나 + 필메이커 안내 한 줄 — 두 칸 갈래를 되살리지 않는다
 chk 'PV_ONE_WAY_1107' mypage.html 8
-chk "function _pvcFeelIn()" mypage.html 1
-chk "h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode=\"upload\"'));   // \[PV_ONE_WAY_1107\]" mypage.html 1
+chk "function _pvcFeelIn(m)" mypage.html 1   # [VIDEO_UMBRELLA_1115] 첫 화면에선 단계 셋 «영상 준비» 안 «만드는 법 보기»(m='link') · 함수는 그대로 하나
+# ★[VU_COUPON_ONCE_1115 2026-11-15 릴스 점검 A] 식중 «영상 준비» 걸음에 쿠폰 범위 문장을 다시 넣지 않는다(머리 조건 줄 · «만드는 법 보기» 와 세 번째 같은 말)
+chk 'VU_COUPON_ONCE_1115' mypage.html 1
+nochk '중 하나로 준비해 주세요. 쿠폰 · 기본 템플릿은 식전 영상에만 적용돼요.' mypage.html 0
+# ★[VU_SUBS_BAR_1115 2026-11-15 대본 · 릴스 점검 B] 첫 화면 보조 길(«나중에 준비하기 · 사용하지 않기» · «식순에서 빼기»)은 막대 안 단추 위 한 줄 — 본문 끝으로 되돌리면 폰 첫 화면에서 단추 뒤로 걸린다(video-umbrella ⑥ 실측이 막는다)
+chk 'VU_SUBS_BAR_1115' mypage.html 4
+# ★[VU_MID_HERO_1115 2026-11-15 22:58 대표님 «좋아요»] 식중 첫 화면 결과 먼저 한 컷 = 영상 방 mid-final(37c319f9) 640 webp · 파일과 자리 둘 다(video-umbrella ⑥ 이 실제로 뜨는지 잰다)
+#   23:12 대본 정정 — 대표님이 붓결 · 왼쪽 위 화면 틀을 고치라 해 영상 방이 다시 그린다 · 자리 · 코드만(mid:'') · 그림이 들어오면 아래 줄을 chk 로 되돌린다
+# ★[NO_SCENE_PIC_1116 · RULES_SLIM ⑧] 옛 chk 'VU_MID_HERO_1115' mypage.html 1 은퇴 — NO_SCENE_PIC_1116(대표님 11/16 17:36)이 상영 영상 안쪽 장면 그림(PVC_HERO)을 걷어 뒤집음 · 아래 grep 줄은 자리가 없으면 건너뛴다
+grep -q "mid:'/assets/video/moments/midvideo-640.webp'" mypage.html && { [ -f assets/video/moments/midvideo-640.webp ] || { echo 'FAIL VU_MID_HERO_1115: 자리는 그림을 가리키는데 assets/video/moments/midvideo-640.webp 없음'; fail=1; }; }
+nochk "_pvcThree()+'<div class=\"pvc-subs\">" mypage.html 0
+chk "h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode=\"upload\"'), '<div class=\"pvc-subs\">.*');   // \[PV_ONE_WAY_1107\]" mypage.html 1   # [VU_SUBS_BAR_1115] 큰 단추 하나 + 그 위 보조 길 한 줄
 nochk '<b>준비한 영상 올리기</b>' mypage.html
 nochk '<b>필메이커에서 만들기</b><span>' mypage.html
 nochk '필메이커에서 만들거나 준비한 영상을' mypage.html
@@ -7775,7 +7976,7 @@ chk 'EX_STD_1012' scripts/audit/open-course.mjs 6
 chk 'EX_STD_1012' scripts/check-ritual-cue.js 2
 chk 'EX_STD_1012' scripts/audit/source-basis.mjs 6
 chk "{ k: 'standard', nm: '정석', title: '실제 예식에서 가장 많이 하는 순서', feel: '익숙하고 편안하게 · 가장 많이 하는 순서'," assets/ritual-open.js 1
-chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'free', 'song', 'tribute'], set: { entry: 'A', tribute: 'long', free: 'speech', narEx: { speech: 1 } } }" assets/ritual-open.js 1   # [SPEECH_TILE_1012] 정석 + 축사 3분 · [TOAST_LAST_1013] 축배는 기록에만   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'A', tribute: 'long', free»
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'song', 'tribute'\], set: { entry: 'A', tribute: 'long', free: 'speech', narEx: { speech: 1 } } }" assets/ritual-open.js 1   # ★[SPEECH_SONG_1115] 정석 = 축가만(옛 핀 «'vow', 'free', 'song'» · 축사 3분) · [SPEECH_TILE_1012] · [TOAST_LAST_1013] 축배는 기록에만   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'A', tribute: 'long', free»
 chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'tribute', 'toast', 'table'], set: { entry: 'B', tribute: 'none', narEx: { close: 3 } } }" assets/ritual-open.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'B', tribute: 'none' } }»
 chk "on: \['prevideo', 'candle', 'welcome', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long', narEx: { open: 1, candle: { mothers: 1 }, bless: 1 } } }" assets/ritual-open.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · [EX_CHIP_DEF_1019] 기본 칩   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'E', tribute: 'long', narE»
 chk "on: \['prevideo', 'candle', 'vow', 'tribute'], set: { entry: 'C', tribute: 'none', narEx: { open: 2, matjeol: 4 } } }" assets/ritual-open.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · [EX_CHIP_DEF_1019] 기본 칩   # ★[REVIEW26_1023 검토 150] 옛 핀 «candle: { mothers: 2 }, matjeol: 4 } } }»
@@ -7789,7 +7990,7 @@ chk 'CAKE_OFF_1013' assets/ritual-open.js 3
 chk 'var RETIRED = { cake: 1 };' assets/ritual-open.js 1
 chk 'var OFFER = PICKABLE.filter(function (k) { return !RETIRED\[k\]; });' assets/ritual-open.js 1
 chk 'RETIRED: RETIRED, OFFER: OFFER' assets/ritual-open.js 1
-chk "ORDER = \['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'\]" assets/ritual-open.js 1   # 옛 초안 — ORDER 에서 빼지 않는다 · 맞절은 입장 바로 뒤
+chk "ORDER = \['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'midvid', 'letter', 'tribute', 'cake', 'toast', 'table'\]" assets/ritual-open.js 1   # ★[SPEECH_SONG_1115] 식중 영상 = 축가 뒤 · 편지 앞 · 옛 초안 — ORDER 에서 빼지 않는다 · 맞절은 입장 바로 뒤
 chk 'CAKE_OFF_1013' order-preview.html 3
 chk 'function _pkShow(k)' order-preview.html 1
 chk 'a.ks.filter(_pkShow).map(_pkTile)' order-preview.html 1   # [FIX_FLOW_204 A] 늘 있는 진행 카드는 ① 칸에서 뺐다(진행 줄)
@@ -7873,7 +8074,7 @@ chk "'narr-open-ex2', 'narr-open-ex3', 'narr-open-ex4', 'narr-candle-in-mothers'
 chk "'toast-toast-ex2', 'toast-toast-ex3', 'narr-table-in-ex2'" assets/ritual-cue.js 1   # FILES 188 ~ 190
 chk 'window.mkNarEx=function(ek,n)' order-preview.html 1
 nochk "L('narEx:'" order-preview.html   # 칩 줄은 «안내 멘트»와 같은 _exRows 줄 하나(옛 _lGroups 길 없음)
-chk 'const CLIP_COUNT = 329;' scripts/build-typecast-import.mjs 1   # [CAKE_FILES_OFF_1110] 334 → 329(−5 케이크 41 · 42 · 76 · 77 · 107 지움)   # [W5M_FIX_1107] 327 → 329(+2 356 · 357)   # [SEAM_WORD_1107] 326 → 327(+1 350)   # [K3_SHORT_1106] 324 → 326(+2 · 348 · 349)   # [INFO_SPLIT_200 검토 200 수정 2] 305 → 324(+19 · 329 ~ 347)   # [CLOSING_CHEER_195 검토 195] 301 → 305(+4 · 325 ~ 328)   # [GUEST_WELCOME_191 검토 191] 273 → 301(+28 하객 맞이 · 촬영 후 안내)   # [CLOSING_SRC_1031 검토 179] 268 → 273(+5 감사 없이 시작하는 마무리 멘트)   # [CLOSING_LINE_1031 검토 178] 264 → 268(+5 마무리 멘트 · −1 219)   # [REVIEW27_1023 검토 151-1 2)] 243 → 242(204 축가 예시 3 = 예시 1)   # [REVIEW26_1023 검토 150-1 3)] 244 → 243(220 RETIRED)   # [CANDLE_FOUR_RETIRED_1023 검토 148-2] 247 → 244(네 분 화촉 예시 2 ~ 4 RETIRED)   # [SRC_ALL_1023 검토 144-5] 248 → 247(221 RETIRED)   # [CANDLE_NAME_1019 · PHOTO_UP_1019] 246 → 248(263 · 264)   # [PHOTO_FREE_OPEN_1019] 245 → 246(262)   # [REVIEW24_1019] 240 → 245(257 ~ 261)   # [REC_NEXT_APPLIED_1018] 238 → 240(255 · 256)   # [REVIEW7_1018] 235 → 238(새 예시 넷 · B11 걷음)   # [BRIDGE_MORE_1018] 227 → 235(이음말 일곱 · 축가 맺는 말 가족 · 친구 판)   # [REVIEW5_1018] 208 → 227(축가 맺는 말 예시 둘은 병합 전에 걷음)   # [REVIEW4_1018 인스타 섹션 검토 4판] 195 → 208(예시 13 · 211 ~ 223)   # [REVIEW23_1018 인스타 섹션 검토 2 · 3판] 193 → 195(축가 여는 말 예시 5 · 축가 맺는 말)   # [REVIEW1_1018 인스타 섹션 검토] 191 → 193(축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2)   # [R11_SRC_1018 라운드 11] 193 → 191(쉬는 소리 201 · 190)   # [R10_SRC_1018 라운드 10] 190 → 193(축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3)   # [NARR_R9_1018 라운드 9] 187 → 190(반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3) · [NARR_LOOP_1018 첫 판] 183 → 187(선언 맺는 말 예시 3 · 4 · 편지 예시 4) · [T3_OK_1017] 177 → 183(자료 T3 예시 여섯)   # [END_FLOW_1030 검토 167] 242 → 244(265 · 266 사진 전 안내)
+chk 'const CLIP_COUNT = 350;' scripts/build-typecast-import.mjs 1   # ★[NARR_ROLE_1115] 329 → 350(+21 «누가» 줄 358 ~ 378) · [CAKE_FILES_OFF_1110] 334 → 329(−5 케이크 41 · 42 · 76 · 77 · 107 지움)   # [W5M_FIX_1107] 327 → 329(+2 356 · 357)   # [SEAM_WORD_1107] 326 → 327(+1 350)   # [K3_SHORT_1106] 324 → 326(+2 · 348 · 349)   # [INFO_SPLIT_200 검토 200 수정 2] 305 → 324(+19 · 329 ~ 347)   # [CLOSING_CHEER_195 검토 195] 301 → 305(+4 · 325 ~ 328)   # [GUEST_WELCOME_191 검토 191] 273 → 301(+28 하객 맞이 · 촬영 후 안내)   # [CLOSING_SRC_1031 검토 179] 268 → 273(+5 감사 없이 시작하는 마무리 멘트)   # [CLOSING_LINE_1031 검토 178] 264 → 268(+5 마무리 멘트 · −1 219)   # [REVIEW27_1023 검토 151-1 2)] 243 → 242(204 축가 예시 3 = 예시 1)   # [REVIEW26_1023 검토 150-1 3)] 244 → 243(220 RETIRED)   # [CANDLE_FOUR_RETIRED_1023 검토 148-2] 247 → 244(네 분 화촉 예시 2 ~ 4 RETIRED)   # [SRC_ALL_1023 검토 144-5] 248 → 247(221 RETIRED)   # [CANDLE_NAME_1019 · PHOTO_UP_1019] 246 → 248(263 · 264)   # [PHOTO_FREE_OPEN_1019] 245 → 246(262)   # [REVIEW24_1019] 240 → 245(257 ~ 261)   # [REC_NEXT_APPLIED_1018] 238 → 240(255 · 256)   # [REVIEW7_1018] 235 → 238(새 예시 넷 · B11 걷음)   # [BRIDGE_MORE_1018] 227 → 235(이음말 일곱 · 축가 맺는 말 가족 · 친구 판)   # [REVIEW5_1018] 208 → 227(축가 맺는 말 예시 둘은 병합 전에 걷음)   # [REVIEW4_1018 인스타 섹션 검토 4판] 195 → 208(예시 13 · 211 ~ 223)   # [REVIEW23_1018 인스타 섹션 검토 2 · 3판] 193 → 195(축가 여는 말 예시 5 · 축가 맺는 말)   # [REVIEW1_1018 인스타 섹션 검토] 191 → 193(축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2)   # [R11_SRC_1018 라운드 11] 193 → 191(쉬는 소리 201 · 190)   # [R10_SRC_1018 라운드 10] 190 → 193(축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3)   # [NARR_R9_1018 라운드 9] 187 → 190(반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3) · [NARR_LOOP_1018 첫 판] 183 → 187(선언 맺는 말 예시 3 · 4 · 편지 예시 4) · [T3_OK_1017] 177 → 183(자료 T3 예시 여섯)   # [END_FLOW_1030 검토 167] 242 → 244(265 · 266 사진 전 안내)
 chk "has: (id) => /^X-|^D-/.test(id) }" scripts/build-typecast-import.mjs 1   # ★[DECL_TITLE_1031] D- = 성혼 선언 호칭 판
 # ★★[T3_OK_1017 2026-10-17 사장님 «16번 허락받았어» · «허락받았다니깐»] 자료 T3(«주례없는 사회자 대본» · 원본 «외부공유 절대 금지»)는 원작자 허락을 받아 예시 여섯을 넣었다 —
 #   화촉 아버님 4 · 다른 두 분 2 · 반지 4 · 덕담 4(여는 말 · 받는 말) · 축사 4 · 소리 191 ~ 196(맨 끝) · 문장 단위만(원문 통째는 저장소에 두지 않는다) ·
@@ -8056,13 +8257,13 @@ chk 'BLESS_AFTER_DECLARE' scripts/audit/listen-page.mjs 2
 #   open-course 가 차례 · 막 · 까닭 · 사슬 알림(인사 있으면 «말 없이» · 없으면 «축가») · 축가 3분 · 콘솔 메모를 잰다
 chk 'HEART_ORDER_1012' assets/ritual-open.js 12   # [TOAST_LAST_1013] «끝이 조용한 편» 알림 줄(이 표식 한 자리)을 걷어 13 → 12
 chk "ks: \['welcome', 'vow', 'ring', 'declare'] }" assets/ritual-open.js 1   # [ACTS_SHIFT_1013] 맞절 칸이 생겨 막 경계를 한 칸씩 — 막마다 넷(PC 한 줄) · 덕담은 마음의 순간 첫 칸으로 돌아갔다
-chk "ks: \['bless', 'free', 'song', 'letter'] }" assets/ritual-open.js 1
+chk "ks: \['bless', 'free', 'song', 'midvid', 'letter'] }" assets/ritual-open.js 1   # ★[SPEECH_SONG_1115] 엔진 막 칸 다섯(빌더 ① 은 축사 · 축가 한 카드로 넷 · mid17-pick)
 nochk "ks: \['vow', 'ring', 'declare', 'bless'] }" assets/ritual-open.js   # 옛 막 경계(맞절 칸 전) — 되살리면 여는 순간이 다섯 칸
 chk 'HEART_ORDER_1012' assets/ritual-data.js 1
-chk 'HEART_ORDER_1012' assets/ritual-story.js 1
+# ★[SHOW_PAIR_1116 · RULES_SLIM ⑧] 옛 줄 chk 'HEART_ORDER_1012' assets/ritual-story.js 1 은퇴 — 이 표식은 걷은 «준비한 순서» 블록(STORY_COVER 죽은 블록) 안에만 있었다 — 옛 핀 chk 1
 chk 'HEART_ORDER_1012' api/_ritual-kb.js 2
 chk 'HEART_ORDER_1012' scripts/audit/open-course.mjs 12
-chk "var ORDER = \['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'];" assets/ritual-open.js 1
+chk "var ORDER = \['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'midvid', 'letter', 'tribute', 'cake', 'toast', 'table'];" assets/ritual-open.js 1   # [SPEECH_SONG_1115]
 nochk "'candle', 'entry', 'welcome', 'vow'" assets/ritual-open.js 0   # 옛 차례(맞절 순간 전) · [MATJEOL_SPLIT_1013]
 nochk "'bless', 'song', 'tribute', 'free', 'letter'" assets/ritual-open.js 0   # 옛 v4 차례(인사 뒤 준비한 순서 · 편지) · 되살리지 말 것
 nochk "'bless','song','tribute','free','letter'" assets/ritual-data.js 0
@@ -8139,6 +8340,7 @@ node scripts/audit/narr-words.mjs --selftest || fail=1
 # ★★[NARR_ENGINE_GATE_1014] 3단계 원고를 엔진에 옮겼다(PR B) — 이제 엔진 줄도 같은 자로 막는다 · 봐주는 것은 «녹음 대기»(원고 글은 자 통과 · 새 문장은 타입캐스트_<n>판 목록에 맡김)뿐
 #   깨 보기: 편지 맺는 말에 «따뜻한»을 넣으면 rc 1(10/14 확인) · 녹음이 오면 그 줄은 엔진에 들어가 대기에서 빠진다
 chk 'NARR_ENGINE_GATE_1014' scripts/audit/narr-words.mjs 1
+chk 'MIDV_OUT_CLAP_1115' scripts/audit/narr-words.mjs 3   # ★[MIDV_OUT_CLAP_1115 · NARR_ROLE_1115] 식중 영상 닫는 말 355(354) «… 따뜻한 박수 부탁드립니다.»(대표님 FINAL2 승인 소리 · 엔진이 박수를 그 자리에 둔다) — 그 두 slug 만 W1 · W7 밖 · 깨 보기 포함
 node scripts/audit/narr-words.mjs --engine || fail=1
 # ★★[NAR_ENGINE_1014 · PR B] 원고 3단계 글을 엔진에 — 받은 녹음 + 옛 통녹음에서 잘라 낸 문장으로 49클립(원고 0-6)
 #   기립 말은 나레이션 예시에도 되살리지 않는다(W3 · W12) · 1분 전 감사는 개식 선언 몫(라운드 1 결정)
@@ -11161,7 +11363,7 @@ chk '아직 인사를 나누지 못한 자리도, 차례로 찾아뵙겠습니�
 #   ★폐지(79)는 이 숫자를 줄이지 않는다 — RETIRED 로만 끄고 FILES 에는 남긴다.
 #     줄이면 뒤 번호가 밀려 이미 녹음된 mp3 가 이름을 잃는다(2026-08-11 실측 사고).
 # ★[MEAL_GUIDE 2026-09-23] 88_guide-meal 을 맨 끝에 붙여 87 → 88. 87 로 되돌아가면 번호가 두 소리를 갖는다.
-chk 'N_FILES = 357' scripts/check-ritual-cue.js 1   # ★[W5M_FIX_1107] 356 · 357 · [MID17_CLIPS_1107] 351 ~ 355   # ★[K3_SHORT_1106] 348 · 349   # ★[INFO_SPLIT_200] 329 ~ 347   # ★[CLOSING_CHEER_195] 325 ~ 328   # ★[CLOSING_SRC_1031] 292 ~ 296   # ★[CLOSING_LINE_1031] 287 ~ 291   # ★[REVIEW7_1018] 251 ~ 254   # ★[BRIDGE_MORE_1018] 243 ~ 250   # ★[REVIEW5_1018] 224 ~ 242   # ★[REVIEW4_1018 인스타 섹션 검토 4판] 211 ~ 223   # ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 209 · 210   # ★[REVIEW1_1018 인스타 섹션 검토] 207 · 208   # ★[R10_SRC_1018 라운드 10] 204 ~ 206   # ★[NARR_R9_1018 라운드 9] 201 ~ 203 반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3   # ★[NARR_LOOP_1018 첫 판] 197 ~ 200 선언 맺는 말 예시 3 · 4 · 편지 예시 4 둘   # ★[T3_OK_1017] 191 ~ 196 자료 T3 예시 여섯(원작자 허락)   # ★[EX_MANY_1017] 148 ~ 190 나레이션 멘트 예시 2 ~ 4(43)   # ★[CANDLE_CALL_SRC_1016] 146 · 147 화촉 인사 구호(아버님 · 다른 두 분) · 옛 주석 ★[TRIB_CALL_SAY_1014] 145   # ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144   # [DECLARE_BY_PERSON 2026-10-12] 134~136 성혼 선언 여는 말   # [THANKS_IN_VOW 2026-10-11] 133 감사문 여는 말   # [MATJEOL_1011 2026-10-11] 132 입장 끝 맞절   # [TABLE_GREET_1008 2026-10-08] 131 테이블 인사 여는 말   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다   # ★[END_FLOW_1030] 265 · 266
+chk 'N_FILES = 378' scripts/check-ritual-cue.js 1   # ★[NARR_ROLE_1115] 358 ~ 378(«누가» 줄 21)   # ★[W5M_FIX_1107] 356 · 357 · [MID17_CLIPS_1107] 351 ~ 355   # ★[K3_SHORT_1106] 348 · 349   # ★[INFO_SPLIT_200] 329 ~ 347   # ★[CLOSING_CHEER_195] 325 ~ 328   # ★[CLOSING_SRC_1031] 292 ~ 296   # ★[CLOSING_LINE_1031] 287 ~ 291   # ★[REVIEW7_1018] 251 ~ 254   # ★[BRIDGE_MORE_1018] 243 ~ 250   # ★[REVIEW5_1018] 224 ~ 242   # ★[REVIEW4_1018 인스타 섹션 검토 4판] 211 ~ 223   # ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 209 · 210   # ★[REVIEW1_1018 인스타 섹션 검토] 207 · 208   # ★[R10_SRC_1018 라운드 10] 204 ~ 206   # ★[NARR_R9_1018 라운드 9] 201 ~ 203 반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3   # ★[NARR_LOOP_1018 첫 판] 197 ~ 200 선언 맺는 말 예시 3 · 4 · 편지 예시 4 둘   # ★[T3_OK_1017] 191 ~ 196 자료 T3 예시 여섯(원작자 허락)   # ★[EX_MANY_1017] 148 ~ 190 나레이션 멘트 예시 2 ~ 4(43)   # ★[CANDLE_CALL_SRC_1016] 146 · 147 화촉 인사 구호(아버님 · 다른 두 분) · 옛 주석 ★[TRIB_CALL_SAY_1014] 145   # ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144   # [DECLARE_BY_PERSON 2026-10-12] 134~136 성혼 선언 여는 말   # [THANKS_IN_VOW 2026-10-11] 133 감사문 여는 말   # [MATJEOL_1011 2026-10-11] 132 입장 끝 맞절   # [TABLE_GREET_1008 2026-10-08] 131 테이블 인사 여는 말   # [PV_EX_NAR 2026-10-07] 128~130   # [VOW_FIRST 2026-10-06] 127 서약 여는 말 · 신부부터   # [GUEST_EX_NAR 2026-10-06] 115~126 하객 맞이 나레이션 예시 2~4   # [BRIDGE_LINK 2026-10-03] 111~114 이음말 넷 · [PHOTO_THANKS 2026-09-26] 110 end-1c-thanks-nomeal   # [GROUP_PHOTO 2026-09-26] 109 fx-free   # [NAR_0925] 100~107 · [ENTRY_SCENE] 첫 모습은 소리가 같아 108 을 두지 않는다   # ★[END_FLOW_1030] 265 · 266
 nochk 'N_FILES = 88' scripts/check-ritual-cue.js
 nochk 'N_FILES = 87' scripts/check-ritual-cue.js
 nochk 'N_FILES = 86' scripts/check-ritual-cue.js
@@ -11560,6 +11762,42 @@ chk '^### Accessibility' .claude/skills/web-design-guidelines/web-interface-guid
 chk 'FD_LOCAL' .claude/skills/frontend-design/SKILL.md 1
 chk 'Apache License' .claude/skills/impeccable/LICENSE 1
 chk 'MIT License' .claude/skills/web-design-guidelines/LICENSE 1
+# ★[SKILLS_UPDATE_1114 2026-11-14] impeccable 4.4.0 → 4.9.1(upstream 61e73ee · 저장소 폴더에서 복사 · 설치 명령 · 엔진 내려받기 없음).
+#   다시 받을 때 [IMP_LOCAL] 블록(SKILL.md · craft-floor.md 끝)을 떠 두었다가 다시 붙인다 — 위 IMP_LOCAL · EXC_EYEBROW 줄이 그 누락을 잡는다.
+#   새 판은 아이브로우 금지가 더 단단하다(craft-floor «except a line marked as a ban» · degraded/documenter · finish-reviewer) → [EXC_EYEBROW] 11/14 몫.
+#   doctor · init · document · foundations · hooks 는 돌리지 않는다 → [EXC_IMP_MAINT]. NOTICE.md 는 ios.md · android.md(제3자 MIT 파생) 고지다.
+chk '^version: 4.9.1' .claude/skills/impeccable/SKILL.md 1
+chk '61e73eebd34a845df0bfef463eb0d31ed4eab581' .claude/skills/impeccable/SOURCE.md 1
+[ -f .claude/skills/impeccable/NOTICE.md ] && echo 'ok .claude/skills/impeccable/NOTICE.md: 제3자 고지 존재 [SKILLS_UPDATE_1114]' || { echo 'REVERT? .claude/skills/impeccable/NOTICE.md 가 없다 — ios.md · android.md 의 제3자(MIT) 고지 [SKILLS_UPDATE_1114]'; fail=1; }
+nochk '23행의 폴백' .claude/skills/impeccable/SKILL.md   # 행 번호는 판마다 바뀐다 — «Launcher unavailable» 문단으로 가리킨다
+chk 'EXC_IMP_MAINT' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+chk '누가(11/14 · impeccable 4.9.1)' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+# ★[SKILLS_UPDATE_1114 2026-11-14] web-quality-skills 여섯(addyosmani · upstream afa8da9 · MIT)을 10/11 방식으로 넣었다 — 점검용 · «10/11 의 다섯» 뒤.
+#   여섯 다 범용 · Lighthouse · 구글 기준이라 SKILL.md 끝 [WQ_LOCAL] 이 momentedit-design · EXCEPTIONS 를 먼저 가리킨다(목록까지만 · 문구 · 메타 · 기능 코드 불변).
+#   [WQ_LOCAL] 이 사라지면(다시 받으며 덮어쓰면) seo 스킬이 제목 · 설명 · 스키마를 고치자고 한다 — 금지사항 3 · [EXC_WQ_GOOGLE].
+chk 'SKILLS_UPDATE_1114' CLAUDE.md 1
+chk 'SKILLS_UPDATE_1114' docs/rules/디자인.md 1
+chk 'WQ_LOCAL' .claude/skills/accessibility/SKILL.md 1
+chk 'WQ_LOCAL' .claude/skills/best-practices/SKILL.md 1
+chk 'WQ_LOCAL' .claude/skills/core-web-vitals/SKILL.md 1
+chk 'WQ_LOCAL' .claude/skills/performance/SKILL.md 1
+chk 'WQ_LOCAL' .claude/skills/seo/SKILL.md 1
+chk 'WQ_LOCAL' .claude/skills/web-quality-audit/SKILL.md 1
+chk 'EXC_WQ_GOOGLE' .claude/skills/MOMENTEDIT_EXCEPTIONS.md 1
+chk 'MIT License' .claude/skills/seo/LICENSE 1
+chk 'afa8da942115f2961fdbfa80807ea0b232ff6c00' .claude/skills/web-quality-audit/SOURCE.md 1
+# ★[IMP_NO_RUN · WQ_NO_INSTALL 2026-11-14 대본 확인] «할 수 없다»가 아니라 «하지 않는다» — impeccable 런처는 엔진 바이너리를 내려받아 실행하고,
+#   여섯 스킬 본문은 npx lighthouse 같은 바깥 도구를 권한다. 내려받기가 되는 환경에서도 실행하지 않는다는 줄이 지워지면 빨강.
+chk 'IMP_NO_RUN' .claude/skills/impeccable/SKILL.md 1
+chk 'IMP_NO_RUN' .claude/skills/impeccable/reference/craft-floor.md 1
+chk 'IMP_NO_RUN' .claude/skills/impeccable/SOURCE.md 1
+chk 'WQ_NO_INSTALL' .claude/skills/accessibility/SKILL.md 1
+chk 'WQ_NO_INSTALL' .claude/skills/best-practices/SKILL.md 1
+chk 'WQ_NO_INSTALL' .claude/skills/core-web-vitals/SKILL.md 1
+chk 'WQ_NO_INSTALL' .claude/skills/performance/SKILL.md 1
+chk 'WQ_NO_INSTALL' .claude/skills/seo/SKILL.md 1
+chk 'WQ_NO_INSTALL' .claude/skills/web-quality-audit/SKILL.md 1
+chk 'IMP_NO_RUN' docs/rules/디자인.md 1
 chk '라이선스 파일이 없었다' .claude/skills/frontend-design/SOURCE.md 1
 # [SKILL_404_BODY] curl -o 는 404 여도 본문(「404: Not Found」 14바이트)을 파일로 쓴다 — frontend-design/LICENSE 가 그렇게
 #   «라이선스 파일»로 커밋될 뻔했다(2026-09-25 · 커밋 직후 크기 14 로 발견). 받은 파일 어디에도 그 본문이 있으면 안 된다.
@@ -15282,7 +15520,8 @@ chk "toastStay: '잠시 자리를 지켜 주시면 감사하겠습니다.'" asse
 chk "slug: S.songBy === 'self' ? 'narr-song-end' : 'narr-song-end-friend'" assets/ritual-cue.js 1
 chk 'songEndFriend:"노래해 주신 분께 뜨거운 박수 부탁드립니다."' assets/ritual-data.js 1
 chk 'SONG_END_FRIEND="노래해 주신 분께 뜨거운 박수 부탁드립니다."' order-preview.html 1
-chk "L('songBy','부르는 분'" order-preview.html 1
+chk "key:'songWho',l:'누가 부르나요'" order-preview.html 1   # ★[SONG_WHO_ONE_1115 c1c2af0b] «부르는 분» · «누가 부르나요» 두 줄을 한 질문으로(가족 · 친구 / 두 분이 직접 · 칩 sw:friend · sw:self) — 옛 핀 L('songBy','부르는 분'
+nochk "L('songBy','부르는 분'" order-preview.html 0
 chk "'songBy'," assets/ritual-preview-link.js 1
 chk '여기서부터는 작가님이 안내해 드립니다.' assets/ritual-cue.js 1   # 44 · 사장님 10/10 확인 글 — 검토 65 는 결정 대기함으로
 chk '| 검토 56 |' docs/handoff/insta-find.md 1
@@ -17007,7 +17246,7 @@ chk '신랑분은 원하시면 큰절을 올리셔도 돼요' order-preview.html
 chk 'GROOM_BOW_TIP' assets/ritual-cue.js 1
 nochk "\['bowGroom', '신랑 큰절'\]" assets/ritual-open.js
 chk 'FREE_ETC' assets/ritual-open.js 2
-chk "\['etc', '기타'\]" assets/ritual-open.js 1
+nochk "\['etc', '기타'\]" assets/ritual-open.js   # ★[SHOW_PAIR_1116 · RULES_SLIM ⑧] 기타 칩은 걷었다(상담 메모) — 옛 핀 chk 1
 nochk "\['stage', '춤 · 공연'\]" assets/ritual-open.js
 chk 'FREE_ETC' order-preview.html 2
 chk 'data-fk="freeetc"' order-preview.html 1
@@ -17536,9 +17775,8 @@ chk '네오사피엔스㈜ (타입캐스트 Typecast, 국내)' privacy.html 1
 chk '2026년 10월 8일' privacy.html 2   # [PRIVACY_REV_1031] 3 → 2 — 개정 공고일자 줄이 10/31 로 넘어갔다 · 남는 둘 = «AI 목소리 생성» 위탁 줄 «부터» · 개정 이력 «직전 개정»
 # ★[PRIVACY_REV_1031 2026-10-31 사장님 승인] 처리방침 개정 공고 · 시행 10/31 — 두 분 목소리 보관 기간 구체화(VC_DECISIONS_1030 · 7일 전 AI 목소리 삭제 · 예식일 없음 90일).
 #   보관을 줄이기만 해 정보주체에게 불리하지 않다 → 10조 단서로 공고일 시행. 맨 위 날짜는 VOICE_UP.from 보다 늦어도 된다(voice-open.mjs) · «부터» 날짜 10/8 은 그대로
-chk '개정 시행일자 · 2026.10.31 (공고 2026.10.31)' privacy.html 1
-chk '2026년 10월 31일 (두 분 목소리 보관 기간 구체화' privacy.html 1
-chk '직전 개정 2026년 10월 8일 (두 분 목소리 항목 추가' privacy.html 1
+chk '2026년 10월 31일 (두 분 목소리 보관 기간 구체화' privacy.html 1   # [MID_OPEN_1114] 맨 위는 11/14 로 넘어갔다 · 10/31 은 «직전 개정»으로 남는다
+chk '그 전 개정 2026년 10월 8일 (두 분 목소리 항목 추가' privacy.html 1
 chk 'PRIVACY_REV_1031' privacy.html 2
 chk 'PRIVACY_REV_1031' scripts/audit/voice-open.mjs 4
 chk 'VOICE_OPEN_1008' deploy-marks.json 1
@@ -17821,7 +18059,7 @@ chk 'tableIn:"신랑 신부가, 오늘 참석해 주신 하객 여러분의 테�
 chk 'TABLE_GREET_1008' assets/ritual-cue.js 4
 chk "'narr-table-in'" assets/ritual-cue.js 3
 chk "if (_openC && seq.indexOf('table') > -1) cues.push(cue({" assets/ritual-cue.js 1   # [END_FLOW_1030] 테이블 인사 = 닫는 인사 앞
-chk 'const N_FILES = 357;' scripts/check-ritual-cue.js 1   # ★[W5M_FIX_1107] 356 · 357 · [MID17_CLIPS_1107] 351 ~ 355   # ★[K3_SHORT_1106] 348 · 349   # ★[INFO_SPLIT_200] 329 ~ 347   # ★[CLOSING_CHEER_195] 325 ~ 328   # ★[CLOSING_SRC_1031] 292 ~ 296   # ★[CLOSING_LINE_1031] 287 ~ 291   # ★[REVIEW7_1018] 251 ~ 254   # ★[BRIDGE_MORE_1018] 243 ~ 250   # ★[REVIEW5_1018] 224 ~ 242   # ★[REVIEW4_1018 인스타 섹션 검토 4판] 211 ~ 223   # ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 209 · 210   # ★[REVIEW1_1018 인스타 섹션 검토] 207 · 208   # ★[R10_SRC_1018 라운드 10] 204 ~ 206   # ★[NARR_R9_1018 라운드 9] 201 ~ 203 · 옛 주석 [NARR_LOOP_1018 첫 판] 197 ~ 200 · 옛 주석 [T3_OK_1017] 191 ~ 196 · 옛 주석 [EX_MANY_1017] 148 ~ 190 · 옛 주석 [CANDLE_CALL_SRC_1016] 146 · 147 · 옛 주석 [MATJEOL_1011] 132 · [THANKS_IN_VOW] 133 · [DECLARE_BY_PERSON] 134~136
+chk 'const N_FILES = 378;' scripts/check-ritual-cue.js 1   # ★[NARR_ROLE_1115] 358 ~ 378   # ★[W5M_FIX_1107] 356 · 357 · [MID17_CLIPS_1107] 351 ~ 355   # ★[K3_SHORT_1106] 348 · 349   # ★[INFO_SPLIT_200] 329 ~ 347   # ★[CLOSING_CHEER_195] 325 ~ 328   # ★[CLOSING_SRC_1031] 292 ~ 296   # ★[CLOSING_LINE_1031] 287 ~ 291   # ★[REVIEW7_1018] 251 ~ 254   # ★[BRIDGE_MORE_1018] 243 ~ 250   # ★[REVIEW5_1018] 224 ~ 242   # ★[REVIEW4_1018 인스타 섹션 검토 4판] 211 ~ 223   # ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 209 · 210   # ★[REVIEW1_1018 인스타 섹션 검토] 207 · 208   # ★[R10_SRC_1018 라운드 10] 204 ~ 206   # ★[NARR_R9_1018 라운드 9] 201 ~ 203 · 옛 주석 [NARR_LOOP_1018 첫 판] 197 ~ 200 · 옛 주석 [T3_OK_1017] 191 ~ 196 · 옛 주석 [EX_MANY_1017] 148 ~ 190 · 옛 주석 [CANDLE_CALL_SRC_1016] 146 · 147 · 옛 주석 [MATJEOL_1011] 132 · [THANKS_IN_VOW] 133 · [DECLARE_BY_PERSON] 134~136
 chk 'TABLE_GREET_1008' order-preview.html 12
 chk 'var CUSTTBL=0;' order-preview.html 1
 chk 'TABLE_GREET_1008' mypage.html 1
@@ -19700,7 +19938,7 @@ chk 'SONG_ANYONE_WORDS_1013' assets/ritual-story.js 2
 nochk '축가를 불러 주실 분께 부탁드리기' assets/ritual-open.js                      # 두 분이 직접 부르는 날 틀린 말
 nochk '두 분은 그 자리에서 들으시면 돼요' assets/ritual-story.js
 chk 'SPEECH_WORDS_1013' assets/ritual-open.js 2
-chk 'SPEECH_WORDS_1013' assets/ritual-story.js 4
+chk 'SPEECH_WORDS_1013' assets/ritual-story.js 3   # ★[SHOW_PAIR_1116] «준비한 순서» 블록을 걷어 4 → 3
 nochk '덕담 뒤, 축가 앞에' assets/ritual-story.js                                  # 이웃 순간을 안 담으면 틀린 말
 nochk '두 분을 오래 지켜본 분이 짧은 축사' assets/ritual-story.js                    # 짐작
 nochk '3분쯤 되면 저희가' assets/ritual-story.js                                    # 길이는 두 분이 정한다(1 ~ 10분)
@@ -20813,6 +21051,10 @@ nochk '비어 있는 칸이 있어요' order-preview.html
 chk 'var Q_TAG=/ · (말없이|말 없이|미리 듣기에서는 넘겨요|연습에서는 넘겨요)' order-preview.html 1
 # ── 2026-10-30 [REVIEW_166_1030 검토 166 B] 동작 — 한 사람 판 예시에도 두 분 글 · 받은 원고 · 현장에서면 글 보관 · 말없이면 인사 글 빼기 · 인용 줄 묶기 · 축가 직접 · 한눈에 보기 말 · 선언 안내 · 같은 소리 칩 숨김 · 칩 바꾸면 재생 멈춤 · 검사 review-166
 chk 'REVIEW_166_1030' scripts/audit/review-166.mjs 3
+chk 'SPEECH_SONG_1115' scripts/audit/review-166.mjs 1   # ★[SPEECH_SONG_1115] B2 는 축사 쪽(가족 예시가 축가를 켜 옛 «S.on.free = 1» 이면 midMigrate 가 축사를 떨군다)
+chk 'SPEECH_SONG_1115' scripts/audit/ux1-1023.mjs 1   # ★[SPEECH_SONG_1115] 정석 = 축가만 — ② 축사 예시 접기는 축사로 바꿔 담고 잰다
+chk 'SPEECH_SONG_1115' scripts/audit/ref-form.mjs 1   # ★[SPEECH_SONG_1115] 전부 켠 판 → 축사 쪽(pairSet free) · 축사 예시를 잰다
+chk 'SPEECH_SONG_1115' scripts/audit/photo-scene.mjs 1   # ★[SPEECH_SONG_1115] 정석 = 축가만 — 축사 창(장면 칸 0)은 축사로 담았다가 되돌려 잰다
 chk 'function _sentJoinQ(L)' order-preview.html 1
 chk 'function _declNoWho()' order-preview.html 1
 chk "need: function (S, n) { var q = seqOf(S), i = q.indexOf('tribute');" assets/ritual-open.js 1
@@ -20855,9 +21097,9 @@ nochk "t: '[^']*(Instrumental)'" assets/bgm-picks.js
 chk "M7: \['B28', 'B29', 'B22'\]" assets/bgm-picks.js 1   # ★[PICKS_THREE_1101] 구간마다 3곡
 chk "M2: \['B05', 'B31', 'B07'\]" assets/bgm-picks.js 1   # ★[GHIBLI_ADD_1101] 지브리 판
 chk "M6: \['B17', 'B34', 'B19'\]" assets/bgm-picks.js 1
-chk "FILL = { M1: \['B16', 'B33'\], M8: \['B13', 'B14'\], M6: \['B07', 'B16'\], M4: \['B12', 'B14'\], M8L: \['B26', 'B33'\] }" assets/bgm-picks.js 1   # [REPEAT_RULE_1107 ①] 본식 · 마지막 곡 배경 곡 더함   # ★[BGM_FILL_1101] 목록 칸 배경 곡
+chk "FILL = { M1: \['B33', 'B35', 'B36', 'B37'\], M8: \['B38', 'B39', 'B12', 'B14', 'B13'\], M6: \['B07', 'B16'\], M4: \['B12', 'B14'\], M8L: \['B26', 'B33'\] }" assets/bgm-picks.js 1   # [REPEAT_RULE_1107 ①] 본식 · 마지막 곡에도 배경 곡 · [SONGS_5_1115] 하객 맞이 · 테이블 fill
 chk 'function order(S, seg, prev, on)' assets/bgm-picks.js 1
-chk 'if (BP.order) return segListOf(id, cur).filter(have)' console.html 1   # 콘솔 차례 = 식순 화면 순서 줄과 같은 함수
+chk 'if (BP.order) return segListOf(id, cur).filter(function(x){ return have(x) || !!(play && SEGF\[x\] && BP.SONGS && BP.SONGS\[x\]); });' console.html 1   # 콘솔 차례 = 식순 화면 순서 줄과 같은 함수 · ★[TABLE_BORROW_PLAY_1114 11/14] 재생 목록(play)은 빌려 온 곡도 남긴다 — 옛 줄 «.filter(have);» 로 되돌리지 말 것(테이블 인사 30분이 3곡 13분으로 줄었다)
 chk 'function listRoHtml(sg,k)' assets/bgm-bed.js 1   # ★[LIST_NO_PICK_1101] 목록 칸 = 안내 칸(고르기 없음)
 nochk 'function flowHtml(sg)' assets/bgm-bed.js   # 순서 화살표 두 줄은 곡 줄 목록이 대신 — 되살리지 말 것
 chk "if (!d || d.multi || !S || !S.bgm) return ''" assets/bgm-picks.js 1   # 목록 칸 k 는 쓰지 않는다
@@ -20889,7 +21131,7 @@ chk "if (cur && L\\[li\\] === cur) { bedFade(BED.on, 1, SEG_XF); return false; }
 chk "return (f&&b)?((P.carryOf&&P.carryOf(St(),'M4',f))||m4()):f;" assets/bgm-bed.js 1   # [CARRY_SAME_1101] «음악과 함께» 곡이 본식 목록에도 있으면 그대로(콘솔 segGo 와 같다)
 chk 'CARRY_SAME_1101' scripts/audit/carry-same.mjs 1
 chk 'function loopy(seg)' assets/bgm-picks.js 1   # ★[DAYLONG_1101] 감사 인사 ~ 덕담 · 닫는 인사 = 고르는 칸 + 이어 트는 목록
-chk "{ id: 'M4', nm: '감사 인사 ~ 덕담', ks: \['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter'\], cust: true, loop: true," assets/bgm-picks.js 1   # [DAYLONG_1101]
+chk "{ id: 'M4', nm: '감사 인사 ~ 덕담', ks: \['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'midvid', 'letter'\], cust: true, loop: true," assets/bgm-picks.js 1   # ★[SPEECH_SONG_1115] 식중 영상도 M4 묶음(BGM 방 확인 대기)   # [DAYLONG_1101]
 chk "{ id: 'M6', nm: '닫는 인사', ks: \['_close'\], cust: true, loop: true," assets/bgm-picks.js 1   # [DAYLONG_1101]
 chk 'function listArm(v)' assets/bgm-bed.js 1   # [DAYLONG_1101] 미리 이어 듣기 — 곡 끝 3초 전 목록의 다음 곡
 chk 'function longLine(sg)' assets/bgm-bed.js 1   # [DAYLONG_1101] 고른 곡 아래 한 줄(분 = 큐 시간 합)
@@ -21132,7 +21374,8 @@ nochk "tok=escapeHtml(getToken()||'')" mypage.html   # [DL_GUARD] 내려받기 �
 nochk "btn.addEventListener('click', function(){ try{ _tabKeepUnkept(); }catch(e){} try{ location.reload(); }catch(e){} });" mypage.html   # [KEEP_FAIL_STOP] 못 맡겨도 새로 열던 옛 줄
 if command -v node >/dev/null 2>&1; then node scripts/audit/tab-guard.mjs >/dev/null 2>&1; _tgd=$?; if [ "$_tgd" != 0 ]; then echo 'FAIL tab-guard: 옛 창(다른 창이 로그인 · 로그아웃 · 되돌리기 · 차례)의 쓰기 · 지우기 · 보내기(목소리 중계 포함) 멈춤 · 맡김 합치기 · 스냅 고친 때 · 비운 표시 · 공개 미리보기 칸 판정이 어긋났습니다 — node scripts/audit/tab-guard.mjs'; fail=1; else echo "ok tab-guard ($_tgd)"; fi; fi
 
-chk "L('blessN','말씀하실 분'" order-preview.html 1
+chk "key:'blessWho',l:'말씀하실 분 · 순서'" order-preview.html 1   # ★[NARR_ROLE_1115 d262d560] 인원 칩(blessN) 대신 «말씀하실 분 · 순서»(누른 차례 = 말씀 순서 · 인원 = 고른 수 · 안 고르면 두 분 셈) — 옛 핀 L('blessN','말씀하실 분'
+chk 'window.lsBlessWho=function(r)' order-preview.html 1
 chk "if(k==='song'&&R.onOf(S,'song')) return {v:'live',lab:'당일 노래'};" order-preview.html 1
 nochk "hint: '노래가 끝나고 박수가 잦아들면'" assets/ritual-cue.js
 if command -v node >/dev/null 2>&1; then node scripts/audit/combo-171.mjs >/dev/null 2>&1; _c171=$?; [ "$_c171" = 1 ] && { echo 'FAIL combo-171: 순간 조합 · 진행 틈(인사 받는 분 · 255 · 축가 힌트 · 덕담 시간 · 연습 목록)이 되돌아갔습니다 — node scripts/audit/combo-171.mjs'; fail=1; }; :; fi
@@ -21439,7 +21682,7 @@ chk "if(((k==='_close'&&!(ks.length===1&&!PR))||k==='_after')&&isOpen()&&g.Ritua
 # ── 2026-11-02 [AFTER_IN_SCRIPT_1102] 전체 대본(복사 · 파일 저장)은 닫는 인사 끝에 촬영 후 안내 줄 그대로 — 순간마다 하나씩 그려 위 줄(ks.length===1)이 싣지 않았다 · 검사 screen-sound
 chk 'AFTER_IN_SCRIPT_1102' order-preview.html 1
 chk "if(_afl) lines.push('나레이션(촬영 후 안내 · 단체 사진을 마치면 재생): '+_afl.text);" order-preview.html 1   # [POST_FLOW_200]
-chk "pc.tiles === '4,4,5,4'" scripts/audit/pick-v2.mjs 1   # [GROUP_PHOTO_199] 마지막 막 + 단체 사진 · 촬영 후 안내 → [FIX_FLOW_204] 늘 있는 칸은 막 밖 줄 · ★[MID17_TILE 2026-11-07] 셋째 막 다섯(+ 식중 영상) · 옛 값 '4,4,4,7'
+chk "pc.tiles === '4,4,4,4'" scripts/audit/pick-v2.mjs 1   # ★[SPEECH_SONG_1115] 셋째 막 넷(축사 · 축가 한 카드 · 옛 4,4,5,4) · [GROUP_PHOTO_199] 마지막 막 + 단체 사진 · 촬영 후 안내 → [FIX_FLOW_204] 늘 있는 칸은 막 밖 줄 · ★[MID17_TILE 2026-11-07] 셋째 막 다섯(+ 식중 영상) · 옛 값 '4,4,4,7'
 # ── 2026-11-01 [PR_BGM_197 검토 197 · BGM 섹션 설계 1 ~ 7 · 사장님 «연습 때는 BGM 같은 부분들이 이어져서 매끄럽게»] ③ 연습하기도 ② 와 같은 BgmBed 하나 — 멈춤 · 두 분 차례 −20 계속 · 다른 소리(녹음 다시 듣기)만 잦아듦 · 음악 끄기(그 기기) · 시작 단추 «음악과 함께» · 검사 pr-bgm
 chk "(_sk==='practice'&&_prMusic())" order-preview.html 1
 nochk 'function prKeep(){' assets/bgm-bed.js   # [PR_WAY_198] 연습 «잠시 멈춤» = 음악도 멈춤(② 와 같다) — −20 으로 계속 걷음
@@ -21596,8 +21839,8 @@ chk "'narr-closing-meal-nt': \[CL_CHEER\].concat(CL_MEAL, \[CL_UP_MEAL, CL_GA\])
 chk "'narr-closing-meal-nt-nc': CL_MEAL.concat(\[CL_UP_MEAL, CL_GA\])" assets/ritual-cue.js 1
 chk 'CLOSING_MEAL_DUP' scripts/audit/closing-line.mjs 3   # [INFO_SPLIT_200] 식사 판 사진 줄이 마무리에서 빠져 한 자리 줄었다
 # ── 2026-11-01 [EVENT_COUNT_CAP 검토 183 · 사장님 10:33 «추천대로 진행»] 본식 상한 = 개수 규칙(6개 · 긴 3개 · 테이블 인사 = 2) · 넘는 드문 조합은 테이블 인사 자동 맞춤
-chk "var CNT_PICK = \['candle', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'toast', 'table'\];" assets/ritual-open.js 1
-chk "var CNT_LONG = { bless: 1, free: 1, song: 1, letter: 1, tribute: 1, table: 2 };" assets/ritual-open.js 1
+chk "var CNT_PICK = \['candle', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'midvid', 'letter', 'tribute', 'toast', 'table'\];" assets/ritual-open.js 1   # ★[SPEECH_SONG_1115] 식중 영상도 하나
+chk "var CNT_LONG = { bless: 1, free: 1, song: 1, midvid: 1, letter: 1, tribute: 1, table: 2 };" assets/ritual-open.js 1   # ★[SPEECH_SONG_1115] 식중 영상도 긴 순간
 chk "var CNT_MAX = 6, CNT_LONG_MAX = 3;" assets/ritual-open.js 1
 chk "title: '본식 순간은 6개까지예요'" assets/ritual-open.js 1
 chk "title: '긴 순간은 3개까지예요'" assets/ritual-open.js 1
@@ -21805,7 +22048,7 @@ chk "ENT_F='@ENT'" assets/bgm-bed.js 1
 chk "if(k==='matjeol'||(k==='entry'&&(entMulti()||entRest()))) return entOn()?ENT_F:'';" assets/bgm-bed.js 1   # [ENTRY_CARRY_1101] · ★[ENTRY_UNDER_1101] 장면 뒤 받는 말도
 chk 'return !x.skip&&!x.talk2; }).length;' order-preview.html 1
 chk '입장 곡을 고르시면 함께 들려요' assets/bgm-form.js 1
-chk "tests: 'entry-carry bridge-first bgm-timing carry-same detail-r2 preview-songs photo-scene-flow reg-p17'" .github/workflows/merge-guard.yml 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
+chk "tests: 'entry-carry bridge-first bgm-timing carry-same detail-r2 preview-songs photo-scene-flow reg-p17 console-bed-1114'" .github/workflows/merge-guard.yml 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-carry.mjs >/dev/null 2>&1; _ecr=$?; if [ "$_ecr" = 1 ]; then echo 'FAIL entry-carry: 맞절 입장 곡 이어 듣기(도착 자리 · 크기 · 여운 · 이어듣기 끊김 · 안내 한 줄 · 알약 개수)가 어긋났습니다 — node scripts/audit/entry-carry.mjs'; fail=1; elif [ "$_ecr" = 2 ]; then echo 'skip entry-carry (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok entry-carry'; fi; fi
 # ── 2026-11-01 [TAG_OFF_1101 사장님 실청 «나레이션, 미리 듣기에서는 넘겨요 이런 부수 설명들 전부 없애도»] 식순 화면 줄 옆 표 · 줄 끝 작은 표 걷음 · «준비됨 · 아직» 상태만 남김
 chk 'TAG_OFF_1101' order-preview.html 4
@@ -21823,7 +22066,7 @@ chk 'BRIDGE_FIRST_1101' order-preview.html 2
 chk 'BRIDGE_FIRST_1101' console.html 6
 chk 'BRIDGE_FIRST_1101' scripts/audit/bgm-seg8.mjs 1
 chk "c.slug === 'bridge-b8-face-guests')); }" console.html 1
-chk 'duckTo(PRE_HOLD === i ? -90 : (_ldb != null ? _ldb : c.duck),' console.html 1   # [PREVIDEO_AFTER_1101] leadDb 뜸 크기
+chk 'duckTo(PRE_HOLD === i ? -90 : (_ldb != null ? _ldb : _cdk),' console.html 1   # [PREVIDEO_AFTER_1101] leadDb 뜸 크기 · _cdk = 그 큐 크기(입장곡 못 받은 날 입장만 −15 · ENTRY_NOFILE_DUCK15_1115)
 chk 'if (nx && PRE_HOLD !== i && !postMusic(c)' console.html 1
 chk 'function leadAt(k, st, o)' assets/bgm-slots.js 1
 chk 'leadAt: leadAt,' assets/bgm-slots.js 1
@@ -22177,6 +22420,68 @@ chk 'BED.cut = { id: BED.id, t: _ce.currentTime' console.html 1
 chk 'ONE_FLOW_1106 ⑤' assets/ritual-cue.js 1
 chk 'T08 끊긴 곡 이어 듣기' scripts/audit/one-flow.mjs 1
 chk 'meaning-r2 gpt-r1 one-flow' .github/workflows/merge-guard.yml 1
+chk 'SPEECH_SONG_1115' scripts/audit/one-flow.mjs 6   # ★[SPEECH_SONG_1115 · RULES_SLIM ⑧] one-flow 판 둘(축사 쪽 · 축가 쪽) · T05 새 기대(옛 저장본 축사 + 축가 = 축가만 · 여는 말 −15) · T08 꺼진 자리 = 축가 줄 안 첫 끊김 — 깨 보기: BP_CUE 로 midMigrate 를 끄면 T05 빨강
+# ★★[SHOW_PAIR_1116 2026-11-16 대본 ALL_GO_1116] 한 카드 = 축사 · 축가 · 축하 공연 중 하나 · 선물 · 기타 칩은 걷음(상담 메모 · 옛 초안은 midMigrate 가 끈다) · 창 보기 셋 · 공연 여는 말 58 그대로
+# ★[NO_SHOW_1116 · RULES_SLIM ⑧] 대표님 16:53 «공연은 빼자» — 아래 공연 핀(PAIR 셋 · 칩 «축하 공연» · 큐 이름 · 홈 · 상담 글)은 NO_SHOW_1116 블록의 새 기대로 바꿨다 · 표식 개수는 걷은 자리만큼 줄였다(옛 ritual-open 6 · order-preview 10)
+chk 'SHOW_PAIR_1116' assets/ritual-open.js 4
+chk 'SHOW_PAIR_1116' order-preview.html 6
+nochk "\['gift', '깜짝 선물 · 전달'\]" assets/ritual-open.js
+chk "if (fk2 === 'gift' || fk2 === 'etc') { delete S.on.free; S.freeWhat = 'speech'; }" assets/ritual-open.js 1   # 옛 선물 · 기타 초안은 꺼 둔다
+chk "PN\[_pOutK\]+' 대신 '+PN_O\[" order-preview.html 1   # ② 흐름(opTgl)에서 바꿔 담는 알림도 opPair 와 같은 꼴 — 걷힌 PAIR_SWAP 표를 부르던 자리가 «PAIR_SWAP is not defined»로 멈췄다
+nochk "PAIR_SWAP\[" order-preview.html   # 깨 보기: 옛 opTgl 줄로 되돌리면 빨강(mid17-pick «네 길» 도 빨강)
+chk 'SHOW_PAIR_1116' scripts/audit/mid17-pick.mjs 10
+chk 'SHOW_PAIR_1116' scripts/audit/open-course.mjs 4
+chk 'SHOW_PAIR_1116' scripts/audit/mid17-engine.mjs 2
+chk 'SHOW_PAIR_1116' scripts/audit/mid17-console.mjs 2
+chk 'SHOW_PAIR_1116' scripts/audit/meaning-r1.mjs 2   # 옛 «선물 전달 동작 −12» → 선물 꺼짐 · ★[NO_SHOW_1116] 옛 무대 초안 = 축사(말씀 동안 −90)
+# ★★[NO_SHOW_1116 2026-11-16 대표님 16:53 «공연은 빼자» · ALL_GO_1116] 축사 · 축가 카드는 다시 둘 중 하나 · «축하 공연» 칩 · 블록 · 사람 구간 · 창 보기 · 홈 · 상담 글 걷음 · 식중 영상은 따로 그대로
+#   옛 초안(freeWhat stage · dance · show)은 지우지 않고 축사로 읽는다(midMigrate · 축가도 켜졌으면 축가만) · 녹음은 건드리지 않는다(101 narr-free-in-stage · 205 축가 예시 4 자료 U1 그대로)
+#   깨 보기: CHIPS.free 에 ['stage', '축하 공연'] 을 되살리면 아래 nochk · mid17-pick «공연 0» · «칩 = 축사 하나»가 빨강
+chk 'NO_SHOW_1116' assets/ritual-open.js 8
+chk 'NO_SHOW_1116' order-preview.html 8
+chk 'NO_SHOW_1116' assets/ritual-cue.js 4
+chk 'NO_SHOW_1116' assets/ritual-story.js 2
+chk "var PAIR = \['free', 'song'\];" assets/ritual-open.js 1
+nochk "var PAIR = \['free', 'song', 'stage'\];" assets/ritual-open.js
+chk "free: \[\['speech', '축사'\]\]," assets/ritual-open.js 1
+nochk "\['stage', '축하 공연'\]" assets/ritual-open.js
+chk "var FREE_OLD = { stage: 'speech', dance: 'speech', show: 'speech', hand: 'gift' };" assets/ritual-open.js 1   # 옛 무대 초안 → 축사
+nochk "fk === 'stage' ? '축하 공연'" assets/ritual-cue.js
+nochk "'축하 공연': {" assets/ritual-story.js
+nochk "'준비한 무대 (음원은 디렉터가 튼다" assets/ritual-story.js
+nochk '축사 · 축가 · 축하 공연 중 하나' index.html
+nochk '축사 · 축가 · 축하 공연 중 하나' api/_ritual-kb.js
+nochk '축사 · 축가 · 축하 공연 중 하나' assets/advisor-kb.js
+chk '축사와 축가는 둘 중 하나를 고르실 수 있습니다.' index.html 2   # 홈 FAQ 본문 · JSON-LD
+chk '덕담 → 축사와 축가는 둘 중 하나(NO_SHOW_1116' api/_ritual-kb.js 1
+chk "PN={free:'축사',song:'축가'}" order-preview.html 1
+chk ":\['free','song'\].map(function(x){ return '<button type=\"button\" class=\"pv-add\"" order-preview.html 1   # 창 단추 «축사 담기 · 축가 담기»
+chk 'NO_SHOW_1116' scripts/audit/mid17-pick.mjs 10
+chk "ok('\[NO_SHOW_1116\] 고객 · 엔진 파일(주석 뺌)에 «공연» 0" scripts/audit/mid17-pick.mjs 1   # 주석 · 자료 그대로 축가 예시 4(205)만 빼고 «공연» 0
+chk 'NO_SHOW_1116' scripts/audit/open-course.mjs 3
+chk 'NO_SHOW_1116' scripts/audit/mid17-engine.mjs 1
+chk 'NO_SHOW_1116' scripts/audit/meaning-r1.mjs 1
+# ★★[NO_INSTRUMENT_1116 2026-11-16 대표님 17:05 «악기 연주는 불가야»] 축가 = 노래만(반주 음원 MR) · 악기 라이브 연주는 받지 않는다
+#   옛 코스 «어쿠스틱 라이브 연주 · 연주자 연결» 칩 걷음 · 옛 초안 S.song 'live' 는 지우지 않고 «가족·지인»(MR)으로 읽는다 · 관리자 화면은 «옛 초안 · 연주 → 상담 확인»
+#   깨 보기: oc('song','live','어쿠스틱 라이브 연주', …) 를 되살리면 아래 nochk · mid17-pick «연주 0»이 빨강
+chk 'NO_INSTRUMENT_1116' order-preview.html 7
+chk 'NO_INSTRUMENT_1116' assets/ritual-cue.js 1
+chk 'NO_INSTRUMENT_1116' admin.html 1
+nochk "oc('song','live'" order-preview.html
+nochk "'어쿠스틱 라이브 연주" order-preview.html
+nochk "S.song === 'live' ? '어쿠스틱 라이브'" assets/ritual-cue.js
+nochk "live:'라이브 연주'" admin.html
+nochk "song:'불러 줄 가족·지인이 있거나 라이브 연주를 원할 때" order-preview.html
+nochk "'valley', 'song', 'toast'" assets/ritual-preview-link.js   # 죽은 키 song(옛 코스 축가 종류) — 엔진이 안 읽는다
+chk "live:'옛 초안 · 연주 → 상담 확인'" admin.html 1
+chk "악기 연주는 어려워요 · 반주 음원(MR)으로 불러 주세요." order-preview.html 1   # 창 «누가 하나요?»(축가 쪽) · ② 쪽은 CARDS.song.one «악기 연주는 받지 않아요»
+chk '악기 연주는 받지 않아요.' assets/ritual-open.js 1
+chk '악기 연주는 받지 않습니다.' index.html 2   # 홈 FAQ «행진 · 축가 · 축사» 본문 · JSON-LD
+chk "ok('\[NO_INSTRUMENT_1116\] 고객 · 엔진 파일(주석 뺌)에" scripts/audit/mid17-pick.mjs 1
+chk 'SPEECH_SONG_1115' scripts/audit/pv-fix-1114.mjs 4   # ★[SPEECH_SONG_1115] ⑤ 정석 축사 쪽 · 정석(축가만) 두 판 · ② 정석도 축가 앞 곡이 1.5초에 꺼진다(옛 «앞이 이미 정적» 대조 은퇴)
+chk 'SPEECH_SONG_1115' scripts/audit/console-r2-1115.mjs 1   # 축사 칸을 재는 판 = pairSet(free)
+chk 'SPEECH_SONG_1115' scripts/audit/pv-r3-1115.mjs 1   # 19 정석(축가만) 축가 B10
+nochk "ok('T05 «음악과 함께» 축사 뒤 축가 여는 말" scripts/audit/one-flow.mjs   # [SPEECH_SONG_1115] 은퇴한 옛 T05(축사 뒤 축가 여는 말 정적)
 chk '①-T01' scripts/audit/gpt-r1.mjs 1
 chk '④-T01' scripts/audit/gpt-r1.mjs 1
 chk "meaning-r2 gpt-r1" .github/workflows/merge-guard.yml 1
@@ -23122,8 +23427,7 @@ nochk '덕담 뒤, 축가 앞에' api/_kb.js                                    
 chk '성혼 선언을 담으신 경우에는 선언문을 읽는 분이 두 분 이름을 부릅니다' index.html 2
 chk 'card-label">Long Hours' index.html 1                                           # [H4_17] 15 Hours(05:00 → 자정 = 19시간) 걷음
 nochk '15 Hours' index.html
-chk '평일 예식은 주말·공휴일보다 80만&nbsp;원 낮습니다' index.html 1                  # [H4_18] 80 = 330 - 250
-nochk '굳이 주말일 이유가 없습니다' index.html
+# [H4_18] 평일 칸 두 줄은 [WEEKDAY_OLD_OWNER_1116](11/16 대표님 옛 글 고름)이 덮어 은퇴 — 새 기대는 파일 끝 WEEKDAY_OLD_OWNER_1116 블록
 nochk '자켓' index.html                                                           # [H4_20] 표준 표기 «재킷»
 nochk '자켓' api/_kb.js
 nochk '자켓' assets/advisor-kb.js
@@ -23148,11 +23452,14 @@ chk '시착하시면 상담 예약금은 시착 비용으로 전환돼요' asset
 chk '종교 의식도, 주례자를 모시는 것도 가능해요' assets/advisor-kb.js 1           # [H4_RELIGION]
 chk '조건은 상담 때 안내해 드려요' api/_kb.js 1                                    # [H4_HONOR] 오픈 혜택 조건
 chk '본식 동안이에요(고른 순서에 따라 약 7~25분)' api/_kb.js 1                     # [H4_LIVE] 디지털 참석
-chk '식중 영상은 선택이에요. 축사 자리(덕담 뒤 · 축가 앞)에 축사 대신 넣고, 제작 비용은 두 분이 부담해요. 예식 7일 전까지 확정해 주세요. 확정하지 않으면 영상 없이 진행해요.' api/_kb.js 1   # [H4_MIDVIDEO · MID17_14] 사장님 11/06 · 계약서 v1.16 3조②
+chk '식중 영상은 선택이에요. 축사 · 축가 뒤(편지 낭독 앞)에 넣고, 축사나 축가와 함께 담을 수 있어요. 쿠폰으로 기본 템플릿은 무료이고, 추가는 두 분이 부담해요. 예식 7일 전까지 확정해 주세요. 확정하지 않으면 영상 없이 진행해요.' api/_kb.js 1   # ★[FM_COUPON_1116] 옛 «제작 비용은 두 분이 부담해요.»   # ★[SPEECH_SONG_1115] 자리 · 함께 담기(옛 «축사 자리(덕담 뒤 · 축가 앞)에 축사 대신») · [H4_MIDVIDEO · MID17_14] 사장님 11/06 · 계약서 v1.16 3조②
 # ★[MID17_14 2026-11-07 대본 줄 14] 홈 FAQ · JSON-LD · 별도 표에 식중 영상(선택 · 제작 비용 두 분 · 7일 전 · 없으면 영상 없이) — «포함» 칸 · 업체 이름 · 쿠폰 금지
 chk '기한까지 확정하지 않으면 영상 없이 진행합니다.' index.html 2
-chk '<li>식중 영상 <span class="li-meta">선택 · 제작 비용 두 분</span></li>' index.html 1
-nochk '식중 영상.*쿠폰' index.html
+chk '<li>식중 영상 <span class="li-meta">선택 · 쿠폰으로 기본 템플릿 무료 · 추가는 두 분</span></li>' index.html 1   # ★[FM_COUPON_1116 · RULES_SLIM ⑧] 옛 핀 «선택 · 제작 비용 두 분»
+# ★[FM_COUPON_1116] 옛 nochk '식중 영상.*쿠폰' index.html(MID17_14 · 홈에 쿠폰 금지)은 은퇴 — 대본 11/16 15:55 «쿠폰으로 기본 템플릿 무료 · 추가는 두 분». 업체 이름은 여전히 홈 · 공개 AI 에 쓰지 않는다
+nochk '필메이커' index.html
+nochk '필메이커' api/_kb.js
+nochk '필메이커' assets/advisor-kb.js
 chk '덕담 원고는 예식 7일 전까지 준비해 주세요' api/_kb.js 1                       # [H4_Q34]
 # ★★[H4_15 2026-11-06 홈 4차 H15 · 대본 판정 «상»] 상담 신청서 맨 앞 «상담할 상품» — 스냅이면 예식 칸을 끄고(검증 제외) 촬영 날짜 · 시간 · 스냅 가격 · product 웨딩스냅
 chk 'name="product" value="웨딩스냅"' inquiry.html 1
@@ -23237,12 +23544,13 @@ nochk '저희가 검증한' api/_kb.js
 nochk '프라이버시까지 확인해 추천' index.html
 nochk '검증한 인근 식당' index.html
 chk 'ESD_DAY_1106' scripts/audit/entry-scene-day.mjs 2   # [ESD_DAY_1106] 맞절 큐 −90(ENTRY_SETTLE) 기대 · 갈래 칩 390 · 360 폭 확인
+# ★[SPEECH_SONG_1115 · NARR_ROLE_1115] 새 기대 — 큐 열쇠 midvid · 353 여는 말(영상 · [재생 안 됨] · 메모) → 355 박수 · 식전 소개 판과 상관없이 같은 두 줄(아래 옛 58 + 129 설명은 엔진 free() 영상 판 코드 핀으로만 남는다)
 # ★★[MID17_ENGINE 2026-11-07 사장님 결정 · 식중 영상 · midvideo-17 줄 3 · 4 · 6] 영상 갈래 = 58 여는 말 → 129(식전 영상 소개 예시 3 녹음 그대로 · 사슬 1.25초) → 영상 · 같은 날 식전 소개가 129 면 58 하나 · 새 녹음 0
 chk 'MID17_ENGINE' assets/ritual-cue.js 3
 chk 'function pvSlugOf(S)' assets/ritual-cue.js 1          # 식전 영상 · 식중 영상이 같은 슬러그 셈을 본다
 chk "slug: 'narr-prevideo-in-ex3', name: '식중 영상 소개'" assets/ritual-cue.js 1
 chk "pvSlugOf(S) === 'narr-prevideo-in-ex3')) return \[cue(o)\];" assets/ritual-cue.js 1   # 129 겹친 날 58 하나
-chk 'MID17_ENGINE' assets/ritual-story.js 2                # 블록 «식중 영상» 설명(STORY_COVER)
+chk 'MID17_ENGINE' assets/ritual-story.js 1                # 블록 «식중 영상» 설명(STORY_COVER) · ★[SHOW_PAIR_1116] «준비한 순서» 블록을 걷어 2 → 1
 chk "'식중 영상': {" assets/ritual-story.js 1
 chk 'MID17_ENGINE' scripts/audit/open-course.mjs 2         # 블록 · [재생 안 됨] 기대값(의도한 변화 · 옛 값 주석)
 chk 'MID17_PRACTICE' order-preview.html 1                  # 연습 · 미리 듣기 카드 «식중 영상이 흐르는 자리»
@@ -23250,7 +23558,7 @@ chk 'MID17_SCRIPT' order-preview.html 2                    # 줄 이름(129 = �
 chk "'식중 영상 소개':'이어서'" order-preview.html 1
 nochk "what=fk==='video'?'준비한 영상이 흘러요'" order-preview.html   # 옛 카드 글 — 되살리지 말 것
 chk 'MID17_ENGINE' scripts/audit/mid17-engine.mjs 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/mid17-engine.mjs >/dev/null 2>&1; _m17e=$?; node scripts/audit/mid17-engine.mjs --selftest >/dev/null 2>&1; _m17es=$?; if [ "$_m17e" = 2 ]; then echo 'ok mid17-engine — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_m17e" != 0 ] || [ "$_m17es" != 0 ]; then echo "REVERT? mid17-engine: 식중 영상 엔진 58 + 129 · 전체 대본 · 연습 카드가 어긋났습니다 ($_m17e/$_m17es) — node scripts/audit/mid17-engine.mjs"; fail=1; else echo 'ok mid17-engine'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/mid17-engine.mjs >/dev/null 2>&1; _m17e=$?; node scripts/audit/mid17-engine.mjs --selftest >/dev/null 2>&1; _m17es=$?; if [ "$_m17e" = 2 ]; then echo 'ok mid17-engine — 엔진만(브라우저 없음 · 화면 건너뜀)'; elif [ "$_m17e" != 0 ] || [ "$_m17es" != 0 ]; then echo "REVERT? mid17-engine: 식중 영상 엔진(midvid · 353 여는 말 → 영상 → 355 박수 · 옛 초안 옮기기 · 축가 뒤 · 편지 앞) · 전체 대본 · 연습 카드가 어긋났습니다 ($_m17e/$_m17es) — node scripts/audit/mid17-engine.mjs"; fail=1; else echo 'ok mid17-engine'; fi; fi
 # ★★[MID17_CONSOLE 2026-11-07 사장님 결정 · 식중 영상 · midvideo-17 줄 10 · 11] 당일 콘솔 — 식중 영상 디렉터 메모(식전 영상 메모와 같은 꼴 · 영상 사람 순간을 든 큐에) · 재생 순서 기록 · 디지털 날 같음
 chk 'MID17_CONSOLE' assets/ritual-cue.js 2
 chk "note: fk === 'video' ? '영상 링크는 D-7 까지 받는다(마이페이지 «식중 영상» 확정 기한과 같다" assets/ritual-cue.js 1
@@ -23429,6 +23737,208 @@ chk "★\[LAYER7_FACE_LEAD_1110\] 7층과 하나로" assets/ritual-cue.js 1
 chk 'runs-on: ubuntu-24.04   # ★\[CI_RUNNER_2404' .github/workflows/merge-guard.yml 2
 nochk 'runs-on: ubuntu-latest' .github/workflows/merge-guard.yml
 chk 'CAKE_FILES_OFF_1110' scripts/build-rev1013.mjs 1   # 원고 표 케이크 줄(41 · 42 · 76 · 77 · 107)은 «소리 없음»으로 세지 않는다 — 이 줄을 빼면 NARR AUDIO FAIL 4(11/10 CI)
+# ★★[NO_RELIFT_XF_1114 2026-11-14 BGM 섹션 · 직접 넘겨 보기] 당일 콘솔 — 정적 뒤 새 곡 큐에서 꺼져 있던 앞 곡을 겹쳐 넘기지 않는다(NO_RELIFT_1102 의 콘솔 재생기 판) · 소리는 CI bgm-sound e 칸 console-relift 가 잰다
+chk 'NO_RELIFT_XF_1114' console.html 3
+chk 'function bedUnhush(){' console.html 1
+chk 'NO_RELIFT_XF_1114' scripts/audit/console-relift.mjs 5
+chk "seam-b2-rest console-relift'" .github/workflows/merge-guard.yml 1
+# ★★[CONSOLE_BED_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 콘솔 쪽 검증] 당일 콘솔 구간 곡 재생기 고침 — 소리 · 동작은 CI bgm-sound c 칸 console-bed-1114 가 잰다(옛 console.html 로 돌리면 빨강)
+chk 'LIST_OPEN_ONCE_1114' console.html 1   # 목록 곡 끝 감시기 — 다음 곡을 여는 중이면 다시 요청하지 않는다(요청 24회 · 곡 건너뜀 · 무음 0.4초)
+chk '  if (BED.opening) return;' console.html 1
+chk 'LIST_OPEN_ONCE_1114' scripts/audit/console-bed-1114.mjs 3
+chk "reg-p17 console-bed-1114'" .github/workflows/merge-guard.yml 1
+chk 'TABLE_BORROW_PLAY_1114' console.html 3   # 테이블 인사(M8) 재생 목록에 계획이 빌려 온 곡을 남긴다(REPEAT_RULE_1107 ② 가 당일 콘솔에서도 먹게)
+nochk 'segListOf(id, cur).filter(have);' console.html   # 옛 줄 — 빌려 온 곡이 재생 직전에 빠진다 · 되살리지 말 것
+chk 'function segSel(id, cur, play){' console.html 1
+chk 'var s = segSel(id, cur, 1), d0 = segDef(id);' console.html 1
+chk 'TABLE_BORROW_PLAY_1114' scripts/audit/console-bed-1114.mjs 3
+chk 'HEARD_RESET_1114' console.html 1   # 새로 시작(시작 · 끝난 뒤 다시 · 나가기)하면 들린 곡 기록을 비운다 — 리허설 기록이 본 예식 테이블 인사 차례를 바꾸지 않게
+chk '^  HEARD = {};$' console.html 1
+chk 'HEARD_RESET_1114' scripts/audit/console-bed-1114.mjs 3
+chk 'BED_BAD_RESET_1114' console.html 3   # «못 연 곡» 표시는 그 판 안에서만 — 파일을 바꿔 넣으면 그 곡만 · 새로 시작하면 전부 지운다(지우는 곳이 없어 그 탭 내내 건너뛰었다)
+chk 'if (BED.bad) delete BED.bad\[sid\];' console.html 1
+chk '^  BED.bad = {};$' console.html 1
+chk 'BED_BAD_RESET_1114' scripts/audit/console-bed-1114.mjs 3
+chk 'SEG_FIRST_FAIL_1114' console.html 4   # 흐르는 곡이 없을 때(하객 맞이) 구간 첫 곡이 안 열리면 같은 구간 다음 곡을 한 번씩 — 앞 곡이 흐르면 종전 그대로(DETAIL_R3_1101 ②)
+chk 'function segFirstFail(id, h4){' console.html 1   # [SEG_FIRST_FAIL_1114] · h4 = [M4_HANDOFF_NEXT_1115] 인계 몫
+chk 'function segNeedTxt(d, pl){' console.html 1
+chk '지금 파일이 없어 음악 없이 진행돼요' console.html 1   # 파일 없는 하객 맞이 — 이어질 앞 곡이 없다(«앞 곡이 이어져요» 아님)
+chk 'SEG_FIRST_FAIL_1114' scripts/audit/console-bed-1114.mjs 3
+# ★★[ARRIVE_SETTLE_PV_1114 2026-11-14 BGM 섹션 · 직접 넘겨 보기 문제 2] 미리 듣기 · 연습 — 도착 멘트 잦아듦(4.5초)은 멘트 1.0초 앞에 먼저 · 무음까지 dB 직선(당일 콘솔 EAR_D_1106 ② 와 같게 · 첫 소리 때 걷기 크기보다 18 dB 이상 아래) · 소리는 CI bgm-sound f 칸 pv-fix-1114 ① 이 잰다
+chk 'ARRIVE_SETTLE_PV_1114' assets/bgm-bed.js 4
+chk 'var ARRIVE_LEAD=1000;' assets/bgm-bed.js 1
+chk 'ARRIVE_SETTLE_PV_1114' scripts/audit/pv-fix-1114.mjs 1
+chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115' }" .github/workflows/merge-guard.yml 1   # [PV_FIX_1114] · [CONSOLE_R2_1115] 같은 칸
+chk 'PV_FIX_1114' scripts/audit/pv-fix-1114.mjs 1   # 검사 머리 이름(묶음) — CI bgm-sound f 칸
+# ★★[SONG_OPEN_FADE_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 후보 ⑦] 미리 듣기 · 연습 — 축가 여는 말 뒤 본식 피아노는 줄이 끝난 때부터 1.5초에 걸쳐 정적(엔진 큐 post 값 그대로 · 종전 0.3초 · MEANING_R1_1102 8) · 소리는 pv-fix-1114 ② 가 잰다
+chk 'SONG_OPEN_FADE_PV_1114' assets/bgm-bed.js 2
+chk "if(_pm>0){ LPB.arr={ v:BED.cur, st:nx }; ramp(BED.cur,db,_pm); return; } }" assets/bgm-bed.js 1
+chk 'SONG_OPEN_FADE_PV_1114' scripts/audit/pv-fix-1114.mjs 1
+# ★★[ENTRY_HOOK_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 후보 ③] 미리 듣기 · 연습 — 화촉 직후 입장(뜸 없는 길)은 입장 곡 시작 자리에서 «먼저 흐른 6초»를 빼지 않는다(구호 말끝 0.3초 뒤가 강조 자리 · 종전 5.3초) · 뜸 있는 길은 종전 셈 · 소리는 pv-fix-1114 ③ 이 잰다
+chk 'ENTRY_HOOK_PV_1114' assets/bgm-bed.js 2
+chk "return Math.min(x.H-c0.hd-c0.v-0.3+(el||0),x.end-1)-x.o; }" assets/bgm-bed.js 1   # [ENTRY_HOOK_PV_1114] 뜸 없는 길 셈은 entHushAt 으로 옮겼다(2026-11-15 ENTRY_LATE_FILE_1115) — 구호 말끝 + 0.3초 = 강조 · 6초를 빼지 않는다
+chk "var _at=entHushAt(st,(Date.now()-_t3)/1000);" assets/bgm-bed.js 1   # [ENTRY_LATE_FILE_1115] 시작 자리 = 같은 셈(callOf) + 구호가 시작된 뒤 지난 초
+chk "startVoice(f,lvOf(q2,f),1500,Math.max(0,_at));" assets/bgm-bed.js 1   # [ENTRY_LATE_FILE_1115] · [ENTRY_LATE_MUSIC_1115]
+chk 'ENTRY_HOOK_PV_1114' scripts/audit/pv-fix-1114.mjs 1
+# ★★[BGM_OFF_STAYS_OFF_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 검증 12] 미리 듣기 · 연습 — 선언 뒤 박수 곡(새 곡)을 받는 중에 «음악 끄기» · «잠시 멈춤»을 눌렀으면 늦게 온 곡을 틀지 않는다(차례 번호 · 멈춤을 시작 직전에 다시 본다 · PR_BGM_197) · 소리는 pv-fix-1114 ④ 가 잰다
+chk 'BGM_OFF_STAYS_OFF_1114' assets/bgm-bed.js 1
+chk "if(LPB.lt!==_tkn||pzNow()){ if(pzNow()){ var _z=LPB.pz;" assets/bgm-bed.js 1
+chk 'BGM_OFF_STAYS_OFF_1114' scripts/audit/pv-fix-1114.mjs 1
+# ★★[LISTEN_LEN_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 검증 14] 미리 듣기 — 본식 순간 하나만 들을 때 곡(dayAt · 화면 «이 순서 즈음엔»)은 곡마다 등록된 길이(BgmPicks.lenOf) − 겹침으로 센다(모르는 곡만 4분 · 종전 전부 240초) · 값은 pv-fix-1114 ⑤ 가 잰다
+chk 'LISTEN_LEN_PV_1114' assets/bgm-bed.js 1
+chk "d=Math.max(30,((P.lenOf&&P.lenOf(f,0))||P.LEN0||DAY_LEN)-X); if(t+d>sec) return f; t+=d; } return L\[0\]; }" assets/bgm-bed.js 1
+chk 'LISTEN_LEN_PV_1114' scripts/audit/pv-fix-1114.mjs 1
+# ★★[NO_RELIFT_ALL_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 01] 당일 콘솔 — 정적 뒤 새 곡을 걸 때 지금 곡만이 아니라 소리가 남은 모든 재생기를 정리(잦아들던 재생기는 멈추고 비운다 · BED.later 로 미룰 때도) · 소리는 console-relift ⑥ 이 잰다
+chk 'NO_RELIFT_ALL_1115' console.html 4
+chk 'function bedHush(){' console.html 1
+chk 'var _own = BED.gen' console.html 1
+# ★★[NO_RELIFT_WANT_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 07] 당일 콘솔 — «정적인가»에 청한 크기(duckWant −60 아래)도 넣는다 · 아직 들리는 크기에서 내려가던 중이면 0.5초에 끈다(HUSH_SOFT) · 소리는 console-relift ⑦
+chk 'NO_RELIFT_WANT_1115' console.html 3
+chk 'soft = !off && duckWant != null && duckWant <= -60' console.html 1
+# ★★[M4_HANDOFF_NONE_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 02] 당일 콘솔 — 짧은 입장 곡 인계(ENTRY_SHORT)는 본식 피아노가 실제로 흐르거나 열릴 때만 배경을 올린다 · 없으면 음악 없이 + 상태 한 줄 · 소리는 console-relift ⑧
+chk 'M4_HANDOFF_NONE_1115' console.html 2
+chk 'function m4Flows(){' console.html 1
+chk '이어받을 본식 피아노 파일이 없어 음악 없이 이어 가요' console.html 1
+# ★[NO_RELIFT_FB_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 03] 당일 콘솔 — Web Audio 가 없는 대체 경로(el.volume)도 정적 뒤 새 곡을 여는 동안 앞 곡을 꺼 둔다(bedVolFb 가 hushK 를 0 으로) · 소리는 console-relift ⑨
+chk 'NO_RELIFT_FB_1115' console.html 2
+chk 'function bedHushFb(){' console.html 1
+chk 'k !== BED.hushK' console.html 1
+# ★★[RELIFT_OBS_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 검사 보강] console-relift — 앞 곡을 못 보면(표본 없음 → −140) 초록이 아니라 «못 쟀다»(종료 2) · ⑥ 목록 넘김 중 정적 · ⑦ 내려가는 중 점프 · ⑧ 짧은 입장 곡 뒤 M4 없음 · ⑨ 대체 경로
+chk 'RELIFT_OBS_1115' scripts/audit/console-relift.mjs 4
+chk 'NO_RELIFT_ALL_1115' scripts/audit/console-relift.mjs 2
+chk 'NO_RELIFT_WANT_1115' scripts/audit/console-relift.mjs 2
+chk 'M4_HANDOFF_NONE_1115' scripts/audit/console-relift.mjs 2
+chk 'NO_RELIFT_FB_1115' scripts/audit/console-relift.mjs 3
+# ★★[FILL_XF_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 10] 곡 계획 — 목록 칸 길이(NEED) 판정은 곡 길이 합 − 곡 수 × 겹침(xfOf) · 콘솔 · 미리 듣기가 곡마다 그만큼 일찍 넘긴다(단순합 30:29 테이블 인사가 29:41 에 첫 곡 반복) · 검사 console-r2-1115 E
+chk 'FILL_XF_1115' assets/bgm-picks.js 2
+chk "0) - out.length \* xfOf(sg)" assets/bgm-picks.js 2   # [FILL_XF_1115] 두 셈(계획 · 들린 기록) — 들린 기록 셈 꼬리에 [CARRY_HEARD_1115] 이어받은 곡 자리 빼기가 붙는다
+chk 'FILL_XF_1115' scripts/audit/console-r2-1115.mjs 3
+# ★★[BACK_DROP_OPEN_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 04] 당일 콘솔 «뒤로» — 떠난 큐가 건 구간 곡 요청이 아직 열리는 중이면 거둔다(재생 번호 · 여는 재생기 · 미룬 요청 · 구간 자리) · 정적 뒤 꺼 둔 앞 곡은 되살리지 않는다 · 검사 console-r2-1115 A
+chk 'BACK_DROP_OPEN_1115' console.html 3
+chk "bedBackDrop(cur);" console.html 1
+chk "BED.goBk = _bk;" console.html 1
+chk 'BACK_DROP_OPEN_1115' scripts/audit/console-r2-1115.mjs 3
+# ★★[LIVE_DOWN_MS_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 08] 당일 콘솔 — 사람 구간이 지금보다 낮은 크기로 시작하면(축사 · 편지 «음악과 함께» −15 → −20 등) 내림 시간 1.6초 · 오르는 쪽 2.0초 · 박수 upMs 그대로(LAYER7_DUCK_1108) · 검사 console-r2-1115 B
+chk 'LIVE_DOWN_MS_1115' console.html 1
+chk "_lv < duckWant - 0.5) ? PARAM.fadeDownMs : PARAM.fadeUpMs); segLive(c); duckTo(_lv, _lms); }" console.html 1
+chk 'LIVE_DOWN_MS_1115' scripts/audit/console-r2-1115.mjs 3
+# ★★[HEARD_AUDIBLE_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 기존 07 확장] 당일 콘솔 — 들린 기록(HEARD · REPEAT_FIX_1107 ①)은 음악만 멈춤 · 전체 볼륨 0 · 실효 출력 −60 dB 아래 동안 쌓지 않는다 · 검사 console-r2-1115 C
+chk 'HEARD_AUDIBLE_1115' console.html 1
+chk "if (!f || seen\[f\] || !bedHeardOn(k)) continue;" console.html 1   # [HEARD_XF_1115] 셈이 heardTick 으로 옮겼다(재생기마다 · 같은 실효 출력 셈)
+chk 'HEARD_AUDIBLE_1115' scripts/audit/console-r2-1115.mjs 3
+# ★★[MUTE_PRESSED_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 12] 당일 콘솔 «음악만 멈춤» — aria-pressed 가 상태와 같다 · 켜진 동안 아랫줄 «지금 멈춰 있음» · 금색 바탕 위 아랫줄 글은 단추 글색 · 검사 console-r2-1115 D
+chk 'MUTE_PRESSED_1115' console.html 3
+chk "setAttribute('aria-pressed', String(muted));" console.html 1
+chk 'MUTE_PRESSED_1115' scripts/audit/console-r2-1115.mjs 3
+# ★[CONSOLE_R2_1115 2026-11-15 BGM 섹션 · GPT 라운드 2] 당일 콘솔 · 곡 계획 묶음 검사 — CI bgm-sound f 칸(가장 짧은 칸)에서 돈다
+chk 'CONSOLE_R2_1115' .github/workflows/merge-guard.yml 1
+chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115' }" .github/workflows/merge-guard.yml 1
+# ★[GEN_ON_OPEN_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 검증 중 찾음] 새 곡이 재생기를 받을 때 세대 번호를 올린다 — 앞 겹침 뒷정리 타이머가 늦게 여는 곡 재생기를 세우지 않게(검사 console-r2-1115 F)
+chk 'GEN_ON_OPEN_1115' console.html 1
+chk '  BED.gen\[nx\] = (BED.gen\[nx\] || 0) + 1;' console.html 1
+chk 'GEN_ON_OPEN_1115' scripts/audit/console-r2-1115.mjs 3
+# ★★[CONSOLE_R3_1115 2026-11-15 BGM 섹션 · GPT 라운드 3] 당일 콘솔 · 곡 계획 고침 묶음 — 검사 scripts/audit/console-r3-1115.mjs(A ~ K · CI bgm-sound f 칸)
+chk 'CONSOLE_R3_1115' .github/workflows/merge-guard.yml 1
+chk 'CONSOLE_R3_1115' scripts/audit/console-r3-1115.mjs 1
+# [LATER_DROP_1115] (01) 새 요청이 재생기를 얻으면 앞서 미뤄 둔 요청을 버린다(DETAIL_R3_1101 ③ 마지막 요청이 이긴다)
+chk 'LATER_DROP_1115' console.html 1
+chk '^  BED.later = null;   /\* ★\[LATER_DROP_1115' console.html 1
+chk 'LATER_DROP_1115' scripts/audit/console-r3-1115.mjs 3
+# [M4_NONE_DROP_1115] (03) 음악 없이 이을 때 여는 중 · 실패 뒤 다음 곡 · 미룬 요청을 거둔다(멈춘 곡을 «못 연 곡»으로 적지 않는다)
+chk 'M4_NONE_DROP_1115' console.html 1
+chk 'function m4None(){ var _op = BED.opening; BED.tk = (BED.tk || 0) + 1; BED.opening = null; BED.onFail = null; BED.later = null;' console.html 1
+chk 'M4_NONE_DROP_1115' scripts/audit/console-r3-1115.mjs 3
+# [M4_HANDOFF_NEXT_1115] (02) 짧은 입장 곡 인계에서 첫 본식 곡을 못 열면 다음 곡 · 다 못 열면 m4None(NO_RELIFT_1102 · SEG_FIRST_FAIL_1114)
+chk 'M4_HANDOFF_NEXT_1115' console.html 3
+chk "BED.m4h = 1; segGo('M4'); BED.m4h = 0;" console.html 1
+chk 'if (h4) { m4None(); return; }' console.html 1
+chk 'M4_HANDOFF_NEXT_1115' scripts/audit/console-r3-1115.mjs 3
+# [HUSH_SOFT_FREE_1115] (04) 0.5초 정적이 끝나면 조용해진 앞 재생기를 비우고 미룬 요청을 바로(BED.gen 이 같을 때만)
+chk 'HUSH_SOFT_FREE_1115' console.html 1
+chk 'else sk.push(\[k, BED.gen\[k\]\]); continue; }' console.html 1
+chk 'HUSH_SOFT_FREE_1115' scripts/audit/console-r3-1115.mjs 3
+# [BACK_DROP_ORIGIN_1115] (05) 여는 요청이 저를 건 큐 자리(bk)를 들고 있어 그 큐 밖으로 «뒤로» 나가면 거둔다(BACK_DROP_OPEN_1115 확장)
+chk 'BACK_DROP_ORIGIN_1115' console.html 3
+chk '_o.bk.i === i) g = _o.bk;' console.html 1
+chk 'BED.bkNow = _bk; segGo(segOfCue(c)); BED.bkNow = null;' console.html 1
+chk 'BACK_DROP_ORIGIN_1115' scripts/audit/console-r3-1115.mjs 3
+# [FINISH_NO_NEXT_1115] (06) 끝내기 뒤 3초 잦아드는 동안 목록 감시가 다음 곡을 열지 않는다(AFTER_PHOTO_LOOP_1102)
+chk 'FINISH_NO_NEXT_1115' console.html 2
+chk 'BED.fin = 1; BED.tk = (BED.tk || 0) + 1;' console.html 1
+chk "if (BED.mode !== 'seg' || BED.xing || BED.fin) return;" console.html 1
+chk 'FINISH_NO_NEXT_1115' scripts/audit/console-r3-1115.mjs 3
+# [RESET_PLAYERS_1115] (07 · 08) 새 판은 앞 판 재생기를 멈추고 크기를 처음 값으로(0번 1 · 나머지 0)
+chk 'RESET_PLAYERS_1115' console.html 1
+chk 'g.gain.setValueAtTime(k ? 0.0001 : 1, AC.currentTime)' console.html 1
+chk 'RESET_PLAYERS_1115' scripts/audit/console-r3-1115.mjs 6
+# [PAUSE_REOPEN_1115] (09) 여는 중 «잠시 멈춤»이면 그 요청을 거두어 두었다가 이어 들을 때 다시 연다(GUEST_PAUSE · NO_RELIFT_1102)
+chk 'PAUSE_REOPEN_1115' console.html 3
+chk 'BED.reopen = _op;' console.html 1
+chk 'var _ro = BED.reopen; BED.reopen = null;' console.html 1
+chk 'PAUSE_REOPEN_1115' scripts/audit/console-r3-1115.mjs 3
+# [DECLARE_ONE_1115] (10) 선언 뒤 박수 — 본식 곡이 한 곡뿐이어도 그 곡을 강조 자리부터 새로(DECLARE_LIFT 주석 «없으면 지금 곡을 강조 자리부터»)
+chk 'DECLARE_ONE_1115' console.html 1
+chk 'if (_j < 0) _j = _dok(BED.list' console.html 1   # [DECLARE_PLAYABLE_1115] 한 곡 자리 = 지금 자리 곡이 틀 수 있을 때(아니면 틀 수 있는 첫 곡)
+nochk 'if (_j < 0 && BED.id !== _hz) _j = BED.li;' console.html 0
+chk 'DECLARE_ONE_1115' scripts/audit/console-r3-1115.mjs 3
+# [CARRY_HEARD_1115] (11) 들린 기록으로 다시 짠 목록 — 이어받은 곡은 지금 자리(curAt)만큼 빼고 칸 길이를 센다(REPEAT_RULE_1107 · FILL_XF_1115)
+chk 'CARRY_HEARD_1115' assets/bgm-picks.js 1
+chk 'out.indexOf(c) > -1 ? cAt : 0' assets/bgm-picks.js 1
+chk 'CARRY_HEARD_1115' console.html 1
+chk 'curAt: (cur && BED.id === cur' console.html 1
+chk 'CARRY_HEARD_1115' scripts/audit/console-r3-1115.mjs 3
+# ★[RELIFT_XG_1115 2026-11-15] console-relift ⑤ «계단 없이»는 앞 곡 재생기 크기 마디(xg)로 잰다 — 전체 크기 곱으로 재면 부하 때 표본 위상에 흔들렸다
+chk 'RELIFT_XG_1115' scripts/audit/console-relift.mjs 3
+# ★★[PV_R3_1115 2026-11-15 BGM 섹션 · GPT 라운드 3] 미리 듣기 · 연습(bgm-bed) 고침 묶음 검사 — 옛 판 빨강 · 새 판 초록(BP_BED 로 깨 보기) · CI bgm-sound f 칸
+chk 'PV_R3_1115' scripts/audit/pv-r3-1115.mjs 1
+chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115' }" .github/workflows/merge-guard.yml 1
+# ★[CI_SPLIT_G_1115 2026-11-15] bgm-sound g 칸 — 라운드 3 검사 둘(console-r3-1115 · pv-r3-1115) · f 칸이 20분에 가까워 나눔
+chk 'CI_SPLIT_G_1115' .github/workflows/merge-guard.yml 1
+chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115' }" .github/workflows/merge-guard.yml 1
+# ★★[ARRIVE_ONCE_VISIT_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 01] 미리 듣기 · 연습 — «이 줄 몫으로 도는 내림» 기록(LPB.arr)은 그 줄의 이번 방문에만 · 다른 줄을 보여 주면 지운다(크게 보기에서 이전 줄 → 다음 줄로 도착 멘트 · MR 자리에 다시 들어와도 내림을 다시 건다)
+chk 'ARRIVE_ONCE_VISIT_1115' assets/bgm-bed.js 2
+chk "function arrLeave(st){ if(LPB.arr&&LPB.arr.st!==st) LPB.arr=null; }" assets/bgm-bed.js 1
+chk "if(pzNow()){ holdOn(st); return; }   /\* \[REG_P17\] \*/ arrLeave(st); " assets/bgm-bed.js 1
+chk "if(pzNow()){ holdOn(st); return 0; }   /\* \[REG_P17\] \*/ arrLeave(st);" assets/bgm-bed.js 1
+chk 'ARRIVE_ONCE_VISIT_1115' scripts/audit/pv-r3-1115.mjs 1
+# ★★[ENTRY_LATE_FILE_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 14] 미리 듣기 · 연습 — 화촉 직후 입장 곡 파일이 구호보다 늦게 오면 지난 시간만큼 뒤에서 시작(강조 = 구호 말끝 + 0.3초 · 1.5초 늦게 와도 · 종전 +1.8초)
+chk 'ENTRY_LATE_FILE_1115' assets/bgm-bed.js 2
+chk "function entHushAt(st0,el){ var o=BUF\[ENT_F\], x=o&&o.ext; if(!x) return 0; var c0=callOf(st0,x); return Math.min(x.H-c0.hd-c0.v-0.3+(el||0),x.end-1)-x.o; }" assets/bgm-bed.js 1
+chk 'ENTRY_LATE_FILE_1115' scripts/audit/pv-r3-1115.mjs 1
+# ★★[ENTRY_LATE_MUSIC_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 13] 미리 듣기 · 연습 — 화촉 직후 입장 · 강조 자리가 곡 앞(0:05)이라 곡 앞부분이 구호보다 짧으면 모자라는 만큼 늦게 들어온다(강조는 고른 자리 그대로 · 입장 장면 LATE_MUSIC · 당일 콘솔 ES.plan 과 같다 · 종전 말끝 14초 전)
+chk 'ENTRY_LATE_MUSIC_1115' assets/bgm-bed.js 3
+chk "if(_at<-0.05&&!_w){ LPB.entLate={ st:q2, tk:_tkh }; setTimeout(function(){ _put(1); },Math.round(-_at\*1000)); return; } LPB.entLate=null;" assets/bgm-bed.js 1
+chk "if(LPB.entLate&&LPB.entLate.st===st&&LPB.entLate.tk===LPB.lt){ LPB.on=true; return; }" assets/bgm-bed.js 1
+chk 'ENTRY_LATE_MUSIC_1115' scripts/audit/pv-r3-1115.mjs 1
+# ★★[ENTRY_LEAD_CALL_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 15] 미리 듣기 · 연습 — 뜸 있는 길(입장부터 듣기)도 구호 말 길이를 실제로 트는 파일로 센다(callOf · 앞 6초 뜸 그대로 · 종전 장면 V 또는 15초 어림 → 강조가 말끝 4.1초 전)
+chk 'ENTRY_LEAD_CALL_1115' assets/bgm-bed.js 2
+chk "if(k==='entry'&&!entRest()){ var c0=st0?callOf(st0,x):{ hd:0, v:x.V!=null?x.V:15 }; t=x.H-ENT_LEAD-c0.hd-c0.v-0.3; } else {" assets/bgm-bed.js 1
+chk "if(f===ENT_F) return entAt(st&&st.k,lead?st:null);" assets/bgm-bed.js 1
+chk "var go=function(){ play(f,vx(p.music,f),p.up,atOf(f,st,1)); LPB.f=f;" assets/bgm-bed.js 1
+chk 'ENTRY_LEAD_CALL_1115' scripts/audit/pv-r3-1115.mjs 1
+chk 'ENTRY_LEAD_CALL_1115' scripts/audit/pv-fix-1114.mjs 1   # ③ 대조 — 뜸 있는 길 시작 자리 = H − 6 − 구호(실제 파일) − 0.3
+# ★★[ENTRY_RATE_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 16] 미리 듣기 · 연습 — 구호 말 길이는 틀 빠르기로 나눈다(두 분 AI 줄 · 빌더가 거는 playbackRate 와 같은 식 _upRate · VOICE_TUNE · 종전 1.2배면 강조가 말끝 3.5초 뒤)
+chk 'ENTRY_RATE_1115' assets/bgm-bed.js 2
+chk "function rateOf(st0){ var r=1; try{ if(st0&&st0.up&&st0.couple&&typeof _upRate==='function') r=+_upRate(st0.up)||1; }catch(e){} return (r>0.3&&r<3)?r:1; }" assets/bgm-bed.js 1
+chk "var r=rateOf(st0); if(pd&&d>0) return { hd:pd\[0\]/1000/r, v:Math.max(0.5,d-(pd\[0\]+pd\[1\])/1000)/r };" assets/bgm-bed.js 1
+chk 'ENTRY_RATE_1115' scripts/audit/pv-r3-1115.mjs 1
+# ★★[CLAP_PEND_KEEP_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 17] 미리 듣기 · 연습 — 선언 뒤 박수 곡(새 곡)을 받는 중 멈췄다가 곡이 오기 전에 이어 들으면 앞 곡(선언 앞 곡)을 되살리지 않고 정적으로 기다려 온 새 곡을 그 줄 크기로(DECLARE_LIFT · NO_RELIFT · 종전 B09 −8 되살아남 · B10 0회)
+chk 'CLAP_PEND_KEEP_1115' assets/bgm-bed.js 4
+chk "else { LPB.nsw={ st:st, f:_nf }; want(_nf,function(b){ if(b) _go(); }); } return; } }" assets/bgm-bed.js 1
+chk "function lpEnd(keepHold){ if(!keepHold){ LPB.hold=null; LPB.nsw=null; }" assets/bgm-bed.js 1
+chk "var _ns=LPB.nsw; if(_ns&&emb()&&curStep()===_ns.st&&!(BED.cur.src&&BED.cur.f===_ns.f)){ LPB.pz=null;" assets/bgm-bed.js 1
+chk "if(!b||LPB.nsw!==_ns||LPB.lt!==_tk||curStep()!==_ns.st||pzNow()) return; var nv=startVoice(_ns.f,lvOf(_ns.st,_ns.f),RESUME_MS,reHook(_ns.f,b));" assets/bgm-bed.js 1
+chk 'CLAP_PEND_KEEP_1115' scripts/audit/pv-r3-1115.mjs 1
+# ★[DAY_KEY_READY_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 19] 미리 듣기 · 화면 — 순간 시간표(daySec)는 큐 엔진으로 다 센 뒤에만 기억(곡 목록이 엔진보다 먼저 와도 축사 · 축가가 첫 곡으로 굳지 않게)
+chk 'DAY_KEY_READY_1115' assets/bgm-bed.js 1
+chk "if(DAY.key===key) return DAY.v; var v={};" assets/bgm-bed.js 1
+chk "DAY.key=key; DAY.v=v; }catch(x){} return v; }" assets/bgm-bed.js 1
+nochk "DAY.key=key; DAY.v={};" assets/bgm-bed.js 0
+chk 'DAY_KEY_READY_1115' scripts/audit/pv-r3-1115.mjs 1
+# ★[WARM_DAY_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 20] 미리 듣기 — 순간 쪽을 열 때 미리 받는 곡 맨 앞은 그 순간 하나 듣기 첫 곡(dayAt · 같은 곡이면 하나 · 데이터 절약 · 셋 한도 그대로)
+chk 'WARM_DAY_1115' assets/bgm-bed.js 1
+chk "var _wl=songsOf(k), _wd=dayAt(k); if(_wd&&_wl.indexOf(_wd)<0) _wl.unshift(_wd);" assets/bgm-bed.js 1
+chk 'WARM_DAY_1115' scripts/audit/pv-r3-1115.mjs 1
 # ★[FINAL_APPLY_1115 대본 11/15 «배포 준비: 확정분 전부 엔진에 넣기» · 묶음 1 우성 FINAL2] 194 E(«주례사 대신») · 130 새 글 · 식중 351 ~ 355 · 177 N(«가득» 뺌) · 빠르기 60 · 169
 #   받은 테이크 원본 = 1층 · 빠르기 = 표(atempo 만 · 높이 그대로) · 기준 = FINAL2 듣기판(아티팩트 DP5LNsqP8yR92bRM3CwCFZ) · 끊김 허용 목록은 같은 무음·같은 꼴이면 시각이 밀려도 같은 자리
 chk 'FINAL_APPLY_1115' assets/ritual-open.js 3
@@ -23460,7 +23970,7 @@ chk '신랑 신부… 맞절.' assets/ritual-open.js 4
 chk '화면으로 함께해 주시는 분들께도 두 사람이 인사드리겠습니다.' assets/ritual-data.js 1
 chk '이제 안내에 따라 사진 촬영을 진행하겠습니다.' assets/ritual-cue.js 1
 # ★[FINAL_APPLY_1115 · CI guard 11/15] 문체 자를 넘은 대표님 확정 세 자리 — 그 자리 · 그 낱말만 봐준다(깨 보기가 다른 자리는 그대로 걸리는지 본다) · 결정 docs/rules/나레이션.md 묶음 3 «문체 자를 넘은 자리»
-chk "const FINAL_OK = \[\['W1', /^tribute-hug\$/, '따뜻하게 안아'\], \['W2', /^guest-w-10m-n20/, '천천히 자리를 잡아'\], \['W13', /^guest-w-10m-n10-short/, '예식을'\]\];" scripts/audit/narr-words.mjs 1
+chk "const FINAL_OK = \[\['W1', MIDV_OUT, '따뜻한 박수'\], \['W1', /^tribute-hug\$/, '따뜻하게 안아'\], \['W2', /^guest-w-10m-n20/, '천천히 자리를 잡아'\], \['W13', /^guest-w-10m-n10-short/, '예식을'\]\];" scripts/audit/narr-words.mjs 1   # ★[MIDV_OUT_CLAP_1115 · NARR_ROLE_1115] 식중 영상 닫는 말 355(354) 한 칸 더 · 옛 핀은 셋째 자리부터 같은 줄
 chk '\[FINAL_APPLY_1115\] 깨 보기 — 대표님 확정 세 자리는 통과' scripts/audit/narr-words.mjs 1
 chk '문체 자(`scripts/audit/narr-words.mjs` W1 · W2 · W13)를 넘은 자리' docs/rules/나레이션.md 1
 # ★[SEAM_SAMPLE_1115] seam-bg «앞 명령» 경계 = 바뀌기 전 마지막 표본(0.1초 표본 늦음에 흔들리지 않게) — 옛 «a.T - 50» 되살리지 말 것
@@ -23477,6 +23987,85 @@ chk "ok('\[GA_W5_1115\] 빌더 하객 안내 네 칸" scripts/audit/open-course.
 chk '양가 아버님, 맞절.' assets/ritual-open.js 2
 nochk '화면으로 보고 계신 분들께 인사를 올리겠습니다.' assets/ritual-data.js
 nochk '이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해 서도록 하겠습니다.' assets/ritual-open.js
+# ★[PV_BUF_1115 EVENT_VIDEO_STUTTER 2026-11-15 대본 «이벤트 영상 끊김»] 느린 4G 에서 0.3초씩 여러 번 끊기던 것 — 큰 표지는 영상이 넉넉히 받은 뒤 · waiting 이면 멈추고 canplaythrough(늦어도 6초) 뒤 이어서
+chk 'function _pvBuf(vd,tok){' order-preview.html 1
+chk "_pvBuf(vd,tok); } }" order-preview.html 1
+chk "vd.addEventListener(t,_bigGo,{once:true});" order-preview.html 1
+# ★★[ENTRY_NOFILE_OWNER_1115 2026-11-15 대표님 결정 A · BGM 결정 카드 ①] 입장곡을 골랐는데 당일 파일을 못 받은 날 — 꺼 둔 화촉 곡을 되살리지 않고 본식 피아노(M4) 첫 곡을 새로(검사 entry-nofile-1115 · CI bgm-sound g)
+chk 'ENTRY_NOFILE_OWNER_1115' console.html 2
+chk "if (k === 'entry' && esdNone(c)) return 'M4';" console.html 1   # [ENTRY_NONE_1116] 못 받은 날 · 아예 없는 날 둘 다
+chk 'ENTRY_NOFILE_OWNER_1115' scripts/audit/entry-nofile-1115.mjs 2
+# ★[ENTRY_NOFILE_DUCK15_1115 2026-11-15 대본 판단] 입장곡을 못 받은 날 입장 멘트 아래 = 말 아래 표준 −15(보통 날 장면 귀와 맞춤 · 입장 장면 값 −12 는 보통 날 길 그대로 · 검사 entry-nofile-1115 ④)
+chk 'ENTRY_NOFILE_DUCK15_1115' console.html 1
+chk 'var _cdk = esdNone(c) ? PARAM.duckSpeech : c.duck;' console.html 1
+# ★[ENTRY_NONE_1116 2026-11-16 대본 결정 · BGM GPT 라운드 3] «입장 곡이 아예 없는 날»도 결정 A 와 같게(본식 피아노 첫 곡 · 멘트 아래 −15) · 고객 미리 듣기 · 하객 화면은 그대로 · 검사 entry-nofile-1115(없는 날 · 못 받은 날 · 받은 날)
+chk "function esdNone(c){ return !!(esdMain(c) && MODE !== 'preview' && !GUEST && !esdReady(c)); }" console.html 1
+chk 'ENTRY_NONE_1116' scripts/audit/entry-nofile-1115.mjs 1
+chk '(_ldb != null ? _ldb : _cdk)' console.html 1
+chk 'ENTRY_NOFILE_DUCK15_1115' scripts/audit/entry-nofile-1115.mjs 2
+# ★★[DUCK_SKIP_3S_OWNER_1115 2026-11-15 대표님 «추천대로» · BGM 결정 카드 ④ B] 정적으로 내려가는 도중 다른 순간으로 넘기면 앞 곡은 지금 크기에서 3초에 걸쳐 계속 내린다(따로 내리는 길 · 되살아남 없음) — 옛 0.5초 끄기 되살리지 말 것(검사 console-relift ⑦ ⑩)
+chk 'DUCK_SKIP_3S_OWNER_1115' console.html 5
+chk 'var HUSH_ON = 3.0;' console.html 1
+chk 'xfCurve(BED.hx\[k\].gain, 0.0001, HUSH_ON, t, g0)' console.html 1
+chk 'function xgHome(k)' console.html 1
+nochk 'if (soft) { xfCurve(g.gain, 0.0001, HUSH_SOFT, t); if (k === on)' console.html
+chk 'DUCK_SKIP_3S_OWNER_1115' scripts/audit/console-relift.mjs 6
+# ★★[SONGS_5_1115 2026-11-15 대표님 구매 · BGM 결정 카드 ⑤] 하객 맞이 · 테이블 인사 배경 곡 다섯(B35 ~ B39 · 파일은 저장소 밖) — 하객 맞이 30분 빌림 0 · 되풀이 0 · 테이블 30분 되풀이 0(검사 fill-30-1115 · CI g)
+chk 'SONGS_5_1115' assets/bgm-picks.js 2
+chk "B35: { t: '이웃집 토토로', src: '이웃집 토토로', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -'" assets/bgm-picks.js 1
+chk "B39: { t: '비행기 구름', src: '바람이 분다', a: 'Kazumi Tateishi Trio'" assets/bgm-picks.js 1
+nochk "FILL = { M1: \['B16', 'B33'\], M8: \['B13', 'B14'\]" assets/bgm-picks.js
+chk 'SONGS_5_1115' scripts/audit/fill-30-1115.mjs 3
+nochk 'B35_' assets/bgm-picks.js
+# ★[DECL_DAYSONG_1115] detail-r2 ③ 선언 따로 듣기 — 늦출 곡 = 당일 시간표 그 자리 곡(재 본 뒤) · B09 를 못 박지 않는다
+chk 'DECL_DAYSONG_1115' scripts/audit/detail-r2.mjs 1
+nochk 'H.dly.B09 = d; }, dly); await go' scripts/audit/detail-r2.mjs
+# ★★[ENTRY_FIVE_1115 2026-11-15 대본 «입장 장면 콘솔 5 를 #1655 에 같이»] 입장 장면 다섯 — 도착 GO 에 장면 목소리 거두기 · 구호 전 정지 → 잇기에 목소리 다시 · 정지 두 번에 멈춘 자리 지키기 · 인계 중 정지 · 뒤로에 잦아드는 입장 곡 거두기 · 미리 듣기 짧은 곡 끝 잦아듦(검사 entry-five-1115 · CI g · 옛 판 다섯 다 빨강)
+chk 'ENTRY_VOICE_CUT_1115' console.html 2
+chk 'else if (ESD.run && i !== ESD.run.i) esdVoiceCut(ESD.run);' console.html 1
+chk 'ENTRY_CALL_RESUME_1115' console.html 2
+chk 'ENTRY_PAUSE_TWICE_1115' console.html 1
+chk 'if (!_esd && ESD.paused && !ESD.run) ESD.pzKeep = true;' console.html 1
+chk 'ENTRY_FADE_CUT_1115' console.html 3
+chk 'SHORT_SONG_FADE_1115' assets/entry-scene.js 1
+nochk 'else if(x<PL.th+after) d=0;' assets/entry-scene.js
+chk 'ENTRY_FIVE_1115' scripts/audit/entry-five-1115.mjs 1
+# ★[TRIBUTE_DUCK_OWNER_1115 2026-11-15 대표님 «추천대로» · BGM 결정 카드 ③ A] 부모님께 인사 구호 · 포옹 청하는 줄 아래 음악 −12 그대로(일반 말 −15 로 맞추지 않는다)
+chk 'TRIBUTE_DUCK_OWNER_1115' assets/ritual-cue.js 1
+chk "if (/\^tribute-in/.test(_rs) && _rc.live) _rc.live.walkDuck = PARAM.duckMove != null ? PARAM.duckMove : -12;" assets/ritual-cue.js 1
+# ★[WALK_LIVE_DUCK_1116 2026-11-16 BGM 섹션 · GPT 라운드 2 · 대본 «병합»] «말없이» 부모님께 걷는 사람 구간(doing move)은 콘솔도 걷기 값 −12(종전 큐 값 −15 · 미리 듣기 walkDuck 과 갈림)
+chk 'WALK_LIVE_DUCK_1116' assets/ritual-cue.js 1
+chk "if (/\^tribute-in/.test(_rs) && _rc.live && _rc.live.doing === 'move') _rc.live.duck = _rc.live.walkDuck;" assets/ritual-cue.js 1
+# ★[FREE_SONG_SHOW_KEEP_1115 2026-11-15 대본 결정 A · BGM 결정 카드 ②] 축사 «음악 없이» 화면 곡(B10) ↔ 당일(B09) 차이는 그대로(SCREEN_SOUND_1102 · ONE_FLOW_1106)
+chk 'FREE_SONG_SHOW_KEEP_1115' assets/bgm-bed.js 1
+# ★★[HEARD_XF_1115 2026-11-15 BGM 섹션 · GPT 라운드 4 07] 당일 콘솔 — 들린 초(HEARD · REPEAT_FIX_1107 ①)는 겹침(BED.xing) 동안에도 센다 · 재생기마다 실효 출력 −60 dB 위인 곡 · 같은 곡이 두 재생기로 이어지면 한 번 · 검사 r4-1115 A
+chk 'HEARD_XF_1115' console.html 2
+chk "heardTick();" console.html 1
+chk "if (!f || seen\[f\] || !bedHeardOn(k)) continue; seen\[f\] = 1;" console.html 1
+nochk "_h.sec += 0.25" console.html 0
+# ★★[DECLARE_PLAYABLE_1115 2026-11-15 BGM 섹션 · GPT 라운드 4 01] 당일 콘솔 선언 뒤 박수 — 곡은 «본식 목록 ∩ 파일 − 못 연 곡» 안에서만 · 0곡이면 정적 · 실패 뒤 되돌아가는 곡도 그 안에서 · 정적에 꺼진 다른 곡은 되살리지 않는다(NO_RELIFT_1102) · 검사 r4-1115 B
+chk 'DECLARE_PLAYABLE_1115' console.html 2
+chk "BED.list && BED.list.some(_dok)) { var _hz" console.html 1
+chk "BED.onFail = (_sid !== BED.id && _dok(BED.id)) ?" console.html 1
+# ★★[ENTRY_WAIT_HUSH_1115 2026-11-15 BGM 섹션 · GPT 라운드 4 14] 미리 듣기 화촉 → 입장(뜸 없는 길) — 입장 곡이 아직이면 구호 줄이 «기다림»(LPB.entLate) · 화촉 곡을 되살리지 않고 입장 곡 시작은 _put 한 길 · 검사 r4-1115 C
+chk 'ENTRY_WAIT_HUSH_1115' assets/bgm-bed.js 2
+chk "if(!(BUF\[f\]&&BUF\[f\].st==='ok')) LPB.entLate={ st:st, tk:_tkh };" assets/bgm-bed.js 1
+chk "else if(LPB.entLate&&LPB.entLate.tk===_tkh){ LPB.entLate=null; note('fail',ec); }" assets/bgm-bed.js 1
+# ★[PV6_EDGE_1115 2026-11-15 BGM 섹션 · GPT 라운드 4 덧붙임] bgm-preview 6(축사 «음악 없이») — 줄 번호가 먼저 오르고 미리 낮추기가 setTimeout(0)인 줄 경계 표본 하나는 뺀다(표본 시점 문제 · 다음 표본이 같은 줄 −90 일 때만)
+chk 'PV6_EDGE_1115' scripts/audit/bgm-preview.mjs 1
+chk "b7\[j - 1\].i !== x.i && b7\[j + 1\] && b7\[j + 1\].i === x.i && b7\[j + 1\].want === -90" scripts/audit/bgm-preview.mjs 1
+# ★★[R4_1115 2026-11-15 BGM 섹션 · GPT 라운드 4] 검사 r4-1115 — A 겹침 동안 들린 초(HEARD_XF_1115) · B 음악 없이 뒤 박수(DECLARE_PLAYABLE_1115) · C 늦은 입장 곡 기다림(ENTRY_WAIT_HUSH_1115) · CI bgm-sound g 칸
+chk 'R4_1115' scripts/audit/r4-1115.mjs 1
+chk 'HEARD_XF_1115' scripts/audit/r4-1115.mjs 2
+chk 'DECLARE_PLAYABLE_1115' scripts/audit/r4-1115.mjs 2
+chk 'ENTRY_WAIT_HUSH_1115' scripts/audit/r4-1115.mjs 3
+chk 'R4_1115' .github/workflows/merge-guard.yml 1
+chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115' }" .github/workflows/merge-guard.yml 1
+# ★[WEEKDAY_OLD_OWNER_1116 2026-11-16 대표님 «수정 전이 더 좋은데»] 홈 «A Quiet Choice» 칸은 H4_18(11/06) 전 글 — 다시 바꾸자고 제안하지 않는다
+chk '>왜 평일이 더 자연스러운가</h3>' index.html 1
+chk '30명이 모이는 자리라면 굳이 주말일 이유가 없습니다. 평일은 일정을 맞추기 수월하고, 원하는 날짜를 넉넉히 고를 수 있습니다.</p>' index.html 1
+chk '그렇게 생긴 하루의 여유는, 신혼여행과 부모님을 위한 다이닝으로 자연스럽게 이어집니다.</p>' index.html 1
+nochk '평일 예식은 주말·공휴일보다 80만&nbsp;원 낮습니다.' index.html
 # ★[U62_KEEP_1116 2026-11-16 23:13 대표님] 우성 62(온라인 입장 안내)는 라이브 판 그대로 — 가운데 새 문장 넣지 않음 · 다시 넣자고 제안하지 않음
 chk 'onlineIn:"화면으로 함께해 주시는 분들께도 두 사람이 인사드리겠습니다. 신랑 신부는 카메라를 향해 서주시기 바랍니다.",' assets/ritual-data.js 1
 nochk '현장에 계신 분들은 단체 사진 안내까지 자리를 지켜 주세요' assets/ritual-data.js

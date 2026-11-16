@@ -133,12 +133,13 @@ for (const course of Object.keys(D.COURSES)) {
     entryScene: O.CHIPS.entryScene.map((c) => c[0]) };   // [LOOK_HOLD 2026-09-26] 첫 모습(바라보기 · 맞절)이 콘솔 사람 순간을 가른다
   for (const how of ['flower', 'bowGroom']) for (const cw of O.CANDLE_WHO.map((c) => c[0])) for (const [ax, vals] of Object.entries(OPEN_SWEEP)) for (const v of vals) for (const mode of ['console', 'preview']) {
     const S = { course: 'open', on: { ...ALL }, tribute: how, candleWho: cw }; O.setChip(S, ax, v);
+    /* [NO_SHOW_1116] 옛 SHOW_PAIR_1116 «free 축은 축가를 빼고 흔든다» 줄 걷음 — free 칩이 축사 하나라 흔들 갈래가 없다(축사 쪽은 아래 bgm 줄이 축가를 빼고 잰다) */
     absorb(S, mode);
   }
   for (const dw of ['', '신부 아버님']) for (const mode of ['console', 'preview']) absorb({ course: 'open', on: { ...ALL }, declareWho: dw }, mode);   // [DECLARE_ANYONE] 읽는 분 칸(빈칸 · 적은 이름)
   for (const vk of ['vow', 'thanks']) for (const vh of ['alt', 'each']) for (const mode of ['console', 'preview']) absorb({ course: 'open', on: { ...ALL }, vowHow: vh, vowKind: vk }, mode);
   for (const mode of ['console', 'preview']) absorb({ course: 'open', on: { ...ALL }, songBy: 'self' }, mode);   // ★[COMBO_171_1030 N2 덧붙임] 두 분이 직접 부르는 날의 축가 지문   // [VOW_HOW 2026-10-02] 서약 읽는 방식(번갈아 · 각자 차례로)이 live.t 를 가른다 · [THANKS_IN_VOW 2026-10-11] 무엇을 읽나요(서약 · 감사문)도 블록 · live.t 를 가른다
-  for (const bgm of [null, { S5: { m: 'bed' }, S6: { m: 'bed' } }]) for (const mode of ['console', 'preview']) { const S = { course: 'open', on: { ...ALL } }; O.setChip(S, 'free', 'speech'); if (bgm) S.bgm = bgm; absorb(S, mode); }   // [BGM_INFO_1023] 축사 · 편지 «음악과 함께»(편지 장면 글이 live.t 로 갈린다)
+  for (const bgm of [null, { S5: { m: 'bed' }, S6: { m: 'bed' } }]) for (const mode of ['console', 'preview']) { const S = { course: 'open', on: { ...ALL } }; O.setChip(S, 'free', 'speech'); delete S.on.song; if (bgm) S.bgm = bgm; absorb(S, mode); }   /* [SPEECH_SONG_1115] 축사 · 축가는 둘 중 하나 — 둘 다 켜면 엔진이 축사를 걷는다 */   // [BGM_INFO_1023] 축사 · 편지 «음악과 함께»(편지 장면 글이 live.t 로 갈린다)
 }
 
 // ── 2. 커버리지 판정
@@ -267,6 +268,10 @@ for (const t of Object.keys(ST.LIVE)) if (!seenLive.has(t)) bad(`STORY.LIVE 죽�
     while ((m = re1.exec(src))) readK.add(m[1]);
     const re2 = /\bS\s*\[\s*['"]([A-Za-z_][A-Za-z0-9_]*)['"]\s*\]/g;
     while ((m = re2.exec(src))) readK.add(m[1]);
+    /* ★[NARR_ROLE_1115] 엔진이 RitualOpen 접근자(O.blessWhoOf(S) 등)로 읽는 키 — 접근자 안에서 S.xxx 를 읽는다(ritual-open.js) · 이 표에 없는 접근자는 세지 않는다 */
+    const ACC = { blessWhoOf: ['blessWho'], speechWhoOf: ['speechWho'], songWhoOf: ['songWho', 'songBy'], songSelfOf: ['songSelf', 'songBy'] };
+    for (const [fn, ks] of Object.entries(ACC)) if (new RegExp('\\bO\\.' + fn + '\\s*\\(\\s*S\\b').test(src)) ks.forEach((k) => readK.add(k));
+    if (/chipOf\(\s*'midLen'\s*,\s*S\s*\)/.test(src)) readK.add('midLen');   // [SPEECH_SONG_1115] 식중 영상 길이 = O.chipOf('midLen', S)
   }
 
   /* ★[DECLARE_ANYONE 2026-10-12] 엔진이 읽어도 주소에 싣지 않는 «고객이 쓴 글»은 첫 검사에서 뺀다(아래 NEVER 와 같은 목록) —
