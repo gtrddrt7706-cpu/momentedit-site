@@ -4890,7 +4890,7 @@ chk 'UMBRELLA_ROW_1116' scripts/audit/prevideo-cat.mjs 2
 # ★[TWO_WAY_1116 2026-11-16 대표님 17:34 «② 다른 곳에 맡기기 · ③ 직접 만든 영상 — 우리 입장에서 같은 거잖아»] «영상 준비» 길은 둘(① 협력사 필메이커 · ② 직접 준비하기)
 nochk '세 가지 중 편한 길로 준비해 주세요' mypage.html
 nochk ' 다른 곳에 맡기기</p>' mypage.html
-chk '직접 준비하기</p><p class="pvc-way-t">다른 곳에 맡기거나 직접 만든 영상도 좋아요. 비용은 두 분 부담이고, 다 되면 아래 «영상 올리기»로 링크를 보내 주세요.' mypage.html 1
+chk "var SELF_T='다른 곳에 맡기거나 직접 만든 영상도 좋아요. 비용은 두 분 부담이고, 다 되면 아래 «영상 올리기»로 링크를 보내 주세요.';" mypage.html 1   # ★[COUPON_GATE_1116 · RULES_SLIM ⑧] 글은 그대로 · 자리만 고르는 카드(옛 핀 «직접 준비하기</p><p class=\"pvc-way-t\">…»)
 # ★[NO_SCENE_PIC_1116 2026-11-16 대표님 17:36 «디자인용 그림인데 진짜 저렇게 한다고 이해할 것 같아»] 상영 영상 안쪽 화면의 장면 그림 · «(그림)» 캡션 금지(식순 빌더 순간 카드 그림은 그대로)
 nochk 'class="pvc-hero"' mypage.html
 nochk '상영되는 모습(그림)' mypage.html
@@ -4902,11 +4902,13 @@ chk 'FM_COUPON_1116' mypage.html 10
 chk 'FM_COUPON_1116' admin.html 4
 chk 'FM_COUPON_1116' automation/platform/89_prevideo.gs 5
 chk 'FM_COUPON_1116' automation/admin/admin.gs 4
-chk "if (st === 'issued' || st === 'req') return { ok: true, same: true, cpn: _pvCpnPub_(m) };" automation/platform/89_prevideo.gs 1   # 같은 요청 두 번 = 한 번
+chk "if (st === 'req') return { ok: false, ecode: 'S0', error: '이미 요청하셨어요 · 디렉터가 쿠폰을 보내 드려요', cpn: _pvCpnPub_(m) };" automation/platform/89_prevideo.gs 1   # ★[COUPON_GATE_1116 · RULES_SLIM ⑧] 같은 요청 두 번 = 서버 거절(옛 핀 «ok same»)
+nochk "if (st === 'issued' || st === 'req') return { ok: true, same: true" automation/platform/89_prevideo.gs   # 깨 보기: 옛 «두 번 = 한 번(ok)»으로 되돌리면 빨강
 chk "if (st !== 'req') return { ok: false, error: st === 'issued' ? '이미 보냈어요.' : '고객이 요청한 쿠폰이 없어요.' };" automation/admin/admin.gs 1   # 요청 없이 나가는 길 없음
 chk "if (cn >= PV_UP.cpnHour) return { ok: false, ecode: 'S0'" automation/platform/89_prevideo.gs 1   # 한 시간 상한
 chk "out.cpn = _pvCpnPub_(row.m || {});" automation/platform/89_prevideo.gs 1
-chk "return '<button type=\"button\" class=\"cc-btn-ghost pvc-cpn-btn\" data-pvccpn=\"req\">쿠폰 요청하기</button>'; }" mypage.html 1
+chk "return '<button type=\"button\" class=\"cc-btn-ghost pvc-cpn-btn\" data-pvccpn=\"ask\">쿠폰 요청하기</button>'; }" mypage.html 1   # ★[COUPON_GATE_1116 · RULES_SLIM ⑧] 누르면 화면 안 확인 칸(옛 핀 data-pvccpn="req" 바로 요청)
+nochk "data-pvccpn=\"req\">쿠폰 요청하기<" mypage.html
 chk '요청했어요 · 디렉터가 쿠폰을 보내 드려요' mypage.html 1
 chk '필메이커는 저희 협력사예요. 템플릿 이용 쿠폰은 무료예요. 제작 대행 · USB 같은 추가는 두 분 부담이에요.' mypage.html 1
 chk "'<span>쿠폰으로 기본 템플릿 무료</span><span>추가는 두 분 부담</span>'" mypage.html 1
@@ -4916,6 +4918,23 @@ chk "case 'pvCpnReq':           return jsonOut(handlePvCpnReq(body));" automatio
 chk "adminPvCoupon: adminPvCoupon," automation/admin/admin.gs 1
 chk 'var FM_PENDING=true;' admin.html 1   # «제휴 확정 전» 표시 — 제휴가 확정되면 false
 chk 'FM_COUPON_1116' scripts/audit/fm-coupon.mjs 1
+# ★★[COUPON_GATE_1116 2026-11-16 대표님 17:41 «쿠폰(우리 비용)이 진행 안 하는 팀에 헛되이 나간다 · 식중까지면 한 팀 두 장 · 화면 번호가 두 겹»] 쿠폰 문 —
+#   번호는 큰 단계에만 · 안쪽 길은 번호 없는 고르는 카드 둘(처음 둘 다 안 눌림 · 고른 카드만 [SEL_ONE] · 다음 행동은 그 안) · 고르기 = pvSave op way(메타 m.way · 시트 열 그대로) ·
+#   식중 요청 · 관리자 넣기는 식순 확정(tracks.ritual 완료 · 순서 마감 예식 14일 전) 뒤만 · 한 영상 한 번(이미 요청 · 이미 받음 · 회수 뒤 거절) · 확인은 화면 안 칸 ·
+#   «직접 준비하기» · 식순에서 식중 뺌 = 발급 전 요청 거둠 · 발급 뒤 뺌 = 회수 줄 — scripts/audit/fm-coupon.mjs ⑥ 이 잰다(깨 보기 14건 빨강 확인)
+chk 'COUPON_GATE_1116' mypage.html 8
+chk 'COUPON_GATE_1116' automation/platform/89_prevideo.gs 8
+chk 'COUPON_GATE_1116' automation/admin/admin.gs 2
+chk 'COUPON_GATE_1116' admin.html 3
+chk 'COUPON_GATE_1116' scripts/audit/fm-coupon.mjs 5
+chk "if (op === 'req' && kind === 'mid' && !_pvRitOk_(cust)) return { ok: false, ecode: 'S0', error: '식순을 확정하면 쿠폰을 요청할 수 있어요' };" automation/platform/89_prevideo.gs 1
+chk "if (kind === 'mid' && (_mvOn_(cust).on !== true || !_pvRitOk_(cust))) return { ok: false, error: '식순 확정 전이에요 · 식순에 식중 영상이 확정된 뒤 보내 주세요.' };" automation/admin/admin.gs 1
+chk "if (c.at && c.revoked) return 'used';" automation/platform/89_prevideo.gs 1   # 한 편에 한 장 — 회수 뒤 다시 요청 못 함
+chk "function _pvcCpnOpen(){ var F=PVCFLOW; return F.way==='fm' && (F.kind!=='mid' || F.rok===true); }" mypage.html 1
+chk '쿠폰은 영상 한 편에 한 장이에요 · 받은 뒤 진행하지 않아도 다시 드리지 않아요' mypage.html 1
+chk "var PVC_CPN_WAIT='식순을 확정하면 쿠폰을 요청할 수 있어요';" mypage.html 1
+nochk "'① 협력사 필메이커로 만들기" mypage.html   # 옛 두 겹 번호(큰 단계 안 ① ②)
+nochk "(PVC_FEEL_ON?'② ':'')" mypage.html
 if command -v node >/dev/null 2>&1; then _fmc=$(node scripts/audit/fm-coupon.mjs 2>&1); _fmr=$?
   case "$_fmr" in
     0) echo 'ok fm-coupon: 요청 없이 쿠폰 없음 · 요청 → 관리자 줄 · 넣기 → 마이페이지 · 취소 → 회수 줄 · 한 시간 상한' ;;

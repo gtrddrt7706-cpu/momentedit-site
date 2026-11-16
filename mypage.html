@@ -2320,12 +2320,25 @@ button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .pvc-feel.pvc-3{margin:0 0 4px}
 .pvc-feel.pvc-3 li{padding-bottom:14px}
 .pvc-feel.pvc-3 .pvc-feel-lk{display:inline-flex;align-items:center;min-height:44px;padding:0;color:var(--gold-deep);text-decoration-color:currentColor}
-.pvc-ways{margin:10px 0 0;border-top:1px solid var(--hairline)}   /* [FM_COUPON_1116] 세 길 — 칠한 상자 없이 가는 선만([NOTE_DOT] · [SEL_THIN]) */
-.pvc-way{padding:10px 0;border-bottom:1px solid var(--hairline)}
+.pvc-ways{display:flex;flex-direction:column;gap:8px;margin:10px 0 0}   /* ★[COUPON_GATE_1116] 고르는 카드 둘 — 번호 없음 · 고른 카드만 [SEL_ONE] 금빛 테 한 겹 + 옅은 금빛 바탕 · 안 고른 카드는 가는 테만(칠 없음) · 다음 행동은 고른 카드 안에서만 */
+.pvc-way{border:1px solid var(--border);border-radius:10px;transition:border-color .15s,background .15s}
+.pvc-way.on{border-color:var(--gold-deep);background:var(--gold-bg)}   /* [SEL_ONE] · [SEL_THIN] 카드는 굵기 그대로 */
 .pvc-feel .pvc-way p{margin:0}
-.pvc-way-h{font-family:var(--serif-ko);font-size:13.5px;font-weight:600;color:var(--text)}
+.pvc-way-b{display:block;width:100%;min-height:44px;margin:0;padding:12px 14px;border:0;background:none;text-align:left;font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.pvc-way-b:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px;border-radius:10px}
+.pvc-way-in{padding:0 14px 8px}
+.pvc-way.self .pvc-way-in{display:none}
+.pvc-way-plain{padding:10px 0;border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline)}
+.pvc-feel .pvc-way-plain p{margin:0}
+.pvc-feel .pvc-way-h{display:block;margin:0;font-family:var(--serif-ko);font-size:13.5px;font-weight:600;color:var(--text)}
+.pvc-way.on .pvc-way-h{color:var(--accent)}
 .pvc-way-t{margin-top:2px!important;font-family:var(--serif-ko);font-size:13px;line-height:1.7;color:var(--sub);word-break:keep-all}
-.pvc-cpn-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin-top:8px;padding:0 18px;font-family:var(--serif-ko);font-size:13px}
+.pvc-cpn-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin-top:4px;padding:0 18px;font-family:var(--serif-ko);font-size:13px}
+.pvc-cpn-btn[aria-disabled="true"]{opacity:.45;cursor:default}   /* [COUPON_GATE_1116] 식순 확정 전 — 흐린 단추 + 아래 한 줄 */
+.pvc-cpn-ask{margin-top:6px}
+.pvc-cpn-ask-b{display:flex;flex-wrap:wrap;align-items:center;column-gap:16px;margin-top:6px}
+.pvc-cpn-ask-b .pvc-cpn-btn{flex:0 0 auto;width:auto;margin-top:0;padding:0 24px}   /* 확인 칸 — «요청할게요 · 취소» 한 줄(넓은 먹빛 판 금지 · 진사 아님 [SEAL_CTA_ONLY]) */
+.pvc-feel .pvc-cpn-ask-b .pvc-lk{min-height:44px;padding:0 4px;color:var(--sub)}
 .pvc-cpn{display:flex;flex-wrap:wrap;align-items:center;column-gap:10px;margin-top:6px!important;font-family:var(--serif-ko);font-size:13px;color:var(--sub)}
 .pvc-cpn-v{display:inline;font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:.06em;color:var(--text);word-break:break-all}
 .pvc-feel .pvc-way .pvc-lk{min-height:44px;padding:0 4px}
@@ -11975,7 +11988,8 @@ function startPvcFlow(v){
   PVCFLOW={ active:true, d:_pvcNewD(v.d), st:String(v.st||''), consent:!!v.consent, prev:v.prev||null, conf:v.conf||null, due:String(v.due||''), wed:String(v.wed||''), past:(left!=null && left<0), sheet:'', more:false, scr:'', rev:(v.rev==null?null:(+v.rev||0)) };
   PVCFLOW.kind=(v.kind==='mid')?'mid':'pre';   // [MID_VIDEO_1106]
   PVCFLOW.cpn=(v.cpn&&typeof v.cpn==='object')?v.cpn:{st:'none'};   // [FM_COUPON_1116] 협력사 쿠폰 상태(서버 _pvCpnPub_) — 옛 GAS 면 none(요청 단추만)
-  if(PVCFLOW.kind==='mid'){ PVCFLOW.d.mode='upload'; var _lp=window._lastProd||{}; PVCFLOW.on=_mvcOn(_lp); PVCFLOW.len=_mvcLen(_lp); }   // [B2_MA_07] 이 기기가 아는 판
+  PVCFLOW.way=(v.way==='fm'||v.way==='self')?v.way:'';   // ★[COUPON_GATE_1116] 고른 길(서버 m.way · 옛 줄은 '' = 안 고름 · 기본값을 눌린 모양으로 두지 않는다)
+  if(PVCFLOW.kind==='mid'){ PVCFLOW.d.mode='upload'; var _lp=window._lastProd||{}; PVCFLOW.on=_mvcOn(_lp); PVCFLOW.len=_mvcLen(_lp); PVCFLOW.rok=(typeof v.rok==='boolean')?v.rok:_pvcRitOk(_lp, PVCFLOW.wed); }   // [B2_MA_07] 이 기기가 아는 판 · [COUPON_GATE_1116] rok = 식순 순서 확정(서버 값 · 옛 GAS 면 같은 기준으로 여기서)
   PVCFLOW.scr=_pvcScrOf(PVCFLOW);
   var old=$('mp_pvcOverlay'); if(old&&old.parentNode) old.parentNode.removeChild(old);
   var ov=document.createElement('div'); ov.id='mp_pvcOverlay'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label',_pvcNm());   // [MID_VIDEO_1106]
@@ -12001,7 +12015,9 @@ function _pvcTearDown(){
   _mpUnlock(); PVCFLOW.active=false; PVCFLOW._exiting=false;
 }
 function _pvcOut(d){ d=d||{}; return { v:1, mode:d.mode||'', step:+d.step||0, style:d.style||'', song:d.song||'', photos:(d.photos||[]).map(function(p){ return {id:p.id, th:p.th||'', sec:p.sec, n:p.n||''}; }), met:d.met||'', link:d.link||'' }; }
-function _pvcApply(v){ if(!v||!PVCFLOW.active) return; if(v.rev!=null) PVCFLOW.rev=+v.rev||0; /* [B2_MA_07] */ PVCFLOW.st=String(v.st||''); PVCFLOW.prev=v.prev||null; PVCFLOW.conf=v.conf||null; PVCFLOW.consent=!!v.consent; if(v.due) PVCFLOW.due=String(v.due); if(_pvcPastNow()) PVCFLOW.past=true; }   // [PV_STATE_1106 M16] 받은 기한으로 지남을 다시 본다
+function _pvcApply(v){ if(!v||!PVCFLOW.active) return; if(v.rev!=null) PVCFLOW.rev=+v.rev||0; /* [B2_MA_07] */ PVCFLOW.st=String(v.st||''); PVCFLOW.prev=v.prev||null; PVCFLOW.conf=v.conf||null; PVCFLOW.consent=!!v.consent; if(v.due) PVCFLOW.due=String(v.due); if(_pvcPastNow()) PVCFLOW.past=true;
+  if(!PVCFLOW._wayN){ if(v.way==='fm'||v.way==='self'||v.way==='') PVCFLOW.way=v.way; if(v.cpn&&typeof v.cpn==='object'&&!PVCFLOW._cpnBusy) PVCFLOW.cpn=v.cpn; }   // ★[COUPON_GATE_1116] 고르는 저장이 날아가는 동안엔 화면이 고른 것을 옛 답으로 덮지 않는다
+  if(typeof v.rok==='boolean') PVCFLOW.rok=v.rok; }   // [PV_STATE_1106 M16] 받은 기한으로 지남을 다시 본다
 /* ★[B2_MA_07 2026-11-06 2차 B2-마07] 같은 식전 영상의 저장 · 보내기 · 확정을 «순서대로» 한 줄로 보낸다 — 걸음을 넘기며 낸 자동 저장이 끝나기 전에 «만들기»가 나가
    늦게 끝난 옛 저장이 보낸 상태를 되돌릴 수 있었다. 본문은 «보낼 차례가 왔을 때»의 최신 초안으로 만든다(보내기는 최신 내용을 한 번만) · 이 기기가 아는 판(rev)을 함께 보내 서버도 옛 저장을 버린다 */
 function _pvcSave(op, extra){
@@ -12143,29 +12159,57 @@ function _pvcThree(){ var mid=PVCFLOW.kind==='mid';
     +'<li><b>확인</b><span>스튜디오가 재생을 확인하면 이 화면에서 보고 확정해요.</span></li></ol>'; }   /* [GPT 3-c · 4-③] 걸음 이름 = 다음 화면 진행 표시(영상 보내기 · 확인)와 같은 말 · 진행 표시 이름은 네 글자 안([WZ_STEPS])이라 이쪽을 맞췄다 */
 /* ★★[FM_COUPON_1116 2026-11-16 대본 15:55 · 대표님 13:07 «상영 영상 안에서 협력사 필메이커 쿠폰은 무료 · 쿠폰은 요청한 분께만(진행 안 하면 안 나간다) · 협력사라고 알려 주기 · 안 쓰면 다른 곳 결제나 직접 만든 영상 링크»]
    «영상 준비» 걸음 안 세 길 — ① 협력사 필메이커(템플릿 이용 쿠폰 무료 · [쿠폰 요청하기] · 추가는 두 분 부담 한 줄) ② 다른 곳에 맡기기(두 분 부담) ③ 직접 만든 영상 — ②③ 은 아래 «영상 올리기»(링크) 그대로.
-   쿠폰 상태는 서버(89_prevideo m.cpn → _pvCpnPub_)가 준다 — 요청 전 = 단추만(코드 없음) · 요청 뒤 = «요청했어요 · 디렉터가 쿠폰을 보내 드려요» + 요청 취소 · 발급 뒤 = 코드 · 복사 + 쓰는 법 한 줄 · 회수 뒤 = 다시 요청 단추.
+   쿠폰 상태는 서버(89_prevideo m.cpn → _pvCpnPub_)가 준다 — 요청 전 = 단추만(코드 없음) · 요청 뒤 = «요청했어요 · 디렉터가 쿠폰을 보내 드려요» + 요청 취소 · 발급 뒤 = 코드 · 복사 + 쓰는 법 한 줄 · 회수 뒤 = (옛) 다시 요청 단추 → ★[COUPON_GATE_1116] «이미 한 번 받으셨어요»(한 편에 한 장).
    칠한 상자 · 새 색 없이 가는 선과 글로만([NOTE_DOT] · [SEL_THIN]) · PVC_FEEL_ON 이 꺼지면 ① 줄째 없음 */
-function _pvcCpnHtml(){ var c=PVCFLOW.cpn||{st:'none'};
+/* ★★[COUPON_GATE_1116 2026-11-16 대표님 17:41 «쿠폰(우리 비용)이 진행 안 하는 팀에 헛되이 나간다 · 식중까지면 한 팀 두 장 · 화면 번호가 두 겹(큰 단계 1 · 2 · 3 안에 ① ②)» · «고민해서 최선으로»]
+   ① 번호는 큰 단계(영상 준비 · 영상 보내기 · 확인)에만 — 안쪽 길은 번호 없는 «고르는 카드» 둘(협력사 필메이커로 만들기 · 직접 준비하기 · 글은 TWO_WAY 그대로)
+   ② 처음엔 둘 다 안 눌림 · 고르면 그 카드만 [SEL_ONE] 금빛 테 한 겹 + 옅은 금빛 바탕 · 다음 행동(쿠폰 요청 · 만드는 법 보기)은 고른 카드 안에서만 · 고르기 = 저장만(pvSave op 'way' → 시트 메타 m.way · 쿠폰 없음)
+   ③ 쿠폰 문 — 식전 = 협력사 카드를 고르면 · 식중 = 식순에 담겼고 순서 확정(서버 rok = tracks.ritual «완료» 또는 순서 마감 예식 14일 전이 지남 · 새 상태 없음) · 그 전엔 흐린 단추 + 한 줄
+   ④ 요청은 화면 안 확인 칸 한 번(«한 편에 한 장 · 받은 뒤 진행하지 않아도 다시 드리지 않아요» · confirm() 금지) · 한 영상에 요청 한 번은 서버가 막는다(이미 요청 · 이미 받음 · 회수 뒤 거절)
+   ⑤ «직접 준비하기»로 바꾸면 발급 전 요청은 서버가 거둔다 · 식순에서 식중을 빼면 발급 전 요청은 거두고 발급 뒤는 관리자 회수 줄 · 검사 scripts/audit/fm-coupon.mjs ⑥ */
+function _pvcRitOk(p, wed){ try{ if(String(((p&&p.tracks)||{}).ritual||'')==='완료') return true; var l=wed?_kstDdayOf(wed):null; return l!=null && l<14; }catch(e){ return false; } }   // [COUPON_GATE_1116] 서버 _pvRitOk_ 와 같은 기준(순서는 예식 14일 전까지 · EDIT_WINDOW) — 서버가 rok 를 주면 그 값을 쓴다
+function _pvcCpnOpen(){ var F=PVCFLOW; return F.way==='fm' && (F.kind!=='mid' || F.rok===true); }   // [COUPON_GATE_1116] 쿠폰 문
+var PVC_CPN_WAIT='식순을 확정하면 쿠폰을 요청할 수 있어요';
+function _pvcCpnHtml(){ var F=PVCFLOW, c=F.cpn||{st:'none'};
   if(c.st==='issued'){ var v=c.code||'';
     return '<p class="pvc-cpn">'+(v?('<span class="pvc-cpn-k">쿠폰 코드</span><b class="pvc-cpn-v">'+escapeHtml(v)+'</b><button type="button" class="pvc-lk pvc-cpn-cp" data-pvccpncopy>복사</button>'):('<a class="pvc-a pvc-cpn-go" href="'+escapeHtml(c.link||'')+'" target="_blank" rel="noopener">쿠폰 받기</a>'))+'</p>'
       +'<p class="pvc-way-t">필메이커에서 템플릿을 고른 뒤 결제 화면 쿠폰 칸에 넣어 주세요.</p>'; }
   if(c.st==='req') return '<p class="pvc-way-t pvc-cpn-req">요청했어요 · 디렉터가 쿠폰을 보내 드려요</p>';
-  return '<button type="button" class="cc-btn-ghost pvc-cpn-btn" data-pvccpn="req">쿠폰 요청하기</button>'; }
+  if(c.st==='used') return '<p class="pvc-way-t pvc-cpn-used">쿠폰은 이미 한 번 받으셨어요 · 영상 한 편에 한 장이에요</p>';   // [COUPON_GATE_1116] 회수 뒤 — 다시 요청하지 못한다
+  if(!_pvcCpnOpen()) return '<button type="button" class="cc-btn-ghost pvc-cpn-btn" data-pvccpn="wait" aria-disabled="true" aria-describedby="mp_pvcCpnWait">쿠폰 요청하기</button><p class="pvc-way-t" id="mp_pvcCpnWait">'+PVC_CPN_WAIT+'</p>';
+  if(F._cpnAsk) return '<div class="pvc-cpn-ask" role="group" aria-labelledby="mp_pvcCpnAsk"><p class="pvc-way-t" id="mp_pvcCpnAsk">쿠폰은 영상 한 편에 한 장이에요 · 받은 뒤 진행하지 않아도 다시 드리지 않아요</p>'
+    +'<div class="pvc-cpn-ask-b"><button type="button" class="cc-btn pvc-cpn-btn" data-pvccpn="req">요청할게요</button><button type="button" class="pvc-lk" data-pvccpn="no">취소</button></div></div>';
+  return '<button type="button" class="cc-btn-ghost pvc-cpn-btn" data-pvccpn="ask">쿠폰 요청하기</button>'; }
 function _pvcCpnX(){ var st=(PVCFLOW.cpn||{}).st;   /* [FM_COUPON_1116] 취소는 작은 글 단추 하나 — «만드는 법 보기»와 한 줄(누르는 칸 44 · 글 줄 사이가 벌어지지 않게) */
   return st==='issued'?'<button type="button" class="pvc-lk pvc-cpn-x" data-pvccpn="cancel">쿠폰 쓰지 않기</button>':st==='req'?'<button type="button" class="pvc-lk pvc-cpn-x" data-pvccpn="cancel">요청 취소</button>':''; }
+function _pvcWayCard(k, h, t, inner){ var on=PVCFLOW.way===k;   // [COUPON_GATE_1116] 고르는 카드 하나 — 카드 머리(글 둘)가 누르는 칸 · 다음 행동은 고른 카드 안(inner)에만
+  return '<div class="pvc-way '+k+(on?' on':'')+'"><button type="button" class="pvc-way-b" role="radio" aria-checked="'+(on?'true':'false')+'" data-pvcway="'+k+'"><span class="pvc-way-h">'+h+'</span><span class="pvc-way-t">'+t+'</span></button>'+(on&&inner?'<div class="pvc-way-in">'+inner+'</div>':'')+'</div>'; }
 function _pvcWays(){
-  var h='<div class="pvc-ways">';
-  if(PVC_FEEL_ON) h+='<div class="pvc-way"><p class="pvc-way-h">① 협력사 필메이커로 만들기</p><p class="pvc-way-t">필메이커는 저희 협력사예요. 템플릿 이용 쿠폰은 무료예요. 제작 대행 · USB 같은 추가는 두 분 부담이에요.</p>'+_pvcCpnHtml()+'<div class="pvc-way-acts">'+_pvcFeelIn('link')+_pvcCpnX()+'</div></div>';
-  h+='<div class="pvc-way"><p class="pvc-way-h">'+(PVC_FEEL_ON?'② ':'')+'직접 준비하기</p><p class="pvc-way-t">다른 곳에 맡기거나 직접 만든 영상도 좋아요. 비용은 두 분 부담이고, 다 되면 아래 «영상 올리기»로 링크를 보내 주세요.</p></div>';   /* ★[TWO_WAY_1116 2026-11-16 대표님 17:34] 옛 ② 다른 곳에 맡기기 · ③ 직접 만든 영상을 한 길로(두 분 쪽에서 하는 일이 같다 · 링크로 보낸다) · 길이 하나뿐이면 번호 없이 · 되살리지 말 것 */
-  return h+'</div>'; }
-function _pvcCpnGo(op){ var F=PVCFLOW; if(F._cpnBusy) return; F._cpnBusy=true;
+  var SELF_T='다른 곳에 맡기거나 직접 만든 영상도 좋아요. 비용은 두 분 부담이고, 다 되면 아래 «영상 올리기»로 링크를 보내 주세요.';   /* ★[TWO_WAY_1116 2026-11-16 대표님 17:34] 옛 ② 다른 곳에 맡기기 · ③ 직접 만든 영상을 한 길로(두 분 쪽에서 하는 일이 같다 · 링크로 보낸다) · 되살리지 말 것 */
+  if(!PVC_FEEL_ON) return '<div class="pvc-ways"><div class="pvc-way-plain"><p class="pvc-way-h">직접 준비하기</p><p class="pvc-way-t">'+SELF_T+'</p></div></div>';   // 필메이커 길을 거두면 고를 것이 없다 — 카드 없이 한 줄
+  return '<div class="pvc-ways" role="radiogroup" aria-label="영상 준비 방법">'   /* ★[COUPON_GATE_1116] 옛 «① 협력사 필메이커로 만들기 · ② 직접 준비하기»(큰 단계 번호 안에 또 번호) — 되살리지 말 것 */
+    +_pvcWayCard('fm', '협력사 필메이커로 만들기', '필메이커는 저희 협력사예요. 템플릿 이용 쿠폰은 무료예요. 제작 대행 · USB 같은 추가는 두 분 부담이에요.', _pvcCpnHtml()+'<div class="pvc-way-acts">'+_pvcFeelIn('link')+_pvcCpnX()+'</div>')
+    +_pvcWayCard('self', '직접 준비하기', SELF_T, '')
+    +'</div>'; }
+function _pvcWayGo(k){ var F=PVCFLOW; if(k!=='fm'&&k!=='self') return; if(F.way===k) return; if(F.past){ _pvcLockHit(); return; }
+  F.way=k; F._cpnAsk=false; F._wayN=(F._wayN||0)+1;
+  if(k==='self' && (F.cpn||{}).st==='req') F.cpn={st:'none'};   // 서버가 발급 전 요청을 거둔다(같은 판단을 화면도 먼저)
+  renderPvc(); var b=document.querySelector('#mp_pvcInner [data-pvcway="'+k+'"]'); if(b) b.focus({preventScroll:true});
+  _pvcSave('way', {way:k}).then(function(r){ F._wayN--; if(!F.active) return;
+    if(r&&r.ok){ if(r.pv){ F.way=(r.pv.way==='fm'||r.pv.way==='self')?r.pv.way:k; if(r.pv.cpn) F.cpn=r.pv.cpn; } renderPvc(); return; }
+    if(r&&r.locked){ _pvcLockHit(); return; }
+    mpToast((r&&r.error)||ERR_SAVE_BASE); }); }   // 고른 모양은 그대로 둔다(다시 누르면 다시 저장) · 실패 까닭은 아래 알림 한 줄
+function _pvcCpnGo(op){ var F=PVCFLOW;
+  if(op==='wait'){ mpToast('식순 확정 뒤에 요청할 수 있어요'); return; }   // [COUPON_GATE_1116] 흐린 단추 — 누르면 아래 알림 한 줄
+  if(op==='ask'||op==='no'){ F._cpnAsk=(op==='ask'); renderPvc(); var f=document.querySelector(op==='ask'?'#mp_pvcInner [data-pvccpn="req"]':'#mp_pvcInner [data-pvccpn="ask"]'); if(f) f.focus({preventScroll:true}); return; }   // 화면 안 확인 칸(confirm() 금지)
+  if(F._cpnBusy) return; F._cpnBusy=true;
   var body={action:op==='req'?'pvCpnReq':'pvCpnCancel', token:getToken()}; if(F.kind==='mid') body.kind='mid';
-  var done=function(){ F._cpnBusy=false; };
-  _post(body, 20000).then(function(r){ done(); if(!(r&&r.ok)){ mpToast((r&&r.error)||ERR_SAVE_BASE); return; }
-      F.cpn=r.cpn||{st:'none'}; try{ var lp=window._lastProd; if(lp&&lp[_pvcKey()]) lp[_pvcKey()].cpn=F.cpn; }catch(e){}
+  var done=function(){ F._cpnBusy=false; F._cpnAsk=false; };
+  _post(body, 20000).then(function(r){ done(); if(!(r&&r.ok)){ if(r&&r.cpn&&typeof r.cpn==='object'){ F.cpn=r.cpn; if(F.active) renderPvc(); } mpToast(_errLine(r,'S',ERR_SAVE_BASE)); return; }   // [COUPON_GATE_1116] 거절(이미 요청 · 이미 받음 · 회수 뒤)이면 서버 상태로 다시 그린다
+      F.cpn=r.cpn||{st:'none'}; if(op==='req') F.way='fm'; try{ var lp=window._lastProd; if(lp&&lp[_pvcKey()]){ lp[_pvcKey()].cpn=F.cpn; if(op==='req') lp[_pvcKey()].way='fm'; } }catch(e){}
       if(F.active){ renderPvc(); var b=document.querySelector('#mp_pvcInner [data-pvccpn],#mp_pvcInner [data-pvccpncopy]'); if(b) b.focus({preventScroll:true}); }
       mpToast(op==='req'?(F.cpn.st==='issued'?'쿠폰을 받으셨어요':'쿠폰을 요청했어요'):'쿠폰 요청을 거뒀어요'); },
-    function(e){ done(); mpToast(_errRes(e,'S',ERR_SAVE_BASE).error); }); }
+    function(e){ done(); if(F.active) renderPvc(); mpToast(_errRes(e,'S',ERR_SAVE_BASE).error); }); }
 function _pvcCpnCopy(){ var v=String((PVCFLOW.cpn||{}).code||''); if(!v) return; var ok=function(){ mpToast('쿠폰 코드를 복사했어요'); }, no=function(){ mpToast('길게 눌러 복사해 주세요'); };
   try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(v).then(ok, function(){ if(legacyCopy(v)) ok(); else no(); }); return; } }catch(e){} if(legacyCopy(v)) ok(); else no(); }
 /* ★[FM_COUPON_1116 · RULES_SLIM ⑧] 식중 머리 조건 줄 — 옛 «선택 사항 · 제작비는 두 분 부담»(쿠폰 · 기본 템플릿은 식전에만) → 식중도 협력사 쿠폰으로 기본 템플릿 무료 · 추가는 두 분 */
@@ -12491,7 +12535,8 @@ function _pvcBind(box){
   box.querySelectorAll('[data-pvcfix]').forEach(function(b){ b.addEventListener('click', function(){ if(F.d.mode==='upload'){ _pvcGo('upload', 0); return; } if(F.d.mode==='make'){ _pvcGo('start'); return; }   /* [PN07_MAKE_RESUME] */ F.sheet='fix'; renderPvc(); var p=document.querySelector('#mp_pvcInner .pvc-sheet .pvc-x'); if(p) p.focus({preventScroll:true}); }); });
   box.querySelectorAll('[data-pvcfixto]').forEach(function(b){ b.addEventListener('click', function(){ var to=b.getAttribute('data-pvcfixto'); _pvcGo(to, {style:0, photos:1, music:2}[to]); }); });
   box.querySelectorAll('[data-pvcrecheck]').forEach(function(b){ b.addEventListener('click', _pvcRecheck); });   // [PV_STATE_1106 M07]
-  box.querySelectorAll('[data-pvccpn]').forEach(function(b){ b.addEventListener('click', function(){ _pvcCpnGo(b.getAttribute('data-pvccpn')); }); });   // [FM_COUPON_1116] 쿠폰 요청 · 취소
+  box.querySelectorAll('[data-pvccpn]').forEach(function(b){ b.addEventListener('click', function(){ _pvcCpnGo(b.getAttribute('data-pvccpn')); }); });   // [FM_COUPON_1116] 쿠폰 요청 · 취소 · [COUPON_GATE_1116] 확인 칸(ask · no) · 흐린 단추(wait)
+  box.querySelectorAll('[data-pvcway]').forEach(function(b){ b.addEventListener('click', function(){ _pvcWayGo(b.getAttribute('data-pvcway')); }); });   // [COUPON_GATE_1116] 고르는 카드
   box.querySelectorAll('[data-pvccpncopy]').forEach(function(b){ b.addEventListener('click', _pvcCpnCopy); });
   box.querySelectorAll('[data-mvcrit]').forEach(function(b){ b.addEventListener('click', _mvcToRitual); });   // [MID_VIDEO_1106] 식순 «준비한 순서» 칸으로
   box.querySelectorAll('[data-pvcclosefl]').forEach(function(b){ b.addEventListener('click', function(){ _pvcTearDown(); _mpRefresh(); }); });

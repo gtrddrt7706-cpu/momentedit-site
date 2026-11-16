@@ -3641,6 +3641,72 @@
    "fn": "_errArea",
    "mark": "FM_COUPON_1116",
    "why": "pvCpnReq · pvCpnCancel 실패 코드 자리 S"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "_pvRitOk_",
+   "mark": "COUPON_GATE_1116",
+   "why": "식중 쿠폰 문 — 식순 순서 확정(tracks.ritual 완료 · 예식 14일 전 순서 마감 지남)"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "_pvWaySave_",
+   "mark": "COUPON_GATE_1116",
+   "why": "고르는 카드 저장(m.way) · 직접 준비하기면 발급 전 쿠폰 요청 거둠"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "_pvWayOf_",
+   "mark": "COUPON_GATE_1116",
+   "why": "고른 길 읽기 · 옛 줄은 안 고름(쿠폰 요청 · 받은 줄은 필메이커)"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "handlePvSave",
+   "mark": "COUPON_GATE_1116",
+   "why": "pvSave op way(고르는 카드) 길"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "_pvPublic",
+   "mark": "COUPON_GATE_1116",
+   "why": "rok · way 싣기 · 식순에서 식중 뺌 → 발급 전 쿠폰 요청 자동 취소"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "_pvCpnState_",
+   "mark": "COUPON_GATE_1116",
+   "why": "회수 뒤 used(한 편에 한 장)"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "_pvCpnPub_",
+   "mark": "COUPON_GATE_1116",
+   "why": "used 상태 싣기"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "_pvCpnDo_",
+   "mark": "COUPON_GATE_1116",
+   "why": "식중 요청은 식순 확정 뒤만 · 두 번 요청 · 받은 뒤 · 회수 뒤 거절(S0)"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "_pvCpnQueue_",
+   "mark": "COUPON_GATE_1116",
+   "why": "관리자 재료 — 식중 rok · 뺀 발급 전 요청 숨김 · 발급 뒤 뺌 gone"
+  },
+  {
+   "file": "admin",
+   "fn": "adminPvCoupon",
+   "mark": "COUPON_GATE_1116",
+   "why": "식중 쿠폰 넣기는 식순 확정 뒤만"
+  },
+  {
+   "file": "admin",
+   "fn": "adminHome",
+   "mark": "COUPON_GATE_1116",
+   "why": "협력사 쿠폰 요청 줄 «식전/식중 · 식순 확정 ✓/✗» · 넣기 흐림 fmOk · 식순에서 뺀 발급 뒤 회수 줄"
   }
  ],
  "fns": {
@@ -4113,6 +4179,7 @@
    "_pvKey_",
    "_pvName_",
    "_mvOn_",
+   "_pvRitOk_",
    "_pvLiveK_",
    "_pvLive_",
    "_pvSheet_",
@@ -4131,6 +4198,8 @@
    "_pvSess_",
    "_pvConsentGive_",
    "_pvAdminMail_",
+   "_pvWaySave_",
+   "_pvWayOf_",
    "handlePvSave",
    "_pvCpnState_",
    "_pvCpnPub_",
@@ -4869,7 +4938,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-11-16 16:13 · f7eea0aa",
+ "_생성": "2026-11-16 17:55 · de871f06",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -5443,5 +5512,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "3f806f6cc11a"
+ "_표식서명": "0f4bf772890d"
 }

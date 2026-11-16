@@ -146,6 +146,7 @@ input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus
    ★가로로는 안 넓힌다 — 옆이 행(.qrow) 클릭 영역이라, 가로로 먹으면 «상세로 가려던 손»이 액션을 누르게 된다.
    ★세로 3px 씩은 행 안쪽 여백이라 안전하고, 설령 눌려도 쓰기 동작은 전부 확인 판이 받는다(오조작 레인 실측 6/6). */
 .qbtn{position:relative}
+.qbtn[disabled]{opacity:.4;cursor:not-allowed}   /* [COUPON_GATE_1116] 식중 식순 확정 전 «쿠폰 넣기» 흐림 */
 .qbtn::after{content:'';position:absolute;left:0;right:0;top:50%;height:44px;margin-top:-22px}
 /* 결과물 관리 — 진행 스텝 스트립(원본›선택›보정›전달) */
 .rstep{display:flex;align-items:center;flex-wrap:wrap;margin-top:5px}
@@ -2150,7 +2151,7 @@ function queueRow(it){
   var badge=it.badge?('<span class="qbadge '+esc(it.badge.level)+'">'+esc(it.badge.text)+'</span>'):'';
   var holdAttr=it.hold?(' data-hd="'+esc(it.hold.date)+'" data-hs="'+esc(it.hold.slot)+'"'):'';
   var chgAttr=it.chg?(' data-cfd="'+esc(it.chg.fd||'')+'" data-cfs="'+esc(it.chg.fs||'')+'" data-ctd="'+esc(it.chg.td||'')+'" data-cts="'+esc(it.chg.ts||'')+'" data-cfee="'+esc(String(it.chg.fee||0))+'" data-cpy="'+esc(it.chg.payer||'')+'"'):'';
-  var fmAttr=it.fm?(' data-fm="'+esc(it.fm)+'" data-fmk="'+esc(it.kind)+'"'):'';   /* [FM_COUPON_1116] 식전(pre) · 식중(mid) · 넣기 / 회수 */
+  var fmAttr=it.fm?(' data-fm="'+esc(it.fm)+'" data-fmk="'+esc(it.kind)+'"'+(it.fmOk===false?' disabled aria-disabled="true" title="식순 확정 전이에요"':'')):'';   /* [FM_COUPON_1116] 식전(pre) · 식중(mid) · 넣기 / 회수 · ★[COUPON_GATE_1116] 식중 식순 확정 ✗ = 넣기 단추 흐림(서버 adminPvCoupon 도 거절) */
   var btn = act
     ? '<button class="qbtn" data-act="'+esc(act)+'" data-code="'+esc(it.code)+'" data-names="'+esc(it.names)+'" data-snap="'+(snap(it.product)?'1':'0')+'" data-sub="'+esc(it.sub||'')+'"'+holdAttr+chgAttr+fmAttr+'>'+esc(btnLbl)+'</button>'   /* [ADM_AB1] 큐 요약(sub)을 모달로 통째 전달 */
     : '<button class="qbtn go" data-go="'+esc(it.code)+'">'+esc(btnLbl)+' ›</button>';
@@ -2264,7 +2265,7 @@ function onQueueAct(act,code,names,isSnap,el){
   else if(act==='delivered') doDelivered(code,names);
   else if(act==='openFitting') doOpenFitting(code,names);
   else if(act==='issueCoupon') doIssueCoupon(code,names);   /* [CPN_QUEUE] 큐에서 바로 바코드 등록 — 상세로 안 가도 된다 */
-  else if(act==='fmCoupon') doFmCoupon(code,names,(el&&el.getAttribute('data-fm'))||'pre',(el&&el.getAttribute('data-fmk'))==='협력사쿠폰회수');   /* [FM_COUPON_1116] 협력사 쿠폰 넣기 · 회수 */
+  else if(act==='fmCoupon'){ if(el&&el.getAttribute('aria-disabled')==='true') return; doFmCoupon(code,names,(el&&el.getAttribute('data-fm'))||'pre',(el&&el.getAttribute('data-fmk'))==='협력사쿠폰회수',(el&&el.getAttribute('data-sub'))||''); }   /* [COUPON_GATE_1116] 흐린 단추는 열지 않는다 */   /* [FM_COUPON_1116] 협력사 쿠폰 넣기 · 회수 */
   else if(act==='confirmChange') doConfirmChange(code,names,{changeReq:{from:{date:(el&&el.getAttribute('data-cfd'))||'',slot:(el&&el.getAttribute('data-cfs'))||''},to:{date:(el&&el.getAttribute('data-ctd'))||'',slot:(el&&el.getAttribute('data-cts'))||''},fee:Number(el&&el.getAttribute('data-cfee'))||0,payer:(el&&el.getAttribute('data-cpy'))||''}});
 }
 
@@ -3911,9 +3912,9 @@ function doSkipSurvey(code,names){ openModal({ title:'후기를 넘길까요?', 
    ★«제휴 확정 전» 표시를 모달 · 단추에 함께 — 필메이커 제휴는 11/03 «오픈 전에 다시 문의»로 보류(조건은 비공개 docs) · 확정되면 이 표시를 걷는다.
    쓰기는 adminPvCoupon(_requireAdmin · 잠금) 한 곳 · 모달 꼴은 커피쿠폰(doIssueCoupon)과 같은 openModal + 한 칸 */
 var FM_PENDING=true;   // [FM_COUPON_1116] 제휴 확정 전 표시 — 확정되면 false
-function doFmCoupon(code,names,kind,revoke){
+function doFmCoupon(code,names,kind,revoke,sub){
   var vn=(kind==='mid')?'식중 영상':'식전 영상', tag=FM_PENDING?' · 제휴 확정 전':'';
-  if(revoke){ openModal({ title:'협력사 쿠폰을 회수할까요?'+tag, text:b(names)+li(vn+' · 고객이 쿠폰을 쓰지 않기로 했어요')+li('필메이커에서 쿠폰을 거둔 뒤 눌러 주세요')+li('고객 화면에서 쿠폰이 사라지고 «쿠폰 요청하기»로 돌아가요'),
+  if(revoke){ openModal({ title:'협력사 쿠폰을 회수할까요?'+tag, text:b(names)+li(/식순에서 식중 영상을 뺐어요/.test(sub||'')?(vn+' · 식순에서 식중 영상을 뺐어요'):(vn+' · 고객이 쿠폰을 쓰지 않기로 했어요'))+li('필메이커에서 쿠폰을 거둔 뒤 눌러 주세요')+li('고객 화면에서 쿠폰이 사라져요 · 한 편에 한 장이라 다시 요청할 수 없어요'),   /* ★[COUPON_GATE_1116] 회수 뒤는 다시 요청 못 함(옛 «쿠폰 요청하기로 돌아가요») · 식순에서 뺀 줄은 그 까닭으로 */
       danger:true, yes:'회수', onYes:function(){ runAct(['adminPvCoupon',code,kind,'revoke',''],code,'회수'); } }); return; }
   var extra='<div class="field"><label>쿠폰 코드 또는 쿠폰 링크(https)</label><input type="text" id="fmCpnVal" maxlength="200" autocomplete="off" spellcheck="false" placeholder="예: FM-1234-ABCD">'
     +'<div style="font-size:11.5px;color:var(--gold-deeper);margin-top:4px">고객 마이페이지 '+esc(vn)+' 화면에 그대로 보여요 · 복사 단추가 붙어요.</div></div>'
