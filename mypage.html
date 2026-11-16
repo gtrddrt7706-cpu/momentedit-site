@@ -54,7 +54,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
   /* ── 03 브랜드 색 토큰 (index.html :root 와 동일) ── */
   --bg:#FAFAF8; --bg2:#F5F3EF; --bg3:#EDEBE6; --text:#1C1B19;
   --accent:#3A2D22; --sub:#5A554C; --light:#6E6959;   /* [TAP44] 대비 4.47→4.6:1 · 홈·상담과 같은 정정 */
-  --gold:#B89A75; --seal:#6B2A24; --border:#DDD8D1;
+  --gold:#B89A75; --seal:#6B2A24; --border:#DDD8D1;--field-line:#8A857C;
   --gold-bg:#FAF6EF;                 /* 골드 옅은 배경(선택칩·아이콘 원) · 정식 토큰화 */
   --gold-soft:rgba(184,154,117,.28); /* 골드 옅은 테두리 */
   --card-shadow:0 1px 2px rgba(28,27,25,.03),0 8px 30px rgba(28,27,25,.05); /* index·schedule 카드와 동일 톤 */
@@ -75,7 +75,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;hei
   --sans:'Noto Sans KR',-apple-system,sans-serif;
   --mono:'Roboto Mono',ui-monospace,monospace;
   --ease:cubic-bezier(0.16,1,0.3,1);
-}
+}   /* ★[FIELD_LINE_1115 2026-11-15 대본 «입력칸 한 벌»] 입력칸 경계 = 비텍스트 3:1(WCAG 1.4.11) · 종전 --border #DDD8D1 은 크림 위 1.36:1 · 쓰는 곳: 로그인 .field input · .cc-input · .res-qty · .birth-group · .dt-year-sel · .sdb-nm · .seat-note-ta (inquiry · index 도 같은 값) */
 html{scroll-behavior:smooth;overscroll-behavior-y:contain}   /* 안드로이드 크롬 기본 당겨서-새로고침(전체 리로드)과 커스텀 상단 당김(loadMyState) 충돌 방지 */
 body{background:var(--bg);color:var(--text);font-family:var(--sans);font-weight:300;font-size:15px;line-height:1.8;-webkit-font-smoothing:antialiased;word-break:keep-all}
 
@@ -138,8 +138,8 @@ h1.title{font-family:var(--serif-ko);font-size:22px;font-weight:500;color:var(--
 .subtitle .nb{white-space:nowrap}   /* [AUTH_BOX_WRAP] 말 덩어리(«진행 상황을 볼 수 있어요» · «자동으로 로그인돼요»)는 한 줄로 — 폰에서 그 앞에서 끊긴다 */
 
 .field{position:relative;margin-bottom:15px}
-.field input{width:100%;border:1px solid var(--border);border-radius:6px;padding:17px 15px;font-family:var(--sans);font-size:16px;color:var(--accent);background:var(--bg);outline:none;transition:border-color .3s}   /* MPD_B9 입력 16px — iOS 포커스 자동 줌 방지(15px 이하 금지 · 2026-07-25) */
-.field input:focus{border-color:var(--gold)}
+.field input{width:100%;border:1px solid var(--field-line);border-radius:6px;padding:17px 15px;font-family:var(--sans);font-size:16px;color:var(--accent);background:var(--bg);outline:none;transition:border-color .3s}   /* MPD_B9 입력 16px — iOS 포커스 자동 줌 방지(15px 이하 금지 · 2026-07-25) */
+.field input:focus{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}   /* ★[FOCUS_ONE · FIELD_LINE_1115] 로그인 칸도 초점 한 벌(짙은 금빛 테 두 겹) — 옅은 금빛 한 겹은 새 경계선(--field-line)보다 흐려 초점이 오히려 약해 보였다 */
 /* 자동완성(autofill) 시 브라우저가 입히는 연보라/노랑 배경 제거 — 페이지 톤 유지 */
 .field input:-webkit-autofill,.field input:-webkit-autofill:hover,.field input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 1000px var(--bg) inset;-webkit-text-fill-color:var(--accent);caret-color:var(--accent);transition:background-color 9999s ease 0s}
 .cc-input:-webkit-autofill,.cc-input:-webkit-autofill:hover,.cc-input:-webkit-autofill:focus,.cc-input:-webkit-autofill:active{-webkit-box-shadow:0 0 0 1000px #fff inset;box-shadow:0 0 0 1000px #fff inset;-webkit-text-fill-color:var(--accent);caret-color:var(--accent);transition:background-color 9999s ease 0s}
@@ -428,6 +428,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .acct-copy-btn svg{width:14px;height:14px}
 .acct-amt-wrap{margin-top:9px;text-align:center}
 .acct-amt-link{background:none;border:none;font-family:var(--serif-ko);font-size:12px;color:var(--light);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.acct-amt-link{min-height:44px;padding:0 8px}   /* ★[MYPAGE_ALL_1114 F3] 누름 칸 17px → 44px(계약금 · 중도금 · 잔금 · 수수료 · 추가보정 공통) · 글 크기 · 밑줄은 그대로 */
 .acct-amt-link u{text-decoration-color:var(--gold-deep);text-underline-offset:3px}
 .cc-btn-ghost:hover{border-color:var(--gold);color:var(--accent)}
 /* 카드결제(대안 수단) — 계좌이체 CTA 아래 '또는' 헤어라인으로 구분(경쟁 아닌 대안임을 명확히). 플래그 OFF면 미노출. */
@@ -443,7 +444,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .consult-card .cc-count{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--seal);margin-top:8px}
 .consult-card .cc-note.cc-warn{color:var(--seal);font-weight:500}
 .consult-card .cc-mini{font-size:11px;color:var(--light)}   /* RESULT_WAIT_POLISH · 각주 대비 4.5:1 경계 → 한 톤 진하게(위계는 최하위 유지) */
-.consult-card .cc-input,.mp-modal-body .cc-input{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:6px;padding:12px 13px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none;margin-bottom:8px}
+.consult-card .cc-input,.mp-modal-body .cc-input{width:100%;box-sizing:border-box;border:1px solid var(--field-line);border-radius:6px;padding:12px 13px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none;margin-bottom:8px}
 .consult-card .cc-input:focus{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}   /* ★[FOCUS_ONE 2026-09-27 사장님 «일관성»] 입력칸 초점 한 벌 = 짙은 금빛 테 두 겹 — 옅은 금빛 한 겹(2.5:1 · 잘 안 보였다) · 좌석 메모의 진사 빛 번짐 · 겹화면의 바깥 테가 섞여 있었다 */
 /* 완료 카드 접기 */
 .consult-card.cc-done{padding:0;text-align:left}
@@ -583,10 +584,10 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
 .dt-cal-nav{background:none;border:none;cursor:pointer;font-family:var(--serif);font-size:20px;font-weight:300;color:var(--sub);line-height:1;padding:4px 9px;border-radius:2px;transition:all .25s var(--ease)}
 .dt-cal-nav:hover:not(:disabled){color:var(--gold-deep);background:var(--bg2)}
 .dt-cal-nav:disabled{opacity:.25;cursor:not-allowed}
-.dt-year-sel{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);background:transparent;border:none;border-bottom:1px solid var(--border);padding:2px 2px;cursor:pointer;outline:none}
+.dt-year-sel{font-family:var(--serif-ko);font-size:14px;font-weight:500;color:var(--accent);background:transparent;border:none;border-bottom:1px solid var(--field-line);padding:2px 2px;cursor:pointer;outline:none}
 /* 생년월일 — 개별 박스 3개 → 테두리 하나로 묶은 통합 필드(년│월│일). 내부 구분선으로 구획 */
-.birth-group{display:flex;align-items:stretch;border:1px solid var(--border);border-radius:8px;background:#fff;overflow:hidden;transition:border-color .2s,box-shadow .2s}
-.birth-group:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft,rgba(184,154,117,.28))}
+.birth-group{display:flex;align-items:stretch;border:1px solid var(--field-line);border-radius:8px;background:#fff;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.birth-group:focus-within{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}
 .birth-sel{-webkit-appearance:none;-moz-appearance:none;appearance:none;box-sizing:border-box;flex:1;min-width:0;font-family:var(--serif-ko);font-size:14px;font-weight:300;color:var(--accent);background-color:transparent;border:none;border-radius:0;padding:12px 26px 12px 14px;outline:none;cursor:pointer;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23B89A75' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 9px center}
 .birth-sel+.birth-sel{border-left:1px solid var(--border)}
 .ci-terms-link{background:none;border:none;padding:0;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep,#7A5F37);text-decoration:underline;cursor:pointer}
@@ -917,6 +918,7 @@ span.snp-pv{cursor:default}
 .snp-restored::before{content:'';position:absolute;left:0;top:.62em;width:5px;height:5px;border-radius:999px;background:var(--gold-deep)}
 /* [SNAP_PRECONSENT_EXIT] 동의 전 · 읽기 전용에는 머리 «저장» 알약이 없다 — 저장은 5걸음의 동의와 «저장하고 마치기» 한 곳 */
 #mp_snapOverlay.snp-pre [data-wiz-save],#mp_snapOverlay.snp-ro [data-wiz-save]{display:none}
+.pvc-card.pvc-ro [data-wiz-save]{display:none}   /* ★[MYPAGE_ALL_1114 F2] 식전 · 식중 영상 «확정 기한이 지났어요» 화면 — 저장할 것이 없는데 «저장»이 서 있었다(_pvcLocked) */
 /* [SNAP_NUM_GOTHIC] 360px 이하 — «다음 · 사진작가에게 전해요»가 320 에서 세 줄(막대 115px)이었다. 뒤 이름은 aria-label 로 */
 @media (max-width:360px){ .snp-nx{display:none} }
 /* [SNAP_MODAL_A11Y] 입력칸 초점 = 2px 링(테두리 색만 바뀌던 것) · 단추 링도 타일과 같은 2px */
@@ -1085,7 +1087,7 @@ body.snp-open #mpToast{bottom:calc(var(--snp-toast-b,34px) + env(safe-area-inset
 /* 추가 보정 수량 입력 — 가운데 정렬 + '컷' 접미 / 우측 '합계 금액' */
 .res-exrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:13px 0 4px}   /* [EXROW_WRAP 2026-09-26] 320 에서 「합계 40,000원」이 패널 밖으로 21px 넘쳤다(실측 · 종전부터) — 자리가 모자라면 수량 아래로 내린다 */
 .res-qty{position:relative;flex:0 0 108px}
-.res-qty input{width:100%;box-sizing:border-box;text-align:center;border:1px solid var(--border);border-radius:10px;padding:12px 30px 12px 14px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none;transition:border-color .25s}
+.res-qty input{width:100%;box-sizing:border-box;text-align:center;border:1px solid var(--field-line);border-radius:10px;padding:12px 30px 12px 14px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none;transition:border-color .25s}
 .res-qty input:focus{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}   /* [FOCUS_ONE] */
 .res-qty input::-webkit-outer-spin-button,.res-qty input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .res-qty input[type=number]{-moz-appearance:textfield}
@@ -1719,7 +1721,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     .sp-opt{display:block;position:relative;padding:11px 12px 11px 38px;border:1px solid var(--border);border-radius:10px;background:#fff;margin-bottom:8px;cursor:pointer;transition:border-color .15s,background .15s}
     .sp-opt input{position:absolute;left:13px;top:14px;accent-color:var(--seal)}
     .seat-note-d{font-size:12px;color:var(--sub);line-height:1.6;word-break:keep-all;margin:-2px 0 9px;text-align:left}   /* [SUBHEAD_ONE] 제목(왼쪽)과 같은 왼쪽 선 · 11.5 → 12(반 px 없이) */   /* [SEAT_NOTE] .sp-d 는 라디오 안쪽 전용 스코프라 여기선 안 먹는다 */
-    .seat-note-ta{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:10px;background:#fff;padding:10px 12px;font:inherit;font-size:13px;color:var(--accent);line-height:1.6;resize:vertical;min-height:66px}   /* [SEAT_NOTE] */
+    .seat-note-ta{width:100%;box-sizing:border-box;border:1px solid var(--field-line);border-radius:10px;background:#fff;padding:10px 12px;font:inherit;font-size:13px;color:var(--accent);line-height:1.6;resize:vertical;min-height:66px}   /* [SEAT_NOTE] */
     .seat-note-ta:focus{outline:none;border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}   /* [FOCUS_ONE] 진사 빛 번짐 → 짙은 금빛 테(진사는 점에만) */
     .seat-note-ta::placeholder{color:var(--label-soft)}
     /* .sp-opt.on → [SEL_ONE] */
@@ -1780,8 +1782,8 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     .sdb-x:active{color:var(--accent)}
     /* 골랐던 것을 되돌리는 길 — 옛 판엔 없어서 한 번 고르면 '미정'으로 못 돌아갔다(×는 창을 닫을 뿐이다) */
     /* [SEAT_ONE_CARD] 이름칸이 창 안으로 들어왔다 — 캔버스의 70px 칸과 달리 넓게 서고, 포커스 크기 16px(iOS 확대 방지·MPD_B9와 같은 이유) */
-    .sdb-nm{display:block;width:100%;box-sizing:border-box;margin-bottom:10px;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;font-family:var(--serif-ko);font-size:16px;color:var(--accent);text-align:center}
-    .sdb-nm:focus{outline:none;border-color:var(--gold-deep)}
+    .sdb-nm{display:block;width:100%;box-sizing:border-box;margin-bottom:10px;padding:11px 12px;border:1px solid var(--field-line);border-radius:10px;background:#fff;font-family:var(--serif-ko);font-size:16px;color:var(--accent);text-align:center}
+    .sdb-nm:focus{outline:none;border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}
     .sdb-nm::placeholder{color:var(--light);font-size:14px}
     .sdb-opts.n4,.sdb-opts.n5{grid-template-columns:repeat(2,1fr)}   /* [ALC_ONE]·[KID_CHAIR] 알콜이 정해지면 넷(그 알콜·논알콜·유아·어린이) · 아직이면 다섯 */
     .sdb-opts.n5 .dk-chip:nth-child(5){grid-column:1/-1}   /* 홀수로 남는 마지막 칸은 한 줄 통째로 — 빈 칸을 남기지 않는다 */
@@ -5669,9 +5671,9 @@ function renderConsult(c, product, d, boxArg, demo){
                칸이 줄지 못해 행이 카드 밖으로 밀렸다 — 320 에서 44px(쪽 가로 스크롤 · 글자 잘림) · 340 에서 24px · 360 에서 4px(실측).
                → 375px 이상은 종전 그대로 한 덩어리, 그보다 좁으면 「최대」 뒤에서만 끊는다(.fit-cap-br · 가운뎃점은 줄 가운데에 남는다). 문구·숫자는 그대로다. */
             + '<div class="vg-row"><span class="vg-k">계약</span><span class="vg-v"><span class="ln-bal">정식 계약은 상담 후 보내드리는 <b style="white-space:nowrap">본 계약서 서명</b>으로 확정돼요.</span><span class="ln-bal">시착 후 계약하지 않으시면 진행한 벌수만큼<span style="white-space:nowrap">(1벌당 50,000원 · 최대<span class="fit-cap-br"> </span>100,000원)</span> 예약금에서 차감돼요.</span><span class="vg-sub">상담 당일 쓰는 시착 동의서는 정식 계약과 달라요.</span></span></div>')
-         + '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">'+(isSnap
+         + (locked ? '' : '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">'+(isSnap
               ? '<b>촬영 전</b>에 마이페이지로 계약서를 보내드려요.<br>서명·입금을 마치면 촬영을 진행해요.'
-              : '상담 후 마이페이지에서 <b>계약 정보를 입력해 요청</b>하시면<br><b>24시간 안에</b> 계약서를 보내드려요.')+'</span></div>'
+              : '상담 후 마이페이지에서 <b>계약 정보를 입력해 요청</b>하시면<br><b>24시간 안에</b> 계약서를 보내드려요.')+'</span></div>')   /* ★[MYPAGE_ALL_1114 F6] 서명한 스냅 고객([SNAP_SIGNED_LOCK] locked)에게 «계약서를 보내드려요»는 지난 일 — 줄을 뺀다 · 서명 전 · 시그니처는 그대로 */
          + '<div class="vg-row"><span class="vg-k">진행 알림</span><span class="vg-v">계약서 도착·입금 확인 같은 진행 소식은 카카오톡으로도 알려드려요.</span></div>'
          + '</div></details>';
     if (locked){   // [SNAP_SIGNED_LOCK] 서명 뒤 스냅 — 셀프 변경·취소 대신 계약서 조항 안내 한 줄
@@ -8649,7 +8651,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
       // 확인·전달 그룹 — 준비 트랙이 아니라 '만들어진 것을 확인·내보내는' 행이라 구분선 아래로(2026-07-18 사용자 지시).
       //   하객 안내=오프라인 청첩장 속 파생 페이지(제목만으론 소속이 헷갈려 부제로 명시) · 예식 확인서=최종 종합 확인이라 맨 마지막.
       + '<div class="trk-sep"><span>확인 · 전달</span></div>'
-      + row('하객 안내', (_gTok&&!_gClosed)?'완료':'', 'mp_guideOpen', gLabel,
+      + row('하객 안내', '', 'mp_guideOpen', gLabel,   /* ★[MYPAGE_ALL_1114 F4] 종전 (_gTok&&!_gClosed)?'완료' — 11/06 [B2_MA_02]부터 링크가 제작 단계 첫날 자동으로 생겨 ✓가 아무것도 안 한 고객에게도 켜졌다(디자인 헌장 9 «✓는 고객이 한 일에만»). 이 줄은 할 일이 아니라 «확인 · 전달»이라 ✓를 두지 않는다 · 단추(링크·QR)가 상태를 말한다 */
           (_invLinkAlive(inv,'family')   /* [INV_LINK_LIVE] 은퇴한 오프라인 링크(청첩장 없이 · 개인 제작으로 마침)는 «청첩장에 들어가는» 안내가 아니다 */
             ? '청첩장에 자동으로 들어가는 안내예요'
             : '식사·자리를 담는 하객 안내 페이지예요'))   // TRK_NO_SUB 예외(2026-07-25 사용자 지시 "하객안내랑 예식확인서는 밑에 설명있어도 괜찮아"): '확인·전달' 그룹 2행은 설명 유지 — 그룹 안에서는 둘 다 있어 리듬이 맞음   // 한 줄로 축약(2026-07-21 사용자 지시) — '링크·QR로 보내요'는 우측 버튼(링크·QR)과 중복이라 제거. 오프라인 청첩장 없는 구성엔 '청첩장에 들어가요'가 거짓이라 구성별 문구 유지(2026-07-18 리뷰)
@@ -11925,6 +11927,7 @@ function _pvcRow(v){
   if(st==='making') return {done:false, st:'', label:'보기', tag:'만드는 중'};
   if(st==='checking') return {done:false, st:'', label:'보기', tag:'스튜디오 확인 중'};
   if(st==='review') return {done:false, st:'', label:'영상 확인', tag:'확인 필요'};
+  if(left!=null && left<0 && (st===''||st==='draft')) return {done:true, st:'', label:'보기', tag:'영상 없이 진행'};   /* ★[MYPAGE_ALL_1114 F1] 기한이 지난 미확정 식전 영상 — 종전 «기한 지남 · 시작하기»는 누르면 «확정 기한이 지났어요»만 여는 막힌 단추였다. 식중 줄([MID_VIDEO_1106] _mvcRow)과 같은 말 · 같은 모양 */
   if(st==='draft' && d.mode==='make') return {done:false, st:'', label:'시작하기', tag:urgent()};   /* ★[PN07_MAKE_RESUME 2026-11-06 5차 P-N07] 옛 «사진으로 만들기» 초안 — «이어하기 · 사진 단계»로 접은 길에 다시 들이지 않는다(첫 화면에서 방법을 다시 고른다) */
   if(st==='draft' && d.mode) return {done:false, st:'', label:'이어하기', tag:urgent()};
   return {done:false, st:'', label:'시작하기', tag:urgent()};
@@ -12069,7 +12072,7 @@ function _pvcPoster(k){
 function renderPvc(){
   var inner=$('mp_pvcInner'), F=PVCFLOW; if(!inner||!F.active) return;
   F._nowDue=false; F._doneAt=false;   // [VIDEO_UMBRELLA_1115] 띠는 화면마다 다시 판단
-  var s=F.scr||'start', h='<div class="consult-card pvc-card">'+_pvcHead();
+  var s=F.scr||'start', h='<div class="consult-card pvc-card'+(s==='locked'?' pvc-ro':'')+'">'+_pvcHead();   /* [MYPAGE_ALL_1114 F2] 기한 지난 화면은 «나가기»만 */
   if(s==='start') h+=(F.kind==='mid'?_mvcStart():_pvcStart());   // [MID_VIDEO_1106]
   else if(s==='locked') h+=_pvcLocked();
   else if(s==='style') h+=_pvcSteps(0)+_pvcStyle();

@@ -4799,6 +4799,29 @@ chk 'MID_VIDEO_1106' automation/platform/70_journey.gs 2
 # ★[PVNORM_KIND_1107 2026-11-07 MID17-8] handlePvSave 의 _pvNorm_ 은 모두 kind 를 넘긴다(식중 줄은 링크만) — #1618 이 넣은 «다른 기기 사진 지키기» 줄에 kind 가 빠졌었다 · 동작은 midvideo.mjs 가 잰다
 chk 'PVNORM_KIND_1107' automation/platform/89_prevideo.gs 1
 chk 'PVNORM_KIND_1107' scripts/audit/midvideo.mjs 2
+# ★[FIELD_LINE_1115 2026-11-15 대본 «입력칸 한 벌»] 입력칸 경계 = --field-line 하나(비텍스트 3:1 · 종전 --border 1.36:1) · 초점 = [FOCUS_ONE] 한 벌
+chk '--field-line:#8A857C;' mypage.html 1
+chk '--field-line:#8A857C;' inquiry.html 1
+chk '  --field-line: #8a857c;' index.html 1
+chk 'var(--field-line)' mypage.html 7
+chk 'var(--field-line)' inquiry.html 2
+chk 'var(--field-line)' index.html 2
+nochk '.field input{width:100%;border:1px solid var(--border);' mypage.html
+nochk '.field input:focus{border-color:var(--gold)}' mypage.html
+nochk 'border:none;border-bottom:1px solid var(--border);background:transparent;padding:22px 0 10px' inquiry.html
+chk '.field input:focus{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}' mypage.html 1
+chk 'box-shadow: inset 0 0 0 1px var(--gold-text);' index.html 2
+# ★[MYPAGE_ALL_1114 2026-11-14 대본 위임 «마이페이지 전체 걷기» 작은 수정] F1 식전 영상 기한 지남 줄 = «보기 · 영상 없이 진행»(막힌 «시작하기» 걷음)
+#   F2 기한 지난 영상 화면엔 «저장» 없음 · F3 «입금액 복사» 누름 칸 44px · F4 «하객 안내» ✓ 걷음(링크 자동 발급 뒤 첫날부터 켜졌다) · F6 서명한 스냅 고객에겐 «계약서를 보내드려요» 줄 없음
+chk 'MYPAGE_ALL_1114 F1' mypage.html 1
+chk "if(left!=null && left<0 && (st===''||st==='draft')) return {done:true, st:'', label:'보기', tag:'영상 없이 진행'};" mypage.html 1
+chk 'MYPAGE_ALL_1114 F2' mypage.html 2
+chk 'pvc-card.pvc-ro .data-wiz-save.{display:none}' mypage.html 1
+chk "(s==='locked'?' pvc-ro':'')" mypage.html 1
+chk '.acct-amt-link{min-height:44px;padding:0 8px}' mypage.html 1
+chk "row('하객 안내', '', 'mp_guideOpen', gLabel," mypage.html 1
+nochk "row('하객 안내', (_gTok&&!_gClosed)?'완료'" mypage.html
+chk "+ (locked ? '' : '<div class=\"vg-row\"><span class=\"vg-k\">계약서</span>" mypage.html 1
 # ★[VIDEO_NAME_1114 2026-11-14 대본 · 사장님 «이름도 식전영상으로 그대로인데 식중영상도 있는데»] 식중 영상은 식순에 담은 분께만 마이페이지 줄(기한 · 시작하기 · 식전 영상과 같은 말) ·
 #   빌더 식중 영상 칸 아래 «마이페이지 «식중 영상»에서 준비해요» · 고객 글 · 관리 · 서버 오류 글의 옛 이름 «준비한 순서 · 영상»을 «식중 영상»으로 · 동작은 midvideo.mjs · mid17-pick.mjs 가 잰다
 chk 'VIDEO_NAME_1114' mypage.html 10
