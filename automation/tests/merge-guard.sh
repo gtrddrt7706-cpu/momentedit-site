@@ -23477,3 +23477,6 @@ chk "ok('\[GA_W5_1115\] 빌더 하객 안내 네 칸" scripts/audit/open-course.
 chk '양가 아버님, 맞절.' assets/ritual-open.js 2
 nochk '화면으로 보고 계신 분들께 인사를 올리겠습니다.' assets/ritual-data.js
 nochk '이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해 서도록 하겠습니다.' assets/ritual-open.js
+# ★[U62_KEEP_1116 2026-11-16 23:13 대표님] 우성 62(온라인 입장 안내)는 라이브 판 그대로 — 가운데 새 문장 넣지 않음 · 다시 넣자고 제안하지 않음
+chk 'onlineIn:"화면으로 함께해 주시는 분들께도 두 사람이 인사드리겠습니다. 신랑 신부는 카메라를 향해 서주시기 바랍니다.",' assets/ritual-data.js 1
+nochk '현장에 계신 분들은 단체 사진 안내까지 자리를 지켜 주세요' assets/ritual-data.js
