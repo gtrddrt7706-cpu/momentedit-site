@@ -51,38 +51,70 @@ const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'nofile-'));
 const MISS = []; const obs = (smp, t0, ms, nm, tag) => { const near = smp.filter((x) => x.t >= t0 - 300 && x.t <= t0 + 300), seen = near.some((x) => x.s[nm] != null || (x.p && x.p[nm])), cut = smp.some((x) => x.t >= t0 && x.t <= t0 + ms && x.u && x.u[nm]);
   const r = seen && !cut ? '관측됨' : '누락'; if (r === '누락') MISS.push(tag + ' ' + nm + (seen ? '(창 안 길 끊김)' : '(요청 ±0.3초에 재생기 없음)')); return r; };
 const FILES = [['M1', 220], ['M2', 262], ['M4', 330], ['M5', 392], ['M6', 440]];   /* 구간마다 첫 곡 칸에 30초 시험 곡 */
-try {
-  const S = O.applyExample({ course: 'open' }, 'standard'); S.course = 'open'; S.mu = { src: 'up', fid: 'nofile-test', hook: 30, name: '시험 입장곡' };   /* 입장곡은 골랐지만 파일은 받지 못하는 날(GAS 응답 없음) */
+/* ★[ENTRY_NONE_1116 2026-11-16 대본 결정 · BGM GPT 라운드 3] 세 경우 — none = 입장 곡이 아예 없는 날(S.mu 없음) · nofile = 골랐는데 못 받은 날(GAS 응답 없음) · got = 받은 날(입장 장면이 선다)
+   none · nofile: 입장 GO 뒤 화촉 곡이 걷기 크기로 남지 않고(6 ~ 8초 −60 아래 · none 은 3초 겹침으로 잦아듦) · 피아노(M4) 첫 곡이 6초 안에 −30 위 · 멘트 아래 −15
+   got: 장면이 맡는다 — 피아노 · 화촉 곡 모두 8초 내내 −60 아래 · 멘트 아래는 입장 큐 값 그대로(−15 아님) */
+const ENTRY_SEC = 60, ENTRY_HOOK = 30, FID = 'ENTRYFID0123456789ab';
+async function runCase(kind) {
+  const S = O.applyExample({ course: 'open' }, 'standard'); S.course = 'open';
+  if (kind === 'nofile') S.mu = { src: 'up', fid: 'nofile-test', hook: 30, name: '시험 입장곡' };   /* 입장곡은 골랐지만 파일은 받지 못하는 날(GAS 응답 없음) */
+  else if (kind === 'got') { S.entryVoice = 'nar'; S.mu = { src: 'up', name: 'song-day', t: '시험 곡', a: '', dur: ENTRY_SEC, hook: ENTRY_HOOK, typed: null, sid: 'x1', fid: FID }; }
+  else delete S.mu;
+  const SONG = kind === 'got' ? wav(ENTRY_SEC, 523).toString('base64') : '';
   const ctx = await br.newContext({ viewport: { width: 1280, height: 900 } }); await ctx.addInitScript(PROBE); await ctx.addInitScript(() => { window.__ME_PREVIEW_GUARD_TEST_OFF = true; });
   const pg = await ctx.newPage(), errs = []; pg.on('pageerror', (e) => errs.push(e.message));
-  await pg.route('**/*', (rt) => (rt.request().url().startsWith('http://127.0.0.1:' + port) ? rt.continue() : rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: '{"ok":false}' })));
-  await pg.goto(`http://127.0.0.1:${port}/console.html?S=${encodeURIComponent(Buffer.from(JSON.stringify(S)).toString('base64'))}`); await pg.waitForTimeout(900);
+  const H = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
+  await pg.route('**/*', (rt) => { const u = rt.request().url(); if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue();
+    if (kind === 'got' && /script\.google\.com/.test(u)) { let b = {}; try { b = JSON.parse(rt.request().postData() || '{}'); } catch {}
+      if (b.fn === 'adminRitualFiles') return rt.fulfill({ status: 200, headers: H, body: JSON.stringify({ ok: true, sup: {}, files: [{ key: 'mu', id: FID, name: '입장 음악 · song-day.wav' }] }) });
+      if (b.fn === 'adminRitualFileGet') return rt.fulfill({ status: 200, headers: H, body: JSON.stringify({ ok: true, id: FID, mime: 'audio/wav', data: SONG }) }); }
+    return rt.fulfill({ status: 200, headers: H, body: '{"ok":false}' }); });
+  const base = `http://127.0.0.1:${port}`;
+  if (kind === 'got') { await pg.goto(base + '/console.html'); await pg.evaluate(() => { localStorage.setItem('me_admin_token', 'T0K'); }); }   /* 로컬 서버 · 가짜 값 */
+  await pg.goto(`${base}/console.html?S=${encodeURIComponent(Buffer.from(JSON.stringify(S)).toString('base64'))}` + (kind === 'got' ? '&rf=ME0001' : '')); await pg.waitForTimeout(900);
   let put = 0; for (const [sg, hz] of FILES) { const p = path.join(TMP, sg + '.wav'); fs.writeFileSync(p, wav(30, hz)); try { await pg.setInputFiles(`.sg[data-seg="${sg}"] .sg-song:nth-of-type(1) [data-seg-file]`, p, { timeout: 4000 }); put++; } catch {} }
-  await pg.waitForTimeout(1200); await pg.click('#go'); await pg.waitForTimeout(500);
+  await pg.waitForTimeout(1200);
+  if (kind === 'got') { const okE = await pg.waitForFunction(() => window.__esd && window.__esd.s().st === 'ok' && window.__esd.s().v0, null, { timeout: 60000 }).then(() => true, () => false); if (!okE) { await ctx.close(); return { skip: '받은 날 — 입장 장면 준비 안 됨 ' + JSON.stringify(await pg.evaluate(() => window.__esd && window.__esd.s()).catch(() => null)) }; } }
+  await pg.click('#go'); await pg.waitForTimeout(500);
   const hook = await pg.evaluate(() => typeof window.__bgmR === 'function' && !!window.__bgmGo && !!window.__rl);
-  if (!hook || put < FILES.length) { console.log('못 쟀다 — 콘솔 점검 고리가 없거나 곡 파일 칸을 못 찾았다(넣은 곡 ' + put + '/' + FILES.length + ')'); await br.close(); srv.close(); process.exit(2); }
+  if (!hook || put < FILES.length) { await ctx.close(); return { skip: '콘솔 점검 고리가 없거나 곡 파일 칸을 못 찾았다(넣은 곡 ' + put + '/' + FILES.length + ')' }; }
   const Rq = await pg.evaluate(() => window.__bgmR()); const ix = (re, from) => Rq.findIndex((c, i) => i >= (from || 0) && re.test(c.slug || ''));
   const iG = ix(/^guest-w-arrival/), iC = ix(/^narr-candle-in/), iR = ix(/^bridge-b7-entry-ready/), iE = ix(new RegExp('^entry-' + (S.entry || 'A') + '$'));
-  if ([iG, iC, iR, iE].some((x) => x < 0)) { console.log('못 쟀다 — 큐를 못 찾았다 ' + JSON.stringify({ iG, iC, iR, iE })); await br.close(); srv.close(); process.exit(2); }
+  if ([iG, iC, iR, iE].some((x) => x < 0)) { await ctx.close(); return { skip: '큐를 못 찾았다 ' + JSON.stringify({ iG, iC, iR, iE }) }; }
   await pg.evaluate(() => { window.__rl.on = true; });
   const fire = (i) => pg.evaluate((i) => { window.__bgmGo.fire(i); return performance.now(); }, i);
   const wait = (nm, fn, ms) => pg.waitForFunction(([nm, f]) => { const a = window.__rl.smp, s = a[a.length - 1]; const v = s && s.s[nm]; return new Function('v', 'return ' + f)(v); }, [nm, fn], { timeout: ms || 20000 }).then(() => true, () => false);
   await fire(iG); const g1 = await wait('M1', 'v != null && v > -40', 15000);
   await fire(iC); const g2 = await wait('M2', 'v != null && v > -40', 15000);
-  await fire(iR); const q2 = await wait('M2', 'v == null || v <= -60', 15000); await pg.waitForTimeout(800);
-  const esd = await pg.evaluate(() => { try { return (window.__esd && window.__esd()) || null; } catch (e) { return null; } });
+  await fire(iR); const q2 = kind === 'none' ? await wait('M2', 'v != null && v > -40', 15000) : await wait('M2', 'v == null || v <= -60', 15000); await pg.waitForTimeout(800);   /* none = 입장 장면이 없어 입장 준비에 화촉 곡을 끄지 않는다(멘트 아래 −15) */
   const tE = await fire(iE); await pg.waitForTimeout(250); const want = await pg.evaluate(() => window.__bgmSt && window.__bgmSt().want); await pg.waitForTimeout(7750);
   const sm = await pg.evaluate(() => { window.__rl.on = false; return window.__rl.smp; });
   const W = sm.filter((x) => x.t >= tE && x.t <= tE + 8000), pk = (nm, a, b) => { const v = W.filter((x) => x.t >= tE + a && x.t <= tE + b && x.s[nm] != null).map((x) => x.s[nm]); return v.length ? Math.max(...v) : -140; };
-  const r = { 준비: [g1, g2, q2], 화촉곡최고: pk('M2', 0, 8000), 피아노최고_6초: pk('M4', 0, 6000), 피아노최고_8초: pk('M4', 0, 8000), 멘트아래: want, 표본: W.length, 입장장면: esd };
-  console.log('  재 본 값', JSON.stringify(r));
-  if (!g1 || !g2 || !q2 || W.length < 100) { console.log('못 쟀다 — 준비(하객 맞이 · 화촉 곡 · 입장 준비 정적)가 안 됐다'); await br.close(); srv.close(); process.exit(2); }
-  obs(sm, tE, 8000, 'M2', '①');
-  ok('① 입장곡을 못 받은 날 입장 GO — 꺼 둔 화촉 곡이 8초 내내 −60 dB 아래(되살아나지 않는다) [ENTRY_NOFILE_OWNER_1115]', r.화촉곡최고 <= -60, r);
-  ok('② 같은 GO 에서 본식 피아노(M4) 첫 곡이 새로 시작해 6초 안에 −30 dB 위로(걷기 크기)', r.피아노최고_6초 > -30, r);
-  ok('④ 입장 멘트 아래 크기 −15(말 아래 표준) [ENTRY_NOFILE_DUCK15_1115]', want === -15, { want });
-  ok('③ 쪽 오류 0', !errs.length, errs.slice(0, 3));
+  const r = { kind, 준비: [g1, g2, q2], 화촉곡최고_0_8: pk('M2', 0, 8000), 화촉곡최고_6_8: pk('M2', 6000, 8000), 피아노최고_6초: pk('M4', 0, 6000), 피아노최고_8초: pk('M4', 0, 8000), 멘트아래: want, 표본: W.length, 쪽오류: errs.slice(0, 3) };
+  if (kind !== 'none') obs(sm, tE, 8000, 'M2', kind);
   await ctx.close();
+  if (!g1 || !g2 || !q2 || W.length < 100) return { skip: '준비(하객 맞이 · 화촉 곡 · 입장 준비)가 안 됐다 ' + JSON.stringify(r) };
+  return r;
+}
+try {
+  for (const kind of (process.env.NOFILE_CASES || 'none,nofile,got').split(',')) {
+    const r = await runCase(kind); console.log('  재 본 값', JSON.stringify(r));
+    if (r.skip) { console.log('못 쟀다 — ' + kind + ' · ' + r.skip); await br.close(); srv.close(); process.exit(2); }
+    if (kind === 'nofile') {
+      ok('① 입장곡을 못 받은 날 입장 GO — 꺼 둔 화촉 곡이 8초 내내 −60 dB 아래(되살아나지 않는다) [ENTRY_NOFILE_OWNER_1115]', r.화촉곡최고_0_8 <= -60, r);
+      ok('② 못 받은 날 — 같은 GO 에서 본식 피아노(M4) 첫 곡이 6초 안에 −30 dB 위로(걷기 크기)', r.피아노최고_6초 > -30, r);
+      ok('④ 못 받은 날 — 입장 멘트 아래 크기 −15(말 아래 표준) [ENTRY_NOFILE_DUCK15_1115]', r.멘트아래 === -15, { want: r.멘트아래 });
+    } else if (kind === 'none') {
+      ok('⑤ 입장 곡이 아예 없는 날 — 화촉 곡이 걷기 곡으로 남지 않는다(GO 뒤 6 ~ 8초 −60 아래 · 3초 겹침으로 잦아듦) [ENTRY_NONE_1116]', r.화촉곡최고_6_8 <= -60, r);
+      ok('⑥ 아예 없는 날 — 본식 피아노(M4) 첫 곡이 6초 안에 −30 dB 위로 [ENTRY_NONE_1116]', r.피아노최고_6초 > -30, r);
+      ok('⑦ 아예 없는 날 — 입장 멘트 아래 −15 [ENTRY_NONE_1116]', r.멘트아래 === -15, { want: r.멘트아래 });
+    } else {
+      ok('⑧ 받은 날 — 입장 장면이 맡는다: 피아노(M4)가 8초 내내 −60 아래 [ENTRY_NONE_1116]', r.피아노최고_8초 <= -60, r);
+      ok('⑨ 받은 날 — 꺼 둔 화촉 곡도 8초 내내 −60 아래', r.화촉곡최고_0_8 <= -60, r);
+      ok('⑩ 받은 날 — 멘트 아래는 입장 큐 값(−15 로 바꾸지 않는다)', r.멘트아래 !== -15, { want: r.멘트아래 });
+    }
+    ok('③ 쪽 오류 0 · ' + kind, !r.쪽오류.length, r.쪽오류);
+  }
 } catch (e) { console.log('못 쟀다 —', String(e && e.stack || e).slice(0, 500)); try { await br.close(); } catch {} srv.close(); process.exit(2); }
 await br.close(); srv.close(); try { fs.rmSync(TMP, { recursive: true, force: true }); } catch {}
 if (MISS.length) { console.log('못 쟀다 — 앞 곡 관측 누락: ' + MISS.join(' / ') + (fail ? ` · 그 밖 FAIL ${fail}` : '')); process.exit(2); }
