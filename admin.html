@@ -3062,7 +3062,7 @@ function _admVideoLines(prod, d){ var h='', due=function(v){ var m=String((v&&v.
   if(mv&&mv.up){ var mst=String(mv.st||'');
     if(mv.on===true) h+=line('식중 영상', mv, ' · 식순 켬 · '+esc(String(mv.len||3))+'분', true);
     else if(['done','editing','checking','review'].indexOf(mst)>-1) h+='<div class="cnote">식중 영상 <b>'+esc(_ADM_PV_ST[mst]||mst)+'</b> · <span style="color:var(--red)">식순에서 뺌 · 틀지 않음</span></div>';
-    else h+='<div class="cnote">식중 영상 <b>넣지 않음</b> · '+(mv.on===null?'식순 아직 없음':'식순 «준비한 순서»가 영상이 아니에요')+'</div>'; }
+    else h+='<div class="cnote">식중 영상 <b>넣지 않음</b> · '+(mv.on===null?'식순 아직 없음':'식순에 식중 영상이 없어요')+'</div>'; }   /* [VIDEO_NAME_1114] 이름 = 빌더 «식중 영상» 칸(MID17_TILE) · 옛 «준비한 순서 · 영상» 말을 걷었다 */
   return h; }
 function prodTracksHtml(prod, d){
   if(!prod) return '<div class="cnote">다이닝 · 식순 · 최종확정 · 정보 없음</div>';
