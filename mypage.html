@@ -1270,9 +1270,10 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .trk-ok{color:var(--seal,#6B2A24);font-weight:600;font-size:12px}   /* 완료 체크 = 진사(낙관) 색 — 도장 찍듯 또렷하게(2026-07-17 사용자 요청) */
 /* ★[VIDEO_UMBRELLA_1115] «상영 영상» 묶음 — 머리 줄(이름 · 기한) 아래 식전 · 식중 두 줄이 한 덩어리로 읽히게.
    칠한 상자 · 왼쪽 세로줄 없이([NO_SIDE_STRIPE] · [NOTE_DOT]) 들여쓰기와 안쪽 가는 선만 · 단추 칸 · 크기는 다른 줄과 같다(오른쪽 끝 정렬) */
-.trk.vu-head{border-bottom:none;padding-bottom:0}
-.trk.vu-head .trk-nm{font-weight:500}   /* [GPT 1-d] 묶음 제목만 한 단계 · 아래 두 줄과 붙게(아래 여백 0) · 두 줄 이름은 다른 줄과 같은 14px(같은 역할 같은 크기 · 릴스 방 점검 B) — 묶음은 들여쓰기와 머리 굵기로만 나눈다 */
-.vu-due{font-family:var(--serif-ko);font-size:12px;color:var(--label-soft);letter-spacing:.02em;white-space:nowrap}
+/* ★[UMBRELLA_ROW_1116] 옛 머리 줄(.trk.vu-head · .vu-due)은 걷었다 — «상영 영상»은 다른 줄과 같은 한 줄(row) · 두 줄은 아래 펼침(.vu-fold) */
+.vu-fold[hidden]{display:none}
+.vu-fold>.trk:last-child{border-bottom:1px solid var(--border)}   /* [UMBRELLA_ROW_1116] 펼친 둘째 줄도 다른 줄과 같은 아래 선(.trk:last-child 가 펼침 안에서 선을 지워 1px 낮았다) */
+.vu-fold:last-child>.trk:last-child,.trk:has(+ .vu-fold[hidden]:last-child){border-bottom:none}   /* 목록 끝이면 다른 목록처럼 선 없음 */
 .trk.vu-row{padding-left:10px;padding-top:9px;padding-bottom:9px}   /* [릴스 방 점검 · bb8687b] 14 → 10px — 390 «스튜디오 확인 중» 꼬리표가 둘째 줄로 내려가 그 줄만 55 → 69px 이던 것(네 상태 147px 로 같게) */
 .trk.vu-row:not(.vu-last){border-bottom-color:transparent;background:linear-gradient(var(--border),var(--border)) right bottom/calc(100% - 10px) 1px no-repeat}
 .vu-when{font-size:12px;color:var(--label-soft);margin-left:6px;letter-spacing:.02em;white-space:nowrap}
@@ -7445,6 +7446,7 @@ function renderProduction(p, inv){
     startPhotoFlow(p.guideinfoDraft||{}, p.ritualDraft||null, (window.RitualPreviewLink&&RitualPreviewLink.digitalOf(inv))||false, !!p.photoFriendOk, _ml); });   /* [PHOTO_FRIEND] 서버가 새 칸을 알 때만 연다 */   /* [PHOTO_CAP_40] 온라인 날은 온라인 인사 2분을 먼저 뺀다 */   // 단체 사진 전용 화면(PHOTOFLOW) 진입 · 구도+연출 · [PHOTO_SCENE] 식순 초안은 읽기만 한다(저장 안 함)
   var _pvcB=$('mp_pvcStart'); if(_pvcB) _pvcB.addEventListener('click', function(){ startPvcFlow(p.prevideo||{}); });   // [PV_CAT_1031] 식전 영상
   var _mvcB=$('mp_mvcStart'); if(_mvcB) _mvcB.addEventListener('click', function(){ startPvcFlow(Object.assign({}, p.midvideo||{}, {kind:'mid'})); });   // [MID_VIDEO_1106] 식중 영상
+  var _vuB=$('mp_vuOpen'); if(_vuB) _vuB.addEventListener('click', function(){ var f=$('mp_vuFold'); if(!f) return; var o=f.hidden; f.hidden=!o; window._vuFoldOpen=o; _vuB.setAttribute('aria-expanded', String(o)); });   // ★[UMBRELLA_ROW_1116] «상영 영상» 한 줄 → 아래 식전 · 식중 두 줄 여닫기(두 줄 단추는 위 둘이 이미 잇는다)
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault();
     var _dd0=p.diningDraft||{};
@@ -8588,8 +8590,8 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   var _ritPre2=null;   // [PREP_LINK] 목록이 있을 때만
   var _pvRow={ done:true, html:'' };   // [PV_CAT_1031] 식전 영상 줄 — 시안 «식전 영상 줄이 바뀌는 모습» 여덟 모양(_pvcRow)
   var _mvRow={ done:true, html:'' };   // [MID_VIDEO_1106] 식중 영상 줄 — [VIDEO_NAME_1114] 식순에 식중 영상을 담은 분께만(없으면 줄 없음)
-  try{ if(typeof MVC_ON!=='undefined' && MVC_ON && p && p.midvideo && p.midvideo.up && (window._mpStateD||{}).product!=='웨딩스냅'){ var _mvR=_mvcRow(p.midvideo, _mvcOn(p)); if(_mvR) _mvRow={ done:_mvR.done, html:row('식중 영상', _mvR.st, 'mp_mvcStart', _mvR.label, null, {tag:_mvR.tag}) }; } }catch(e){}   /* [VIDEO_NAME_1114] null = 식순에 없음 → 줄 없음 */
-  try{ if(typeof PVC_ON!=='undefined' && PVC_ON && p && p.prevideo && p.prevideo.up && (window._mpStateD||{}).product!=='웨딩스냅'){ var _pvR=_pvcRow(p.prevideo); _pvRow={ done:_pvR.done, html:row('식전 영상', _pvR.st, 'mp_pvcStart', _pvR.label, null, {tag:_pvR.tag}) }; } }catch(e){}
+  try{ if(typeof MVC_ON!=='undefined' && MVC_ON && p && p.midvideo && p.midvideo.up && (window._mpStateD||{}).product!=='웨딩스냅'){ var _mvR=_mvcRow(p.midvideo, _mvcOn(p)); if(_mvR) _mvRow={ done:_mvR.done, html:row(VU_NAME, _mvR.st, 'mp_mvcStart', _mvR.label, null, {tag:_mvR.tag}) }; } }catch(e){}   /* ★[UMBRELLA_ROW_1116] 식중만 고른 드문 날도 줄 이름은 «상영 영상» 하나(안에서 식전 · 식중이 갈린다) · 옛 이름 «식중 영상» */   /* [VIDEO_NAME_1114] null = 식순에 없음 → 줄 없음 */
+  try{ if(typeof PVC_ON!=='undefined' && PVC_ON && p && p.prevideo && p.prevideo.up && (window._mpStateD||{}).product!=='웨딩스냅'){ var _pvR=_pvcRow(p.prevideo); _pvRow={ done:_pvR.done, html:row(VU_NAME, _pvR.st, 'mp_pvcStart', _pvR.label, null, {tag:_pvR.tag}) }; } }catch(e){}   /* ★[UMBRELLA_ROW_1116 2026-11-16 대표님 캡처 «이것도 이름 바꿔야지 · 식중 영상도 있잖아»] 식전만 고른 분도 줄 이름 «상영 영상»(옛 «식전 영상») · 누르면 식전 화면 그대로 */
   /* ★[VIDEO_UMBRELLA_1115 2026-11-15 대표님 «식전영상만이 아니라 식중영상도 있으니 이름도 바꿔야 · 그 안에 디자인도 멋지게»]
      식중 영상 줄이 있는 분(식순에 식중 영상을 담았거나 보낸 식중 영상이 남은 분)께만 두 줄을 «상영 영상» 한 묶음으로 —
      머리 줄 = 묶음 이름 + 확정 기한(두 영상 같은 날 · 예식 7일 전) · 아래 두 줄 = 식전 · 식중(언제 트는지 한 낱말 · 상태 꼬리표 · 단추).
@@ -8599,8 +8601,12 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   try{ if(_pvRow.html && _mvRow.html){
     var _vuDue=function(t){ return /까지$|^기한 지남$/.test(String(t||'')); }, _vuNew=function(r){ return !!r && r.label==='시작하기' && (!r.tag || _vuDue(r.tag)); },   /* [GPT 1-e] 시작 전에는 «언제 트나», 시작한 뒤에는 상태 하나(꼬리표 · ✓ · 단추)만 — 폰 · PC 같은 규칙 */ _vuP=_pvcRow(p.prevideo), _vuM=_mvcRow(p.midvideo, _mvcOn(p));
     var _vuAll=!!(_vuP.done && _vuM.done && _vuP.st==='완료' && _vuM.st==='완료');
-    var _vuHead='<div class="trk vu-head"><span class="trk-nm">'+escapeHtml(VU_NAME)+(_vuAll?'&nbsp;<span class="trk-ok">✓</span>':'')+'</span>'+(_vuAll?'':'<span class="vu-due">'+escapeHtml(_vuDueTxt((p.prevideo||{}).due||(p.midvideo||{}).due))+'</span>')+'</div>';
-    _pvRow={ done:_vuP.done, html:_vuHead+row('식전 영상', _vuP.st, 'mp_pvcStart', _vuP.label, null, {tag:_vuDue(_vuP.tag)?null:_vuP.tag, cls:'vu-row', when:_vuNew(_vuP)?'입장 전':''})+row('식중 영상', _vuM.st, 'mp_mvcStart', _vuM.label, null, {tag:_vuDue(_vuM.tag)?null:_vuM.tag, cls:'vu-row vu-last', when:_vuNew(_vuM)?'축사 · 축가 뒤':''}) };
+    /* ★★[UMBRELLA_ROW_1116 2026-11-16 대본 12:59 · 대표님 «이것도 이름 바꿔야지 · 식중 영상도 있잖아»] 둘 다 있는 분도 목록은 «상영 영상» 한 줄 —
+         옛 판(머리 줄 vu-head + 늘 펼친 두 줄)은 다른 준비 줄과 리듬이 달랐다 · 이제 다른 줄과 같은 한 줄(✓ = 둘 다 완료 · 꼬리표 = 확정 기한 · 단추 시작하기 / 보기)이고 누르면 아래로 식전 · 식중 두 줄이 펼쳐진다.
+         두 줄은 옛 vu-row 그대로(들여쓰기 · 단추 id mp_pvcStart · mp_mvcStart · 상태 꼬리표) · 기한 꼬리표는 머리 한 곳만 · 펼침은 다시 그려도 기억(window._vuFoldOpen) · 옛 vu-head 머리 줄은 되살리지 말 것 */
+    var _vuTag=_vuDue(_vuP.tag)?_vuP.tag:_vuDue(_vuM.tag)?_vuM.tag:null, _vuOpen=!!window._vuFoldOpen;
+    var _vuHead=row(VU_NAME, _vuAll?'완료':'', 'mp_vuOpen', (_vuNew(_vuP)&&_vuNew(_vuM))?'시작하기':'보기', null, {tag:_vuTag}).replace('id="mp_vuOpen">','id="mp_vuOpen" aria-expanded="'+_vuOpen+'" aria-controls="mp_vuFold">');
+    _pvRow={ done:_vuP.done, html:_vuHead+'<div id="mp_vuFold" class="vu-fold"'+(_vuOpen?'':' hidden')+'>'+row('식전 영상', _vuP.st, 'mp_pvcStart', _vuP.label, null, {tag:_vuDue(_vuP.tag)?null:_vuP.tag, cls:'vu-row', when:_vuNew(_vuP)?'입장 전':''})+row('식중 영상', _vuM.st, 'mp_mvcStart', _vuM.label, null, {tag:_vuDue(_vuM.tag)?null:_vuM.tag, cls:'vu-row vu-last', when:_vuNew(_vuM)?'축사 · 축가 뒤':''})+'</div>' };
     _mvRow={ done:_vuM.done, html:'' };
   } }catch(e){}
   var _prepRows=[

@@ -4875,6 +4875,18 @@ fi
 chk 'VIDEO_UMBRELLA_1115' mypage.html 5
 chk 'VIDEO_UMBRELLA_1115' order-preview.html 4
 nochk "var VU_NAME='예식 영상'" mypage.html 0
+# ★★[UMBRELLA_ROW_1116 2026-11-16 대본 12:59 · 대표님 캡처 «이것도 이름 바꿔야지 · 식중 영상도 있잖아»] 준비 목록은 늘 «상영 영상» 한 줄 — 식전만 · 식중만이면 그 단추 그대로(mp_pvcStart · mp_mvcStart) ·
+#   둘 다면 한 줄(✓ 둘 다 완료 · 꼬리표 확정 기한 · 단추 mp_vuOpen 시작하기 / 보기) 아래 펼침(mp_vuFold)에 식전 · 식중 두 줄 · 옛 머리 줄(vu-head) · 늘 펼친 두 줄은 은퇴(RULES_SLIM ⑧) — video-umbrella 가 390 · 1280 실렌더로 잰다
+chk 'UMBRELLA_ROW_1116' mypage.html 5
+chk "html:row(VU_NAME, _pvR.st, 'mp_pvcStart'" mypage.html 1
+chk "html:row(VU_NAME, _mvR.st, 'mp_mvcStart'" mypage.html 1
+chk 'aria-controls="mp_vuFold">' mypage.html 1
+chk 'id="mp_vuFold" class="vu-fold"' mypage.html 1
+chk "var _vuB=\$('mp_vuOpen'); if(_vuB) _vuB.addEventListener('click'" mypage.html 1
+nochk "html:row('식전 영상', _pvR.st, 'mp_pvcStart'" mypage.html   # 깨 보기: 옛 이름으로 되돌리면 이 줄 · 위 chk 둘 다 빨강
+nochk 'class="trk vu-head"' mypage.html   # 옛 머리 줄
+chk 'UMBRELLA_ROW_1116' scripts/audit/video-umbrella.mjs 3
+chk 'UMBRELLA_ROW_1116' scripts/audit/prevideo-cat.mjs 2
 if command -v node >/dev/null 2>&1; then _vu=$(node scripts/audit/video-umbrella.mjs 2>&1); _vur=$?
   case "$_vur" in
     0) echo 'ok video-umbrella: 상영 영상 묶음 · 확인서 · 식중 없는 분 그대로' ;;
