@@ -4826,7 +4826,7 @@ chk "freeVideo:\['식중 영상은 어디로 보내나요?'" order-preview.html 
 nochk '보내는 방법은 상담 때 안내' index.html 0
 nochk '보내는 방법은 상담 때 안내' api/_kb.js 0
 nochk '영상 속 노래는 「식전 영상」으로 담는다' api/_ritual-kb.js 0
-chk '식중 영상(선택 · 2026-11-06 사장님 결정): 본식 중 «영상» 자리에 두 분이 준비한 영상을 틀 수 있다' api/_kb.js 1
+chk '식중 영상(선택 · 2026-11-06 사장님 결정): 본식 중 «식중 영상» 순간에 두 분이 준비한 영상을 틀 수 있다' api/_kb.js 1   # ★[SPEECH_SONG_1115] 식중 영상 = 따로 넣고 빼는 순간 — main #1649 핀 «본식 중 «영상» 자리에»(축사 택1 판)
 chk '예식 7일 전 23:59까지 확정하며' api/_kb.js 1   # [GPT 4-34] 홈 AI 도 마감 시각을 안다
 chk '마이페이지 «식중 영상»에 링크를 보내 미리 봐요. 예식 7일 전 23:59까지 확정하지 않으면 상영하지 않아요.' api/_ritual-kb.js 1   # [GPT 3-27 · 4-35 · 5-36] 공개 · 계약 고객 공통 · 확정 안 하면 상영 안 함까지
 chk "_recordHandler(code, _pvName_(kind) + ' 동의 · 처리방침 ' + ver)" automation/platform/89_prevideo.gs 1   # [GPT 1-03] 처리이력 = 동의한 처리방침 날짜
@@ -22301,6 +22301,9 @@ chk 'SHOW_PAIR_1116' scripts/audit/open-course.mjs 4
 chk 'SHOW_PAIR_1116' scripts/audit/mid17-engine.mjs 2
 chk 'SHOW_PAIR_1116' scripts/audit/mid17-console.mjs 2
 chk 'SHOW_PAIR_1116' scripts/audit/meaning-r1.mjs 2   # 옛 «선물 전달 동작 −12» → 선물 꺼짐 · 축하 공연 무대 동안 배경음 −90
+chk 'SPEECH_SONG_1115' scripts/audit/pv-fix-1114.mjs 4   # ★[SPEECH_SONG_1115] ⑤ 정석 축사 쪽 · 정석(축가만) 두 판 · ② 정석도 축가 앞 곡이 1.5초에 꺼진다(옛 «앞이 이미 정적» 대조 은퇴)
+chk 'SPEECH_SONG_1115' scripts/audit/console-r2-1115.mjs 1   # 축사 칸을 재는 판 = pairSet(free)
+chk 'SPEECH_SONG_1115' scripts/audit/pv-r3-1115.mjs 1   # 19 정석(축가만) 축가 B10
 nochk "ok('T05 «음악과 함께» 축사 뒤 축가 여는 말" scripts/audit/one-flow.mjs   # [SPEECH_SONG_1115] 은퇴한 옛 T05(축사 뒤 축가 여는 말 정적)
 chk '①-T01' scripts/audit/gpt-r1.mjs 1
 chk '④-T01' scripts/audit/gpt-r1.mjs 1
