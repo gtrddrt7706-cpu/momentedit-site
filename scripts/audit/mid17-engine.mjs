@@ -62,7 +62,7 @@ function engine(src) {
   r.speech = src.all({ course: 'open', on: { bless: 1, free: 1, letter: 1 }, freeWhat: 'speech', freeLen: '3' }).filter((c) => c.k === 'free');
   r.gift = src.all({ course: 'open', on: { bless: 1, free: 1, song: 1 }, freeWhat: 'gift' }).filter((c) => c.k === 'free');
   r.etc = src.all({ course: 'open', on: { bless: 1, free: 1, song: 1 }, freeWhat: 'etc', freeEtc: '형제 깜짝 영상편지' }).filter((c) => c.k === 'free');
-  r.stage = src.all({ course: 'open', on: { bless: 1, free: 1, letter: 1 }, freeWhat: 'stage', freeLen: '4' }).filter((c) => c.k === 'free');   // [SHOW_PAIR_1116] 축하 공연
+  r.stage = src.all({ course: 'open', on: { bless: 1, free: 1, letter: 1 }, freeWhat: 'stage', freeLen: '4' }).filter((c) => c.k === 'free');   // [NO_SHOW_1116] 옛 무대 초안 → 축사
   r.giftSong = src.all({ course: 'open', on: { bless: 1, free: 1, song: 1 }, freeWhat: 'gift' }).filter((c) => c.k === 'song');
   r.old = src.all({ course: 'record', extra: { free: 1 } }).filter((c) => c.k === 'free');   // 옛 코스(기록 · 자유 한 칸을 고른 옛 초안)
   return r;
@@ -83,7 +83,8 @@ function judgeEngine(r) {
     t('[SPEECH_SONG_1115] 차례 = 덕담 → 축사(또는 축가) → 식중 영상 → 편지 · 식중 영상은 축사와도 축가와도 함께 큐가 선다', a.indexOf('bless') > -1 && a.indexOf('bless') < a.indexOf('free') && a.indexOf('free') < a.indexOf('midvid') && a.indexOf('midvid') < a.indexOf('letter') && b.indexOf('song') > -1 && b.indexOf('song') < b.indexOf('midvid') && b.indexOf('midvid') < b.indexOf('letter') && a.indexOf('song') < 0 && b.indexOf('free') < 0, [a, b]); }
   t('축사는 그대로(103 여는 말 · 블록 «축사» · 식중 영상 큐 없음)', r.speech.length >= 1 && r.speech[0].slug === 'narr-free-in-speech' && r.speech.every((c) => c.blockN === '축사' && c.slug !== IN), brief(r.speech));
   /* ★[SHOW_PAIR_1116 · RULES_SLIM ⑧] 옛 기대 «선물 · 기타(옛 초안)는 그대로 · 축가와 함께(58 · 블록 «준비한 순서»)» → 선물 · 기타는 상담 메모 · 옛 초안은 꺼진다(축가는 그대로) · 새 갈래 축하 공연 = 58 하나 · 블록 «축하 공연» */
-  t('[SHOW_PAIR_1116] 선물 · 기타(옛 초안)는 꺼진다(free 큐 0 · 함께 담긴 축가는 그대로) · 축하 공연 = 58 하나 · 블록 «축하 공연» · 사람 구간(live)', !r.gift.length && !r.etc.length && r.giftSong.length > 0 && r.stage.length === 1 && r.stage[0].slug === 'narr-free-in' && r.stage[0].blockN === '축하 공연' && !!r.stage[0].live, [brief(r.gift), brief(r.etc), brief(r.stage)]);
+  /* ★[NO_SHOW_1116 · RULES_SLIM ⑧] 옛 기대(SHOW_PAIR_1116) «축하 공연 = 58 하나 · 블록 «축하 공연»» → 대표님 «공연은 빼자» · 옛 무대 초안 = 축사(103 · 블록 «축사») */
+  t('[SHOW_PAIR_1116 · NO_SHOW_1116] 선물 · 기타(옛 초안)는 꺼진다(free 큐 0 · 함께 담긴 축가는 그대로) · 옛 무대 초안 = 축사(여는 말 103 · 블록 «축사» · 사람 구간)', !r.gift.length && !r.etc.length && r.giftSong.length > 0 && r.stage.length >= 1 && r.stage[0].slug === 'narr-free-in-speech' && r.stage.every((c) => c.blockN === '축사') && r.stage.some((c) => !!c.live), [brief(r.gift), brief(r.etc), brief(r.stage)]);
   t('옛 코스 자유 한 칸 그대로(58 · 59 · 블록 «자유 한 칸»)', r.old.length === 2 && r.old[0].slug === 'narr-free-in' && r.old[1].slug === 'narr-free-out' && r.old.every((c) => c.blockN === '자유 한 칸'), brief(r.old));
   const all = [].concat(r.video, r.pv[2], r.pvOwn, r.digital, r.story, r.thanks);
   t('이 자리에 129(식전 영상 소개) · 130(시선 명령 [B2_GEUL_01]) · 261(식전 영상 받는 말)은 없다', all.every((c) => !/^narr-prevideo-in-ex[34]$|^narr-prevideo-out$/.test(c.slug || '')), all.map((c) => c.slug));

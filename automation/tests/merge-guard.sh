@@ -4844,7 +4844,8 @@ chk 'MID_OPEN_1114' api/_kb.js 1
 chk 'VIDEO_NAME_1114' api/_ritual-kb.js 5   # 빌더 AI — 준비한 영상은 식전 · 식중 둘 · 영상 속 노래 · D-7 식중 영상 확정 · 공개 · 계약 고객 공통 한 줄
 chk '마이페이지 «식중 영상»에서 링크로 보내실 수 있습니다.' index.html 2
 chk '본식 중에는 «식중 영상»으로 틀 수 있어요(축사나 축가와 함께 담아도 돼요)' assets/advisor-kb.js 1   # [GPT 2-12] 홈 고정 답변 ① · ★[SPEECH_SONG_1115 · SHOW_PAIR_1116] 식중 영상은 축사 · 축가와 따로(옛 «축사 대신» 은 은퇴)
-chk '«축하 공연»으로 담을 수 있어요(축사 · 축가 · 축하 공연 중 하나)' assets/advisor-kb.js 1   # [SHOW_PAIR_1116] 옛 «공연 같은 이벤트 순서는 따로 두지 않아요» 은퇴
+chk ' 축사와 축가는 둘 중 하나예요.' assets/advisor-kb.js 1   # ★[NO_SHOW_1116 · RULES_SLIM ⑧] 옛 핀(SHOW_PAIR_1116) chk '«축하 공연»으로 담을 수 있어요(축사 · 축가 · 축하 공연 중 하나)' 1 은퇴 — 대표님 «공연은 빼자»
+nochk '«축하 공연»으로 담을 수 있어요' assets/advisor-kb.js
 chk '두 분이 준비한 영상은 «식전 영상»이나 «식중 영상»으로 틀 수 있어요' assets/advisor-kb.js 1   # [GPT 2-12] 홈 고정 답변 ②
 nochk '축사 대신 «식중 영상»' assets/advisor-kb.js
 nochk '깜짝 선물 · 공연 같은 이벤트 순서는 따로 두지 않아요' assets/advisor-kb.js
@@ -4981,7 +4982,8 @@ chk 'SPEECH_SONG_1115' scripts/audit/mid17-engine.mjs 3
 chk 'SPEECH_SONG_1115' scripts/audit/mid17-console.mjs 2
 # ★[DECISION_GUARD] SPEECH_SONG_1115 의 GPT 검토 1 · 2라운드 결정(c1c2af0b · 84dd1ccb) — 표식 + 동작 한 줄씩(화면 동작은 mid17-pick 이 잰다)
 chk 'PAIR_CELLS_1115' order-preview.html 1
-chk '.pk-pair{display:grid;grid-template-columns:1fr 1fr 1fr;' order-preview.html 1          # 축사 · 축가 · 공연 같은 폭 세 칸(가운데 점 없음) · ★[SHOW_PAIR_1116] 옛 핀 «1fr 1fr;»(두 칸)
+chk '.pk-pair{display:grid;grid-template-columns:1fr 1fr;gap:6px;' order-preview.html 1          # 축사 · 축가 같은 폭 두 칸(가운데 점 없음) · ★[NO_SHOW_1116 · RULES_SLIM ⑧] SHOW_PAIR_1116 의 세 칸 핀 «1fr 1fr 1fr;» → 다시 두 칸
+nochk '.pk-pair{display:grid;grid-template-columns:1fr 1fr 1fr;' order-preview.html
 nochk "chip('free','축사')+'<i aria-hidden" order-preview.html 0                        # 옛 가운데 점 — 되살리지 말 것
 chk 'PAIR_PLUS_PV_1115' order-preview.html 1
 chk "var w=R.pairOf(S); if(!w){ opPv('free'); return; }" order-preview.html 1            # 고른 게 없을 때 ＋ = 고르기 창(축사를 미리 담지 않는다)
@@ -22414,22 +22416,62 @@ chk 'T08 끊긴 곡 이어 듣기' scripts/audit/one-flow.mjs 1
 chk 'meaning-r2 gpt-r1 one-flow' .github/workflows/merge-guard.yml 1
 chk 'SPEECH_SONG_1115' scripts/audit/one-flow.mjs 6   # ★[SPEECH_SONG_1115 · RULES_SLIM ⑧] one-flow 판 둘(축사 쪽 · 축가 쪽) · T05 새 기대(옛 저장본 축사 + 축가 = 축가만 · 여는 말 −15) · T08 꺼진 자리 = 축가 줄 안 첫 끊김 — 깨 보기: BP_CUE 로 midMigrate 를 끄면 T05 빨강
 # ★★[SHOW_PAIR_1116 2026-11-16 대본 ALL_GO_1116] 한 카드 = 축사 · 축가 · 축하 공연 중 하나 · 선물 · 기타 칩은 걷음(상담 메모 · 옛 초안은 midMigrate 가 끈다) · 창 보기 셋 · 공연 여는 말 58 그대로
-chk 'SHOW_PAIR_1116' assets/ritual-open.js 6
-chk 'SHOW_PAIR_1116' order-preview.html 10
-chk "var PAIR = \['free', 'song', 'stage'\];" assets/ritual-open.js 1
-chk "free: \[\['speech', '축사'\], \['stage', '축하 공연'\]\]," assets/ritual-open.js 1
+# ★[NO_SHOW_1116 · RULES_SLIM ⑧] 대표님 16:53 «공연은 빼자» — 아래 공연 핀(PAIR 셋 · 칩 «축하 공연» · 큐 이름 · 홈 · 상담 글)은 NO_SHOW_1116 블록의 새 기대로 바꿨다 · 표식 개수는 걷은 자리만큼 줄였다(옛 ritual-open 6 · order-preview 10)
+chk 'SHOW_PAIR_1116' assets/ritual-open.js 4
+chk 'SHOW_PAIR_1116' order-preview.html 6
 nochk "\['gift', '깜짝 선물 · 전달'\]" assets/ritual-open.js
 chk "if (fk2 === 'gift' || fk2 === 'etc') { delete S.on.free; S.freeWhat = 'speech'; }" assets/ritual-open.js 1   # 옛 선물 · 기타 초안은 꺼 둔다
-chk "fk === 'stage' ? '축하 공연'" assets/ritual-cue.js 1   # 공연 큐 블록 이름
 chk "PN\[_pOutK\]+' 대신 '+PN_O\[" order-preview.html 1   # ② 흐름(opTgl)에서 바꿔 담는 알림도 opPair 와 같은 꼴 — 걷힌 PAIR_SWAP 표를 부르던 자리가 «PAIR_SWAP is not defined»로 멈췄다
 nochk "PAIR_SWAP\[" order-preview.html   # 깨 보기: 옛 opTgl 줄로 되돌리면 빨강(mid17-pick «네 길» 도 빨강)
-chk '축사 · 축가 · 축하 공연 중 하나' index.html 2
-chk '축사 · 축가 · 축하 공연 중 하나' api/_ritual-kb.js 1
 chk 'SHOW_PAIR_1116' scripts/audit/mid17-pick.mjs 10
 chk 'SHOW_PAIR_1116' scripts/audit/open-course.mjs 4
 chk 'SHOW_PAIR_1116' scripts/audit/mid17-engine.mjs 2
 chk 'SHOW_PAIR_1116' scripts/audit/mid17-console.mjs 2
-chk 'SHOW_PAIR_1116' scripts/audit/meaning-r1.mjs 2   # 옛 «선물 전달 동작 −12» → 선물 꺼짐 · 축하 공연 무대 동안 배경음 −90
+chk 'SHOW_PAIR_1116' scripts/audit/meaning-r1.mjs 2   # 옛 «선물 전달 동작 −12» → 선물 꺼짐 · ★[NO_SHOW_1116] 옛 무대 초안 = 축사(말씀 동안 −90)
+# ★★[NO_SHOW_1116 2026-11-16 대표님 16:53 «공연은 빼자» · ALL_GO_1116] 축사 · 축가 카드는 다시 둘 중 하나 · «축하 공연» 칩 · 블록 · 사람 구간 · 창 보기 · 홈 · 상담 글 걷음 · 식중 영상은 따로 그대로
+#   옛 초안(freeWhat stage · dance · show)은 지우지 않고 축사로 읽는다(midMigrate · 축가도 켜졌으면 축가만) · 녹음은 건드리지 않는다(101 narr-free-in-stage · 205 축가 예시 4 자료 U1 그대로)
+#   깨 보기: CHIPS.free 에 ['stage', '축하 공연'] 을 되살리면 아래 nochk · mid17-pick «공연 0» · «칩 = 축사 하나»가 빨강
+chk 'NO_SHOW_1116' assets/ritual-open.js 8
+chk 'NO_SHOW_1116' order-preview.html 8
+chk 'NO_SHOW_1116' assets/ritual-cue.js 4
+chk 'NO_SHOW_1116' assets/ritual-story.js 2
+chk "var PAIR = \['free', 'song'\];" assets/ritual-open.js 1
+nochk "var PAIR = \['free', 'song', 'stage'\];" assets/ritual-open.js
+chk "free: \[\['speech', '축사'\]\]," assets/ritual-open.js 1
+nochk "\['stage', '축하 공연'\]" assets/ritual-open.js
+chk "var FREE_OLD = { stage: 'speech', dance: 'speech', show: 'speech', hand: 'gift' };" assets/ritual-open.js 1   # 옛 무대 초안 → 축사
+nochk "fk === 'stage' ? '축하 공연'" assets/ritual-cue.js
+nochk "'축하 공연': {" assets/ritual-story.js
+nochk "'준비한 무대 (음원은 디렉터가 튼다" assets/ritual-story.js
+nochk '축사 · 축가 · 축하 공연 중 하나' index.html
+nochk '축사 · 축가 · 축하 공연 중 하나' api/_ritual-kb.js
+nochk '축사 · 축가 · 축하 공연 중 하나' assets/advisor-kb.js
+chk '축사와 축가는 둘 중 하나를 고르실 수 있습니다.' index.html 2   # 홈 FAQ 본문 · JSON-LD
+chk '덕담 → 축사와 축가는 둘 중 하나(NO_SHOW_1116' api/_ritual-kb.js 1
+chk "PN={free:'축사',song:'축가'}" order-preview.html 1
+chk ":\['free','song'\].map(function(x){ return '<button type=\"button\" class=\"pv-add\"" order-preview.html 1   # 창 단추 «축사 담기 · 축가 담기»
+chk 'NO_SHOW_1116' scripts/audit/mid17-pick.mjs 10
+chk "ok('\[NO_SHOW_1116\] 고객 · 엔진 파일(주석 뺌)에 «공연» 0" scripts/audit/mid17-pick.mjs 1   # 주석 · 자료 그대로 축가 예시 4(205)만 빼고 «공연» 0
+chk 'NO_SHOW_1116' scripts/audit/open-course.mjs 3
+chk 'NO_SHOW_1116' scripts/audit/mid17-engine.mjs 1
+chk 'NO_SHOW_1116' scripts/audit/meaning-r1.mjs 1
+# ★★[NO_INSTRUMENT_1116 2026-11-16 대표님 17:05 «악기 연주는 불가야»] 축가 = 노래만(반주 음원 MR) · 악기 라이브 연주는 받지 않는다
+#   옛 코스 «어쿠스틱 라이브 연주 · 연주자 연결» 칩 걷음 · 옛 초안 S.song 'live' 는 지우지 않고 «가족·지인»(MR)으로 읽는다 · 관리자 화면은 «옛 초안 · 연주 → 상담 확인»
+#   깨 보기: oc('song','live','어쿠스틱 라이브 연주', …) 를 되살리면 아래 nochk · mid17-pick «연주 0»이 빨강
+chk 'NO_INSTRUMENT_1116' order-preview.html 7
+chk 'NO_INSTRUMENT_1116' assets/ritual-cue.js 1
+chk 'NO_INSTRUMENT_1116' admin.html 1
+nochk "oc('song','live'" order-preview.html
+nochk "'어쿠스틱 라이브 연주" order-preview.html
+nochk "S.song === 'live' ? '어쿠스틱 라이브'" assets/ritual-cue.js
+nochk "live:'라이브 연주'" admin.html
+nochk "song:'불러 줄 가족·지인이 있거나 라이브 연주를 원할 때" order-preview.html
+nochk "'valley', 'song', 'toast'" assets/ritual-preview-link.js   # 죽은 키 song(옛 코스 축가 종류) — 엔진이 안 읽는다
+chk "live:'옛 초안 · 연주 → 상담 확인'" admin.html 1
+chk "악기 연주는 어려워요 · 반주 음원(MR)으로 불러 주세요." order-preview.html 1   # 창 «누가 하나요?»(축가 쪽) · ② 쪽은 CARDS.song.one «악기 연주는 받지 않아요»
+chk '악기 연주는 받지 않아요.' assets/ritual-open.js 1
+chk '악기 연주는 받지 않습니다.' index.html 2   # 홈 FAQ «행진 · 축가 · 축사» 본문 · JSON-LD
+chk "ok('\[NO_INSTRUMENT_1116\] 고객 · 엔진 파일(주석 뺌)에" scripts/audit/mid17-pick.mjs 1
 chk 'SPEECH_SONG_1115' scripts/audit/pv-fix-1114.mjs 4   # ★[SPEECH_SONG_1115] ⑤ 정석 축사 쪽 · 정석(축가만) 두 판 · ② 정석도 축가 앞 곡이 1.5초에 꺼진다(옛 «앞이 이미 정적» 대조 은퇴)
 chk 'SPEECH_SONG_1115' scripts/audit/console-r2-1115.mjs 1   # 축사 칸을 재는 판 = pairSet(free)
 chk 'SPEECH_SONG_1115' scripts/audit/pv-r3-1115.mjs 1   # 19 정석(축가만) 축가 B10
