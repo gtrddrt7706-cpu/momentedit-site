@@ -3,7 +3,7 @@
    ① 순간 이동 곡 상속 — 앞 곡 잇기(축배 · 닫는 인사 첫 줄 · 식전 영상)는 자연 진행일 때만 · 앞 · 다음 · 순간 이동이면 그 자리 계획(toastBed · backBed)
    ② 목록 자리 — 순간 이동 · 새 시작에서 목록이 넘긴 곡(LPB.lf · lfw)을 다시 정한다
    ③ 새 곡 받기 실패 · 늦음 — «음악 없이 먼저» · «불러오지 못했어요»가 뜨면 앞 곡도 1.5초에 내린다(화면 = 소리)
-   ④ 화촉 여는 말 · 맺는 말 · 인사 안내는 −16 · 점화 · 인사 행동은 −8(엔진 · 미리 듣기 · 당일 콘솔 한 표)
+   ④ 화촉 여는 말 · 맺는 말 · 인사 안내는 −15 · 점화 · 인사 행동은 −8(엔진 · 미리 듣기 · 당일 콘솔 한 표)
    ⑤ 본식(M4) · 닫는 인사(M6) 곡을 고르지 않은 기본 상태에도 «여러 연주곡이 차례로 이어져요»
    ONLY=1,2,… · BP_BED · BP_CUE · BP_CON · BP_OP = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
@@ -120,14 +120,14 @@ try {
     ok('③ 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); } catch (e) { ok('③ 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })());
   if (want('4')) lanes.push((async () => { try {
     const ws = ['mothers', 'parents', 'fathers', 'others'], E = ws.map((w) => { const S = S0of({ candle: 1, prevideo: 0 }); S.candleWho = w; return C.build(S, { mode: 'console' }).cues.filter((c) => c.k === 'candle' && /^narr-candle/.test(c.slug || '')); });
-    ok('④-T01 엔진 화촉 — 여는 말 · 맺는 말 · 인사 안내 −16 · 점화 · 인사 행동(사람 구간) −8 · 서는 분 넷 다', E.every((cs) => cs.length === 3 && cs.every((c) => c.duck === -16) && cs.filter((c) => c.live).every((c) => c.live.duck === -8)), E.map((cs) => cs.map((c) => [c.slug, c.duck, c.live && c.live.duck])));
+    ok('④-T01 엔진 화촉 — 여는 말 · 맺는 말 · 인사 안내 −15 · 점화 · 인사 행동(사람 구간) −8 · 서는 분 넷 다', E.every((cs) => cs.length === 3 && cs.every((c) => c.duck === -15) && cs.filter((c) => c.live).every((c) => c.live.duck === -8)), E.map((cs) => cs.map((c) => [c.slug, c.duck, c.live && c.live.duck])));
     const { ctx, f, errs, setOn } = await prep(); await setOn({ candle: 1, prevideo: 0 });
     const q = await f.evaluate(() => _lpTag(_lSteps(ENG, ['candle'])).map((x) => ({ s: x.slug || '', lab: x.lab, dk: x.dk, ldk: x.ldk, act: !!(x.act || x.quiet || x.talk) })));
     const nar = q.filter((x) => /^narr-candle/.test(x.s)), act = q.filter((x) => !x.s && x.act);
-    ok('④-T02 미리 듣기 줄 — 화촉 말 줄 −16 · 행동 줄 −8(엔진과 한 표)', nar.length === 3 && nar.every((x) => x.dk === -16) && act.length > 0 && act.every((x) => x.ldk === -8), q);
+    ok('④-T02 미리 듣기 줄 — 화촉 말 줄 −15 · 행동 줄 −8(엔진과 한 표)', nar.length === 3 && nar.every((x) => x.dk === -15) && act.length > 0 && act.every((x) => x.ldk === -8), q);
     ok('④ 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close();
     const c = await con(S0of({ candle: 1, prevideo: 0 }, 'A'), [['M2', 330, 60]]), iO = c.ix((x) => x.slug === 'narr-candle-out'); await c.log0(); await c.fire(iO); await c.pg.waitForTimeout(1500); const lg = await c.log();
-    ok('④-T03 당일 콘솔 화촉 맺는 말 — 말 아래 −16', lg.some((x) => x.db === -16) && !lg.some((x) => x.db === -8), lg); await c.ctx.close();
+    ok('④-T03 당일 콘솔 화촉 맺는 말 — 말 아래 −15', lg.some((x) => x.db === -15) && !lg.some((x) => x.db === -8), lg); await c.ctx.close();
   } catch (e) { ok('④ 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })());
   if (want('5')) lanes.push((async () => { try { const { ctx, f, errs } = await prep();
     const r = await f.evaluate(async () => { const out = {}; for (const [k, sg] of [['welcome', 'M4'], ['_close', 'M6']]) { S.bgm = {}; _persist(); try { mkGo(k); } catch (e) {} await new Promise((r) => setTimeout(r, 800)); out[sg] = [...document.querySelectorAll('.bed-long')].map((x) => x.textContent); } return out; });
