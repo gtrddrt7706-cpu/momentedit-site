@@ -52,7 +52,7 @@ function run(mut) {
     want.forEach((w) => { const c = cues.find((q) => q.ex === w); if (!c) miss.push(`${k}#${n + 1}${JSON.stringify(x)} ${w}`); else if (c.text !== C.EXTRA[w] || c.file !== C.fileOf(w) || c.slug !== w.replace(/-ex\d$/, '')) wrong.push(w); });
     if (!want.length) miss.push(`${k}#${n + 1} 고른 예시에 소리가 없다`); })));
   T('③ 고르면 그 줄 소리 · 번호 · 글이 예시로 · 줄 slug 는 그대로(화면 · 콘솔 slug 판정)', !miss.length && !wrong.length, miss.concat(wrong).slice(0, 6).join(' | '));
-  const plain = C.build(C.norm(O.sampleS()), { mode: 'console' }).cues.filter((c) => c.ex || /-ex\d+$/.test(c.file || '') && !/^\d+_(guest-ex|narr-prevideo-in-ex)/.test(c.file || ''));
+  const plain = C.build(C.norm(O.sampleS()), { mode: 'console' }).cues.filter((c) => c.ex || /-ex\d+$/.test(c.file || '') && !/^\d+_(guest-ex|narr-prevideo-in-ex)/.test(c.file || '')).filter((c) => c.ex !== 'narr-welcome-in-face');   // [SEAM_WORD_1107 J06] 350 = 감사 인사 앞 «하객을 향해 서» 이음 판(예시 아님)
   T('③ 안 고르면 예시 소리가 한 줄도 없다(예시 1 = 지금 녹음)', !plain.length, plain.map((c) => c.file).join(' '));
   // ④ 맞는 날
   const S0 = O.sampleS(), noVow = Object.assign({}, S0, { on: Object.assign({}, S0.on) }); delete noVow.on.vow;
@@ -72,9 +72,40 @@ function run(mut) {
   const SRC = new Set(JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/plans/식순연구/자료그대로_1016.json'), 'utf8')).sents.flatMap((x) => [x.text].concat(sents(x.text))).map(nz));
   const BASE = { 'narr-vow-in': D.NARR.vow.nar, 'narr-vow-in-b': D.NARR.vow.narB, 'narr-ring-in': D.NARR.ring.nar, 'narr-entry-bow': D.NARR.entryBow, 'narr-declare-family-out': D.NARR.declareFamilyOut, 'narr-bless-mid': D.NARR.blessMid, 'narr-bless-end': D.NARR.blessEnd, 'letter-each': D.LETTER.each.nar, 'narr-letter-end': D.NARR.letterEnd, 'tribute-in': D.TRIBUTE.nar, 'tribute-out': D.TRIBUTE.end, 'narr-close-bow': D.NARR.closeBow, 'toast-toast': D.TOAST.toast.nar, 'narr-table-in': D.NARR.tableIn, 'narr-close': D.NARR.close };   /* [REVIEW4_1018] 단체 사진 안내 예시의 뒤 문장은 지금 글 */
   const CALL = /^(양가 (어머님|아버님|부모님)|양가를 대표하는 두 분), 단상 위로 올라와 주십시오\.$/;
+  /* ★[FINAL_APPLY_1115 대표님 11/14 FINAL2 확정 · 새 녹음] 대표님이 듣고 고른 새 글 — 자료 글(SOURCE_FIRST_1016)보다 늦은 결정 · 여기 적힌 문장만 «지어낸 문장»에서 뺀다(지금 글 그대로여야 한다) */
+  const OWNER = new Set(['오늘은 주례사 대신 부모님의 덕담을 듣겠습니다.' /* 194 */, '그동안 서로에게 전하고 싶었던 마음을 담아, 직접 쓴 편지로 약속을 대신한다고 합니다.' /* 177 «가득» 뺌 */,
+    /* ★[FINAL_APPLY_1115 묶음 2] 대표님 FINAL1 다시 녹음에서 고른 새 글(rerecord62 final_selection · 대표님 «ok») */
+    '두 사람이 처음 마주했던 날의 설렘이 오늘 이 자리까지 이어졌고, 이제 두 사람은 여러분의 축복 속에서 같은 길을 걸어가려 합니다.' /* 150 */,
+    '주례가 없는 것이 아니라, 이 자리에 계신 가족과 친지, 그리고 함께해 주시는 모든 분들이, 오늘의 주례 선생님이자 사랑의 증인이 되어 주시는 것입니다.' /* 257 */,
+    '오늘은 그 멈춰 있던 시간이 어머님들을 위해 다시 흐르길 바라며, 하객분들의 따뜻한 박수와 함께 두 분을 모시겠습니다.' /* 153 */,
+    '화면으로 함께해 주시는 분들께도 두 사람이 인사드리겠습니다.' /* 62 */,
+    '오늘 예식은 하객 여러분께서 증인이 되어 주시는, 주례 없는 결혼식으로 진행됩니다.' /* 137 */,
+    '자, 그럼, 이 축복의 여정의 막을 열어 보겠습니다.' /* 06 */,
+    '두 사람은 이제 평생이라는 영화의 멋진 이야기를 함께 써 내려갈 텐데요!' /* 10 */,
+    '두 사람이 나란히 섰습니다.' /* 52 */,
+    '신랑 신부… 맞절.' /* 161 */,
+    '이어서 두 사람이 하객 여러분께 감사의 인사를 드리겠습니다.' /* 215 */,
+    '양가 부모님, 하객분들께 인사!' /* 139 */,
+    '양가 아버님. 맞절.' /* 146 */,
+    '하객 여러분께서도 두 사람이 서약한 대로 행복하게 살 수 있도록 지켜봐 주시고 응원해 주시길 바랍니다.' /* 226 */,
+    '여러분, 나란히 선 두 사람, 참 잘 어울리죠?' /* 209 */,
+    '두 사람을 위해 다시 한 번 큰 박수 부탁드리겠습니다.' /* 210 */,
+    '말보다 더 솔직한 마음으로, 다짐보다 더 깊은 사랑으로 전하는 두 사람의 이야기에, 하객 여러분도 따뜻한 마음으로 함께해 주시기 바랍니다.' /* 199 */,
+    '지금 이 자리에서 두 사람은, 서로를 향한 진심 어린 마음과 약속을 편지로 나누었습니다.' /* 200 */,
+    '이제 두 분께서는 중앙으로 오셔서, 하객 여러분을 향해 서 주시기 바랍니다.' /* 39 */,
+    '자, 그럼 이제 부부로서 첫걸음을 내딛기 전, 지금까지 키워 주신 양가 부모님께, 감사의 인사를 올리겠습니다.' /* 180 */,
+    '오늘이 있기까지 낳아 주시고 길러 주신 은혜에 감사드리며, 앞으로 잘 살겠다는 마음을 담아 인사드리겠습니다.' /* 239 */,
+    '이제 이 감사의 마음을 담아, 두 사람이 인사드리겠습니다.' /* 241 */,
+    '이번에는 부모님의 은혜에 평생 보답하겠다는 마음을 담아, 양가 부모님께 감사의 인사를 드리겠습니다.' /* 254 */,
+    '부모님께서는 두 사람을 따뜻하게 안아 주시기 바랍니다.' /* 256 */,
+    '신랑 신부가, 오늘 참석해 주신 하객 여러분의 테이블마다 찾아뵙고, 감사의 인사를 드리겠습니다.' /* 131 */,
+    '두 사람을 가장 잘 아시는 분들이, 바로 여기 계신 여러분이니까요.' /* 87 */,
+    '이제 안내에 따라 사진 촬영을 진행하겠습니다.' /* 44 */,
+    '다음은 두 사람을 위한 축사 순서입니다.' /* 174 */,
+    '두 사람이 앞으로 행복하게 잘 사는 모습도, 계속 지켜봐 주시고, 응원 많이 해 주시기 바랍니다.' /* 186 */].map(nz));
   const made = [];
   clips.forEach((x) => { const own = new Set(sents(BASE[x.base] || C.EXTRA[x.base] || '').map(nz));
-    sents(x.text).forEach((s) => { if (!SRC.has(nz(s)) && !own.has(nz(s)) && !CALL.test(s)) made.push(x.slug + ' «' + s + '»'); }); });
+    sents(x.text).forEach((s) => { if (!SRC.has(nz(s)) && !own.has(nz(s)) && !OWNER.has(nz(s)) && !CALL.test(s)) made.push(x.slug + ' «' + s + '»'); }); });
   T('⑥ 예시 문장마다 자료(자료그대로_1016.json · 출처) · 아니면 지금 글 문장 · 서는 분 부르는 한 마디 — 지어낸 문장 0 [SOURCE_FIRST_1016]', !made.length, made.slice(0, 4).join(' | '));
   // ⑦ 화면
   const H = fs.readFileSync(path.join(ROOT, 'order-preview.html'), 'utf8');
