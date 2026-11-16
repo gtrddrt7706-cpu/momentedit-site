@@ -194,7 +194,8 @@ try {
     ok('17 그 뒤 박수 곡(B10)이 도착 — 그 줄 크기(−8)로 들린다(같은 줄)', !r.none && r.arrived.f === 'B10' && r.arrived.want === -8 && r.arrived.db > -60 && r.arrived.same, r);
     ok('17 쪽 오류 0', !r.errs.length, r.errs); }
   if (want('19')) { const r = await dayKey(); console.log('  재 본 값 19 ' + JSON.stringify(r));
-    ok('19 엔진 없는 동안 한 번 그린 뒤 엔진이 오면 — 정석 축사 · 축가 = 엔진 먼저와 같은 곡(B10 · B11)', !r.none && r.ready.free === 'B10' && r.ready.song === 'B11' && r.after.free === r.ready.free && r.after.song === r.ready.song, r);
+    /* ★[SPEECH_SONG_1115 · RULES_SLIM ⑧] 정석 = 축가만(축사 · 축가 한 카드 둘 중 하나) — 축가가 서약 바로 뒤라 B10 · 옛 기대 «정석 축사 B10 · 축가 B11» */
+    ok('19 엔진 없는 동안 한 번 그린 뒤 엔진이 오면 — 정석(축가만) 축가 = 엔진 먼저와 같은 곡(B10) · 다른 칸 값도 그대로', !r.none && r.ready.song === 'B10' && r.after.free === r.ready.free && r.after.song === r.ready.song, r);
     ok('19 쪽 오류 0', !r.errs.length, r.errs); }
   if (want('20')) { const r = await warm('family', 'bless'); console.log('  재 본 값 20 ' + JSON.stringify(r));
     ok('20 가족 덕담 쪽을 열면 — 순간 하나 듣기 첫 곡(dayAt)을 미리 받는다', !r.none && !!r.day && r.tried.indexOf(r.day) > -1, r);

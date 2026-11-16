@@ -62,13 +62,16 @@ function twice(text) {
 const SONG_OPEN = /^narr-song$/, SONG_FOR = /(사람|분)(을|를)?\s*위해|바치/;   // [SONG_OPEN_ANYONE_1013] W14
 /* ★[FINAL_APPLY_1115 대표님 FINAL1 · FINAL2 11/14 확정 · 대본 11/15 «배포 준비»] 대표님이 귀로 듣고 고른 글이 옛 문체 자에 걸린 세 자리 — 그 자리 · 그 낱말만 뺀다(같은 말이 다른 자리 · 다른 낱말이면 그대로 잰다).
    256 tribute-hug «따뜻하게 안아»(W1 · FINAL1 u256 바뀜) · 309/347 guest-w-10m-n20 «천천히 자리를 잡아»(W2 · FINAL2 m309) · 348/349 guest-w-10m-n10-short «예식을 … 예식을»(W13 · FINAL2 m349 — 옛 «본식을 마친 뒤에는»[K3_SHORT_1106]을 대표님이 «예식을»로) */
-const FINAL_OK = [['W1', /^tribute-hug$/, '따뜻하게 안아'], ['W2', /^guest-w-10m-n20/, '천천히 자리를 잡아'], ['W13', /^guest-w-10m-n10-short/, '예식을']];
+/* ★[MIDV_OUT_CLAP_1115 · NARR_ROLE_1115 대본 11/15 · 대표님 FINAL2 11/14 승인 소리] 식중 영상 닫는 말 355 midvideo-out-story(thanks 판 354 도) «… 따뜻한 박수 부탁드립니다.» —
+   엔진이 그 자리에 하객 박수(clapUp)를 직접 둔다 · 옛 353(58 + 129) 자리를 새 녹음 0 으로 맡았다. 그 두 slug · 그 낱말만 W1 · W7 밖(다른 자리의 같은 말은 그대로 걸린다) */
+const MIDV_OUT = /^midvideo-out-(story|thanks)$/;
+const FINAL_OK = [['W1', MIDV_OUT, '따뜻한 박수'], ['W1', /^tribute-hug$/, '따뜻하게 안아'], ['W2', /^guest-w-10m-n20/, '천천히 자리를 잡아'], ['W13', /^guest-w-10m-n10-short/, '예식을']];
 const finalOk = (id, slug, t) => { for (const [i, re, w] of FINAL_OK) if (i === id && re.test(slug)) t = id === 'W13' ? t : t.split(w).join(' '); return t; };
 const finalOkW = (slug, w) => FINAL_OK.some(([i, re, x]) => i === 'W13' && re.test(slug) && x === w);
 function judge(slug, text) {
   const hit = [], mine = ownPart(text);   // [SOURCE_FIRST_1016] 자료 그대로 문장은 문체 자 밖
   for (const [id, re] of RULES) if (re.test(finalOk(id, slug, ALWAYS.has(id) ? text : mine))) { if (id === 'W2' && /^guest-w-1m/.test(slug)) continue; hit.push(id); }   /* ★[GUEST_WELCOME_191 검토 191] 1분 전(315 · 316)의 «자리에 앉아 주시고 · 무음»은 사장님 확정 문안 — ④ 는 착석 · 무음만(새 요청 없이) · 옛 04 도 같은 말이었다 */
-  if (CLAP_ASK.test(mine) && !CLAP_OK.test(slug)) hit.push('W7');
+  if (CLAP_ASK.test(mine) && !CLAP_OK.test(slug) && !MIDV_OUT.test(slug)) hit.push('W7');   // [MIDV_OUT_CLAP_1115]
   if ((mine.match(/잠시 (후|뒤)|잠시만|잠시,|곧 /g) || []).length > 1) hit.push('W10');   // «휴대폰은 잠시 진동»의 «잠시»는 시간을 재는 말이 아니다
   if (twice(mine).filter((w) => !(/^after-photo/.test(slug) && /^(사진을|분들은)$/.test(w)) && !finalOkW(slug, w)).length) hit.push('W13');   /* ★[INFO_SPLIT_200 검토 200 수정 2] «남고 싶으신 분들은 · 그 밖의 분들은»도 확정 문안 — 남는 분과 가는 분을 가르는 말 */   /* ★[END_FLOW_200 검토 200] 촬영 후 안내 «단체 사진을 … 따로 사진을»은 사장님 확정 문안 — 다른 두 사진(단체 · 따로)을 가르는 말이라 겹침이 아니다 · 그 한 낱말만 */
   if (SONG_OPEN.test(slug) && SONG_FOR.test(mine)) hit.push('W14');
@@ -196,6 +199,9 @@ if (arg === '--selftest') {
     !judge('tribute-hug', '부모님께서는 두 사람을 따뜻하게 안아 주시기 바랍니다.').length && !judge('guest-w-10m-n20', '아직 자리에 앉지 않으셨다면, 천천히 자리를 잡아 주세요.').length && !judge('guest-w-10m-n10-short', '십 분 뒤 예식을 시작하겠습니다. 예식을 마친 뒤에는 기념 촬영이 있습니다.').length
     && judge('narr-song', '따뜻하게 안아 주세요.').includes('W1') && judge('guest-w-5m', '천천히 자리를 잡아 주세요.').includes('W2') && judge('guest-w-10m', '예식을 시작합니다. 예식을 마친 뒤.').includes('W13')
     && judge('tribute-hug', '특별한 순간입니다.').includes('W1') && judge('guest-w-10m-n10-short', '촬영을 마치고 촬영을 합니다.').includes('W13'));
+  ok('[MIDV_OUT_CLAP_1115] 깨 보기 — 식중 영상 닫는 말(355 · 354)은 통과 · 같은 글이 다른 자리면 W1 · W7 · 그 자리라도 다른 감정 말은 W1',
+    !judge('midvideo-out-story', '영상을 준비한 두 사람에게 따뜻한 박수 부탁드립니다.').length && !judge('midvideo-out-thanks', '두 사람의 마음이 부모님께 잘 전해졌으리라 생각합니다. 따뜻한 박수 부탁드립니다.').length
+    && ['W1', 'W7'].every((w) => judge('narr-song-out', '영상을 준비한 두 사람에게 따뜻한 박수 부탁드립니다.').includes(w)) && judge('midvideo-out-story', '아름다운 영상이었습니다.').includes('W1'));
   ok('[NARR_WORDS_1013] 깨 보기 — 원고 표에 걸리는 줄을 넣으면 읽어서 잡는다', readDoc(doc).some((r) => judge(r.slug, r.text).includes('W8')));
   ok('[NARR_WORDS_1013] 깨 보기 — 표를 못 읽으면(0줄) 통과가 아니다', readDoc('## 2. 나레이션\n아무 표도 없음\n').length === 0);
   console.log(fail ? `\nNARR WORDS SELFTEST FAIL ${fail}` : '\nNARR WORDS SELFTEST OK'); process.exit(fail ? 1 : 0);

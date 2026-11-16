@@ -5,7 +5,7 @@
 //   ③ 식중 있는 분: 머리 줄(이름 + 기한) 하나 · 아래 식전 · 식중 두 줄(입장 전 · 덕담 뒤) · 기한 꼬리표는 머리에만 · 상태 꼬리표는 줄마다 · 단추 id 그대로 · 단추 오른쪽 끝 같은 자리
 //   ④ 확인서: 이름 줄 하나 + 영상마다 상태 · 열기(data-cfpvc · data-cfmvc)
 //   ⑤ 가로 넘침 0 · 쪽 오류 0
-//   ⑥ 안쪽 화면(식전 · 식중 첫 화면): 보조 길은 단추 위 한 줄(첫 눈에 다 보임 · [VU_SUBS_BAR_1115]) · 맨 위 «지금 하실 일 · 확정 기한» 띠 하나 · 날짜는 한 번만 · 단계 셋 · 식중은 «선택 사항 · 축사 대신 상영 · 제작비는 두 분 부담» · 진사 단추 0(첫 화면) · 흰 상자 0
+//   ⑥ 안쪽 화면(식전 · 식중 첫 화면): 보조 길은 단추 위 한 줄(첫 눈에 다 보임 · [VU_SUBS_BAR_1115]) · 맨 위 «지금 하실 일 · 확정 기한» 띠 하나 · 날짜는 한 번만 · 단계 셋 · 식중은 «선택 사항 · 제작비는 두 분 부담»(★[SPEECH_SONG_1115] «축사 대신 상영» 걷음 — 식중 영상은 축사 · 축가와 함께 담는다 · 옛 기대 셋) · 진사 단추 0(첫 화면) · 흰 상자 0
 // 종료 0 = 통과 · 1 = 실패 · 2 = 재지 못함(브라우저 없음)
 import fs from 'node:fs';
 import path from 'node:path';
@@ -23,7 +23,7 @@ const { openWorld } = await import(path.join(ROOT, 'scripts/audit/_gasworld.mjs'
 const { G, world } = openWorld();
 G.jsonOut = (o) => ({ __out: o });
 const BASE = { 신랑이름: '김희준', 신부이름: '이미쿠', 상품타입: '시그니처', 개인코드: 'ME-TEST', 동의기록: '{}', 계약상태: '서명완료', 계약서명일시: '2026-10-14 10:00', 계약총액: 3300000, 현재단계: '제작중', 입금상태: '확인', 중도금상태: '확인' };
-const ritOf = (mid) => ({ _v: 3, summary: { course: '담백', count: 7, min: '약 21분', flow: [] }, S: Object.assign({ course: 'open', on: Object.assign({ prevideo: 1, vow: 1 }, mid ? { free: 1 } : {}) }, mid ? { freeWhat: 'video', freeLen: '4' } : {}) });
+const ritOf = (mid) => ({ _v: 3, summary: { course: '담백', count: 7, min: '약 21분', flow: [] }, S: Object.assign({ course: 'open', on: Object.assign({ prevideo: 1, vow: 1 }, mid ? { midvid: 1, song: 1 } : {}) }, mid ? { midLen: '4' } : {}) });   // ★[SPEECH_SONG_1115] 식중 영상 = S.on.midvid(축가와 함께) · 옛 초안 free + video 는 midvideo.mjs 가 잰다
 const plus = (s, n) => { const d = new Date(s + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 // 예식일은 오늘(한국)에서 12일 뒤 — 기한(7일 전)이 5일 남아 «N월 N일까지» 꼬리표가 서는 때
 const today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10), WED = plus(today, 12);
@@ -102,7 +102,7 @@ try {
         ok(`⑥ ${tag} ${k} 첫 화면 — 보조 길(${want})이 첫 눈에 다 보이고 단추 뒤로 걸리지 않는다 [VU_SUBS_BAR_1115]`, f && f.subs.map((x) => x.t).join('|') === want && f.subs.every((x) => x.h >= 44 && x.top >= 0 && x.bot <= f.vh && x.bot <= f.btTop), JSON.stringify(f && { subs: f.subs, btTop: f.btTop, vh: f.vh })); }
       for (const [k, nm, f0] of [['pre', '식전', 'prevideo-640.webp']].concat(/mid:'\/assets\/video\/moments\/midvideo-640\.webp'/.test(fs.readFileSync(path.join(ROOT, 'mypage.html'), 'utf8')) ? [['mid', '식중', 'midvideo-640.webp']] : [])) { const f = FL && FL[k];   // [VU_MID_HERO_1115] 식중 그림은 고친 판이 들어온 뒤에만 잰다(23:12 보류)
         ok(`⑥ ${tag} ${nm} 첫 화면 — 결과 먼저 한 컷(${f0})이 뜨고 캡션 «예식 날 ${nm} 영상이 상영되는 모습(그림)» [VU_MID_HERO_1115]`, f && f.hero && f.hero.ok && f.hero.src.endsWith(f0) && f.hero.cap === `예식 날 ${nm} 영상이 상영되는 모습(그림)`, JSON.stringify(f && f.hero)); }
-      ok(`⑥ ${tag} 식중 첫 화면 — «선택 사항 · 축사 대신 상영 · 제작비는 두 분 부담»`, FL && FL.mid && FL.mid.cond.join('|') === '선택 사항|축사 대신 상영|제작비는 두 분 부담' && FL.pre && FL.pre.cond.length === 0, JSON.stringify(FL && FL.mid && FL.mid.cond));
+      ok(`⑥ ${tag} 식중 첫 화면 — «선택 사항 · 제작비는 두 분 부담»([SPEECH_SONG_1115] «축사 대신 상영» 걷음)`, FL && FL.mid && FL.mid.cond.join('|') === '선택 사항|제작비는 두 분 부담' && FL.pre && FL.pre.cond.length === 0, JSON.stringify(FL && FL.mid && FL.mid.cond));
     } else if (name === 'none') {
       ok(`② ${tag} 식중 없는 분 — 묶음 머리 없음 · «식전 영상» 한 줄`, R.head === 0 && R.rows.length === 0 && R.plain === 1 && R.pv && !R.mv, JSON.stringify(R));
       ok(`② ${tag} 확인서 — «식전 영상 열기» 한 줄 그대로`, R.cf && R.cf.vu === 0 && R.cf.p === 1 && R.cf.m === 0 && /식전 영상 열기/.test(R.cf.txt), JSON.stringify(R.cf));

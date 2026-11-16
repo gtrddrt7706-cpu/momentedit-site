@@ -57,7 +57,7 @@
        뼈대만 세웠다: 줄(132 «두 분, 서로 마주 보고 맞절해 주세요.») · 시간(15초 · 본식 합은 그대로) · 이야기 장면(3초 숙이고 · 3초 멈추고 · 3초 일어나기) · 장면 영상(entry-look)은 입장 끝에 있던 것을 그대로 옮겼다.
        대본 · 포즈 자료가 오면 자료표 «맞절» 줄에 자료를 더한 뒤 CARDS.matjeol · TILE · NARR.entryBow · ritual-story 장면 · 빌더 맞절 쪽을 채운다.
        키는 bow 가 아니라 matjeol — bow 는 옛 코스 부모님께 인사 «큰절»(MODE · TONE · S.tribute) 값 이름이라 겹친다. 입장 끝 맞절(입장 몫 +15초)로 되돌리지 말 것 */
-  var ORDER = ['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'];
+  var ORDER = ['guest', 'prevideo', 'candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'midvid', 'letter', 'tribute', 'cake', 'toast', 'table'];   // ★[SPEECH_SONG_1115 2026-11-15 대표님] 식중 영상 = 따로 넣고 빼는 순간(midvid) · 축사 · 축가 뒤 · 편지 앞
   /* ★★[TOAST_LAST_1013 2026-10-13 사장님 «축배는 마지막에 하는 게 좋을 것 같아» · «축배 코스 한 곳에 넣어 볼까? 제안 있어?» → 우선 시킨 것 전부 진행]
        축배는 닫는 인사 뒤 · 테이블 인사 앞이다(자료 D · S · AA 다섯 릴스 모두 «1부를 닫은 뒤 2부의 축배 → 테이블 인사») · 우리는 2부가 없어 닫는 인사가 1부의 끝이다.
        ★차례만 닫는 인사 뒤다 — 시간 셈 · 화면의 «본식 n / N» · 흐름 곡선은 축배를 본식 안에 둔다(APART 는 테이블 인사 하나 · TABLE_APART 그대로).
@@ -93,7 +93,7 @@
   var SECTIONS = [
     { n: '여는 순간', d: '예식이 시작되는 자리', ks: ['prevideo', 'candle', 'entry', 'matjeol'] },   // [MATJEOL_SPLIT_1013] 맞절은 입장 바로 뒤 칸
     { n: '약속의 순간', d: '인사를 드리고, 말과 반지로 부부가 되는 자리', ks: ['welcome', 'vow', 'ring', 'declare'] },   // [ACTS_SHIFT_1013] 감사 인사가 이 막 첫 칸 · 종전 ★[HEART_ORDER_1012] «덕담은 이 막의 끝 칸»(선언 바로 뒤 · 자료 B · P · Py · Q 는 선언과 덕담을 한 덩어리)은 PC 칸 맞춤이었다 — 덕담의 차례는 그대로 선언 바로 뒤
-    { n: '마음의 순간', d: '부부가 되어 처음 건네는 마음', ks: ['bless', 'free', 'song', 'letter'] },   // [ACTS_SHIFT_1013] 덕담이 이 막 첫 칸(10/12 BLESS_AFTER_DECLARE 때 이 막이 다섯 칸이라 약속의 순간 끝으로 옮겼던 것을 되돌림) · [SONG_BACK_1011] 축가는 선언 뒤 · [HEART_ORDER_1012] 차례는 덕담 → 축사 → 축가 → 편지 → 부모님께 인사 그대로
+    { n: '마음의 순간', d: '부부가 되어 처음 건네는 마음', ks: ['bless', 'free', 'song', 'midvid', 'letter'] },   // [ACTS_SHIFT_1013] 덕담이 이 막 첫 칸(10/12 BLESS_AFTER_DECLARE 때 이 막이 다섯 칸이라 약속의 순간 끝으로 옮겼던 것을 되돌림) · [SONG_BACK_1011] 축가는 선언 뒤 · [HEART_ORDER_1012] 차례는 덕담 → 축사 → 축가 → 편지 → 부모님께 인사 그대로
     /* [ACTS_SHIFT_1013] 닫는 막 — 첫 칸이 부모님께 인사 · 케이크 칸은 옛 초안이 담아 뒀을 때만([CAKE_OFF_1013] · [CAKE_TOAST_SPLIT]) · 테이블 인사는 닫는 인사 뒤([TABLE_GREET_1008]) · 칸 차례 = 실제 차례(닫는 인사 → 축배 → 테이블 인사 · [TOAST_LAST_1013])
        ★[TABLE_APART 2026-10-08 사장님 «그냥 두고 문구만 조금»] 테이블 인사 줄은 그대로 */
     { n: '축하 · 닫는 순간', d: '부모님께 인사하고, 테이블 인사와 축배로 본식을 닫는 자리', ks: ['tribute', 'cake', 'table', 'toast', '_close'] }   // ★[CARD_ORDER_1031 식순 걷기 1라운드 GPT 3] 칸 차례 = 실제 차례(END_FLOW_1030 · 테이블 인사 → 축배 → 닫는 인사) — 옛 칸 차례(닫는 인사 → 축배 → 테이블 인사)가 남아 고르는 화면과 하나씩 만들기 차례가 달랐다
@@ -150,8 +150,9 @@
     /* [DETAIL_0925 E] 여섯 → 넷(FREE_KIND 네 갈래와 같게). 옛 값 dance · show · hand 는 chipOf · norm 이 갈래로 옮긴다 */
     /* ★★[FREE_ETC 2026-10-06 사장님 «기타 칸 만들자 · 직접 적을 수 있게 · 길이도 직접 · 춤 공연은 빼고»] 춤 · 공연(stage) 걷음 → 기타(etc) — 무엇을 글칸(S.freeEtc) · 길이 분 칸(S.freeLen 1~10).
        옛 값 stage · dance · show 는 기타로 읽는다(FREE_OLD) · ★«춤 · 공연» 칩 되살리지 말 것 */
-    free: [['video', '식중 영상'], ['gift', '깜짝 선물 · 전달'], ['speech', '축사'], ['etc', '기타']],   /* ★[MID17_NAME 2026-11-07 재검증 재수정 · 사장님 «식중 영상» 타일] 영상 갈래 이름 = «식중 영상»(nameOf · chipLabel · 띠가 같은 말) */   // ★[R2_SPEECH_LABEL_1014] «친구 · 가족의 축사» → «축사»(칸 이름과 같게 · TERM_BY_SPEAKER_1013 덕담 = 부모님 · 콘솔 배지 «여기는 고를 수 있어요 · 축사 · 3분»)
+    free: [['speech', '축사'], ['stage', '축하 공연']],   /* ★[SHOW_PAIR_1116 2026-11-16 대본 ALL_GO_1116 «공연 → 축사 · 축가 · 축하 공연 중 하나 · 선물 · 기타는 상담 메모로»] 선물 · 기타 칩은 걷었다(옛 초안은 midMigrate 가 정리) */   /* ★[SPEECH_SONG_1115] 영상 갈래(video)는 걷었다 — 식중 영상은 따로 넣고 빼는 순간(midvid) · 옛 초안의 free + video 는 midMigrate 가 midvid 로 옮긴다 */   /* ★[MID17_NAME 2026-11-07 재검증 재수정 · 사장님 «식중 영상» 타일] 영상 갈래 이름 = «식중 영상»(nameOf · chipLabel · 띠가 같은 말) */   // ★[R2_SPEECH_LABEL_1014] «친구 · 가족의 축사» → «축사»(칸 이름과 같게 · TERM_BY_SPEAKER_1013 덕담 = 부모님 · 콘솔 배지 «여기는 고를 수 있어요 · 축사 · 3분»)
     freeLen: [['3', '3분'], ['2', '2분'], ['1', '1분']],
+    midLen: [['3', '3분'], ['2', '2분'], ['1', '1분']],   // ★[SPEECH_SONG_1115] 식중 영상 길이(1~10분 · 분을 적는다) — 축사 길이(freeLen)와 따로
     /* ★[ENTRY_SCENE 2026-09-25 코워크 회신 4-3 · 추가 전달 B7] 입장의 «첫 모습»(새 키 하나) — 서로 바라보기 · 맞절.
        소리는 같다(모습 · 영상만 달라진다) · 시간표 그대로. 새 코스에만 · 옛 코스는 norm 이 look 으로 둔다. */
     entryScene: [['look', '서로 바라보기'], ['bow', '맞절']],
@@ -163,8 +164,8 @@
        키 둘(cakeBy · flowerBy)은 옛 초안 호환으로 남기되 늘 studio 다(chipOf). 두 분 «챙길 것»에 케이크 · 꽃이 다시 들어가지 않는다. */
   };
   // 준비한 순서의 무엇을 → 여는 말 · 준비할 것 · 남는 장면의 갈래(영상 / 무대 / 건네기)
-  var FREE_KIND = { video: 'video', etc: 'etc', stage: 'etc', dance: 'etc', show: 'etc', gift: 'gift', hand: 'gift', speech: 'speech' };   // [FREE_ETC] 무대 갈래 → 기타
-  var FREE_OLD = { dance: 'etc', show: 'etc', stage: 'etc', hand: 'gift' };   // 옛 칩 값 → 갈래 · [FREE_ETC] 춤 · 공연은 기타로
+  var FREE_KIND = { video: 'video', etc: 'etc', stage: 'stage', dance: 'stage', show: 'stage', gift: 'gift', hand: 'gift', speech: 'speech' };   // ★[SHOW_PAIR_1116] 무대 갈래 = 축하 공연(stage · 엔진의 «준비한 무대» 지문 · 여는 말은 58 그대로) · 옛 [FREE_ETC] 무대 → 기타   // [FREE_ETC] 무대 갈래 → 기타
+  var FREE_OLD = { dance: 'stage', show: 'stage', hand: 'gift' };   // [SHOW_PAIR_1116] 춤 · 공연 = 축하 공연   // 옛 칩 값 → 갈래 · [FREE_ETC] 춤 · 공연은 기타로
   // 칩 값 ↔ S
   function chipOf(k, S) {
     S = S || {};
@@ -174,7 +175,8 @@
     if (k === 'toast') return 'toast';   // ★[CAKE_OLD_OFF_1017] 축배 판은 «축배» 하나 — 케이크가 든 판(both · cake)은 옛 초안에도 없다(종전: 담은 두 칸에서 따라 · 안 담으면 S.toast · 기본 both)
     if (k === 'wine') return 'none';   // [WINE_POUR_OFF]
     if (k === 'free') { var fv = FREE_OLD[S.freeWhat] || S.freeWhat; return CHIP_OK('free', fv) ? fv : 'speech'; }   // [SPEECH_TILE_1012] 모르는 값 · 빈 값은 축사(옛 기본 video)
-    if (k === 'freeLen') return /^(10|[1-9])$/.test(String(S.freeLen)) ? String(S.freeLen) : '3';   // [FREE_LEN10 2026-10-06 사장님] 분을 직접 적는다 · 1~10분(계약서 v1.12 ①-2 «10분 안 · 길어진 만큼 단체 사진이 준다»)
+    if (k === 'freeLen') return /^(10|[1-9])$/.test(String(S.freeLen)) ? String(S.freeLen) : '3';
+    if (k === 'midLen') return /^(10|[1-9])$/.test(String(S.midLen)) ? String(S.midLen) : '3';   // [SPEECH_SONG_1115] 식중 영상 길이   // [FREE_LEN10 2026-10-06 사장님] 분을 직접 적는다 · 1~10분(계약서 v1.12 ①-2 «10분 안 · 길어진 만큼 단체 사진이 준다»)
     if (k === 'entryScene') return S.entryScene === 'bow' ? 'bow' : 'look';
     if (k === 'cakeBy' || k === 'flowerBy') return 'studio';   // [GOODS_STUDIO] 늘 저희가 준비 · 옛 초안의 self 도 studio
     return '';
@@ -229,6 +231,7 @@
     else if (k === 'wine') S.wine = v;
     else if (k === 'free') S.freeWhat = v;
     else if (k === 'freeLen') S.freeLen = v;
+    else if (k === 'midLen') S.midLen = v;   // [SPEECH_SONG_1115]
     else if (k === 'freeEtc') S.freeEtc = String(v || '').slice(0, 40);   // [FREE_ETC]
     else if (k === 'entryScene') S.entryScene = v;
     else if (k === 'cakeBy' || k === 'flowerBy') S[k] = 'studio';   // [GOODS_STUDIO] 고르는 칸 없음
@@ -246,6 +249,7 @@
   function chipLabel(k, S) {
     if (k === 'tribute' && crossTribute(S)) return '서로의 부모님께 말로 인사';   // [TRIB_ONE_SAY]
     if (k === 'free') return (chipOf('free', S) === 'etc' ? (String(S.freeEtc || '').trim() || '기타') : labelOf('free', chipOf('free', S))) + ' · ' + chipOf('freeLen', S) + '분';   // [FREE_ETC] 기타는 적은 이름 · 길이는 분 그대로
+    if (k === 'midvid') return MID_NAME + ' · ' + chipOf('midLen', S) + '분';   // [SPEECH_SONG_1115]
     return labelOf(k, chipOf(k, S));
   }
   function labelOf(k, v) { var c = (CHIPS[k] || []).filter(function (x) { return x[0] === v; })[0]; return c ? c[1] : ''; }
@@ -255,7 +259,7 @@
      새로고침하면 _applySaved 가 '1'(엄숙하게)로 말없이 바꿔 그대로 저장했다. */
   var SAVED_OK = { declare: ['1', '2', 'clap'] };   // [DECLARE_BY_PERSON] 옛 초안의 S.declare 값 — 더 안 쓰지만 옛 판이 읽어도 멈추지 않게 남긴다
   function savedOk(key, v) { return !!SAVED_OK[key] && SAVED_OK[key].indexOf(String(v)) > -1; }
-  var DEF = { entry: 'A', declareWho: '', declare: '1', tributeSay: 'long', letter: 'each', toast: 'both', wine: 'none', candleWho: 'mothers', freeWhat: 'speech', freeLen: '3', entryScene: 'look' };   // [SPEECH_TILE_1012] freeWhat 기본 = 축사
+  var DEF = { entry: 'A', declareWho: '', declare: '1', tributeSay: 'long', letter: 'each', toast: 'both', wine: 'none', candleWho: 'mothers', freeWhat: 'speech', freeLen: '3', midLen: '3', entryScene: 'look' };   // [SPEECH_TILE_1012] freeWhat 기본 = 축사
 
   /* ── 화촉 서는 분(연출 단계 · S.candleWho) ── */
   /* ★★[PARENTS_ENTRY_OFF 2026-10-12 사장님 «양가부모님 입장은 생략»] 화촉 «서는 분»은 10/11 전 차례로 되돌렸다 — 양가 어머님(기본) · 양가 아버님 · 양가 부모님 네 분 · 다른 두 분.
@@ -300,7 +304,7 @@
          간결에는 첫인사가 없어 «귀한 걸음 해 주신 여러분» 감사 한마디가 입장에서 한 번 나간다(자료 M «참석 감사 멘트는 필수»).
          옛 짝(정석 격식 있게 · 기록 담백하게 · 간결 담백하게 = 가장 긴 23초)은 걷었다.
          ★멘트 글은 그대로다 — 사장님 «멘트는 대대적으로 한번 개선 작업을 할 거야 따로»(3단계) · 그때 이 짝도 함께 다시 본다. */
-    { k: 'standard', nm: '정석', title: '실제 예식에서 가장 많이 하는 순서', feel: '익숙하고 편안하게 · 가장 많이 하는 순서', on: ['prevideo', 'candle', 'welcome', 'vow', 'free', 'song', 'tribute'], set: { entry: 'A', tribute: 'long', free: 'speech', narEx: { speech: 1 } } }   /* ★[REVIEW26_1023 검토 150-2 2)] 축사 «격식 있게»(174) — 선언 여는 말 136 «오늘의 성혼선언은 … 부탁드린 분께서» 1분 뒤 103 «오늘의 축사는요, … 부탁드린 분께서»(같은 틀)를 피한다 */,   // [EX_STD_1012] · [EX_ENTRY_FEEL_1012] 입장 담백하게(빌더 기본값과 같다 · 옛 격식 있게)
+    { k: 'standard', nm: '정석', title: '실제 예식에서 가장 많이 하는 순서', feel: '익숙하고 편안하게 · 가장 많이 하는 순서', on: ['prevideo', 'candle', 'welcome', 'vow', 'song', 'tribute'], set: { entry: 'A', tribute: 'long', free: 'speech', narEx: { speech: 1 } } }   /* ★[SPEECH_SONG_1115 2026-11-15 대표님 «축사 · 축가는 둘 중 하나»] 정석은 축가만(자료 축가 19.5/23 · 축사 13.5/23 · 대본 확인 대기) */   /* ★[REVIEW26_1023 검토 150-2 2)] 축사 «격식 있게»(174) — 선언 여는 말 136 «오늘의 성혼선언은 … 부탁드린 분께서» 1분 뒤 103 «오늘의 축사는요, … 부탁드린 분께서»(같은 틀)를 피한다 */,   // [EX_STD_1012] · [EX_ENTRY_FEEL_1012] 입장 담백하게(빌더 기본값과 같다 · 옛 격식 있게)
     { k: 'record', nm: '기록', title: '부부가 되는 순간, 모두의 박수', feel: '밝고 경쾌하게 · 하객과 가까이' /* [TABLE_GREET_1008 사장님 «기록에 넣고 소개를 바꾼다»] 옛 «단체 사진을 넉넉히» — 테이블 인사 9분이 들어 단체 사진 15~20 → [EX_STD_1012] 반지 · 케이크가 빠져 18~22 */, on: ['prevideo', 'candle', 'welcome', 'vow', 'tribute', 'toast', 'table'], set: { entry: 'B', tribute: 'none', narEx: { close: 3 } } }   /* ★[REVIEW26_1023 검토 150-2 6)] 닫는 멘트 «격식 있게»(187 · «마지막까지» 없음) — 기록은 닫는 인사 뒤에 축배 · 테이블 인사가 이어진다 */,
     { k: 'family', nm: '가족', title: '부모님과 나누는 순간', feel: '격식 있고 뭉클하게 · 부모님이 말씀하세요', on: ['prevideo', 'candle', 'welcome', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long', narEx: { open: 1, candle: { mothers: 1 }, bless: 1 } } }   /* ★[BASE_SWAP_1023 검토 156] 가족은 뭉클이 결이라 화촉 «뭉클하게»(91 · 지금까지 나가던 글)를 따로 고른다 */   /* ★[REVIEW26_1023 검토 150-2 3)] 덕담 «격식 있게»(232 · 박수 청 없음) — 덕담 맺는 말 24 박수 청 → 축가 → 250 박수 청이 잇달았다 */,   // ★[EX_CHIP_DEF_1019 검토 137-3] 개식 «격식 있게»(148 · U1 · «격식 있고 뭉클하게»와 맞다)   // [EX_STD_1012] + 축가 · − 반지 · 케이크
     { k: 'brief', nm: '간결', title: '짧게, 핵심만', feel: '짧고 단정하게 · 두 분의 약속에 집중', on: ['prevideo', 'candle', 'vow', 'tribute'], set: { entry: 'C', tribute: 'none', narEx: { open: 2, matjeol: 4 } } }   /* ★[BASE_SWAP_1023 검토 156] 화촉 «담백하게»는 이제 기본(옛 mothers: 1) */   /* ★[REVIEW26_1023 검토 150-1 1)] 간결 화촉 = 151 «담백하게»(단상 · 점화 안내로 끝남) — 137-3 의 «잔잔하게»는 B7 «이제»를 피하려던 것인데 ENTRY_READY_1019 로 까닭이 없어졌다 · «먼저» 두 번(149 · 152)도 풀린다 */   // ★[EX_CHIP_DEF_1019 검토 137-3] 개식 «담백하게»(149) · 화촉 «잔잔하게»(152 · 어머님일 때만) · 맞절 «담백하게»(252) — 개식 137 «박수와 함성» · 입장 C «큰 박수와 함성» 5분 안 둘을 풀었다 · 화촉 «담백하게»(«이제 …»)는 B7 «이제 …»와 85초라 «잔잔하게»   // [EX_ENTRY_FEEL_1012] 입장 격식 있게(옛 담백하게 23초) · [EX_STD_1012] + 화촉 · 부모님께 인사(말 없이) · − 반지 · 케이크(본식 8~12 그대로)
@@ -329,6 +333,43 @@
     S.pickFrom = k;
     return S;
   }
+
+  /* ★★[SPEECH_SONG_1115 2026-11-15 대표님 23:05] ① 축사 · 축가는 한 카드 · 둘 중 하나 ② 식중 영상은 따로 넣고 빼는 순간(midvid · 축사 · 축가와 상관없이).
+       옛 초안 — free 한 칸의 영상 갈래(S.on.free + S.freeWhat 'video' · 길이 S.freeLen) → S.on.midvid + S.midLen(free 는 빈 축사 칸으로) ·
+       축사(free · speech)와 축가(song)를 둘 다 담은 초안 → 축가를 남긴다(정석 예시와 같은 쪽 · 대본 확인 대기) · 깜짝 선물 · 기타(옛 갈래)는 축가와 함께 둘 수 있다(축사가 아니다).
+       부르는 곳: 엔진 norm(RitualCue) · 빌더가 초안을 읽을 때 · 담을 때(pairOn) — 저장 값을 바꾸는 곳은 여기 한 곳 */
+  var PAIR = ['free', 'song', 'stage'];   // [SHOW_PAIR_1116] 축사 · 축가 · 축하 공연 중 하나   // 축사 · 축가 한 카드(① 칸 이름 «축사 · 축가»)
+  function isSpeech(S) { return FREE_KIND[FREE_OLD[S && S.freeWhat] || (S && S.freeWhat) || DEF.freeWhat] === 'speech'; }
+  function midMigrate(S) {
+    if (!S || typeof S !== 'object') return S; if (!S.on) S.on = {};
+    var fw = FREE_OLD[S.freeWhat] || S.freeWhat;
+    if (FREE_KIND[fw] === 'video') {
+      if (S.on.free) { S.on.midvid = 1; if (/^(10|[1-9])$/.test(String(S.freeLen))) S.midLen = String(S.freeLen); delete S.on.free; }
+      S.freeWhat = 'speech'; if (S.freeLen != null && !S.on.free) S.freeLen = DEF.freeLen;
+    }
+    var fk2 = FREE_KIND[FREE_OLD[S.freeWhat] || S.freeWhat];
+    if (fk2 === 'gift' || fk2 === 'etc') { delete S.on.free; S.freeWhat = 'speech'; }   // ★[SHOW_PAIR_1116] 선물 · 기타 = 상담 메모(빌더 칸 없음) · 옛 초안은 꺼 둔다
+    if (S.on.free && S.on.song) delete S.on.free;   // 축사 · 축가 · 축하 공연 중 하나 — 둘이 켜진 옛 초안은 축가를 남긴다
+    return S;
+  }
+  /* 한 카드 안 고르기 — which = 'free'(축사) | 'song'(축가) | '' (둘 다 빼기) · 다른 쪽은 늘 꺼진다 */
+  function pairSet(S, which) { if (!S.on) S.on = {}; delete S.on.free; delete S.on.song; if (which === 'free') { S.on.free = 1; S.freeWhat = 'speech'; } else if (which === 'stage') { S.on.free = 1; S.freeWhat = 'stage'; } else if (which === 'song') S.on.song = 1; return S; }   // [SHOW_PAIR_1116] stage = 축하 공연
+  function pairOf(S) { if (onOf(S, 'song')) return 'song'; if (!onOf(S, 'free')) return ''; var k = FREE_KIND[FREE_OLD[S.freeWhat] || S.freeWhat]; return k === 'speech' ? 'free' : k === 'stage' ? 'stage' : ''; }
+
+  /* ★★[NARR_ROLE_1115 2026-11-15 대본 · 릴스 방 교통정리 2차(docs runbook 나레이션_교통정리_NARR_ROLE_1115 4절 · 3351677)] «누가» — 하객이 어느 분이 나오는지 듣게.
+       덕담 = 말씀하실 분 · 순서(S.blessWho 'bf,gf' · 첫 분이 먼저) · 축사 = 하시는 분(S.speechWho) · 축가 = 부르시는 분(S.songWho · 두 분 직접이면 S.songSelf).
+       안 고른 날은 지금 판 줄 그대로(엔진 RitualCue 가 고른 날만 역할 줄로) · 이름은 소리로 읽지 않는다(역할만) · 새 녹음 21문장(음성 방 11/16) */
+  var BLESS_WHO = [['gf', '신랑 아버님'], ['bf', '신부 아버님'], ['gm', '신랑 어머님'], ['bm', '신부 어머님']];
+  var GUEST_WHO = [['gfr', '신랑 친구'], ['bfr', '신부 친구'], ['gfa', '신랑 가족'], ['bfa', '신부 가족'], ['cfr', '두 사람 친구']];
+  var SONG_SELF = [['g', '신랑'], ['b', '신부'], ['c', '둘이 함께']];
+  var MID_TONE = { plain: ['midvideo-in-plain', 'midvideo-out-story'], story: ['midvideo-in-story', 'midvideo-out-story'], thanks: ['midvideo-in-thanks', 'midvideo-out-thanks'] };   // 353 → 355 기본 · 352 → 355 · 351 → 354
+  function _whoOk(list, v) { return list.some(function (c) { return c[0] === v; }); }
+  function blessWhoOf(S) { var seen = {}; return String((S && S.blessWho) || '').split(',').filter(function (x) { if (!_whoOk(BLESS_WHO, x) || seen[x]) return false; seen[x] = 1; return true; }).slice(0, 4); }
+  function speechWhoOf(S) { return S && _whoOk(GUEST_WHO, S.speechWho) ? S.speechWho : ''; }
+  function songWhoOf(S) { return S && S.songBy !== 'self' && _whoOk(GUEST_WHO, S.songWho) ? S.songWho : ''; }
+  function songSelfOf(S) { return S && S.songBy === 'self' && _whoOk(SONG_SELF, S.songSelf) ? S.songSelf : ''; }
+  function midToneOf(S) { return (S && S.midTone && MID_TONE[S.midTone]) ? S.midTone : 'plain'; }   /* [SPEECH_SONG_1115] 식중 영상 소개 결 · 기본 plain(353 → 355) */
+  function whoLabel(list, v) { var c = list.filter(function (x) { return x[0] === v; })[0]; return c ? c[1] : ''; }
 
   /* ── 순서 계산 ── */
   function onOf(S, k) { return !!(ALWAYS[k] || (!RETIRED[k] && S && S.on && S.on[k])); }   // [CAKE_OLD_OFF_1017] 걷은 순간은 담아 둔 옛 초안에서도 «안 담김»
@@ -374,7 +415,8 @@
     declare: [12, 15, 8, 20],   // ★[DECLARE_BY_PERSON 2026-10-12] 누가 읽든 같다 — 여는 말 · 맺는 말 12초(136 24음절 · [DECLARE_ANYONE] 여는 말은 하나 + 57 26음절 · 쉼 포함) · 선언문 낭독 15초(66자 글 기준 · ★[DECL_REF_PRINT 2026-10-23] 지금 선언문은 참고 예시 1 · 2 = 104 · 110자라 분당 300자로 약 22초 — 모자란 7초는 뒤 여유 20초 안에서 · 늘리면 예시 시각 · 단체 사진 표 · 근거 장부가 함께 움직인다) · 마이크 · 카드 건네기 8초 · 여유 20초(읽을 분은 정면 가까운 자리 · 걸어 나오고 들어가기). 옛 나레이션 판(엄숙 16 · 따뜻 12 · 박수 30) 걷음
     tribute: { one: [26, 34.7, 40, 30], long: [26, 138.8, 40, 30], none: [26, 0, 40, 30] },   /* ★[EST_TRUE_1031] 말 없는 시간 25 → 40 — 인사 동작 15 → 30(양가 각각) */   // [SOURCE_FIRST_1016] 이름 줄 = 자료 FF 2-1(45음절 9초 · +6.2) · 구호 GG 1(−0.2)   // ★[TRIB_TIME_1014] 대본을 지금 소리로 다시 쟀다 — 이름 줄 2.8(짝 줄 3.4) + 사이 1 + 여는 말 7.4 + 구호 2.6 + 맺는 말 6.2 = 20초(옛 38 · 42.5 는 꽃 헌정 때 대본 · 말 없이 판도 대본은 같다)
     song: [8, 0, 210, 20],   // [SONG_BACK_1011] 여는 말 8초(19 narr-song · 32음절) · 노래 3분 30초(옛 실측 «축가 1곡» 210 · 자료 중앙값 3분) · 오가는 여유 20초(부르실 분이 앞으로 · MR 시작 · 인사)
-    free: [12, 0, 188, 5],   // [FREE_WHAT] 말 없는 시간은 길이 칩에서 — 60 × 분 + 8(3분 188 · 2분 128 · 1분 68)
+    free: [12, 0, 188, 5],
+    midvid: [12, 0, 188, 5],   // [SPEECH_SONG_1115] 식중 영상 — 여는 말 · 60 × 분 + 8(옛 free 영상 갈래와 같은 셈)   // [FREE_WHAT] 말 없는 시간은 길이 칩에서 — 60 × 분 + 8(3분 188 · 2분 128 · 1분 68)
     letter: { each: [21, 122, 16, 10], parent: [17, 138.8, 16, 10] },   // [SOURCE_FIRST_1016] 여는 말 첫 문장 = 자료 G1 62 · GG 1
     /* [CAKE_TOAST_SPLIT] 종전 «케이크와 축배»(both.none [41, 0, 63, 106])를 두 순간에 나눈다 — 합은 그대로.
        축배 몫 = 축배만 판(여는 말 + 잔 안내 + 선창 + 마무리 · [22, 0, 20, 40]) · 케이크 몫 = 나머지. 한쪽만이면 종전 «케이크만» · «축배만» 줄. */
@@ -430,6 +472,7 @@
       case 'letter': return withTx(t[chipOf('letter', S)], S, 'letter');   // [EST_TRUE_1031]
       case 'free': { var fl = +chipOf('freeLen', S);   // 축사 판: 여는 말 14 · 사람 말 60×분−20 · 걸음 12 · 여유 10(2분이면 대본 126 · 넉넉 161)
         return FREE_KIND[chipOf('free', S)] === 'speech' ? [14, 60 * fl - 20, 26, 10] : [t[0], t[1], 60 * fl + 8, t[3]]; }   /* ★[EST_TRUE_1031] 축사 걸음 12 → 26(엔진 live 60 × 분 + 20 과 같은 셈) */
+      case 'midvid': { var ml = +chipOf('midLen', S); return [t[0], t[1], 60 * ml + 8, t[3]]; }   // [SPEECH_SONG_1115]
       case 'cake': return onOf(S, 'toast') ? t.both : t.only;   // [CAKE_TOAST_SPLIT]
       case 'toast': return onOf(S, 'cake') ? t.both : t.only;
       case '_close': return seq.indexOf('tribute') > -1 ? t.withTribute : t.noTribute;
@@ -444,8 +487,8 @@
      규칙 안인데 본식 상한(capSec = 단체 사진 16분을 남긴 몫)을 넘는 드문 조합(테이블 인사 + 짧은 순간 넷 꼴)은 막지 않고
      테이블 인사 시간을 넘는 만큼만 줄인다(tableSecOf · 30초 단위 · 두 테이블 몫 아래로는 안 줄인다) — 빌더 · 콘솔 · 시간표가 같은 값을 본다.
      길이 칩을 늘리는 쪽(축사 길게 …)은 줄이기 전 값(bodyRaw)으로 재서 넘으면 무엇을 할지 말하는 창(capMsg)으로 막는다. scripts/audit/body-cap.mjs */
-  var CNT_PICK = ['candle', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'toast', 'table'];
-  var CNT_LONG = { bless: 1, free: 1, song: 1, letter: 1, tribute: 1, table: 2 };
+  var CNT_PICK = ['candle', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'midvid', 'letter', 'tribute', 'toast', 'table'];
+  var CNT_LONG = { bless: 1, free: 1, song: 1, midvid: 1, letter: 1, tribute: 1, table: 2 };   // [SPEECH_SONG_1115] 식중 영상도 긴 순간 하나
   var CNT_MAX = 6, CNT_LONG_MAX = 3;
   function countOf(S) { var n = 0, l = 0; CNT_PICK.forEach(function (k) { if (onOf(S, k)) { n++; l += CNT_LONG[k] || 0; } }); return { n: n, long: l, max: CNT_MAX, longMax: CNT_LONG_MAX }; }
   /* 늘리는 쪽만 막는다(이미 넘은 옛 초안은 그대로 두고 빼기는 늘 된다) · '' = 통과 · 'n' = 7번째 · 'long' = 긴 순간 넷째 */
@@ -518,7 +561,7 @@
   function capNeed(S1) { return Math.max(1, Math.ceil((bodySec(S1)[1] - capSec(S1)) / 60)); }
   function capMsg(S1, add, k) { if (add) return { title: '이 순간을 담으려면 본식을 약 ' + capNeed(S1) + '분 덜어 주세요', body: '다른 순간을 빼거나 길이를 줄여 주세요 · 사진 시간을 지키기 위해서예요.' };
     /* ★[EVENT_COUNT_CAP 6] 길이 칩 — «몇 분 덜기» 대신 할 일을 말한다(짧게 할 수 있는 다른 긴 순간 하나를 이름으로) */
-    var cand = ['free', 'bless'].filter(function (x) { return x !== k && onOf(S1, x) && (x === 'free' ? +chipOf('freeLen', S1) > 1 : +(S1.blessN || 2) > 1); })
+    var cand = ['free', 'midvid', 'bless'].filter(function (x) { return x !== k && onOf(S1, x) && (x === 'free' ? +chipOf('freeLen', S1) > 1 : x === 'midvid' ? +chipOf('midLen', S1) > 1 : +(S1.blessN || 2) > 1); })   /* [SPEECH_SONG_1115] */
       .sort(function (a, b) { return lohi(partsOf(b, S1))[1] - lohi(partsOf(a, S1))[1]; })[0];
     var nm = cand ? nameOf(cand, S1) : '';
     return { title: '이 길이로 하려면 다른 순간을 하나 빼' + (nm ? '거나 ' + nm + _jo(nm) + ' 짧게 해' : '') + ' 주세요', body: '사진 시간을 지키기 위해서예요.' }; }
@@ -577,7 +620,8 @@
   function flowLv(k, S) {
     var L = level(k, S); if (L === 5) return 5;
     if (k === 'tribute') return chipOf('tribute', S) === 'none' ? 4.5 : 4.8;
-    if (k === 'free') return chipOf('free', S) === 'video' ? 4.2 : 4;
+    if (k === 'free') return 4;
+    if (k === 'midvid') return 4.2;   // [SPEECH_SONG_1115] 옛 free 영상 갈래 값
     return FLOW_LV[k] != null ? FLOW_LV[k] : L;
   }
 
@@ -739,6 +783,7 @@
     if (k === 'declare') return '당일 직접 · ' + (declBy(S) || '선언하실 분');   // [DECLARE_ANYONE] 두 분이 적은 분 · 안 적었으면 «선언하실 분»
     if (k === 'free') return FREE_KIND[chipOf('free', S)] === 'speech' ? '당일 직접 · 축사하시는 분' : '당일 직접';   // ★[MID17_CONSOLE 2026-11-07 MID17-10] 축사 갈래만 «축사하시는 분» — 식중 영상(영상 상영 중 콘솔 갈래 칩)이 «축사하시는 분»으로 떴다 · 영상 · 선물 · 기타는 식전 영상 자리와 같은 «당일 직접»
     if (k === 'song') return '당일 직접 · 노래해 주실 분';   // [SONG_BACK_1011]
+    if (k === 'midvid') return '당일 직접';   // [SPEECH_SONG_1115] 식중 영상(옛 free 영상 갈래와 같은 말)
     return '당일 직접'; }
   function prepLine(S) { var n = prepCount(S), a = [];
     if (n.couple) a.push('두 분이 준비할' + NB + '것' + NB + n.couple + '가지'); if (n.parents) a.push('부모님께' + NB + '부탁드릴' + NB + '것' + NB + n.parents + '가지');   /* [R3-11] «부모님께 / 부탁드릴 것»으로 갈렸다 */   // 3-9 «준비할 것 N가지» · «부탁드릴 것 N가지»는 한 덩어리
@@ -758,9 +803,11 @@
   };
   /* ★[MID17_NAME 2026-11-07 재검증 재수정] 식중 영상 = free 한 칸의 영상 갈래(S.on.free + S.freeWhat 'video' · 길이 S.freeLen) — 이름 · 칸 글 · ② 머리 한 줄은 여기 한 곳(nameOf · tileOf · oneOf) */
   var MID_NAME = '식중 영상', MID_TILE = '두 분이 준비한 영상을 함께 봐요', MID_ONE = '두 분이 준비한 영상을 함께 봐요.';
+  /* ★★[SPEECH_SONG_1115 2026-11-15 대표님] 식중 영상은 따로 넣고 빼는 순간(midvid) — 축사 · 축가와 함께 담을 수 있다 · 길이 S.midLen */
+  CARDS.midvid = { n: MID_NAME, sn: MID_NAME, one: MID_ONE, tile: MID_TILE, shot: '함께 보며 웃는 하객들', who: '두 분' };
   var TILE_CANDLE = { parents: '양가 부모님이 초에 불을 밝혀요', fathers: '양가 아버님이 초에 불을 밝혀요', others: '두 분이 부탁한 분들이 촛불을 밝혀요' };
   for (var _tk in TILE) if (CARDS[_tk]) CARDS[_tk].tile = TILE[_tk];
-  function tileOf(k, S) { if (k === 'candle') { var w = candleWhoOf(S); if (TILE_CANDLE[w]) return TILE_CANDLE[w]; if (w === 'mothers' && S && S.candleWho === 'mothers') return '양가 어머님이 초에 불을 밝혀요'; } if (k === 'free' && FREE_KIND[chipOf('free', S)] === 'video') return MID_TILE;   /* ★[MID17_NAME 2026-11-07] 식중 영상 칸 글 */ return TILE[k] || ''; }   /* ★[NARROW_170_1030 검토 170] 고르기 전 카드는 «양가 대표 두 분»(169) · 어머님을 고르면 고른 분 호칭 */
+  function tileOf(k, S) { if (k === 'candle') { var w = candleWhoOf(S); if (TILE_CANDLE[w]) return TILE_CANDLE[w]; if (w === 'mothers' && S && S.candleWho === 'mothers') return '양가 어머님이 초에 불을 밝혀요'; } if (k === 'midvid' || (k === 'free' && FREE_KIND[chipOf('free', S)] === 'video')) return MID_TILE;   /* ★[MID17_NAME 2026-11-07] 식중 영상 칸 글 */ return TILE[k] || ''; }   /* ★[NARROW_170_1030 검토 170] 고르기 전 카드는 «양가 대표 두 분»(169) · 어머님을 고르면 고른 분 호칭 */
 
   /* ══ [SAMPLE_CUT 2026-09-26 코워크 최종판 4장] 대표 한 줄 — 칸 · 미리 보기 창에서 순간마다 고정(판 칩과 상관없이 · 화촉만 서는 분을 따라)
      짧은 여는 말(10초 안)은 클립을 통째로 · 긴 다섯은 **같은 부모 클립**을 처음부터 틀다 둘째 문장 끝에서 멈춘다(새 녹음 0).
@@ -773,7 +820,7 @@
     entry: { slug: 'entry-A', cut: 2 }, matjeol: { slug: 'narr-entry-bow' } /* [MATJEOL_SPLIT_1013] 132 통째(14음절) · 녹음 전엔 글로 */, welcome: { slug: 'narr-welcome-in' }, bless: { slug: 'narr-bless-mid' } /* [BLESS_AFTER_DECLARE 10/12] 새 코스의 덕담 여는 말은 늘 가운데 문안(23) — «서약의 문을 여는»(22)은 옛 가족 코스만 */,
     vow: { slug: 'narr-vow-in', cut: 2 }, ring: { slug: 'narr-ring-in', cut: 2 },
     declare: { slug: 'narr-declare-in-friend' } /* [DECLARE_BY_PERSON] 옛 30 나레이션 선언 걷음 · 여는 말(녹음 전 · 글로 먼저) */, song: { slug: 'narr-song' } /* [SONG_BACK_1011] 여는 말 통째(10초 안) */, tribute: { slug: 'tribute-in', cut: 2 },
-    free: { slug: 'narr-free-in-speech' } /* [SPEECH_TILE_1012] 103 축사 여는 말 */, letter: { slug: 'letter-each' },
+    free: { slug: 'narr-free-in-speech' } /* [SPEECH_TILE_1012] 103 축사 여는 말 */, midvid: { slug: 'midvideo-in-plain' } /* [SPEECH_SONG_1115] 58 식중 영상 여는 말(옛 free 영상 갈래 미리 보기와 같은 줄) */, letter: { slug: 'letter-each' },
     /* ★[CAKE_FILES_OFF_1110 사장님 11/10 «케이크는 없어졌잖아 삭제해»] 케이크 대표 줄(옛 SAMPLE_CAKE · 42 toast-both)은 걷었다 — 케이크 순간 RETIRED · 소리 파일까지 지움 · 되살리기 금지 */
     /* ★[SAMPLE_TOAST_LIVE 2026-10-03] 축배 대표 줄 = 지금 예식에서 나는 76 toast-both-b(글자 그대로 · 화면은 따옴표).
        종전 107 toast-both-pour-b 는 [WINE_POUR_OFF](09-27)가 sampleS 를 «붓지 않음»으로 바꾼 뒤 미리 보기 엔진에 없는 줄이 되어
@@ -836,6 +883,7 @@
         if (fk === 'speech') return [['couple', '축사 원고 · 1분에 300자쯤 · 받으면 큰 글씨 카드로 돌려드려요 · 전 연인 · 술자리 이야기는 빼 주세요'   /* [LINE_R1_1014] «부탁드리기»로 열면 사흘 전 마감이 «사흘 전에 부탁해도 된다»로 읽힌다 · 덕담 줄과 같은 꼴 */   /* [SPEECH_WORDS_1013] «분당» → «1분에» · 다른 순간과 같은 «큰 글씨 카드» */, 'ask', 3]];
         return [['couple', '무엇을 누가 건넬지 알려 주기(저희가 자리를 맞춰요)', 'send', 7]];
       }
+      case 'midvid': return [];   /* [SPEECH_SONG_1115] 식중 영상은 마이페이지 «상영 영상»이 링크로 받는다(옛 free 영상 갈래 MID17_PREP 와 같다) */
       case 'letter': return [['couple', chipOf('letter', S) === 'each' ? '서로에게 편지 · 한 분 400자쯤' : '부모님께 편지 · 한 분 400자쯤', 'write', null, NOTE_READ]];
       case 'cake': return goodsPrep('cake', S);   // [CAKE_TOAST_SPLIT] 케이크 준비만
       case 'toast': {
@@ -988,8 +1036,8 @@
       if (base[x] && !onOf(S, x)) bits.push('− ' + CARDS[x].sn);
     });
     var T = applyExample({}, ex.k);
-    ['declare', 'tribute', 'letter', 'free', 'freeLen'].forEach(function (c) {   // [CAKE_TOAST_SPLIT] 케이크 · 축배는 담은 칸이라 «+ · −»가 센다
-      var home = c === 'freeLen' ? 'free' : c;
+    ['declare', 'tribute', 'letter', 'free', 'freeLen', 'midLen'].forEach(function (c) {   // [CAKE_TOAST_SPLIT] 케이크 · 축배는 담은 칸이라 «+ · −»가 센다
+      var home = c === 'freeLen' ? 'free' : c === 'midLen' ? 'midvid' : c;   // [SPEECH_SONG_1115]
       if (onOf(S, home) && chipOf(c, S) !== chipOf(c, T)) diff++;
     });
     if (diff) bits.push('바꾼 것 ' + diff);   // [LISTEN_PAGE 코워크 4-2] 고객 화면에 «판»을 두지 않는다
@@ -1520,6 +1568,7 @@
     if (k === 'letter' && chipOf('letter', S) === 'each') return 'letter:each';
     if (k === 'tribute' && hugOff(S)) return 'tribute:nohug';
     if (k === 'free' && FREE_KIND[chipOf('free', S)] !== 'speech') return '';
+    if (k === 'midvid') return '';   // [SPEECH_SONG_1115] 식중 영상 장면 표는 아직 없다(옛 free 영상 갈래와 같이 FREE_SHOT)
     return PSCENE[k] ? k : '';
   }
   function sceneImg(id) { var x = PSCENE[id]; if (!x || !x.img) return null; var n = x.img; return { src: '/assets/video/moments/scene/' + n + '.webp?v=' + SCENE_V, small: '/assets/video/moments/scene/' + n + '-640.webp?v=' + SCENE_V, asset: 'scene/' + n, from: SCENE_SRC_V }; }   // [SCENE_PHOTO_1101] 파일 이름 = PSCENE.img(장면 id 꼴) · from = 사진 판
@@ -1553,7 +1602,7 @@
   function shotOf(k, S) { var _sc = sceneOf(k, S); if (_sc) return _sc.rep;   /* ★[PHOTO_SCENE_1031] 남는 장면 = 대표 장면(원천 SCENE 하나) · 아래는 장면이 없는 옛 판만 */
     if (k === 'vow' && S && S.vowKind === 'thanks') return '하객을 바라보며 읽는 두 분';   /* ★[THANKS_SHOT_1013] 감사문을 고른 날 «남는 장면»(마이페이지 summary.scenes)이 서약 장면(«서로를 보며 약속하는 옆얼굴»)이었다 — oneOf(oneT)와 같은 갈래 */
     if (k === 'tribute' && hugOff(S)) return '부모님께 인사하는 두 분';   /* [TRIB_NO_HUG_1030] 인사만이면 «안기는 순간»이 없다 */
-    return k === 'free' ? FREE_SHOT[FREE_KIND[chipOf('free', S)]] : (CARDS[k] || {}).shot; }
+    return k === 'midvid' ? FREE_SHOT.video : k === 'free' ? FREE_SHOT[FREE_KIND[chipOf('free', S)]] : (CARDS[k] || {}).shot; }   // [SPEECH_SONG_1115]
 
   /* ── 도와주실 분(코워크 5-6) — 두 분 준비 · 마이페이지 준비 칸. [누가, 언제] ──
      ★«식사 자리로 안내할 분»은 애프터 웨딩을 고른 날만이라 식순만으로는 모른다 — 마이페이지가 덧붙인다(mealGuide). */
@@ -1584,7 +1633,7 @@
     free: '축하 순서가 한자리에 모이는 자리예요.'   // [HEART_ORDER_1012] 종전 «마지막 큰 순간이 앞에 몰리지 않도록 뒤쪽에»(인사 뒤 자리)는 걷었다
   };
   /* [HEART_ORDER_1012] 이웃은 하나 또는 여럿(그중 하나라도 담았으면 이웃이 있다) — 인사의 이웃은 앞의 마음의 순간들 */
-  var WHY_NEXT = { free: 'song' }, WHY_PREV = { bless: 'declare', tribute: ['bless', 'free', 'song', 'letter'] };   // [BLESS_AFTER_DECLARE] 덕담의 이웃은 이제 앞의 선언
+  var WHY_NEXT = { free: 'song' }, WHY_PREV = { bless: 'declare', tribute: ['bless', 'free', 'song', 'midvid', 'letter'] };   // [BLESS_AFTER_DECLARE] 덕담의 이웃은 이제 앞의 선언
   function _anyOn(S, ks) { return [].concat(ks).some(function (x) { return onOf(S, x); }); }
   function whyOf(k, S) {
     var c = CARDS[k]; if (!c || !c.why) return '';
@@ -1686,6 +1735,7 @@
     if (k === 'tribute') return ['tribute'];
     if (k === '_close') return ['close'];
     if (k === 'table') return ['table'];   // ★[TABLE_VIDEO_1009 2026-10-09 사장님 «table 넣어»] 테이블 인사도 영상 — 10/8 «영상 없음(장면 글 한 줄)»을 뒤집었다
+    if (k === 'midvid') return ['free'];   // [SPEECH_SONG_1115] 식중 영상 장면 = free.mp4(옛 영상 갈래 그대로)
     if (k === 'free') { var fk = FREE_KIND[chipOf('free', S)]; return fk === 'video' ? ['free'] : fk === 'speech' ? ['speech'] : []; }   // ★[VIDEO_SET_1023] 축사 갈래는 축사 장면 영상(speech.mp4) · 옛 «영상» 판만 free.mp4 · 선물 · 기타는 장면 글 — [SPEECH_TILE_1012] «축사에는 장면 영상이 없다»(10/12)는 영상이 생겨 뒤집었다
     if (AFTER_CLOSE[k]) return [];   // [TABLE_GREET_1008] 닫는 인사 뒤 순간 중 영상이 없는 것은 장면 글(SCENE) 한 줄 · table 은 바로 위에서 영상
     return [k];
@@ -1696,10 +1746,10 @@
   function secTxt(x) { return x < 55 ? ('약 ' + Math.max(10, Math.round(x / 10) * 10) + '초') : ('약 ' + Math.round(x / 60) + '분'); }
   /* [THANKS_IN_VOW] 순간 설명 한 줄 — 서약 카드에서 감사문을 고르면 감사문 설명(CARDS.vow.oneT) · 그 밖은 CARDS[k].one */
   function oneOf(k, S) { var c = CARDS[k]; if (!c) return ''; if (k === 'tribute' && hugOff(S)) return '부부가 되어 처음 부모님께 고마움을 전해요.';   /* [TRIB_NO_HUG_1030] 인사만 */
-    if (k === 'free' && FREE_KIND[chipOf('free', S)] === 'video') return MID_ONE;   /* ★[MID17_NAME 2026-11-07] ② 머리 한 줄 — 축사 설명이 영상 날에 나오지 않게 */
+    if (k === 'midvid' || (k === 'free' && FREE_KIND[chipOf('free', S)] === 'video')) return MID_ONE;   // [SPEECH_SONG_1115]   /* ★[MID17_NAME 2026-11-07] ② 머리 한 줄 — 축사 설명이 영상 날에 나오지 않게 */
     return (k === 'vow' && S && S.vowKind === 'thanks' && c.oneT) ? c.oneT : (c.one || ''); }
   /* [SPEECH_TILE_1012] 칸 이름 — 축사 칸(free)에 옛 초안의 영상 · 선물 · 기타가 켜져 있으면 옛 이름 «준비한 순서»(새로 담으면 늘 축사 · 빌더 opTgl) */
-  function nameOf(k, S) { if (k === 'free' && S && onOf(S, 'free') && FREE_KIND[chipOf('free', S)] !== 'speech') return FREE_KIND[chipOf('free', S)] === 'video' ? MID_NAME : '준비한 순서'; return CARDS[k] ? CARDS[k].n : k; }   /* ★[MID17_NAME 2026-11-07 재검증 재수정] 영상 갈래 = «식중 영상»(빌더 ① 식중 영상 칸 · 축사와 같은 한 칸) · 선물 · 기타(옛 초안)는 «준비한 순서» 그대로 */
+  function nameOf(k, S) { if (k === 'free' && S && onOf(S, 'free') && FREE_KIND[chipOf('free', S)] !== 'speech') return FREE_KIND[chipOf('free', S)] === 'video' ? MID_NAME : FREE_KIND[chipOf('free', S)] === 'stage' ? '축하 공연' : '준비한 순서'; return CARDS[k] ? CARDS[k].n : k; }   /* ★[MID17_NAME 2026-11-07 재검증 재수정] 영상 갈래 = «식중 영상»(옛 초안만 · [SPEECH_SONG_1115] 새 식중 영상은 따로 넣고 빼는 순간 midvid · midMigrate 가 옮긴다) · 선물 · 기타(옛 초안)는 «준비한 순서» 그대로 */
   function talkOf(k, S) {
     var fk, n, p = 0;
     try { p = (partsOf(k, S) || [])[1] || 0; } catch (e) { p = 0; }
@@ -1716,6 +1766,7 @@
         /* ★[B2_FIX_NA_51 2026-11-06 재검증 재수정] 적은 분 기준 — 두 분 다 · 한 분만(«신부 한마디 뒤 두 분이 …») · 아무도(한마디 말 없이) · 시간 값은 종전 그대로 */
         var _tg = !!String(_tx['toast.g'] || '').trim(), _tb = !!String(_tx['toast.b'] || '').trim();
         return _tg && _tb ? '두 분이 한마디와 함께 «위하여!»를 외치면 하객이 함께 답해요 · 약 20초' : (_tg || _tb) ? (_tg ? '신랑' : '신부') + ' 한마디 뒤 두 분이 «위하여!»를 외치면 하객이 함께 답해요 · 약 20초' : '두 분이 «위하여!»를 외치면 하객이 함께 답해요 · 약 10초'; }   // [TOAST_COUPLE 2026-09-26 코워크 회신5 3-2] ② 말하는 자리 카드
+      case 'midvid': return chipLabel('midvid', S) + ' · 연습에서는 건너뛰어요';   // [SPEECH_SONG_1115]
       case 'free': fk = FREE_KIND[chipOf('free', S)]; n = chipOf('freeLen', S);
         if (fk === 'speech') return '축사하실 분이 축하의 말을 전해요 · 약 ' + n + '분';   // [SPEECH_WORDS_1013] 카드 설명과 같은 «전해요»   // [SPEECH_TILE_1012]
         return chipLabel('free', S) + ' · 연습에서는 건너뛰어요';
@@ -1729,7 +1780,9 @@
     ORDER: ORDER, ALWAYS: ALWAYS, PRE: PRE, PICKABLE: PICKABLE, RETIRED: RETIRED, OFFER: OFFER, SECTIONS: SECTIONS, CARDS: CARDS, AFTER_CLOSE: AFTER_CLOSE, LATE_ORDER: LATE_ORDER, POST_SEC: POST_SEC, setPost: setPost, postSec: postSec, capEx: capEx, capSec: capSec, capOver: capOver, capLeft: capLeft, capNeed: capNeed, capMsg: capMsg, CAP_MSG: CAP_MSG, APART: APART, TABLE_SEC: TABLE_SEC, tableN: tableN, bodyOrder: bodyOrder,   // [TABLE_GREET_1008]
     CHIPS: CHIPS, DEF: DEF, CANDLE_WHO: CANDLE_WHO, candleWhoOf: candleWhoOf, exSwapped: exSwapped, EXAMPLES: EXAMPLES, TIME: TIME, WALK: WALK /* [WALK_HALF_1106] */, TOAST_SEC: TOAST_SEC /* [TOAST_EST60_1106] */, NOTICE: NOTICE, NAR: NAR, DAYMIN: DAYMIN, RANGE: RANGE,
     FREE_KIND: FREE_KIND, SHORT_MIN: SHORT_MIN, heavy: heavy, chipLabel: chipLabel, labelOf: labelOf, crossTribute: crossTribute, hugOff: hugOff, HUG_SEC: HUG_SEC, shotOf: shotOf, countOf: countOf, countNo: countNo, COUNT_MSG: COUNT_MSG, CNT_PICK: CNT_PICK, CNT_LONG: CNT_LONG, CNT_MAX: CNT_MAX, CNT_LONG_MAX: CNT_LONG_MAX, bodyRaw: bodyRaw, tableSecOf: tableSecOf, tableFull: tableFull, tableCut: tableCut, tableEachTxt: tableEachTxt, PSCENE: PSCENE, SCENE_SHOW: SCENE_SHOW, sceneShow: sceneShow, SCENE_V: SCENE_V, SCENE_SRC_V: SCENE_SRC_V, SCENE_LABEL: SCENE_LABEL, sceneId: sceneId, sceneOf: sceneOf, sceneImg: sceneImg, sceneImgs: sceneImgs, SCENE_AT: SCENE_AT, SCENE_N: SCENE_N, sceneList: sceneList, sceneSig: sceneSig, helpersOf: helpersOf,
-    MID_NAME: MID_NAME,   /* [MID17_NAME] 빌더 ① 식중 영상 칸 · 알림이 같은 이름을 쓴다 */
+    MID_NAME: MID_NAME,
+    midMigrate: midMigrate, pairSet: pairSet, pairOf: pairOf, PAIR: PAIR,   /* [SPEECH_SONG_1115] */
+    BLESS_WHO: BLESS_WHO, GUEST_WHO: GUEST_WHO, SONG_SELF: SONG_SELF, MID_TONE: MID_TONE, blessWhoOf: blessWhoOf, speechWhoOf: speechWhoOf, songWhoOf: songWhoOf, songSelfOf: songSelfOf, midToneOf: midToneOf, whoLabel: whoLabel,   /* [NARR_ROLE_1115] */   /* [MID17_NAME] 빌더 ① 식중 영상 칸 · 알림이 같은 이름을 쓴다 */
     chipOf: chipOf, setChip: setChip, nameOf: nameOf, exampleOf: exampleOf, applyExample: applyExample, sameAsExample: sameAsExample,
     onOf: onOf, toastMode: toastMode, migrateCakeToast: migrateCakeToast, seqOf: seqOf, bodySeq: bodySeq, picked: picked, partsOf: partsOf, textSec: textSec, bodySec: bodySec, span: span, spanText: spanText, tableSec: tableSec, POST_FLOW: POST_FLOW, postOf: postOf, postDur: postDur, postLine: postLine, rng: rng,
     momentLabel: momentLabel, peakOf: peakOf, level: level, prepOf: prepOf, noticeOf: noticeOf, noticeFull: noticeFull, noticeList: noticeList, slotText: slotText, originOf: originOf,

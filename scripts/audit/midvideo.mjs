@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /* ★★[MID_VIDEO_1106 2026-11-06 사장님 «식중 영상은 선택으로» · 대본 체크리스트 7 · 8 · 9 · 12 · 13 · 16] 식중 영상(선택) — 식전영상 몫을 잰다
-   방식: 식순 «준비한 순서 · 영상» 자리(성혼 선언 · 덕담 뒤 · 축가 앞)를 식중 영상으로 쓴다 · 새 칸 · 새 녹음 없음 · 축사와 택1 · 기한 예식 7일 전
-   ① 켜고 끄기 — 원천은 식순 초안 하나(S.on.free + S.freeWhat 'video') · 마이페이지는 그 칸을 연다(식순을 따로 쓰지 않는다) · 꺼져 있으면 «넣기 · 선택»(할 일 아님)
+   방식(★[SPEECH_SONG_1115 2026-11-15 대표님] 새 기대): 식순 «식중 영상» 순간(midvid · 축사 · 축가 뒤 · 편지 앞)을 따로 넣고 뺀다 · 축사나 축가와 함께 담는다 · 기한 예식 7일 전
+     옛 기대(축사 칸 «준비한 순서 · 영상» 갈래 · 축사와 택1 · «축사 대신 상영» · «축사와 같은 칸이라 둘 중 하나만»)는 은퇴(RULES_SLIM_1107 ⑧) · 옛 초안 free + video 는 그대로 켜짐으로 읽는다
+   ① 켜고 끄기 — 원천은 식순 초안 하나(S.on.midvid · 길이 S.midLen · 옛 초안 S.on.free + S.freeWhat 'video' · freeLen) · 마이페이지는 그 칸을 연다(식순을 따로 쓰지 않는다)
    ② 상태 넷 — 미제출(올리기 · 기한) · 제출(스튜디오 확인 중 · 확인 필요) · 확정 · 영상 없이 진행(기한 지남) — 예식 준비 줄 · 첫 화면 · 확인서가 같은 말
    ③ 서버 — «개인코드#mid» 줄 · 링크뿐(사진 · 곡 · 분위기를 받지 않는다) · 동의 · 유튜브 거절 · 식전 줄과 서로 안 섞인다 · 식순이 켜고 끈다(on · len) · 6개월 지우기(_pgPrevideo_ · 영구 삭제)가 «#mid»도 지운다
    ④ 기한 안내 — 예식 14일 · 7일 전 한 번씩 · 확정했거나 식순에 없으면 안 보낸다 · 기한날 아직 안 보냈으면 관리자 한 줄 · 못 보냈으면 다음 날 다시
@@ -28,12 +29,16 @@ const srcs = need.map((x) => fnSrc(my, x));
 if (srcs.some((x) => !x)) { console.log('━━ midvideo — 마이페이지 함수(' + need.filter((x, i) => !srcs[i]).join(' · ') + ')를 못 찾았습니다 · 재지 못했습니다'); process.exit(2); }
 const C = vm.createContext({ LEFT: null });
 vm.runInContext('function _kstDdayOf(d){ return LEFT; }\n' + srcs.join('\n'), C);
-const rd = (on, what, len) => ({ ritualDraft: { _v: 3, S: { on: on ? { free: 1 } : {}, freeWhat: what, freeLen: len } } });
-ok(C._mvcOn(rd(true, 'video')) === true, '식순 «준비한 순서 · 영상» → 켬');
-ok(C._mvcOn(rd(true, 'speech')) === false, '준비한 순서가 축사 → 끔(축사와 택1)');
-ok(C._mvcOn(rd(false, 'video')) === false, '준비한 순서를 빼면 → 끔');
+const rd = (on, what, len) => ({ ritualDraft: { _v: 3, S: { on: on ? { free: 1 } : {}, freeWhat: what, freeLen: len } } });   // 옛 초안(축사 칸의 영상 갈래)
+const rm = (on, len, extra) => ({ ritualDraft: { _v: 3, S: Object.assign({ on: Object.assign(on ? { midvid: 1 } : {}, (extra && extra.on) || {}), midLen: len }, extra && extra.s) } });   // [SPEECH_SONG_1115] 새 초안
+ok(C._mvcOn(rm(true, '4')) === true, '[SPEECH_SONG_1115] 식순 «식중 영상»(S.on.midvid) → 켬');
+ok(C._mvcOn(rm(true, '4', { on: { free: 1 }, s: { freeWhat: 'speech' } })) === true && C._mvcOn(rm(true, '4', { on: { song: 1 } })) === true, '[SPEECH_SONG_1115] 축사나 축가와 함께 담아도 켬(택1 아님)');
+ok(C._mvcOn(rm(false, '4', { on: { free: 1 }, s: { freeWhat: 'speech' } })) === false, '식중 영상을 빼면(축사만) → 끔');
+ok(C._mvcOn(rd(true, 'video')) === true, '옛 초안(축사 칸 «영상» 갈래) → 켬');
+ok(C._mvcOn(rd(false, 'video')) === false, '옛 초안에서 그 칸을 빼면 → 끔');
 ok(C._mvcOn({}) === null, '식순이 아직 없으면 → 모름(null)');
-ok(C._mvcLen(rd(true, 'video', '5')) === 5 && C._mvcLen(rd(true, 'video', '99')) === 3, '길이 = 식순 길이 칸(1~10분 · 모르면 3분)');
+ok(C._mvcLen(rm(true, '5')) === 5 && C._mvcLen(rm(true, '99')) === 3 && C._mvcLen(rm(true, '6', { s: { freeLen: '2' } })) === 6, '[SPEECH_SONG_1115] 길이 = 식순 식중 영상 길이 칸(midLen · 1~10분 · 모르면 3분 · 축사 길이 freeLen 과 따로)');
+ok(C._mvcLen(rd(true, 'video', '5')) === 5, '옛 초안 길이 = freeLen');
 const row = (v, on, left) => { C.LEFT = left; return C._mvcRow(v, on); };
 let r = row({ st: '' }, false, 20);
 ok(r === null, '식순에 없음 → 줄 없음(고르지 않은 분께는 안 보임 · [VIDEO_NAME_1114] · 11/07 «넣기 · 선택» 걷음)', JSON.stringify(r));
@@ -78,8 +83,8 @@ const blk = my.slice(my.indexOf('var PVC_ON='), my.indexOf('function renderSnap(
 const mstart = fnSrc(my, '_mvcStart');
 ok(/식순에서 넣기/.test(mstart) && /식순에서 빼기/.test(mstart) && /data-mvcrit/.test(mstart), '첫 화면 — 식순에 없으면 «식순에서 넣기» · 있으면 «식순에서 빼기»(둘 다 식순 칸을 연다)');
 ok(/넣지 않으면 식순은 그대로예요/.test(mstart), '«넣지 않으면 식순은 그대로예요»(꺼져 있으면 아무것도 안 바뀐다)');
-ok(/축사와 같은 칸이라 둘 중 하나만 고를 수 있어요/.test(mstart), '축사와 택1을 한 줄로');
-ok(/_mvcCond\(on\)/.test(mstart) && /제작비는 두 분 부담/.test(fnSrc(my, '_mvcCond')) && /쿠폰 · 기본 템플릿은 식전 영상에만/.test(mstart) && /쿠폰은 식전 영상에만 적용돼요/.test(fnSrc(my, '_mvcFeel')) && !/쿠폰 · 기본 템플릿은 식전 영상에만/.test(fnSrc(my, '_pvcThree')), '제작 비용 · 쿠폰 범위(식전 영상 1편에만) — ★[VIDEO_UMBRELLA_1115] 제작비는 머리 조건 줄(선택 사항 · 축사 대신 · 제작비는 두 분 부담) · 쿠폰 범위는 «만드는 법 보기»(켜짐) · 점 줄(꺼짐) · ★[VU_COUPON_ONCE_1115] «영상 준비» 걸음에는 식중 쿠폰 문장 0(세 번째 같은 말)');
+ok(!/둘 중 하나|축사 대신/.test((mstart + fnSrc(my, '_mvcCond')).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '')) && /축사 · 축가 뒤 · 편지 앞/.test(mstart), '[SPEECH_SONG_1115] «축사와 같은 칸이라 둘 중 하나만» · «축사 대신 상영»은 걷었다 · 자리 글 «축사 · 축가 뒤 · 편지 앞»(옛 기대: 택1 한 줄)');
+ok(/_mvcCond\(on\)/.test(mstart) && /제작비는 두 분 부담/.test(fnSrc(my, '_mvcCond')) && /쿠폰 · 기본 템플릿은 식전 영상에만/.test(mstart) && /쿠폰은 식전 영상에만 적용돼요/.test(fnSrc(my, '_mvcFeel')) && !/쿠폰 · 기본 템플릿은 식전 영상에만/.test(fnSrc(my, '_pvcThree')), '제작 비용 · 쿠폰 범위(식전 영상 1편에만) — ★[VIDEO_UMBRELLA_1115] 제작비는 머리 조건 줄(선택 사항 · 제작비는 두 분 부담 · [SPEECH_SONG_1115] «축사 대신» 걷음) · 쿠폰 범위는 «만드는 법 보기»(켜짐) · 점 줄(꺼짐) · ★[VU_COUPON_ONCE_1115] «영상 준비» 걸음에는 식중 쿠폰 문장 0(세 번째 같은 말)');
 ok(/_pvcDueLine\(/.test(mstart) && /기한까지 확정하지 않으면 영상 없이 진행해요/.test(mstart), '기한 줄 · 없으면 영상 없이');
 ok(/_pvcThree\(\)/.test(mstart) && /식순에 정한 길이/.test(fnSrc(my, '_pvcThree')) && /식순에 정한 길이/.test(fnSrc(my, '_pvcUpload')), '켜진 뒤 — 식순 길이(시간 예산과 같은 값)를 첫 화면(★[VIDEO_UMBRELLA_1115] «영상 준비» 걸음 안 · 만들기 전에)과 올리기 화면에도');
 ok(/openRitualBuilder\([^)]*\{at:'midvideo'\}\)/.test(fnSrc(my, '_mvcToRitual')), '«식순에서 넣기 · 빼기» = 식순 화면을 at:midvideo 로 연다(마이페이지가 식순을 따로 쓰지 않는다)');
@@ -102,7 +107,7 @@ if (errors.length) { console.log('━━ midvideo — GAS 로드 실패 · 재�
 for (const fn of ['handlePvSave', '_pvPublic', '_pvKey_', '_mvOn_', 'sendVideoDueNotices']) if (typeof G[fn] !== 'function') { console.log('━━ midvideo — ' + fn + ' 이 없습니다 · 재지 못했습니다'); process.exit(2); }
 const kst = new Date(Date.now() + 9 * 3600e3), ymd = (x) => new Date(Date.UTC(kst.getUTCFullYear(), kst.getUTCMonth(), kst.getUTCDate()) + x * 864e5).toISOString().slice(0, 10);
 const J = (o) => JSON.parse(JSON.stringify(o));
-let store = {}, mails = [], folders = [], WED = ymd(40), RIT = { on: { free: 1 }, freeWhat: 'video', freeLen: '4' };
+let store = {}, mails = [], folders = [], WED = ymd(40), RIT = { on: { free: 1, midvid: 1 }, freeWhat: 'speech', freeLen: '2', midLen: '4' };   // [SPEECH_SONG_1115] 축사 + 식중 영상(4분)
 const cust = () => ({ get: (h) => (h === '예식일' ? WED : (h === '개인코드' ? 'T1' : '')) });
 { const real = G._pvAdminMail_, sent = [], cache = new Map(); const CS = G.CacheService, AE = G._nfAdminLineEmail;
   G.CacheService = { getScriptCache: () => ({ get: (k) => cache.get(k) || null, put: (k, v) => cache.set(k, v) }) }; G._nfAdminLineEmail = (l) => sent.push(l);
@@ -128,7 +133,7 @@ store = { T1: { d: { mode: 'make', style: 'editorial' }, m: { st: 'draft' } } };
 r = save('save', { mode: 'make', style: 'retro', song: 'mujin', photos: [{ id: 'P1', sec: 'days' }], link: 'https://drive.google.com/x' });
 ok(r && r.ok && store['T1#mid'] && store['T1#mid'].d.mode === 'upload' && !store['T1#mid'].d.photos.length && !store['T1#mid'].d.style && !store['T1#mid'].d.song, '«개인코드#mid» 줄 · 링크뿐(사진 · 곡 · 분위기는 버린다)', JSON.stringify(store['T1#mid']));
 ok(store.T1.d.style === 'editorial' && store.T1.m.st === 'draft', '식전 줄은 그대로(서로 안 섞인다)', JSON.stringify(store.T1));
-ok(r.pv && r.pv.kind === 'mid' && r.pv.on === true && r.pv.len === 4 && r.pv.due === ymd(33), '돌려주는 상태 — kind mid · 식순 켬 · 길이 4분 · 기한 예식 7일 전', JSON.stringify(r.pv));
+ok(r.pv && r.pv.kind === 'mid' && r.pv.on === true && r.pv.len === 4 && r.pv.due === ymd(33), '돌려주는 상태 — kind mid · 식순 켬(축사와 함께) · 길이 4분(midLen · 축사 2분 아님) · 기한 예식 7일 전', JSON.stringify(r.pv));
 r = save('submit', { link: 'https://drive.google.com/x' });
 ok(r && r.ok === false && r.consent === false && /식중 영상 동의가 필요해요/.test(r.error || ''), '동의 없이 보내기 → 거절(«식중 영상 동의»)', JSON.stringify(r));
 { const R0 = RIT, S0 = J(store); RIT = { on: { free: 1 }, freeWhat: 'speech' };
@@ -148,7 +153,11 @@ store['T1#mid'].m.st = 'review'; store['T1#mid'].m.prev = { id: 'MV1', at: 'x' }
 r = save('confirm', null);
 ok(r && r.ok && store['T1#mid'].m.st === 'done' && /^식중 영상 확정/.test(mails[0] || ''), '확인 필요 → 확정 · 관리자 메일 «식중 영상 확정»', JSON.stringify({ r, mails }));
 RIT = { on: { free: 1 }, freeWhat: 'speech', freeLen: '3' };
-ok(G._pvPublic('T1', cust(), 'mid').on === false, '식순 준비한 순서가 축사로 바뀌면 on=false(택1)');
+ok(G._pvPublic('T1', cust(), 'mid').on === false, '식순에서 식중 영상을 빼면(축사만) on=false');
+RIT = { on: { free: 1 }, freeWhat: 'video', freeLen: '6' };
+ok(G._pvPublic('T1', cust(), 'mid').on === true && G._pvPublic('T1', cust(), 'mid').len === 6, '[SPEECH_SONG_1115] 옛 초안(축사 칸 «영상» 갈래 · freeLen)도 켬 · 길이 그대로');
+RIT = { on: { song: 1, midvid: 1 }, midLen: '2' };
+ok(G._pvPublic('T1', cust(), 'mid').on === true && G._pvPublic('T1', cust(), 'mid').len === 2, '[SPEECH_SONG_1115] 축가 + 식중 영상 → 켬 · 길이 midLen');
 G._prodLoad = () => ({});
 ok(G._pvPublic('T1', cust(), 'mid').on === null, '식순이 없으면 on=null');
 ok(G._pvPublic('T1', cust()).kind === 'pre' && !('on' in G._pvPublic('T1', cust())), '식전(kind 없음)은 예전 그대로');
@@ -185,7 +194,7 @@ console.log('━━ ④ 기한 안내(예식 14일 · 7일 전)');
   G._nfAdminLineEmail = (line) => { admin.push(line); };
   G.LockService = { getScriptLock: () => ({ waitLock: () => {}, releaseLock: () => {} }) };
   const C1 = (code, days) => ({ 개인코드: code, 계약상태: '서명완료', 현재단계: '제작중', 상품타입: '시그니처', 예식일: ymd(days) });
-  const RD = { T1: { on: { free: 1, prevideo: 1 }, freeWhat: 'video' }, T2: { on: { prevideo: 1 }, freeWhat: 'speech' }, T3: { on: { free: 1 }, freeWhat: 'video' } };
+  const RD = { T1: { on: { free: 1, midvid: 1, prevideo: 1 }, freeWhat: 'speech' } /* [SPEECH_SONG_1115] 새 초안(축사와 함께) */, T2: { on: { prevideo: 1, free: 1 }, freeWhat: 'speech' }, T3: { on: { free: 1 }, freeWhat: 'video' } /* 옛 초안 */ };
   G._prodLoad = (c) => ({ ritualDraft: { _v: 3, S: RD[c.get('개인코드')] || {} } });
   CUST = [C1('T1', 14), C1('T2', 14), C1('T3', 20)]; store = { 'T2#mid': { d: {}, m: {} } };
   G.sendVideoDueNotices();
