@@ -124,8 +124,8 @@
       ],
       "dir": "assets/audio/narration",
       "clips": 55,
-      "sents": 124,
-      "chars": 3968
+      "sents": 123,
+      "chars": 3930
     },
     {
       "file": "5_배역.txt",
@@ -8197,12 +8197,6 @@
         },
         {
           "i": 1,
-          "text": "현장에 계신 분들은 단체 사진 안내까지 자리를 지켜 주세요.",
-          "before": 0,
-          "after": 1
-        },
-        {
-          "i": 2,
           "text": "신랑 신부는 카메라를 향해 서주시기 바랍니다.",
           "before": 0,
           "after": 0
