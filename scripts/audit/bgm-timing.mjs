@@ -2,8 +2,8 @@
 /* ★★[BGM_TIMING_1101 2026-11-01 사장님 «BGM 투입 시점 적절함 — GPT 랑 하나하나 스텝 바이 스텝으로 토론해서 최적화해» · BGM 섹션 결정] 투입 시점 열 가지
    a 편지 «음악 없이» — 그 순간만 듣기 = 첫 소리가 여는 말 · 피아노 뜸 없음 · 이어 듣기에서 곡이 흐르다 오면 1.5초에 −90 → 정적 1초 → 여는 말
    b 편지 끝 → 부모님께 인사 — 편지 곡(M4) 되살림 0 · 정적 2초 뒤 부모님께 인사 곡이 무음에서 3초에(당일 콘솔 · 미리 듣기)
-   c 축사 · 축가 맺는 말 «… 박수 부탁드립니다» −90 · 박수에서 1.5초에 −8(«음악과 함께» 축사는 맺는 말 −16)
-   d 크기 — 축사 여는 말 −16 · 반지 행동 −12 · 부모님께 고마운 말 −20 · 서약 마지막 한 문장 −20 · 축배 여는 말 · «위하여» −16(잔 나누는 이음말 말 −16 · 40초 −8 · MEANING_R1_1102 12)
+   c 축사 · 축가 맺는 말 «… 박수 부탁드립니다» −90 · 박수에서 1.5초에 −8(«음악과 함께» 축사는 맺는 말 −15)
+   d 크기 — 축사 여는 말 −15 · 반지 행동 −12 · 부모님께 고마운 말 −20 · 서약 마지막 한 문장 −20 · 축배 여는 말 · «위하여» −15(잔 나누는 이음말 말 −15 · 40초 −8 · MEANING_R1_1102 12)
    e 축배만 듣기 뜸 곡 = 테이블 인사 곡(담겼으면) · 아니면 축배 바로 앞 순간의 곡(종전 닫는 인사 곡)
    f 귀가 인사 — 나레이션 끝 1.5초에 −8 → 90초 → 20초 소거
    BP_CUE · BP_OP · BP_BED · BP_CON = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
@@ -86,14 +86,14 @@ try {
   /* ── 엔진 값(당일 콘솔 · 미리 듣기 공통 원천) ── */
   { const S = { on: { vow: 1, ring: 1, free: 1, song: 1, letter: 1, tribute: 1, toast: 1, table: 1, welcome: 1, declare: 1 }, freeWhat: 'speech', song: 'family', songBy: 'friend', tributeSay: 'short' }, cs = B(S);
     const fi = by(cs, 'narr-free-in-speech'), ri = by(cs, 'narr-ring-in'), ti = by(cs, 'tribute-in'), tt = by(cs, 'toast-toast'), b13 = by(cs, 'bridge-b13-toast-stay'), b10 = by(cs, 'bridge-b10-speech-clap'), se = cs.find((c) => /^narr-song-end/.test(c.slug || '')) || {}, vi = by(cs, 'narr-vow-in');
-    ok('d 축사 여는 말 −16 · 반지 행동 −12 · 부모님께 고마운 말 −20 · 서약 낭독 −20 · 축배 여는 말 · «위하여» −16 · 잔 나누는 이음말 말 −16 · 잔 나누는 40초 −8(MEANING_R1_1102 12)',
-      fi.duck === -16 && ri.live && ri.live.duck === -12 && ti.live && ti.live.duck === -20 && vi.live && vi.live.duck === -20 && tt.duck === -16 && tt.live && tt.live.duck === -16 && b13.duck === -16 && b13.live && b13.live.duck === -8,
+    ok('d 축사 여는 말 −15 · 반지 행동 −12 · 부모님께 고마운 말 −20 · 서약 낭독 −20 · 축배 여는 말 · «위하여» −15 · 잔 나누는 이음말 말 −15 · 잔 나누는 40초 −8(MEANING_R1_1102 12)',
+      fi.duck === -15 && ri.live && ri.live.duck === -12 && ti.live && ti.live.duck === -20 && vi.live && vi.live.duck === -20 && tt.duck === -15 && tt.live && tt.live.duck === -15 && b13.duck === -15 && b13.live && b13.live.duck === -8,
       { fi: fi.duck, ri: ri.live && ri.live.duck, ti: ti.live && ti.live.duck, tt: [tt.duck, tt.live && tt.live.duck], b13: [b13.duck, b13.live && b13.live.duck] });
     ok('c 축사 · 축가 맺는 말 −90(«음악 없이») · 박수도 정적(NO_RELIFT_1102 · 박수 소리가 채운다 · 종전 −8)', b10.duck === -90 && b10.live && b10.live.duck === -90 && se.duck === -90 && se.live && se.live.duck === -90, { b10: [b10.duck, b10.live], se: [se.slug, se.duck, se.live && se.live.upMs] });
     const b10b = by(B(Object.assign({}, S, { bgm: { S5: { m: 'bed' } } })), 'bridge-b10-speech-clap');
-    ok('c 축사 «음악과 함께»(M4S5)인 날은 맺는 말 −16 · 박수 −8', b10b.duck === -16 && b10b.live && b10b.live.duck === -8, [b10b.duck, b10b.live && b10b.live.duck]);
+    ok('c 축사 «음악과 함께»(M4S5)인 날은 맺는 말 −15 · 박수 −8', b10b.duck === -15 && b10b.live && b10b.live.duck === -8, [b10b.duck, b10b.live && b10b.live.duck]);
     const le = by(cs, 'narr-letter-end'), lb = by(B(Object.assign({}, S, { bgm: { S6: { m: 'bed' } } })), 'narr-letter-end');
-    ok('b 편지 끝(음악 없이) post = 정적 2초 → 다음 곡(next · 3초) · «음악과 함께»는 정적 없이 다음 곡으로 3초 겹침(★[BGM_TIMING2_1101] 종전 «−16 그대로» → xf)', JSON.stringify(le.post) === JSON.stringify([{ wait: 2000 }, { music: 'next', v: -16, ms: 4000, nextMs: 3000 }]) && JSON.stringify(lb.post) === JSON.stringify([{ music: 'next', v: -16, ms: 4000, nextMs: 3000, xf: true }]), { le: le.post, lb: lb.post });
+    ok('b 편지 끝(음악 없이) post = 정적 2초 → 다음 곡(next · 3초) · «음악과 함께»는 정적 없이 다음 곡으로 3초 겹침(★[BGM_TIMING2_1101] 종전 «−15 그대로» → xf)', JSON.stringify(le.post) === JSON.stringify([{ wait: 2000 }, { music: 'next', v: -15, ms: 4000, nextMs: 3000 }]) && JSON.stringify(lb.post) === JSON.stringify([{ music: 'next', v: -15, ms: 4000, nextMs: 3000, xf: true }]), { le: le.post, lb: lb.post });
     const gb = cs.filter((c) => c.k === '_goodbye' && c.post && c.post.length).pop() || {};
     const ap = /^after-photo/.test(gb.slug || '');   /* ★[AFTER_PHOTO_LOOP_1102] 촬영 후 안내 = −8 로 올리고 ■ 끝내기까지 계속(자동 소거 없음) · 옛 코스 귀가 인사는 종전 90초 → 20초 */
     ok('f 귀가 인사 — 나레이션 끝 1.5초에 −8 → (촬영 후 안내) 끝내기까지 계속 · (옛 귀가 인사) 90초 → 20초 소거', JSON.stringify(gb.post) === JSON.stringify(ap ? [{ music: 'to', v: -8, ms: 1500 }] : [{ music: 'to', v: -8, ms: 1500 }, { wait: 90000 }, { music: 'to', v: -90, ms: 20000 }]), { slug: gb.slug, post: gb.post }); }
@@ -104,7 +104,7 @@ try {
     /* d 줄 크기 */
     { const Q = await f.evaluate(() => { const g = (k) => _lSteps(ENG, [k]).map((x) => ({ slug: x.slug || x.of || '', txt: x.txt || '', dk: x.dk, ldk: x.ldk, q: !!x.quiet, t: !!(x.talk || x.talk2) })); return { ring: g('ring'), vow: g('vow'), tribute: g('tribute'), toast: g('toast'), free: g('free'), song: g('song') }; });
       const ringQ = Q.ring.find((x) => x.q), vowQ = Q.vow.find((x) => x.q && /함께 읽어요$/.test(x.txt)), trT = Q.tribute.find((x) => x.t && x.slug === 'tribute-in'), toN = Q.toast.find((x) => x.slug === 'toast-toast' && !x.t), toT = Q.toast.find((x) => x.slug === 'toast-toast' && x.t), frN = Q.free.find((x) => x.slug === 'narr-free-in-speech' && !x.t), b10 = Q.free.find((x) => x.slug === 'bridge-b10-speech-clap'), sE = Q.song.find((x) => /^narr-song-end/.test(x.slug));
-      ok(`${W} d 미리 듣기 줄 크기 — 반지 행동 −12 · 서약 «함께 읽어요» −20 · 부모님 말 −20 · 축배 여는 말 · «위하여» −16 · 축사 여는 말 −16`, ringQ && ringQ.ldk === -12 && vowQ && vowQ.ldk === -20 && trT && trT.ldk === -20 && toN && toN.dk === -16 && toT && toT.ldk === -16 && frN && frN.dk === -16, { ringQ, vowQ, trT, toN, toT, frN });
+      ok(`${W} d 미리 듣기 줄 크기 — 반지 행동 −12 · 서약 «함께 읽어요» −20 · 부모님 말 −20 · 축배 여는 말 · «위하여» −15 · 축사 여는 말 −15`, ringQ && ringQ.ldk === -12 && vowQ && vowQ.ldk === -20 && trT && trT.ldk === -20 && toN && toN.dk === -15 && toT && toT.ldk === -15 && frN && frN.dk === -15, { ringQ, vowQ, trT, toN, toT, frN });
       ok(`${W} c 미리 듣기 맺는 말(축사 b10 · 축가) −90`, b10 && b10.dk === -90 && sE && sE.dk === -90, { b10, sE }); }
     /* a 편지 «음악 없이» — 그 순간만 */
     { await go(f, 'letter'); const r = await trace(f, ['letter'], 6000, false);
@@ -113,7 +113,7 @@ try {
     { await f.evaluate(() => { S.bgm = { S5: { m: 'bed' } }; _persist(); render(); }); await go(f, 'free');
       const r = await trace(f, ['free', 'letter'], 30000, true), i0 = r.q.findIndex((x) => x.k === 'letter'), pre = r.o.filter((x) => x.i < i0 && loud(x)), ld = r.o.filter((x) => x.i === i0 && x.lead), t1 = ld.length ? ld[0].t : null, at = (ms) => r.o.reduce((a, x) => (Math.abs(x.t - (t1 + ms)) < Math.abs(a.t - (t1 + ms)) ? x : a), r.o[0]);
       const dur = ld.length ? ld[ld.length - 1].t - ld[0].t : 0;
-      ok(`${W} a 이어 듣기 축사(음악과 함께) → 편지 — 곡이 흐르다 1.5초에 −90 → 정적 1초 → 여는 말(뜸 약 2.5초)`, pre.length > 3 && ld.length > 5 && dur > 2000 && dur < 3000 && at(1800).want === -90 && !r.o.some((x) => x.k === 'letter' && x.t > t1 && !x.lead && loud(x)) && !r.o.some((x) => x.i === i0 && x.want > -15.5 && x.src), { pre: pre.length, dur: Math.round(dur), a18: at(1800) && at(1800).want, after: r.o.filter((x) => x.k === 'letter' && x.t > t1 && !x.lead && loud(x)).slice(0, 2), bump: r.o.filter((x) => x.i === i0 && x.want > -15.5 && x.src).slice(0, 2) });   /* 뜸 앞은 앞 곡 크기(−16) 그대로 · −8 으로 튀지 않는다 */
+      ok(`${W} a 이어 듣기 축사(음악과 함께) → 편지 — 곡이 흐르다 1.5초에 −90 → 정적 1초 → 여는 말(뜸 약 2.5초)`, pre.length > 3 && ld.length > 5 && dur > 2000 && dur < 3000 && at(1800).want === -90 && !r.o.some((x) => x.k === 'letter' && x.t > t1 && !x.lead && loud(x)) && !r.o.some((x) => x.i === i0 && x.want > -14.5 && x.src), { pre: pre.length, dur: Math.round(dur), a18: at(1800) && at(1800).want, after: r.o.filter((x) => x.k === 'letter' && x.t > t1 && !x.lead && loud(x)).slice(0, 2), bump: r.o.filter((x) => x.i === i0 && x.want > -14.5 && x.src).slice(0, 2) });   /* 뜸 앞은 앞 곡 크기(−15) 그대로 · −8 으로 튀지 않는다 */
       await f.evaluate(() => { delete S.bgm; _persist(); render(); }); }
     /* b 편지 끝 → 부모님께 인사 */
     { await go(f, 'letter'); const fT = await f.evaluate(() => BgmBed._t.songAt('tribute')), fL = await f.evaluate(() => BgmBed._t.songAt('letter'));
@@ -146,9 +146,9 @@ try {
     else { const T = await pg.evaluate(async (i) => { const o = []; window.__bgmLog.length = 0; const t0 = performance.now(); window.__bgmGo.fire(i);
         await new Promise((res) => { const iv = setInterval(() => { const g = window.__seg.st(), b = window.__bgmSt(); o.push({ t: performance.now() - t0, seg: g.seg, src: g.src[g.on], want: b.want, slug: b.slug, ph: b.phase }); if (performance.now() - t0 > 12000) { clearInterval(iv); res(); } }, 100); });
         return { o, lg: window.__bgmLog.slice() }; }, le);
-      const o = T.o, seg0 = o[0].seg, tN = (o.find((x) => x.seg === 'M5' && x.seg !== seg0) || {}).t, done = (o.find((x) => x.ph === 'done' && x.slug === 'narr-letter-end') || {}).t, pre = o.filter((x) => tN != null && x.t < tN), up = T.lg.find((x) => x.db === -16 && x.ms === 3000);
+      const o = T.o, seg0 = o[0].seg, tN = (o.find((x) => x.seg === 'M5' && x.seg !== seg0) || {}).t, done = (o.find((x) => x.ph === 'done' && x.slug === 'narr-letter-end') || {}).t, pre = o.filter((x) => tN != null && x.t < tN), up = T.lg.find((x) => x.db === -15 && x.ms === 3000);
       ok('b 콘솔 편지 끝 — 맺는 말 · 정적 2초 동안 −90 · 편지 곡 자리(앞 곡)를 올리지 않는다', seg0 !== 'M5' && tN != null && tN >= 2000 && pre.every((x) => x.want <= -60), { seg0, tN: tN && Math.round(tN), done: done && Math.round(done), loud: pre.filter((x) => x.want > -60).slice(0, 2) });
-      ok('b 콘솔 — 정적 뒤 부모님께 인사 곡(M5)이 무음에서 3초에 −16 으로', !!up && o.some((x) => x.seg === 'M5' && x.want === -16), { up, last: o[o.length - 1] });
+      ok('b 콘솔 — 정적 뒤 부모님께 인사 곡(M5)이 무음에서 3초에 −15 으로', !!up && o.some((x) => x.seg === 'M5' && x.want === -15), { up, last: o[o.length - 1] });
       const src3 = (o.filter((x) => x.seg === 'M5').pop() || {}).src, s4 = await seg();
       ok('b 콘솔 — 부모님께 인사 큐에서 곡을 다시 시작하지 않는다(같은 소리 · 크로스페이드 없음)', s4.seg === 'M5' && s4.src[s4.on] === src3 && !s4.paused[s4.on] && o.some((x) => /^tribute|^narr-tribute/.test(x.slug || '')), { s4: s4.seg, same: s4.src[s4.on] === src3, slugs: [...new Set(o.map((x) => x.slug))] }); }
     /* c 축사 · 축가 박수 */

@@ -159,7 +159,7 @@
 - 원작자 허락을 받은 자료 — T3 예시 여섯 [T3_OK_1017] · GG 3 편지 [GG3_LETTER_1018]: 문장 단위로만 넣고 원문 통째는 저장소에 두지 않는다. 개인이 쓴 긴 글은 허락 없이 그대로도, 구조만 빌려서도 쓰지 않는다.
 - 예시: «○○ 멘트» 예시는 `assets/ritual-open.js` NAR_EX 한 곳 · 화면 예시 칸은 4개 [EX_MANY_1017] · 문장마다 출처.
 - [NARR_PLAY_LOOP] 청취 플레이는 한 번에 mp3 하나 + 소리 나는 글 코드펜스 하나 · 한 번 들은 줄은 다시 넣지 않는다 · 지적 장부(`docs/plans/식순연구/지적장부_나레이션.md`) · 플레이에 넣는 예시만 추천 1 + 대안 1(⑥) · 글은 `narr-words.mjs` 로 잰다 · «소리 있음»은 실제 파일로 잰다 [NARR_AUDIO_REAL] · 녹음할 목록은 `타입캐스트/다시받기/` 하나 [RECORD_ONE_LIST].
-- [KEEPGAP_TEXT_1031] 음성 쉼(keepGap) 문장의 글을 바꾸면 그 자리 소리는 다시 받는다(`keepgap-text.mjs --ack`) · [CLIP_STATUS_1031] 안 나는 녹음은 원천 셋(RETIRED · CAST_MUTE · `clip-status.json`)으로만 표시하고 지우지 않는다 · [AUTO_ONLY_1031] 당일 소리는 식순 큐가 자동으로 내는 나레이션만.
+- [KEEPGAP_TEXT_1031] 음성 쉼(keepGap) 문장의 글을 바꾸면 그 자리 소리는 다시 받는다(`keepgap-text.mjs --ack`) · [CLIP_STATUS_1031] 안 나는 녹음은 원천 셋(RETIRED · CAST_MUTE · `clip-status.json`)으로만 표시하고 지우지 않는다(★예외 [CAKE_FILES_OFF_1110] 케이크 5클립(41 · 42 · 76 · 77 · 107)은 사장님 11/10 지시로 파일까지 지움 · 번호 자리만 남김) · [AUTO_ONLY_1031] 당일 소리는 식순 큐가 자동으로 내는 나레이션만.
 - 자료 루프 [NARR_LOOP_1018] · 라운드는 개선 0 까지 [NARR_ROUNDS_1018] · 다른 방 검토는 제안으로 받는다 [NARR_REVIEW_1018] · 검토는 근거 자료와 한 통 [CHECK_WITH_SRC_1018] · 인스타 자료는 공개 파일 `docs/handoff/insta-find.md` [INSTA_DIRECT_1018] · 인용 문장은 이벤트별 파일 번호와 함께 [QUOTE_FILE_1018].
 - 자료 글을 «안 바꾼 까닭»은 SOURCE_FIRST 가 남긴 넷만 쓴다 [ROUND_REASON_1018].
   박수 자리 · 서술어 겹침 · 지난 결정은 자료 글을 막지 않는다([ROUND_REASON_1018] 라운드 10 이 바로잡은 자리).
