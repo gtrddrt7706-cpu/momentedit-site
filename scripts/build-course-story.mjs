@@ -133,6 +133,7 @@ for (const course of Object.keys(D.COURSES)) {
     entryScene: O.CHIPS.entryScene.map((c) => c[0]) };   // [LOOK_HOLD 2026-09-26] 첫 모습(바라보기 · 맞절)이 콘솔 사람 순간을 가른다
   for (const how of ['flower', 'bowGroom']) for (const cw of O.CANDLE_WHO.map((c) => c[0])) for (const [ax, vals] of Object.entries(OPEN_SWEEP)) for (const v of vals) for (const mode of ['console', 'preview']) {
     const S = { course: 'open', on: { ...ALL }, tribute: how, candleWho: cw }; O.setChip(S, ax, v);
+    if (ax === 'free') delete S.on.song;   // ★[SHOW_PAIR_1116] 축사 · 축가 · 축하 공연 중 하나 — 축가를 켠 채 흔들면 midMigrate 가 free 갈래(공연)를 늘 떨궈 장면 글 빈자리가 숨는다
     absorb(S, mode);
   }
   for (const dw of ['', '신부 아버님']) for (const mode of ['console', 'preview']) absorb({ course: 'open', on: { ...ALL }, declareWho: dw }, mode);   // [DECLARE_ANYONE] 읽는 분 칸(빈칸 · 적은 이름)
