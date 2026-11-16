@@ -23946,6 +23946,9 @@ chk 'ENTRY_FIVE_1115' scripts/audit/entry-five-1115.mjs 1
 # ★[TRIBUTE_DUCK_OWNER_1115 2026-11-15 대표님 «추천대로» · BGM 결정 카드 ③ A] 부모님께 인사 구호 · 포옹 청하는 줄 아래 음악 −12 그대로(일반 말 −15 로 맞추지 않는다)
 chk 'TRIBUTE_DUCK_OWNER_1115' assets/ritual-cue.js 1
 chk "if (/\^tribute-in/.test(_rs) && _rc.live) _rc.live.walkDuck = PARAM.duckMove != null ? PARAM.duckMove : -12;" assets/ritual-cue.js 1
+# ★[WALK_LIVE_DUCK_1116 2026-11-16 BGM 섹션 · GPT 라운드 2 · 대본 «병합»] «말없이» 부모님께 걷는 사람 구간(doing move)은 콘솔도 걷기 값 −12(종전 큐 값 −15 · 미리 듣기 walkDuck 과 갈림)
+chk 'WALK_LIVE_DUCK_1116' assets/ritual-cue.js 1
+chk "if (/\^tribute-in/.test(_rs) && _rc.live && _rc.live.doing === 'move') _rc.live.duck = _rc.live.walkDuck;" assets/ritual-cue.js 1
 # ★[FREE_SONG_SHOW_KEEP_1115 2026-11-15 대본 결정 A · BGM 결정 카드 ②] 축사 «음악 없이» 화면 곡(B10) ↔ 당일(B09) 차이는 그대로(SCREEN_SOUND_1102 · ONE_FLOW_1106)
 chk 'FREE_SONG_SHOW_KEEP_1115' assets/bgm-bed.js 1
 # ★★[HEARD_XF_1115 2026-11-15 BGM 섹션 · GPT 라운드 4 07] 당일 콘솔 — 들린 초(HEARD · REPEAT_FIX_1107 ①)는 겹침(BED.xing) 동안에도 센다 · 재생기마다 실효 출력 −60 dB 위인 곡 · 같은 곡이 두 재생기로 이어지면 한 번 · 검사 r4-1115 A

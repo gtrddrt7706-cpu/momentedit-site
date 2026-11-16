@@ -2144,6 +2144,8 @@
       /* [TRIBUTE_WALK] 부모님께 걸어가는 동작 −12(이동은 음악이 받침) → 두 분이 말하는 차례 −20 그대로 */
       /* ★[TRIBUTE_DUCK_OWNER_1115 2026-11-15 대표님 «추천대로» · BGM 결정 카드 ③ A] 부모님께 인사 구호(143 · 145) · 포옹을 청하는 줄(256) 아래 음악 −12 는 설계값 그대로 — 일반 말 아래 −15 로 맞추지 않는다(15초 견본에서 말소리가 음악보다 20 dB 넘게 위 · 걷기 · 인사로 이어지는 흐름) */
       if (/^tribute-in/.test(_rs) && _rc.live) _rc.live.walkDuck = PARAM.duckMove != null ? PARAM.duckMove : -12;
+      /* ★[WALK_LIVE_DUCK_1116 BGM 섹션 · GPT 라운드 2 새 1] «말없이» 인사(사람 구간 = 걷기 · 인사 · 포옹뿐 · doing move)는 사람 구간 크기도 걷기 값(−12) — 콘솔은 live.duck 을 읽어 종전엔 큐 값(−15)이 났고 미리 듣기(walkDuck)와 갈렸다 · «말로 인사»(−20 말하는 차례)는 그대로 */
+      if (/^tribute-in/.test(_rs) && _rc.live && _rc.live.doing === 'move') _rc.live.duck = _rc.live.walkDuck;   // 큐를 만들 때(:947) 비어 있던 live.duck 은 큐 값으로 채워져 있다 — 그 값을 걷기 값으로 바꾼다
     }
     for (var pa = 0; pa < cues.length; pa++) {
       var _pc = cues[pa]; if (_pc.k !== 'prevideo') continue;
