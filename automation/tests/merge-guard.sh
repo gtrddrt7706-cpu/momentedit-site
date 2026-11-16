@@ -4811,6 +4811,17 @@ nochk '.field input:focus{border-color:var(--gold)}' mypage.html
 nochk 'border:none;border-bottom:1px solid var(--border);background:transparent;padding:22px 0 10px' inquiry.html
 chk '.field input:focus{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}' mypage.html 1
 chk 'box-shadow: inset 0 0 0 1px var(--gold-text);' index.html 2
+# ★[MYPAGE_ALL_1114 2026-11-14 대본 위임 «마이페이지 전체 걷기» 작은 수정] F1 식전 영상 기한 지남 줄 = «보기 · 영상 없이 진행»(막힌 «시작하기» 걷음)
+#   F2 기한 지난 영상 화면엔 «저장» 없음 · F3 «입금액 복사» 누름 칸 44px · F4 «하객 안내» ✓ 걷음(링크 자동 발급 뒤 첫날부터 켜졌다) · F6 서명한 스냅 고객에겐 «계약서를 보내드려요» 줄 없음
+chk 'MYPAGE_ALL_1114 F1' mypage.html 1
+chk "if(left!=null && left<0 && (st===''||st==='draft')) return {done:true, st:'', label:'보기', tag:'영상 없이 진행'};" mypage.html 1
+chk 'MYPAGE_ALL_1114 F2' mypage.html 2
+chk 'pvc-card.pvc-ro .data-wiz-save.{display:none}' mypage.html 1
+chk "(s==='locked'?' pvc-ro':'')" mypage.html 1
+chk '.acct-amt-link{min-height:44px;padding:0 8px}' mypage.html 1
+chk "row('하객 안내', '', 'mp_guideOpen', gLabel," mypage.html 1
+nochk "row('하객 안내', (_gTok&&!_gClosed)?'완료'" mypage.html
+chk "+ (locked ? '' : '<div class=\"vg-row\"><span class=\"vg-k\">계약서</span>" mypage.html 1
 # ★[VIDEO_NAME_1114 2026-11-14 대본 · 사장님 «이름도 식전영상으로 그대로인데 식중영상도 있는데»] 식중 영상은 식순에 담은 분께만 마이페이지 줄(기한 · 시작하기 · 식전 영상과 같은 말) ·
 #   빌더 식중 영상 칸 아래 «마이페이지 «식중 영상»에서 준비해요» · 고객 글 · 관리 · 서버 오류 글의 옛 이름 «준비한 순서 · 영상»을 «식중 영상»으로 · 동작은 midvideo.mjs · mid17-pick.mjs 가 잰다
 chk 'VIDEO_NAME_1114' mypage.html 10
@@ -4818,8 +4829,8 @@ chk 'VIDEO_NAME_1114' order-preview.html 3
 chk 'VIDEO_NAME_1114' admin.html 1
 chk 'VIDEO_NAME_1114' automation/platform/89_prevideo.gs 1
 chk 'VIDEO_NAME_1114' scripts/audit/midvideo.mjs 8
-chk 'VIDEO_NAME_1114' scripts/audit/mid17-pick.mjs 4
-chk '(!CUST||CUST.midUp===true)' order-preview.html 2     # [GPT 1-01 · 2-21] 마이페이지 안에서는 서버가 받는다고 알려 온 때만 «마이페이지 «식중 영상»에서 준비해요»   # [VIDEO_UMBRELLA_1115] 완성 «보낼 것»의 식중 영상 줄도 같은 조건(2)
+chk 'VIDEO_NAME_1114' scripts/audit/mid17-pick.mjs 6
+chk '(!CUST||CUST.midUp===true)' order-preview.html 1     # [GPT 1-01 · 2-21] 마이페이지 안에서는 서버가 받는다고 알려 온 때만 «마이페이지 «식중 영상»에서 준비해요»
 chk "_pvcClash(st, v.conf, 'pre')" mypage.html 1   # [GPT 1-08] 식전 줄은 늘 식전으로 판정
 nochk "label:'넣기', tag:'선택'" mypage.html 0            # [VIDEO_NAME_1114] 고르지 않은 분께 «식중 영상 · 넣기 · 선택» 줄을 되살리지 말 것
 nochk '「준비한 순서」에서 «영상»을 고르면' mypage.html 0     # [VIDEO_NAME_1114] 옛 이름 — 빌더 칸 이름은 «식중 영상»
@@ -4828,7 +4839,19 @@ nochk '«준비한 순서»에서 «영상»을 먼저 골라' automation/platfo
 #   날짜가 서로 맞는지 · 동의 판 링크는 midvideo.mjs ⑤ 가 잰다(되돌리면 빨강 확인)
 chk 'MID_OPEN_1114' privacy.html 3
 chk 'MID_OPEN_1114' automation/platform/89_prevideo.gs 2
-#   ★홈 FAQ · AI 상담 · 빌더 AI 글(«마이페이지 «식중 영상»에서 링크로»)은 가지 claude/video-name-1114-copy(PR 따로) — GAS 재배포로 줄이 열린 것을 본 뒤 병합(GPT 2-22)
+# ★[VIDEO_NAME_1114 · MID_OPEN_1114 홈 · AI 글] GAS 재배포로 마이페이지 «식중 영상» 줄이 열린 것을 본 뒤 병합(GPT 2-22) — 홈 FAQ · JSON-LD · AI 상담 · 빌더 AI · 상담 질문
+chk 'MID_OPEN_1114' api/_kb.js 1
+chk 'VIDEO_NAME_1114' api/_ritual-kb.js 5   # 빌더 AI — 준비한 영상은 식전 · 식중 둘 · 영상 속 노래 · D-7 식중 영상 확정 · 공개 · 계약 고객 공통 한 줄
+chk '마이페이지 «식중 영상»에서 링크로 보내실 수 있습니다.' index.html 2
+chk '본식 중에는 축사 대신 «식중 영상»으로 틀 수 있어요' assets/advisor-kb.js 1   # [GPT 2-12] 홈 고정 답변 ①
+chk '«식전 영상»이나, 축사 대신 «식중 영상»으로 틀 수 있어요' assets/advisor-kb.js 1   # [GPT 2-12] 홈 고정 답변 ②
+chk "freeVideo:\['식중 영상은 어디로 보내나요?'" order-preview.html 1   # [GPT 2-23] 식중 영상 칸 상담 질문
+nochk '보내는 방법은 상담 때 안내' index.html 0
+nochk '보내는 방법은 상담 때 안내' api/_kb.js 0
+nochk '영상 속 노래는 「식전 영상」으로 담는다' api/_ritual-kb.js 0
+chk '식중 영상(선택 · 2026-11-06 사장님 결정): 본식 중 «영상» 자리에 두 분이 준비한 영상을 틀 수 있다' api/_kb.js 1
+chk '예식 7일 전 23:59까지 확정하며' api/_kb.js 1   # [GPT 4-34] 홈 AI 도 마감 시각을 안다
+chk '마이페이지 «식중 영상»에 링크를 보내 미리 봐요. 예식 7일 전 23:59까지 확정하지 않으면 상영하지 않아요.' api/_ritual-kb.js 1   # [GPT 3-27 · 4-35 · 5-36] 공개 · 계약 고객 공통 · 확정 안 하면 상영 안 함까지
 chk "_recordHandler(code, _pvName_(kind) + ' 동의 · 처리방침 ' + ver)" automation/platform/89_prevideo.gs 1   # [GPT 1-03] 처리이력 = 동의한 처리방침 날짜
 chk 'MID_OPEN_1114' mypage.html 1
 chk 'MID_OPEN_1114' scripts/audit/midvideo.mjs 8
@@ -20905,9 +20928,9 @@ nochk "t: '[^']*(Instrumental)'" assets/bgm-picks.js
 chk "M7: \['B28', 'B29', 'B22'\]" assets/bgm-picks.js 1   # ★[PICKS_THREE_1101] 구간마다 3곡
 chk "M2: \['B05', 'B31', 'B07'\]" assets/bgm-picks.js 1   # ★[GHIBLI_ADD_1101] 지브리 판
 chk "M6: \['B17', 'B34', 'B19'\]" assets/bgm-picks.js 1
-chk "FILL = { M1: \['B16', 'B33'\], M8: \['B13', 'B14'\], M6: \['B07', 'B16'\], M4: \['B12', 'B14'\], M8L: \['B26', 'B33'\] }" assets/bgm-picks.js 1   # [REPEAT_RULE_1107 ①] 본식 · 마지막 곡 배경 곡 더함   # ★[BGM_FILL_1101] 목록 칸 배경 곡
+chk "FILL = { M1: \['B33', 'B35', 'B36', 'B37'\], M8: \['B38', 'B39', 'B12', 'B14', 'B13'\], M6: \['B07', 'B16'\], M4: \['B12', 'B14'\], M8L: \['B26', 'B33'\] }" assets/bgm-picks.js 1   # [REPEAT_RULE_1107 ①] 본식 · 마지막 곡에도 배경 곡 · [SONGS_5_1115] 하객 맞이 · 테이블 fill
 chk 'function order(S, seg, prev, on)' assets/bgm-picks.js 1
-chk 'if (BP.order) return segListOf(id, cur).filter(have)' console.html 1   # 콘솔 차례 = 식순 화면 순서 줄과 같은 함수
+chk 'if (BP.order) return segListOf(id, cur).filter(function(x){ return have(x) || !!(play && SEGF\[x\] && BP.SONGS && BP.SONGS\[x\]); });' console.html 1   # 콘솔 차례 = 식순 화면 순서 줄과 같은 함수 · ★[TABLE_BORROW_PLAY_1114 11/14] 재생 목록(play)은 빌려 온 곡도 남긴다 — 옛 줄 «.filter(have);» 로 되돌리지 말 것(테이블 인사 30분이 3곡 13분으로 줄었다)
 chk 'function listRoHtml(sg,k)' assets/bgm-bed.js 1   # ★[LIST_NO_PICK_1101] 목록 칸 = 안내 칸(고르기 없음)
 nochk 'function flowHtml(sg)' assets/bgm-bed.js   # 순서 화살표 두 줄은 곡 줄 목록이 대신 — 되살리지 말 것
 chk "if (!d || d.multi || !S || !S.bgm) return ''" assets/bgm-picks.js 1   # 목록 칸 k 는 쓰지 않는다
@@ -21855,7 +21878,7 @@ chk "ENT_F='@ENT'" assets/bgm-bed.js 1
 chk "if(k==='matjeol'||(k==='entry'&&(entMulti()||entRest()))) return entOn()?ENT_F:'';" assets/bgm-bed.js 1   # [ENTRY_CARRY_1101] · ★[ENTRY_UNDER_1101] 장면 뒤 받는 말도
 chk 'return !x.skip&&!x.talk2; }).length;' order-preview.html 1
 chk '입장 곡을 고르시면 함께 들려요' assets/bgm-form.js 1
-chk "tests: 'entry-carry bridge-first bgm-timing carry-same detail-r2 preview-songs photo-scene-flow reg-p17'" .github/workflows/merge-guard.yml 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
+chk "tests: 'entry-carry bridge-first bgm-timing carry-same detail-r2 preview-songs photo-scene-flow reg-p17 console-bed-1114'" .github/workflows/merge-guard.yml 1   # [CARRY_SAME_1101] 앞 순간 곡 잇기   # [ENTRY_CARRY_1101] · [BRIDGE_FIRST_1101] CI c 칸
 if command -v node >/dev/null 2>&1; then node scripts/audit/entry-carry.mjs >/dev/null 2>&1; _ecr=$?; if [ "$_ecr" = 1 ]; then echo 'FAIL entry-carry: 맞절 입장 곡 이어 듣기(도착 자리 · 크기 · 여운 · 이어듣기 끊김 · 안내 한 줄 · 알약 개수)가 어긋났습니다 — node scripts/audit/entry-carry.mjs'; fail=1; elif [ "$_ecr" = 2 ]; then echo 'skip entry-carry (브라우저 없음 · CI bgm-sound 칸이 잰다)'; else echo 'ok entry-carry'; fi; fi
 # ── 2026-11-01 [TAG_OFF_1101 사장님 실청 «나레이션, 미리 듣기에서는 넘겨요 이런 부수 설명들 전부 없애도»] 식순 화면 줄 옆 표 · 줄 끝 작은 표 걷음 · «준비됨 · 아직» 상태만 남김
 chk 'TAG_OFF_1101' order-preview.html 4
@@ -21873,7 +21896,7 @@ chk 'BRIDGE_FIRST_1101' order-preview.html 2
 chk 'BRIDGE_FIRST_1101' console.html 6
 chk 'BRIDGE_FIRST_1101' scripts/audit/bgm-seg8.mjs 1
 chk "c.slug === 'bridge-b8-face-guests')); }" console.html 1
-chk 'duckTo(PRE_HOLD === i ? -90 : (_ldb != null ? _ldb : c.duck),' console.html 1   # [PREVIDEO_AFTER_1101] leadDb 뜸 크기
+chk 'duckTo(PRE_HOLD === i ? -90 : (_ldb != null ? _ldb : _cdk),' console.html 1   # [PREVIDEO_AFTER_1101] leadDb 뜸 크기 · _cdk = 그 큐 크기(입장곡 못 받은 날 입장만 −15 · ENTRY_NOFILE_DUCK15_1115)
 chk 'if (nx && PRE_HOLD !== i && !postMusic(c)' console.html 1
 chk 'function leadAt(k, st, o)' assets/bgm-slots.js 1
 chk 'leadAt: leadAt,' assets/bgm-slots.js 1
@@ -23121,8 +23144,7 @@ nochk '덕담 뒤, 축가 앞에' api/_kb.js                                    
 chk '성혼 선언을 담으신 경우에는 선언문을 읽는 분이 두 분 이름을 부릅니다' index.html 2
 chk 'card-label">Long Hours' index.html 1                                           # [H4_17] 15 Hours(05:00 → 자정 = 19시간) 걷음
 nochk '15 Hours' index.html
-chk '평일 예식은 주말·공휴일보다 80만&nbsp;원 낮습니다' index.html 1                  # [H4_18] 80 = 330 - 250
-nochk '굳이 주말일 이유가 없습니다' index.html
+# [H4_18] 평일 칸 두 줄은 [WEEKDAY_OLD_OWNER_1116](11/16 대표님 옛 글 고름)이 덮어 은퇴 — 새 기대는 파일 끝 WEEKDAY_OLD_OWNER_1116 블록
 nochk '자켓' index.html                                                           # [H4_20] 표준 표기 «재킷»
 nochk '자켓' api/_kb.js
 nochk '자켓' assets/advisor-kb.js
@@ -23428,6 +23450,208 @@ chk "★\[LAYER7_FACE_LEAD_1110\] 7층과 하나로" assets/ritual-cue.js 1
 chk 'runs-on: ubuntu-24.04   # ★\[CI_RUNNER_2404' .github/workflows/merge-guard.yml 2
 nochk 'runs-on: ubuntu-latest' .github/workflows/merge-guard.yml
 chk 'CAKE_FILES_OFF_1110' scripts/build-rev1013.mjs 1   # 원고 표 케이크 줄(41 · 42 · 76 · 77 · 107)은 «소리 없음»으로 세지 않는다 — 이 줄을 빼면 NARR AUDIO FAIL 4(11/10 CI)
+# ★★[NO_RELIFT_XF_1114 2026-11-14 BGM 섹션 · 직접 넘겨 보기] 당일 콘솔 — 정적 뒤 새 곡 큐에서 꺼져 있던 앞 곡을 겹쳐 넘기지 않는다(NO_RELIFT_1102 의 콘솔 재생기 판) · 소리는 CI bgm-sound e 칸 console-relift 가 잰다
+chk 'NO_RELIFT_XF_1114' console.html 3
+chk 'function bedUnhush(){' console.html 1
+chk 'NO_RELIFT_XF_1114' scripts/audit/console-relift.mjs 5
+chk "seam-b2-rest console-relift'" .github/workflows/merge-guard.yml 1
+# ★★[CONSOLE_BED_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 콘솔 쪽 검증] 당일 콘솔 구간 곡 재생기 고침 — 소리 · 동작은 CI bgm-sound c 칸 console-bed-1114 가 잰다(옛 console.html 로 돌리면 빨강)
+chk 'LIST_OPEN_ONCE_1114' console.html 1   # 목록 곡 끝 감시기 — 다음 곡을 여는 중이면 다시 요청하지 않는다(요청 24회 · 곡 건너뜀 · 무음 0.4초)
+chk '  if (BED.opening) return;' console.html 1
+chk 'LIST_OPEN_ONCE_1114' scripts/audit/console-bed-1114.mjs 3
+chk "reg-p17 console-bed-1114'" .github/workflows/merge-guard.yml 1
+chk 'TABLE_BORROW_PLAY_1114' console.html 3   # 테이블 인사(M8) 재생 목록에 계획이 빌려 온 곡을 남긴다(REPEAT_RULE_1107 ② 가 당일 콘솔에서도 먹게)
+nochk 'segListOf(id, cur).filter(have);' console.html   # 옛 줄 — 빌려 온 곡이 재생 직전에 빠진다 · 되살리지 말 것
+chk 'function segSel(id, cur, play){' console.html 1
+chk 'var s = segSel(id, cur, 1), d0 = segDef(id);' console.html 1
+chk 'TABLE_BORROW_PLAY_1114' scripts/audit/console-bed-1114.mjs 3
+chk 'HEARD_RESET_1114' console.html 1   # 새로 시작(시작 · 끝난 뒤 다시 · 나가기)하면 들린 곡 기록을 비운다 — 리허설 기록이 본 예식 테이블 인사 차례를 바꾸지 않게
+chk '^  HEARD = {};$' console.html 1
+chk 'HEARD_RESET_1114' scripts/audit/console-bed-1114.mjs 3
+chk 'BED_BAD_RESET_1114' console.html 3   # «못 연 곡» 표시는 그 판 안에서만 — 파일을 바꿔 넣으면 그 곡만 · 새로 시작하면 전부 지운다(지우는 곳이 없어 그 탭 내내 건너뛰었다)
+chk 'if (BED.bad) delete BED.bad\[sid\];' console.html 1
+chk '^  BED.bad = {};$' console.html 1
+chk 'BED_BAD_RESET_1114' scripts/audit/console-bed-1114.mjs 3
+chk 'SEG_FIRST_FAIL_1114' console.html 4   # 흐르는 곡이 없을 때(하객 맞이) 구간 첫 곡이 안 열리면 같은 구간 다음 곡을 한 번씩 — 앞 곡이 흐르면 종전 그대로(DETAIL_R3_1101 ②)
+chk 'function segFirstFail(id, h4){' console.html 1   # [SEG_FIRST_FAIL_1114] · h4 = [M4_HANDOFF_NEXT_1115] 인계 몫
+chk 'function segNeedTxt(d, pl){' console.html 1
+chk '지금 파일이 없어 음악 없이 진행돼요' console.html 1   # 파일 없는 하객 맞이 — 이어질 앞 곡이 없다(«앞 곡이 이어져요» 아님)
+chk 'SEG_FIRST_FAIL_1114' scripts/audit/console-bed-1114.mjs 3
+# ★★[ARRIVE_SETTLE_PV_1114 2026-11-14 BGM 섹션 · 직접 넘겨 보기 문제 2] 미리 듣기 · 연습 — 도착 멘트 잦아듦(4.5초)은 멘트 1.0초 앞에 먼저 · 무음까지 dB 직선(당일 콘솔 EAR_D_1106 ② 와 같게 · 첫 소리 때 걷기 크기보다 18 dB 이상 아래) · 소리는 CI bgm-sound f 칸 pv-fix-1114 ① 이 잰다
+chk 'ARRIVE_SETTLE_PV_1114' assets/bgm-bed.js 4
+chk 'var ARRIVE_LEAD=1000;' assets/bgm-bed.js 1
+chk 'ARRIVE_SETTLE_PV_1114' scripts/audit/pv-fix-1114.mjs 1
+chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115' }" .github/workflows/merge-guard.yml 1   # [PV_FIX_1114] · [CONSOLE_R2_1115] 같은 칸
+chk 'PV_FIX_1114' scripts/audit/pv-fix-1114.mjs 1   # 검사 머리 이름(묶음) — CI bgm-sound f 칸
+# ★★[SONG_OPEN_FADE_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 후보 ⑦] 미리 듣기 · 연습 — 축가 여는 말 뒤 본식 피아노는 줄이 끝난 때부터 1.5초에 걸쳐 정적(엔진 큐 post 값 그대로 · 종전 0.3초 · MEANING_R1_1102 8) · 소리는 pv-fix-1114 ② 가 잰다
+chk 'SONG_OPEN_FADE_PV_1114' assets/bgm-bed.js 2
+chk "if(_pm>0){ LPB.arr={ v:BED.cur, st:nx }; ramp(BED.cur,db,_pm); return; } }" assets/bgm-bed.js 1
+chk 'SONG_OPEN_FADE_PV_1114' scripts/audit/pv-fix-1114.mjs 1
+# ★★[ENTRY_HOOK_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 후보 ③] 미리 듣기 · 연습 — 화촉 직후 입장(뜸 없는 길)은 입장 곡 시작 자리에서 «먼저 흐른 6초»를 빼지 않는다(구호 말끝 0.3초 뒤가 강조 자리 · 종전 5.3초) · 뜸 있는 길은 종전 셈 · 소리는 pv-fix-1114 ③ 이 잰다
+chk 'ENTRY_HOOK_PV_1114' assets/bgm-bed.js 2
+chk "return Math.min(x.H-c0.hd-c0.v-0.3+(el||0),x.end-1)-x.o; }" assets/bgm-bed.js 1   # [ENTRY_HOOK_PV_1114] 뜸 없는 길 셈은 entHushAt 으로 옮겼다(2026-11-15 ENTRY_LATE_FILE_1115) — 구호 말끝 + 0.3초 = 강조 · 6초를 빼지 않는다
+chk "var _at=entHushAt(st,(Date.now()-_t3)/1000);" assets/bgm-bed.js 1   # [ENTRY_LATE_FILE_1115] 시작 자리 = 같은 셈(callOf) + 구호가 시작된 뒤 지난 초
+chk "startVoice(f,lvOf(q2,f),1500,Math.max(0,_at));" assets/bgm-bed.js 1   # [ENTRY_LATE_FILE_1115] · [ENTRY_LATE_MUSIC_1115]
+chk 'ENTRY_HOOK_PV_1114' scripts/audit/pv-fix-1114.mjs 1
+# ★★[BGM_OFF_STAYS_OFF_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 검증 12] 미리 듣기 · 연습 — 선언 뒤 박수 곡(새 곡)을 받는 중에 «음악 끄기» · «잠시 멈춤»을 눌렀으면 늦게 온 곡을 틀지 않는다(차례 번호 · 멈춤을 시작 직전에 다시 본다 · PR_BGM_197) · 소리는 pv-fix-1114 ④ 가 잰다
+chk 'BGM_OFF_STAYS_OFF_1114' assets/bgm-bed.js 1
+chk "if(LPB.lt!==_tkn||pzNow()){ if(pzNow()){ var _z=LPB.pz;" assets/bgm-bed.js 1
+chk 'BGM_OFF_STAYS_OFF_1114' scripts/audit/pv-fix-1114.mjs 1
+# ★★[LISTEN_LEN_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 검증 14] 미리 듣기 — 본식 순간 하나만 들을 때 곡(dayAt · 화면 «이 순서 즈음엔»)은 곡마다 등록된 길이(BgmPicks.lenOf) − 겹침으로 센다(모르는 곡만 4분 · 종전 전부 240초) · 값은 pv-fix-1114 ⑤ 가 잰다
+chk 'LISTEN_LEN_PV_1114' assets/bgm-bed.js 1
+chk "d=Math.max(30,((P.lenOf&&P.lenOf(f,0))||P.LEN0||DAY_LEN)-X); if(t+d>sec) return f; t+=d; } return L\[0\]; }" assets/bgm-bed.js 1
+chk 'LISTEN_LEN_PV_1114' scripts/audit/pv-fix-1114.mjs 1
+# ★★[NO_RELIFT_ALL_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 01] 당일 콘솔 — 정적 뒤 새 곡을 걸 때 지금 곡만이 아니라 소리가 남은 모든 재생기를 정리(잦아들던 재생기는 멈추고 비운다 · BED.later 로 미룰 때도) · 소리는 console-relift ⑥ 이 잰다
+chk 'NO_RELIFT_ALL_1115' console.html 4
+chk 'function bedHush(){' console.html 1
+chk 'var _own = BED.gen' console.html 1
+# ★★[NO_RELIFT_WANT_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 07] 당일 콘솔 — «정적인가»에 청한 크기(duckWant −60 아래)도 넣는다 · 아직 들리는 크기에서 내려가던 중이면 0.5초에 끈다(HUSH_SOFT) · 소리는 console-relift ⑦
+chk 'NO_RELIFT_WANT_1115' console.html 3
+chk 'soft = !off && duckWant != null && duckWant <= -60' console.html 1
+# ★★[M4_HANDOFF_NONE_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 02] 당일 콘솔 — 짧은 입장 곡 인계(ENTRY_SHORT)는 본식 피아노가 실제로 흐르거나 열릴 때만 배경을 올린다 · 없으면 음악 없이 + 상태 한 줄 · 소리는 console-relift ⑧
+chk 'M4_HANDOFF_NONE_1115' console.html 2
+chk 'function m4Flows(){' console.html 1
+chk '이어받을 본식 피아노 파일이 없어 음악 없이 이어 가요' console.html 1
+# ★[NO_RELIFT_FB_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 03] 당일 콘솔 — Web Audio 가 없는 대체 경로(el.volume)도 정적 뒤 새 곡을 여는 동안 앞 곡을 꺼 둔다(bedVolFb 가 hushK 를 0 으로) · 소리는 console-relift ⑨
+chk 'NO_RELIFT_FB_1115' console.html 2
+chk 'function bedHushFb(){' console.html 1
+chk 'k !== BED.hushK' console.html 1
+# ★★[RELIFT_OBS_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 검사 보강] console-relift — 앞 곡을 못 보면(표본 없음 → −140) 초록이 아니라 «못 쟀다»(종료 2) · ⑥ 목록 넘김 중 정적 · ⑦ 내려가는 중 점프 · ⑧ 짧은 입장 곡 뒤 M4 없음 · ⑨ 대체 경로
+chk 'RELIFT_OBS_1115' scripts/audit/console-relift.mjs 4
+chk 'NO_RELIFT_ALL_1115' scripts/audit/console-relift.mjs 2
+chk 'NO_RELIFT_WANT_1115' scripts/audit/console-relift.mjs 2
+chk 'M4_HANDOFF_NONE_1115' scripts/audit/console-relift.mjs 2
+chk 'NO_RELIFT_FB_1115' scripts/audit/console-relift.mjs 3
+# ★★[FILL_XF_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 10] 곡 계획 — 목록 칸 길이(NEED) 판정은 곡 길이 합 − 곡 수 × 겹침(xfOf) · 콘솔 · 미리 듣기가 곡마다 그만큼 일찍 넘긴다(단순합 30:29 테이블 인사가 29:41 에 첫 곡 반복) · 검사 console-r2-1115 E
+chk 'FILL_XF_1115' assets/bgm-picks.js 2
+chk "0) - out.length \* xfOf(sg)" assets/bgm-picks.js 2   # [FILL_XF_1115] 두 셈(계획 · 들린 기록) — 들린 기록 셈 꼬리에 [CARRY_HEARD_1115] 이어받은 곡 자리 빼기가 붙는다
+chk 'FILL_XF_1115' scripts/audit/console-r2-1115.mjs 3
+# ★★[BACK_DROP_OPEN_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 04] 당일 콘솔 «뒤로» — 떠난 큐가 건 구간 곡 요청이 아직 열리는 중이면 거둔다(재생 번호 · 여는 재생기 · 미룬 요청 · 구간 자리) · 정적 뒤 꺼 둔 앞 곡은 되살리지 않는다 · 검사 console-r2-1115 A
+chk 'BACK_DROP_OPEN_1115' console.html 3
+chk "bedBackDrop(cur);" console.html 1
+chk "BED.goBk = _bk;" console.html 1
+chk 'BACK_DROP_OPEN_1115' scripts/audit/console-r2-1115.mjs 3
+# ★★[LIVE_DOWN_MS_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 08] 당일 콘솔 — 사람 구간이 지금보다 낮은 크기로 시작하면(축사 · 편지 «음악과 함께» −15 → −20 등) 내림 시간 1.6초 · 오르는 쪽 2.0초 · 박수 upMs 그대로(LAYER7_DUCK_1108) · 검사 console-r2-1115 B
+chk 'LIVE_DOWN_MS_1115' console.html 1
+chk "_lv < duckWant - 0.5) ? PARAM.fadeDownMs : PARAM.fadeUpMs); segLive(c); duckTo(_lv, _lms); }" console.html 1
+chk 'LIVE_DOWN_MS_1115' scripts/audit/console-r2-1115.mjs 3
+# ★★[HEARD_AUDIBLE_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 기존 07 확장] 당일 콘솔 — 들린 기록(HEARD · REPEAT_FIX_1107 ①)은 음악만 멈춤 · 전체 볼륨 0 · 실효 출력 −60 dB 아래 동안 쌓지 않는다 · 검사 console-r2-1115 C
+chk 'HEARD_AUDIBLE_1115' console.html 1
+chk "if (!f || seen\[f\] || !bedHeardOn(k)) continue;" console.html 1   # [HEARD_XF_1115] 셈이 heardTick 으로 옮겼다(재생기마다 · 같은 실효 출력 셈)
+chk 'HEARD_AUDIBLE_1115' scripts/audit/console-r2-1115.mjs 3
+# ★★[MUTE_PRESSED_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 12] 당일 콘솔 «음악만 멈춤» — aria-pressed 가 상태와 같다 · 켜진 동안 아랫줄 «지금 멈춰 있음» · 금색 바탕 위 아랫줄 글은 단추 글색 · 검사 console-r2-1115 D
+chk 'MUTE_PRESSED_1115' console.html 3
+chk "setAttribute('aria-pressed', String(muted));" console.html 1
+chk 'MUTE_PRESSED_1115' scripts/audit/console-r2-1115.mjs 3
+# ★[CONSOLE_R2_1115 2026-11-15 BGM 섹션 · GPT 라운드 2] 당일 콘솔 · 곡 계획 묶음 검사 — CI bgm-sound f 칸(가장 짧은 칸)에서 돈다
+chk 'CONSOLE_R2_1115' .github/workflows/merge-guard.yml 1
+chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115' }" .github/workflows/merge-guard.yml 1
+# ★[GEN_ON_OPEN_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 검증 중 찾음] 새 곡이 재생기를 받을 때 세대 번호를 올린다 — 앞 겹침 뒷정리 타이머가 늦게 여는 곡 재생기를 세우지 않게(검사 console-r2-1115 F)
+chk 'GEN_ON_OPEN_1115' console.html 1
+chk '  BED.gen\[nx\] = (BED.gen\[nx\] || 0) + 1;' console.html 1
+chk 'GEN_ON_OPEN_1115' scripts/audit/console-r2-1115.mjs 3
+# ★★[CONSOLE_R3_1115 2026-11-15 BGM 섹션 · GPT 라운드 3] 당일 콘솔 · 곡 계획 고침 묶음 — 검사 scripts/audit/console-r3-1115.mjs(A ~ K · CI bgm-sound f 칸)
+chk 'CONSOLE_R3_1115' .github/workflows/merge-guard.yml 1
+chk 'CONSOLE_R3_1115' scripts/audit/console-r3-1115.mjs 1
+# [LATER_DROP_1115] (01) 새 요청이 재생기를 얻으면 앞서 미뤄 둔 요청을 버린다(DETAIL_R3_1101 ③ 마지막 요청이 이긴다)
+chk 'LATER_DROP_1115' console.html 1
+chk '^  BED.later = null;   /\* ★\[LATER_DROP_1115' console.html 1
+chk 'LATER_DROP_1115' scripts/audit/console-r3-1115.mjs 3
+# [M4_NONE_DROP_1115] (03) 음악 없이 이을 때 여는 중 · 실패 뒤 다음 곡 · 미룬 요청을 거둔다(멈춘 곡을 «못 연 곡»으로 적지 않는다)
+chk 'M4_NONE_DROP_1115' console.html 1
+chk 'function m4None(){ var _op = BED.opening; BED.tk = (BED.tk || 0) + 1; BED.opening = null; BED.onFail = null; BED.later = null;' console.html 1
+chk 'M4_NONE_DROP_1115' scripts/audit/console-r3-1115.mjs 3
+# [M4_HANDOFF_NEXT_1115] (02) 짧은 입장 곡 인계에서 첫 본식 곡을 못 열면 다음 곡 · 다 못 열면 m4None(NO_RELIFT_1102 · SEG_FIRST_FAIL_1114)
+chk 'M4_HANDOFF_NEXT_1115' console.html 3
+chk "BED.m4h = 1; segGo('M4'); BED.m4h = 0;" console.html 1
+chk 'if (h4) { m4None(); return; }' console.html 1
+chk 'M4_HANDOFF_NEXT_1115' scripts/audit/console-r3-1115.mjs 3
+# [HUSH_SOFT_FREE_1115] (04) 0.5초 정적이 끝나면 조용해진 앞 재생기를 비우고 미룬 요청을 바로(BED.gen 이 같을 때만)
+chk 'HUSH_SOFT_FREE_1115' console.html 1
+chk 'else sk.push(\[k, BED.gen\[k\]\]); continue; }' console.html 1
+chk 'HUSH_SOFT_FREE_1115' scripts/audit/console-r3-1115.mjs 3
+# [BACK_DROP_ORIGIN_1115] (05) 여는 요청이 저를 건 큐 자리(bk)를 들고 있어 그 큐 밖으로 «뒤로» 나가면 거둔다(BACK_DROP_OPEN_1115 확장)
+chk 'BACK_DROP_ORIGIN_1115' console.html 3
+chk '_o.bk.i === i) g = _o.bk;' console.html 1
+chk 'BED.bkNow = _bk; segGo(segOfCue(c)); BED.bkNow = null;' console.html 1
+chk 'BACK_DROP_ORIGIN_1115' scripts/audit/console-r3-1115.mjs 3
+# [FINISH_NO_NEXT_1115] (06) 끝내기 뒤 3초 잦아드는 동안 목록 감시가 다음 곡을 열지 않는다(AFTER_PHOTO_LOOP_1102)
+chk 'FINISH_NO_NEXT_1115' console.html 2
+chk 'BED.fin = 1; BED.tk = (BED.tk || 0) + 1;' console.html 1
+chk "if (BED.mode !== 'seg' || BED.xing || BED.fin) return;" console.html 1
+chk 'FINISH_NO_NEXT_1115' scripts/audit/console-r3-1115.mjs 3
+# [RESET_PLAYERS_1115] (07 · 08) 새 판은 앞 판 재생기를 멈추고 크기를 처음 값으로(0번 1 · 나머지 0)
+chk 'RESET_PLAYERS_1115' console.html 1
+chk 'g.gain.setValueAtTime(k ? 0.0001 : 1, AC.currentTime)' console.html 1
+chk 'RESET_PLAYERS_1115' scripts/audit/console-r3-1115.mjs 6
+# [PAUSE_REOPEN_1115] (09) 여는 중 «잠시 멈춤»이면 그 요청을 거두어 두었다가 이어 들을 때 다시 연다(GUEST_PAUSE · NO_RELIFT_1102)
+chk 'PAUSE_REOPEN_1115' console.html 3
+chk 'BED.reopen = _op;' console.html 1
+chk 'var _ro = BED.reopen; BED.reopen = null;' console.html 1
+chk 'PAUSE_REOPEN_1115' scripts/audit/console-r3-1115.mjs 3
+# [DECLARE_ONE_1115] (10) 선언 뒤 박수 — 본식 곡이 한 곡뿐이어도 그 곡을 강조 자리부터 새로(DECLARE_LIFT 주석 «없으면 지금 곡을 강조 자리부터»)
+chk 'DECLARE_ONE_1115' console.html 1
+chk 'if (_j < 0) _j = _dok(BED.list' console.html 1   # [DECLARE_PLAYABLE_1115] 한 곡 자리 = 지금 자리 곡이 틀 수 있을 때(아니면 틀 수 있는 첫 곡)
+nochk 'if (_j < 0 && BED.id !== _hz) _j = BED.li;' console.html 0
+chk 'DECLARE_ONE_1115' scripts/audit/console-r3-1115.mjs 3
+# [CARRY_HEARD_1115] (11) 들린 기록으로 다시 짠 목록 — 이어받은 곡은 지금 자리(curAt)만큼 빼고 칸 길이를 센다(REPEAT_RULE_1107 · FILL_XF_1115)
+chk 'CARRY_HEARD_1115' assets/bgm-picks.js 1
+chk 'out.indexOf(c) > -1 ? cAt : 0' assets/bgm-picks.js 1
+chk 'CARRY_HEARD_1115' console.html 1
+chk 'curAt: (cur && BED.id === cur' console.html 1
+chk 'CARRY_HEARD_1115' scripts/audit/console-r3-1115.mjs 3
+# ★[RELIFT_XG_1115 2026-11-15] console-relift ⑤ «계단 없이»는 앞 곡 재생기 크기 마디(xg)로 잰다 — 전체 크기 곱으로 재면 부하 때 표본 위상에 흔들렸다
+chk 'RELIFT_XG_1115' scripts/audit/console-relift.mjs 3
+# ★★[PV_R3_1115 2026-11-15 BGM 섹션 · GPT 라운드 3] 미리 듣기 · 연습(bgm-bed) 고침 묶음 검사 — 옛 판 빨강 · 새 판 초록(BP_BED 로 깨 보기) · CI bgm-sound f 칸
+chk 'PV_R3_1115' scripts/audit/pv-r3-1115.mjs 1
+chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115' }" .github/workflows/merge-guard.yml 1
+# ★[CI_SPLIT_G_1115 2026-11-15] bgm-sound g 칸 — 라운드 3 검사 둘(console-r3-1115 · pv-r3-1115) · f 칸이 20분에 가까워 나눔
+chk 'CI_SPLIT_G_1115' .github/workflows/merge-guard.yml 1
+chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115' }" .github/workflows/merge-guard.yml 1
+# ★★[ARRIVE_ONCE_VISIT_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 01] 미리 듣기 · 연습 — «이 줄 몫으로 도는 내림» 기록(LPB.arr)은 그 줄의 이번 방문에만 · 다른 줄을 보여 주면 지운다(크게 보기에서 이전 줄 → 다음 줄로 도착 멘트 · MR 자리에 다시 들어와도 내림을 다시 건다)
+chk 'ARRIVE_ONCE_VISIT_1115' assets/bgm-bed.js 2
+chk "function arrLeave(st){ if(LPB.arr&&LPB.arr.st!==st) LPB.arr=null; }" assets/bgm-bed.js 1
+chk "if(pzNow()){ holdOn(st); return; }   /\* \[REG_P17\] \*/ arrLeave(st); " assets/bgm-bed.js 1
+chk "if(pzNow()){ holdOn(st); return 0; }   /\* \[REG_P17\] \*/ arrLeave(st);" assets/bgm-bed.js 1
+chk 'ARRIVE_ONCE_VISIT_1115' scripts/audit/pv-r3-1115.mjs 1
+# ★★[ENTRY_LATE_FILE_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 14] 미리 듣기 · 연습 — 화촉 직후 입장 곡 파일이 구호보다 늦게 오면 지난 시간만큼 뒤에서 시작(강조 = 구호 말끝 + 0.3초 · 1.5초 늦게 와도 · 종전 +1.8초)
+chk 'ENTRY_LATE_FILE_1115' assets/bgm-bed.js 2
+chk "function entHushAt(st0,el){ var o=BUF\[ENT_F\], x=o&&o.ext; if(!x) return 0; var c0=callOf(st0,x); return Math.min(x.H-c0.hd-c0.v-0.3+(el||0),x.end-1)-x.o; }" assets/bgm-bed.js 1
+chk 'ENTRY_LATE_FILE_1115' scripts/audit/pv-r3-1115.mjs 1
+# ★★[ENTRY_LATE_MUSIC_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 13] 미리 듣기 · 연습 — 화촉 직후 입장 · 강조 자리가 곡 앞(0:05)이라 곡 앞부분이 구호보다 짧으면 모자라는 만큼 늦게 들어온다(강조는 고른 자리 그대로 · 입장 장면 LATE_MUSIC · 당일 콘솔 ES.plan 과 같다 · 종전 말끝 14초 전)
+chk 'ENTRY_LATE_MUSIC_1115' assets/bgm-bed.js 3
+chk "if(_at<-0.05&&!_w){ LPB.entLate={ st:q2, tk:_tkh }; setTimeout(function(){ _put(1); },Math.round(-_at\*1000)); return; } LPB.entLate=null;" assets/bgm-bed.js 1
+chk "if(LPB.entLate&&LPB.entLate.st===st&&LPB.entLate.tk===LPB.lt){ LPB.on=true; return; }" assets/bgm-bed.js 1
+chk 'ENTRY_LATE_MUSIC_1115' scripts/audit/pv-r3-1115.mjs 1
+# ★★[ENTRY_LEAD_CALL_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 15] 미리 듣기 · 연습 — 뜸 있는 길(입장부터 듣기)도 구호 말 길이를 실제로 트는 파일로 센다(callOf · 앞 6초 뜸 그대로 · 종전 장면 V 또는 15초 어림 → 강조가 말끝 4.1초 전)
+chk 'ENTRY_LEAD_CALL_1115' assets/bgm-bed.js 2
+chk "if(k==='entry'&&!entRest()){ var c0=st0?callOf(st0,x):{ hd:0, v:x.V!=null?x.V:15 }; t=x.H-ENT_LEAD-c0.hd-c0.v-0.3; } else {" assets/bgm-bed.js 1
+chk "if(f===ENT_F) return entAt(st&&st.k,lead?st:null);" assets/bgm-bed.js 1
+chk "var go=function(){ play(f,vx(p.music,f),p.up,atOf(f,st,1)); LPB.f=f;" assets/bgm-bed.js 1
+chk 'ENTRY_LEAD_CALL_1115' scripts/audit/pv-r3-1115.mjs 1
+chk 'ENTRY_LEAD_CALL_1115' scripts/audit/pv-fix-1114.mjs 1   # ③ 대조 — 뜸 있는 길 시작 자리 = H − 6 − 구호(실제 파일) − 0.3
+# ★★[ENTRY_RATE_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 16] 미리 듣기 · 연습 — 구호 말 길이는 틀 빠르기로 나눈다(두 분 AI 줄 · 빌더가 거는 playbackRate 와 같은 식 _upRate · VOICE_TUNE · 종전 1.2배면 강조가 말끝 3.5초 뒤)
+chk 'ENTRY_RATE_1115' assets/bgm-bed.js 2
+chk "function rateOf(st0){ var r=1; try{ if(st0&&st0.up&&st0.couple&&typeof _upRate==='function') r=+_upRate(st0.up)||1; }catch(e){} return (r>0.3&&r<3)?r:1; }" assets/bgm-bed.js 1
+chk "var r=rateOf(st0); if(pd&&d>0) return { hd:pd\[0\]/1000/r, v:Math.max(0.5,d-(pd\[0\]+pd\[1\])/1000)/r };" assets/bgm-bed.js 1
+chk 'ENTRY_RATE_1115' scripts/audit/pv-r3-1115.mjs 1
+# ★★[CLAP_PEND_KEEP_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 17] 미리 듣기 · 연습 — 선언 뒤 박수 곡(새 곡)을 받는 중 멈췄다가 곡이 오기 전에 이어 들으면 앞 곡(선언 앞 곡)을 되살리지 않고 정적으로 기다려 온 새 곡을 그 줄 크기로(DECLARE_LIFT · NO_RELIFT · 종전 B09 −8 되살아남 · B10 0회)
+chk 'CLAP_PEND_KEEP_1115' assets/bgm-bed.js 4
+chk "else { LPB.nsw={ st:st, f:_nf }; want(_nf,function(b){ if(b) _go(); }); } return; } }" assets/bgm-bed.js 1
+chk "function lpEnd(keepHold){ if(!keepHold){ LPB.hold=null; LPB.nsw=null; }" assets/bgm-bed.js 1
+chk "var _ns=LPB.nsw; if(_ns&&emb()&&curStep()===_ns.st&&!(BED.cur.src&&BED.cur.f===_ns.f)){ LPB.pz=null;" assets/bgm-bed.js 1
+chk "if(!b||LPB.nsw!==_ns||LPB.lt!==_tk||curStep()!==_ns.st||pzNow()) return; var nv=startVoice(_ns.f,lvOf(_ns.st,_ns.f),RESUME_MS,reHook(_ns.f,b));" assets/bgm-bed.js 1
+chk 'CLAP_PEND_KEEP_1115' scripts/audit/pv-r3-1115.mjs 1
+# ★[DAY_KEY_READY_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 19] 미리 듣기 · 화면 — 순간 시간표(daySec)는 큐 엔진으로 다 센 뒤에만 기억(곡 목록이 엔진보다 먼저 와도 축사 · 축가가 첫 곡으로 굳지 않게)
+chk 'DAY_KEY_READY_1115' assets/bgm-bed.js 1
+chk "if(DAY.key===key) return DAY.v; var v={};" assets/bgm-bed.js 1
+chk "DAY.key=key; DAY.v=v; }catch(x){} return v; }" assets/bgm-bed.js 1
+nochk "DAY.key=key; DAY.v={};" assets/bgm-bed.js 0
+chk 'DAY_KEY_READY_1115' scripts/audit/pv-r3-1115.mjs 1
+# ★[WARM_DAY_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 20] 미리 듣기 — 순간 쪽을 열 때 미리 받는 곡 맨 앞은 그 순간 하나 듣기 첫 곡(dayAt · 같은 곡이면 하나 · 데이터 절약 · 셋 한도 그대로)
+chk 'WARM_DAY_1115' assets/bgm-bed.js 1
+chk "var _wl=songsOf(k), _wd=dayAt(k); if(_wd&&_wl.indexOf(_wd)<0) _wl.unshift(_wd);" assets/bgm-bed.js 1
+chk 'WARM_DAY_1115' scripts/audit/pv-r3-1115.mjs 1
 # ★[FINAL_APPLY_1115 대본 11/15 «배포 준비: 확정분 전부 엔진에 넣기» · 묶음 1 우성 FINAL2] 194 E(«주례사 대신») · 130 새 글 · 식중 351 ~ 355 · 177 N(«가득» 뺌) · 빠르기 60 · 169
 #   받은 테이크 원본 = 1층 · 빠르기 = 표(atempo 만 · 높이 그대로) · 기준 = FINAL2 듣기판(아티팩트 DP5LNsqP8yR92bRM3CwCFZ) · 끊김 허용 목록은 같은 무음·같은 꼴이면 시각이 밀려도 같은 자리
 chk 'FINAL_APPLY_1115' assets/ritual-open.js 3
@@ -23476,3 +23700,72 @@ chk "ok('\[GA_W5_1115\] 빌더 하객 안내 네 칸" scripts/audit/open-course.
 chk '양가 아버님, 맞절.' assets/ritual-open.js 2
 nochk '화면으로 보고 계신 분들께 인사를 올리겠습니다.' assets/ritual-data.js
 nochk '이제 두 분께서는 중앙으로 오셔서 하객 여러분을 향해 서도록 하겠습니다.' assets/ritual-open.js
+# ★★[ENTRY_NOFILE_OWNER_1115 2026-11-15 대표님 결정 A · BGM 결정 카드 ①] 입장곡을 골랐는데 당일 파일을 못 받은 날 — 꺼 둔 화촉 곡을 되살리지 않고 본식 피아노(M4) 첫 곡을 새로(검사 entry-nofile-1115 · CI bgm-sound g)
+chk 'ENTRY_NOFILE_OWNER_1115' console.html 2
+chk "if (k === 'entry' && esdMain(c) && esdWant() && !esdReady(c)) return 'M4';" console.html 1
+chk 'ENTRY_NOFILE_OWNER_1115' scripts/audit/entry-nofile-1115.mjs 2
+# ★[ENTRY_NOFILE_DUCK15_1115 2026-11-15 대본 판단] 입장곡을 못 받은 날 입장 멘트 아래 = 말 아래 표준 −15(보통 날 장면 귀와 맞춤 · 입장 장면 값 −12 는 보통 날 길 그대로 · 검사 entry-nofile-1115 ④)
+chk 'ENTRY_NOFILE_DUCK15_1115' console.html 1
+chk 'var _cdk = (esdMain(c) && esdWant() && !esdReady(c)) ? PARAM.duckSpeech : c.duck;' console.html 1
+chk '(_ldb != null ? _ldb : _cdk)' console.html 1
+chk 'ENTRY_NOFILE_DUCK15_1115' scripts/audit/entry-nofile-1115.mjs 2
+# ★★[DUCK_SKIP_3S_OWNER_1115 2026-11-15 대표님 «추천대로» · BGM 결정 카드 ④ B] 정적으로 내려가는 도중 다른 순간으로 넘기면 앞 곡은 지금 크기에서 3초에 걸쳐 계속 내린다(따로 내리는 길 · 되살아남 없음) — 옛 0.5초 끄기 되살리지 말 것(검사 console-relift ⑦ ⑩)
+chk 'DUCK_SKIP_3S_OWNER_1115' console.html 5
+chk 'var HUSH_ON = 3.0;' console.html 1
+chk 'xfCurve(BED.hx\[k\].gain, 0.0001, HUSH_ON, t, g0)' console.html 1
+chk 'function xgHome(k)' console.html 1
+nochk 'if (soft) { xfCurve(g.gain, 0.0001, HUSH_SOFT, t); if (k === on)' console.html
+chk 'DUCK_SKIP_3S_OWNER_1115' scripts/audit/console-relift.mjs 6
+# ★★[SONGS_5_1115 2026-11-15 대표님 구매 · BGM 결정 카드 ⑤] 하객 맞이 · 테이블 인사 배경 곡 다섯(B35 ~ B39 · 파일은 저장소 밖) — 하객 맞이 30분 빌림 0 · 되풀이 0 · 테이블 30분 되풀이 0(검사 fill-30-1115 · CI g)
+chk 'SONGS_5_1115' assets/bgm-picks.js 2
+chk "B35: { t: '이웃집 토토로', src: '이웃집 토토로', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -'" assets/bgm-picks.js 1
+chk "B39: { t: '비행기 구름', src: '바람이 분다', a: 'Kazumi Tateishi Trio'" assets/bgm-picks.js 1
+nochk "FILL = { M1: \['B16', 'B33'\], M8: \['B13', 'B14'\]" assets/bgm-picks.js
+chk 'SONGS_5_1115' scripts/audit/fill-30-1115.mjs 3
+nochk 'B35_' assets/bgm-picks.js
+# ★[DECL_DAYSONG_1115] detail-r2 ③ 선언 따로 듣기 — 늦출 곡 = 당일 시간표 그 자리 곡(재 본 뒤) · B09 를 못 박지 않는다
+chk 'DECL_DAYSONG_1115' scripts/audit/detail-r2.mjs 1
+nochk 'H.dly.B09 = d; }, dly); await go' scripts/audit/detail-r2.mjs
+# ★★[ENTRY_FIVE_1115 2026-11-15 대본 «입장 장면 콘솔 5 를 #1655 에 같이»] 입장 장면 다섯 — 도착 GO 에 장면 목소리 거두기 · 구호 전 정지 → 잇기에 목소리 다시 · 정지 두 번에 멈춘 자리 지키기 · 인계 중 정지 · 뒤로에 잦아드는 입장 곡 거두기 · 미리 듣기 짧은 곡 끝 잦아듦(검사 entry-five-1115 · CI g · 옛 판 다섯 다 빨강)
+chk 'ENTRY_VOICE_CUT_1115' console.html 2
+chk 'else if (ESD.run && i !== ESD.run.i) esdVoiceCut(ESD.run);' console.html 1
+chk 'ENTRY_CALL_RESUME_1115' console.html 2
+chk 'ENTRY_PAUSE_TWICE_1115' console.html 1
+chk 'if (!_esd && ESD.paused && !ESD.run) ESD.pzKeep = true;' console.html 1
+chk 'ENTRY_FADE_CUT_1115' console.html 3
+chk 'SHORT_SONG_FADE_1115' assets/entry-scene.js 1
+nochk 'else if(x<PL.th+after) d=0;' assets/entry-scene.js
+chk 'ENTRY_FIVE_1115' scripts/audit/entry-five-1115.mjs 1
+# ★[TRIBUTE_DUCK_OWNER_1115 2026-11-15 대표님 «추천대로» · BGM 결정 카드 ③ A] 부모님께 인사 구호 · 포옹 청하는 줄 아래 음악 −12 그대로(일반 말 −15 로 맞추지 않는다)
+chk 'TRIBUTE_DUCK_OWNER_1115' assets/ritual-cue.js 1
+chk "if (/\^tribute-in/.test(_rs) && _rc.live) _rc.live.walkDuck = PARAM.duckMove != null ? PARAM.duckMove : -12;" assets/ritual-cue.js 1
+# ★[FREE_SONG_SHOW_KEEP_1115 2026-11-15 대본 결정 A · BGM 결정 카드 ②] 축사 «음악 없이» 화면 곡(B10) ↔ 당일(B09) 차이는 그대로(SCREEN_SOUND_1102 · ONE_FLOW_1106)
+chk 'FREE_SONG_SHOW_KEEP_1115' assets/bgm-bed.js 1
+# ★★[HEARD_XF_1115 2026-11-15 BGM 섹션 · GPT 라운드 4 07] 당일 콘솔 — 들린 초(HEARD · REPEAT_FIX_1107 ①)는 겹침(BED.xing) 동안에도 센다 · 재생기마다 실효 출력 −60 dB 위인 곡 · 같은 곡이 두 재생기로 이어지면 한 번 · 검사 r4-1115 A
+chk 'HEARD_XF_1115' console.html 2
+chk "heardTick();" console.html 1
+chk "if (!f || seen\[f\] || !bedHeardOn(k)) continue; seen\[f\] = 1;" console.html 1
+nochk "_h.sec += 0.25" console.html 0
+# ★★[DECLARE_PLAYABLE_1115 2026-11-15 BGM 섹션 · GPT 라운드 4 01] 당일 콘솔 선언 뒤 박수 — 곡은 «본식 목록 ∩ 파일 − 못 연 곡» 안에서만 · 0곡이면 정적 · 실패 뒤 되돌아가는 곡도 그 안에서 · 정적에 꺼진 다른 곡은 되살리지 않는다(NO_RELIFT_1102) · 검사 r4-1115 B
+chk 'DECLARE_PLAYABLE_1115' console.html 2
+chk "BED.list && BED.list.some(_dok)) { var _hz" console.html 1
+chk "BED.onFail = (_sid !== BED.id && _dok(BED.id)) ?" console.html 1
+# ★★[ENTRY_WAIT_HUSH_1115 2026-11-15 BGM 섹션 · GPT 라운드 4 14] 미리 듣기 화촉 → 입장(뜸 없는 길) — 입장 곡이 아직이면 구호 줄이 «기다림»(LPB.entLate) · 화촉 곡을 되살리지 않고 입장 곡 시작은 _put 한 길 · 검사 r4-1115 C
+chk 'ENTRY_WAIT_HUSH_1115' assets/bgm-bed.js 2
+chk "if(!(BUF\[f\]&&BUF\[f\].st==='ok')) LPB.entLate={ st:st, tk:_tkh };" assets/bgm-bed.js 1
+chk "else if(LPB.entLate&&LPB.entLate.tk===_tkh){ LPB.entLate=null; note('fail',ec); }" assets/bgm-bed.js 1
+# ★[PV6_EDGE_1115 2026-11-15 BGM 섹션 · GPT 라운드 4 덧붙임] bgm-preview 6(축사 «음악 없이») — 줄 번호가 먼저 오르고 미리 낮추기가 setTimeout(0)인 줄 경계 표본 하나는 뺀다(표본 시점 문제 · 다음 표본이 같은 줄 −90 일 때만)
+chk 'PV6_EDGE_1115' scripts/audit/bgm-preview.mjs 1
+chk "b7\[j - 1\].i !== x.i && b7\[j + 1\] && b7\[j + 1\].i === x.i && b7\[j + 1\].want === -90" scripts/audit/bgm-preview.mjs 1
+# ★★[R4_1115 2026-11-15 BGM 섹션 · GPT 라운드 4] 검사 r4-1115 — A 겹침 동안 들린 초(HEARD_XF_1115) · B 음악 없이 뒤 박수(DECLARE_PLAYABLE_1115) · C 늦은 입장 곡 기다림(ENTRY_WAIT_HUSH_1115) · CI bgm-sound g 칸
+chk 'R4_1115' scripts/audit/r4-1115.mjs 1
+chk 'HEARD_XF_1115' scripts/audit/r4-1115.mjs 2
+chk 'DECLARE_PLAYABLE_1115' scripts/audit/r4-1115.mjs 2
+chk 'ENTRY_WAIT_HUSH_1115' scripts/audit/r4-1115.mjs 3
+chk 'R4_1115' .github/workflows/merge-guard.yml 1
+chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115' }" .github/workflows/merge-guard.yml 1
+# ★[WEEKDAY_OLD_OWNER_1116 2026-11-16 대표님 «수정 전이 더 좋은데»] 홈 «A Quiet Choice» 칸은 H4_18(11/06) 전 글 — 다시 바꾸자고 제안하지 않는다
+chk '>왜 평일이 더 자연스러운가</h3>' index.html 1
+chk '30명이 모이는 자리라면 굳이 주말일 이유가 없습니다. 평일은 일정을 맞추기 수월하고, 원하는 날짜를 넉넉히 고를 수 있습니다.</p>' index.html 1
+chk '그렇게 생긴 하루의 여유는, 신혼여행과 부모님을 위한 다이닝으로 자연스럽게 이어집니다.</p>' index.html 1
+nochk '평일 예식은 주말·공휴일보다 80만&nbsp;원 낮습니다.' index.html

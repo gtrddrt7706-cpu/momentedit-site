@@ -93,13 +93,13 @@ const setX = (f, o) => f.evaluate((o) => { if (o.picks) Object.keys(o.picks).for
 try {
   /* a 데이터 */
   { const o1 = P.order({ bgm: { M5: { k: 'B16' } } }, 'M8', 'B16'), o2 = P.order({ bgm: { S6: { m: 'bed', k: 'B14' } } }, 'M8', 'B14'), o3 = P.order({ bgm: { S6: { m: 'bed', k: 'B14' } } }, 'M8');
-    ok('a 테이블(목록 칸) — 앞 곡 The Rose(B16)를 맨 앞에 · 나머지는 원래 차례(B24 · B23 · B13 · B14)', o1.join() === 'B16,B24,B23,B13,B14', o1);
+    ok('a 테이블(목록 칸) — 앞 곡 The Rose(B16)를 맨 앞에 · 나머지는 원래 차례(B24 · B23 · B38 · B39 · B12 · B14 · B13 · SONGS_5_1115)', o1.join() === 'B16,B24,B23,B38,B39,B12,B14,B13', o1);
     /* ★[ONE_FLOW_1106] 편지 «음악과 함께» 곡 칸이 없어 옛 저장값 S6.k(B14)는 «다른 구간에서 고른 곡»이 아니다 — 이어 오면 맨 앞 · 안 이어지면 원래 차례 그대로(빼지 않는다) */
-    ok('a 바로 앞에서 이어 온 fill 곡(B14)은 빼지 않고 맨 앞 · 옛 편지 저장값(S6.k B14)은 읽지 않아 이어지지 않아도 빼지 않는다', o2.join() === 'B14,B24,B23,B16,B13' && o3.join() === 'B24,B23,B16,B13,B14', { o2, o3 });
+    ok('a 바로 앞에서 이어 온 fill 곡(B14)은 빼지 않고 맨 앞 · 옛 편지 저장값(S6.k B14)은 읽지 않아 이어지지 않아도 빼지 않는다', o2.join() === 'B14,B24,B23,B16,B38,B39,B12,B13' && o3.join() === 'B24,B23,B16,B38,B39,B12,B14,B13', { o2, o3 });
     ok('a 한 곡 칸 — 고르지 않았으면 앞 곡(B05) · 같은 곡을 골랐으면 그 곡 · 다른 곡(B07)을 골랐으면 고른 곡이 이긴다(carryOf = "")',
       typeof P.carryOf === 'function' && P.carryOf({}, 'M2', 'B05') === 'B05' && P.carryOf({ bgm: { M2: { k: 'B05' } } }, 'M2', 'B05') === 'B05' && P.carryOf({ bgm: { M2: { k: 'B07' } } }, 'M2', 'B05') === '' && P.order({ bgm: { M2: { k: 'B07' } } }, 'M2', 'B05')[0] === 'B07' && P.order({}, 'M2', 'B07').join() === 'B07,B05,B31' && P.carryOf({}, 'M2', 'B24') === '');
     const keep = P.PICKS.M2; P.PICKS.M2 = ['B05', 'B31', 'B13']; const o4 = P.order({ bgm: { M2: { k: 'B13' } } }, 'M8'); P.PICKS.M2 = keep;
-    ok('d 이어지지 않는 화촉에서 고른 곡(시험 B13)은 테이블 목록에서 건너뛴다', o4.join() === 'B24,B23,B16,B14', o4); }
+    ok('d 이어지지 않는 화촉에서 고른 곡(시험 B13)은 테이블 목록에서 건너뛴다', o4.join() === 'B24,B23,B16,B38,B39,B12,B14', o4); }   /* [SONGS_5_1115] 테이블 fill 이 늘었다 *
   /* b · c · d · e 고객 화면 · 미리 듣기 */
   for (const W of [390, 1280]) {
     const { ctx, pg, f, errs } = await open(W, true);

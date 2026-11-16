@@ -105,12 +105,14 @@ try {
     await f.evaluate(() => bedAct('pick', 'B10', 'welcome', 'M4')); await wait(f, 1800); const b2 = await f.evaluate(() => ({ q: LP.q.length, src: !!BgmBed._t.BED.cur.src }));
     ok('② 듣는 중 감사 인사 곡을 바꾸면 — 1.5초에 멈춤', a2 > 0 && b2.q === 0 && !b2.src, { a2, b2 }); await setS(f, { bgm: {} }); }
   /* ③ 선언 · 곡이 늦게 */
-  const decl = async (dly) => { await setS(f, { bgm: {} }); await go(f, 'welcome'); await f.evaluate(() => { Object.keys(BgmBed._t.BUF).forEach((k) => { delete BgmBed._t.BUF[k]; }); }); await pg.evaluate((d) => { H.dly.B09 = d; }, dly); await go(f, 'declare');
+  const decl = async (dly, F) => { await setS(f, { bgm: {} }); await go(f, 'welcome'); await f.evaluate(() => { Object.keys(BgmBed._t.BUF).forEach((k) => { delete BgmBed._t.BUF[k]; }); }); await pg.evaluate(([d, F]) => { H.dly[F] = d; }, [dly, F]); await go(f, 'declare');
     await f.evaluate(() => { Object.keys(BgmBed._t.BUF).forEach((k) => { delete BgmBed._t.BUF[k]; }); });
-    const r = await run(f, ['declare'], dly > 9000 ? 27000 : 16000);   /* [LEAD_FIRST_1101] 곡을 20초까지 기다린다 */ await stop(f); await pg.evaluate(() => { H.dly.B09 = null; }); return r; };
-  { const r = await decl(4000), l0 = r.find((x) => x.lead), tA = (r.find((x) => x.f === 'B09' && x.src) || {}).t, tM = (r.find((x) => l0 && x.t > l0.t && !x.lead && x.k === 'declare') || {}).t;
+    const r = await run(f, ['declare'], dly > 9000 ? 27000 : 16000);   /* [LEAD_FIRST_1101] 곡을 20초까지 기다린다 */ await stop(f); await pg.evaluate((F) => { H.dly[F] = null; }, F); return r; };
+  /* ★[DECL_DAYSONG_1115 2026-11-15 BGM 섹션] 선언 따로 듣기의 곡 = 당일 시간표 그 자리 곡(dayAt · SCREEN_SOUND_1102) — 이 판은 본식 첫 곡(B09 · 117.9초)이 선언 전에 끝나 B10 이다(DAY_KEY_READY_1115 로 시간표를 엔진으로 다 센 뒤 · 종전엔 B09 를 못 박았다) · 늦출 곡을 먼저 재 본다 */
+  const F3 = await (async () => { const r = await decl(0, 'B09'); return (r.find((x) => x.src && x.k === 'declare') || {}).f || 'B09'; })(); console.log('  선언 따로 듣기 곡 = ' + F3);
+  { const r = await decl(4000, F3), l0 = r.find((x) => x.lead), tA = (r.find((x) => x.f === F3 && x.src) || {}).t, tM = (r.find((x) => l0 && x.t > l0.t && !x.lead && x.k === 'declare') || {}).t;
     ok('③ 선언 따로 듣기 · 곡 4초 늦음 — 곡이 온 때부터 연출(1.5 + 4 + 2.5 = 8초) 뒤 멘트', !!l0 && tA != null && tM != null && Math.abs((tM - tA) - 8000) < 1000, { l0: l0 && Math.round(l0.t), tA: tA && Math.round(tA), tM: tM && Math.round(tM) }); }
-  { const r = await decl(30000), l0 = r.find((x) => x.lead), tM = (r.find((x) => l0 && x.t > l0.t && !x.lead && x.k === 'declare') || {}).t, mus = r.filter((x) => x.src && x.want > -60 && (tM == null || x.t < tM));
+  { const r = await decl(30000, F3), l0 = r.find((x) => x.lead), tM = (r.find((x) => l0 && x.t > l0.t && !x.lead && x.k === 'declare') || {}).t, mus = r.filter((x) => x.src && x.want > -60 && (tM == null || x.t < tM));
     ok('③ 곡이 20초 안에 안 오면(LEAD_FIRST_1101) — 연출 없이 2.5초 정적 → 멘트(뜸 시작에서 약 22.5초) · 그 사이 음악 0', !!l0 && tM != null && Math.abs((tM - l0.t) - 22500) < 1100 && mus.length === 0, { l0: l0 && Math.round(l0.t), tM: tM && Math.round(tM), mus: mus.length }); }
   /* ④ 연출 중 멈춤 → 이어 듣기 · 다시 돌아오면 처음부터 */
   { await setS(f, { bgm: {} }); await pg.evaluate(() => { H.dly.B09 = null; }); await go(f, 'declare'); await f.evaluate(() => { Object.keys(BgmBed._t.BUF).forEach((k) => { delete BgmBed._t.BUF[k]; }); BgmBed.lpWarm(['declare']); }); await wait(f, 1500);
