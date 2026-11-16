@@ -47,7 +47,8 @@ console.log('━━ ② 길');
 });
 ok(/var MP_FS_OVERLAYS=\[[^\]]*'mp_pvcOverlay'/.test(my), '겹화면 목록(MP_FS_OVERLAYS)에 mp_pvcOverlay — 빠지면 열린 채 뒤 화면이 스크롤된다');
 ok(/var WIZ_ORDER=\[[^\]]*'pvc'/.test(my) && /\n  pvc:\{ on:function\(\)\{ return typeof PVCFLOW/.test(my), '저장 · 나가기 한 벌(WIZ_ADAPT · WIZ_ORDER)에 pvc');
-ok(/\n    _pvRow,/.test(my) && my.indexOf("row('식전 영상'") > -1 && my.indexOf("$('mp_pvcStart')") > -1, '예식 준비 줄(_pvRow) · 단추 연결');
+/* ★[UMBRELLA_ROW_1116 · RULES_SLIM ⑧] 옛 기대 «예식 준비 줄 이름 = 식전 영상» → 목록 줄 이름은 늘 «상영 영상»(VU_NAME) · 식전 · 식중 두 줄은 둘 다 있는 날 그 줄을 펼친 안쪽(mp_vuFold)에만 */
+ok(/\n    _pvRow,/.test(my) && my.indexOf("html:row(VU_NAME, _pvR.st, 'mp_pvcStart'") > -1 && my.indexOf("html:row('식전 영상', _pvR.st") < 0 && my.indexOf("$('mp_pvcStart')") > -1 && my.indexOf("$('mp_vuOpen')") > -1 && /id="mp_vuFold" class="vu-fold"/.test(my), '예식 준비 줄(_pvRow) = «상영 영상» 한 줄 · 단추 연결(식전 · 여닫기) [UMBRELLA_ROW_1116]');
 ok(/PVCFLOW\.active\)\) return;/.test(my), '스크롤 잠금 자가 치유(_mpLockReconcile)가 식전 영상 편집 중엔 손대지 않는다');
 ok(/function purgeRitualFiles\(dry\) \{[\s\S]{0,800}?_pgPrevideo_\(live, t\)/.test(pr), '예식 6개월 뒤 지우기 — purgeRitualFiles 가 식전 영상 정리(_pgPrevideo_)를 부른다 [PURGE_POLICY_1106]');
 ok(/prevideo: \(typeof _pvPublic === 'function'\)/.test(pr), 'buildProductionState 가 prevideo 를 싣는다');

@@ -4790,7 +4790,7 @@ chk 'MID_VIDEO_1106' mypage.html 35
 chk 'MID_VIDEO_1106' automation/platform/89_prevideo.gs 19
 # ★[MID_FEEL_1107 2026-11-07 대본] 식중 영상의 필메이커 안내 — 쿠폰 걸음 대신 «비용 확인»(두 분 부담 · 쿠폰은 식전에만) · 길이는 식순 분 · 켜진 첫 화면에 «필메이커에서 만들기»
 chk 'MID_FEEL_1107' mypage.html 3
-chk '템플릿 비용은 두 분 부담이에요. 쿠폰은 식전 영상에만 적용돼요.' mypage.html 1
+chk 'USB 배송은 두 분 부담이에요. 앞 화면에서 «쿠폰 요청하기»를 누르시면 디렉터가 보내 드려요.' mypage.html 2   # ★[FM_COUPON_1116 · RULES_SLIM ⑧] 식전 · 식중 «만드는 법» 쿠폰 걸음 같은 말 — 옛 핀 «템플릿 비용은 두 분 부담이에요. 쿠폰은 식전 영상에만 적용돼요.»
 chk "if(PVCFLOW.kind==='mid') return _mvcFeel();" mypage.html 1
 chk 'MID_VIDEO_1106' admin.html 3
 chk 'MID_VIDEO_1106' automation/platform/80_production.gs 1
@@ -4875,6 +4875,46 @@ fi
 chk 'VIDEO_UMBRELLA_1115' mypage.html 5
 chk 'VIDEO_UMBRELLA_1115' order-preview.html 4
 nochk "var VU_NAME='예식 영상'" mypage.html 0
+# ★★[UMBRELLA_ROW_1116 2026-11-16 대본 12:59 · 대표님 캡처 «이것도 이름 바꿔야지 · 식중 영상도 있잖아»] 준비 목록은 늘 «상영 영상» 한 줄 — 식전만 · 식중만이면 그 단추 그대로(mp_pvcStart · mp_mvcStart) ·
+#   둘 다면 한 줄(✓ 둘 다 완료 · 꼬리표 확정 기한 · 단추 mp_vuOpen 시작하기 / 보기) 아래 펼침(mp_vuFold)에 식전 · 식중 두 줄 · 옛 머리 줄(vu-head) · 늘 펼친 두 줄은 은퇴(RULES_SLIM ⑧) — video-umbrella 가 390 · 1280 실렌더로 잰다
+chk 'UMBRELLA_ROW_1116' mypage.html 5
+chk "html:row(VU_NAME, _pvR.st, 'mp_pvcStart'" mypage.html 1
+chk "html:row(VU_NAME, _mvR.st, 'mp_mvcStart'" mypage.html 1
+chk 'aria-controls="mp_vuFold">' mypage.html 1
+chk 'id="mp_vuFold" class="vu-fold"' mypage.html 1
+chk "var _vuB=\$('mp_vuOpen'); if(_vuB) _vuB.addEventListener('click'" mypage.html 1
+nochk "html:row('식전 영상', _pvR.st, 'mp_pvcStart'" mypage.html   # 깨 보기: 옛 이름으로 되돌리면 이 줄 · 위 chk 둘 다 빨강
+nochk 'class="trk vu-head"' mypage.html   # 옛 머리 줄
+chk 'UMBRELLA_ROW_1116' scripts/audit/video-umbrella.mjs 3
+chk 'UMBRELLA_ROW_1116' scripts/audit/prevideo-cat.mjs 2
+# ★★[FM_COUPON_1116 2026-11-16 대본 15:55 · 대표님 13:07 «상영 영상 안에서 협력사 필메이커 쿠폰은 무료 · 요청한 분께만(진행 안 하면 안 나간다) · 협력사라고 · 안 쓰면 다른 곳 결제나 직접 만든 영상 링크»]
+#   «영상 준비» 걸음 안 세 길(① 협력사 필메이커 · 쿠폰 요청 ② 다른 곳 ③ 직접) · 쿠폰 상태 = 시트 «식전영상» 메타 m.cpn(열 추가 없음) · 요청 pvCpnReq · 취소 pvCpnCancel(_gsr_ · 한 시간 상한) ·
+#   관리자 «처리할 일» 협력사쿠폰 · 협력사쿠폰회수(제휴 확정 전 표시) · 넣기 · 회수 adminPvCoupon(_requireAdmin · 요청한 줄만) — scripts/audit/fm-coupon.mjs 가 서버 · 큐 · 화면 글을 잰다
+chk 'FM_COUPON_1116' mypage.html 10
+chk 'FM_COUPON_1116' admin.html 4
+chk 'FM_COUPON_1116' automation/platform/89_prevideo.gs 5
+chk 'FM_COUPON_1116' automation/admin/admin.gs 4
+chk "if (st === 'issued' || st === 'req') return { ok: true, same: true, cpn: _pvCpnPub_(m) };" automation/platform/89_prevideo.gs 1   # 같은 요청 두 번 = 한 번
+chk "if (st !== 'req') return { ok: false, error: st === 'issued' ? '이미 보냈어요.' : '고객이 요청한 쿠폰이 없어요.' };" automation/admin/admin.gs 1   # 요청 없이 나가는 길 없음
+chk "if (cn >= PV_UP.cpnHour) return { ok: false, ecode: 'S0'" automation/platform/89_prevideo.gs 1   # 한 시간 상한
+chk "out.cpn = _pvCpnPub_(row.m || {});" automation/platform/89_prevideo.gs 1
+chk "return '<button type=\"button\" class=\"cc-btn-ghost pvc-cpn-btn\" data-pvccpn=\"req\">쿠폰 요청하기</button>'; }" mypage.html 1
+chk '요청했어요 · 디렉터가 쿠폰을 보내 드려요' mypage.html 1
+chk '필메이커는 저희 협력사예요. 템플릿 이용 쿠폰은 무료예요. 제작 대행 · USB 같은 추가는 두 분 부담이에요.' mypage.html 1
+chk "'<span>쿠폰으로 기본 템플릿 무료</span><span>추가는 두 분 부담</span>'" mypage.html 1
+nochk "'쿠폰 · 기본 템플릿은 식전 영상에만'" mypage.html   # 옛 식중 말(꺼짐 점 줄)
+nochk '쿠폰은 식전 영상에만 적용돼요' mypage.html
+chk "case 'pvCpnReq':           return jsonOut(handlePvCpnReq(body));" automation/consultation/consultation-booking.gs 1
+chk "adminPvCoupon: adminPvCoupon," automation/admin/admin.gs 1
+chk 'var FM_PENDING=true;' admin.html 1   # «제휴 확정 전» 표시 — 제휴가 확정되면 false
+chk 'FM_COUPON_1116' scripts/audit/fm-coupon.mjs 1
+if command -v node >/dev/null 2>&1; then _fmc=$(node scripts/audit/fm-coupon.mjs 2>&1); _fmr=$?
+  case "$_fmr" in
+    0) echo 'ok fm-coupon: 요청 없이 쿠폰 없음 · 요청 → 관리자 줄 · 넣기 → 마이페이지 · 취소 → 회수 줄 · 한 시간 상한' ;;
+    1) echo 'FAIL fm-coupon: 협력사 쿠폰 흐름이 어긋났다 — node scripts/audit/fm-coupon.mjs'; printf '%s\n' "$_fmc" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
+    *) echo 'ok fm-coupon: 재지 못했습니다 — 재지 못한 것이지 결함이 아닙니다' ;;
+  esac
+fi
 if command -v node >/dev/null 2>&1; then _vu=$(node scripts/audit/video-umbrella.mjs 2>&1); _vur=$?
   case "$_vur" in
     0) echo 'ok video-umbrella: 상영 영상 묶음 · 확인서 · 식중 없는 분 그대로' ;;
@@ -4927,7 +4967,7 @@ chk "+PN\[_pw\]+' 빼기</button>'" order-preview.html 1                  # 빼�
 chk 'PAIR_TILE_ON_1115' order-preview.html 1
 chk 'w?PICK_COPY.tileOn\[w\]:PICK_COPY.tile.free' order-preview.html 1                      # 담은 뒤 카드 한 줄 = 고른 쪽
 chk 'MID_COST_NEAR_1115' order-preview.html 2
-chk '<span class="pv-in pv-cost">제작비는 두 분 부담이에요</span>' order-preview.html 1     # 식중 영상 제작비는 담기 단추 옆(펼침 안 아님)
+chk '<span class="pv-in pv-cost">쿠폰으로 기본 템플릿 무료 · 추가는 두 분 부담이에요</span>' order-preview.html 1     # 식중 영상 비용은 담기 단추 옆(펼침 안 아님) · ★[FM_COUPON_1116] 옛 핀 «제작비는 두 분 부담이에요»
 chk 'PV_WHO_FOLD_1115' order-preview.html 1
 chk '.pv-who\[open\] summary::after{transform:rotate(-135deg)' order-preview.html 1         # «누가 하나요?» 꺾쇠(같은 창 장면 사진 칩과 같은 꼴)
 chk 'SONG_WHO_ONE_1115' order-preview.html 3
@@ -23286,11 +23326,14 @@ chk '시착하시면 상담 예약금은 시착 비용으로 전환돼요' asset
 chk '종교 의식도, 주례자를 모시는 것도 가능해요' assets/advisor-kb.js 1           # [H4_RELIGION]
 chk '조건은 상담 때 안내해 드려요' api/_kb.js 1                                    # [H4_HONOR] 오픈 혜택 조건
 chk '본식 동안이에요(고른 순서에 따라 약 7~25분)' api/_kb.js 1                     # [H4_LIVE] 디지털 참석
-chk '식중 영상은 선택이에요. 축사 · 축가 뒤(편지 낭독 앞)에 넣고, 축사나 축가와 함께 담을 수 있어요. 제작 비용은 두 분이 부담해요. 예식 7일 전까지 확정해 주세요. 확정하지 않으면 영상 없이 진행해요.' api/_kb.js 1   # ★[SPEECH_SONG_1115] 자리 · 함께 담기(옛 «축사 자리(덕담 뒤 · 축가 앞)에 축사 대신») · [H4_MIDVIDEO · MID17_14] 사장님 11/06 · 계약서 v1.16 3조②
+chk '식중 영상은 선택이에요. 축사 · 축가 뒤(편지 낭독 앞)에 넣고, 축사나 축가와 함께 담을 수 있어요. 쿠폰으로 기본 템플릿은 무료이고, 추가는 두 분이 부담해요. 예식 7일 전까지 확정해 주세요. 확정하지 않으면 영상 없이 진행해요.' api/_kb.js 1   # ★[FM_COUPON_1116] 옛 «제작 비용은 두 분이 부담해요.»   # ★[SPEECH_SONG_1115] 자리 · 함께 담기(옛 «축사 자리(덕담 뒤 · 축가 앞)에 축사 대신») · [H4_MIDVIDEO · MID17_14] 사장님 11/06 · 계약서 v1.16 3조②
 # ★[MID17_14 2026-11-07 대본 줄 14] 홈 FAQ · JSON-LD · 별도 표에 식중 영상(선택 · 제작 비용 두 분 · 7일 전 · 없으면 영상 없이) — «포함» 칸 · 업체 이름 · 쿠폰 금지
 chk '기한까지 확정하지 않으면 영상 없이 진행합니다.' index.html 2
-chk '<li>식중 영상 <span class="li-meta">선택 · 제작 비용 두 분</span></li>' index.html 1
-nochk '식중 영상.*쿠폰' index.html
+chk '<li>식중 영상 <span class="li-meta">선택 · 쿠폰으로 기본 템플릿 무료 · 추가는 두 분</span></li>' index.html 1   # ★[FM_COUPON_1116 · RULES_SLIM ⑧] 옛 핀 «선택 · 제작 비용 두 분»
+# ★[FM_COUPON_1116] 옛 nochk '식중 영상.*쿠폰' index.html(MID17_14 · 홈에 쿠폰 금지)은 은퇴 — 대본 11/16 15:55 «쿠폰으로 기본 템플릿 무료 · 추가는 두 분». 업체 이름은 여전히 홈 · 공개 AI 에 쓰지 않는다
+nochk '필메이커' index.html
+nochk '필메이커' api/_kb.js
+nochk '필메이커' assets/advisor-kb.js
 chk '덕담 원고는 예식 7일 전까지 준비해 주세요' api/_kb.js 1                       # [H4_Q34]
 # ★★[H4_15 2026-11-06 홈 4차 H15 · 대본 판정 «상»] 상담 신청서 맨 앞 «상담할 상품» — 스냅이면 예식 칸을 끄고(검증 제외) 촬영 날짜 · 시간 · 스냅 가격 · product 웨딩스냅
 chk 'name="product" value="웨딩스냅"' inquiry.html 1
