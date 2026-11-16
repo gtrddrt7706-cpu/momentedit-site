@@ -1364,7 +1364,7 @@
       }
       return [cue({
         k: 'song', blockN: '축가', slug: 'narr-song', name: '축가 도입', text: D.NARR.song, duck: PARAM.duckMusic,
-        pick: S.song === 'live' ? '어쿠스틱 라이브' : '가족·지인이 직접',
+        pick: '가족·지인이 직접',   // ★[NO_INSTRUMENT_1116 2026-11-16 대표님 17:05 «악기 연주는 불가야»] 옛 초안 'live' 도 가족·지인(MR) · «어쿠스틱 라이브» 되살리지 말 것
         live: { t: '축가 1곡', est: 210, duck: PARAM.duckOff, self: true, doing: 'sing', note: 'BGM은 완전히 끈다' }
       }), cue({
         k: 'song', blockN: '축가', slug: 'narr-song-out', name: '축가 마무리',
@@ -1397,13 +1397,13 @@
          (옛 판이 «지목하지 않았던» 까닭은 무엇이 올지 몰라서였다 · 옛 코스는 아래 그대로)
          ★재생이 안 되면 디렉터가 [재생 안 됨]을 누른다 — 한 줄 뒤 곧장 다음 순간으로(맺는 말은 건너뛴다 · FREE_RESCUE). */
       if (D.COURSES[S.course].open) {
-        var fk = O.FREE_KIND[S.freeWhat] || 'video', len = +S.freeLen || 3;   // norm 이 값을 이미 맞춰 둔다(FREE_WHAT)
+        var fk = O.FREE_KIND[{ stage: 'speech', dance: 'speech', show: 'speech' }[S.freeWhat] || S.freeWhat] || 'video', len = +S.freeLen || 3;   // ★[NO_SHOW_1116] 옛 무대 값은 norm 을 거치지 않은 빌드에서도 축사로(영상으로 떨어지지 않게)   // norm 이 값을 이미 맞춰 둔다(FREE_WHAT)
         var nm = O.chipLabel('free', S);
-        var play = (fk === 'video' || fk === 'stage');   // 파일을 트는 판만 «재생 안 됨»이 있다
-        var LT = { video: '준비한 영상 상영 (영상은 디렉터가 튼다)', stage: '준비한 무대 (음원은 디렉터가 튼다 · 설 자리 미리 비움)', etc: '두 분이 준비한 것 (디렉터는 필요한 것만 건넨다)',   // [FREE_ETC] 기타 = 옛 «자유 한 칸» 지문(장면 설명 열쇠 그대로)
+        var play = (fk === 'video');   // 파일을 트는 판만 «재생 안 됨»이 있다 · [NO_SHOW_1116] 무대 갈래 걷음
+        var LT = { video: '준비한 영상 상영 (영상은 디렉터가 튼다)',   /* ★[NO_SHOW_1116] 무대 지문(stage) 걷음 — 옛 무대 초안은 norm(midMigrate)이 축사로 */ etc: '두 분이 준비한 것 (디렉터는 필요한 것만 건넨다)',   // [FREE_ETC] 기타 = 옛 «자유 한 칸» 지문(장면 설명 열쇠 그대로)
           gift: '준비한 선물 건네기 (건넬 분이 앞으로 · 디렉터가 자리를 맞춘다)', speech: '준비한 축사 (디렉터가 마이크 전달 · 원고 큰 글씨 사본이 디렉터에게도 있다)' };
         var o = {
-          k: 'free', blockN: fk === 'speech' ? '축사' : fk === 'video' ? '식중 영상' : fk === 'stage' ? '축하 공연' : '준비한 순서',   /* [SHOW_PAIR_1116] */ slug: fk === 'speech' ? 'narr-free-in-speech' : 'narr-free-in',   /* ★[FREE_IN_RR_1023 검토 151-1 3)] 영상 · 선물 · 기타 = 여는 말 하나(58 · RR 109) · 100 · 102 는 쉰다 */ name: (fk === 'speech' ? '축사 시작 · ' + len + '분' : fk === 'video' ? '식중 영상 시작 · ' + len + '분' : fk === 'stage' ? '축하 공연 시작 · ' + len + '분' : '준비한 순서 시작 · ' + nm),   /* [SHOW_PAIR_1116] */   /* ★[SPEECH_TILE_1012] 축사 칸(옛 준비한 순서) — 영상 · 선물 · 기타는 옛 초안에만 */   /* ★[FREE_ETC 2026-10-06] 기타는 무엇이 올지 모르는 판 — 지목하지 않는 옛 여는 말(58 · 녹음 있음) */
+          k: 'free', blockN: fk === 'speech' ? '축사' : fk === 'video' ? '식중 영상' : '준비한 순서',   /* [NO_SHOW_1116] 블록 «축하 공연» 걷음 */ slug: fk === 'speech' ? 'narr-free-in-speech' : 'narr-free-in',   /* ★[FREE_IN_RR_1023 검토 151-1 3)] 영상 · 선물 · 기타 = 여는 말 하나(58 · RR 109) · 100 · 102 는 쉰다 */ name: (fk === 'speech' ? '축사 시작 · ' + len + '분' : fk === 'video' ? '식중 영상 시작 · ' + len + '분' : '준비한 순서 시작 · ' + nm),   /* [SHOW_PAIR_1116] */   /* ★[SPEECH_TILE_1012] 축사 칸(옛 준비한 순서) — 영상 · 선물 · 기타는 옛 초안에만 */   /* ★[FREE_ETC 2026-10-06] 기타는 무엇이 올지 모르는 판 — 지목하지 않는 옛 여는 말(58 · 녹음 있음) */
           text: fk === 'speech' ? EXTRA['narr-free-in-speech'] : D.NARR.freeIn, duck: fk === 'speech' ? PARAM.duckSpeech : PARAM.duckMusic, pick: nm,
           /* ★[MID17_CONSOLE 2026-11-07 MID17-10 당일 콘솔] 식중 영상 디렉터 메모 — 식전 영상 큐의 note(D-7 · 상영 중 배경음)와 같은 꼴 · 영상 사람 순간을 든 큐에 싣는다(아래 둘로 나눌 때 129 로 옮긴다).
                콘솔에 영상 파일 · 길이를 미리 여는 장치는 식전 영상에도 없다 — 새로 만들지 않고 이 한 줄로(상영본 자리 = 89_prevideo «개인코드_예식일_식중» 폴더 «미리보기…» · 식전 영상과 같다) · 불 낮추기는 식전 영상만(식중은 사장님 결정 전) */

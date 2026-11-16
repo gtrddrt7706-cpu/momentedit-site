@@ -995,9 +995,9 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-s{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12.5px;color:var(--sub);line-height:1.45;margin-top:2px}
 @media (max-width:339px){ .pk-s{-webkit-line-clamp:3} }   /* [TILE_3LINE 코워크 추가 점검] 340 아래에서 칸 설명이 두 줄에서 잘렸다 */
 /* ★[SPEECH_SONG_1115] 축사 · 축가 한 카드 — 이름 자리 = 고르기 둘(골랐다 = 금빛 테 한 겹 + 옅은 금빛 바탕 SEL_ONE · 담기 전엔 둘 다 안 눌린 모양) */
-.pk-pair{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin:-6px 0 0}   /* ★[PAIR_CELLS_1115 GPT 검토 1라운드 «처음엔 이름표 두 개처럼 · 가운데점으로 한 제목처럼»] 같은 폭 두 칸 · 누르는 칸 44px */
+.pk-pair{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:-6px 0 0}   /* ★[NO_SHOW_1116] 셋 → 두 칸으로 되돌림(공연 칸 걷음 · 되살리지 말 것) */   /* ★[PAIR_CELLS_1115 GPT 검토 1라운드 «처음엔 이름표 두 개처럼 · 가운데점으로 한 제목처럼»] 같은 폭 두 칸 · 누르는 칸 44px */
 .pk-pc{min-height:44px;padding:4px 0;border:0;background:none;font:inherit;font-weight:600;font-size:14px;line-height:1.35;color:var(--accent);cursor:pointer;display:flex;align-items:stretch}
-.pk-pc span{flex:1;display:flex;align-items:center;justify-content:center;min-height:34px;padding:0 4px;border:1px solid var(--border);border-radius:999px}   /* 담기 전엔 둘 다 같은 옅은 테(고를 수 있다는 표시 · 눌린 모양 아님) */
+.pk-pc span{flex:1;display:flex;align-items:center;justify-content:center;min-height:34px;padding:0 8px;border:1px solid var(--border);border-radius:999px}   /* 담기 전엔 둘 다 같은 옅은 테(고를 수 있다는 표시 · 눌린 모양 아님) */
 .pk-pc.on span{border-color:var(--gold-deep);background:#F3ECDF;color:var(--accent)}   /* [SEL_THIN] 칩(.op-chip)과 같은 값 */
 .pk-pc:focus-visible{outline:none}.pk-pc:focus-visible span{outline:2px solid var(--gold-deeper);outline-offset:1px}
 .pk-pairt .pk-open{height:auto}
@@ -2486,7 +2486,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1116H"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1115e5"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1107ig"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1116H"></script><script src="/assets/bgm-picks.js?v=1116H"></script><script src="/assets/narration-pad.js?v=1108L2"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1115bg"></script><script src="/assets/bgm-form.js?v=1106b3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1116ns"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1115e5"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1107ig"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1116H"></script><script src="/assets/bgm-picks.js?v=1116H"></script><script src="/assets/narration-pad.js?v=1108L2"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1115bg"></script><script src="/assets/bgm-form.js?v=1106b3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3332,7 +3332,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={}, gen=++ENG_GEN, ac=null, tm=0; try{ ac=new AbortController(); }catch(e){ ac=null; }
-  var ASSET_V='1116H';   /* [SHOW_PAIR_1116 · SPEECH_SONG_1115] 이 가지(1116sb) + main(1116G2 식중 영상 새 판) 합침 · 옛 1116G2: [MID_OK_1116] 식중 영상 새 판(VIDEO_V 1116g) + BGM 고침 #1655 를 한 값으로 · 옛 1116Mb:   /* [SONGS_5_1115 · BGM 고침 #1655 와 합침] · [MID_OK_1116] ritual-open VIDEO_V 1116m(식중 첫 화면 그림) · 옛 1115R1:  [RING_OK_1115] ritual-open 의 VIDEO_V(반지 장면 영상 새 판) · [MID17_NAME · MID17_ENGINE · MID17_CONSOLE] ritual-open 식중 영상 이름 · ritual-cue 58 → 129 · 식중 영상 디렉터 메모 */   // [ASSET_V] 위 주석 · [ONE_FLOW_1106] ritual-open · ritual-cue · bgm-picks · bgm-slots · bgm-bed · [B2_FIX_R1 · B2_FIX_R2] ritual-open · ritual-cue 를 바꿨다 · #1619 와 합침
+  var ASSET_V='1116ns';   /* [NO_SHOW_1116 · NO_INSTRUMENT_1116] 축하 공연 걷음 · 축가 악기 연주 문구 · 옛 1116H: [SHOW_PAIR_1116 · SPEECH_SONG_1115] 이 가지(1116sb) + main(1116G2 식중 영상 새 판) 합침 · 옛 1116G2: [MID_OK_1116] 식중 영상 새 판(VIDEO_V 1116g) + BGM 고침 #1655 를 한 값으로 · 옛 1116Mb:   /* [SONGS_5_1115 · BGM 고침 #1655 와 합침] · [MID_OK_1116] ritual-open VIDEO_V 1116m(식중 첫 화면 그림) · 옛 1115R1:  [RING_OK_1115] ritual-open 의 VIDEO_V(반지 장면 영상 새 판) · [MID17_NAME · MID17_ENGINE · MID17_CONSOLE] ritual-open 식중 영상 이름 · ritual-cue 58 → 129 · 식중 영상 디렉터 메모 */   // [ASSET_V] 위 주석 · [ONE_FLOW_1106] ritual-open · ritual-cue · bgm-picks · bgm-slots · bgm-bed · [B2_FIX_R1 · B2_FIX_R2] ritual-open · ritual-cue 를 바꿨다 · #1619 와 합침
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,ac?{credentials:'same-origin',signal:ac.signal}:{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })), _to=new Promise(function(_ok,no){ tm=setTimeout(function(){ var _e5=new Error('engine'); _e5.meN=5; no(_e5); try{ if(ac) ac.abort(); }catch(e){} },ENG_TO_MS); });
@@ -4142,7 +4142,7 @@ function renderIntro2(){
 }
 
 function oc(key,v,nm,desc,nar,end,self,prep,rec){
-  var on=S[key]===v;
+  var on=S[key]===v||(key==='song'&&v==='family'&&S.song==='live');   /* ★[NO_INSTRUMENT_1116 2026-11-16 대표님 17:05 «악기 연주는 불가야»] 옛 코스 «어쿠스틱 라이브 연주» 칩은 걷었다 · 옛 초안 S.song 'live' 는 지우지 않고 «가족·지인이 직접»(MR)으로 읽는다 */
   // [ORD_KEY] 카드는 그릇, 제목이 버튼 — 제목의 ::after가 카드를 덮어 '카드 아무 데나' 감각은 유지된다.
   //   [ORD_DESC] 버튼 이름은 '아버지가' 뿐이라 낭독기로는 무엇인지 알 수 없었다 → 설명줄을 이름에 딸려 읽히게 묶는다.
   var did='ocd_'+key+'_'+v;
@@ -4347,7 +4347,7 @@ var OPTWHY={
           bless:'가장 짧게 두려고 기본에서 빼 뒀어요 · 부모님 말씀을 넣고 싶으면 더해요'},
  family:{welcome:'이 코스는 부모님 덕담이 예식의 문을 열어서, 감사 인사는 겹치지 않게 선택으로 뒀어요'},
  gamdong:{valley:'감정 흐름이 끊기지 않도록 기본에서 빼 뒀어요 · 분위기 전환이 필요하면 더해요'},
- festive:{song:'불러 줄 가족·지인이 있거나 라이브 연주를 원할 때 더해요',
+ festive:{song:'불러 줄 가족·지인이 있을 때 더해요 · 반주는 MR로 틀어요',   /* ★[NO_INSTRUMENT_1116 2026-11-16 대표님 17:05 «악기 연주는 불가야»] «라이브 연주를 원할 때» 걷음 */
           bless:'밝은 흐름을 가볍게 유지하려 기본에서 빼 뒀어요 · 부모님 말씀을 넣고 싶으면 더해요'}
 };
 /* ★[ALL_OPTIONAL 2026-08-07] 뺄 수 있는 순간 = **입장 빼고 전부**.
@@ -4419,7 +4419,7 @@ function _cntLine(cls){ var R=RitualOpen; if(!R||!R.countOf||!isOpen()) return '
 var MIDV='midvid';
 function _mvOn(T){ T=T||S; return RitualOpen.onOf(T,'midvid'); }   /* ★[SPEECH_SONG_1115] 식중 영상 = 따로 넣고 빼는 순간(midvid) · 옛 free 영상 갈래는 RitualOpen.midMigrate 가 옮긴다 */
 /* 칸 · 미리 보기 창이 보는 판 — {엔진 열쇠, 그 칸으로 본 S, 담김} */
-var PAIR_NAME='축사 · 축가 · 공연', PN={free:'축사',song:'축가',stage:'공연'}, PN_O={free:'축사를',song:'축가를',stage:'공연을'}, PN_RO={free:'축사로',song:'축가로',stage:'공연으로'}, PN_T={free:'축사',song:'축가',stage:'축하 공연'};   /* ★[SHOW_PAIR_1116 대본 ALL_GO_1116] 축사 · 축가 · 축하 공연 중 하나 · 알림 «축가 대신 공연을 담았어요»(13자) */   /* ★[SPEECH_SONG_1115] [TOAST_MIN] 둘 다 13자 */
+var PAIR_NAME='축사 · 축가', PN={free:'축사',song:'축가'}, PN_O={free:'축사를',song:'축가를'}, PN_RO={free:'축사로',song:'축가로'}, PN_T={free:'축사',song:'축가'};   /* ★[NO_SHOW_1116 2026-11-16 대표님 «공연은 빼자»] 셋째 갈래(stage · 공연) 걷음 — 축사 · 축가 둘 중 하나 · 되살리지 말 것 */   /* ★[SHOW_PAIR_1116 대본 ALL_GO_1116] 축사 · 축가 · 축하 공연 중 하나 · 알림 «축가 대신 공연을 담았어요»(13자) */   /* ★[SPEECH_SONG_1115] [TOAST_MIN] 둘 다 13자 */
 /* ★★[SPEECH_SONG_1115 2026-11-15 대표님] ① 칸 판 — 축사 · 축가는 한 카드(free 칸 · 안에서 축사 / 축가 고르기 · 그림 = 고른 쪽 · 안 고르면 축사 그림) · 식중 영상 칸은 midvid 그대로 */
 function _pkV(k){ var R=RitualOpen;
   if(k===MIDV) return {k:'midvid',S:S,on:R.onOf(S,'midvid')};
@@ -4447,9 +4447,9 @@ function _midAt(){
     try{ t.scrollIntoView({block:'center',behavior:_rm()?'auto':'smooth'}); }catch(e){} t.classList.remove('pk-flash'); void t.offsetWidth; t.classList.add('pk-flash'); setTimeout(function(){ t.classList.remove('pk-flash'); },1600); },120); }
 window.opPkTgl=function(k){ var R=RitualOpen; if(k===MIDV){ opTgl('midvid',1); return; } if(k==='free'&&isOpen()){ var w=R.pairOf(S); if(!w){ opPv('free'); return; } opTgl(w,1); return; }   /* ★[PAIR_PLUS_PV_1115 GPT 검토 1라운드] 고른 게 없을 때 ＋ = 창(축사 담기 · 축가 담기) — 저희가 축사를 미리 골라 담지 않는다(BOSS_STYLE 1) */ opTgl(k,1); };   /* ★[SPEECH_SONG_1115] 식중 영상 = 따로 · 축사 · 축가 카드의 ＋ 는 축사(대표님 «카드 미리 보기는 축사») · ✓ 는 담긴 쪽 빼기 */
 /* 카드 안 고르기 — 담기 전이면 누른 쪽을 담고(눌린 모양은 담은 뒤에만 · 기본값을 눌린 모양으로 두지 않는다) · 담겨 있으면 그쪽으로 바꾼다(개수 그대로 · 시간만 다시 잰다) */
-window.opPair=function(w){ var R=RitualOpen, cur=R.pairOf(S); if(R.PAIR.indexOf(w)<0) return; if(cur===w) return; if(!cur&&w!=='stage'){ if(PV.k==='free') PV.pv=w; opTgl(w,1); if(PV.k==='free') _pvDraw(); return; }
-  if(_capNo(function(t){ R.pairSet(t,w); },true,(w==='stage'?'free':w))) return; _opPrev=_pkSnap(); R.pairSet(S,w); if(cur) _mkForget([cur==='stage'?'free':cur]); var msg=cur?(PN[cur]+' 대신 '+PN_O[w]+' 담았어요'):(PN_O[w]+' 담았어요'); _pkMsg=msg+' · '+R.spanText(S); opSync(); if(PV.k==='free'&&PV.pv!==w){ PV.pv=w; _pvStop(); _pvDraw(); _pvPlay(); } else if(PV.k) _pvActs(); _pkUndo(msg); };   /* [PAIR_VIEW_1115] 바꾼 쪽을 보여 준다 */
-window.opTgl=function(k,tile){ var _pOutK='';   /* [SHOW_PAIR_1116] 빠진 쪽 갈래(축사 · 공연 · 축가) */ if(RitualOpen.ALWAYS[k]||k==='_close') return; if(RitualOpen.RETIRED&&RitualOpen.RETIRED[k]) return; var _fb=k==='free'?_freeBack(tile?'speech':''):'';   /* [MID17_FREE_BACK] tile = ① 축사 칸 · 창에서 담음(opPkTgl) · 없으면 ② 흐름 */ if(!(S.on&&S.on[k])&&_capNo(function(t){ t.on[k]=1; if(k==='free') t.freeWhat=_fb; if(isOpen()&&(k==='free'||k==='song')) delete t.on[k==='free'?'song':'free']; },true)) return;   /* [BODY_CAP_1030] */   /* [CAKE_OLD_OFF_1017] 걷은 순간(케이크)은 담지도 않는다 */ if(!S.on) S.on={};   /* [SPEECH_SONG_1115] 축사 · 축가 둘 중 하나 */ var _nm0=RitualOpen.nameOf(k,S);   /* [MID17_TILE] 빼기 알림은 뺀 «그» 이름(영상 날 free = 식중 영상) */ var _cxT=RitualOpen.crossTribute(S), _cxM=MK.toast, _cxG=MK.toastGo; var on=!S.on[k]; if(on) S.on[k]=1; else delete S.on[k]; var _pOut=(on&&isOpen()&&(k==='free'||k==='song')&&S.on[k==='free'?'song':'free'])?(k==='free'?'song':'free'):''; if(_pOut){ _pOutK=_pOut==='song'?'song':(RitualOpen.FREE_KIND[S.freeWhat]==='stage'?'stage':'free'); delete S.on[_pOut]; _mkForget([_pOut]); }   /* ★[SPEECH_SONG_1115] 축사 · 축가 — 한쪽을 담으면 다른 쪽은 빠진다 */ try{ _crossWatch(_cxT); if(MK.toast&&MK.toast!==_cxM){ MK.toast=_cxM; MK.toastGo=_cxG; setTimeout(function(){ _noteToast('부모님께 인사 대상이 바뀌었어요'); },60); } }catch(e){}   /* ★[CROSS_NOW_1031 식순 걷기 3라운드 5] ① 에서 바꾼 그 자리에서 한 번 — ② 까지 들고 가지 않는다 */   /* ★[CROSS_ALL_1031 식순 걷기 2라운드 10] ① 담기 · 빼기도 인사 대상이 바뀌면 같은 한 줄 */ if(on&&k==='free'){ S.freeWhat=_fb; _freeWas=null; } else if(!on&&k==='free') _freeOff();   /* ★[SPEECH_TILE_1012] 새로 담는 칸은 늘 축사 · ★[MID17_FREE_BACK] 이번 방문에 뺀 칸은 뺄 때 갈래로 */ _mkForget([k]); _opPrev=null; _pkUndo(''); /* [UNDO_CLOSE_ON_TGL 코워크 회신7 #868-1] 되돌릴 것이 사라지면 알림도 닫는다 — 남으면 눌러도 아무 일 없는 단추였다(창 안 담기 · 빼기도 여기를 탄다) */ _pkMsg=_pOut?(PN[_pOutK]+' 대신 '+PN_O[RitualOpen.pairOf(S)||k]+' 담았어요 · '+RitualOpen.spanText(S)):_pkSayOf(k,on,_nm0);   /* ★[SHOW_PAIR_1116] 옛 PAIR_SWAP 표는 걷혔다(남은 이 자리가 «PAIR_SWAP is not defined»로 멈췄다) — opPair 와 같은 꼴 «X 대신 Y를 담았어요» */ opSync(); if(PV.k===k||(PV.k==='free'&&(k==='free'||k==='song'))) _pvActs(); if(on) _thanksDupToast(k); };   /* [SPEECH_SONG_1115] */
+window.opPair=function(w){ var R=RitualOpen, cur=R.pairOf(S); if(R.PAIR.indexOf(w)<0) return; if(cur===w) return; if(!cur){ if(PV.k==='free') PV.pv=w; opTgl(w,1); if(PV.k==='free') _pvDraw(); return; }
+  if(_capNo(function(t){ R.pairSet(t,w); },true,w)) return; _opPrev=_pkSnap(); R.pairSet(S,w); if(cur) _mkForget([cur]); var msg=cur?(PN[cur]+' 대신 '+PN_O[w]+' 담았어요'):(PN_O[w]+' 담았어요'); _pkMsg=msg+' · '+R.spanText(S); opSync(); if(PV.k==='free'&&PV.pv!==w){ PV.pv=w; _pvStop(); _pvDraw(); _pvPlay(); } else if(PV.k) _pvActs(); _pkUndo(msg); };   /* [PAIR_VIEW_1115] 바꾼 쪽을 보여 준다 */
+window.opTgl=function(k,tile){ var _pOutK='';   /* [SHOW_PAIR_1116 → NO_SHOW_1116] 빠진 쪽 갈래(축사 · 축가) */ if(RitualOpen.ALWAYS[k]||k==='_close') return; if(RitualOpen.RETIRED&&RitualOpen.RETIRED[k]) return; var _fb=k==='free'?_freeBack(tile?'speech':''):'';   /* [MID17_FREE_BACK] tile = ① 축사 칸 · 창에서 담음(opPkTgl) · 없으면 ② 흐름 */ if(!(S.on&&S.on[k])&&_capNo(function(t){ t.on[k]=1; if(k==='free') t.freeWhat=_fb; if(isOpen()&&(k==='free'||k==='song')) delete t.on[k==='free'?'song':'free']; },true)) return;   /* [BODY_CAP_1030] */   /* [CAKE_OLD_OFF_1017] 걷은 순간(케이크)은 담지도 않는다 */ if(!S.on) S.on={};   /* [SPEECH_SONG_1115] 축사 · 축가 둘 중 하나 */ var _nm0=RitualOpen.nameOf(k,S);   /* [MID17_TILE] 빼기 알림은 뺀 «그» 이름(영상 날 free = 식중 영상) */ var _cxT=RitualOpen.crossTribute(S), _cxM=MK.toast, _cxG=MK.toastGo; var on=!S.on[k]; if(on) S.on[k]=1; else delete S.on[k]; var _pOut=(on&&isOpen()&&(k==='free'||k==='song')&&S.on[k==='free'?'song':'free'])?(k==='free'?'song':'free'):''; if(_pOut){ _pOutK=_pOut==='song'?'song':'free'; delete S.on[_pOut]; _mkForget([_pOut]); }   /* ★[SPEECH_SONG_1115] 축사 · 축가 — 한쪽을 담으면 다른 쪽은 빠진다 */ try{ _crossWatch(_cxT); if(MK.toast&&MK.toast!==_cxM){ MK.toast=_cxM; MK.toastGo=_cxG; setTimeout(function(){ _noteToast('부모님께 인사 대상이 바뀌었어요'); },60); } }catch(e){}   /* ★[CROSS_NOW_1031 식순 걷기 3라운드 5] ① 에서 바꾼 그 자리에서 한 번 — ② 까지 들고 가지 않는다 */   /* ★[CROSS_ALL_1031 식순 걷기 2라운드 10] ① 담기 · 빼기도 인사 대상이 바뀌면 같은 한 줄 */ if(on&&k==='free'){ S.freeWhat=_fb; _freeWas=null; } else if(!on&&k==='free') _freeOff();   /* ★[SPEECH_TILE_1012] 새로 담는 칸은 늘 축사 · ★[MID17_FREE_BACK] 이번 방문에 뺀 칸은 뺄 때 갈래로 */ _mkForget([k]); _opPrev=null; _pkUndo(''); /* [UNDO_CLOSE_ON_TGL 코워크 회신7 #868-1] 되돌릴 것이 사라지면 알림도 닫는다 — 남으면 눌러도 아무 일 없는 단추였다(창 안 담기 · 빼기도 여기를 탄다) */ _pkMsg=_pOut?(PN[_pOutK]+' 대신 '+PN_O[RitualOpen.pairOf(S)||k]+' 담았어요 · '+RitualOpen.spanText(S)):_pkSayOf(k,on,_nm0);   /* ★[SHOW_PAIR_1116] 옛 PAIR_SWAP 표는 걷혔다(남은 이 자리가 «PAIR_SWAP is not defined»로 멈췄다) — opPair 와 같은 꼴 «X 대신 Y를 담았어요» */ opSync(); if(PV.k===k||(PV.k==='free'&&(k==='free'||k==='song'))) _pvActs(); if(on) _thanksDupToast(k); };   /* [SPEECH_SONG_1115] */
 /* ★★[COMBO_171_1030 검토 171 C01] 인사 받는 분이 칩 하나로 바뀌는 자리(편지 «각자 부모님께» ↔ 다른 판 · 인사 말의 판) — 적어 둔 인사말이 있으면 바뀐 순간 한 줄 + 인사 칸으로 · 글은 지우지 않는다
    (종전엔 순간 빼기 · 다시 담기(mkDrop · mkUndrop)만 알렸다) */
 function _crossWatch(c0){ try{ var R=RitualOpen, c1=R.crossTribute(S), tx=S.tx||{}; if(c0===c1||!String(tx['tribute.g']||tx['tribute.b']||S.tributeText||'').trim()) return; MK.toast='인사 대상이 '+(c1?'서로의 부모님':'각자 부모님')+'으로 바뀌었어요 · 적어 두신 글을 확인해 주세요'; MK.toastGo='tribute'; }catch(e){} }
@@ -4801,7 +4801,7 @@ function _lSum(k){
 var LAB_FIX={'하객이 박수로 답하는':'박수를 청하는 말','부모님께':'여는 말','서로에게':'여는 말','입장 직후':'하객 입장 때',   /* [LAB_FIX2 2-6] */
   '편지 뒤 자리':'여는 말','예식의 문을 여는 자리':'여는 말','덕담 여는 말':'여는 말','축사 없음 안내':'여는 말','둘 다':'케이크 커팅','폐식 · 단체촬영 전환':'닫는 말',
   '단체 사진 안내':'닫는 말','본식 끝 · 두 분 인사':'본식을 마치며','테이블 인사 · 두 분이 하객께':'여는 말'};   /* [CLOSE_WORDS_1013] 26 콘솔 이름 «단체 사진 안내» · 108 «본식을 마치며» · 131 «시작할 때»(_lWhen) · 축배 첫 줄은 이름 «축배 시작»이라 «시작할 때» */
-function _lLabFix(l){ l=String(l||''); if(LAB_FIX[l]) return LAB_FIX[l]; if(/^(식중 영상|영상|춤 · 공연|기타|깜짝 선물 · 전달|친구 · 가족의 축사|축사) · \d+분$/.test(l)) return '여는 말';   /* [MID17_SCRIPT] 칩 이름 «식중 영상 · n분»도 여는 말 */   /* [R2_SPEECH_LABEL_1014] 새 이름 «축사 · n분»도 여는 말(옛 이름은 옛 저장분 이름표) */ return l.replace(/^꽃 헌정 · 준비한 말 400자씩$/,'꽃과 포옹 · 1분쯤씩').replace(/^꽃 헌정/,'꽃과 포옹'); }
+function _lLabFix(l){ l=String(l||''); if(LAB_FIX[l]) return LAB_FIX[l]; if(/^(식중 영상|영상|기타|깜짝 선물 · 전달|친구 · 가족의 축사|축사) · \d+분$/.test(l)) return '여는 말';   /* [MID17_SCRIPT] 칩 이름 «식중 영상 · n분»도 여는 말 */   /* [R2_SPEECH_LABEL_1014] 새 이름 «축사 · n분»도 여는 말(옛 이름은 옛 저장분 이름표) */ return l.replace(/^꽃 헌정 · 준비한 말 400자씩$/,'꽃과 포옹 · 1분쯤씩').replace(/^꽃 헌정/,'꽃과 포옹'); }
 /* ★[OFF_LISTEN 2026-09-25 코워크 추가전달 2-1] «담지 않은 순간 · 들어 보고 담을 수 있어요»가 되게 한다.
    담지 않은 순간은 큐가 없어 ▶ 가 아무 일도 안 했고, 작은 그림은 크게 보기를 곧장 끝 화면으로 열었다.
    그 순간만 잠깐 담은 셈 치고(기본 칩 값) 큐를 만든 뒤 S 를 그대로 되돌린다 — 고객의 선택은 바뀌지 않는다. */
@@ -9581,12 +9581,11 @@ function _pkShow(k){ var R=RitualOpen; if(!(R.RETIRED&&R.RETIRED[k])) return tru
 /* ★★[SPEECH_SONG_1115 2026-11-15 대표님 23:05] 축사 · 축가 한 카드 — 칸 이름 자리가 곧 고르기(축사 | 축가 · 담기 전엔 둘 다 안 눌린 모양 · 누르면 그쪽을 담는다 · 담겨 있으면 그쪽으로 바꾼다).
    그림 = 담긴 쪽(안 담겼으면 축사) · 그림을 누르면 미리 보기 창 · ＋ = 축사 담기 · ✓ = 빼기 · 칸 한 줄은 PICK_COPY.pair */
 var PICK_COPY={   /* [SPEECH_SONG_1115] 카드 한 줄 · «누가 하나요?» 한 줄 — 3안 중 A(대본이 고른다 · 시안 표) */
-  tileOn:{ free:'가까운 분이 축하의 말을 전해요', song:'가까운 분이나 두 분이 직접 불러요', stage:'가까운 분이 축하 무대를 꾸며요' },
+  tileOn:{ free:'가까운 분이 축하의 말을 전해요', song:'가까운 분이나 두 분이 직접 불러요' },   /* [NO_SHOW_1116] 공연 칸 글 걷음 */
   tile:{ free:'가까운 분의 축하 · 하나를 골라 담아요', welcome:'두 분이 하객께 고마움을 전해요' },   /* [SPEECH_SONG_1115] 3안 + GPT 1라운드 → 추천(대본이 고른다) */
   who:{ bless:'«아버지 축사»도 여기에 담아요. 아버님 · 어머님 누구든 하셔도 돼요.',   /* 창 설명이 이미 «누가»를 말해 겹치지 않는 쪽만(BOSS_STYLE 3) */
     free:'부모님 말씀은 «부모님 덕담»에서 해요. 축가는 두 분이 직접 불러도 돼요.',
-    stage:'부모님 말씀은 «부모님 덕담»에서 해요. 노래로 축하하시려면 «축가»를 골라요.',   /* [SHOW_PAIR_1116] */
-    song:'부모님 말씀은 «부모님 덕담»에서 해요.',   /* [PAIR_VIEW_1115] 축가 쪽을 볼 때 — 창 설명이 이미 «두 분 중 한 분 또는 함께»를 말한다(BOSS_STYLE 3) */
+    song:'부모님 말씀은 «부모님 덕담»에서 해요. 악기 연주는 어려워요 · 반주 음원(MR)으로 불러 주세요.',   /* ★[NO_INSTRUMENT_1116 2026-11-16 대표님 17:05 «악기 연주는 불가야»] 창에서 축가를 볼 때 · ② 만들기 쪽은 CARDS.song.one 이 이미 말한다(겹치지 않게) */   /* [PAIR_VIEW_1115] 축가 쪽을 볼 때 — 창 설명이 이미 «두 분 중 한 분 또는 함께»를 말한다(BOSS_STYLE 3) */
     welcome:'부모님이 하객께 따로 인사하는 순서는 없어요.',
     midvid:'영상은 두 분이 준비하고, 저희가 틀어 드려요. 축사나 축가와 함께 담아도 돼요.' } };   /* 제작비는 담기 단추 옆 한 줄(MID_COST_NEAR_1115) */
 function _pairTile(k,vw){ var R=RitualOpen, w=vw.pair, ek=vw.k, v=R.firstVideo(ek,vw.S), on=!!w;
@@ -9594,9 +9593,9 @@ function _pairTile(k,vw){ var R=RitualOpen, w=vw.pair, ek=vw.k, v=R.firstVideo(e
   var chip=function(x,nm){ var sel=w===x; return '<button type="button" class="pk-pc'+(sel?' on':'')+'" role="radio" aria-checked="'+(sel?'true':'false')+'" data-fk="pair:'+x+'" onclick="opPair(\''+x+'\')"><span>'+nm+'</span></button>'; };
   return '<div class="pk-tile pk-pairt'+(on?' on':'')+'">'
     +'<button type="button" class="pk-open" data-fk="pto:'+k+'" onclick="opPv(\''+k+'\')" aria-label="'+esc(PAIR_NAME)+' · 장면과 대표 나레이션 미리 보기"><span class="pk-media">'+media+'<span class="pk-play" aria-hidden="true">'+ICO_PLAY+'</span></span></button>'
-    +'<div class="pk-txt pk-pairtx"><span class="pk-pair" role="radiogroup" aria-label="축사 · 축가 · 공연 중 하나">'+chip('free','축사')+chip('song','축가')+chip('stage','공연')+'</span>'
+    +'<div class="pk-txt pk-pairtx"><span class="pk-pair" role="radiogroup" aria-label="축사 또는 축가 · 둘 중 하나">'+chip('free','축사')+chip('song','축가')+'</span>'   /* [NO_SHOW_1116] */
     +'<span class="pk-s" aria-hidden="true" onclick="opPv(\''+k+'\')">'+esc(_n2(_nd(w?PICK_COPY.tileOn[w]:PICK_COPY.tile.free)))+'</span></div>'   /* ★[PAIR_TILE_ON_1115 GPT 2라운드] 담은 뒤에는 고른 쪽 한 줄(«골라 담아요»가 남지 않게) */
-    +'<button type="button" class="pk-sel'+(on?' on':'')+'" data-fk="opt:'+k+'" aria-pressed="'+(on?'true':'false')+'" aria-label="'+esc(on?PN[w]+' 빼기':'축사 · 축가 · 공연 고르기')+'" onclick="opPkTgl(\''+k+'\')"><i aria-hidden="true">'+(on?'✓':'+')+'</i></button>'
+    +'<button type="button" class="pk-sel'+(on?' on':'')+'" data-fk="opt:'+k+'" aria-pressed="'+(on?'true':'false')+'" aria-label="'+esc(on?PN[w]+' 빼기':'축사 또는 축가 고르기')+'" onclick="opPkTgl(\''+k+'\')"><i aria-hidden="true">'+(on?'✓':'+')+'</i></button>'
     +'</div>'; }
 function _pkTile(k){
   if(k==='_photo'||k==='_extra'){ var _fx=k==='_photo'?PHOTO_FIX:EXTRA_FIX; return '<div class="pk-tile fix pk-photo"><div class="pk-open" role="group" aria-label="'+esc(_fx.n+' · '+_fx.tile+' · 고르실 것 없음')+'"><span class="pk-media"><img src="'+esc(_fx.img+(RitualOpen.VIDEO_V||''))+'" alt="" loading="lazy" decoding="async"></span><span class="pk-txt"><span class="pk-n">'+esc(_fx.n)+'</span><span class="pk-s">'+esc(_fx.tile)+'</span></span></div>'+_fixMk('pk-fixmk')+'</div>'; }   /* [GROUP_PHOTO_199 2] ① 고정 칸 · 누를 것 없음 · [POST_FLOW_200 6] 추가 촬영도 같은 꼴 */   /* [GROUP_PHOTO_199 2] ① 고정 칸 · 누를 것 없음 */
@@ -9679,7 +9678,7 @@ var _pkRz=null; window.addEventListener('resize',function(){ clearTimeout(_pkRz)
    담기 · 빼기를 눌러도 창은 열린 채 — 뒤의 칸과 흐름 판은 바로 바뀐다. */
 var PV={k:null, opener:null, au:null, raf:0, tok:0, drawn:null, stopMs:0, pv:''};   /* [PAIR_VIEW_1115] pv = 축사 · 축가 카드 창에서 보고 있는 쪽 */
 function _pairView(){ return (PV.k==='free'&&PV.pv)?PV.pv:(RitualOpen.pairOf(S)||'free'); }
-window.pvPairView=function(v){ if(!PN[v]) v=(_pairView()==='song'?'free':'song'); PV.pv=v; _pvStop(); _pvDraw(); _pvPlay(); };   /* [SHOW_PAIR_1116] 셋 중 보고 싶은 쪽 */   /* ★[PAIR_VIEW_1115 GPT 검토 1라운드 «창 제목은 축사 · 축가인데 그림 · 설명은 축사»] 담지 않고 다른 쪽을 본다 */
+window.pvPairView=function(v){ if(!PN[v]) v=(_pairView()==='song'?'free':'song'); PV.pv=v; _pvStop(); _pvDraw(); _pvPlay(); };   /* [NO_SHOW_1116] 둘 중 다른 쪽 */   /* ★[PAIR_VIEW_1115 GPT 검토 1라운드 «창 제목은 축사 · 축가인데 그림 · 설명은 축사»] 담지 않고 다른 쪽을 본다 */
 function _pvEl(){
   var el=document.getElementById('pvSheet'); if(el) return el;
   el=document.createElement('div'); el.id='pvSheet'; el.className='pv-sheet'; el.hidden=true;
@@ -9710,9 +9709,9 @@ function _pvAud(){ if(!PV.au){ PV.au=new Audio(); PV.au.preload='auto'; } return
 /* 대표 한 줄 — 엔진 큐의 글을 원천에서(부모 클립 글의 앞 두 문장 · 손으로 옮겨 적지 않는다) */
 function _pvLine(k){
   if(k==='_after') return _afterLine();   /* [AFTER_FIX_196] 대표 나레이션 = 그날 판 촬영 후 안내 */
-  var R=RitualOpen, mv=(k===MIDV), sm=mv?{slug:'midvideo-in-plain',cut:0,screen:''}:R.sampleOf((k==='free'&&isOpen()&&_pairView()==='song')?'song':k,(k==='free'&&isOpen()&&_pairView()==='stage')?Object.assign({},S,{freeWhat:'stage'}):S);   /* [SPEECH_SONG_1115] */ if(!sm||!ENG) return null;   /* ★[MID17_TILE] 식중 영상 칸 = 영상 갈래 여는 말(58 · 엔진 free() 영상 판) · 축사 판(103)이 아니게 */
+  var R=RitualOpen, mv=(k===MIDV), sm=mv?{slug:'midvideo-in-plain',cut:0,screen:''}:R.sampleOf((k==='free'&&isOpen()&&_pairView()==='song')?'song':k,S);   /* [NO_SHOW_1116] 공연 판 걷음 */   /* [SPEECH_SONG_1115] */ if(!sm||!ENG) return null;   /* ★[MID17_TILE] 식중 영상 칸 = 영상 갈래 여는 말(58 · 엔진 free() 영상 판) · 축사 판(103)이 아니게 */
   var cue=null, SS=R.sampleS(S); if(mv) SS.on.midvid=1;   /* [SPEECH_SONG_1115] 식중 영상 = midvid(353) */
-  if(SS.on){ if(k==='free'&&_pairView()==='song') delete SS.on.free; else if(k==='free'||k==='speech') delete SS.on.song; if(k==='free'&&isOpen()&&_pairView()==='stage'){ SS.on.free=1; SS.freeWhat='stage'; } }   /* [SHOW_PAIR_1116] 공연 쪽 = 무대 판 */   /* ★[SPEECH_SONG_1115 검사 mid17-pick] 축사 · 축가 둘 다 켠 대표 판은 엔진이 축사를 걷는다 — 보는 쪽만 남긴다 */
+  if(SS.on){ if(k==='free'&&_pairView()==='song') delete SS.on.free; else if(k==='free'||k==='speech') delete SS.on.song; }   /* [NO_SHOW_1116] 공연 쪽(무대 판) 걷음 */   /* ★[SPEECH_SONG_1115 검사 mid17-pick] 축사 · 축가 둘 다 켠 대표 판은 엔진이 축사를 걷는다 — 보는 쪽만 남긴다 */
   try{ var r=ENG.RitualCue.build(SS,{mode:'preview'}), cs=Array.isArray(r)?r:(r.cues||[]); for(var i=0;i<cs.length;i++){ if(cs[i].slug===sm.slug){ cue=cs[i]; break; } } }catch(e){}
   if(!cue) return null;
   var full=String(cue.text||''), text=sm.screen||(sm.cut?R.firstSentences(full,sm.cut):full);
@@ -9764,15 +9763,14 @@ var PV_DESC={
   _close:'두 분이 하객께 인사하며 본식을 마쳐요. 전체 단체 사진 뒤에는 촬영 후 안내, 가족 사진과 추가 촬영이 이어져요.',   /* [B2_GEUL_11] */   /* [CLOSE_WORDS_1013] */
   table:'두 분이 테이블을 돌며 하객께 인사해요. 가까이 마주하는 모습을 담아요. 그만큼 사진 시간은 줄어요.',   /* [B2_GEUL_09 · d-07] 고정값(6테이블 · 9분) 뺌 */   /* [TABLE_GREET_1008] · ★[END_FLOW_1030 검토 167] 축배 · 닫는 인사 앞 · 9분 = TABLE_SEC 90 × 6(open-course 가 잰다) */
   midvid:'두 분이 준비한 영상을 함께 봐요. 영상을 보는 하객들의 얼굴을 사진으로 남겨요.',   /* ★[MID17_TILE 2026-11-07] 식중 영상 칸 · 식전 영상 설명과 같은 꼴(남는 장면 = FREE_SHOT.video «함께 보며 웃는 하객들») */
-  stage:'가까운 분이 춤이나 짧은 공연으로 축하 무대를 꾸며요. 음원은 저희가 틀어 드리고, 설 자리를 미리 비워 둬요. 악기 연주는 받지 않아요.',   /* ★[SHOW_PAIR_1116] 엔진 지문 «준비한 무대(음원은 디렉터가 튼다 · 설 자리 미리 비움)»과 같은 말 */
   free:'친구 · 형제자매 · 은사님 등 가까운 분이 두 분께 축하의 말을 전해요. 말하는 분과 웃으며 듣는 두 분을 함께 담아요.'   /* [B2_GEUL_29] «(3분 안팎)» 고정값 뺌 */   /* ★[SPEECH_TILE_1012] 축사 · 옛 «준비한 순서»는 고른 칩마다 사진이 달라 원문 설명만 두었다 */
 };
 function _pvDraw(){
-  var R=RitualOpen, pk=PV.k, _af=(pk==='_after'), vw=_af?null:_pkV(pk); if(vw&&vw.pair!==undefined){ var _vv=_pairView(), _vS=S; if(_vv!=='song'&&R.pairOf(S)!==_vv){ _vS=JSON.parse(JSON.stringify(S)); _vS.on=_vS.on||{}; _vS.on.free=1; delete _vS.on.song; _vS.freeWhat=(_vv==='stage'?'stage':'speech'); } vw={k:_vv==='song'?'song':'free',S:_vS,on:vw.on,n:vw.n,pair:vw.pair,view:_vv}; }   /* [PAIR_VIEW_1115] · [SHOW_PAIR_1116] 보는 쪽 셋 */
+  var R=RitualOpen, pk=PV.k, _af=(pk==='_after'), vw=_af?null:_pkV(pk); if(vw&&vw.pair!==undefined){ var _vv=_pairView(), _vS=S; if(_vv!=='song'&&R.pairOf(S)!==_vv){ _vS=JSON.parse(JSON.stringify(S)); _vS.on=_vS.on||{}; _vS.on.free=1; delete _vS.on.song; _vS.freeWhat=('speech'); } vw={k:_vv==='song'?'song':'free',S:_vS,on:vw.on,n:vw.n,pair:vw.pair,view:_vv}; }   /* [PAIR_VIEW_1115] · [SHOW_PAIR_1116] 보는 쪽 셋 */
   var k=_af?pk:vw.k, VS=_af?S:vw.S, c=_af?AFTER_CARD:R.CARDS[k], el=_pvEl(); if(!c) return;   /* ★[MID17_TILE] 식중 영상 칸(pk=midvid)은 free 영상 판 · 축사 칸은 축사 판으로 그린다 */
   var ln=_pvLine(pk), v=_af?null:R.firstVideo(k,VS), always=!!R.ALWAYS[k]||k==='_close'||_af;   /* [AFTER_FIX_196] */
   el.querySelector('#pvT').textContent=_af?AFTER_CARD.n:(vw&&vw.pair!==undefined)?PN_T[vw.view]:((vw&&vw.n)||R.nameOf(k,VS));   /* [PAIR_VIEW_1115] 보고 있는 쪽 이름 */
-  (function(){ var sw=el.querySelector('#pvSw'); if(!sw) return; var on=!!(vw&&vw.pair!==undefined); sw.hidden=!on; if(on) sw.innerHTML=['free','song','stage'].filter(function(x){ return x!==vw.view; }).map(function(x){ return '<button type="button" class="pk-link pv-sw" data-fk="pvsw:'+x+'" onclick="pvPairView(\''+x+'\')">'+PN[x]+' 보기</button>'; }).join(''); })();   /* [SHOW_PAIR_1116] 다른 두 쪽 */   /* [SPEECH_TILE_1012] */
+  (function(){ var sw=el.querySelector('#pvSw'); if(!sw) return; var on=!!(vw&&vw.pair!==undefined); sw.hidden=!on; if(on) sw.innerHTML=['free','song'].filter(function(x){ return x!==vw.view; }).map(function(x){ return '<button type="button" class="pk-link pv-sw" data-fk="pvsw:'+x+'" onclick="pvPairView(\''+x+'\')">'+PN[x]+' 보기</button>'; }).join(''); })();   /* [SHOW_PAIR_1116] 다른 쪽 · ★[NO_SHOW_1116] 다시 하나 */   /* [SPEECH_TILE_1012] */
   var tg=el.querySelector('#pvTag'), tag=always?'늘 있어요':'';   /* ★[SPEECH_TILE_1012] 축사는 다른 순간과 같다 — «준비한 게 있을 때만» 걷음 */   /* [R1-33] 무엇이 있을 때인지 */ tg.textContent=tag; tg.hidden=!tag;
   if(PV.drawn!==pk+':'+k+':'+((vw&&vw.view)||'')){ PV.drawn=pk+':'+k+':'+((vw&&vw.view)||'');   /* [MID17_TILE] 축사 칸 ↔ 식중 영상 칸은 같은 free 라도 그림이 다르다 · [SPEECH_SONG_1115] 축사 · 축가 카드는 고른 쪽 그림 */
     var m=el.querySelector('#pvM'), _fy=_vfyN(v); if(_fy==null) m.style.removeProperty('--fy'); else m.style.setProperty('--fy',_fy+'%');   /* [CINE_SCOPE] 장면마다 자르는 높이 */
@@ -9862,7 +9860,7 @@ function _pvActs(ln){
   var ag=el.querySelector('#pvAgain'); if(ag) ag.innerHTML=ICO_AGAIN+' '+((ln&&ln.src)?'다시 듣기':'처음부터');   /* ★[PV_AGAIN_UP_1102 사장님 «올리고 오른쪽으로»] 다시 듣기는 장면 사진 줄 오른쪽(사진이 없는 순간도 같은 자리) · 아래 줄은 담기 · 빼기만 */
   var _pw=(k==='free'&&isOpen())?RitualOpen.pairOf(S):null;   /* [SPEECH_SONG_1115] 축사 · 축가 카드 */
   if(_pw!==null){ var _vw=_pairView(); a.innerHTML=_pw?('<span class="pv-in">✓ '+PN[_pw]+' 담겨 있어요</span>'+(_vw!==_pw?'<button type="button" class="pv-add out" onclick="opPair(\''+_vw+'\')">'+PN_RO[_vw]+' 바꾸기</button>':'')+'<button type="button" class="pv-add out" onclick="opPkTgl(\'free\')">'+PN[_pw]+' 빼기</button>')   /* ★[PAIR_OUT_NAME_1115 GPT 2라운드] 무엇을 빼는지 · [SHOW_PAIR_1116] 바꾸기는 보고 있는 쪽으로 */
-      :['free','song','stage'].map(function(x){ return '<button type="button" class="pv-add" onclick="opPair(\''+x+'\')">'+PN[x]+' 담기</button>'; }).join(''); }
+      :['free','song'].map(function(x){ return '<button type="button" class="pv-add" onclick="opPair(\''+x+'\')">'+PN[x]+' 담기</button>'; }).join(''); }
   else a.innerHTML=''   /* [D9] 녹음된 줄 «다시 듣기» · 녹음 전 줄 «처음부터» */
     +(always?''   /* ★[PV_FOOT_MIN_1102] «늘 있는 순간이에요»는 뺐다 — 담기 · 빼기 단추가 없는 것으로 충분하다(늘 있는 순간은 고를 일이 없다) */
       :(on?'<span class="pv-in">✓ 담겨 있어요</span><button type="button" class="pv-add out" onclick="opPkTgl(\''+k+'\')">빼기</button>'
@@ -9950,7 +9948,7 @@ function rowVal(k){
    case 'declare': return _declWho()?_declWho()+' 낭독':'읽어 주실 분 정하기';   // [DECLARE_BY_PERSON] 옛 narr · family · clap 은 «안 고름» · [SAVED_OK] 옛 S.declare 값은 읽지 않는다
    case 'valley': return S.valley==='none'?'없음':S.valley==='wine'?'와인 세리머니':'케이크 커팅';
    case 'toast': return TOAST[S.toast].d;
-   case 'song': return S.song==='live'?'어쿠스틱 라이브 연주':'가족·지인이 직접';
+   case 'song': return '가족·지인이 직접';   // ★[NO_INSTRUMENT_1116 2026-11-16 대표님 17:05 «악기 연주는 불가야»] 옛 초안 'live' 도 가족·지인(MR)으로 읽는다 · «어쿠스틱 라이브 연주» 되살리지 말 것
    case 'tribute': return (isOpen()&&RitualOpen.TRIB_ACT)?RitualOpen.TRIB_ACT.d:TRIBUTE.modes[S.tribute].d;   // [FLOWER_OFF_1013] 새 코스는 «인사와 포옹»
    case 'letter': return LETTER[S.letter].d+(S.flash&&S.course==='gamdong'?' · 플래시 세리머니':'');
    case 'bless': return S.bless==='on'?(S.blessProxy?'나레이션 대독':'부모님이 직접'):'';   // [ORD_BADGE_AXIS] 위 ring 주석과 같은 이유
@@ -9959,7 +9957,7 @@ function rowVal(k){
 }
 window.extraTgl=function(k){ S.extra[k]=!S.extra[k]; if(S.extra[k]){ S.tune[k]=true; if(EXTRA_ON[k]!==undefined) S[k]=EXTRA_ON[k]; } else { delete S.tune[k]; if(k==='bless') S.bless=(S.course==='family')?'on':'off'; if(k==='valley') S.valley='none'; } buildSteps(); render(); };
 // 이 코스에 없는 순서 더하기(전체 팔레트) — 고정 3개·핵심 빼고 아직 안 더한 순간만 접이식으로. 더하면 위 순서에 자리 잡고 카드에서 ↑↓·빼기 가능 (2026-07-19)
-var _PAL_COST={valley:1,toast:1,song:1,tribute:1};   // 실물·연주 준비물이 있어 추가 비용 안내가 필요한 순간
+var _PAL_COST={valley:1,toast:1,song:1,tribute:1};   // 실물 준비물이 있어 추가 비용 안내가 필요했던 순간(옛 팔레트 · 지금 쓰는 곳 없음) · [NO_INSTRUMENT_1116] «연주» 걷음
 /* ★[ORD_ADD_ALL 2026-08-14] 팔레트 UI(접힌 상자 · pal-row/pal-add) **삭제 — 되살리지 말 것.**
    더할 수 있는 순간은 이제 다듬기 목록에 제자리로 서 있다(defaultOrd 가 전부 세운다).
    여기 있던 준비물 비용 안내(_PAL_COST)는 카드 설명 줄이 이어받았다. */
@@ -10369,7 +10367,7 @@ function renderStep(k){
   else if(k==='song'){
     h+=clip('song');
     h+=oc('song','family','가족·지인이 직접','가까운 분이 불러 주는 한 곡 · 소규모라 더 뭉클해요',null,OUT_SONG,null,'D-14까지 부르실 분께 미리 부탁 · 반주 음원은 저희가 준비해요');
-    h+=oc('song','live','어쿠스틱 라이브 연주','저희가 연주자를 연결해요 · 추가 비용은 미리 안내드려요');
+    /* ★[NO_INSTRUMENT_1116 2026-11-16 대표님 17:05 «악기 연주는 불가야»] 옛 코스 «어쿠스틱 라이브 연주 · 연주자 연결» 칩 걷음 · 되살리지 말 것 · 옛 초안 'live' 는 위 «가족·지인이 직접»이 눌린 모양(oc) */
   }
   else if(k==='free' && isOpen()){
     /* [FREE_WHAT 2026-09-25 코워크 4-4] 무엇을 × 길이 — 여는 말이 무엇을에 따라 달라지고, 맺는 말은 하나다(이름은 부르지 않는다). */
@@ -10378,7 +10376,7 @@ function renderStep(k){
     h+=narBox(_fk==='speech'?RitualOpen.NAR.freeIn.speech:FREE_IN,RitualOpen.NAR.freeOut);   /* [FREE_IN_RR_1023] 축사 말고는 여는 말 하나(RR 109) */
     h+='<div class="noplay">새로 녹음하는 줄이라 아직 소리가 없어요 · 지금 판은 '+esc(_fl)+'분이에요</div>';
     h+='<div class="prep-hint">'+esc(RitualOpen.prepOf('free',S)[0][1])+'</div>';
-    if(_fk==='video'||_fk==='stage') h+='<div class="reassure" style="margin-top:10px">파일이 재생되지 않으면 디렉터가 «사진 시간에 함께 보겠습니다» 한 줄로 넘기고, 사진 시간에 다시 틀어 드려요</div>';
+    if(_fk==='video') h+='<div class="reassure" style="margin-top:10px">파일이 재생되지 않으면 디렉터가 «사진 시간에 함께 보겠습니다» 한 줄로 넘기고, 사진 시간에 다시 틀어 드려요</div>';
   }
   else if(k==='toast' && isOpen()){
     /* [OPEN_COURSE] 무엇을(케이크와 축배 · 축배만 · 케이크만) + 와인(축배가 있을 때). 폐지한 사이 순서(와인 17·54)는 되살리지 않았다. */
@@ -10688,13 +10686,13 @@ var BLOCK={
   free:function(){
     if(isOpen()){ var _k=RitualOpen.FREE_KIND[RitualOpen.chipOf('free',S)];   // [FREE_WHAT] 대본에도 무엇을 · 길이
       return {n:(_k==='speech'?'축사':'준비한 순서'),nar:(_k==='speech'?RitualOpen.NAR.freeIn.speech:FREE_IN),   /* [SPEECH_TILE_1012] · [FREE_IN_RR_1023] */self:RitualOpen.chipLabel('free',S),end:RitualOpen.NAR.freeOut,
-        cue:'나레이션이 앞을 열어 줌 → '+RitualOpen.chipLabel('free',S)+' → 끝나면 박수로 닫음'+((_k==='video'||_k==='stage')?' · 재생이 안 되면 디렉터가 «사진 시간에 함께 보겠습니다» 한 줄로 알리고 곧장 다음 순간으로':'')}; }
+        cue:'나레이션이 앞을 열어 줌 → '+RitualOpen.chipLabel('free',S)+' → 끝나면 박수로 닫음'+((_k==='video')?' · 재생이 안 되면 디렉터가 «사진 시간에 함께 보겠습니다» 한 줄로 알리고 곧장 다음 순간으로':'')}; }
     return {n:isOpen()?'준비한 순서':'자유 한 칸',nar:FREE_IN,self:'두 분이 정한 순서',end:FREE_OUT,   // [OPEN_COURSE] 명세 8장 이름 · 옛 코스는 그대로
       cue:'나레이션이 앞을 열어 줌 → 두 분이 준비한 순서 진행 → 끝나면 나레이션이 닫음(무엇인지 지목하지 않아요)'};
   },
   song:function(){
     if(isOpen()) return {n:'축가',nar:"두 사람의 앞날을 축복하는 축가가 있겠습니다.",   /* [SONG_DEF_NN_1023] 원천 D.NARR.song 사본 */self:'가까운 분이나 두 분이 직접 노래',end:(S&&S.songBy==='self'?SONG_END:SONG_END_FRIEND),cue:'나레이션 소개 → 노래 1곡 → 나레이션 맺는 말 · 박수 → 다음 순간은 디렉터 신호로'};   /* [SONG_END_1018 · SONG_TILE_SELF_1018] 새 코스 — 엔진과 같은 맺는 말(210) · 두 분이 직접 불러도 된다 */
-    return {n:'축가',nar:"두 사람의 앞날을 축복하는 축가가 있겠습니다.",self:S.song==='live'?'어쿠스틱 라이브 연주(저희가 연결·추가 비용 안내)':'가족·지인이 직접 노래',cue:'나레이션 소개 → 노래 1곡 → 박수와 함께 다음 순서로'};
+    return {n:'축가',nar:"두 사람의 앞날을 축복하는 축가가 있겠습니다.",self:'가족·지인이 직접 노래'   /* [NO_INSTRUMENT_1116] 옛 초안 'live' 도 같은 글 */,cue:'나레이션 소개 → 노래 1곡 → 박수와 함께 다음 순서로'};
   },
   toast:function(){
     /* [TOAST_WINE] 새 코스는 붓는 말까지 순서표에 적는다 — 옛 코스는 wine 이 없어 지금 그대로다. */
@@ -10788,7 +10786,7 @@ function prep(){
   if(inSeq('letter')) p.push(['D-7', S.letter==='each'?'서로에게 쓸 편지 준비':S.letter==='both'?'부모님께 · 서로에게 쓸 편지 준비':'부모님께 드릴 편지 준비']);
   if(inSeq('welcome') && S.welcome==='self') p.push(['D-7','첫인사 준비']);
   if(inSeq('declare')) p.push(['D-14',_declWho()?'성혼 선언 낭독 · '+_declWho()+'께 부탁':'성혼 선언문 읽어 주실 분 정하기']);   // [DECLARE_BY_PERSON] 선언문은 늘 사람이 읽는다
-  if(inSeq('song') && S.song==='family') p.push(['D-14','축가 부르실 분께 미리 부탁 (반주 음원은 저희가 준비)']);
+  if(inSeq('song') && (S.song==='family'||S.song==='live')) p.push(['D-14','축가 부르실 분께 미리 부탁 (반주 음원은 저희가 준비)']);
   if(S.growth==='on') p.push(['D-7',(S.growthLink?'성장영상 링크 붙여둠 · 확인만 하면 돼요':'성장영상 링크 붙여두기')+' (가로 mp4 · 3~4분 이내)']);
   if(S.entryVoice==='couple') p.push(['D-7','두 분 목소리 준비 · 입장 인사']);   // [OLD_COURSE_0928 6-7] 옛 prep() 의 «… 올리기(mp3 · m4a)»를 준비 목록과 같은 말로
   if(S.guestVoice==='couple') p.push(['D-7','두 분 목소리 준비 · 하객 맞이 안내 네 줄']);
@@ -12092,7 +12090,7 @@ window.ME_ADV_PAGE={
   hideOn:function(){ return !!document.getElementById('ob_rpViewer'); }   // [PREVIEW_LINK_V1] 미리듣기 중엔 숨김 — 소리를 듣는 자리라 말 걸 자리가 아니다(한 화면 한 상담사 · mypage 와 같은 판단)
 };
 </script>
-<script src="/assets/ritual-preview-link.js?v=1115ss"></script>
+<script src="/assets/ritual-preview-link.js?v=1116ns"></script>
 <script src="/assets/advisor-widget.js"></script>
 </body>
 </html>
