@@ -2717,6 +2717,8 @@ function doPost(e) { _SRV = true; _IN_POST = true; /* [GSR_GATE 2026-10-09] 입�
       case 'snapBrief':          return jsonOut(handleSnapBrief(body));       // [SNAP_BRIEF] 촬영 브리프(무인증 · 추측 불가 주소 · 촬영 7일 뒤 만료) — brief.html
       case 'snapBriefImg':       return jsonOut(handleSnapBriefImg(body));    // [SNAP_BRIEF] 브리프의 올린 사진 1장(그 기획에 실린 것만)
       case 'pvSave':             return jsonOut(handlePvSave(body));          // [PV_CAT_1031] 마이페이지 «식전 영상» 저장 · 보내기 · 확정(세션 인증) — 89_prevideo
+      case 'pvCpnReq':           return jsonOut(handlePvCpnReq(body));        // [FM_COUPON_1116] 협력사 쿠폰 요청(세션 · 한 시간 상한) — 89_prevideo
+      case 'pvCpnCancel':        return jsonOut(handlePvCpnCancel(body));     // [FM_COUPON_1116] 협력사 쿠폰 요청 취소 · 발급 뒤 취소(관리자 회수) — 89_prevideo
       case 'pvPhoto':            return jsonOut(handlePvPhoto(body));         // [PV_CAT_1031] 식전 영상 사진 1장 올리기(세션 인증 · 동의 · 칸별 장수) — 89_prevideo
       case 'pvThumbs':           return jsonOut(handlePvThumbs(body));        // [PV_CAT_1031] 올린 사진의 작은 그림(세션 인증 · 이 고객 것만) — 89_prevideo
 

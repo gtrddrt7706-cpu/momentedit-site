@@ -3599,6 +3599,48 @@
    "fn": "handlePvSave",
    "mark": "SPEECH_SONG_1115",
    "why": "관리자 알림 «식중 영상 도착» 자리 글 = 축사 · 축가 뒤 · 편지 앞"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "handlePvCpnReq",
+   "mark": "FM_COUPON_1116",
+   "why": "협력사(필메이커) 쿠폰 요청 — 세션 · 식중은 식순에 담긴 때만 · 한 시간 상한 · 같은 요청 한 번"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "handlePvCpnCancel",
+   "mark": "FM_COUPON_1116",
+   "why": "협력사 쿠폰 요청 취소(발급 전) · 발급 뒤 취소 표시(관리자 회수)"
+  },
+  {
+   "file": "89_prevideo",
+   "fn": "_pvPublic",
+   "mark": "FM_COUPON_1116",
+   "why": "마이페이지 영상 상태에 협력사 쿠폰 상태(cpn) — 코드는 발급 뒤에만"
+  },
+  {
+   "file": "admin",
+   "fn": "adminPvCoupon",
+   "mark": "FM_COUPON_1116",
+   "why": "협력사 쿠폰 넣기(요청한 줄만) · 회수 — 관리자 전용"
+  },
+  {
+   "file": "admin",
+   "fn": "adminHome",
+   "mark": "FM_COUPON_1116",
+   "why": "처리할 일 «협력사쿠폰» · «협력사쿠폰회수»(시트 식전영상 m.cpn)"
+  },
+  {
+   "file": "consultation-booking",
+   "fn": "doPost",
+   "mark": "FM_COUPON_1116",
+   "why": "pvCpnReq · pvCpnCancel 길"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_errArea",
+   "mark": "FM_COUPON_1116",
+   "why": "pvCpnReq · pvCpnCancel 실패 코드 자리 S"
   }
  ],
  "fns": {
@@ -4090,6 +4132,12 @@
    "_pvConsentGive_",
    "_pvAdminMail_",
    "handlePvSave",
+   "_pvCpnState_",
+   "_pvCpnPub_",
+   "_pvCpnDo_",
+   "_pvCpnQueue_",
+   "handlePvCpnReq",
+   "handlePvCpnCancel",
    "handlePvPhoto",
    "handlePvThumbs",
    "purgePrevideo_",
@@ -4363,6 +4411,7 @@
    "adminMarkDelivered",
    "adminIssueCoupon",
    "adminRevokeCoupon",
+   "adminPvCoupon",
    "adminSurveySeen",
    "adminSkipSurvey",
    "_rbPaidAny",
@@ -4820,7 +4869,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-11-16 13:00 · 440d3b73",
+ "_생성": "2026-11-16 16:11 · 56ce0e4f",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -5394,5 +5443,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "7d6e765a8d56"
+ "_표식서명": "3f806f6cc11a"
 }

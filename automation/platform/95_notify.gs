@@ -1287,7 +1287,7 @@ var ERR_AREA = {   // [ERR_CODE_GAS] 자리 글자 — assets/err-codes.js 의 a
   V: ['voiceClone'],
   U: ['ritualFile', 'snapRefUpload', 'pvPhoto'],
   D: ['ritualFileDel', 'ritualFilePurgeMine', 'snapWithdraw'],
-  S: ['saveProductionBase', 'saveProductionTrack', 'saveInvitationDraft', 'saveInvitationPreview', 'publishInvitation', 'pvSave', 'saveDressPick'],   // 시착 준비 저장(아래 _errArea 의 DRESS_ERR_AREA)
+  S: ['saveProductionBase', 'saveProductionTrack', 'saveInvitationDraft', 'saveInvitationPreview', 'publishInvitation', 'pvSave', 'pvCpnReq', 'pvCpnCancel', 'saveDressPick'],   // [FM_COUPON_1116] 협력사 쿠폰 요청 · 취소도 S(저장)   // 시착 준비 저장(아래 _errArea 의 DRESS_ERR_AREA)
   L: ['login', 'autologin', 'verify', 'getMyState', 'findCode', 'resetPw', 'doResetPw', 'ritualFileGet', 'snapThumbs', 'getSignature', 'getResultGallery', 'pvThumbs'],
   P: ['paymentSignal', 'midSignal', 'balanceSignal', 'extraRetouchSignal', 'cardConfirm', 'cardPayConfig', 'saveCashReceipt', 'saveRefundAccount'],
   C: ['weddingAvailability', 'changeWeddingHold', 'cancelWeddingHold', 'quoteWeddingChange', 'requestWeddingChange', 'cancelWeddingChange', 'requestContract', 'requestContractResend', 'signFittingConsent', 'signContract'],
@@ -1300,7 +1300,7 @@ function _errArea(a) { _gsr_();   // [ERR_CODE_GAS]
   // [PV_CAT_1031] 식전 영상 — pvPhoto(U) · pvSave(S) · pvThumbs(L) 를 ERR_AREA 에 적었다
   /* [DRESS_ERR_AREA 2026-10-23] 시착 준비 저장(saveDressPick)도 S — 위 표가 옛 판이면 그 실패가 X 로 떨어진다 */
   a = String(a == null ? '' : a);
-  for (var k in ERR_AREA) if (ERR_AREA[k].indexOf(a) > -1) return k;
+  for (var k in ERR_AREA) if (ERR_AREA[k].indexOf(a) > -1) return k;   // [FM_COUPON_1116] pvCpnReq · pvCpnCancel 도 S(위 표) — 협력사 쿠폰 요청 · 취소 실패 문구 «(코드 S#)»
   return 'X';
 }
 function _errId(act) { _gsr_();   // [ERR_CODE_GAS] 사고번호 — 헷갈리는 0 · O · 1 · I 는 뺀다

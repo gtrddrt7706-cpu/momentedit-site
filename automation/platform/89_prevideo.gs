@@ -21,7 +21,7 @@
  *   ■ 1차에서 뺀 것(곧 연다 · 화면도 보이지 않는다) — 짧은 영상 · 인사 영상(5초 고르기) · 큰 파일 올리기 · 문구 고치기 · 카톡 알림 · 식순과 상태 잇기
  * ==============================================================================
  */
-var PV_UP = { midFrom: '2026-11-14', from: '2026-10-31', root: 'ME_식전영상', sheet: '식전영상', min: 5, max: 20, first: 4, days: 10, today: 6, photoMax: 4 * 1048576, thumbMax: 320 * 1024, uploadsMax: 60, hourMax: 40, keepDays: 183, dueDays: 7, linkMax: 400 };
+var PV_UP = { midFrom: '2026-11-14', from: '2026-10-31', root: 'ME_식전영상', sheet: '식전영상', min: 5, max: 20, first: 4, days: 10, today: 6, photoMax: 4 * 1048576, thumbMax: 320 * 1024, uploadsMax: 60, hourMax: 40, keepDays: 183, dueDays: 7, linkMax: 400, cpnHour: 6, cpnMax: 200 };   // [FM_COUPON_1116] cpnHour = 쿠폰 요청 · 취소 한 시간 상한(영상 하나마다) · cpnMax = 관리자가 넣는 코드 · 링크 길이
 var PV_STYLES = ['editorial', 'cinematic', 'storybook', 'retro', 'scrapbook'];   // assets 쪽 PVC_STYLES 와 같은 순서 · 같은 열쇠
 var PV_SONGS = ['mujin', 'oban', 'grizzly', 'geomjeong', 'fx', 'hyukoh', 'jake', 'day6', 'roykim', 'dks', 'wonstein', 'elijah'];
 var PV_MODES = ['make', 'upload'];
@@ -145,8 +145,10 @@ function _pvPublic(code, cust, kind) { _gsr_();
   var out = { up: _pvLiveK_(kind), kind: kind, st: '', d: null, consent: false, prev: null, conf: null, due: _pvDue_(cust), wed: (typeof _ymdOf === 'function' ? _ymdOf(cust.get('예식일')) : '') || '' };
   try {
     if (kind === 'mid') { var mo = _mvOn_(cust); out.on = mo.on; out.len = mo.len; }   // [MID_VIDEO_1106] 식순이 켜고 끈다
+    out.cpn = { st: 'none' };   // [FM_COUPON_1116] 협력사 쿠폰 — 요청한 적 없으면 none(코드는 요청 · 발급 뒤에만 싣는다)
     var sh = _pvSheet_(), row = _pvRow_(sh, key);
     if (!row) return out;
+    out.cpn = _pvCpnPub_(row.m || {});
     var m = row.m || {};
     if (_pvSeePreview_(m)) {
       var lock = LockService.getScriptLock();
@@ -272,6 +274,78 @@ function handlePvSave(body) { _gsr_();
   if (mail) _pvAdminMail_(code, mail);   // 메일 · 드라이브 정리는 잠금 밖에서(느린 일)
   jobs.forEach(function (f) { try { f(); } catch (e) {} });
   return { ok: true, pv: _pvPublic(code, cust, kind), added: added };   // [B2_FIX_MA_59] 남긴 다른 기기 사진 · [MID17] kind
+}
+
+/* ★★[FM_COUPON_1116 2026-11-16 대본 15:55 · 대표님 13:07 «협력사 필메이커 쿠폰은 무료 · 요청한 분께만 · 진행 안 하면 안 나간다 · 협력사라고 알려 주기»]
+   식전 · 식중 영상마다 «쿠폰 요청하기» — 쿠폰은 고객이 요청한 때에만 디렉터가 보낸다(요청 없이 나가는 길 없음).
+   어디에 두나 — 시트 «식전영상» 그 줄의 메타 JSON(m.cpn) · 열을 늘리지 않는다(스키마 변경 없음 · 사장님 결정 사항)
+     m.cpn = { req: 요청 시각(ISO) · code: 쿠폰 코드 · link: 쿠폰 링크 · at: 발급 시각 · revoked: 회수 시각 · cancel: 발급 뒤 고객 취소 시각 }
+   고객이 보는 상태(_pvCpnPub_) — none(요청 전 · 회수 뒤) · req(요청함 · 발급 전) · issued(코드 · 링크) · 발급 뒤 취소는 none(회수를 기다린다 · 다시 요청하면 받은 쿠폰이 그대로 돌아온다)
+   관리자 «처리할 일» — 요청 · 발급 전 = «협력사쿠폰» · 발급 뒤 취소 = «협력사쿠폰회수»(admin.gs) · 넣기 · 회수는 adminPvCoupon(_requireAdmin) */
+function _pvCpnState_(c) {
+  c = c || {};
+  if (c.at && !c.revoked && !c.cancel) return 'issued';
+  if (c.at && !c.revoked && c.cancel) return 'cancel';   // 발급 뒤 취소 — 관리자가 회수할 차례
+  if (c.req && !c.at && !c.revoked) return 'req';
+  return 'none';
+}
+function _pvCpnPub_(m) {
+  var c = (m && m.cpn) || {}, st = _pvCpnState_(c);
+  if (st === 'issued') return { st: 'issued', code: String(c.code || ''), link: String(c.link || ''), at: String(c.at || '') };
+  if (st === 'req') return { st: 'req', req: String(c.req || '') };
+  return { st: 'none' };   // 요청 전 · 회수 뒤 · 발급 뒤 취소(회수 대기) — 코드는 싣지 않는다
+}
+// 쿠폰 요청 · 취소 공통 — 세션 · 시행일 · 식순(식중) · 사용하지 않기 · 기한 · 횟수 상한 · 잠금
+function _pvCpnDo_(body, op) {
+  body = body || {};
+  var se = _pvSess_(body); if (se.err) return se.err;
+  var kind = _pvKind_(body.kind), code = se.code, cust = se.cust, key = _pvKey_(code, kind), nm = _pvName_(kind);
+  if (!_pvLiveK_(kind)) return { ok: false, closed: true, error: nm + '은 아직 준비하실 수 없어요.' };
+  if (kind === 'mid' && _mvOn_(cust).on !== true) return { ok: false, error: '식순에서 «식중 영상»을 먼저 담아 주세요.' };
+  var cc = CacheService.getScriptCache(), ck = 'pvCpnN_' + key, cn = Number(cc.get(ck)) || 0;   // [FM_COUPON_1116] 한 시간에 cpnHour 번 — 누르기 반복 · 밖에서 두드리기
+  if (cn >= PV_UP.cpnHour) return { ok: false, ecode: 'S0', error: '잠시 뒤 다시 눌러 주세요' };
+  cc.put(ck, String(cn + 1), 3600);
+  var lock = LockService.getScriptLock(), mail = '', out = null;
+  try { lock.waitLock(15000); } catch (e) { return { ok: false, ecode: 'S1', error: '다른 처리가 진행 중이에요 · 잠시 뒤 다시 눌러 주세요' }; }
+  try {
+    var sh = _pvSheet_(), row = _pvRow_(sh, key), m = (row && row.m) || {}, d = (row && row.d) || {}, c = m.cpn || {}, st = _pvCpnState_(c), now = new Date().toISOString();
+    if (op === 'req') {
+      if (String(m.st || '') === 'off') return { ok: false, error: nm + '을 «사용하지 않기»로 정하셨어요.' };
+      if (_pvPast_(_pvDue_(cust))) return { ok: false, locked: true, error: '확정 기한이 지났어요 · 디렉터에게 말씀해 주세요' };
+      if (st === 'issued' || st === 'req') return { ok: true, same: true, cpn: _pvCpnPub_(m) };   // 같은 요청 두 번 = 아무것도 바꾸지 않는다
+      if (st === 'cancel') { delete c.cancel; m.cpn = c; mail = nm + ' 협력사 쿠폰 취소를 다시 거뒀어요 · ' + code + ' · 회수하지 않아도 돼요'; }   // 발급 뒤 취소했다가 다시 요청 = 받은 쿠폰 그대로
+      else { m.cpn = { req: now, code: '', link: '', at: '', revoked: '' }; mail = nm + ' 협력사(필메이커) 쿠폰 요청 · ' + code + ' · 관리자 «처리할 일»에서 코드를 넣어 주세요(제휴 확정 전)'; }
+    } else {
+      if (st === 'none') return { ok: true, same: true, cpn: _pvCpnPub_(m) };
+      if (st === 'req') { m.cpn = {}; }   // 발급 전 = 요청을 거둔다(관리자 줄도 사라진다)
+      else if (st === 'issued') { c.cancel = now; m.cpn = c; mail = nm + ' 협력사 쿠폰 취소 · ' + code + ' · 필메이커에서 쿠폰을 회수해 주세요'; }
+      else return { ok: true, same: true, cpn: _pvCpnPub_(m) };
+    }
+    _pvWrite_(sh, row, key, d, m);
+    out = _pvCpnPub_(m);
+  } finally { try { lock.releaseLock(); } catch (e) {} }
+  try { if (typeof _recordHandler === 'function') _recordHandler(code, nm + ' 협력사 쿠폰 ' + (op === 'req' ? '요청' : '취소')); } catch (e) {}
+  if (mail) { try { var mc = CacheService.getScriptCache(), mk = 'pvCpnMail_' + key + op; if (!mc.get(mk)) { mc.put(mk, '1', 600); if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail(mail); } } catch (e) {} }
+  return { ok: true, cpn: out };
+}
+// [FM_COUPON_1116] 관리자 «처리할 일» 재료 — 시트를 읽기만 한다(없으면 빈 표 · 만들지 않는다) · { 개인코드: [{ kind, st: 'req' | 'cancel', req }] }
+function _pvCpnQueue_(sh) {
+  if (!sh) { try { sh = SpreadsheetApp.getActive().getSheetByName(PV_UP.sheet); } catch (e) { sh = null; } }
+  var out = {}, last = sh ? sh.getLastRow() : 0; if (last < 2) return out;
+  sh.getRange(2, 1, last - 1, PV_HEAD.length).getValues().forEach(function (r) {
+    var k = String(r[0] || '').trim(); if (!k) return; var m = {}; try { m = JSON.parse(String(r[4] || '{}')) || {}; } catch (e) { m = {}; }
+    var st = _pvCpnState_(m.cpn); if (st !== 'req' && st !== 'cancel') return;
+    var cd = k.replace(/#mid$/, '').toUpperCase(); (out[cd] = out[cd] || []).push({ kind: /#mid$/.test(k) ? 'mid' : 'pre', st: st, req: String((m.cpn || {}).req || '') });
+  });
+  return out;
+}
+function handlePvCpnReq(body) { _gsr_();
+  // [FM_COUPON_1116] 고객 «쿠폰 요청하기» — 세션으로만 · 같은 요청은 한 번만 남는다
+  return _pvCpnDo_(body, 'req');
+}
+function handlePvCpnCancel(body) { _gsr_();
+  // [FM_COUPON_1116] 고객 «요청 취소» · «쿠폰 쓰지 않기» — 발급 전 = 요청을 거둔다 · 발급 뒤 = 취소 표시(관리자가 회수)
+  return _pvCpnDo_(body, 'cancel');
 }
 
 // 사진 1장 — 폰에서 줄여 온 것(긴 변 2560 · 작은 그림 400) · 원본은 받지 않는다 · 올리는 즉시 초안에 붙인다(떠돌이 사진이 생기지 않게)

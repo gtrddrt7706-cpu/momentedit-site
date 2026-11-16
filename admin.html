@@ -2142,16 +2142,17 @@ function loadHome(silent){
 var curHome=null;
 
 function queueRow(it){
-  var inlineKinds={ '신규신청':'approve','임시고정':'grantHold','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','중도금확인':'confirmMid','중도금미납':'confirmMid','잔금미납':'confirmBalance','중도금잔금미납':'confirmMidBal','잔금확인':'confirmBalance','중도금잔금확인':'confirmMidBal','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered','추가보정확인':'confirmExtra','변경확인':'confirmChange','환불송금':'markRefunded','단계정리':'fixStage','쿠폰발급':'issueCoupon' };   /* [CPN_QUEUE] 큐에서 바로 바코드 등록(상세로 안 가도 됨) */   // [REFUND_QUEUE_INLINE 2026-07-25] 환불송금도 인라인 — 버튼은 상세 이동 대신 바로 완료 확인 팝업(행 클릭은 종전대로 상세) · [ROLLBACK_ONECLICK 2026-08-17 사용자 지시 "원클릭으로 팝업 안내가 나오고 진행을 클릭하면 모든셋팅"] 단계정리도 인라인
+  var inlineKinds={ '협력사쿠폰':'fmCoupon','협력사쿠폰회수':'fmCoupon',   /* [FM_COUPON_1116] */ '신규신청':'approve','임시고정':'grantHold','시착보내기':'openFitting','상담완료':'consultDone','입금확인':'confirmPay','중도금확인':'confirmMid','중도금미납':'confirmMid','잔금미납':'confirmBalance','중도금잔금미납':'confirmMidBal','잔금확인':'confirmBalance','중도금잔금확인':'confirmMidBal','예식완료':'eventDone','촬영완료':'eventDone','결과물전달':'delivered','추가보정확인':'confirmExtra','변경확인':'confirmChange','환불송금':'markRefunded','단계정리':'fixStage','쿠폰발급':'issueCoupon' };   /* [CPN_QUEUE] 큐에서 바로 바코드 등록(상세로 안 가도 됨) */   // [REFUND_QUEUE_INLINE 2026-07-25] 환불송금도 인라인 — 버튼은 상세 이동 대신 바로 완료 확인 팝업(행 클릭은 종전대로 상세) · [ROLLBACK_ONECLICK 2026-08-17 사용자 지시 "원클릭으로 팝업 안내가 나오고 진행을 클릭하면 모든셋팅"] 단계정리도 인라인
   var act=inlineKinds[it.kind];
-  var btnLbl={ '신규신청':'✓ 승인','임시고정':'임시고정 승인','시착보내기':'드레스 시착 동의 보내기','상담완료':'상담완료 처리','입금확인':'입금 확인','중도금확인':'중도금 확인','중도금미납':'입금 확인','잔금미납':'입금 확인','중도금잔금미납':'입금 확인','잔금확인':'잔금 확인','중도금잔금확인':'중도금·잔금 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달 처리','계약발송':'계약서 발송','결과물등록':'원본 등록','보정시작':'보정본 등록','추가보정확인':'추가 보정 확인','계약만료':'재발송','현금영수증발행':'현금영수증 발행','현금영수증취소':'영수증 정리(취소·재발행)','환불송금':'환불 처리','변경확인':'변경 확인','단계정리':'단계 맞추기','자리만료':'계약서 발송','쿠폰발급':'커피쿠폰 발급' }[it.kind]||'처리';   /* [SLOT_HOLD_EXPIRY_Q] 되돌리며 잡아 둔 자리 — 할 일은 «계약서 재발송»이다 */
-  var KLABEL={ '현금영수증발행':'현금영수증 발행', '현금영수증취소':'현금영수증 취소', '단계정리':'단계 정리', '쿠폰발급':'커피쿠폰', '중도금미납':'중도금 미납', '잔금미납':'잔금 미납', '중도금잔금미납':'중도금·잔금 미납' };   /* [UNPAID_KIND 2026-09-25] 입금 신호 없는 기한 카드 — «…확인»(고객이 입금했다고 알린 카드)과 이름을 가른다 */   /* [ROLLBACK_ONECLICK 2026-08-17] 단계정리도 인라인을 «준다» — 사용자 지시("처리할일에 나오고 원클릭으로 팝업 안내"). 팝업이 두 갈래(단계 맞추기/확인 취소)를 안내하므로 사람 판단은 팝업 안에서 이뤄진다 */
+  var btnLbl={ '협력사쿠폰':'쿠폰 넣기','협력사쿠폰회수':'쿠폰 회수',   /* [FM_COUPON_1116] */ '신규신청':'✓ 승인','임시고정':'임시고정 승인','시착보내기':'드레스 시착 동의 보내기','상담완료':'상담완료 처리','입금확인':'입금 확인','중도금확인':'중도금 확인','중도금미납':'입금 확인','잔금미납':'입금 확인','중도금잔금미납':'입금 확인','잔금확인':'잔금 확인','중도금잔금확인':'중도금·잔금 확인','예식완료':'예식완료','촬영완료':'촬영완료','결과물전달':'결과물 전달 처리','계약발송':'계약서 발송','결과물등록':'원본 등록','보정시작':'보정본 등록','추가보정확인':'추가 보정 확인','계약만료':'재발송','현금영수증발행':'현금영수증 발행','현금영수증취소':'영수증 정리(취소·재발행)','환불송금':'환불 처리','변경확인':'변경 확인','단계정리':'단계 맞추기','자리만료':'계약서 발송','쿠폰발급':'커피쿠폰 발급' }[it.kind]||'처리';   /* [SLOT_HOLD_EXPIRY_Q] 되돌리며 잡아 둔 자리 — 할 일은 «계약서 재발송»이다 */
+  var KLABEL={ '협력사쿠폰':'협력사 쿠폰','협력사쿠폰회수':'협력사 쿠폰 회수',   /* [FM_COUPON_1116] */ '현금영수증발행':'현금영수증 발행', '현금영수증취소':'현금영수증 취소', '단계정리':'단계 정리', '쿠폰발급':'커피쿠폰', '중도금미납':'중도금 미납', '잔금미납':'잔금 미납', '중도금잔금미납':'중도금·잔금 미납' };   /* [UNPAID_KIND 2026-09-25] 입금 신호 없는 기한 카드 — «…확인»(고객이 입금했다고 알린 카드)과 이름을 가른다 */   /* [ROLLBACK_ONECLICK 2026-08-17] 단계정리도 인라인을 «준다» — 사용자 지시("처리할일에 나오고 원클릭으로 팝업 안내"). 팝업이 두 갈래(단계 맞추기/확인 취소)를 안내하므로 사람 판단은 팝업 안에서 이뤄진다 */
   var chipLabel=KLABEL[it.kind]||it.kind;
   var badge=it.badge?('<span class="qbadge '+esc(it.badge.level)+'">'+esc(it.badge.text)+'</span>'):'';
   var holdAttr=it.hold?(' data-hd="'+esc(it.hold.date)+'" data-hs="'+esc(it.hold.slot)+'"'):'';
   var chgAttr=it.chg?(' data-cfd="'+esc(it.chg.fd||'')+'" data-cfs="'+esc(it.chg.fs||'')+'" data-ctd="'+esc(it.chg.td||'')+'" data-cts="'+esc(it.chg.ts||'')+'" data-cfee="'+esc(String(it.chg.fee||0))+'" data-cpy="'+esc(it.chg.payer||'')+'"'):'';
+  var fmAttr=it.fm?(' data-fm="'+esc(it.fm)+'" data-fmk="'+esc(it.kind)+'"'):'';   /* [FM_COUPON_1116] 식전(pre) · 식중(mid) · 넣기 / 회수 */
   var btn = act
-    ? '<button class="qbtn" data-act="'+esc(act)+'" data-code="'+esc(it.code)+'" data-names="'+esc(it.names)+'" data-snap="'+(snap(it.product)?'1':'0')+'" data-sub="'+esc(it.sub||'')+'"'+holdAttr+chgAttr+'>'+esc(btnLbl)+'</button>'   /* [ADM_AB1] 큐 요약(sub)을 모달로 통째 전달 */
+    ? '<button class="qbtn" data-act="'+esc(act)+'" data-code="'+esc(it.code)+'" data-names="'+esc(it.names)+'" data-snap="'+(snap(it.product)?'1':'0')+'" data-sub="'+esc(it.sub||'')+'"'+holdAttr+chgAttr+fmAttr+'>'+esc(btnLbl)+'</button>'   /* [ADM_AB1] 큐 요약(sub)을 모달로 통째 전달 */
     : '<button class="qbtn go" data-go="'+esc(it.code)+'">'+esc(btnLbl)+' ›</button>';
   // [벌수 인라인 기록] 상담완료 대기인데 벌수 미기록이면 큐에서 바로 적고 저장 → 저장되면 상담완료 모달로 이어짐 (2026-06-12 사용자 지시)
   if(it.kind==='상담완료' && it.badge && it.badge.text==='벌수 미기록'){
@@ -2263,6 +2264,7 @@ function onQueueAct(act,code,names,isSnap,el){
   else if(act==='delivered') doDelivered(code,names);
   else if(act==='openFitting') doOpenFitting(code,names);
   else if(act==='issueCoupon') doIssueCoupon(code,names);   /* [CPN_QUEUE] 큐에서 바로 바코드 등록 — 상세로 안 가도 된다 */
+  else if(act==='fmCoupon') doFmCoupon(code,names,(el&&el.getAttribute('data-fm'))||'pre',(el&&el.getAttribute('data-fmk'))==='협력사쿠폰회수');   /* [FM_COUPON_1116] 협력사 쿠폰 넣기 · 회수 */
   else if(act==='confirmChange') doConfirmChange(code,names,{changeReq:{from:{date:(el&&el.getAttribute('data-cfd'))||'',slot:(el&&el.getAttribute('data-cfs'))||''},to:{date:(el&&el.getAttribute('data-ctd'))||'',slot:(el&&el.getAttribute('data-cts'))||''},fee:Number(el&&el.getAttribute('data-cfee'))||0,payer:(el&&el.getAttribute('data-cpy'))||''}});
 }
 
@@ -3904,6 +3906,26 @@ function doDelivered(code,names,d){
     yes:(warn||warnPay||warnVid)?'그래도 전달':'전달 완료', onYes:function(){ runAct(unpaid.length?['adminMarkDelivered',code,true]:['adminMarkDelivered',code],code,(warn||warnPay||warnVid)?'그래도 전달':'전달 완료'); } }); }
 function doConfirmExtra(code,names,d){ var r=(d&&d.raw)||{}; openModal({ title:'추가 보정 입금을 확인할까요?', text:b(names)+li('추가 보정 '+(r['추가보정수량']||'0')+'컷'+(r['추가보정금액']?(' · '+_moneyNum(r['추가보정금액']).toLocaleString()+'원'):''))+li('추가보정상태가 완료로 바뀌어요'), yes:'입금 확인', onYes:function(){ runAct(['adminConfirmExtra',code],code,'입금 확인'); } }); }
 function doSkipSurvey(code,names){ openModal({ title:'후기를 넘길까요?', text:b(names)+li('후기(설문)를 생략하고 마무리해요')+li('이 고객은 아카이브로 이동해요')+li('고객이 나중에 후기를 남기면 그때 반영돼요'), yes:'후기 넘기기', onYes:function(){ runAct(['adminSkipSurvey',code],code,'후기 넘기기'); } }); }
+/* ★★[FM_COUPON_1116 2026-11-16 대본 15:55 · 대표님 13:07] 협력사(필메이커) 쿠폰 — 고객이 «쿠폰 요청하기»를 누른 줄에만 «처리할 일»이 선다.
+   넣기 = 쿠폰 코드(또는 https 링크) 한 칸 → 고객 마이페이지 영상 화면에 코드 · 복사가 뜬다 · 회수 = 고객이 «쓰지 않기»를 누른 뒤 필메이커에서 거두고 누른다.
+   ★«제휴 확정 전» 표시를 모달 · 단추에 함께 — 필메이커 제휴는 11/03 «오픈 전에 다시 문의»로 보류(조건은 비공개 docs) · 확정되면 이 표시를 걷는다.
+   쓰기는 adminPvCoupon(_requireAdmin · 잠금) 한 곳 · 모달 꼴은 커피쿠폰(doIssueCoupon)과 같은 openModal + 한 칸 */
+var FM_PENDING=true;   // [FM_COUPON_1116] 제휴 확정 전 표시 — 확정되면 false
+function doFmCoupon(code,names,kind,revoke){
+  var vn=(kind==='mid')?'식중 영상':'식전 영상', tag=FM_PENDING?' · 제휴 확정 전':'';
+  if(revoke){ openModal({ title:'협력사 쿠폰을 회수할까요?'+tag, text:b(names)+li(vn+' · 고객이 쿠폰을 쓰지 않기로 했어요')+li('필메이커에서 쿠폰을 거둔 뒤 눌러 주세요')+li('고객 화면에서 쿠폰이 사라지고 «쿠폰 요청하기»로 돌아가요'),
+      danger:true, yes:'회수', onYes:function(){ runAct(['adminPvCoupon',code,kind,'revoke',''],code,'회수'); } }); return; }
+  var extra='<div class="field"><label>쿠폰 코드 또는 쿠폰 링크(https)</label><input type="text" id="fmCpnVal" maxlength="200" autocomplete="off" spellcheck="false" placeholder="예: FM-1234-ABCD">'
+    +'<div style="font-size:11.5px;color:var(--gold-deeper);margin-top:4px">고객 마이페이지 '+esc(vn)+' 화면에 그대로 보여요 · 복사 단추가 붙어요.</div></div>'
+    +(FM_PENDING?'<div style="font-size:12px;color:var(--seal);margin-top:6px">필메이커 제휴 확정 전이에요 · 제휴 상태를 확인한 뒤 보내 주세요.</div>':'');
+  openModal({ title:'협력사 쿠폰을 보낼까요?'+tag, text:b(names)+li(vn+' · 고객이 필메이커 템플릿 쿠폰을 요청했어요')+li('템플릿 이용만 무료 · 제작 대행 · USB 같은 추가는 고객이 필메이커에서 결제해요'),
+    extra:extra, yes:'보내기', onYes:function(){
+      var v=(($('fmCpnVal')&&$('fmCpnVal').value)||'').trim();
+      if(!v){ mErr('쿠폰 코드나 링크를 넣어 주세요.'); return; }
+      runAct(['adminPvCoupon',code,kind,'issue',v],code,'보내기');
+    },
+    init:function(){ var i=$('fmCpnVal'); if(i) try{ i.focus(); }catch(e){} } });
+}
 /* 커피쿠폰 — 바코드 이미지(1~2장)를 base64로 압축해 발급. 구글 시트 셀 5만자 한계 → 이미지 합계 4.6만자 이내로 자동 축소. */
 var _cpnImgs=[];
 function doIssueCoupon(code,names){

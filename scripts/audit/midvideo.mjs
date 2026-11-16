@@ -84,7 +84,9 @@ const mstart = fnSrc(my, '_mvcStart');
 ok(/식순에서 넣기/.test(mstart) && /식순에서 빼기/.test(mstart) && /data-mvcrit/.test(mstart), '첫 화면 — 식순에 없으면 «식순에서 넣기» · 있으면 «식순에서 빼기»(둘 다 식순 칸을 연다)');
 ok(/넣지 않으면 식순은 그대로예요/.test(mstart), '«넣지 않으면 식순은 그대로예요»(꺼져 있으면 아무것도 안 바뀐다)');
 ok(!/둘 중 하나|축사 대신/.test((mstart + fnSrc(my, '_mvcCond')).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '')) && /축사 · 축가 뒤 · 편지 앞/.test(mstart), '[SPEECH_SONG_1115] «축사와 같은 칸이라 둘 중 하나만» · «축사 대신 상영»은 걷었다 · 자리 글 «축사 · 축가 뒤 · 편지 앞»(옛 기대: 택1 한 줄)');
-ok(/_mvcCond\(on\)/.test(mstart) && /제작비는 두 분 부담/.test(fnSrc(my, '_mvcCond')) && /쿠폰 · 기본 템플릿은 식전 영상에만/.test(mstart) && /쿠폰은 식전 영상에만 적용돼요/.test(fnSrc(my, '_mvcFeel')) && !/쿠폰 · 기본 템플릿은 식전 영상에만/.test(fnSrc(my, '_pvcThree')), '제작 비용 · 쿠폰 범위(식전 영상 1편에만) — ★[VIDEO_UMBRELLA_1115] 제작비는 머리 조건 줄(선택 사항 · 제작비는 두 분 부담 · [SPEECH_SONG_1115] «축사 대신» 걷음) · 쿠폰 범위는 «만드는 법 보기»(켜짐) · 점 줄(꺼짐) · ★[VU_COUPON_ONCE_1115] «영상 준비» 걸음에는 식중 쿠폰 문장 0(세 번째 같은 말)');
+/* ★[FM_COUPON_1116 · RULES_SLIM ⑧] 옛 기대 «제작비는 두 분 부담 · 쿠폰 · 기본 템플릿은 식전 영상에만»(MID_FEEL_1107) → 식중도 협력사 쿠폰으로 기본 템플릿 무료 · 추가는 두 분(대표님 11/16) ·
+     쿠폰 · 비용 말은 머리 조건 줄(_mvcCond) 하나와 «영상 준비» ① 한 줄에만(꺼짐 점 줄 · 만드는 법 화면에 «식전에만» 0) */
+ok(/_mvcCond\(on\)/.test(mstart) && /쿠폰으로 기본 템플릿 무료/.test(fnSrc(my, '_mvcCond')) && /추가는 두 분 부담/.test(fnSrc(my, '_mvcCond')) && !/'쿠폰 · 기본 템플릿은 식전 영상에만'/.test(mstart) && !/쿠폰은 식전 영상에만 적용돼요/.test(fnSrc(my, '_mvcFeel')) && /쿠폰 넣기/.test(fnSrc(my, '_mvcFeel')), '제작 비용 · 쿠폰 — 식중도 쿠폰으로 기본 템플릿 무료 · 추가는 두 분 부담(머리 조건 줄) · «식전 영상에만» 말 없음 · 만드는 법에 «쿠폰 넣기» [FM_COUPON_1116]');
 ok(/_pvcDueLine\(/.test(mstart) && /기한까지 확정하지 않으면 영상 없이 진행해요/.test(mstart), '기한 줄 · 없으면 영상 없이');
 ok(/_pvcThree\(\)/.test(mstart) && /식순에 정한 길이/.test(fnSrc(my, '_pvcThree')) && /식순에 정한 길이/.test(fnSrc(my, '_pvcUpload')), '켜진 뒤 — 식순 길이(시간 예산과 같은 값)를 첫 화면(★[VIDEO_UMBRELLA_1115] «영상 준비» 걸음 안 · 만들기 전에)과 올리기 화면에도');
 ok(/openRitualBuilder\([^)]*\{at:'midvideo'\}\)/.test(fnSrc(my, '_mvcToRitual')), '«식순에서 넣기 · 빼기» = 식순 화면을 at:midvideo 로 연다(마이페이지가 식순을 따로 쓰지 않는다)');
