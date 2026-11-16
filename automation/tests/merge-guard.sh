@@ -4799,6 +4799,18 @@ chk 'MID_VIDEO_1106' automation/platform/70_journey.gs 2
 # ★[PVNORM_KIND_1107 2026-11-07 MID17-8] handlePvSave 의 _pvNorm_ 은 모두 kind 를 넘긴다(식중 줄은 링크만) — #1618 이 넣은 «다른 기기 사진 지키기» 줄에 kind 가 빠졌었다 · 동작은 midvideo.mjs 가 잰다
 chk 'PVNORM_KIND_1107' automation/platform/89_prevideo.gs 1
 chk 'PVNORM_KIND_1107' scripts/audit/midvideo.mjs 2
+# ★[FIELD_LINE_1115 2026-11-15 대본 «입력칸 한 벌»] 입력칸 경계 = --field-line 하나(비텍스트 3:1 · 종전 --border 1.36:1) · 초점 = [FOCUS_ONE] 한 벌
+chk '--field-line:#8A857C;' mypage.html 1
+chk '--field-line:#8A857C;' inquiry.html 1
+chk '  --field-line: #8a857c;' index.html 1
+chk 'var(--field-line)' mypage.html 7
+chk 'var(--field-line)' inquiry.html 2
+chk 'var(--field-line)' index.html 2
+nochk '.field input{width:100%;border:1px solid var(--border);' mypage.html
+nochk '.field input:focus{border-color:var(--gold)}' mypage.html
+nochk 'border:none;border-bottom:1px solid var(--border);background:transparent;padding:22px 0 10px' inquiry.html
+chk '.field input:focus{border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}' mypage.html 1
+chk 'box-shadow: inset 0 0 0 1px var(--gold-text);' index.html 2
 # ★[MYPAGE_ALL_1114 2026-11-14 대본 위임 «마이페이지 전체 걷기» 작은 수정] F1 식전 영상 기한 지남 줄 = «보기 · 영상 없이 진행»(막힌 «시작하기» 걷음)
 #   F2 기한 지난 영상 화면엔 «저장» 없음 · F3 «입금액 복사» 누름 칸 44px · F4 «하객 안내» ✓ 걷음(링크 자동 발급 뒤 첫날부터 켜졌다) · F6 서명한 스냅 고객에겐 «계약서를 보내드려요» 줄 없음
 chk 'MYPAGE_ALL_1114 F1' mypage.html 1

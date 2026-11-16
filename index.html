@@ -410,6 +410,7 @@ select {
   --accent: #3a2d22;
   --seal: #6b2a24;
   --border: #ddd8d1;
+  --field-line: #8a857c; /* ★[FIELD_LINE_1115 2026-11-15 대본 «입력칸 한 벌»] 입력칸 경계 = 비텍스트 3:1(WCAG 1.4.11) · 종전 --border #DDD8D1 은 크림 위 1.36:1 · 쓰는 곳: .faq-ask-form · .me-adv-input */
   --footer-bg: #1a1714;
   --footer-text: #c9c3b8;
   --shadow-card: 0 1px 2px rgba(28, 27, 25, 0.04), 0 8px 24px rgba(28, 27, 25, 0.05);
@@ -7032,7 +7033,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
   align-items: center;
   gap: 8px;
   background: #fff;
-  border: 1px solid var(--border);
+  border: 1px solid var(--field-line);
   border-radius: 12px;
   padding: 6px 6px 6px 18px;
   transition:
@@ -7040,8 +7041,9 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
     box-shadow 0.25s;
 }
 .faq-ask-form:focus-within {
-  border-color: var(--gold);
-  box-shadow: 0 4px 16px rgba(184, 154, 117, 0.14);
+  /* [FOCUS_ONE · FIELD_LINE_1115] 초점 = 짙은 금빛 테 두 겹(마이페이지와 한 벌) · 옅은 금빛 + 번짐은 새 경계선보다 흐렸다 */
+  border-color: var(--gold-text);
+  box-shadow: inset 0 0 0 1px var(--gold-text);
 }
 .faq-ask-ic {
   width: 18px;
@@ -8890,7 +8892,7 @@ function replayHeroAnimation(){
 .me-adv-input {
   flex: 1 1 auto;
   resize: none;
-  border: 1px solid var(--border);
+  border: 1px solid var(--field-line);
   border-radius: 12px;
   padding: 12px 14px;
   font-family: var(--sans);
@@ -8903,7 +8905,8 @@ function replayHeroAnimation(){
   transition: border-color 0.3s;
 }
 .me-adv-input:focus {
-  border-color: var(--gold);
+  border-color: var(--gold-text);
+  box-shadow: inset 0 0 0 1px var(--gold-text); /* [FOCUS_ONE · FIELD_LINE_1115] */
 }
 .me-adv-send {
   flex: 0 0 auto;
