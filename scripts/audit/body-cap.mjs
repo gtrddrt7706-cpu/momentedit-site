@@ -15,15 +15,17 @@ await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const port = srv.addres
 const O = require(path.join(ROOT, 'assets/ritual-open.js')), C = require(path.join(ROOT, 'assets/ritual-cue.js')), D = require(path.join(ROOT, 'assets/ritual-data.js'));
 const exS = (k, add) => { const S = O.applyExample({ course: 'open' }, k); S.course = 'open'; return Object.assign(S, add || {}); };
 { /* ── 규칙 값 */
-  ok('[EVENT_COUNT_CAP] 셈 대상 12순간 · 긴 순간 다섯 + 테이블 인사 2 · 6개 · 긴 3개', JSON.stringify(O.CNT_PICK) === JSON.stringify(['candle', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'toast', 'table'])
-    && JSON.stringify(O.CNT_LONG) === JSON.stringify({ bless: 1, free: 1, song: 1, letter: 1, tribute: 1, table: 2 }) && O.CNT_MAX === 6 && O.CNT_LONG_MAX === 3);
+  /* ★[SPEECH_SONG_1115 2026-11-15 대표님] 식중 영상(midvid)이 따로 넣고 빼는 순간이 돼 셈 대상 13 · 긴 순간 여섯(옛 기대 12 · 다섯) · 축사 · 축가는 함께 켜지지 않는다 */
+  ok('[EVENT_COUNT_CAP · SPEECH_SONG_1115] 셈 대상 13순간 · 긴 순간 여섯(식중 영상 포함) + 테이블 인사 2 · 6개 · 긴 3개', JSON.stringify(O.CNT_PICK) === JSON.stringify(['candle', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'midvid', 'letter', 'tribute', 'toast', 'table'])
+    && JSON.stringify(O.CNT_LONG) === JSON.stringify({ bless: 1, free: 1, song: 1, midvid: 1, letter: 1, tribute: 1, table: 2 }) && O.CNT_MAX === 6 && O.CNT_LONG_MAX === 3);
   ok('[EVENT_COUNT_CAP] 본식 상한 = (40 − 단체 사진 최소 ' + O.SHORT_MIN + ')분 − 닫는 인사 뒤 몫(예시 최장 조건 없음)', O.capSec({ digital: false, meal: false, guide: false }) === (O.DAYMIN - O.SHORT_MIN) * 60 - O.postSec({ digital: false, meal: false, guide: false }) &&   /* [CLOSING_CHEER_195] 응원 문장으로 «없음» 판도 5초 */ O.capSec({ digital: true }) === (O.DAYMIN - O.SHORT_MIN) * 60 - O.postSec({ digital: true }));
   /* ── 예시 넷 */
   const ex = O.EXAMPLES.map((e) => { const S = exS(e.k), c = O.countOf(S); return { k: e.k, n: c.n, l: c.long, hi: O.bodySec(S)[1], cap: O.capSec(S), cut: O.tableCut(S) }; });
   ok('예시 넷 모두 규칙 안 · 상한 안 · 테이블 인사 그대로(' + ex.map((x) => x.k + ' ' + x.n + '/' + x.l).join(' · ') + ')', ex.every((x) => x.n <= 6 && x.l <= 3 && x.hi <= x.cap && !x.cut), JSON.stringify(ex));
   /* ── 규칙 안 전 조합(정석 예시의 설정 · 12순간 담기/빼기) — 테이블 인사를 줄인 뒤 ≤ 상한 */
   const base = exS('standard'); let n = 0, cut = 0, over = 0, maxRaw = 0, maxFit = 0, badCut = 0;
-  for (let m = 0; m < (1 << O.CNT_PICK.length); m++) { const t = JSON.parse(JSON.stringify(base)); t.on = { prevideo: 1 };
+  const iF = O.CNT_PICK.indexOf('free'), iS = O.CNT_PICK.indexOf('song');   /* [SPEECH_SONG_1115] 축사 · 축가 함께 담은 조합은 없다 — 세지 않는다 */
+  for (let m = 0; m < (1 << O.CNT_PICK.length); m++) { if ((m >> iF & 1) && (m >> iS & 1)) continue; const t = JSON.parse(JSON.stringify(base)); t.on = { prevideo: 1 };
     O.CNT_PICK.forEach((k, i) => { if (m & (1 << i)) t.on[k] = 1; });
     const c = O.countOf(t); if (c.n > 6 || c.long > 3) continue; n++;
     const raw = O.bodyRaw(t)[1], fit = O.bodySec(t)[1], cap = O.capSec(t); maxRaw = Math.max(maxRaw, raw); maxFit = Math.max(maxFit, fit);
@@ -35,7 +37,7 @@ const exS = (k, add) => { const S = O.applyExample({ course: 'open' }, k); S.cou
     const r = C.build(C.norm(t)), cs = Array.isArray(r) ? r : r.cues, tb = cs.find((x) => x.live && /테이블을 돌며/.test(x.live.t || ''));
     ok('콘솔 테이블 인사 시간 = 엔진(줄인 값 ' + Math.round(O.tableSecOf(t)) + '초) · 메모에 «약 n분 안에»', O.tableCut(t) > 0 && !!tb && tb.live.est === O.tableSecOf(t) && /약 \d+분 안에/.test(tb.note || ''), tb && JSON.stringify({ est: tb.live.est, note: tb.note })); }
   /* ── 늘리는 쪽만 막는다 */
-  const six = exS('standard'), plus = JSON.parse(JSON.stringify(six)); plus.on.ring = 1; const lng = JSON.parse(JSON.stringify(exS('brief'))); lng.on.bless = 1; lng.on.song = 1; lng.on.letter = 1;
+  const six = exS('family'), plus = JSON.parse(JSON.stringify(six)); plus.on.ring = 1;   /* [SPEECH_SONG_1115] 정석은 축가만이라 5개 — 6개 꽉 찬 예시는 ‹가족›(옛 기대: 정석 6개) */ const lng = JSON.parse(JSON.stringify(exS('brief'))); lng.on.bless = 1; lng.on.song = 1; lng.on.letter = 1;
   ok('7번째 → «n» · 긴 순간 넷째 → «long» · 같은 판 · 빼기는 통과', O.countNo(six, plus) === 'n' && O.countNo(exS('brief'), lng) === 'long' && O.countNo(six, six) === '' && O.countNo(plus, six) === '');
   ok('막힘 창 글 — «본식 순간은 6개까지예요» · «긴 순간은 3개까지예요»(테이블 인사 = 2)', O.COUNT_MSG.n.title === '본식 순간은 6개까지예요' && /하나 빼고 골라 주세요/.test(O.COUNT_MSG.n.body) && O.COUNT_MSG.long.title === '긴 순간은 3개까지예요' && /테이블 인사는 2개로/.test(O.COUNT_MSG.long.body));
   /* ★[CLOSING_LINE_1031 검토 178] 마무리 멘트가 26 보다 긴 몫(POST_SEC 다섯 판) = 엔진 글 길이 셈과 같다 · postSec 도 같은 판을 고른다 */
@@ -60,7 +62,7 @@ try {
       const set = (ks) => { R.applyExample(S, 'brief'); S.on = { prevideo: 1 }; ks.forEach((k) => { S.on[k] = 1; }); opSync(); };
       try { opGoStep('pick'); } catch (e) {} await w(300);
       /* 6개(긴 3) 다음 7번째 */
-      R.applyExample(S, 'standard'); opSync(); out.seven = add('ring');
+      R.applyExample(S, 'family'); opSync(); out.seven = add('ring');   /* [SPEECH_SONG_1115] 6개 꽉 찬 예시 = 가족(옛 정석) */
       /* 긴 순간 넷째 — 짧은 순간 둘 + 긴 셋 → 긴 하나 더 */
       set(['candle', 'vow', 'bless', 'song', 'letter']); out.long4 = add('tribute');
       /* 테이블 인사 = 긴 2 — 긴 둘 + 테이블 */
@@ -75,14 +77,17 @@ try {
       /* 규칙 안 · 짧은 순간 담기는 된다 */
       set(['candle', 'vow']); out.free = add('ring');
       /* 길이 칩 — 축사 길게(테이블 인사로 메우지 않는다) · 할 일을 말한다 */
-      set(['candle', 'welcome', 'vow', 'bless', 'free', 'song']); S.freeLen = '3'; S.blessN = '2'; opSync(); document.querySelectorAll('.ord-ask').forEach((e) => e.remove());
+      set(['candle', 'welcome', 'vow', 'bless', 'free', 'letter']); S.freeLen = '3'; S.blessN = '2'; opSync(); document.querySelectorAll('.ord-ask').forEach((e) => e.remove());   /* [SPEECH_SONG_1115] 축사 · 축가는 함께 담지 못한다 — 축가 대신 편지(옛 기대 축사 + 축가) */
       lsFreeLen(10); out.len = { v: S.freeLen, t: ask() };
+      /* ★[SPEECH_SONG_1115] 식중 영상 길이 칸도 같은 길 — 넘으면 막고 짧게 할 다른 긴 순간(축사)을 이름으로 */
+      set(['candle', 'welcome', 'vow', 'free', 'midvid']); S.freeLen = '3'; S.midLen = '3'; opSync(); document.querySelectorAll('.ord-ask').forEach((e) => e.remove());
+      try { lsMidLen(10); } catch (e) { out.midErr = e.message; } out.mlen = { v: S.midLen, t: ask(), e: out.midErr || '' };
       /* 카운터 — ① · ③ */
-      R.applyExample(S, 'standard'); opSync(); try { opGoStep('pick'); } catch (e) {} await w(300);
+      R.applyExample(S, 'family'); opSync(); try { opGoStep('pick'); } catch (e) {} await w(300);   /* [SPEECH_SONG_1115] 6/6 · 3/3 = 가족(옛 기대 정석) */
       out.cntPk = (document.querySelector('[data-fk="pkcnt:pk"]') || {}).textContent || '';
       try { opGoStep('listen'); mkGo('_sum'); } catch (e) {} await w(400);
       out.cntSum = (document.querySelector('[data-fk="pkcnt:sum"]') || {}).textContent || '';
-      R.applyExample(S, 'family'); S.on.ring = 1; S.on.free = 1; opSync(); try { opGoStep('pick'); } catch (e) {} render(); await w(200);
+      R.applyExample(S, 'family'); S.on.ring = 1; S.on.midvid = 1; opSync();   /* [SPEECH_SONG_1115] 넘친 옛 초안 = 가족 + 반지 + 식중 영상(옛: + 축사 — 축가와 함께 담지 못한다) */ try { opGoStep('pick'); } catch (e) {} render(); await w(200);
       out.over = [...document.querySelectorAll('.pk-left')].filter((e) => getComputedStyle(e).display !== 'none').map((e) => e.textContent);
       return out; });
     ok(W + ' 7번째 담기 → 막힘 «본식 순간은 6개까지예요»', !r.seven.added && /본식 순간은 6개까지예요/.test(r.seven.t) && !/덜어 주세요/.test(r.seven.t), JSON.stringify(r.seven));
@@ -92,6 +97,7 @@ try {
     ok(W + ' [RA5_TABLE_NOTE] 1분 넘게 줄이는 담기(화촉 · 덕담 · 축사 · 테이블 + 서약) → 알림 «테이블 인사를 약 ' + r.bigMn + '분으로 맞췄어요»(원래 ' + r.bigFull + '분)', r.big.added && !r.big.t && r.bigCut > 60 && r.bigMn !== r.bigFull && r.bigToast === '테이블 인사를 약 ' + r.bigMn + '분으로 맞췄어요', JSON.stringify({ big: r.big, cut: r.bigCut, mn: r.bigMn, toast: r.bigToast }));
     ok(W + ' 규칙 안 짧은 순간 담기는 된다(창 없음)', r.free.added && !r.free.t, JSON.stringify(r.free));
     ok(W + ' 길이 칩(축사 10분)이 넘으면 막고 할 일을 말한다 «이 길이로 하려면 다른 순간을 하나 빼거나 부모님 덕담을 짧게 해 주세요»', r.len.v === '3' && /이 길이로 하려면 다른 순간을 하나 빼거나 부모님 덕담을 짧게 해 주세요/.test(r.len.t) && !/분 덜어/.test(r.len.t), JSON.stringify(r.len));
+    ok(W + ' [SPEECH_SONG_1115] 식중 영상 길이 칸(10분)이 넘으면 막고 할 일을 말한다 «… 축사를 짧게 해 주세요»(길이 그대로 3분)', r.mlen.v === '3' && /이 길이로 하려면 다른 순간을 하나 빼거나 축사를 짧게 해 주세요/.test(r.mlen.t) && !r.mlen.e, JSON.stringify(r.mlen));
     ok(W + ' 카운터 «고른 본식 순간 6/6 · 긴 순간 3/3»(① · ③ · 분 숫자 없음 · B2_NA_49)', r.cntPk === '고른 본식 순간 6/6 · 긴 순간 3/3' && r.cntSum === r.cntPk, JSON.stringify([r.cntPk, r.cntSum]));
     ok(W + ' 이미 넘은 옛 초안은 알림만(«본식이 약 n분 길어요 · 순간을 하나 빼 주세요»)', r.over.length <= 1 && r.over.every((x) => /^본식이 약.\d+분 길어요 · 순간을 하나 빼 주세요$/.test(x)), JSON.stringify(r.over));
     ok(W + ' pageerror 0', !errs.length, errs.slice(0, 2).join(' | '));

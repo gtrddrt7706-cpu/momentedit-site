@@ -95,37 +95,42 @@ const backAgain = (o, m7) => { const hz = {}, bad = []; let pv = null; o.forEach
   if (hz[x.f] != null && hz[x.f] !== x.i && x.f !== m7) bad.push(`${x.f} #${hz[x.f]}→#${x.i} ${x.k} ${x.s || x.lab}`); Object.keys(hz).forEach((g) => { delete hz[g]; }); }); return [...new Set(bad)]; };   /* 들린 곡이 생기면 앞 정적 기록은 지운다 — 다른 곡이 흐른 뒤 목록이 돌아온 것은 되살림이 아니다 · 선언 뒤 박수도 이제 새 곡이라 예외가 아니다(예외는 축배 곡 M7 하나) */
 try {
   /* 두 판을 나란히(CI 칸 20분 한도) — 엔진 표 + 하루 이어 듣기 / 순간 하나 듣기 */
-  const ON = { bless: 1, free: 1, song: 1, letter: 1, tribute: 1, table: 1, toast: 1 };
+  /* ★[SPEECH_SONG_1115] 축사 · 축가는 둘 중 하나 — 옛 판(축사 무음 → 축가 → 편지)은 없다. 축사 쪽(ON · 축사 → 편지) · 축가 쪽(ON_SONG · 덕담 → 축가 → 편지 = 옛 «축사 뺌» 판)으로 나눠 잰다 */
+  const ON = { bless: 1, free: 1, song: 0, letter: 1, tribute: 1, table: 1, toast: 1 }, ON_SONG = { bless: 1, free: 0, song: 1, letter: 1, tribute: 1, table: 1, toast: 1 };
   const A = async () => { const { ctx, f, errs } = await open(390, true);
     await f.waitForFunction(() => !!(window.ENG && ENG.RitualCue), null, { timeout: 15000 }).catch(() => {});
     /* E 엔진 표 */
-    const V = [['기본(축사 · 편지 «음악 없이»)', { on: ON, bgm: {} }], ['축사 «음악과 함께»', { on: ON, bgm: { S5: { m: 'bed' } } }], ['축사 뺌', { on: Object.assign({}, ON, { free: 0 }), bgm: {} }],
+    const V = [['기본(축사 · 편지 «음악 없이»)', { on: ON, bgm: {} }], ['축사 «음악과 함께»', { on: ON, bgm: { S5: { m: 'bed' } } }], ['축가 쪽(축사 없음 · 옛 «축사 뺌»)', { on: ON_SONG, bgm: {} }],
       ['부모님께 인사 · 테이블 뺌(편지 → 축배)', { on: Object.assign({}, ON, { tribute: 0, table: 0 }), bgm: {} }], ['편지 «음악과 함께»', { on: ON, bgm: { S6: { m: 'bed' } } }]];
     for (const [nm, o] of V) { const P = await table(f, o), bad = relifts(P, o); ok(`E ${nm} — 본식 곡 정적 뒤 다시 올라옴 0 · 올라 10초 안에 정적 0`, !bad.length, bad); }
     { const P = await table(f, V[0][1]);
-      ok('E 기본 — 축사 뒤 박수(live) · 축가 여는 말 · 축가 끝 박수(live) = −90 · 선언 뒤 박수 −8(예외) · 부모님께 인사 첫 줄 −15(무음에서 새 곡)',
-        lvAt(P, 'bridge-b10-speech-clap', 'live') === -90 && lvAt(P, 'narr-song', 'say') === -90 && lvAt(P, 'narr-song-end-friend', 'live') === -90 && lvAt(P, 'narr-declare-family-out', 'live') === -8 && lvAt(P, 'narr-tribute-name', 'say') === -15,
-        ['bridge-b10-speech-clap/live', 'narr-song/say', 'narr-song-end-friend/live', 'narr-declare-family-out/live', 'narr-tribute-name/say'].map((z) => z + ' ' + lvAt(P, ...z.split('/')))); }
-    { const P = await table(f, V[2][1]); ok('E 축사 뺌 — 덕담 곡이 흐르다 축가 여는 말은 −15 그대로(앞이 정적이 아니다) · MR 뒤 박수는 −90', lvAt(P, 'narr-song', 'say') === -15 && lvAt(P, 'narr-song-end-friend', 'live') === -90, [lvAt(P, 'narr-song', 'say'), lvAt(P, 'narr-song-end-friend', 'live')]); }
+      ok('E 기본(축사 쪽) — 축사 뒤 박수(live) = −90 · 편지 첫 줄 −90(축사 무음 뒤) · 선언 뒤 박수 −8(예외) · 부모님께 인사 첫 줄 −15(무음에서 새 곡) [SPEECH_SONG_1115 · 옛 기대의 축가 줄은 축가 쪽 판으로]',
+        lvAt(P, 'bridge-b10-speech-clap', 'live') === -90 && lvAt(P, 'letter-each', 'say') === -90 && lvAt(P, 'narr-declare-family-out', 'live') === -8 && lvAt(P, 'narr-tribute-name', 'say') === -15,
+        ['bridge-b10-speech-clap/live', 'letter-each/say', 'narr-declare-family-out/live', 'narr-tribute-name/say'].map((z) => z + ' ' + lvAt(P, ...z.split('/')))); }
+    { const P = await table(f, V[2][1]); ok('E 축가 쪽 — 덕담 곡이 흐르다 축가 여는 말은 −15 그대로(앞이 정적이 아니다) · MR 뒤 박수 · 편지 첫 줄은 −90', lvAt(P, 'narr-song', 'say') === -15 && lvAt(P, 'narr-song-end-friend', 'live') === -90 && lvAt(P, 'letter-each', 'say') === -90, [lvAt(P, 'narr-song', 'say'), lvAt(P, 'narr-song-end-friend', 'live'), lvAt(P, 'letter-each', 'say')]); }
     /* P 미리 듣기 하루 이어 듣기 */
     await setX(f, { on: ON, bgm: {} }); await go(f, 'welcome');
     const m7 = await f.evaluate(() => BgmPicks.plan ? (BgmBed._t && (function () { try { return (BgmPicks.PICKS.M7 || [])[0]; } catch (e) { return ''; } })()) : '');
     const DAY = ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'table', 'toast', '_close'];
     const o = await run(f, DAY, 240000), ba = backAgain(o, m7);
     ok('P 하루 이어 듣기 — 정적이 된 곡이 다른 줄에서 다시 올라오는 일 0(축배 곡 M7 예외 · 선언 뒤 박수는 새 곡)', ba.length === 0 && o.length > 500, { ba, n: o.length });
-    const at = (pr) => o.filter(pr), song0 = at((x) => x.k === 'song' && x.on), let0 = at((x) => x.k === 'letter' && x.s === 'letter-each' && x.on);
-    ok('P 축가 여는 말 · 축가 · 축가 끝 박수 · 편지 첫 줄 동안 음악 0', !song0.length && !let0.length, { song: [...new Set(song0.map((x) => x.f + ' ' + (x.s || x.lab)))], letter: let0.length });
-    const mr = o.findIndex((x) => x.k === 'song' && x.lab === '축가가 흐르는 자리'); let q0 = 0; for (let j = mr - 1; j >= 0 && !o[j].on; j--) q0 = o[mr].t - o[j].t;
-    ok(`P 축가(MR) 앞 정적 ≥ 1초 (${(q0 / 1000).toFixed(1)}초)`, mr > 0 && q0 >= 1000, { mr, q0 });
+    const at = (pr) => o.filter(pr), free0 = at((x) => x.k === 'free' && x.s === 'bridge-b10-speech-clap' && x.on), let0 = at((x) => x.k === 'letter' && x.s === 'letter-each' && x.on);
+    ok('P 축사 끝 박수 · 편지 첫 줄 동안 음악 0(축사 쪽 하루) [SPEECH_SONG_1115]', !free0.length && !let0.length, { free: free0.length, letter: let0.length });
     const m7on = o.filter((x) => x.f === m7 && x.on).length;
     ok(`P 축배 «위하여» 뒤 축배 곡(${m7}) 재생 1회 이상`, !!m7 && m7on > 0, { m7, m7on });
     ok('쪽 오류 0(하루)', !errs.length, errs.slice(0, 3)); await ctx.close(); };
   const Bq = async () => { const { ctx, f, errs } = await open(390, true);
     await f.waitForFunction(() => !!(window.ENG && ENG.RitualCue), null, { timeout: 15000 }).catch(() => {});
-    await setX(f, { on: ON, bgm: {} });
+    await setX(f, { on: ON_SONG, bgm: {} });   /* [SPEECH_SONG_1115] 축가 쪽 판 — 덕담 → 축가 → 편지 */
     /* 순간 하나 */
-    for (const k of ['song', 'letter']) { await go(f, k); const o1 = await run(f, [k], k === 'song' ? 14000 : 20000), up = o1.filter((x) => x.on && (k === 'song' || x.s === 'letter-each')), b1 = backAgain(o1, '');
-      ok(`P ${k === 'song' ? '축가' : '편지'}만 듣기 — 여는 말 · ${k === 'song' ? '축가 · 박수' : '첫 줄'} 동안 음악 0 · 되살아남 0`, !up.length && !b1.length, { up: up.map((x) => [Math.round(x.t), x.i, x.s || x.lab, x.f, x.want]), b1 }); }
+    for (const k of ['song', 'letter']) { await go(f, k); const o1 = await run(f, [k], k === 'song' ? 14000 : 20000), up = o1.filter((x) => x.on && (k === 'song' ? x.s !== 'narr-song' : x.s === 'letter-each')), b1 = backAgain(o1, '');
+      ok(`P ${k === 'song' ? '축가' : '편지'}만 듣기 — ${k === 'song' ? '축가 · 박수(여는 말은 덕담 곡 아래 · 앞이 정적이 아니다)' : '첫 줄'} 동안 음악 0 · 되살아남 0`, !up.length && !b1.length, { up: up.map((x) => [Math.round(x.t), x.i, x.s || x.lab, x.f, x.want]), b1 });
+ }
+    { await go(f, 'song'); const o2 = await run(f, ['song', 'letter'], 40000), mrs = o2.filter((x) => x.k === 'song' && x.lab === '축가가 흐르는 자리');
+      const sg = o2.filter((x) => x.on && (x.k === 'song' && x.s !== 'narr-song' || x.s === 'letter-each'));
+      /* ★[SPEECH_SONG_1115] 옛 «MR 앞 정적 ≥ 1초»는 앞이 축사(무음)라 여는 말부터 정적이었기 때문 — 축가 쪽(덕담 → 축가)은 여는 말이 덕담 곡 아래(−15 · «축사 뺌» 판과 같다) ·
+           뜻(MR 이 곡 위에서 시작하지 않는다)은 «MR 자리(미리 듣기 카드) 동안 음악 0»으로 잰다 */
+      ok(`P 축가 → 편지 이어 듣기 — MR 자리 동안 음악 0 · 축가 · 박수 · 편지 첫 줄 동안 음악 0 [SPEECH_SONG_1115 축가 쪽]`, mrs.length > 5 && !mrs.some((x) => x.on) && !sg.length, { mr: mrs.length, on: mrs.filter((x) => x.on).length, sg: sg.slice(0, 3).map((x) => [Math.round(x.t), x.s || x.lab, x.f, x.want]) }); }
     /* [NO_RELIFT_1102 덧2 사장님 «여는 멘트 전에 BGM 은 멈추게 하자»] 하객 맞이만 듣기 — 여는 멘트(narr-open) 시작부터 끝까지 · 그 뒤 여운까지 음악 0 */
     { await go(f, 'guest'); const og = await run(f, ['guest'], 120000), i0 = og.findIndex((x) => x.s === 'narr-open'), aft = i0 > -1 ? og.slice(i0).filter((x) => x.on) : [];
       const tail = await f.evaluate(() => new Promise((res) => { const o = []; let n = 0; const iv = setInterval(() => { const v = BgmBed._t.BED.cur; o.push(!!(v && v.src && v.want > -60)); if (++n > 40) { clearInterval(iv); res(o); } }, 100); }));

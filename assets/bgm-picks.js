@@ -69,7 +69,14 @@
     B31: { t: '언제나 몇 번이라도', src: '센과 치히로의 행방불명', a: 'Elizabeth Bright', v: 'Piano Ghibli', why: '단정한 피아노' , len: 320.9},
     B32: { t: '너를 태우고', src: '천공의 성 라퓨타', a: 'Elizabeth Bright', v: 'Piano Ghibli', why: '차분한 여운' , len: 230.4},
     B33: { t: '바람이 지나가는 길', src: '이웃집 토토로', a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Beautiful Songs~', why: '산들바람 같은 재즈 피아노' , len: 268.3},
-    B34: { t: '산책', src: '이웃집 토토로', a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Memorable Songs~', why: '경쾌한 재즈 피아노' , len: 166.5}
+    B34: { t: '산책', src: '이웃집 토토로', a: 'Kazumi Tateishi Trio', v: 'GHIBLI meets JAZZ ~Memorable Songs~', why: '경쾌한 재즈 피아노' , len: 166.5},
+    /* ★★[SONGS_5_1115 2026-11-15 대표님 구매 · BGM 결정 카드 ⑤] 하객 맞이 · 테이블 인사 배경 곡 다섯 — 같은 앨범(Peace of Mind - STUDIO GHIBLI meets JAZZ BEST - · 2021) · 파일은 저장소 밖(완성 폴더 · 드라이브 «ME_구간곡») ·
+         −23 LUFS · 피크 −2 dBTP 이하 · 앞뒤 무음 자름 · 한 번만(되풀이 편집 없음 · len 없음 = 파일 길이) · 고객이 고르는 3곡 목록(PICKS)에는 넣지 않고 fill 로만 */
+    B35: { t: '이웃집 토토로', src: '이웃집 토토로', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '밝고 반가운 재즈 피아노' },
+    B36: { t: '벼랑 위의 포뇨', src: '벼랑 위의 포뇨', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '가볍고 경쾌하게' },
+    B37: { t: '때로는 옛날 이야기를', src: '붉은 돼지', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '따뜻하고 차분하게' },
+    B38: { t: '안녕 여름', src: '코쿠리코 언덕에서', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '잔잔하게 오래' },
+    B39: { t: '비행기 구름', src: '바람이 분다', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '담백한 피아노 트리오' }
   };
   /* 구간 → 곡 번호(위가 1순위 · 2026-10-30 표 그대로) */
   /* ★★[PICKS_THREE_1101 사장님 «구간마다 노래를 3개로 추리고 너무 힙한 건 공감 못 하니 빼자» · GPT 확인 «없음»] 구간마다 3곡(위가 1순위) —
@@ -91,7 +98,9 @@
   /* ★★[BGM_FILL_1101 2026-11-01 사장님 «하객 맞이 음악은 계속 흐르는 건가? 한 곡만으로는 힘들지 않아?»] 목록 칸(multi · M1 · M8)은 30분을 채운다 —
        고객이 고르는 곡은 3곡 그대로 · 당일 콘솔이 트는 차례 끝에 «배경으로만 이어 트는 곡»(fill)을 붙인다(고객 화면 곡 줄 · 곡 카드 · 미리 듣기에는 없다 · 순서 줄에는 보인다)
        차례 = 고른 곡(없으면 1순위) → 그 구간 나머지 → fill · 한 바퀴 뒤 처음으로 · ★[GHIBLI_ADD_1101] fill 이 다른 구간에서 두 분이 고른 곡이면 건너뛴다(겹쳐 들리지 않게) */
-  var FILL = { M1: ['B16', 'B33'], M8: ['B13', 'B14'], M6: ['B07', 'B16'], M4: ['B12', 'B14'], M8L: ['B26', 'B33'] };   /* ★[REPEAT_RULE_1107 ①] 본식 피아노(M4 · 약 18분 · 3곡)와 마지막 곡(M8L)에도 배경 곡 — 목록에 없던 피아노 B12 «Under the Willow» · B26 «Bluebird» 등 · 고객이 보는 3곡은 그대로 · 드라이브에 파일이 없으면 엔진이 건너뛴다(have) */   /* ★[DAYLONG_1101] 닫는 인사 → 사진(약 15분) 뒤에 이어 트는 곡 */
+  var FILL = { M1: ['B33', 'B35', 'B36', 'B37'], M8: ['B38', 'B39', 'B12', 'B14', 'B13'], M6: ['B07', 'B16'], M4: ['B12', 'B14'], M8L: ['B26', 'B33'] };   /* ★[REPEAT_RULE_1107 ①] 본식 피아노(M4 · 약 18분 · 3곡)와 마지막 곡(M8L)에도 배경 곡 — 목록에 없던 피아노 B12 «Under the Willow» · B26 «Bluebird» 등 · 고객이 보는 3곡은 그대로 · 드라이브에 파일이 없으면 엔진이 건너뛴다(have) */   /* ★[DAYLONG_1101] 닫는 인사 → 사진(약 15분) 뒤에 이어 트는 곡 */
+  /* ★★[SONGS_5_1115] 하객 맞이 fill = B33 → 토토로 → 포뇨 → 때로는 옛날 이야기를(시작 직전 쪽) · 고른 곡 3 + fill 4 = 겹침 빼고 약 30분(부모님께 인사에 B16 을 골라도 그대로 · B16 은 하객 맞이 fill 에서 빼 테이블 인사 몫으로) ·
+       테이블 인사 fill = 안녕 여름 → 비행기 구름 → 본식 배경 피아노(B12 · B14 · 본식에서 안 들린 날) → B13 · 옛 fill(M1 B16 · B33 / M8 B13 · B14) 되살리지 말 것 · 검사 scripts/audit/fill-30-1115.mjs */
   /* 본식 차례(«앞 구간» · 같은 곡 두 구간 한 줄) — 테이블 인사 → 축배 → 닫는 인사(END_FLOW_1030) */
   var CORDER = ['M1', 'M2', 'M4', 'M5', 'M8', 'M7', 'M6', 'M8L'];   /* [AFTER_PHOTO_LOOP_1102] 마지막 곡(M8L)도 하루 계획 맨 끝 — 앞 칸에서 흐른 곡은 빼지 말고 뒤로 */
 
@@ -102,7 +111,7 @@
     { id: 'M1', nm: '하객 맞이', ks: ['guest'], multi: true, cust: true, need: '' },   /* need 글 = 아래 [GUEST_TIME_1102] getter */
     { id: 'M2', nm: '화촉', ks: ['candle'], cust: true, need: '2분 10초 이상' },
     { id: 'M3', nm: '입장 → 맞절', ks: ['entry', 'matjeol'], entry: true, need: '입장 음악 칸(두 분 · 스튜디오가 고른 곡) 그대로' },
-    { id: 'M4', nm: '감사 인사 ~ 덕담', ks: ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter'], cust: true, loop: true, need: '6분 이상 · 반복 편집본' },
+    { id: 'M4', nm: '감사 인사 ~ 덕담', ks: ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'midvid', 'letter'], cust: true, loop: true,   /* ★[SPEECH_SONG_1115] 식중 영상이 축가 뒤로 — 옛 free 와 같은 묶음(BGM 방 확인 대기) */ need: '6분 이상 · 반복 편집본' },
     /* [ONE_FLOW_1106] 옛 M4S5 · M4S6(축사 · 편지 «음악과 함께» 곡 칸)은 없다 — «음악과 함께»는 M4 가 잇는다 */
     { id: 'M5', nm: '부모님께 인사', ks: ['tribute'], cust: true, need: '5분 이상' },
     { id: 'M6', nm: '닫는 인사', ks: ['_close'], cust: true, loop: true, need: '신호 1 ~ 2분' },
@@ -196,7 +205,9 @@
       var need = NEED[sg] || 0, out = [], tt = t;
       var put = function (f) { out.push(f); lp[f] = tt; lpSeg[f] = sg; tt += dOf(f); };
       L.forEach(function (f) { if (out.indexOf(f) > -1) return; if (f === c || f === k) { put(f); return; } if (otherOnce(f, sg, c) || lp[f] != null) return; put(f); });   /* 제 곡 — 앞에서 나온 곡 · 다른 칸 의미 곡은 빼고(앞 곡은 아래 빌려 오기 후보) */
-      var sum = function () { return out.reduce(function (a, f) { return a + dOf(f); }, 0); };
+      /* ★★[FILL_XF_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 새 10] 칸 길이(NEED) 판정 = 곡 길이 합 − 곡 수 × 겹침(xfOf · M1 · M8 · M6 6초 · M4 8초) — 콘솔 · 미리 듣기는 곡마다 그만큼 일찍 다음 곡으로 겹쳐 넘기고(목록 끝 → 처음도) ·
+           종전 단순합은 합 30:29 인 테이블 인사 8곡이 29:41 에 첫 곡을 다시 틀었다(BGM_FILL_1101 «30분을 채운다» · REPEAT_RULE_1107 ⑤ 6초 겹침과 어긋남) · 빌려 오기 · 피아노 빌려 오기 · 들린 기록으로 다시 짜기가 모두 이 셈 */
+      var sum = function () { return out.reduce(function (a, f) { return a + dOf(f); }, 0) - out.length * xfOf(sg); };
       while (sum() < need) {   /* ② 모자라면 앞 배경 칸에서 가장 오래전 곡부터 · 바로 앞 칸 · 40분 안은 뒤로 */
         var best = '', bt = 9, bl = 1e12;
         Object.keys(lp).forEach(function (f) { if (out.indexOf(f) > -1 || otherOnce(f, sg, c) || once[f] === sg || !have(f) || !SONGS[f] || !loopy(lpSeg[f]) || !okB(sg, f)) return;
@@ -212,7 +223,10 @@
       var sg = o.seg, Hd = o.heard, now = +o.now || 0, hp = {}, hs = {}; Object.keys(Hd).forEach(function (f) { var h = Hd[f], x = h && isFinite(+h.last) ? +h.last : (h ? +h.t0 : NaN); if (isFinite(x)) { hp[f] = x; hs[f] = h.lseg || h.seg || ''; } });   /* 40분 셈은 마지막으로 들린 때(last · 없으면 처음 t0) · 바로 앞 칸 = 마지막으로 들린 칸(lseg) */
       var k = custK(S, sg), c = carryOf(S, sg, o.cur || ''), base = order(S, sg, c || '', function () { return false; }), L = base.filter(function (f) { return have(f); }), need = NEED[sg] || 0, out = [], tt = now;
       var bgs = segs.filter(function (x) { return loopy(x); }), bi = bgs.indexOf(sg), prev = bi > 0 ? bgs[bi - 1] : '';
-      var put = function (f) { out.push(f); hp[f] = tt; hs[f] = sg; tt += dOf(f); }, sum = function () { return out.reduce(function (a, f) { return a + dOf(f); }, 0); };
+      /* ★[CARRY_HEARD_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 11] 이어받은 곡(CARRY_SAME · 앞 순간에서 흐르던 곡)은 다시 시작하지 않고 지금 자리(o.curAt 초)에서 잇는다 — 이 칸에서 남은 길이 = 곡 길이 − 지금 자리.
+           종전엔 곡 길이 전체로 세어 부모님께 인사 곡(B16)을 120 · 185초 듣고 테이블 인사로 이어지면 첫 반복이 29:05 · 28:00(30분 미만 · REPEAT_RULE_1107 · FILL_XF_1115) · o.curAt 이 없으면(미리 듣기 · 식순 화면) 종전 그대로 */
+      var cAt = (c && isFinite(+o.curAt) && +o.curAt > 0) ? Math.min(+o.curAt, dOf(c)) : 0;
+      var put = function (f) { out.push(f); hp[f] = tt; hs[f] = sg; tt += dOf(f) - (f === c ? cAt : 0); }, sum = function () { return out.reduce(function (a, f) { return a + dOf(f); }, 0) - out.length * xfOf(sg) - (cAt && out.indexOf(c) > -1 ? cAt : 0); };   /* [FILL_XF_1115] 겹침을 뺀 길이 */
       Object.keys(Hd).filter(function (f) { return hs[f] === sg && have(f) && !otherOnce(f, sg, c); }).sort(function (a, b) { var ka = Hd[a].seg === sg ? +Hd[a].t0 : +(Hd[a].last != null ? Hd[a].last : Hd[a].t0), kb = Hd[b].seg === sg ? +Hd[b].t0 : +(Hd[b].last != null ? Hd[b].last : Hd[b].t0); return (ka || 0) - (kb || 0); })   /* 이 칸에서 처음 들린 곡은 처음 시각 · 앞 칸에서 와 이 칸에서 다시 들린 곡은 마지막 시각 */.forEach(function (f) { if (out.indexOf(f) < 0) { out.push(f); tt += dOf(f); } });   /* ★[REPEAT_FIX_1107 검토 I] 이 칸에서 이미 들린 곡은 들린 차례대로 맨 앞 — 지금 곡이 목록에 남아 다음 곡이 이어진다(다시 짠 목록에서 빠지면 엔진이 첫 곡을 건너뛰었다) */
       L.forEach(function (f) { if (out.indexOf(f) > -1) return; if (f === c || f === k) { put(f); return; } if (otherOnce(f, sg, c) || hp[f] != null) return; put(f); });
       var un = []; bgs.slice(0, Math.max(0, bi)).forEach(function (x) { (R[x] ? R[x].list : []).forEach(function (f) { if (hp[f] == null && !once[f] && have(f) && SONGS[f] && out.indexOf(f) < 0 && un.indexOf(f) < 0 && okB(sg, f)) un.push(f); }); });

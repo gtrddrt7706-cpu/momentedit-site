@@ -44,7 +44,10 @@ for (const [nm, S] of [['하객 안내', {}], ['하객 안내 끔', { guide: 0 }
   ok('[B2_FIX_NA_28] 두 분 목소리 · 온라인 문장은 5분 전 묶음 맨 끝', /온라인으로 함께하시는 분들은[^.]*\.$/.test(c.text || ''), c.text); }
 for (const v of [0, 1, 2, 3]) { const r = vowClapOk(q({ on: { vow: 1, ring: 1 }, narEx: { vow: v } }));
   ok('[B2_FIX_NA_33] 서약 맺는 말 예시 ' + v + ' — 박수를 청하면 박수 구간 + GO · 아니면 4.5초 사슬', r === true); }
-for (const v of [0, 1, 2, 3, 4]) ok('[B2_FIX_NA_35] 축사 → 축가(여는 말 예시 ' + v + ') — 246 + 박수', speechClap(q({ on: { free: 1, song: 1 }, freeWhat: 'speech', narEx: { song: v } })));
+/* ★[SPEECH_SONG_1115 2026-11-15 대표님] 축사 · 축가는 둘 중 하나 — «축사 → 축가» 이웃은 이제 없다(옛 기대 · 축사 + 축가 옛 초안은 엔진이 축가만 남긴다).
+     NA_35 의 뜻(축사하신 분 박수 246 이 빠지지 않는다)을 축사의 새 이웃 — 식중 영상 · 편지 · 부모님께 인사 — 에서 잰다(여는 말 예시 0 ~ 4) */
+for (const [nm, on] of [['식중 영상', { free: 1, midvid: 1 }], ['편지', { free: 1, letter: 1 }], ['부모님께 인사', { free: 1, tribute: 1 }]])
+  for (const v of [0, 1, 2, 3, 4]) ok('[B2_FIX_NA_35 · SPEECH_SONG_1115] 축사 → ' + nm + '(여는 말 예시 ' + v + ') — 246 + 박수', speechClap(q({ on, freeWhat: 'speech', narEx: { letter: v, tribute: v } })));
 { const cs = q({ on: { candle: 1 } }); const c = cs.find((x) => x.k === 'candle') || {};
   ok('[B2_FIX_NI05] 개식(기본 박수 청) 뒤 화촉 = 디렉터 GO · «박수가 줄기 시작하면»', c.fire === 'manual' && c.hint === '박수가 줄기 시작하면', [c.slug, c.fire, c.hint]); }
 ok('[B2_FIX_GEUL_19] 한눈에 보기 «본식 뒤 · » · 옛 «식후 · » 없음', OP.includes('<p class="mk-note">본식 뒤 · \'') && !OP.includes('<p class="mk-note">식후 · \''));
