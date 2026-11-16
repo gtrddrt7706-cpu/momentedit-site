@@ -7446,7 +7446,7 @@ function renderProduction(p, inv){
     startPhotoFlow(p.guideinfoDraft||{}, p.ritualDraft||null, (window.RitualPreviewLink&&RitualPreviewLink.digitalOf(inv))||false, !!p.photoFriendOk, _ml); });   /* [PHOTO_FRIEND] 서버가 새 칸을 알 때만 연다 */   /* [PHOTO_CAP_40] 온라인 날은 온라인 인사 2분을 먼저 뺀다 */   // 단체 사진 전용 화면(PHOTOFLOW) 진입 · 구도+연출 · [PHOTO_SCENE] 식순 초안은 읽기만 한다(저장 안 함)
   var _pvcB=$('mp_pvcStart'); if(_pvcB) _pvcB.addEventListener('click', function(){ startPvcFlow(p.prevideo||{}); });   // [PV_CAT_1031] 식전 영상
   var _mvcB=$('mp_mvcStart'); if(_mvcB) _mvcB.addEventListener('click', function(){ startPvcFlow(Object.assign({}, p.midvideo||{}, {kind:'mid'})); });   // [MID_VIDEO_1106] 식중 영상
-  var _vuB=$('mp_vuOpen'); if(_vuB) _vuB.addEventListener('click', function(){ var f=$('mp_vuFold'); if(!f) return; var o=f.hidden; f.hidden=!o; window._vuFoldOpen=o; _vuB.setAttribute('aria-expanded', String(o)); });   // ★[UMBRELLA_ROW_1116] «상영 영상» 한 줄 → 아래 식전 · 식중 두 줄 여닫기(두 줄 단추는 위 둘이 이미 잇는다)
+  var _vuB=$('mp_vuOpen'); if(_vuB) _vuB.addEventListener('click', function(){ var f=$('mp_vuFold'); if(!f) return; var o=f.hidden; f.hidden=!o; window._vuFoldOpen=o; _vuB.setAttribute('aria-expanded', String(o)); _vuB.textContent=o?'닫기':(_vuB.getAttribute('data-lb')||'보기'); });   // ★[UMBRELLA_ROW_1116] «상영 영상» 한 줄 → 아래 식전 · 식중 두 줄 여닫기(두 줄 단추는 위 둘이 이미 잇는다)
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault();
     var _dd0=p.diningDraft||{};
@@ -8605,7 +8605,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
          옛 판(머리 줄 vu-head + 늘 펼친 두 줄)은 다른 준비 줄과 리듬이 달랐다 · 이제 다른 줄과 같은 한 줄(✓ = 둘 다 완료 · 꼬리표 = 확정 기한 · 단추 시작하기 / 보기)이고 누르면 아래로 식전 · 식중 두 줄이 펼쳐진다.
          두 줄은 옛 vu-row 그대로(들여쓰기 · 단추 id mp_pvcStart · mp_mvcStart · 상태 꼬리표) · 기한 꼬리표는 머리 한 곳만 · 펼침은 다시 그려도 기억(window._vuFoldOpen) · 옛 vu-head 머리 줄은 되살리지 말 것 */
     var _vuTag=_vuDue(_vuP.tag)?_vuP.tag:_vuDue(_vuM.tag)?_vuM.tag:null, _vuOpen=!!window._vuFoldOpen;
-    var _vuHead=row(VU_NAME, _vuAll?'완료':'', 'mp_vuOpen', (_vuNew(_vuP)&&_vuNew(_vuM))?'시작하기':'보기', null, {tag:_vuTag}).replace('id="mp_vuOpen">','id="mp_vuOpen" aria-expanded="'+_vuOpen+'" aria-controls="mp_vuFold">');
+    var _vuLb=(_vuNew(_vuP)&&_vuNew(_vuM))?'시작하기':'보기', _vuHead=row(VU_NAME, _vuAll?'완료':'', 'mp_vuOpen', _vuOpen?'닫기':_vuLb, null, {tag:_vuTag}).replace('id="mp_vuOpen">','id="mp_vuOpen" data-lb="'+_vuLb+'" aria-expanded="'+_vuOpen+'" aria-controls="mp_vuFold">');   /* ★[UMBRELLA_ROW_1116 검토] 펼치면 머리 단추는 «닫기» — 아래 두 줄 «시작하기»와 같은 말 세 번을 피한다 */
     _pvRow={ done:_vuP.done, html:_vuHead+'<div id="mp_vuFold" class="vu-fold"'+(_vuOpen?'':' hidden')+'>'+row('식전 영상', _vuP.st, 'mp_pvcStart', _vuP.label, null, {tag:_vuDue(_vuP.tag)?null:_vuP.tag, cls:'vu-row', when:_vuNew(_vuP)?'입장 전':''})+row('식중 영상', _vuM.st, 'mp_mvcStart', _vuM.label, null, {tag:_vuDue(_vuM.tag)?null:_vuM.tag, cls:'vu-row vu-last', when:_vuNew(_vuM)?'축사 · 축가 뒤':''})+'</div>' };
     _mvRow={ done:_vuM.done, html:'' };
   } }catch(e){}
