@@ -90,7 +90,8 @@ try {
   /* ── 엔진 값 ── */
   { const S = { on: { vow: 1, ring: 1, free: 1, song: 1, letter: 1, tribute: 1, toast: 1, table: 1, welcome: 1, declare: 1 }, freeWhat: 'speech', song: 'family', songBy: 'friend', tributeSay: 'short' };
     const cb = B(Object.assign({}, S, { bgm: { S5: { m: 'bed' }, S6: { m: 'bed' } } })), cn = B(S);
-    const fi = by(cb, 'narr-free-in-speech'), li = cb.find((c) => /^letter-/.test(c.slug || '')) || {}, le = by(cb, 'narr-letter-end'), lin = cn.find((c) => /^letter-/.test(c.slug || '')) || {};
+    const cbF = B(Object.assign({}, S, { on: Object.assign({}, S.on, { free: 1, song: 0 }), bgm: { S5: { m: 'bed' }, S6: { m: 'bed' } } }));   /* free: 1 을 다시 적는다 — 앞 B() 가 같은 S.on 을 엔진 norm 에 넘겨 축사를 지웠다 */   /* ★[SPEECH_SONG_1115] 축사 값은 축사 쪽 판(축가 끔) — 둘 다 켠 판에서는 엔진이 축사를 걷는다 */
+    const fi = by(cbF, 'narr-free-in-speech'), li = cb.find((c) => /^letter-/.test(c.slug || '')) || {}, le = by(cb, 'narr-letter-end'), lin = cn.find((c) => /^letter-/.test(c.slug || '')) || {};
     ok('a 축사 «음악과 함께» — 여는 말 −15(앞 곡 아래) · 말씀 차례 −20', fi.duck === -15 && fi.live && fi.live.duck === -20, [fi.duck, fi.live && fi.live.duck]);
     const li0 = B(Object.assign({}, S, { on: Object.assign({}, S.on, { song: 0 }), bgm: { S5: { m: 'bed' }, S6: { m: 'bed' } } })).find((c) => /^letter-/.test(c.slug || '')) || {};   /* ★[SEAM_BG02] 여는 말 −15 은 앞 곡이 들릴 때(축가 없음) · 축가 끝(정적) 뒤면 −90 */
     ok('b 편지 «음악과 함께» — 여는 말 −15(앞 곡이 들릴 때 · 축가 뒤 정적이면 −90) · 낭독 차례 −20 · 끝 = 정적 없이 다음 곡으로 3초 겹침(xf)', li0.duck === -15 && li.duck === -90 && li.live && li.live.duck === -20 && JSON.stringify(le.post) === JSON.stringify([{ music: 'next', v: -15, ms: 4000, nextMs: 3000, xf: true }]), { li: [li.duck, li.live && li.live.duck], li0: li0.duck, post: le.post });
@@ -102,17 +103,17 @@ try {
     const { ctx, pg, f, errs } = await open(W, true);
     await f.evaluate(() => { S.freeWhat = 'speech'; S.song = 'family'; S.songBy = 'friend'; S.tributeSay = 'short'; delete S.bgm; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); });
     const F = await f.evaluate(() => { const t = BgmBed._t; return { m4: t.eff('M4'), m5: t.eff('M5') }; });   /* [ONE_FLOW_1106] M4S5 · M4S6 곡 칸 없음 */
-    /* a 축사 «음악과 함께» → 축가 */
-    { await setS(f, { on: { letter: 0, free: 1, song: 1 }, bgm: { S5: { m: 'bed' } } }); await go(f, 'free');
-      const r = await trace(f, ['free', 'song'], 30000, true), q = r.q, i0 = q.findIndex((x) => x.k === 'free'), iT = q.findIndex((x) => x.k === 'free' && x.lh && x.talk), iS = q.findIndex((x) => x.k === 'song');
+    /* a 축사 «음악과 함께» → 다음 순간 — ★[SPEECH_SONG_1115] 축사 · 축가는 둘 중 하나라 옛 «→ 축가» 대신 축사의 새 이웃 편지(«음악 없이»)로 잰다(옛 기대: 축가 여는 말 줄 시작에서 정적) */
+    { await setS(f, { on: { letter: 1, free: 1, song: 0, tribute: 0 }, bgm: { S5: { m: 'bed' } } }); await go(f, 'free');
+      const r = await trace(f, ['free', 'letter'], 30000, true), q = r.q, i0 = q.findIndex((x) => x.k === 'free'), iT = q.findIndex((x) => x.k === 'free' && x.lh && x.talk), iS = q.findIndex((x) => x.k === 'letter');
       const open1 = r.o.filter((x) => x.i >= i0 && x.i < iT && !x.lead && loud(x)), L = lead(r, iT), tLe = (r.o.filter((x) => x.i === iT && x.lead).pop() || {}).t, turn = r.o.filter((x) => x.i === iT && !x.lead && loud(x) && tLe != null && x.t > tLe), tS = (r.o.find((x) => x.k === 'song' && x.lead) || {}).t, song = r.o.filter((x) => x.k === 'song' && loud(x) && tS != null && x.t >= tS);   /* 순간이 바뀌는 틈(0.4초 · 큐 사이 −8)은 앞 곡 끝자락 — 축가 뜸(3초 겹침)부터 잰다 */
       const vT = await f.evaluate((fx) => BgmBed._t.vx(-20, fx), F.m4);
       /* ★[ONE_FLOW_1106] 차례 줄(iT)은 뜸 표시(lh) 없이 talk 만 — iT 를 다시 잡는다 · 말씀 동안 = 같은 본식 곡 −20 · 축가 여는 말 = 줄 시작에서 정적 */
-      const iT2 = q.findIndex((x) => x.k === 'free' && x.talk), turn2 = r.o.filter((x) => x.i === iT2 && !x.lead && loud(x)), tS0 = (r.o.find((x) => x.k === 'song') || {}).t, songL = r.o.filter((x) => x.k === 'song' && tS0 != null && x.t > tS0 + 2800 && loud(x));
+      const iT2 = q.findIndex((x) => x.k === 'free' && x.talk), turn2 = r.o.filter((x) => x.i === iT2 && !x.lead && loud(x)), tS0 = (r.o.find((x) => x.k === 'letter') || {}).t, songL = r.o.filter((x) => x.k === 'letter' && tS0 != null && x.t > tS0 + 2800 && loud(x));
       const open2 = r.o.filter((x) => x.i >= i0 && x.i < iT2 && !x.lead && loud(x));
       ok(`${W} a 축사 «음악과 함께» 여는 말 = 앞 곡(${F.m4}) · 말씀 차례 앞 새 곡 뜸 0 · 곡 바뀜 0`, i0 > -1 && iT2 > i0 && !q[iT2].lh && open2.length > 2 && open2.every((x) => x.f === F.m4) && !r.o.some((x) => x.i === iT2 && x.lead), { q: q.slice(0, 4), open1: open2.slice(0, 2), n: open2.length });
       ok(`${W} a 말씀 차례 = 같은 본식 곡(${F.m4}) · 차례 동안 ${vT}`, turn2.length > 20 && turn2.every((x) => x.f === F.m4) && turn2.slice(15).every((x) => Math.abs(x.want - vT) < 0.6), { turn: turn2.slice(14, 16), n: turn2.length });   /* 차례 첫 1.5초(줄 사이 · 내림)는 빼고 잰다 */
-      ok(`${W} a 다음 순간(축가) — 여는 말 줄 시작에서 정적 · 본식 곡 재생 0 · 다른 곡 0`, iS > iT2 && tS0 != null && !songL.length, { iS, n: songL.length, fs: [...new Set(songL.map((x) => x.f))] }); }
+      ok(`${W} a 다음 순간(편지 «음악 없이» · SPEECH_SONG_1115) — 뜸 뒤 정적 · 본식 곡 재생 0 · 다른 곡 0`, iS > iT2 && tS0 != null && !songL.length, { iS, n: songL.length, fs: [...new Set(songL.map((x) => x.f))] }); }
     /* b 편지 «음악과 함께» → 부모님께 인사 */
     { await setS(f, { on: { letter: 1, free: 0, song: 0, tribute: 1 }, bgm: { S6: { m: 'bed' } } }); await go(f, 'letter');
       const r = await trace(f, ['letter', 'tribute'], 30000, true), q = r.q, i0 = q.findIndex((x) => x.k === 'letter'), iT = q.findIndex((x) => x.k === 'letter' && x.lh && x.talk);
@@ -127,7 +128,7 @@ try {
       ok(`${W} e 편지(음악 없이) 그 순간만 — 정적 뒤 오르는 곡 = 다음 순간(부모님께 인사) 곡 ${F.m5} · M4 0`, first > -1 && r.o[first].f === F.m5 && F.m5 !== F.m4 && before.length === 15 && before.every((x) => !loud(x)) && !r.o.some((x) => x.f === F.m4 && loud(x)), { first: first > -1 ? r.o[first] : null, fs: [...new Set(r.o.filter(loud).map((x) => x.f))], tl: r.o.filter((x, i) => i % 10 === 0).map((x) => [Math.round(x.t), x.i, x.k, x.f, x.src ? 1 : 0, x.want].join(',')) }); }
     /* c 뜸 자리 == 화면 음악 줄 자리(축사 · 편지 «음악과 함께» · 코스 · 조합) */
     { const R = await f.evaluate(() => { const bad = [], seen = [], keep = JSON.parse(JSON.stringify({ c: S.course, on: S.on, bgm: S.bgm || null })), sig = (x) => x ? (x.slug || x.of || '') + (x.talk || x.talk2 ? ':t' : '') : '';
-        const CS = Object.keys(COURSES), BEDS = [{ S5: { m: 'bed' } }, { S6: { m: 'bed' } }, { S5: { m: 'bed' }, S6: { m: 'bed' } }], CO = [{}, { song: 0 }, { letter: 0 }, { tribute: 0 }, { free: 0 }];
+        const CS = Object.keys(COURSES), BEDS = [{ S5: { m: 'bed' } }, { S6: { m: 'bed' } }, { S5: { m: 'bed' }, S6: { m: 'bed' } }], CO = [{ song: 0 }, { letter: 0, song: 0 }, { tribute: 0, song: 0 }, { free: 0 }, { free: 0, letter: 0 }];   /* ★[SPEECH_SONG_1115] 축사 · 축가는 둘 중 하나 — 둘 다 켠 판은 없다(옛 {} · {letter:0} · {tribute:0} 은 축가를 켠 채였다) */
         for (const c of CS) for (const bd of BEDS) for (const co of CO) { S.course = c; ['free', 'letter', 'song', 'tribute', 'vow', 'ring', 'declare', 'welcome'].forEach((k) => { S.on[k] = 1; }); Object.keys(co).forEach((k) => { S.on[k] = co[k]; }); S.bgm = JSON.parse(JSON.stringify(bd)); S.freeWhat = 'speech';
           try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {}
           for (const k of ['free', 'letter']) { if (!_lRows().includes(k)) continue; const st = _lSteps(ENG, [k]), bq = BgmForm.flowRow(k, st); if (!bq || (bq.by !== 'speech' && bq.by !== 'letter')) continue;
@@ -181,17 +182,18 @@ try {
   const xf = (o) => o.some((x) => x.xg && x.xg[0] > 0.05 && x.xg[1] > 0.05);
   const base = () => { const S0 = O.applyExample({ course: 'open' }, 'standard'); S0.course = 'open'; S0.freeWhat = 'speech'; S0.song = 'family'; S0.songBy = 'friend'; return S0; };
   /* a 콘솔 축사 «음악과 함께» */
-  { const S0 = base(); S0.on = Object.assign({}, S0.on, { free: 1, song: 1, letter: 0, tribute: 1 }); S0.bgm = { S5: { m: 'bed' } };
-    const C1 = await conOpen(S0, [['M4', 440], ['M5', 600]]), iF = C1.ix((c) => c.slug === 'narr-free-in-speech'), iS = C1.ix((c, i) => i > iF && c.k === 'song');   /* [ONE_FLOW_1106] M4S5 곡 칸 없음 */
-    ok('콘솔 시험 조건 — 곡 파일 칸(M4 · M5) · 축사 · 축가 큐 · M4S5 칸 없음', !C1.miss.length && iF > 0 && iS > iF && !(await C1.pg.$('.sg[data-seg="M4S5"]')), { miss: C1.miss, iF, iS });
+  /* ★[SPEECH_SONG_1115] 축사 · 축가는 둘 중 하나 — 축사 «음악과 함께» 다음 순간은 편지(«음악 없이»)로 잰다(옛: 축가) */
+  { const S0 = base(); S0.on = Object.assign({}, S0.on, { free: 1, song: 0, letter: 1, tribute: 1 }); S0.bgm = { S5: { m: 'bed' } };
+    const C1 = await conOpen(S0, [['M4', 440], ['M5', 600]]), iF = C1.ix((c) => c.slug === 'narr-free-in-speech'), iS = C1.ix((c, i) => i > iF && c.k === 'letter');   /* [ONE_FLOW_1106] M4S5 곡 칸 없음 */
+    ok('콘솔 시험 조건 — 곡 파일 칸(M4 · M5) · 축사 · 편지 큐 · M4S5 칸 없음', !C1.miss.length && iF > 0 && iS > iF && !(await C1.pg.$('.sg[data-seg="M4S5"]')), { miss: C1.miss, iF, iS });
     if (iF > 0) { await C1.pg.evaluate((i) => window.__bgmGo.fire(i), iF - 1); await C1.pg.waitForTimeout(3600);
       const o = await sample(C1.pg, iF, 9000), nar = o.filter((x) => x.slug === 'narr-free-in-speech' && x.ph !== 'live' && x.t > 300), live = o.filter((x) => x.ph === 'live'), l0 = live.length ? live[0].t : null;
-      /* ★[ONE_FLOW_1106] 말씀(사람 구간)도 같은 본식 곡(M4) −20 · 겹침(곡 바꿈) 0 · 맺는 말 · 박수 · 축가 여는 말까지 M4 · 축가 여는 말은 정적 */
+      /* ★[ONE_FLOW_1106] 말씀(사람 구간)도 같은 본식 곡(M4) −20 · 겹침(곡 바꿈) 0 · 맺는 말 · 박수 · 다음 여는 말까지 M4 · 다음(편지 «음악 없이») 여는 말은 정적 */
       ok('a 콘솔 축사 여는 말 = M4 · 말씀(사람 구간)도 M4 그대로(곡 바꿈 · 겹침 0) · −20', nar.length > 2 && nar.every((x) => x.seg === 'M4') && live.length > 5 && live.every((x) => x.seg === 'M4') && !xf(live) && live[live.length - 1].want === -20, { nar: nar.slice(0, 2), l0, last: live[live.length - 1] });
       const o2 = await sample(C1.pg, iF + 1, 2500);
       ok('a 콘솔 맺는 말 · 박수 동안 M4 그대로', o2.every((x) => x.seg === 'M4'), [...new Set(o2.map((x) => x.seg))]);
       const o3 = await sample(C1.pg, iS, 6000), late = o3.filter((x) => x.t > 700);
-      ok('a 콘솔 다음 순간(축가) 여는 말 — 구간 M4 그대로(다른 곡 칸 0) · 줄 시작에서 정적(−90)', o3.every((x) => x.seg === 'M4') && late.length > 5 && late.every((x) => x.want <= -60), { segs: [...new Set(o3.map((x) => x.seg))], want: [...new Set(late.map((x) => x.want))] });
+      ok('a 콘솔 다음 순간(편지 «음악 없이» · SPEECH_SONG_1115) 여는 말 — 구간 M4 그대로(다른 곡 칸 0) · 줄 시작에서 정적(−90)', o3.every((x) => x.seg === 'M4') && late.length > 5 && late.every((x) => x.want <= -60), { segs: [...new Set(o3.map((x) => x.seg))], want: [...new Set(late.map((x) => x.want))] });
       const iP = C1.ix((c) => c.actId === 'photo-all'), iPf = C1.ix((c) => c.actId === 'photo-family');
       if (iP < 0 || iPf < 0) ok('d 콘솔 단체 사진 큐 있다(시험 조건)', false); else {
         const V = await C1.pg.evaluate(async ({ a, b }) => { const G = window.__bgmGo, w = (ms) => new Promise((r) => setTimeout(r, ms)), o = {}; if (!G.bedAs) return { none: 1 };

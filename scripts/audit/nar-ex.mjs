@@ -43,10 +43,10 @@ function run(mut) {
   T('② 이름표 «~하게» 한 낱말 · 순간 안에서 겹치지 않음 · 예시 1 이름 있음 [EX_NAME_HAGE]', !bad.length, bad.join(' | '));
   // ③ 엔진
   const SS = (k, n, x) => { const S = O.sampleS(); Object.assign(S, x || {}); S.narEx = { [k]: n }; return S; };
-  const VAR = { candle: [{ candleWho: 'mothers' }, { candleWho: 'fathers' }, { candleWho: 'others' }], vow: [{}, { vowFirst: 'b' }], letter: [{ letter: 'each' }, { letter: 'each', _noVow: 1 }], speech: [{ freeWhat: 'speech' }], tribute: [{ tributeSay: 'none' }, { tributeSay: 'long' }] };
+  const VAR = { candle: [{ candleWho: 'mothers' }, { candleWho: 'fathers' }, { candleWho: 'others' }], vow: [{}, { vowFirst: 'b' }], letter: [{ letter: 'each' }, { letter: 'each', _noVow: 1 }], speech: [{ freeWhat: 'speech', _pair: 'free' }] /* ★[SPEECH_SONG_1115] 축사 · 축가는 둘 중 하나 — sampleS 는 둘 다 켜 엔진(midMigrate)이 축사를 걷으니 축사 쪽으로 잰다 */, tribute: [{ tributeSay: 'none' }, { tributeSay: 'long' }] };
   const miss = [], wrong = [];
   O.narExKeys().forEach((k) => (VAR[k] || [{}]).forEach((x) => Array.from({ length: (Array.isArray(O.NAR_EX[k].names) ? Math.max(3, O.NAR_EX[k].names.length - 1) : 3) }, (_, i) => i + 1).forEach((n) => {   // ★[EX_MAX_BY_NAMES_1018] 예시 수만큼(축가는 5 · 서는 분마다 바뀌는 names 는 종전 3) — 종전 [1, 2, 3] 고정은 예시 5를 재지 않았다
-    const S = SS(k, n, x); if (x._noVow) { delete S._noVow; S.on = Object.assign({}, S.on); delete S.on.vow; }
+    const S = SS(k, n, x); if (x._noVow) { delete S._noVow; S.on = Object.assign({}, S.on); delete S.on.vow; } if (x._pair) { delete S._pair; S.on = Object.assign({}, S.on); O.pairSet(S, x._pair); }
     const S2 = C.norm(S); if (!O.narExOk(S2, k, n)) return;
     const cues = C.build(S2, { mode: 'console' }).cues; const want = Object.keys(O.NAR_EX[k].lines).filter((sl) => cues.some((q) => q.slug === sl)).map((sl) => O.narExCue(S2, sl)).filter(Boolean);   // 그날 나가는 줄만(화촉은 서는 분 한 줄)
     want.forEach((w) => { const c = cues.find((q) => q.ex === w); if (!c) miss.push(`${k}#${n + 1}${JSON.stringify(x)} ${w}`); else if (c.text !== C.EXTRA[w] || c.file !== C.fileOf(w) || c.slug !== w.replace(/-ex\d$/, '')) wrong.push(w); });

@@ -15,7 +15,7 @@
  *     보관 = 예식 6개월 뒤 지운다(purgePrevideo_ · purgeRitualFiles 가 함께 부른다)
  *
  *   ■ ★★[MID_VIDEO_1106 2026-11-06 사장님 «식중 영상은 선택으로» · 대본 체크리스트 7 · 8 · 9 · 12 · 13] 식중 영상도 이 파일 하나가 받는다
- *     · 켜고 끄는 원천 = 식순 초안의 «준비한 순서 · 영상»(S.on.free + S.freeWhat 'video') — 여기는 링크 · 상태만(kind 'mid')
+ *     · 켜고 끄는 원천 = 식순 초안의 «식중 영상»(S.on.midvid + S.midLen · [SPEECH_SONG_1115] 축사 · 축가와 따로) · 옛 초안 «준비한 순서 · 영상»(S.on.free + S.freeWhat 'video')도 읽는다 — 여기는 링크 · 상태만(kind 'mid')
  *     · 같은 시트 «식전영상»에 «개인코드#mid» 줄 하나 · 폴더 «ME_식전영상/<개인코드>_<예식일>_식중» · 방식은 «준비한 영상»(링크)뿐 · 기한 · 확인 · 확정 · 보관은 식전 영상과 같다
  *     · 기한 안내(예식 14일 · 7일 전)와 기한날 미제출 관리자 메일 = sendVideoDueNotices(식전 · 식중 함께)
  *   ■ 1차에서 뺀 것(곧 연다 · 화면도 보이지 않는다) — 짧은 영상 · 인사 영상(5초 고르기) · 큰 파일 올리기 · 문구 고치기 · 카톡 알림 · 식순과 상태 잇기
@@ -37,7 +37,8 @@ function _pvName_(kind) { return _pvKind_(kind) === 'mid' ? '식중 영상' : '�
 function _mvOn_(cust) {
   var S = null; try { S = ((_prodLoad(cust) || {}).ritualDraft || {}).S || null; } catch (e) { S = null; }
   if (!S) return { on: null, len: 0 };
-  var on = !!(S.on && S.on.free) && String(S.freeWhat || '') === 'video', n = parseInt(S.freeLen, 10);
+  // [SPEECH_SONG_1115] 식중 영상 = 따로 넣고 빼는 순간(S.on.midvid · 길이 S.midLen) · 옛 초안 free + video(길이 freeLen)도 켜짐
+  var mid = !!(S.on && S.on.midvid), on = mid || (!!(S.on && S.on.free) && String(S.freeWhat || '') === 'video'), n = parseInt(mid ? S.midLen : S.freeLen, 10);
   return { on: on, len: (n >= 1 && n <= 10) ? n : 3 };
 }
 // [MID_VIDEO_1106 · 검토 1604-5] 식중 영상은 처리방침에 «식중 영상»이 들어간 날(midFrom)부터 받는다 — 비어 있으면 꺼짐(줄 · 화면 · 받기 · 안내 모두)
@@ -246,7 +247,7 @@ function handlePvSave(body) { _gsr_();
       var fUrl = 'https://drive.google.com/drive/folders/' + m.folder;
       mail = d.mode === 'make'
         ? ('식전 영상 만들기 요청 · ' + code + ' · 예식 ' + (wed || '-') + ' · 분위기 ' + d.style + ' · 곡 ' + d.song + ' · 사진 ' + d.photos.length + '장 · 확정 기한 ' + (due || '-') + ' · 다 만들면 폴더에 «미리보기»로 시작하는 이름의 영상을 넣어 주세요 · 폴더 ' + fUrl)
-        : ((kind === 'mid' ? '식중 영상 도착(덕담 뒤 · 축가 앞) · ' : '준비한 식전 영상 도착 · ') + code + ' · 예식 ' + (wed || '-') + ' · 링크 ' + d.link + ' · 원본을 받아 재생을 확인한 뒤 폴더에 «미리보기»로 시작하는 이름으로 넣어 주세요 · 폴더 ' + fUrl);   // [MID_VIDEO_1106]
+        : ((kind === 'mid' ? '식중 영상 도착(축사 · 축가 뒤 · 편지 앞) · ' : '준비한 식전 영상 도착 · ') + code + ' · 예식 ' + (wed || '-') + ' · 링크 ' + d.link + ' · 원본을 받아 재생을 확인한 뒤 폴더에 «미리보기»로 시작하는 이름으로 넣어 주세요 · 폴더 ' + fUrl);   // [MID_VIDEO_1106]   // [SPEECH_SONG_1115] 자리 글 = 축사 · 축가 뒤 · 편지 앞
     } else if (op === 'confirm') {
       if (st !== 'review' || !(m.prev && m.prev.id)) return { ok: false, error: '확정할 영상이 아직 없어요.' };
       if (kind === 'mid' && _mvOn_(cust).on !== true) return { ok: false, error: '식순에서 «식중 영상»을 먼저 담아 주세요.' };   // [MID_VIDEO_1106 · 재검토 1604] 식순에서 뺀 식중 영상은 확정하지 않는다

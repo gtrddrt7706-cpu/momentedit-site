@@ -26,7 +26,8 @@ const open = async (W) => {
   await pg.evaluate(() => { S.on = Object.assign({}, S.on, { letter: 1 }); opSync(); });
   return { pg, errs };
 };
-const go = (pg, k) => pg.evaluate(async (x) => { try { lsStop(); } catch (e) {} mkGo(x); await new Promise((r) => setTimeout(r, 500)); }, k);
+/* ★[SPEECH_SONG_1115] 정석 예시는 이제 축가만(축사 · 축가 한 카드 둘 중 하나) — 축사 쪽을 재는 자리(②)는 축사로 바꿔 담고 연다(옛 정석은 축사를 담고 있었다 · 재는 뜻 그대로) */
+const go = (pg, k) => pg.evaluate(async (x) => { try { lsStop(); } catch (e) {} if (x === 'free' && RitualOpen.pairOf(S) !== 'free') { RitualOpen.pairSet(S, 'free'); try { opSync(); } catch (e) {} } mkGo(x); await new Promise((r) => setTimeout(r, 500)); }, k);
 const notes = (pg, lab) => pg.evaluate((lab) => { const c = [...document.querySelectorAll('#stage .ls-cg')].find((x) => x.offsetParent && (x.querySelector('.gl') || {}).textContent === lab); if (!c) return null;
   return [...c.querySelectorAll('.ls-gnote')].filter((x) => x.offsetParent).map((x) => x.textContent.trim()); }, lab);
 const fold = (pg, k) => pg.evaluate((k) => { const b = document.getElementById('mkRb_' + k), m = document.querySelector('[data-fk="mkrm:' + k + '"]');

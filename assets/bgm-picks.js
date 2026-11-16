@@ -111,7 +111,7 @@
     { id: 'M1', nm: '하객 맞이', ks: ['guest'], multi: true, cust: true, need: '' },   /* need 글 = 아래 [GUEST_TIME_1102] getter */
     { id: 'M2', nm: '화촉', ks: ['candle'], cust: true, need: '2분 10초 이상' },
     { id: 'M3', nm: '입장 → 맞절', ks: ['entry', 'matjeol'], entry: true, need: '입장 음악 칸(두 분 · 스튜디오가 고른 곡) 그대로' },
-    { id: 'M4', nm: '감사 인사 ~ 덕담', ks: ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter'], cust: true, loop: true, need: '6분 이상 · 반복 편집본' },
+    { id: 'M4', nm: '감사 인사 ~ 덕담', ks: ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'midvid', 'letter'], cust: true, loop: true,   /* ★[SPEECH_SONG_1115] 식중 영상이 축가 뒤로 — 옛 free 와 같은 묶음(BGM 방 확인 대기) */ need: '6분 이상 · 반복 편집본' },
     /* [ONE_FLOW_1106] 옛 M4S5 · M4S6(축사 · 편지 «음악과 함께» 곡 칸)은 없다 — «음악과 함께»는 M4 가 잇는다 */
     { id: 'M5', nm: '부모님께 인사', ks: ['tribute'], cust: true, need: '5분 이상' },
     { id: 'M6', nm: '닫는 인사', ks: ['_close'], cust: true, loop: true, need: '신호 1 ~ 2분' },

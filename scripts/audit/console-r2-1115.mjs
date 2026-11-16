@@ -148,7 +148,7 @@ try {
   }
   /* ── B [LIVE_DOWN_MS_1115] — 옛 판: −15 → −20 사람 구간이 2.0초(올림 시간)로 내려간다(① ② 빨강) ── */
   if (want('B')) {
-    const S = SOF('standard'); S.on = Object.assign({}, S.on, { letter: 1, song: 0 }); S.bgm = { S5: { m: 'bed' }, S6: { m: 'bed' } };
+    const S = O.pairSet(SOF('standard'), 'free'); S.on = Object.assign({}, S.on, { letter: 1 });   /* ★[SPEECH_SONG_1115] 정석 = 축가만 — 축사를 재는 판은 축사 쪽(pairSet free · 축가 빠짐) · 옛 «song: 0» 만으로는 축사가 없었다 */ S.bgm = { S5: { m: 'bed' }, S6: { m: 'bed' } };
     const c = await open(S);
     const iW = c.ix(/^narr-welcome-in/), iF = c.ix(/^narr-free-in-speech/), iL = c.Rq.findIndex((x) => x.k === 'letter' && x.live), iCl = c.ix(/^bridge-b10-speech-clap/), iO = c.ix(/^narr-open/), iC = c.ix(/^narr-candle-in/);
     if (!c.ok || [iW, iF, iL, iCl, iO, iC].some((x) => x < 0)) skip('B — 콘솔 점검 고리 · 큐 · 곡 파일 칸을 못 찾았다 ' + JSON.stringify({ ok: c.ok, put: c.put, iW, iF, iL, iCl }));

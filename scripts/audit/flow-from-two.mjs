@@ -55,7 +55,7 @@ async function measure(mode) {
       const S1 = Object.assign(JSON.parse(JSON.stringify(S)), { course: ck, toast: mode === 'OLDCAKE' ? 'cake' : 'both', valley: 'cake', off: {}, extra: { valley: 1 } });
       if (!_applySaved({ S: S1, cs: 1, idx: 0, v: 2 }, false)) return { err: '옛 코스 복원 실패 ' + ck };
     }
-    else if (mode === 'ALL' || mode === 'CAKE') { opEx(ex[0]); (mode === 'ALL' ? (R.OFFER || R.PICKABLE) : R.ORDER).forEach((k) => { S.on[k] = 1; }); }
+    else if (mode === 'ALL' || mode === 'ALL_SONG' || mode === 'CAKE') { opEx(ex[0]); (mode === 'CAKE' ? R.ORDER : (R.OFFER || R.PICKABLE)).forEach((k) => { S.on[k] = 1; }); if (R.pairSet) R.pairSet(S, mode === 'ALL_SONG' ? 'song' : 'free'); }   /* ★[SPEECH_SONG_1115] 축사 · 축가는 둘 중 하나 — 전부 담기는 축사 쪽(ALL) · 축가 쪽(ALL_SONG) 둘로(옛 ALL 은 둘 다 켜 담은 순간 수가 하나 어긋났다) */
     else opEx(mode);
     if (!old) { courseStarted = true; buildSteps(); }
     const rows = old ? [] : _lRows(); const two = rows.filter((k) => k !== 'guest').map((k) => _lName(k));
@@ -72,7 +72,7 @@ async function measure(mode) {
   r.errs = errs; await ctx.close(); return r;
 }
 
-const MODES = ['standard', 'record', 'family', 'brief', 'ALL', 'CAKE', 'OLDBOTH', 'OLDCAKE'];
+const MODES = ['standard', 'record', 'family', 'brief', 'ALL', 'ALL_SONG', 'CAKE', 'OLDBOTH', 'OLDCAKE'];
 for (const mode of MODES) {
   let r; try { r = await measure(mode); } catch (e) { ok(`${mode} 재기`, false, e.message); continue; }
   if (r.err) { ok(`${mode} 재기`, false, r.err); continue; }
