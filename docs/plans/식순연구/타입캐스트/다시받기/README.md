@@ -13,6 +13,13 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
+| 1_문정.txt | 문정 | 6 | 3 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
+
+```
+# 문정 — 6줄 · 3클립
+node scripts/assemble-narration.mjs --in <문정_받은폴더> \
+  --clip =264_narr-photo-upload,=88_guide-meal,=297_guest-w-arrival
+```
 

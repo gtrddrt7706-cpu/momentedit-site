@@ -100,7 +100,7 @@ try {
     const ld = r.filter((x) => x.note === '음악을 불러오는 중이에요'), mus = r.filter((x) => x.f === 'B09' && x.src && x.want > -60), lead = r.filter((x) => x.lead);
     ok('② 곡 목록이 8초 늦게 와도 — 기다리는 동안 «음악을 불러오는 중이에요» · 목록이 오면 감사 인사 곡(B09)을 깐다 · 뜸도 그 뒤(8초 기다림 안)', ld.length > 3 && mus.length > 10 && lead.length && mus[0].t > ld[0].t, { ld: ld.length, mus: mus.length, first: mus[0] && Math.round(mus[0].t), ldT: ld[0] && Math.round(ld[0].t) }); }
   /* ③ 멈춤 → 이어 듣기 */
-  { await go(f, 'welcome'); const r0 = await run(f, ['welcome'], 7500);
+  { await go(f, 'welcome'); const r0 = await run(f, ['welcome'], 6500);   /* ★[SEAM_WORD_1107 J06 · 1층 · CI 5개 1층 조건 맞춤 11/10] 감사 인사 첫 줄이 b8 → 350(1.5초 줄 · 시험 시계로 6.0 ~ 8.1초) — 7.5초에 멈추면 이어 들은 뒤 0.65초 사이에 다음 줄(−20)로 넘어가 «같은 줄 크기» 재기가 어긋난다 · 첫 줄 앞쪽(6.5초)에서 멈춘다 */
     const z = await f.evaluate(async () => { const B = BgmBed._t; lsToggle(); await new Promise((x) => setTimeout(x, 1600)); const pz = B.pz ? B.pz() : null, gone = !B.BED.cur.src || B.BED.cur.want <= -60;
       lsToggle(); await new Promise((x) => setTimeout(x, 120)); const v = B.BED.cur, st = LP.q[LP.i], tgt = LP.leadSt ? pz.want : B.lvOf(st, v.f), a =   /* [DETAIL_R2_1101 ④] 뜸 중에 멈췄으면 남은 뜸부터 — 그 크기(멈출 때 크기)로 */ { f: v.f, src: !!v.src, off: v.off, want: v.want, tgt };
       await new Promise((x) => setTimeout(x, 650)); a.g = v.g ? v.g.gain.value : null; a.gt = B.gfOf(tgt); return { pz, gone, a }; });
