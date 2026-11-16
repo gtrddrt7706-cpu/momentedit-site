@@ -4820,8 +4820,11 @@ chk 'MID_OPEN_1114' automation/platform/89_prevideo.gs 2
 chk 'MID_OPEN_1114' api/_kb.js 1
 chk 'VIDEO_NAME_1114' api/_ritual-kb.js 5   # 빌더 AI — 준비한 영상은 식전 · 식중 둘 · 영상 속 노래 · D-7 식중 영상 확정 · 공개 · 계약 고객 공통 한 줄
 chk '마이페이지 «식중 영상»에서 링크로 보내실 수 있습니다.' index.html 2
-chk '본식 중에는 축사 대신 «식중 영상»으로 틀 수 있어요' assets/advisor-kb.js 1   # [GPT 2-12] 홈 고정 답변 ①
-chk '«식전 영상»이나, 축사 대신 «식중 영상»으로 틀 수 있어요' assets/advisor-kb.js 1   # [GPT 2-12] 홈 고정 답변 ②
+chk '본식 중에는 «식중 영상»으로 틀 수 있어요(축사나 축가와 함께 담아도 돼요)' assets/advisor-kb.js 1   # [GPT 2-12] 홈 고정 답변 ① · ★[SPEECH_SONG_1115 · SHOW_PAIR_1116] 식중 영상은 축사 · 축가와 따로(옛 «축사 대신» 은 은퇴)
+chk '«축하 공연»으로 담을 수 있어요(축사 · 축가 · 축하 공연 중 하나)' assets/advisor-kb.js 1   # [SHOW_PAIR_1116] 옛 «공연 같은 이벤트 순서는 따로 두지 않아요» 은퇴
+chk '두 분이 준비한 영상은 «식전 영상»이나 «식중 영상»으로 틀 수 있어요' assets/advisor-kb.js 1   # [GPT 2-12] 홈 고정 답변 ②
+nochk '축사 대신 «식중 영상»' assets/advisor-kb.js
+nochk '깜짝 선물 · 공연 같은 이벤트 순서는 따로 두지 않아요' assets/advisor-kb.js
 chk "freeVideo:\['식중 영상은 어디로 보내나요?'" order-preview.html 1   # [GPT 2-23] 식중 영상 칸 상담 질문
 nochk '보내는 방법은 상담 때 안내' index.html 0
 nochk '보내는 방법은 상담 때 안내' api/_kb.js 0
