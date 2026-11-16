@@ -23121,8 +23121,7 @@ nochk '덕담 뒤, 축가 앞에' api/_kb.js                                    
 chk '성혼 선언을 담으신 경우에는 선언문을 읽는 분이 두 분 이름을 부릅니다' index.html 2
 chk 'card-label">Long Hours' index.html 1                                           # [H4_17] 15 Hours(05:00 → 자정 = 19시간) 걷음
 nochk '15 Hours' index.html
-chk '평일 예식은 주말·공휴일보다 80만&nbsp;원 낮습니다' index.html 1                  # [H4_18] 80 = 330 - 250
-nochk '굳이 주말일 이유가 없습니다' index.html
+# [H4_18] 평일 칸 두 줄은 [WEEKDAY_OLD_OWNER_1116](11/16 대표님 옛 글 고름)이 덮어 은퇴 — 새 기대는 파일 끝 WEEKDAY_OLD_OWNER_1116 블록
 nochk '자켓' index.html                                                           # [H4_20] 표준 표기 «재킷»
 nochk '자켓' api/_kb.js
 nochk '자켓' assets/advisor-kb.js
@@ -23742,3 +23741,8 @@ chk 'DECLARE_PLAYABLE_1115' scripts/audit/r4-1115.mjs 2
 chk 'ENTRY_WAIT_HUSH_1115' scripts/audit/r4-1115.mjs 3
 chk 'R4_1115' .github/workflows/merge-guard.yml 1
 chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115' }" .github/workflows/merge-guard.yml 1
+# ★[WEEKDAY_OLD_OWNER_1116 2026-11-16 대표님 «수정 전이 더 좋은데»] 홈 «A Quiet Choice» 칸은 H4_18(11/06) 전 글 — 다시 바꾸자고 제안하지 않는다
+chk '>왜 평일이 더 자연스러운가</h3>' index.html 1
+chk '30명이 모이는 자리라면 굳이 주말일 이유가 없습니다. 평일은 일정을 맞추기 수월하고, 원하는 날짜를 넉넉히 고를 수 있습니다.</p>' index.html 1
+chk '그렇게 생긴 하루의 여유는, 신혼여행과 부모님을 위한 다이닝으로 자연스럽게 이어집니다.</p>' index.html 1
+nochk '평일 예식은 주말·공휴일보다 80만&nbsp;원 낮습니다.' index.html
