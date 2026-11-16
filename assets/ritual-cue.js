@@ -2142,6 +2142,7 @@
       /* [DECLARE_LIFT] 성혼 선언 뒤 축하 박수 = 새 곡 — 덕담(다음 순간) 곡 · 없으면 목록 다음 곡을 강조 자리에서 −8 로 0.6초에(엄숙 → 기쁨 · 앞 곡을 멈춘 자리부터 되살리지 않는다) */
       if (_rs === 'narr-declare-family-out' && _rc.live) { _rc.live.newSong = true; _rc.live.upMs = 600; }
       /* [TRIBUTE_WALK] 부모님께 걸어가는 동작 −12(이동은 음악이 받침) → 두 분이 말하는 차례 −20 그대로 */
+      /* ★[TRIBUTE_DUCK_OWNER_1115 2026-11-15 대표님 «추천대로» · BGM 결정 카드 ③ A] 부모님께 인사 구호(143 · 145) · 포옹을 청하는 줄(256) 아래 음악 −12 는 설계값 그대로 — 일반 말 아래 −15 로 맞추지 않는다(15초 견본에서 말소리가 음악보다 20 dB 넘게 위 · 걷기 · 인사로 이어지는 흐름) */
       if (/^tribute-in/.test(_rs) && _rc.live) _rc.live.walkDuck = PARAM.duckMove != null ? PARAM.duckMove : -12;
     }
     for (var pa = 0; pa < cues.length; pa++) {

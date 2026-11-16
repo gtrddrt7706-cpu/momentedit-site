@@ -152,7 +152,7 @@ try {
       ok(`${W} E3 곡 이름이 한 줄 — 하객 맞이 «바다가 보이는 마을»(괄호 영문 꼬리 없음)`, e3[0] && e3[0].t === '바다가 보이는 마을' && e3.every((x) => x.lines === 1), e3);
       ok(`${W} E4 하객 맞이 1순위 아랫줄 = 연주자만 «히사이시 조 · 런던 심포니 오케스트라»(★[SONG_ROW_PLAIN_1101] 판 · 분위기 한 줄 뺌)`, (await f.evaluate(() => document.querySelector('.ls-bed[data-seg="M1"] .mu-a').textContent)) === '히사이시 조 · 런던 심포니 오케스트라');
       ok(`${W} E5 여러 곡을 이어 트는 구간도 «부터 이어서 틀어요» 줄 없음 [SONG_ROW_LINES_1101]`, r && r.note === '' && !(await f.evaluate(() => /이어서 틀어요/.test(document.querySelector('.ls-bed[data-seg="M1"]').textContent))), r && r.note);
-      ok(`${W} D3 하객 맞이 — 이름표 «하객 맞이 음악» · 곡 줄 5 · «노래» 없음(★[SONG_ROW_PLAIN_1101] 가사 있는 곡 안내는 고른 뒤 한 줄)`, r && r.gl === '하객 맞이 음악' && r.n === 5 && !voc.some((v) => v[1]), voc);   /* ★[LIST_NO_PICK_1101] 고르기 없는 목록 칸 — 곡 줄 5(3곡 + 배경 곡) */
+      ok(`${W} D3 하객 맞이 — 이름표 «하객 맞이 음악» · 곡 줄 7 · «노래» 없음(★[SONG_ROW_PLAIN_1101] 가사 있는 곡 안내는 고른 뒤 한 줄 · [SONGS_5_1115] 3곡 + 배경 곡 넷)`, r && r.gl === '하객 맞이 음악' && r.n === 7 && !voc.some((v) => v[1]), voc);   /* ★[LIST_NO_PICK_1101] 고르기 없는 목록 칸 — 곡 줄 5(3곡 + 배경 곡) */
       ok(`${W} D3 고르기 전엔 보컬 한 줄 없음`, !(await f.evaluate(() => !!document.querySelector('.ls-bed[data-seg="M1"] .bed-voc'))));
       /* D2 한 파일 — 하객 맞이 B13 곡 카드(★[PICKS_THREE_1101] 하객 맞이 3 · 축사 1 이 같은 곡) */
       await f.click('[data-fk="bedp:M1:B13"]'); await wait(f, 1500); await f.click('[data-fk="bedp:M1:B13"]'); await wait(f, 300);
@@ -179,7 +179,7 @@ try {
     const tb6 = await f.evaluate(() => BgmBed._t.toastBed ? BgmBed._t.toastBed() : '');
     ok(`${W} D6 축배 — «위하여» 전은 테이블 · 앞 순간 곡(${tb6}) · 뒤는 축배 곡(B28) · 축배 크기(0)`, ch > -1 && !!tb6 && tb6 !== 'B17' && pre.length > 0 && pre.every((x) => x.f === tb6) && post.some((x) => x.f === 'B28' && x.want === 0), { ch, seq: [...new Set(b6.map((x) => (x.cheer ? '!' : '') + x.slug + ':' + x.f + ':' + x.want))].slice(0, 20) });
     /* 6 축사 · 편지 */
-    await go(f, 'free'); const dk7 = await f.evaluate(() => BgmBed.dayAt('free') || 'B09'); const b7 = await listen(f, 'free', 9000); const t7 = b7.filter((x) => x.talk && x.src);   /* ★[SCREEN_SOUND_1102 2] 축사만 들으면 당일 시간표 그 자리 곡 */
+    await go(f, 'free'); const dk7 = await f.evaluate(() => BgmBed.dayAt('free') || 'B09'); const b7 = await listen(f, 'free', 9000); const t7 = b7.filter((x, j) => x.talk && x.src && !(j > 0 && b7[j - 1].i !== x.i && b7[j + 1] && b7[j + 1].i === x.i && b7[j + 1].want === -90));   /* ★[PV6_EDGE_1115 2026-11-15 BGM 섹션 · GPT 라운드 4 덧붙임] 줄 경계 표본 하나는 뺀다 — 빌더가 줄 번호(LP.i)를 먼저 올리고 같은 차례의 lpGap 이 setTimeout(0)으로 «다음 줄 크기로 미리 낮추기»를 거는 사이(수 ms)에 표본(0.12초마다)이 들면 앞 줄(여는 말 −15)의 want 가 말씀 줄로 찍혔다(세 번에 한 번 빨강 · 바탕 판도 같다 · 실측 6번: 말씀 줄 첫 표본 want −90 · 실제 크기 −14 → −22 → −90.5 dB 로 이미 내려가는 중 · 말씀 줄이 −15 를 청한 적 없음 = 표본 시점 문제) · 바로 다음 표본이 같은 줄 −90 일 때만 뺀다(말씀 줄이 정말 다른 크기를 청하면 다음 표본에서 잡힌다) */   /* ★[SCREEN_SOUND_1102 2] 축사만 들으면 당일 시간표 그 자리 곡 */
     ok(`${W} 6 축사 «음악 없이» — 말씀 동안 −90 · 곡 ${dk7}(본식 목록 그 자리 곡)`, t7.length && t7.every((x) => x.want === -90 && x.f === dk7), t7.slice(0, 3));
     await f.click('[data-fk="bgm:S5:bed"]'); await wait(f, 400); const rs = await row(f, 'M4S5');
     await shot(f, W, 'free', '.ls-bgm[data-slot="S5"]');
@@ -196,7 +196,7 @@ try {
     ok(`${W} D4 [R1-1] 초안이 바뀌면(저장에 «음악과 함께» 없음) 축사 칩은 안 눌린 모양으로`, d4.length === 2 && d4.every((v) => v === 'false'), d4);
     await f.click('[data-fk="bgm:S5:bed"]'); await wait(f, 300);
     await go(f, 'letter'); await f.click('[data-fk="bgm:S6:bed"]'); await wait(f, 300);   /* [ONE_FLOW_1106] 편지 곡 고르기 칸은 없다 */
-    const b9 = await listen(f, 'letter', 9000); const t9 = b9.filter((x) => x.talk && x.src).slice(5), m4s = await f.evaluate(() => BgmPicks.PICKS.M4.slice());
+    const b9 = await listen(f, 'letter', 9000); const t9 = b9.filter((x) => x.talk && x.src).slice(5), m4s = await f.evaluate(() => BgmPicks.PICKS.M4.concat((BgmPicks.FILL || {}).M4 || []));   /* [LISTEN_LEN_PV_1114] 본식 목록 = 고객이 보는 3곡 + 본식 배경 곡(REPEAT_RULE_1107 ① · 계획 목록 그대로) — 곡 길이를 등록 값으로 세면 이 검사 판(B11 파일 없음)에서는 편지 자리가 세 번째 곡 B12 다(옛 240초 셈은 우연히 B10) · 재는 것은 «따로 고른 곡이 아니라 본식 흐름 곡»(ONE_FLOW_1106) */
     ok(`${W} 6 편지 «음악과 함께» — S.bgm.S6 = { m:bed } · 낭독 동안 −20 · 곡은 본식 목록(M4) 곡`, t9.length && t9.every((x) => x.want === -20 && m4s.indexOf(x.f) > -1) && (await f.evaluate(() => S.bgm.S6 && S.bgm.S6.m === 'bed')), t9.slice(0, 2));
     /* 7 곡 없는 구간 */
     await go(f, 'table'); const l10 = await lab(f, 'table'); const b10 = await listen(f, 'table', 11000);   /* [DETAIL_R3_1101 ⑦ 보탬] 맨 뒤 B13 이 흐르므로 첫 줄 앞 뜸(6초 · listen 은 뜸을 세지 않는다) 뒤까지 */
