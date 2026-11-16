@@ -106,8 +106,8 @@
     else if(x<PL.tdip+dr) d=lerp(PL.n>1?P.under:L1,Ld,(x-PL.tdip)/dr);
     else if(x<hr) d=Ld;
     else if(x<PL.th) d=lerp(Ld,0,(x-hr)/Math.max(0.01,PL.th-hr));
-    else if(x<PL.th+after) d=0;
-    else d=lerp(0,-80,(x-PL.th-after)/OUTF);
+    else { var fs=PL.th+after, fo=OUTF; if(PL.tend!=null&&PL.tend<PL.th+after+OUTF){ fs=Math.max(PL.th,PL.tend-OUTF); fo=Math.max(0.3,PL.tend-fs); }   /* ★[SHORT_SONG_FADE_1115 · 음성 쉼 방 5] 곡이 «크게 머묾(after) + 잦아듦(OUTF)»보다 먼저 끝나면 곡 끝에 맞춰 OUTF 앞부터 잦아든다 — 종전엔 0 dB 로 흐르다 파일 끝에서 뚝 끊겼다(짧은 업로드 곡 60초 · 강조 0:50) · 검사 entry-five-1115 ⑤ */
+      d=x<fs?0:lerp(0,-80,(x-fs)/fo); }
     return d+BED_TRIM; }
   function envGain(PL,x){ var g=db2g(envDb(PL,x)), u=(x-PL.tm)/Math.max(0.05,SP.fade); if(u<1) g*=u<=0?0:u*u; return g; }   /* 처음 SP.fade(6초 [ENTRY_BGM_1019] · 종전 2.5초 [SOFT_START_1013] · 1.2초 [BGM_FIRST_1013] · 그 전 5초)는 0 에서 */
   function fadeCurve(lv,F){ var n=Math.max(2,Math.ceil(F*200)+1), c=new Float32Array(n); for(var i=0;i<n;i++){ var u=i/(n-1); c[i]=lv*u*u; } return c; }   /* [SOFT_START_1013] 미리 듣기 첫소리 — 장면 처음(envGain)과 같은 u² 로 0 → lv · 길이는 PREV_FADE 2.5초([ENTRY_BGM_1019] 장면만 6초) */
