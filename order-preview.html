@@ -2468,7 +2468,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1116bg"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1115e5"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1107ig"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1106of2"></script><script src="/assets/bgm-picks.js?v=1115s5"></script><script src="/assets/narration-pad.js?v=1108L2"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1115bg"></script><script src="/assets/bgm-form.js?v=1106b3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1116Mb"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1115e5"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1107ig"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1106of2"></script><script src="/assets/bgm-picks.js?v=1115s5"></script><script src="/assets/narration-pad.js?v=1108L2"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1115bg"></script><script src="/assets/bgm-form.js?v=1106b3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3313,7 +3313,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={}, gen=++ENG_GEN, ac=null, tm=0; try{ ac=new AbortController(); }catch(e){ ac=null; }
-  var ASSET_V='1116bg';   /* [SONGS_5_1115 · BGM 고침 #1655 와 합침] · [RING_OK_1115] ritual-open 의 VIDEO_V(반지 장면 영상 새 판) · [MID17_NAME · MID17_ENGINE · MID17_CONSOLE] ritual-open 식중 영상 이름 · ritual-cue 58 → 129 · 식중 영상 디렉터 메모 */   // [ASSET_V] 위 주석 · [ONE_FLOW_1106] ritual-open · ritual-cue · bgm-picks · bgm-slots · bgm-bed · [B2_FIX_R1 · B2_FIX_R2] ritual-open · ritual-cue 를 바꿨다 · #1619 와 합침
+  var ASSET_V='1116Mb';   /* [SONGS_5_1115 · BGM 고침 #1655 와 합침] · [MID_OK_1116] ritual-open VIDEO_V 1116m(식중 첫 화면 그림) · 옛 1115R1:  [RING_OK_1115] ritual-open 의 VIDEO_V(반지 장면 영상 새 판) · [MID17_NAME · MID17_ENGINE · MID17_CONSOLE] ritual-open 식중 영상 이름 · ritual-cue 58 → 129 · 식중 영상 디렉터 메모 */   // [ASSET_V] 위 주석 · [ONE_FLOW_1106] ritual-open · ritual-cue · bgm-picks · bgm-slots · bgm-bed · [B2_FIX_R1 · B2_FIX_R2] ritual-open · ritual-cue 를 바꿨다 · #1619 와 합침
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,ac?{credentials:'same-origin',signal:ac.signal}:{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })), _to=new Promise(function(_ok,no){ tm=setTimeout(function(){ var _e5=new Error('engine'); _e5.meN=5; no(_e5); try{ if(ac) ac.abort(); }catch(e){} },ENG_TO_MS); });
@@ -5495,10 +5495,10 @@ function _mkCopied(key){ var cp=(MK.copied&&MK.copied.k===key)?MK.copied:null; r
 function _mkCopyTo(key,t,msg){ var done=function(ok){ MK.copied={k:key,ok:ok,msg:msg}; clearTimeout(MK.copiedT); MK.copiedT=setTimeout(function(){ MK.copied=null; document.querySelectorAll('.mk-copied').forEach(function(e){ e.textContent=''; e.classList.remove('bad'); }); },6000); render(); };
   try{ navigator.clipboard.writeText(t).then(function(){ done(true); },function(){ done(false); }); }catch(e){ done(false); } }
 window.mkAskCopyPage=function(k){ var qs=_mkItems(k).filter(function(q){ return q.cat==='ask'; }); if(qs.length) _mkCopyTo('ask:'+k,_mkAskText(qs),'복사됐어요 · 부모님께 카톡으로 붙여 보내세요'); };
-function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddingDate)||'', c=_mkChk(), pvMy=k==='prevideo'&&R.onOf(S,k); if(!items.length&&!pvMy) return '';   /* [PV_MYPAGE_1102] 식전 영상은 할 일이 없어도 «어디서 준비하나» 한 덩어리는 그린다 */
+function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddingDate)||'', c=_mkChk(), pvMy=k==='prevideo'&&R.onOf(S,k), mvMy=k==='free'&&R.onOf(S,'free')&&R.FREE_KIND[R.chipOf('free',S)]==='video'&&(!CUST||CUST.midUp===true);   /* [GPT 1-01 · 2-21] 마이페이지 안에서는 서버가 받는다고 알려 온 때만(옛 탭은 midUp 을 안 보낸다) · 로그인 없는 빌더는 식전 영상과 같이 그린다 */ if(!items.length&&!pvMy&&!mvMy) return '';   /* [VIDEO_NAME_1114] 식중 영상도 «어디서 준비하나» 한 덩어리(마이페이지 «식중 영상») */   /* [PV_MYPAGE_1102] 식전 영상은 할 일이 없어도 «어디서 준비하나» 한 덩어리는 그린다 */
   var h='', gn=(R.onOf(S,k)?_lGroups(k):[]).map(function(g){ return (g.unote||'')+' '+(g.tip||''); }).join(' ');   /* [NOTE_TOAST] 덧말(note)은 칩 아래에 없다 — 보이는 줄만 겹침으로 친다 */
   var ups=items.filter(function(q){ return q.up; }); if(ups.length) h+=_mkVoice(k,ups,wed);
-  if(pvMy) h+=_pvMyRow(wed);   /* ★[PV_MYPAGE_1102] 링크 칸 대신 마이페이지 «식전 영상» 안내 한 덩어리 — 되살리지 말 것 */
+  if(pvMy) h+=_pvMyRow(wed); if(mvMy) h+=_pvMyRow(wed, RitualOpen.MID_NAME);   /* [VIDEO_NAME_1114] 식중 영상 — 같은 모양 · 이름 · 기한(예식 7일 전)은 식전 영상과 같다 */   /* ★[PV_MYPAGE_1102] 링크 칸 대신 마이페이지 «식전 영상» 안내 한 덩어리 — 되살리지 말 것 */
   ['ask','send','bring'].forEach(function(cat){ var qs=items.filter(function(q){ return q.cat===cat&&!q.up; }); if(!qs.length) return;
     var hd=(cat==='ask'&&qs.every(function(q){ return q.who==='parents'; }))?'부모님께 부탁드릴 것':cat==='bring'?'당일 챙길 것':MK_CAT[cat];
     if(cat==='ask'&&qs.every(function(q){ return _askScript(q)&&c[q.id]==='site'; })) hd=_askScript(qs[0]).hd;   // [SPEECH_SCRIPT] 축사도   /* [R8-05] «원고 없이»면 부탁할 것이 없다 — 빈 «부모님께 부탁드릴 것» 아래 체크칸만 남아 무엇이 빠진 화면처럼 읽혔다 */
@@ -5530,8 +5530,9 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
   return h; }
 /* ★★[PV_MYPAGE_1102 2026-11-02 사장님 «여기도 개선해야지 최신화 · 저기서 영상을 받을 필요도 없잖아»] 식전 영상은 마이페이지 «식전 영상» 카드에서 준비하고 받는다(협력사 연결형 · [PV_PARTNER_1101]).
    식순에는 링크 칸을 두지 않는다 — 이름 · 기한 한 줄([PV_SEND_ONE] 모양) + «어디서» 한 줄. 받는 곳이 둘이면 두 분이 어디에 보냈는지 헷갈리고 준비 목록이 두 번 셌다. */
-function _pvMyRow(wed){ return '<section class="mk-sec mk-prep mk-send1 mk-pvmy"><ul class="mk-vlist"><li class="mk-vr"><span class="mk-vt"><span class="mk-vn">식전 영상</span><span class="mk-vs">'+esc(_ndd(RitualOpen.dueWord({due:7},wed)))+'</span></span></li>'
-  +'<li class="mk-vx"><p class="mk-note mk-pvmyt">마이페이지 «식전 영상»에서 준비해요</p></li></ul></section>'; }
+var VU_NAME='상영 영상';   // ★[VIDEO_UMBRELLA_1115 · 11/15 18:08 대본 확정] 마이페이지 «상영 영상» 묶음과 같은 이름(mypage.html VU_NAME · scripts/audit/video-umbrella.mjs)
+function _pvMyRow(wed, nm){ nm=nm||'식전 영상'; return '<section class="mk-sec mk-prep mk-send1 mk-pvmy"><ul class="mk-vlist"><li class="mk-vr"><span class="mk-vt"><span class="mk-vn">'+esc(nm)+'</span><span class="mk-vs">'+esc(_ndd(RitualOpen.dueWord({due:7},wed)))+'</span></span></li>'
+  +'<li class="mk-vx"><p class="mk-note mk-pvmyt">마이페이지 «'+esc(nm)+'»에서 준비해요</p></li></ul></section>'; }   /* [VIDEO_NAME_1114] 식전 · 식중 같은 한 덩어리(nm) */
 function _pvOkTg(v){ var o=document.getElementById('mkPvOk'); if(o) o.style.display=_linkOk(v)?'':'none'; }
 function _linkOk(v){ return /^https?:\/\/[^\s\/?#]+\.[^\s\/?#]+\S*$/i.test(String(v||'').trim()); }   // [QA_LINK_HOST] 가운데 띄어쓰기도 아니다   /* ★[QA_LINK_HOST 2026-10-04 점검] «https://» 만 쳐도 «링크 받았어요»가 떴다 — 주소(점이 있는 이름)까지 있어야 */   /* [R1-44] 식전 영상 링크 «링크 받았어요» 표시를 다른 쪽에 다녀오지 않아도 바로 */
 /* ★★[RITUAL_FILE 2026-09-27 사장님 «여기서 파일을 바로 첨부 · 지금은 너무 지저분하니 디자인적으로 깔끔하게 · 첨부 안 되어 있으면 미완료»]
@@ -9358,12 +9359,13 @@ function _openWrite(){
   // 보낼 것 — 식전 영상 링크 칸 · 녹음 올리기 · 나머지 목록
   var send=two.filter(function(q){ return q.cat==='send' && q.k!=='guest' && q.k!=='entry' && q.k!=='prevideo'; });
   /* ★[PREVIDEO_PICK 2026-09-27 사장님] 식전 영상을 담았을 때만 링크 칸 · 설명 · «식전 영상 사진» 보내기 — 보낼 것이 하나도 없으면 칸째 뺀다 */
-  var _pv=R.onOf(S,'prevideo'), _voice=(S.guestVoice==='couple'||S.entryVoice==='couple');
-  if(_pv||send.length||_voice){
+  var _pv=R.onOf(S,'prevideo'), _mvS=R.onOf(S,'free')&&R.FREE_KIND[R.chipOf('free',S)]==='video'&&(!CUST||CUST.midUp===true), _voice=(S.guestVoice==='couple'||S.entryVoice==='couple');   /* ★[VIDEO_UMBRELLA_1115] 식중 영상도 «보낼 것»에 — 하나씩 만들기 _mkPrep 의 mvMy 와 같은 조건 */
+  if(_pv||_mvS||send.length||_voice){
   h+='<div class="wr-sec"><div class="wr-sub">보낼 것</div>';
-  if(_pv){
-  h+='<div class="wr-item">식전 영상 <span class="wr-due">· '+esc(R.dueWord({due:7},wed))+'</span></div>';   // [PREVIDEO_NAME 코워크 회신4 4-c] ④ · 마이페이지와 같은 이름
-  h+='<div class="wd" style="margin-top:6px">마이페이지 «식전 영상»에서 준비해요</div>';   /* ★[PV_MYPAGE_1102 2026-11-02 사장님] 링크 칸 · 주소 안내를 걷었다 — 식전 영상은 마이페이지 카드가 받는다 · 되살리지 말 것 */
+  if(_pv||_mvS){
+  if(_pv) h+='<div class="wr-item">식전 영상 <span class="wr-due">· '+esc(R.dueWord({due:7},wed))+'</span></div>';   // [PREVIDEO_NAME 코워크 회신4 4-c] ④ · 마이페이지와 같은 이름
+  if(_mvS) h+='<div class="wr-item">'+esc(R.MID_NAME)+' <span class="wr-due">· '+esc(R.dueWord({due:7},wed))+'</span></div>';   // [VIDEO_UMBRELLA_1115] 식중 영상 — 식전 영상과 같은 모양 · 기한
+  h+='<div class="wd" style="margin-top:6px">'+((_pv&&_mvS)?('두 영상 모두 마이페이지 «'+esc(VU_NAME)+'»에서 준비해요'):('마이페이지 «'+esc(_pv?'식전 영상':R.MID_NAME)+'»에서 준비해요'))+'</div>';   /* [VIDEO_UMBRELLA_1115] 둘 다면 마이페이지 묶음 이름 · 하나면 그 이름 */   /* ★[PV_MYPAGE_1102 2026-11-02 사장님] 링크 칸 · 주소 안내를 걷었다 — 식전 영상은 마이페이지 카드가 받는다 · 되살리지 말 것 */
   /* ★[PV_PHOTO_OFF_1023 검토 158 · PV_LINK_ONE 2026-10-04 사장님 «무조건 영상»] «사진을 올린 링크 … 영상으로 만들어요» 줄 뺌 · 되살리지 말 것 · 옛 줄 표식 [UPLOAD_HONEST 2-8] · [PREVIDEO_FREE] */
   }
   /* ★[H2_SEND_LUMP 2026-09-26 코워크 최종판 5-2] 식전 영상(링크 칸 · 설명 · 카톡 · 메일 · 25MB 안내)을 한 덩어리로 — 종전엔 축배 음료 줄이
