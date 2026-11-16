@@ -22288,6 +22288,7 @@ chk 'SHOW_PAIR_1116' scripts/audit/mid17-pick.mjs 10
 chk 'SHOW_PAIR_1116' scripts/audit/open-course.mjs 4
 chk 'SHOW_PAIR_1116' scripts/audit/mid17-engine.mjs 2
 chk 'SHOW_PAIR_1116' scripts/audit/mid17-console.mjs 2
+chk 'SHOW_PAIR_1116' scripts/audit/meaning-r1.mjs 2   # 옛 «선물 전달 동작 −12» → 선물 꺼짐 · 축하 공연 무대 동안 배경음 −90
 nochk "ok('T05 «음악과 함께» 축사 뒤 축가 여는 말" scripts/audit/one-flow.mjs   # [SPEECH_SONG_1115] 은퇴한 옛 T05(축사 뒤 축가 여는 말 정적)
 chk '①-T01' scripts/audit/gpt-r1.mjs 1
 chk '④-T01' scripts/audit/gpt-r1.mjs 1
