@@ -115,7 +115,8 @@ const K4 = ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter', 'son
        같은 자리의 새 갈래 축하 공연 = 디렉터가 공연 음원을 트는 동안 배경음 0(−90 · 엔진 LT «준비한 무대 …») */
   const G = B2({ on: { welcome: 1, free: 1 }, freeWhat: 'gift' }), gf = G.find((c) => c.k === 'free' && c.live) || {};
   const ST = B2({ on: { welcome: 1, free: 1 }, freeWhat: 'stage' }), sf = ST.find((c) => c.k === 'free' && c.live) || {};
-  ok('6 [SHOW_PAIR_1116] 옛 선물 초안은 꺼짐(free 큐 0) · 축하 공연 무대 동안 배경음 −90(공연 음원만)', !gf.live && !G.some((c) => c.k === 'free') && sf.live && sf.live.duck === -90 && /^준비한 무대/.test(sf.live.t), { gift: gf.live && gf.live.duck, stage: sf.live && sf.live.duck });
+  /* ★[NO_SHOW_1116 · RULES_SLIM ⑧] 옛 기대(SHOW_PAIR_1116) «축하 공연 무대 동안 −90 · 지문 «준비한 무대»» → 공연 걷음 · 옛 무대 초안 = 축사(말씀 동안 정적 · 지문 «준비한 축사») */
+  ok('6 [SHOW_PAIR_1116 · NO_SHOW_1116] 옛 선물 초안은 꺼짐(free 큐 0) · 옛 무대 초안은 축사(말씀 동안 −90 · 지문 «준비한 축사»)', !gf.live && !G.some((c) => c.k === 'free') && sf.live && sf.live.duck === -90 && /^준비한 축사/.test(sf.live.t) && !ST.some((c) => /준비한 무대/.test((c.live || {}).t || '')), { gift: gf.live && gf.live.duck, stage: sf.live && [sf.live.duck, sf.live.t] });
   /* 화면 음악 안내 글(5 · 11) */
   const vd = SL.viewOf('declare', { onOf: () => true, seq: K4, nameOf: (k) => k }), vt = SL.viewOf('table', { onOf: () => true, seq: ['table'], nameOf: (k) => k });
   ok('5 · 11 화면 음악 글 — 선언 «선언문을 읽는 동안은 음악 없이 …» · 테이블 «테이블 인사 동안 재즈가 흘러요»', !!vd && vd.t === '선언문을 읽는 동안은 음악 없이, 축하 박수와 함께 새 곡이 시작돼요' && !!vt && vt.t === '테이블 인사 동안 재즈가 흘러요', { d: vd && vd.t, t: vt && vt.t });

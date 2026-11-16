@@ -52,7 +52,7 @@ function engine(src) {
   r.speech = src.cues({ course: 'open', on: { bless: 1, free: 1, letter: 1 }, freeWhat: 'speech' });
   r.gift = src.cues({ course: 'open', on: { bless: 1, free: 1, song: 1 }, freeWhat: 'gift' });
   r.etc = src.cues({ course: 'open', on: { bless: 1, free: 1, song: 1 }, freeWhat: 'etc', freeEtc: '형제 깜짝 영상편지' });
-  r.stage = src.cues({ course: 'open', on: { bless: 1, free: 1, letter: 1 }, freeWhat: 'stage' });   // [SHOW_PAIR_1116] 축하 공연
+  r.stage = src.cues({ course: 'open', on: { bless: 1, free: 1, letter: 1 }, freeWhat: 'stage' });   // [NO_SHOW_1116] 옛 무대 초안 → 축사
   r.oldDraft = src.cues({ course: 'open', on: { bless: 1, free: 1, song: 1, letter: 1 }, freeWhat: 'video', freeLen: '4' });   // [SPEECH_SONG_1115] 옛 초안 → midMigrate
   return r;
 }
@@ -79,7 +79,7 @@ function judgeEngine(r) {
   t('디지털 참석 날 — 식중 영상 큐(식전 소개 판 둘 다) = 디지털 아닌 날', js(r.dVideo, 'midvid') === js(r.video, 'midvid') && js(r.dPv129, 'midvid') === js(r.pv129, 'midvid'), [js(r.dVideo, 'midvid').length, js(r.video, 'midvid').length]);
   t('디지털 참석 날 — 식전 영상 큐 = 디지털 아닌 날(식전 · 식중 처리가 같다)', js(r.dPv90, 'prevideo') === js(r.pv90, 'prevideo') && js(r.dPv129, 'prevideo') === js(r.pv129, 'prevideo'), [js(r.dPv90, 'prevideo').length, js(r.pv90, 'prevideo').length]);
   /* ★[SHOW_PAIR_1116 · RULES_SLIM ⑧] 옛 기대 «축사 · 선물 · 기타에 영상 메모 없음» → 선물 · 기타 옛 초안은 꺼져 free 큐가 없다 · 축사 · 축하 공연에 영상 메모 없음 */
-  t('[SHOW_PAIR_1116] 축사 · 축하 공연에는 영상 메모가 없다(식중 영상만 · 축사 맺는 이음말 메모는 그대로) · 옛 선물 · 기타 초안은 free 큐 0', [r.speech, r.stage].every((cs) => pick(cs, 'free').length > 0 && pick(cs, 'free').every((c) => (c.note || '').indexOf(NOTE_HEAD) < 0)) && !pick(r.gift, 'free').length && !pick(r.etc, 'free').length, [r.speech, r.stage, r.gift, r.etc].map((cs) => pick(cs, 'free').map((c) => c.note)));
+  t('[SHOW_PAIR_1116 · NO_SHOW_1116] 축사 · 옛 무대 초안(→ 축사)에는 영상 메모가 없다(식중 영상만 · 축사 맺는 이음말 메모는 그대로) · 옛 선물 · 기타 초안은 free 큐 0', [r.speech, r.stage].every((cs) => pick(cs, 'free').length > 0 && pick(cs, 'free').every((c) => (c.note || '').indexOf(NOTE_HEAD) < 0)) && !pick(r.gift, 'free').length && !pick(r.etc, 'free').length, [r.speech, r.stage, r.gift, r.etc].map((cs) => pick(cs, 'free').map((c) => c.note)));
   t('[SPEECH_SONG_1115] 옛 초안(free + video) — 콘솔 큐도 식중 영상(midvid)으로 · 새 초안과 같은 메모 · free 큐 없음', js(r.oldDraft, 'midvid') === js(r.video, 'midvid') && pick(r.oldDraft, 'free').length === 0, [js(r.oldDraft, 'midvid').length, pick(r.oldDraft, 'free').length]);
   return bad;
 }

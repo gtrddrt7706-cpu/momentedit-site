@@ -150,7 +150,7 @@
     /* [DETAIL_0925 E] 여섯 → 넷(FREE_KIND 네 갈래와 같게). 옛 값 dance · show · hand 는 chipOf · norm 이 갈래로 옮긴다 */
     /* ★★[FREE_ETC 2026-10-06 사장님 «기타 칸 만들자 · 직접 적을 수 있게 · 길이도 직접 · 춤 공연은 빼고»] 춤 · 공연(stage) 걷음 → 기타(etc) — 무엇을 글칸(S.freeEtc) · 길이 분 칸(S.freeLen 1~10).
        옛 값 stage · dance · show 는 기타로 읽는다(FREE_OLD) · ★«춤 · 공연» 칩 되살리지 말 것 */
-    free: [['speech', '축사'], ['stage', '축하 공연']],   /* ★[SHOW_PAIR_1116 2026-11-16 대본 ALL_GO_1116 «공연 → 축사 · 축가 · 축하 공연 중 하나 · 선물 · 기타는 상담 메모로»] 선물 · 기타 칩은 걷었다(옛 초안은 midMigrate 가 정리) */   /* ★[SPEECH_SONG_1115] 영상 갈래(video)는 걷었다 — 식중 영상은 따로 넣고 빼는 순간(midvid) · 옛 초안의 free + video 는 midMigrate 가 midvid 로 옮긴다 */   /* ★[MID17_NAME 2026-11-07 재검증 재수정 · 사장님 «식중 영상» 타일] 영상 갈래 이름 = «식중 영상»(nameOf · chipLabel · 띠가 같은 말) */   // ★[R2_SPEECH_LABEL_1014] «친구 · 가족의 축사» → «축사»(칸 이름과 같게 · TERM_BY_SPEAKER_1013 덕담 = 부모님 · 콘솔 배지 «여기는 고를 수 있어요 · 축사 · 3분»)
+    free: [['speech', '축사']],   /* ★★[NO_SHOW_1116 2026-11-16 대표님 16:53 «공연은 빼자»] 무대 칩(stage)은 다시 걷었다 — 축사 · 축가 둘 중 하나(SHOW_PAIR_1116 은퇴) · ★무대 칩 되살리지 말 것 · 옛 초안 stage · dance · show 는 midMigrate 가 축사로 */   /* ★[SHOW_PAIR_1116] 선물 · 기타 칩은 걷었다(옛 초안은 midMigrate 가 정리) */   /* ★[SPEECH_SONG_1115] 영상 갈래(video)는 걷었다 — 식중 영상은 따로 넣고 빼는 순간(midvid) · 옛 초안의 free + video 는 midMigrate 가 midvid 로 옮긴다 */   /* ★[MID17_NAME 2026-11-07 재검증 재수정 · 사장님 «식중 영상» 타일] 영상 갈래 이름 = «식중 영상»(nameOf · chipLabel · 띠가 같은 말) */   // ★[R2_SPEECH_LABEL_1014] «친구 · 가족의 축사» → «축사»(칸 이름과 같게 · TERM_BY_SPEAKER_1013 덕담 = 부모님 · 콘솔 배지 «여기는 고를 수 있어요 · 축사 · 3분»)
     freeLen: [['3', '3분'], ['2', '2분'], ['1', '1분']],
     midLen: [['3', '3분'], ['2', '2분'], ['1', '1분']],   // ★[SPEECH_SONG_1115] 식중 영상 길이(1~10분 · 분을 적는다) — 축사 길이(freeLen)와 따로
     /* ★[ENTRY_SCENE 2026-09-25 코워크 회신 4-3 · 추가 전달 B7] 입장의 «첫 모습»(새 키 하나) — 서로 바라보기 · 맞절.
@@ -164,8 +164,8 @@
        키 둘(cakeBy · flowerBy)은 옛 초안 호환으로 남기되 늘 studio 다(chipOf). 두 분 «챙길 것»에 케이크 · 꽃이 다시 들어가지 않는다. */
   };
   // 준비한 순서의 무엇을 → 여는 말 · 준비할 것 · 남는 장면의 갈래(영상 / 무대 / 건네기)
-  var FREE_KIND = { video: 'video', etc: 'etc', stage: 'stage', dance: 'stage', show: 'stage', gift: 'gift', hand: 'gift', speech: 'speech' };   // ★[SHOW_PAIR_1116] 무대 갈래 = 축하 공연(stage · 엔진의 «준비한 무대» 지문 · 여는 말은 58 그대로) · 옛 [FREE_ETC] 무대 → 기타   // [FREE_ETC] 무대 갈래 → 기타
-  var FREE_OLD = { dance: 'stage', show: 'stage', hand: 'gift' };   // [SHOW_PAIR_1116] 춤 · 공연 = 축하 공연   // 옛 칩 값 → 갈래 · [FREE_ETC] 춤 · 공연은 기타로
+  var FREE_KIND = { video: 'video', etc: 'etc', gift: 'gift', hand: 'gift', speech: 'speech' };   // ★[NO_SHOW_1116] 무대 갈래(stage) 걷음 — 옛 값은 아래 FREE_OLD 가 축사로 읽는다
+  var FREE_OLD = { stage: 'speech', dance: 'speech', show: 'speech', hand: 'gift' };   // ★[NO_SHOW_1116 대표님 «공연은 빼자»] 옛 무대 값(stage · dance · show) = 축사로 읽는다(옛 [FREE_ETC] 기타 · [SHOW_PAIR_1116] 축하 공연 둘 다 은퇴) · 옛 칩 값 → 갈래
   // 칩 값 ↔ S
   function chipOf(k, S) {
     S = S || {};
@@ -338,7 +338,7 @@
        옛 초안 — free 한 칸의 영상 갈래(S.on.free + S.freeWhat 'video' · 길이 S.freeLen) → S.on.midvid + S.midLen(free 는 빈 축사 칸으로) ·
        축사(free · speech)와 축가(song)를 둘 다 담은 초안 → 축가를 남긴다(정석 예시와 같은 쪽 · 대본 확인 대기) · 깜짝 선물 · 기타(옛 갈래)는 축가와 함께 둘 수 있다(축사가 아니다).
        부르는 곳: 엔진 norm(RitualCue) · 빌더가 초안을 읽을 때 · 담을 때(pairOn) — 저장 값을 바꾸는 곳은 여기 한 곳 */
-  var PAIR = ['free', 'song', 'stage'];   // [SHOW_PAIR_1116] 축사 · 축가 · 축하 공연 중 하나   // 축사 · 축가 한 카드(① 칸 이름 «축사 · 축가»)
+  var PAIR = ['free', 'song'];   // ★[NO_SHOW_1116] 축사 · 축가 둘 중 하나(옛 SHOW_PAIR_1116 셋째 갈래 걷음 · 되살리지 말 것)   // 축사 · 축가 한 카드(① 칸 이름 «축사 · 축가»)
   function isSpeech(S) { return FREE_KIND[FREE_OLD[S && S.freeWhat] || (S && S.freeWhat) || DEF.freeWhat] === 'speech'; }
   function midMigrate(S) {
     if (!S || typeof S !== 'object') return S; if (!S.on) S.on = {};
@@ -347,14 +347,15 @@
       if (S.on.free) { S.on.midvid = 1; if (/^(10|[1-9])$/.test(String(S.freeLen))) S.midLen = String(S.freeLen); delete S.on.free; }
       S.freeWhat = 'speech'; if (S.freeLen != null && !S.on.free) S.freeLen = DEF.freeLen;
     }
+    if (FREE_OLD[S.freeWhat] === 'speech') S.freeWhat = 'speech';   // ★[NO_SHOW_1116] 옛 무대 초안(stage · dance · show) = 축사 칸으로(켜짐 그대로 · 축가와 함께면 아래 줄이 축가를 남긴다)
     var fk2 = FREE_KIND[FREE_OLD[S.freeWhat] || S.freeWhat];
     if (fk2 === 'gift' || fk2 === 'etc') { delete S.on.free; S.freeWhat = 'speech'; }   // ★[SHOW_PAIR_1116] 선물 · 기타 = 상담 메모(빌더 칸 없음) · 옛 초안은 꺼 둔다
-    if (S.on.free && S.on.song) delete S.on.free;   // 축사 · 축가 · 축하 공연 중 하나 — 둘이 켜진 옛 초안은 축가를 남긴다
+    if (S.on.free && S.on.song) delete S.on.free;   // 축사 · 축가 둘 중 하나 — 둘이 켜진 옛 초안은 축가를 남긴다
     return S;
   }
   /* 한 카드 안 고르기 — which = 'free'(축사) | 'song'(축가) | '' (둘 다 빼기) · 다른 쪽은 늘 꺼진다 */
-  function pairSet(S, which) { if (!S.on) S.on = {}; delete S.on.free; delete S.on.song; if (which === 'free') { S.on.free = 1; S.freeWhat = 'speech'; } else if (which === 'stage') { S.on.free = 1; S.freeWhat = 'stage'; } else if (which === 'song') S.on.song = 1; return S; }   // [SHOW_PAIR_1116] stage = 축하 공연
-  function pairOf(S) { if (onOf(S, 'song')) return 'song'; if (!onOf(S, 'free')) return ''; var k = FREE_KIND[FREE_OLD[S.freeWhat] || S.freeWhat]; return k === 'speech' ? 'free' : k === 'stage' ? 'stage' : ''; }
+  function pairSet(S, which) { if (!S.on) S.on = {}; delete S.on.free; delete S.on.song; if (which === 'free') { S.on.free = 1; S.freeWhat = 'speech'; } else if (which === 'song') S.on.song = 1; return S; }   // ★[NO_SHOW_1116] 셋째 갈래(stage) 걷음
+  function pairOf(S) { if (onOf(S, 'song')) return 'song'; if (!onOf(S, 'free')) return ''; var k = FREE_KIND[FREE_OLD[S.freeWhat] || S.freeWhat]; return k === 'speech' ? 'free' : ''; }   // [NO_SHOW_1116]
 
   /* ★★[NARR_ROLE_1115 2026-11-15 대본 · 릴스 방 교통정리 2차(docs runbook 나레이션_교통정리_NARR_ROLE_1115 4절 · 3351677)] «누가» — 하객이 어느 분이 나오는지 듣게.
        덕담 = 말씀하실 분 · 순서(S.blessWho 'bf,gf' · 첫 분이 먼저) · 축사 = 하시는 분(S.speechWho) · 축가 = 부르시는 분(S.songWho · 두 분 직접이면 S.songSelf).
@@ -1749,7 +1750,7 @@
     if (k === 'midvid' || (k === 'free' && FREE_KIND[chipOf('free', S)] === 'video')) return MID_ONE;   // [SPEECH_SONG_1115]   /* ★[MID17_NAME 2026-11-07] ② 머리 한 줄 — 축사 설명이 영상 날에 나오지 않게 */
     return (k === 'vow' && S && S.vowKind === 'thanks' && c.oneT) ? c.oneT : (c.one || ''); }
   /* [SPEECH_TILE_1012] 칸 이름 — 축사 칸(free)에 옛 초안의 영상 · 선물 · 기타가 켜져 있으면 옛 이름 «준비한 순서»(새로 담으면 늘 축사 · 빌더 opTgl) */
-  function nameOf(k, S) { if (k === 'free' && S && onOf(S, 'free') && FREE_KIND[chipOf('free', S)] !== 'speech') return FREE_KIND[chipOf('free', S)] === 'video' ? MID_NAME : FREE_KIND[chipOf('free', S)] === 'stage' ? '축하 공연' : '준비한 순서'; return CARDS[k] ? CARDS[k].n : k; }   /* ★[MID17_NAME 2026-11-07 재검증 재수정] 영상 갈래 = «식중 영상»(옛 초안만 · [SPEECH_SONG_1115] 새 식중 영상은 따로 넣고 빼는 순간 midvid · midMigrate 가 옮긴다) · 선물 · 기타(옛 초안)는 «준비한 순서» 그대로 */
+  function nameOf(k, S) { if (k === 'free' && S && onOf(S, 'free') && FREE_KIND[chipOf('free', S)] !== 'speech') return FREE_KIND[chipOf('free', S)] === 'video' ? MID_NAME : '준비한 순서';   /* [NO_SHOW_1116] 무대 갈래 이름 걷음 */ return CARDS[k] ? CARDS[k].n : k; }   /* ★[MID17_NAME 2026-11-07 재검증 재수정] 영상 갈래 = «식중 영상»(옛 초안만 · [SPEECH_SONG_1115] 새 식중 영상은 따로 넣고 빼는 순간 midvid · midMigrate 가 옮긴다) · 선물 · 기타(옛 초안)는 «준비한 순서» 그대로 */
   function talkOf(k, S) {
     var fk, n, p = 0;
     try { p = (partsOf(k, S) || [])[1] || 0; } catch (e) { p = 0; }
