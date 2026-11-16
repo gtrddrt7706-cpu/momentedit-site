@@ -4888,6 +4888,14 @@ nochk "html:row('식전 영상', _pvR.st, 'mp_pvcStart'" mypage.html   # 깨 보
 nochk 'class="trk vu-head"' mypage.html   # 옛 머리 줄
 chk 'UMBRELLA_ROW_1116' scripts/audit/video-umbrella.mjs 3
 chk 'UMBRELLA_ROW_1116' scripts/audit/prevideo-cat.mjs 2
+# ★[TWO_WAY_1116 2026-11-16 대표님 17:34 «② 다른 곳에 맡기기 · ③ 직접 만든 영상 — 우리 입장에서 같은 거잖아»] «영상 준비» 길은 둘(① 협력사 필메이커 · ② 직접 준비하기)
+nochk '세 가지 중 편한 길로 준비해 주세요' mypage.html
+nochk ' 다른 곳에 맡기기</p>' mypage.html
+chk "var SELF_T='다른 곳에 맡기거나 직접 만든 영상도 좋아요. 비용은 두 분 부담이고, 다 되면 아래 «영상 올리기»로 링크를 보내 주세요.';" mypage.html 1   # ★[COUPON_GATE_1116 · RULES_SLIM ⑧] 글은 그대로 · 자리만 고르는 카드(옛 핀 «직접 준비하기</p><p class=\"pvc-way-t\">…»)
+# ★[NO_SCENE_PIC_1116 2026-11-16 대표님 17:36 «디자인용 그림인데 진짜 저렇게 한다고 이해할 것 같아»] 상영 영상 안쪽 화면의 장면 그림 · «(그림)» 캡션 금지(식순 빌더 순간 카드 그림은 그대로)
+nochk 'class="pvc-hero"' mypage.html
+nochk '상영되는 모습(그림)' mypage.html
+nochk '_pvcHero()' mypage.html
 # ★★[FM_COUPON_1116 2026-11-16 대본 15:55 · 대표님 13:07 «상영 영상 안에서 협력사 필메이커 쿠폰은 무료 · 요청한 분께만(진행 안 하면 안 나간다) · 협력사라고 · 안 쓰면 다른 곳 결제나 직접 만든 영상 링크»]
 #   «영상 준비» 걸음 안 세 길(① 협력사 필메이커 · 쿠폰 요청 ② 다른 곳 ③ 직접) · 쿠폰 상태 = 시트 «식전영상» 메타 m.cpn(열 추가 없음) · 요청 pvCpnReq · 취소 pvCpnCancel(_gsr_ · 한 시간 상한) ·
 #   관리자 «처리할 일» 협력사쿠폰 · 협력사쿠폰회수(제휴 확정 전 표시) · 넣기 · 회수 adminPvCoupon(_requireAdmin · 요청한 줄만) — scripts/audit/fm-coupon.mjs 가 서버 · 큐 · 화면 글을 잰다
@@ -4895,11 +4903,13 @@ chk 'FM_COUPON_1116' mypage.html 10
 chk 'FM_COUPON_1116' admin.html 4
 chk 'FM_COUPON_1116' automation/platform/89_prevideo.gs 5
 chk 'FM_COUPON_1116' automation/admin/admin.gs 4
-chk "if (st === 'issued' || st === 'req') return { ok: true, same: true, cpn: _pvCpnPub_(m) };" automation/platform/89_prevideo.gs 1   # 같은 요청 두 번 = 한 번
+chk "if (st === 'req') return { ok: false, ecode: 'S0', error: '이미 요청하셨어요 · 디렉터가 쿠폰을 보내 드려요', cpn: _pvCpnPub_(m) };" automation/platform/89_prevideo.gs 1   # ★[COUPON_GATE_1116 · RULES_SLIM ⑧] 같은 요청 두 번 = 서버 거절(옛 핀 «ok same»)
+nochk "if (st === 'issued' || st === 'req') return { ok: true, same: true" automation/platform/89_prevideo.gs   # 깨 보기: 옛 «두 번 = 한 번(ok)»으로 되돌리면 빨강
 chk "if (st !== 'req') return { ok: false, error: st === 'issued' ? '이미 보냈어요.' : '고객이 요청한 쿠폰이 없어요.' };" automation/admin/admin.gs 1   # 요청 없이 나가는 길 없음
 chk "if (cn >= PV_UP.cpnHour) return { ok: false, ecode: 'S0'" automation/platform/89_prevideo.gs 1   # 한 시간 상한
 chk "out.cpn = _pvCpnPub_(row.m || {});" automation/platform/89_prevideo.gs 1
-chk "return '<button type=\"button\" class=\"cc-btn-ghost pvc-cpn-btn\" data-pvccpn=\"req\">쿠폰 요청하기</button>'; }" mypage.html 1
+chk "return '<button type=\"button\" class=\"cc-btn-ghost pvc-cpn-btn\" data-pvccpn=\"ask\">쿠폰 요청하기</button>'; }" mypage.html 1   # ★[COUPON_GATE_1116 · RULES_SLIM ⑧] 누르면 화면 안 확인 칸(옛 핀 data-pvccpn="req" 바로 요청)
+nochk "data-pvccpn=\"req\">쿠폰 요청하기<" mypage.html
 chk '요청했어요 · 디렉터가 쿠폰을 보내 드려요' mypage.html 1
 chk '필메이커는 저희 협력사예요. 템플릿 이용 쿠폰은 무료예요. 제작 대행 · USB 같은 추가는 두 분 부담이에요.' mypage.html 1
 chk "'<span>쿠폰으로 기본 템플릿 무료</span><span>추가는 두 분 부담</span>'" mypage.html 1
@@ -4909,6 +4919,23 @@ chk "case 'pvCpnReq':           return jsonOut(handlePvCpnReq(body));" automatio
 chk "adminPvCoupon: adminPvCoupon," automation/admin/admin.gs 1
 chk 'var FM_PENDING=true;' admin.html 1   # «제휴 확정 전» 표시 — 제휴가 확정되면 false
 chk 'FM_COUPON_1116' scripts/audit/fm-coupon.mjs 1
+# ★★[COUPON_GATE_1116 2026-11-16 대표님 17:41 «쿠폰(우리 비용)이 진행 안 하는 팀에 헛되이 나간다 · 식중까지면 한 팀 두 장 · 화면 번호가 두 겹»] 쿠폰 문 —
+#   번호는 큰 단계에만 · 안쪽 길은 번호 없는 고르는 카드 둘(처음 둘 다 안 눌림 · 고른 카드만 [SEL_ONE] · 다음 행동은 그 안) · 고르기 = pvSave op way(메타 m.way · 시트 열 그대로) ·
+#   식중 요청 · 관리자 넣기는 식순 확정(tracks.ritual 완료 · 순서 마감 예식 14일 전) 뒤만 · 한 영상 한 번(이미 요청 · 이미 받음 · 회수 뒤 거절) · 확인은 화면 안 칸 ·
+#   «직접 준비하기» · 식순에서 식중 뺌 = 발급 전 요청 거둠 · 발급 뒤 뺌 = 회수 줄 — scripts/audit/fm-coupon.mjs ⑥ 이 잰다(깨 보기 14건 빨강 확인)
+chk 'COUPON_GATE_1116' mypage.html 8
+chk 'COUPON_GATE_1116' automation/platform/89_prevideo.gs 8
+chk 'COUPON_GATE_1116' automation/admin/admin.gs 2
+chk 'COUPON_GATE_1116' admin.html 3
+chk 'COUPON_GATE_1116' scripts/audit/fm-coupon.mjs 5
+chk "if (op === 'req' && kind === 'mid' && !_pvRitOk_(cust)) return { ok: false, ecode: 'S0', error: '식순을 확정하면 쿠폰을 요청할 수 있어요' };" automation/platform/89_prevideo.gs 1
+chk "if (kind === 'mid' && (_mvOn_(cust).on !== true || !_pvRitOk_(cust))) return { ok: false, error: '식순 확정 전이에요 · 식순에 식중 영상이 확정된 뒤 보내 주세요.' };" automation/admin/admin.gs 1
+chk "if (c.at && c.revoked) return 'used';" automation/platform/89_prevideo.gs 1   # 한 편에 한 장 — 회수 뒤 다시 요청 못 함
+chk "function _pvcCpnOpen(){ var F=PVCFLOW; return F.way==='fm' && (F.kind!=='mid' || F.rok===true); }" mypage.html 1
+chk '쿠폰은 영상 한 편에 한 장이에요 · 받은 뒤 진행하지 않아도 다시 드리지 않아요' mypage.html 1
+chk "var PVC_CPN_WAIT='식순을 확정하면 쿠폰을 요청할 수 있어요';" mypage.html 1
+nochk "'① 협력사 필메이커로 만들기" mypage.html   # 옛 두 겹 번호(큰 단계 안 ① ②)
+nochk "(PVC_FEEL_ON?'② ':'')" mypage.html
 if command -v node >/dev/null 2>&1; then _fmc=$(node scripts/audit/fm-coupon.mjs 2>&1); _fmr=$?
   case "$_fmr" in
     0) echo 'ok fm-coupon: 요청 없이 쿠폰 없음 · 요청 → 관리자 줄 · 넣기 → 마이페이지 · 취소 → 회수 줄 · 한 시간 상한' ;;
@@ -5022,7 +5049,7 @@ nochk '중 하나로 준비해 주세요. 쿠폰 · 기본 템플릿은 식전 �
 chk 'VU_SUBS_BAR_1115' mypage.html 4
 # ★[VU_MID_HERO_1115 2026-11-15 22:58 대표님 «좋아요»] 식중 첫 화면 결과 먼저 한 컷 = 영상 방 mid-final(37c319f9) 640 webp · 파일과 자리 둘 다(video-umbrella ⑥ 이 실제로 뜨는지 잰다)
 #   23:12 대본 정정 — 대표님이 붓결 · 왼쪽 위 화면 틀을 고치라 해 영상 방이 다시 그린다 · 자리 · 코드만(mid:'') · 그림이 들어오면 아래 줄을 chk 로 되돌린다
-chk 'VU_MID_HERO_1115' mypage.html 1
+# ★[NO_SCENE_PIC_1116 · RULES_SLIM ⑧] 옛 chk 'VU_MID_HERO_1115' mypage.html 1 은퇴 — NO_SCENE_PIC_1116(대표님 11/16 17:36)이 상영 영상 안쪽 장면 그림(PVC_HERO)을 걷어 뒤집음 · 아래 grep 줄은 자리가 없으면 건너뛴다
 grep -q "mid:'/assets/video/moments/midvideo-640.webp'" mypage.html && { [ -f assets/video/moments/midvideo-640.webp ] || { echo 'FAIL VU_MID_HERO_1115: 자리는 그림을 가리키는데 assets/video/moments/midvideo-640.webp 없음'; fail=1; }; }
 nochk "_pvcThree()+'<div class=\"pvc-subs\">" mypage.html 0
 chk "h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode=\"upload\"'), '<div class=\"pvc-subs\">.*');   // \[PV_ONE_WAY_1107\]" mypage.html 1   # [VU_SUBS_BAR_1115] 큰 단추 하나 + 그 위 보조 길 한 줄
