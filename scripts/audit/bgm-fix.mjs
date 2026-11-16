@@ -33,7 +33,7 @@ const TITLES = { B01: '바다가 보이는 마을', B05: '인생의 회전목마
 { const got = {}; Object.keys(WANT).forEach((s) => { got[s] = P.list(s).map((x) => x.f).join(' '); });
   ok('A1 곡 표 그대로 — 10구간 · 위가 1순위(2026-11-01 표 · PICKS_THREE_1101 · GHIBLI_ADD_1101)', Object.keys(WANT).every((s) => got[s] === WANT[s]) && !P.PICKS.M4S5 && !P.PICKS.M4S6 && P.list('M4S5').map((x) => x.f).join(' ') === WANT.M4, got);   /* [ONE_FLOW_1106] 8구간(M4S5 · M4S6 걷음 · 옛 이름은 M4 로 읽힌다) */
   const ids = Object.keys(P.SONGS);
-  ok('A1 곡 33 · 번호 B01 ~ B34 에서 B08 은 비움(다시 쓰지 않음) · 뺀 9곡 말고는 다 어딘가(목록 · fill)에 쓰인다 · 곡 이름 표와 같다', ids.length === 33 && !P.SONGS.B08 && ids.join() === Array.from({ length: 34 }, (_, i) => 'B' + String(i + 1).padStart(2, '0')).filter((f) => f !== 'B08').join() && ids.every((f) => GONE.includes(f) !== (Object.values(WANT).some((w) => w.split(' ').includes(f)) || Object.values(P.FILL).some((x) => x.includes(f)))) && Object.keys(TITLES).every((f) => P.SONGS[f].t === TITLES[f]), ids);
+  ok('A1 곡 38 · 번호 B01 ~ B39 에서 B08 은 비움(다시 쓰지 않음) · 뺀 9곡 말고는 다 어딘가(목록 · fill)에 쓰인다 · 곡 이름 표와 같다 [SONGS_5_1115 B35 ~ B39 = fill]', ids.length === 38 && !P.SONGS.B08 && ids.join() === Array.from({ length: 39 }, (_, i) => 'B' + String(i + 1).padStart(2, '0')).filter((f) => f !== 'B08').join() && ids.every((f) => GONE.includes(f) !== (Object.values(WANT).some((w) => w.split(' ').includes(f)) || Object.values(P.FILL).some((x) => x.includes(f)))) && Object.keys(TITLES).every((f) => P.SONGS[f].t === TITLES[f]), ids);
   ok('A1 사진 칸(M6P)은 비웠다 — 닫는 인사 곡이 잇는다', P.list('M6P').length === 0);
   const v = ids.filter((f) => P.SONGS[f].vocal);
   ok('A2 보컬 곡 = B04 · B20 · B22 · B25 · B28 · B29(vocal: true)', v.join() === VOCAL.join(), v);

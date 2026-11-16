@@ -60,7 +60,7 @@ ok(/식전 영상 제작·상영/.test(priv), '이용 목적에 «식전 영상 
 ok(/식전 영상은 예식 후 <strong>6개월 이내<\/strong> 파기/.test(priv), '보관 «예식 후 6개월 이내 파기»');
 const pvFrom = (gs.match(/from: '(\d{4}-\d{2}-\d{2})'/) || [])[1], top = (priv.match(/개정 시행일자 · (\d{4})\.(\d{2})\.(\d{2})/) || []).slice(1, 4).join('-');
 ok(!!pvFrom && !!top && top >= pvFrom, `서버 시행일(${pvFrom}) ≤ 처리방침 맨 위 개정 시행일(${top})`);
-ok(blk.indexOf('privacy.html#prevideo') > -1, '동의 판의 처리방침 줄이 #prevideo 를 가리킨다');
+ok(blk.indexOf('privacy.html#prevideo') > -1 || blk.indexOf("privacy.html#'+(PVCFLOW.kind==='mid'?'midvideo':'prevideo')") > -1, '동의 판의 처리방침 줄이 #prevideo 를 가리킨다(식중은 #midvideo · [MID_OPEN_1114])');
 
 console.log('━━ ④ 정직한 화면');
 ok(blk.indexOf('알려 드려요') < 0, '«알려 드려요» 없음 — 알림은 1차에 없다');
