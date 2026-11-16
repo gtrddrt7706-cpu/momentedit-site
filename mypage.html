@@ -2317,9 +2317,6 @@ button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .pvc-now-k{font-family:var(--serif-ko);font-size:11px;letter-spacing:.06em;color:var(--gold-deep)}
 .pvc-now b{font-family:var(--serif-ko);font-size:14px;font-weight:500;line-height:1.5;color:var(--accent);word-break:keep-all}
 .pvc-now-d{font-weight:400;color:var(--sub);white-space:nowrap}
-.pvc-hero{margin:0 0 18px}
-.pvc-hero img{display:block;width:100%;max-width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;background:var(--bg2)}
-.pvc-hero figcaption{margin-top:7px;font-family:var(--serif-ko);font-size:12px;color:var(--sub)}
 .pvc-feel.pvc-3{margin:0 0 4px}
 .pvc-feel.pvc-3 li{padding-bottom:14px}
 .pvc-feel.pvc-3 .pvc-feel-lk{display:inline-flex;align-items:center;min-height:44px;padding:0;color:var(--gold-deep);text-decoration-color:currentColor}
@@ -12123,7 +12120,7 @@ var PVC_FEEL_PICKS=[];   // [PV_FEEL_1106] 우리 톤에 맞춰 고른 템플릿
    ③ 식중은 처음부터 «선택 사항 · 제작비는 두 분 부담»(_mvcCond · 열기 전에 보이는 머리 한 줄 · [SPEECH_SONG_1115] «축사 대신 상영»은 걷었다 — 식중 영상은 따로 넣고 뺀다)
    ④ 한 화면 한 행동 — 진사 단추는 «이 영상으로 확정» 하나 · 상자 안 상자 없이 가는 선과 여백으로만(링크 칸 · 다시 보내기)
    기능(올리기 · 저장 · 확정 · GAS)은 그대로 — 화면 글과 모양만. 검사 scripts/audit/video-umbrella.mjs ⑥ */
-var PVC_HERO={ pre:'/assets/video/moments/prevideo-640.webp', mid:'/assets/video/moments/midvideo-640.webp' };   // [VIDEO_UMBRELLA_1115] 결과 먼저 한 컷 — 식전 = 식순 화면에 쓰는 «식전 영상» 순간 그림(승인됨 · 대본 «식전 C3» 받으면 갈아 끼움) · ★[VU_MID_HERO_1115 2026-11-15 22:58 대표님 «좋아요» → 23:12 보류(붓결 · 왼쪽 위 화면 틀 고친 판을 영상 방이 다시 그림)] 지금은 빈칸(그 자리 없이 단계 셋부터) · 고친 판이 오면 이 칸에 '/assets/video/moments/midvideo-640.webp' 한 줄 + 그 파일 · 옛 판 = 영상 방 mid-final(사이트 claude/dn-review-shots 37c319f9 docs/handoff/scene17-g0/final/mid-final.png → 640×360 webp · 식전과 같은 크기) · 이름 midvideo 는 식순 순간 영상 이름(VIDEO_READY)이 아니라 영상 방 파일(free-*)과 겹치지 않는다 · 캡션은 _pvcHero 가 «예식 날 식중 영상이 상영되는 모습(그림)»으로 만든다
+/* ★[NO_SCENE_PIC_1116 2026-11-16 대표님 17:36 «저건 그냥 디자인용 그림인데, 마치 저렇게 진짜 한다는 식으로 이해할 것 같아»] 상영 영상 안쪽 화면(식전 · 식중)의 장면 그림(PVC_HERO)과 «그림» 캡션을 걷었다 — 큰 스크린 · 연회장 · 하객석을 그린 그림은 실제 공간 · 배치로 읽힌다 · 식순 빌더 순간 카드 그림은 그대로 · ★되살리지 말 것(금지 — 2026-11-16 사용자 지시로 삭제) */
 function _pvcNowDo(){ var F=PVCFLOW, s=F.scr||'start';
   if(s==='start') return (F.kind==='mid'&&F.on!==true)?'식순에 넣을지 정하기':'영상 링크 보내기';
   if(s==='feel') return '필메이커에서 영상 만들기';
@@ -12139,11 +12136,9 @@ function _pvcNow(){   // [VIDEO_UMBRELLA_1115] 날짜는 준비 목록 머리 �
     return '<div class="pvc-now"><p><span class="pvc-now-k">확정</span><b>'+(ca?escapeHtml(ca)+' 확정했어요':'확정했어요')+'</b></p>'+(t&&!(l!=null&&l<0)?'<p><span class="pvc-now-k">바꿀 수 있는 때</span><b>'+escapeHtml(t.replace(' 23:59',''))+'까지</b></p>':'')+'</div>'; }
   return '<div class="pvc-now"><p><span class="pvc-now-k">지금 하실 일</span><b>'+escapeHtml(d)+'</b></p>'
     +(t?'<p><span class="pvc-now-k">확정 기한</span><b>'+escapeHtml(t.replace(' 23:59',''))+(l!=null?('<span class="pvc-now-d"> · '+(l<0?'지남':(l===0?'오늘':'D-'+l))+'</span>'):'')+'</b></p>':'')+'</div>'; }
-function _pvcHero(){ var u=PVC_HERO[PVCFLOW.kind==='mid'?'mid':'pre']; if(!u) return '';
-  return '<figure class="pvc-hero"><img src="'+escapeHtml(u)+'" alt="예식 날 하객이 영상을 보는 모습(그림)" loading="lazy" decoding="async"><figcaption>예식 날 '+_pvcNm()+'이 상영되는 모습(그림)</figcaption></figure>'; }
 function _pvcThree(){ var mid=PVCFLOW.kind==='mid';
   return '<ol class="pvc-feel pvc-3">'
-    +'<li><b>영상 준비</b><span>'+(mid?('식순에 정한 길이는 '+(+PVCFLOW.len||3)+'분이에요. '):'')+'세 가지 중 편한 길로 준비해 주세요.</span>'+_pvcWays()+'</li>'   /* ★[FM_COUPON_1116] 고를 길 셋(협력사 필메이커 · 다른 곳 · 직접) — 옛 한 문장 «필메이커 템플릿(쿠폰으로 무료) · 업체 제작 · 직접 만든 영상 중 하나로» · ★[VU_COUPON_ONCE_1115] 쿠폰 · 비용 말은 이 걸음 안 한 곳(①)에만 */
+    +'<li><b>영상 준비</b><span>'+(mid?('식순에 정한 길이는 '+(+PVCFLOW.len||3)+'분이에요. '):'')+(PVC_FEEL_ON?'두 가지 중 편한 길로 준비해 주세요.':'')+'</span>'+_pvcWays()+'</li>'   /* ★[TWO_WAY_1116 2026-11-16 대표님 17:34 «② 다른 곳에 맡기기 · ③ 직접 만든 영상 — 우리 입장에서 같은 거잖아»] 길 둘(① 협력사 필메이커 · ② 직접 준비하기) · 필메이커 길을 거두면 고를 것이 없어 이 문장도 없다 · 옛 «세 가지 중» 되살리지 말 것 · ★[FM_COUPON_1116] 옛 고를 길 셋(협력사 필메이커 · 다른 곳 · 직접) — 옛 한 문장 «필메이커 템플릿(쿠폰으로 무료) · 업체 제작 · 직접 만든 영상 중 하나로» · ★[VU_COUPON_ONCE_1115] 쿠폰 · 비용 말은 이 걸음 안 한 곳(①)에만 */
     +'<li><b>영상 보내기</b><span>원본 파일을 받을 수 있는 링크 하나면 돼요.</span></li>'
     +'<li><b>확인</b><span>스튜디오가 재생을 확인하면 이 화면에서 보고 확정해요.</span></li></ol>'; }   /* [GPT 3-c · 4-③] 걸음 이름 = 다음 화면 진행 표시(영상 보내기 · 확인)와 같은 말 · 진행 표시 이름은 네 글자 안([WZ_STEPS])이라 이쪽을 맞췄다 */
 /* ★★[FM_COUPON_1116 2026-11-16 대본 15:55 · 대표님 13:07 «상영 영상 안에서 협력사 필메이커 쿠폰은 무료 · 쿠폰은 요청한 분께만(진행 안 하면 안 나간다) · 협력사라고 알려 주기 · 안 쓰면 다른 곳 결제나 직접 만든 영상 링크»]
@@ -12161,8 +12156,7 @@ function _pvcCpnX(){ var st=(PVCFLOW.cpn||{}).st;   /* [FM_COUPON_1116] 취소�
 function _pvcWays(){
   var h='<div class="pvc-ways">';
   if(PVC_FEEL_ON) h+='<div class="pvc-way"><p class="pvc-way-h">① 협력사 필메이커로 만들기</p><p class="pvc-way-t">필메이커는 저희 협력사예요. 템플릿 이용 쿠폰은 무료예요. 제작 대행 · USB 같은 추가는 두 분 부담이에요.</p>'+_pvcCpnHtml()+'<div class="pvc-way-acts">'+_pvcFeelIn('link')+_pvcCpnX()+'</div></div>';
-  h+='<div class="pvc-way"><p class="pvc-way-h">'+(PVC_FEEL_ON?'②':'①')+' 다른 곳에 맡기기</p><p class="pvc-way-t">비용은 두 분 부담이에요.</p></div>'
-    +'<div class="pvc-way"><p class="pvc-way-h">'+(PVC_FEEL_ON?'③':'②')+' 직접 만든 영상</p><p class="pvc-way-t">다 만든 영상은 아래 «영상 올리기»로 링크를 보내 주세요.</p></div>';
+  h+='<div class="pvc-way"><p class="pvc-way-h">'+(PVC_FEEL_ON?'② ':'')+'직접 준비하기</p><p class="pvc-way-t">다른 곳에 맡기거나 직접 만든 영상도 좋아요. 비용은 두 분 부담이고, 다 되면 아래 «영상 올리기»로 링크를 보내 주세요.</p></div>';   /* ★[TWO_WAY_1116 2026-11-16 대표님 17:34] 옛 ② 다른 곳에 맡기기 · ③ 직접 만든 영상을 한 길로(두 분 쪽에서 하는 일이 같다 · 링크로 보낸다) · 길이 하나뿐이면 번호 없이 · 되살리지 말 것 */
   return h+'</div>'; }
 function _pvcCpnGo(op){ var F=PVCFLOW; if(F._cpnBusy) return; F._cpnBusy=true;
   var body={action:op==='req'?'pvCpnReq':'pvCpnCancel', token:getToken()}; if(F.kind==='mid') body.kind='mid';
@@ -12182,7 +12176,7 @@ function _pvcStart(){
      필메이커는 갈래가 아니라 그 위 안내 한 줄(_pvcFeelIn · 누르면 안내 화면 → 끝에서 같은 올리기 화면). «필메이커에서 만들기 / 준비한 영상 올리기» 두 칸을 되살리지 말 것.
      서버는 그대로다 — 필메이커 안내는 저장하지 않는 화면이고, 옛 저장값(방식 make · upload)은 읽기만 한다(_pvcMakeGone · PN07). */
   h+='<p class="pvc-eye">PRE-CEREMONY FILM</p><h2 class="pvc-h">식전 영상을 보내 주세요</h2><p class="pvc-sub pvc-when">여는 멘트 뒤, 입장 전에 한 번 상영해요.</p>';
-  h+=_pvcNow()+_pvcHero()+_pvcThree();   // [VIDEO_UMBRELLA_1115] 지금 할 일 · 결과 먼저 · 단계 셋(필메이커 안내는 «영상 준비» 걸음 안 «만드는 법 보기»)
+  h+=_pvcNow()+_pvcThree();   // [VIDEO_UMBRELLA_1115] 지금 할 일 · 결과 먼저 · 단계 셋(필메이커 안내는 «영상 준비» 걸음 안 «만드는 법 보기»)
   h+='<div class="pvc-foot">'+_pvcNeed(_pvcMakeGone())+_pvcNeed(_pvcClash(PVCFLOW.st, PVCFLOW.conf))+_pvcDots([/* [FM_COUPON_1116] 옛 «템플릿 비용 포함 · 추가 옵션 별도»는 «영상 준비» ① 한 줄로(같은 말 두 번 금지) */ _pvcConfLine(), _pvcDueLine(_pvcConfLine()?'':'기한까지 확정하지 않으면 영상 없이 진행해요.')])+'</div>';   // [PV_STATE_1106 M21] 템플릿 비용과 추가 옵션을 나눠 말한다 · M06 «사용하지 않기»인데 식순에 영상이 있으면 한 줄
   h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode="upload"'), '<div class="pvc-subs"><button type="button" class="pvc-lk" data-pvcop="later">나중에 준비하기</button><button type="button" class="pvc-lk" data-pvcop="off">사용하지 않기</button></div>');   // [PV_ONE_WAY_1107] 큰 단추 하나
   /* ★[VU_SUBS_BAR_1115 2026-11-15 대본 «단추 뒤로 걸리지 않게 · 단추 위 한 줄 확보» · 릴스 점검 B] 보조 길 둘은 아래 막대 안 단추 바로 위 한 줄 —
@@ -12200,7 +12194,7 @@ function _mvcStart(){
   var F=PVCFLOW, on=F.on===true, h='';
   h+='<p class="pvc-eye">MID-CEREMONY FILM</p><h2 class="pvc-h">'+(on?'식중 영상을 보내 주세요':'식중 영상을 넣을까요?')+'</h2><p class="pvc-sub pvc-when">식순 「식중 영상」 자리(축사 · 축가 뒤 · 편지 앞)에서 상영해요.</p>'+_mvcCond(on)+_pvcNow();   // [VIDEO_UMBRELLA_1115] 열기 전에 «선택 사항 · 제작비 두 분»([SPEECH_SONG_1115]) · 지금 할 일
   if(on){
-    h+=_pvcHero()+_pvcThree();   // [VIDEO_UMBRELLA_1115] 결과 먼저(그림이 승인되면) · 단계 셋   // [MID_FEEL_1107] 만드는 길 안내 · [PV_ONE_WAY_1107] 식전과 같은 한 줄
+    h+=_pvcThree();   // [VIDEO_UMBRELLA_1115] 결과 먼저(그림이 승인되면) · 단계 셋   // [MID_FEEL_1107] 만드는 길 안내 · [PV_ONE_WAY_1107] 식전과 같은 한 줄
     h+='<div class="pvc-foot">'+_pvcNeed(_pvcClash(F.st, F.conf))+_pvcDots(['길이는 「식순」에서 바꿀 수 있어요', _pvcDueLine('기한까지 확정하지 않으면 영상 없이 진행해요.')])   /* [GPT 3-2] «식순에 정한 길이 · n분»은 «영상 준비» 걸음 안으로(만들기 전에 읽히게) */+'</div>';
     h+=_pvcBar('', _pvcBtn('영상 올리기','data-pvcmode="upload"'), '<div class="pvc-subs"><button type="button" class="pvc-lk" data-mvcrit>식순에서 빼기</button></div>');   // [MID_VIDEO_1106 · 검토 1604] 꺼짐 · 켜짐 같은 틀(아래 막대 단추 하나) · [VU_SUBS_BAR_1115] 보조 길은 식전과 같이 단추 위 한 줄
     return h;

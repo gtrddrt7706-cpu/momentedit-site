@@ -5,7 +5,7 @@
    ② 요청 → 관리자 줄(협력사쿠폰 · 제휴 확정 전) · 같은 요청 두 번 = 한 번 · 식중은 식순에 담긴 때만 · 사용하지 않기면 거절
    ③ 넣기 → 마이페이지에 코드(또는 링크) · 회수 · 취소 흐름(발급 전 취소 = 요청 거둠 · 발급 뒤 취소 = 회수 줄 → 회수하면 코드 지움)
    ④ 한 시간 상한(cpnHour) · 닫힌 고객은 줄 없음
-   ⑤ 마이페이지 — 세 길(협력사 필메이커 · 다른 곳 · 직접) · 상태별 글 · 식중 비용 말 «쿠폰으로 기본 템플릿 무료 · 추가는 두 분 부담»
+   ⑤ 마이페이지 — 두 길(협력사 필메이커 · 직접 준비하기 [TWO_WAY_1116] · 옛 세 길) · 상태별 글 · 식중 비용 말 «쿠폰으로 기본 템플릿 무료 · 추가는 두 분 부담»
    종료 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -118,7 +118,8 @@ vm.createContext(ctx); vm.runInContext(fnSrc(my, '_pvcCpnHtml') + '\n' + fnSrc(m
 const html = (cpn, kind) => { ctx.PVCFLOW = { cpn, kind: kind || 'mid' }; return vm.runInContext('_pvcWays()', ctx); };
 const strip = (h) => h.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 let h = html({ st: 'none' });
-ok(/① 협력사 필메이커로 만들기/.test(strip(h)) && /필메이커는 저희 협력사예요/.test(h) && /템플릿 이용 쿠폰은 무료예요/.test(h) && /제작 대행 · USB 같은 추가는 두 분 부담이에요/.test(h) && /② 다른 곳에 맡기기/.test(strip(h)) && /비용은 두 분 부담이에요/.test(h) && /③ 직접 만든 영상/.test(strip(h)) && /영상 올리기/.test(h), '⑤ 세 길 — ① 협력사(쿠폰 무료 · 추가는 두 분) ② 다른 곳(두 분 부담) ③ 직접(아래 «영상 올리기»)', strip(h));
+{ const st = strip(h), two = /② 직접 준비하기/.test(st) && st.includes('다른 곳에 맡기거나 직접 만든 영상도 좋아요. 비용은 두 분 부담이고, 다 되면 아래 «영상 올리기»로 링크를 보내 주세요.') && !st.includes('③') && !st.includes('다른 곳에 맡기기');   // [TWO_WAY_1116]
+  ok(/① 협력사 필메이커로 만들기/.test(st) && /필메이커는 저희 협력사예요/.test(h) && /템플릿 이용 쿠폰은 무료예요/.test(h) && /제작 대행 · USB 같은 추가는 두 분 부담이에요/.test(h) && two, '⑤ [TWO_WAY_1116] 두 길 — ① 협력사(쿠폰 무료 · 추가는 두 분) ② 직접 준비하기(다른 곳 · 직접 · 두 분 부담 · 아래 «영상 올리기») · ③ 없음', st); }
 ok(/data-pvccpn="req">쿠폰 요청하기</.test(h) && !/쿠폰 코드/.test(h) && !/data-pvccpncopy/.test(h), '⑤ 요청 전 = «쿠폰 요청하기» 단추만(코드 없음)', strip(h));
 h = html({ st: 'req', req: 'x' });
 ok(/요청했어요 · 디렉터가 쿠폰을 보내 드려요/.test(h) && /data-pvccpn="cancel">요청 취소</.test(h) && !/data-pvccpn="req"/.test(h) && !/쿠폰 코드/.test(h), '⑤ 요청 뒤 = «요청했어요 · 디렉터가 쿠폰을 보내 드려요» + 요청 취소', strip(h));
@@ -127,7 +128,7 @@ ok(/쿠폰 코드/.test(h) && /FM-1&lt;2&gt;/.test(h) && /data-pvccpncopy>복사
 h = html({ st: 'issued', code: '', link: 'https://feelmaker.example/c' });
 ok(/href="https:\/\/feelmaker\.example\/c"[^>]*>쿠폰 받기</.test(h) && !/data-pvccpncopy/.test(h), '⑤ 링크로 받은 쿠폰 = «쿠폰 받기» 링크', strip(h));
 ctx.PVC_FEEL_ON = false; h = html({ st: 'issued', code: 'X' });
-ok(!/필메이커|쿠폰/.test(h) && /① 다른 곳에 맡기기/.test(strip(h)), '⑤ 필메이커 길을 거두면(PVC_FEEL_ON false) 쿠폰 말 · 단추 0', strip(h));
+ok(!/필메이커|쿠폰/.test(h) && /^직접 준비하기 /.test(strip(h)) && !/[①②③]/.test(h), '⑤ 필메이커 길을 거두면(PVC_FEEL_ON false) 쿠폰 말 · 단추 0', strip(h));
 ok(strip(vm.runInContext('_mvcCond(true)', ctx)) === '선택 사항 제작비는 두 분 부담', '⑤ 길을 거둔 날 식중 머리 줄은 옛 말 그대로', strip(vm.runInContext('_mvcCond(true)', ctx)));
 ctx.PVC_FEEL_ON = true;
 ok(strip(vm.runInContext('_mvcCond(true)', ctx)) === '선택 사항 쿠폰으로 기본 템플릿 무료 추가는 두 분 부담', '⑤ 식중 머리 조건 줄 «선택 사항 · 쿠폰으로 기본 템플릿 무료 · 추가는 두 분 부담»', strip(vm.runInContext('_mvcCond(true)', ctx)));

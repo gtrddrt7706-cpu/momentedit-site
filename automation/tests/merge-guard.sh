@@ -4887,6 +4887,14 @@ nochk "html:row('식전 영상', _pvR.st, 'mp_pvcStart'" mypage.html   # 깨 보
 nochk 'class="trk vu-head"' mypage.html   # 옛 머리 줄
 chk 'UMBRELLA_ROW_1116' scripts/audit/video-umbrella.mjs 3
 chk 'UMBRELLA_ROW_1116' scripts/audit/prevideo-cat.mjs 2
+# ★[TWO_WAY_1116 2026-11-16 대표님 17:34 «② 다른 곳에 맡기기 · ③ 직접 만든 영상 — 우리 입장에서 같은 거잖아»] «영상 준비» 길은 둘(① 협력사 필메이커 · ② 직접 준비하기)
+nochk '세 가지 중 편한 길로 준비해 주세요' mypage.html
+nochk ' 다른 곳에 맡기기</p>' mypage.html
+chk '직접 준비하기</p><p class="pvc-way-t">다른 곳에 맡기거나 직접 만든 영상도 좋아요. 비용은 두 분 부담이고, 다 되면 아래 «영상 올리기»로 링크를 보내 주세요.' mypage.html 1
+# ★[NO_SCENE_PIC_1116 2026-11-16 대표님 17:36 «디자인용 그림인데 진짜 저렇게 한다고 이해할 것 같아»] 상영 영상 안쪽 화면의 장면 그림 · «(그림)» 캡션 금지(식순 빌더 순간 카드 그림은 그대로)
+nochk 'class="pvc-hero"' mypage.html
+nochk '상영되는 모습(그림)' mypage.html
+nochk '_pvcHero()' mypage.html
 # ★★[FM_COUPON_1116 2026-11-16 대본 15:55 · 대표님 13:07 «상영 영상 안에서 협력사 필메이커 쿠폰은 무료 · 요청한 분께만(진행 안 하면 안 나간다) · 협력사라고 · 안 쓰면 다른 곳 결제나 직접 만든 영상 링크»]
 #   «영상 준비» 걸음 안 세 길(① 협력사 필메이커 · 쿠폰 요청 ② 다른 곳 ③ 직접) · 쿠폰 상태 = 시트 «식전영상» 메타 m.cpn(열 추가 없음) · 요청 pvCpnReq · 취소 pvCpnCancel(_gsr_ · 한 시간 상한) ·
 #   관리자 «처리할 일» 협력사쿠폰 · 협력사쿠폰회수(제휴 확정 전 표시) · 넣기 · 회수 adminPvCoupon(_requireAdmin · 요청한 줄만) — scripts/audit/fm-coupon.mjs 가 서버 · 큐 · 화면 글을 잰다
