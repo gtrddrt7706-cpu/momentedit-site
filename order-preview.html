@@ -9778,7 +9778,7 @@ function _pvDraw(){
     var m=el.querySelector('#pvM'), _fy=_vfyN(v); if(_fy==null) m.style.removeProperty('--fy'); else m.style.setProperty('--fy',_fy+'%');   /* [CINE_SCOPE] 장면마다 자르는 높이 */
     m.innerHTML=_af?('<img class="pv-still" src="'+esc(_afterImg())+'" alt="" decoding="async">'):v?('<img class="pv-still" src="'+esc(v.small||v.poster)+'"'+_vrA(v)+' alt="" decoding="async"><video class="pv-v" muted playsinline preload="auto" src="'+esc(v.mp4)+'"></video>'):_pkArt(k,!_rm());   /* [PV_STILL_FIRST] 칸이 받아 둔 첫 장면부터 · 영상은 돌기 시작하면 위로 */   /* ★[AI_LABEL_OFF 2026-10-03 사장님] 그림 위 «AI로 만든 장면이에요 · 사람과 옷은 실제와 달라요» 금지 — 2026-10-03 사용자 지시로 삭제 */
     var vd=m.querySelector('video');
-    if(vd){ var sv=m.querySelector('.pv-still'); if(v.small&&v.poster&&v.small!==v.poster){ var big=new Image(); big.src=v.poster; (big.decode?big.decode():new Promise(function(r,j){ big.onload=r; big.onerror=j; })).then(function(){ if(sv&&sv.isConnected&&!sv.hasAttribute('data-first')) sv.src=v.poster; },function(){});   /* [VID_REST_END] 이미 끝 장면이면 두지 않는다 */ }   /* [PV_STILL_FIRST] 큰 표지가 오면 또렷한 것으로 바꿔 끼운다(같은 장면이라 티가 안 난다) */
+    if(vd){ var sv=m.querySelector('.pv-still'); if(v.small&&v.poster&&v.small!==v.poster){ var big=new Image(), _bigGo=function(){ if(big.src) return; big.src=v.poster; (big.decode?big.decode():new Promise(function(r,j){ big.onload=r; big.onerror=j; })).then(function(){ if(sv&&sv.isConnected&&!sv.hasAttribute('data-first')) sv.src=v.poster; },function(){}); }; if(_rm()||(navigator.connection&&navigator.connection.saveData)||vd.readyState>=4) _bigGo(); else { ['canplaythrough','ended','error'].forEach(function(t){ vd.addEventListener(t,_bigGo,{once:true}); }); setTimeout(_bigGo,8000); }   /* ★[PV_BUF_1115 EVENT_VIDEO_STUTTER] 큰 표지(약 75KB)는 영상이 넉넉히 받은 뒤 — 느린 4G 에서 영상과 같은 줄을 나눠 쓰며 끊김을 키웠다 */   /* [VID_REST_END] 이미 끝 장면이면 두지 않는다 */ }   /* [PV_STILL_FIRST] 큰 표지가 오면 또렷한 것으로 바꿔 끼운다(같은 장면이라 티가 안 난다) */
       /* [PV_STILL_FIRST] 첫 장면 위로 영상이 겹친다 · 움직임 줄이기 · 데이터 절약이면 돌지 않으니 첫 장면 사진이 그대로 남는다 · [VID_REST_THUMB] 켜고 끄기는 _vidRest 한 곳(돌면 .on · 멈추거나 끝나면 사진으로) */
     }
     if(vd) vd.setAttribute('aria-hidden','true');   /* ★① 창 영상 누르기 · Enter 로 멈춤/다시(tv · tabindex · «누르면 멈춤 · 다시» 이름) 금지 — 2026-10-03 사용자 지시로 삭제 [VID_AUTO_ONLY] · 창을 열 때와 «다시 듣기»(그 순간을 소리와 함께 다시)에만 돈다(_pvPlay) */
@@ -9880,6 +9880,11 @@ function _medMs(a){ var c=a._clk||(a._clk={t:-1,at:0}), t=(a.currentTime||0)*100
   return (a.paused||a.ended||a.readyState<3)?t:t+Math.min(250,(now-c.at)*(a.playbackRate||1)); }
 function _barSet(el,f){ if(el) el.style.transform='scaleX('+Math.max(0,Math.min(1,+f||0)).toFixed(4)+')'; }
 function _pvBar(f){ _barSet(document.getElementById('pvBar'),f); }
+function _pvBuf(vd,tok){   /* ★[PV_BUF_1115 EVENT_VIDEO_STUTTER] 느린 망: 재생 중 waiting 이 오면 멈추고(첫 장면 사진이 덮는다 · _vidRest) 남은 몫을 넉넉히 받은 뒤(canplaythrough · 늦어도 6초) 이어서 — 0.3초씩 여러 번 끊기던 것을 한 번으로 */
+  if(vd._buf) return; vd._buf=1;
+  vd.addEventListener('waiting',function(){ if(tok!==PV.tok||vd.ended||vd._hold) return; var ahead=0; try{ for(var i=0;i<vd.buffered.length;i++){ if(vd.buffered.start(i)<=vd.currentTime+0.05) ahead=vd.buffered.end(i)-vd.currentTime; } }catch(e){} if(ahead>=1.5) return;
+    vd._hold=1; try{ vd.pause(); }catch(e){} var go=function(){ if(!vd._hold) return; vd._hold=0; clearTimeout(t); if(tok!==PV.tok) return; var p=vd.play(); if(p&&p['catch']) p['catch'](function(){}); }, t=setTimeout(go,6000); vd.addEventListener('canplaythrough',go,{once:true}); });
+}
 function _pvStop(){
   PV.tok++; cancelAnimationFrame(PV.raf); PV.raf=0;
   if(PV.au){ try{ PV.au.pause(); PV.au.onended=PV.au.onerror=null; PV.au.volume=1; }catch(e){} }
@@ -9891,7 +9896,7 @@ window._pvPlay=function(){
      종전엔 «if(!ln) return» 이 영상보다 앞에 있어, 대표 한 줄이 없는 순간(케이크 · 대표 줄 없음)과 대표 줄을 못 찾은 순간
      (축배 · WINE_POUR_OFF 뒤 대표 slug 가 없는 줄을 가리켰다)은 창을 열어도 «다시 듣기»를 눌러도 영상이 한 번도 안 돌았다. */
   var vd=document.querySelector('#pvM video'), calm=_rm()||!!(navigator.connection&&navigator.connection.saveData);
-  if(vd){ try{ vd.currentTime=0; }catch(e){} if(!calm){ vd.loop=false; var vp=vd.play(); if(vp&&vp['catch']) vp['catch'](function(){}); } }
+  if(vd){ try{ vd.currentTime=0; }catch(e){} if(!calm){ vd.loop=false; var vp=vd.play(); if(vp&&vp['catch']) vp['catch'](function(){}); _pvBuf(vd,tok); } }
   if(!ln){ return; }
   function done(){ if(tok!==PV.tok) return; _pvBar(1); }   /* ★[PV_VID_ONCE 2026-10-03 사장님 «음성이 끝나도 영상은 계속 진행 · 한 번 재생됐으면 반복이 아니라 멈추게 · 첫 화면에서»] ① 미리보기 영상은 소리와 따로 간다 — 소리가 먼저 끝나도 영상은 끝까지 가고, 반복(loop) 없이 마지막 장면에서 멈춘다(영상 마지막은 동작 완료 상태를 잡아 둔 장면 → ★2026-10-09 [VID_REST_THUMB] 끝나면 썸네일 사진으로 돌아가 그대로). 종전엔 소리 동안 반복하다 소리가 끝나면 그 자리에서 끊었다. 다시 보려면 «다시 듣기» 또는 영상을 누른다 */
   function asText(){ var ms=Math.max(2400,String(ln.text||'').length*160), t0=Date.now();
