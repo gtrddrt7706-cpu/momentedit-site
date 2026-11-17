@@ -53,7 +53,8 @@ const serve = async ({ REAL = null, LONGRE = null, hk = 40 } = {}) => { const HT
     fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': T[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
   await new Promise((r) => srv.listen(0, '127.0.0.1', r)); return { srv, port: srv.address().port }; };
 const ENTRY_REAL = /\/(0[5-9]|10)_entry-[A-F]\.mp3$/;
-const A = await serve({ LONGRE: /narr-entry-arrive|narr-song(?!-(end|out))/ }), Bv = await serve({ REAL: ENTRY_REAL }), Bs = await serve({ REAL: ENTRY_REAL, hk: 5 });   /* Bv = 입장 구호만 실제 소리 · Bs = 그 위에 강조 0:05 곡 */
+const A = await serve({ LONGRE: /narr-entry-arrive|narr-song(?!-(end|out))|_song-(none|who-[a-z]+|self-[a-z]+)\.mp3|_clap-(song|self)\.mp3/ }),   /* ★[ROLE_SHIP_1117] 축가 여는 말 덩이(역할 줄 380 · 370 … + 사슬 박수 382 · 383)도 긴 소리 — 01 은 MR 줄에서 한 줄 앞(박수 줄)으로 돌아가 말 아래를 잰다 */
+      Bv = await serve({ REAL: ENTRY_REAL }), Bs = await serve({ REAL: ENTRY_REAL, hk: 5 });   /* Bv = 입장 구호만 실제 소리 · Bs = 그 위에 강조 0:05 곡 */
 const PAD = require(path.join(ROOT, 'assets/narration-pad.js'));
 let br; try { br = await pw.chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] }); } catch (e) { console.log('못 쟀다 — 브라우저 ' + e.message); [A, Bv, Bs].forEach((x) => x.srv.close()); process.exit(2); }
 const MU = (hk) => ({ src: 'rec', k: 'r5', t: '시험 입장 곡', a: '시험 가수', hook: hk, hooks: [hk], dur: 140 });
@@ -105,10 +106,10 @@ async function arriveBack(key) { const { ctx, f, errs } = await open(A, key); le
 /* 01 — 축가 MR 줄 다시 들어오기(가족 · 본식 피아노가 여는 말 아래로 흐르던 날) */
 async function mrBack(key) { const { ctx, f, errs } = await open(A, key, { mu: 0 }); let r = null;
   try { await start(f, 'flow', ['song'], 1500, { re: '^narr-song$|song', ms: 12000 });
-    await waitNa(f, 'narr-song', 'ended', 0, 90000); await f.waitForTimeout(2600);   /* 저절로 든 MR 줄(1.5초 내림 뒤 정적) */
+    await waitNa(f, '_clap-(song|self)\\.mp3', 'ended', 0, 90000); await f.waitForTimeout(2600);   /* 저절로 든 MR 줄(1.5초 내림 뒤 정적) · ★[ROLE_SHIP_1117] 여는 말 한 덩이의 끝 = 1.25초 사슬 박수(382 · 383) 끝 — 옛 'narr-song' 은 이제 맺는 말(narr-song-end-friend) 파일에 걸린다 · 한 줄 앞 = 박수 줄(여는 말 덩이 · 말 아래) */
     const s0 = await f.evaluate(() => { const c = BgmBed._t.BED.cur; return { k: (LP.q[LP.i] || {}).k, s: (LP.q[LP.i] || {}).slug || (LP.q[LP.i] || {}).of || '', g: c && c.src && c.g ? c.g.gain.value : 0 }; });
     await f.evaluate(() => { lsLine(-1); }); await f.waitForTimeout(1800);
-    const s1 = await f.evaluate(() => { const c = BgmBed._t.BED.cur; return { s: (LP.q[LP.i] || {}).slug || '', want: c && c.src ? c.want : null, g: c && c.src && c.g ? c.g.gain.value : 0 }; });
+    const s1 = await f.evaluate(() => { const c = BgmBed._t.BED.cur; return { s: (LP.q[LP.i] || {}).slug || (LP.q[LP.i] || {}).of || '', want: c && c.src ? c.want : null, g: c && c.src && c.g ? c.g.gain.value : 0 }; });
     const tR = await f.evaluate(() => { lsLine(1); return performance.now(); }); await f.waitForTimeout(2600);
     const d = await stop(f), g2 = gAt(d.o, tR + 2400), at = d.o.filter((x) => x.t > tR + 50 && x.t < tR + 2400);
     r = { onMR: s0, under: { s: s1.s, want: s1.want, db: r1(dB(s1.g)) }, again: { k: (at[0] || {}).k, s: (at[0] || {}).s || (at[0] || {}).of, db24: r1(dB(g2)), downs: d.rp.filter((x) => x.T > tR - 20 && x.v <= 1e-4).length } };

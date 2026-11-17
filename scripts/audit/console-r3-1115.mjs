@@ -102,6 +102,8 @@ async function open(S, opt) {
   const hook = hook0 && await pg.evaluate(() => typeof window.__bgmSt === 'function' && !!window.__bgmGo && !!window.__seg && !!window.__rl && typeof window.__r3i('esdEnd') === 'function');
   const c = { ctx, pg, errs, ok: hook,
     fire: (i) => pg.evaluate((i) => { window.__bgmGo.fire(i); return performance.now(); }, i),
+    /* ★[ROLE_SHIP_1117] 정석(standard) 은 축가 여는 말 뒤 사슬 박수(382)가 한 줄 늘어 18 뒤 번호가 한 칸씩 밀린다 — 끝 쪽은 번호가 아니라 끝에서 센 자리(−1 = 마지막 큐) · 슬러그로 누른다 */
+    fireAt: (sl) => pg.evaluate((sl) => { const cs = window.__r3i('R.cues'), i = typeof sl === 'number' ? cs.length + sl : cs.findIndex((x) => x.slug === sl); if (i < 0) throw new Error('큐 없음 ' + sl); window.__bgmGo.fire(i); return performance.now(); }, sl),
     now: () => pg.evaluate(() => performance.now()),
     on: () => pg.evaluate(() => { window.__rl.smp = []; window.__rl.on = true; }),
     st: () => pg.evaluate(() => window.__seg.st()),
@@ -220,7 +222,7 @@ try {
   for (const FG of ['F', 'G'].filter(want)) {
     const c = await open(SOF('standard'), { files: ['B32', 'B27'] });
     if (!c.ok) { skip(FG + ' — 콘솔 점검 고리를 못 찾았다'); await c.ctx.close(); continue; }
-    await c.on(); await c.fire(30); const g = await c.waitDb('B32', 'v != null && v > -40', 15000); await c.w(4000);
+    await c.on(); await c.fireAt(-1); const g = await c.waitDb('B32', 'v != null && v > -40', 15000); await c.w(4000);
     const pr = await c.pg.evaluate(() => { const x = window.__r3i, B = x('BED'), el = B.el[B.on], X = x('segXf()'), m = x('SEGST').meta[B.id] || {}, end = x('BP').lenOf(B.id, m.end || el.duration); el.currentTime = Math.max(0, end - X - 0.1); return { X, end, id: B.id, seg: B.seg }; });
     await c.w(50); const p0 = (await c.st()).plays, tF = await c.pg.evaluate(() => { window.__bgmGo.fire(window.__r3i('R.cues.length')); return performance.now(); }); await c.w(200);
     if (!g || pr.seg !== 'M8L') skip(FG + ' — 준비(마지막 곡 · 추가 촬영)를 못 만들었다 ' + JSON.stringify(pr));
