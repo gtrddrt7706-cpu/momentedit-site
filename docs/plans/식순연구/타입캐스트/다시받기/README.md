@@ -13,16 +13,9 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_우성.txt | 우성 | 21 | 21 |
-| 2_문정.txt | 문정 | 6 | 3 |
+| 1_문정.txt | 문정 | 6 | 3 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
-
-```
-# 우성 — 21줄 · 21클립
-node scripts/assemble-narration.mjs --in <우성_받은폴더> \
-  --clip =358_bless-one-gf,=359_bless-one-bf,=360_bless-one-gm,=361_bless-one-bm,=362_bless-first-gf,=363_bless-first-bf,=364_bless-first-gm,=365_bless-first-bm,=366_speech-gfr,=367_speech-bfr,=368_speech-gfa,=369_speech-bfa,=370_speech-cfr,=371_song-who-gfr,=372_song-who-bfr,=373_song-who-gfa,=374_song-who-bfa,=375_song-who-cfr,=376_song-self-g,=377_song-self-b,=378_song-self-c
-```
 
 ```
 # 문정 — 6줄 · 3클립
