@@ -24009,7 +24009,7 @@ chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fil
 chk '>왜 평일이 더 자연스러운가</h3>' index.html 1
 chk '30명이 모이는 자리라면 굳이 주말일 이유가 없습니다. 평일은 일정을 맞추기 수월하고, 원하는 날짜를 넉넉히 고를 수 있습니다.</p>' index.html 1
 chk '그렇게 생긴 하루의 여유는, 신혼여행과 부모님을 위한 다이닝으로 자연스럽게 이어집니다.</p>' index.html 1
-nochk '평일 예식은 주말·공휴일보다 80만&nbsp;원 낮습니다.' index.htm
+nochk '평일 예식은 주말·공휴일보다 80만&nbsp;원 낮습니다.' index.html
 
 # ★★[ROLE_SHIP_1117 2026-11-17 대표님 «골랐어» · 대본 엔진 규칙 ① ~ ⑤] «누가» 새 멘트 — 축사 · 축가 여는 말을 역할 줄로 바꾸고 1.25초 사슬 박수 한 줄 · 소리는 테이크 그대로 ×1.0
 chk 'function roleSwapOf(S, slug)' assets/ritual-cue.js 1   # 바꾸기는 한 곳(빌드 끝 · 뒤 붙임 사슬이 같은 답)
@@ -24023,4 +24023,3 @@ chk "'clap-self': \"뜨거운 응원의 박수 부탁드립니다.\"" assets/rit
 nochk '께서 축가를 준비해 주셨습니다."' assets/ritual-cue.js 0   # 옛 «[역할]께서 축가를 준비해 주셨습니다» 사슬(19 뒤)은 걷었다 — 되살리지 말 것
 nochk "'speech-gfr': \"오늘의 축사는요" assets/ritual-cue.js 0   # 옛 긴 역할 축사 글(소리 없이 쉬던 판) 되살리지 않기
 chk 'ROLE_SHIP_1117 · 가이드 우성 카드' "assets/audio/_src/_layers/빠르기표_최종_1109.tsv" 26   # «누가» 새 멘트 18 + 덕담 8(ROLE_BLESS_X1_1117) = 빠르기표 1(테이크 그대로 ×1.0 · 늦추기 · 빠르게 하기 없음)
-l
