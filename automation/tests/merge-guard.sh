@@ -19824,7 +19824,8 @@ chk 'BGM_R5_1023' assets/bgm-form.js 4
 chk 'BGM_R5_1023' assets/entry-music.js 1
 chk 'BGM_R5_1023' scripts/audit/bgm-form.mjs 10
 chk "var TALK = { none: '말씀하시는 동안은 음악 없이 목소리만 들려요', bed: '말씀하시는 동안 잔잔한 연주곡이 아주 작게 흘러요' };" assets/bgm-slots.js 1
-chk "speech: { talk: true, of: /^narr-free-in-speech/, after: 0 }, letter: { talk: true, of: /^letter-/, after: 0 }" assets/bgm-slots.js 1
+chk "speech: { talk: true, of: /^(narr-free-in-speech|clap-speech)/, after: 0 }," assets/bgm-slots.js 1   # ★[ROLE_SHIP_1117] 말씀이 뒤 붙임 박수(381) 큐에 붙는 날도 같은 자리
+chk "letter: { talk: true, of: /^letter-/, after: 0 } };" assets/bgm-slots.js 1
 chk "입장 곡 · 곡 파일을 올려 주시면 맞춰 드려요" assets/bgm-form.js 1
 chk "입장 곡 · 스튜디오가 고른 곡 중에서 골라 주세요" assets/bgm-form.js 1   # [STUDIO_PICK_1023] 칩 이름과 같은 말
 chk "EM.src=function(){ return srcNow(); };" assets/entry-music.js 1
