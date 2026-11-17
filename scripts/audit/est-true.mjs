@@ -41,7 +41,7 @@ const live = (S, re) => { const c = cues(S).filter((x) => x.live && re.test(x.sl
   ok(hug && hug.est === 35, `E2 포옹 ${hug && hug.est} (35 그대로)`);
   ['long', 'none'].forEach((t) => { const p = O.partsOf('tribute', Object.assign(J(BASE), { tributeSay: t })); ok(p[2] === 40, `E2 본식 합 · ${t} 말 없는 시간 ${p[2]} (40)`); }); }
 /* E3 */
-[1, 2, 3].forEach((n) => { const S = Object.assign(J(BASE), { freeLen: String(n) }); delete S.on.song;   /* ★[SPEECH_SONG_1115] 축사 · 축가는 둘 중 하나 — 축사 쪽으로 잰다(BASE 는 둘 다 켜 엔진이 축사를 걷는다) */ const l = live(S, /^narr-free-in-speech$/), p = O.partsOf('free', S);
+[1, 2, 3].forEach((n) => { const S = Object.assign(J(BASE), { freeLen: String(n) }); delete S.on.song;   /* ★[SPEECH_SONG_1115] 축사 · 축가는 둘 중 하나 — 축사 쪽으로 잰다(BASE 는 둘 다 켜 엔진이 축사를 걷는다) */ const l = live(S, /^(narr-free-in-speech|clap-speech)$/)   /* ★[ROLE_SHIP_1117] 축사 여는 말을 역할 줄로 바꾸는 날은 축사(사람 순간)가 뒤 붙임 박수(381) 큐로 옮겨 간다 */, p = O.partsOf('free', S);
   ok(l && l.est === 60 * n + 20, `E3 축사 ${n}분 · ${l && l.est} (${60 * n + 20})`); ok(p[2] === 26, `E3 본식 합 · 축사 걸음 ${p[2]} (26)`); });
 /* E4 */
 ok(/est: 120, showT: '두 분이 정한 만큼'/.test(SRC), 'E4 자유 순서 120 · «두 분이 정한 만큼»');
@@ -52,7 +52,7 @@ ok((CON.match(/c\.live\.showT \|\| fmt\(c\.live\.est\)/g) || []).length === 2, '
   ok(l && l.est === w, `E5 단체 사진 모임 · 하객 ${n == null ? '칸 없음' : n + '명'} · ${l && l.est} (${w})`); });
 /* E6 */
 { const S = J(BASE); const pv = live(S, /^narr-prevideo-in$/); ok(pv && pv.est === 180, `E6 식전 영상 ${pv && pv.est} (180 그대로)`);
-  const sg = live(S, /^narr-song$/), sg0 = live(S, /^narr-song$/); ok(sg && sg.est === sg0.est && sg.est >= 210, `E6 축가 ${sg && sg.est} (그대로)`); }
+  const sg = live(S, /^(narr-song|clap-song|clap-self)$/), sg0 = live(S, /^(narr-song|clap-song|clap-self)$/);   /* ★[ROLE_SHIP_1117] 축가(사람 순간)는 여는 말을 바꾼 날 뒤 붙임 박수(382 · 383) 큐로 */ ok(sg && sg.est === sg0.est && sg.est >= 210, `E6 축가 ${sg && sg.est} (그대로)`); }
 /* E7 · E8 */
 { const syl = (n) => '가'.repeat(n);
   const T = [

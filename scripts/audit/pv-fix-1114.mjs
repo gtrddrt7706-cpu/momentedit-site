@@ -103,8 +103,9 @@ async function arrive(key) { const { ctx, f, errs } = await open(A.port, key); c
 
 /* ② 축가 여는 말 → MR 자리 */
 async function songOpen(key) { const { ctx, f, errs } = await open(A.port, key, { mu: false }); await start(f, 'flow', ['bless', 'free', 'song'], 1500);
-  try { await f.waitForFunction(() => window.__pv.na.some((x) => x.e === 'ended' && /narr-song(?!-(end|out))/.test(x.src)), null, { timeout: 150000, polling: 50 }); await f.waitForTimeout(4200); } catch (e) {}
-  const d = await stop(f), en = d.na.filter((x) => x.e === 'ended' && /narr-song(?!-(end|out))/.test(x.src)).pop(); await ctx.close(); if (!en) return { key, none: true, errs, na: d.na.slice(-6) };
+  /* ★[ROLE_SHIP_1117] 여는 말 한 덩이 = 여는 말(19 · 역할 줄 380 · 370 …) + 1.25초 사슬 박수(382 · 383) — 줄 끝 정적(post 1.5초)은 박수 줄 끝에서 시작한다 · 끝 = 박수가 있으면 박수 끝 */
+  try { await f.waitForFunction(() => window.__pv.na.some((x) => x.e === 'ended' && /_clap-(song|self)\.mp3/.test(x.src)), null, { timeout: 150000, polling: 50 }); await f.waitForTimeout(4200); } catch (e) {}
+  const d = await stop(f), en = d.na.filter((x) => x.e === 'ended' && /_clap-(song|self)\.mp3/.test(x.src)).pop(); await ctx.close(); if (!en) return { key, none: true, errs, na: d.na.slice(-6) };
   const te = en.T, g0 = gAt(d.o, te - 120), pre = d.o.filter((x) => x.t < te - 120).pop() || {}, rps = d.rp.filter((x) => x.T > te - 300 && x.T < te + 2500), dn = rps.filter((x) => x.v <= 1e-4), i0 = (pre.i == null ? -1 : pre.i), nxt = d.o.find((x) => x.t > te && x.i > i0);
   const after = d.o.filter((x) => x.t > te + 2000 && x.k === 'song');
   return { key, errs, preWant: pre.want, preF: pre.f, r09: g0 > 0 ? r1(dB(gAt(d.o, te + 900)) - dB(g0)) : null, r19: g0 > 0 ? r1(dB(gAt(d.o, te + 1900)) - dB(g0)) : null, downs: dn.map((x) => x.m + '/' + x.ms + '@' + Math.round(x.T - te)), ramps: rps.length, ups: rps.length - dn.length, abs09: gAt(d.o, te + 900), gap: nxt ? Math.round(nxt.t - te) : null, afterOn: after.filter((x) => x.f && x.want > -60).length, afterN: after.length }; }

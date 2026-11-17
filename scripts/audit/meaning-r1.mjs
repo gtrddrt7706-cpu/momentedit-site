@@ -85,7 +85,7 @@ const minNode = (S, ks) => { let s = 0; C.build(S, { mode: 'console' }).cues.for
 const K4 = ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter', 'song'], K6 = ['_close', '_photo'];
 
 /* ── 당일 큐 한 표(① 미리 듣기 · 연습 · 콘솔이 같이 읽는다) — 브라우저 없이 ── */
-{ const B2 = (S) => C.build(Object.assign({ course: 'open' }, S), { mode: 'console' }).cues, by = (cs, sl) => cs.find((c) => c.slug === sl) || {}, bi = (cs, sl) => cs.findIndex((c) => c.slug === sl);
+{ const B2 = (S) => C.build(Object.assign({ course: 'open' }, S), { mode: 'console' }).cues, by = (cs, sl) => cs.find((c) => c.slug === sl) || {}, oe = (cs, sl) => { let j = cs.findIndex((c) => c.slug === sl); if (j < 0) return {}; while (cs[j + 1] && cs[j + 1].fire === 'chain' && /^clap-(speech|song|self)$/.test(cs[j + 1].slug || '')) j++; return cs[j]; }, bi = (cs, sl) => cs.findIndex((c) => c.slug === sl);
   const A = B2({ on: { vow: 1, ring: 1, free: 1, song: 1, letter: 1, tribute: 1, toast: 1, table: 1, welcome: 1, declare: 1, matjeol: 1 }, freeWhat: 'speech', song: 'family', songBy: 'friend', tributeSay: 'short' });
   /* 1 · 20 개식사 — 2초 내림 · 3초 앞(정적 1초) · 박수 live 는 정적 위 · 영상이 없는 날도 박수 live */
   const O1 = B2({ on: { prevideo: 0, candle: 1 } }), O2 = B2({ on: { prevideo: 0, candle: 0 } }), o1 = by(O1, 'narr-open'), o2 = by(O2, 'narr-open');
@@ -103,7 +103,7 @@ const K4 = ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter', 'son
   ok('5 선언 박수 뒤 b3 · b9 −15(0.8초 미리 낮춤)', b3.duck === -15 && b3.fadeMs === 800 && b9.duck === -15 && b9.fadeMs === 800, { b3: [b3.duck, b3.fadeMs], b9: [b9.duck, b9.fadeMs] });
   const L1 = B2({ on: { welcome: 1, free: 1 }, freeWhat: 'speech' }), L2 = B2({ on: { welcome: 1, free: 1 }, freeWhat: 'speech', bgm: { S5: { m: 'bed' } } }), s1 = L1.filter((c) => c.slug === 'bridge-b10-speech-clap'), s2 = L2.filter((c) => c.slug === 'bridge-b10-speech-clap');
   ok('7 축사가 마지막인 날 b10 — «음악 없이»면 부탁 문장 · 박수 정적(NO_RELIFT_1102 · 박수 소리가 채운다 · 종전 박수 −8) · «음악과 함께»면 −15', s1.length && s1.every((c) => c.duck === -90 && c.live && c.live.duck === -90) && s2.length && s2.every((c) => c.duck === -15), { none: s1.map((c) => [c.duck, c.live && c.live.duck]), bed: s2.map((c) => c.duck) });
-  const sg = by(B2({ on: { welcome: 1, bless: 1, free: 0, song: 1 } }), 'narr-song')   /* 덕담 곡이 흐르다(MEANING_R2 뒤로 맞절이 정적이라 맞절 바로 뒤 축가는 정적 그대로) */, sgp = (sg.post || [])[0] || {}, sgq = by(B2({ on: { free: 1, song: 1 }, freeWhat: 'speech' }), 'narr-song');
+  const sg = by(B2({ on: { welcome: 1, bless: 1, free: 0, song: 1 } }), 'narr-song')   /* 덕담 곡이 흐르다(MEANING_R2 뒤로 맞절이 정적이라 맞절 바로 뒤 축가는 정적 그대로) */, sgp = ((oe(B2({ on: { welcome: 1, bless: 1, free: 0, song: 1 } }), 'narr-song').post) || [])[0] || {}   /* ★[ROLE_SHIP_1117] 여는 말 뒤 사슬 박수(382 · 383)가 붙은 날은 줄 끝 정적(post)이 그 박수 줄로 간다 — 여는 말 한 덩이의 끝을 잰다 */, sgq = by(B2({ on: { free: 1, song: 1 }, freeWhat: 'speech' }), 'narr-song');
   ok('8 축가 여는 말 −15 · 줄 끝 1.5초에 정적 · 앞(축사 «음악 없이»)이 정적이면 정적 그대로(NO_RELIFT_1102)', sg.duck === -15 && sgp.v === -90 && sgp.ms === 1500 && sgq.duck === -90, { duck: sg.duck, post: sg.post, afterQuiet: sgq.duck });
   const T = B2({ on: { song: 1, tribute: 1 }, song: 'family', songBy: 'friend' }), b12 = by(T, 'bridge-b12-tribute-calm'), t1 = T[bi(T, 'bridge-b12-tribute-calm') + 1] || {};
   ok('9 축가 → 부모님께 인사 이음말 −15 → 정적 · 정적 1초 뒤 M5 무음에서 6초 앞서', b12.duck === -15 && ((b12.post || [])[0] || {}).v === -90 && t1.k === 'tribute' && t1.goLeadMs >= 6000 && t1.leadDb === -8 && t1.gapMs >= 1000, { b12: [b12.duck, b12.post], next: [t1.k, t1.goLeadMs, t1.leadDb, t1.gapMs] });

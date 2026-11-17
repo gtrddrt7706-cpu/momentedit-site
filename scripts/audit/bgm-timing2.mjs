@@ -92,7 +92,8 @@ try {
     const cb = B(Object.assign({}, S, { bgm: { S5: { m: 'bed' }, S6: { m: 'bed' } } })), cn = B(S);
     const cbF = B(Object.assign({}, S, { on: Object.assign({}, S.on, { free: 1, song: 0 }), bgm: { S5: { m: 'bed' }, S6: { m: 'bed' } } }));   /* free: 1 을 다시 적는다 — 앞 B() 가 같은 S.on 을 엔진 norm 에 넘겨 축사를 지웠다 */   /* ★[SPEECH_SONG_1115] 축사 값은 축사 쪽 판(축가 끔) — 둘 다 켠 판에서는 엔진이 축사를 걷는다 */
     const fi = by(cbF, 'narr-free-in-speech'), li = cb.find((c) => /^letter-/.test(c.slug || '')) || {}, le = by(cb, 'narr-letter-end'), lin = cn.find((c) => /^letter-/.test(c.slug || '')) || {};
-    ok('a 축사 «음악과 함께» — 여는 말 −15(앞 곡 아래) · 말씀 차례 −20', fi.duck === -15 && fi.live && fi.live.duck === -20, [fi.duck, fi.live && fi.live.duck]);
+    const fiE = (() => { let j = cbF.findIndex((c) => c.slug === 'narr-free-in-speech'); while (j > -1 && cbF[j + 1] && cbF[j + 1].fire === 'chain' && cbF[j + 1].slug === 'clap-speech') j++; return j > -1 ? cbF[j] : {}; })();   /* ★[ROLE_SHIP_1117] 여는 말 뒤 사슬 박수(381)가 붙은 날은 말씀 차례(live)가 그 박수 줄로 간다 */
+    ok('a 축사 «음악과 함께» — 여는 말 −15(앞 곡 아래) · 말씀 차례 −20', fi.duck === -15 && (fiE.duck == null || fiE.duck === -15) && fiE.live && fiE.live.duck === -20, [fi.duck, fiE.duck, fiE.live && fiE.live.duck]);
     const li0 = B(Object.assign({}, S, { on: Object.assign({}, S.on, { song: 0 }), bgm: { S5: { m: 'bed' }, S6: { m: 'bed' } } })).find((c) => /^letter-/.test(c.slug || '')) || {};   /* ★[SEAM_BG02] 여는 말 −15 은 앞 곡이 들릴 때(축가 없음) · 축가 끝(정적) 뒤면 −90 */
     ok('b 편지 «음악과 함께» — 여는 말 −15(앞 곡이 들릴 때 · 축가 뒤 정적이면 −90) · 낭독 차례 −20 · 끝 = 정적 없이 다음 곡으로 3초 겹침(xf)', li0.duck === -15 && li.duck === -90 && li.live && li.live.duck === -20 && JSON.stringify(le.post) === JSON.stringify([{ music: 'next', v: -15, ms: 4000, nextMs: 3000, xf: true }]), { li: [li.duck, li.live && li.live.duck], li0: li0.duck, post: le.post });
     ok('b 편지 «음악 없이» 여는 말은 그대로 무음', lin.duck <= -60, lin.duck);

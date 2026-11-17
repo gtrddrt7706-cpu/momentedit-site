@@ -121,13 +121,14 @@ try {
     ok('쪽 오류 0(하루)', !errs.length, errs.slice(0, 3)); await ctx.close(); };
   const Bq = async () => { const { ctx, f, errs } = await open(390, true);
     await f.waitForFunction(() => !!(window.ENG && ENG.RitualCue), null, { timeout: 15000 }).catch(() => {});
+    const SONG_OPEN = /^(narr-song|clap-(song|self))$/;   /* ★[ROLE_SHIP_1117] 축가 여는 말 한 덩이 = 여는 말(역할 줄) + 1.25초 사슬 박수 줄(382 · 383) — 둘 다 덕담 곡 아래(−15) */
     await setX(f, { on: ON_SONG, bgm: {} });   /* [SPEECH_SONG_1115] 축가 쪽 판 — 덕담 → 축가 → 편지 */
     /* 순간 하나 */
-    for (const k of ['song', 'letter']) { await go(f, k); const o1 = await run(f, [k], k === 'song' ? 14000 : 20000), up = o1.filter((x) => x.on && (k === 'song' ? x.s !== 'narr-song' : x.s === 'letter-each')), b1 = backAgain(o1, '');
+    for (const k of ['song', 'letter']) { await go(f, k); const o1 = await run(f, [k], k === 'song' ? 14000 : 20000), up = o1.filter((x) => x.on && (k === 'song' ? !SONG_OPEN.test(x.s || '') : x.s === 'letter-each')), b1 = backAgain(o1, '');
       ok(`P ${k === 'song' ? '축가' : '편지'}만 듣기 — ${k === 'song' ? '축가 · 박수(여는 말은 덕담 곡 아래 · 앞이 정적이 아니다)' : '첫 줄'} 동안 음악 0 · 되살아남 0`, !up.length && !b1.length, { up: up.map((x) => [Math.round(x.t), x.i, x.s || x.lab, x.f, x.want]), b1 });
  }
     { await go(f, 'song'); const o2 = await run(f, ['song', 'letter'], 40000), mrs = o2.filter((x) => x.k === 'song' && x.lab === '축가가 흐르는 자리');
-      const sg = o2.filter((x) => x.on && (x.k === 'song' && x.s !== 'narr-song' || x.s === 'letter-each'));
+      const sg = o2.filter((x) => x.on && (x.k === 'song' && !SONG_OPEN.test(x.s || '') || x.s === 'letter-each'));
       /* ★[SPEECH_SONG_1115] 옛 «MR 앞 정적 ≥ 1초»는 앞이 축사(무음)라 여는 말부터 정적이었기 때문 — 축가 쪽(덕담 → 축가)은 여는 말이 덕담 곡 아래(−15 · «축사 뺌» 판과 같다) ·
            뜻(MR 이 곡 위에서 시작하지 않는다)은 «MR 자리(미리 듣기 카드) 동안 음악 0»으로 잰다 */
       ok(`P 축가 → 편지 이어 듣기 — MR 자리 동안 음악 0 · 축가 · 박수 · 편지 첫 줄 동안 음악 0 [SPEECH_SONG_1115 축가 쪽]`, mrs.length > 5 && !mrs.some((x) => x.on) && !sg.length, { mr: mrs.length, on: mrs.filter((x) => x.on).length, sg: sg.slice(0, 3).map((x) => [Math.round(x.t), x.s || x.lab, x.f, x.want]) }); }

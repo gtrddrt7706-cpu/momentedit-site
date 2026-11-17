@@ -65,13 +65,15 @@ const SONG_OPEN = /^narr-song$/, SONG_FOR = /(사람|분)(을|를)?\s*위해|바
 /* ★[MIDV_OUT_CLAP_1115 · NARR_ROLE_1115 대본 11/15 · 대표님 FINAL2 11/14 승인 소리] 식중 영상 닫는 말 355 midvideo-out-story(thanks 판 354 도) «… 따뜻한 박수 부탁드립니다.» —
    엔진이 그 자리에 하객 박수(clapUp)를 직접 둔다 · 옛 353(58 + 129) 자리를 새 녹음 0 으로 맡았다. 그 두 slug · 그 낱말만 W1 · W7 밖(다른 자리의 같은 말은 그대로 걸린다) */
 const MIDV_OUT = /^midvideo-out-(story|thanks)$/;
-const FINAL_OK = [['W1', MIDV_OUT, '따뜻한 박수'], ['W1', /^tribute-hug$/, '따뜻하게 안아'], ['W2', /^guest-w-10m-n20/, '천천히 자리를 잡아'], ['W13', /^guest-w-10m-n10-short/, '예식을']];
+/* ★[ROLE_SHIP_1117 대표님 11/17 «골랐어» · 릴스 방 ROLE_FOLLOW_1117] 축사 · 축가 여는 말 뒤 1.25초 사슬 박수 한 줄 381 ~ 383 — 박수를 청하는 것이 그 줄의 몫(엔진이 박수 줄로 둔다) · 381 «따뜻한 박수로 맞이해 …»만 W1 · 셋 다 W7 밖 */
+const ROLE_CLAP = /^clap-(speech|song|self)$/;
+const FINAL_OK = [['W1', /^clap-speech$/, '따뜻한 박수'], ['W1', MIDV_OUT, '따뜻한 박수'], ['W1', /^tribute-hug$/, '따뜻하게 안아'], ['W2', /^guest-w-10m-n20/, '천천히 자리를 잡아'], ['W13', /^guest-w-10m-n10-short/, '예식을']];
 const finalOk = (id, slug, t) => { for (const [i, re, w] of FINAL_OK) if (i === id && re.test(slug)) t = id === 'W13' ? t : t.split(w).join(' '); return t; };
 const finalOkW = (slug, w) => FINAL_OK.some(([i, re, x]) => i === 'W13' && re.test(slug) && x === w);
 function judge(slug, text) {
   const hit = [], mine = ownPart(text);   // [SOURCE_FIRST_1016] 자료 그대로 문장은 문체 자 밖
   for (const [id, re] of RULES) if (re.test(finalOk(id, slug, ALWAYS.has(id) ? text : mine))) { if (id === 'W2' && /^guest-w-1m/.test(slug)) continue; hit.push(id); }   /* ★[GUEST_WELCOME_191 검토 191] 1분 전(315 · 316)의 «자리에 앉아 주시고 · 무음»은 사장님 확정 문안 — ④ 는 착석 · 무음만(새 요청 없이) · 옛 04 도 같은 말이었다 */
-  if (CLAP_ASK.test(mine) && !CLAP_OK.test(slug) && !MIDV_OUT.test(slug)) hit.push('W7');   // [MIDV_OUT_CLAP_1115]
+  if (CLAP_ASK.test(mine) && !CLAP_OK.test(slug) && !MIDV_OUT.test(slug) && !ROLE_CLAP.test(slug)) hit.push('W7');   // [MIDV_OUT_CLAP_1115] · [ROLE_SHIP_1117]
   if ((mine.match(/잠시 (후|뒤)|잠시만|잠시,|곧 /g) || []).length > 1) hit.push('W10');   // «휴대폰은 잠시 진동»의 «잠시»는 시간을 재는 말이 아니다
   if (twice(mine).filter((w) => !(/^after-photo/.test(slug) && /^(사진을|분들은)$/.test(w)) && !finalOkW(slug, w)).length) hit.push('W13');   /* ★[INFO_SPLIT_200 검토 200 수정 2] «남고 싶으신 분들은 · 그 밖의 분들은»도 확정 문안 — 남는 분과 가는 분을 가르는 말 */   /* ★[END_FLOW_200 검토 200] 촬영 후 안내 «단체 사진을 … 따로 사진을»은 사장님 확정 문안 — 다른 두 사진(단체 · 따로)을 가르는 말이라 겹침이 아니다 · 그 한 낱말만 */
   if (SONG_OPEN.test(slug) && SONG_FOR.test(mine)) hit.push('W14');
