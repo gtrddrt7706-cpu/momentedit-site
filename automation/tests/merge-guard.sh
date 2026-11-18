@@ -16418,6 +16418,8 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/line-even.mjs >/dev/
 chk 'PR_SIMPLE' order-preview.html 2
 chk 'PR_JUMP' order-preview.html 4
 chk 'PR_WIDE' order-preview.html 3
+chk 'PR_NAV_COL' order-preview.html 1   # ★[NIGHT20 #11 1118] 연습하기 PC 아래 막대 = 오른쪽 칸 폭 — 520 고정은 왼쪽 칸을 덮었다
+nochk 'body.pr2 .nav{max-width:520px' order-preview.html   # [PR_NAV_COL] 되돌리지 말 것
 chk 'PR_RAIL' order-preview.html 6
 chk 'function _lRail(st)' order-preview.html 1
 chk 'window.lsGoK=function(k)' order-preview.html 1
