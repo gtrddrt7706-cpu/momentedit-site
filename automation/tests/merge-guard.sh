@@ -1498,6 +1498,8 @@ chk 'BTN_TIER' index.html 4                    # 버튼 2단 체계(채움=전�
 chk 'MAP_BREATH' index.html 1                  # 지도 블록 상하 여백 80/88 — margin-top만 두고 아래를 0으로 되돌리면 다시 푸터에 끼인다
 # ── 2026-07-26 inquiry.html 1라운드
 chk 'INQ_REQ_DOT' inquiry.html 1               # 필수 표시 점 3px 골드(2.54:1) 복원 금지 — 폼에서 가장 중요한 정보가 안 보였다
+chk 'REQ_DOT_SCOPE' inquiry.html 1             # [2026-11-18 NIGHT20 #13] .required-dot 규칙 앞 떨어진 «.field » 걷음 — 붙으면 입력칸 밖 필수 점 12곳이 0px
+nochk '}\.field /\* \[INQ_REQ_DOT\]' inquiry.html 0  # 같은 고장 되살림 막기
 chk 'INQ_RAIL_CLEAR' inquiry.html 1            # ★본문 우측 여백 확보 '금지' 기록(2026-07-26 철회 — 본문이 왼쪽으로 치우쳐 보임). 겹침을 이유로 padding-right를 다시 넣지 말 것
 chk 'INQ_TAP40' inquiry.html 1                 # 선택지 라벨 40px — 라디오는 opacity:0이라 라벨이 실제 탭 타깃
 chk 'INQ_NAV_HIDE' inquiry.html 1              # 네비 스크롤 숨김 로직 — 없으면 fixed·투명 네비가 페이지 전체에서 본문과 겹친다(홈엔 있고 여기만 빠져 있었다)
