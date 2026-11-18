@@ -12622,10 +12622,10 @@ function cfTodayKST(){
 }
 /* [PV_NOW_1106 M01] 확인서 — 식전 영상은 이 확인서 밖에서 따로 확정한다는 한 줄 + 그 화면 열기(기능이 꺼진 계정 · 웨딩스냅에는 두지 않는다 · 기록(.cf-l)에 들어가지 않는 안내 줄) */
 function _cfPvLine(p){ var v=(p&&p.prevideo)||null; if(!(typeof PVC_ON!=='undefined' && PVC_ON && v && v.up && (window._mpStateD||{}).product!=='웨딩스냅')) return ''; var st=String(v.st||'');
-  var t=(st==='done')?'식전 영상은 따로 확정했어요.':(st==='off')?'식전 영상은 «사용하지 않기»로 정하셨어요.':'식전 영상은 해당 화면에서 따로 확인 · 확정해 주세요.';
+  var t=(st==='done')?'식전 영상은 따로 확정했어요.':(st==='off')?'식전 영상은 «사용하지 않기»로 정하셨어요.':'식전 영상은 해당 화면에서 따로 확인\u00a0·\u00a0확정해 주세요.';   /* [CF_DOT_NOWRAP 2026-11-18 NIGHT20 #12] «확인 · 확정»은 한 덩어리 — 390 에서 «·»가 줄 머리로 떨어졌다(글은 그대로 · 빈칸만 붙임) */
   return '<span class="ln-bal">'+t+' <button type="button" class="pvc-a cf-pvc" data-cfpvc>식전 영상 열기</button></span>'; }
 function _cfMvLine(p){ var v=(p&&p.midvideo)||null; if(!(typeof MVC_ON!=='undefined' && MVC_ON && v && v.up && (window._mpStateD||{}).product!=='웨딩스냅' && _mvcOn(p)===true)) return ''; var st=String(v.st||'');   // [MID_VIDEO_1106] 식중 영상도 확인서에 한 줄(M01 과 같은 방식)
-  var t=(st==='done')?'식중 영상은 따로 확정했어요.':'식중 영상은 해당 화면에서 따로 확인 · 확정해 주세요.';
+  var t=(st==='done')?'식중 영상은 따로 확정했어요.':'식중 영상은 해당 화면에서 따로 확인\u00a0·\u00a0확정해 주세요.';   /* [CF_DOT_NOWRAP] 식전 줄과 같은 모양 [COURSE_WIDE] */
   return '<span class="ln-bal">'+t+' <button type="button" class="pvc-a cf-pvc" data-cfmvc>식중 영상 열기</button></span>'; }
 /* ★[VIDEO_UMBRELLA_1115] 확인서 — 식전 · 식중 두 줄이 다 서면 «상영 영상» 한 묶음(이름 줄 하나 + 영상마다 상태 · 열기). 하나만 서면 그 한 줄 그대로. 단추 표식(data-cfpvc · data-cfmvc)은 그대로 */
 function _cfVuLine(p){ var a=_cfPvLine(p), b=_cfMvLine(p); if(!(a && b)) return a+b;
