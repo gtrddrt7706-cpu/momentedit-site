@@ -291,7 +291,9 @@
     /* ★[W5M_FIX_1107 대본 22:25 · 사장님 «이게 말이 안 되잖아»] 356 · 357 — 5분 전 식사 날(329 · 330 · 334 · 335 대신 · 351 ~ 355 는 식중 영상 #1635 · 대본 23:17 번호 옮김): 03#0 «시작 오 분 전입니다.» → 321#4 «식사 장소 확인과 사진 올리기는 …» (± 314#1 온라인) · 새 녹음 0 */
     'guest-w5-meal', 'guest-w5-meal-online',
     /* ★[NARR_ROLE_1115 2026-11-15 대본 · 릴스 방 교통정리 2차 확정 21문장] 358 ~ 378 — «누가» 줄(덕담 한 분 · 첫 분 · 축사 · 축가 · 두 분 직접) · 진행 우성 · 음성 방이 11/16 녹음해 넣는다(소리 오기 전엔 글로) */
-    'bless-one-gf', 'bless-one-bf', 'bless-one-gm', 'bless-one-bm', 'bless-first-gf', 'bless-first-bf', 'bless-first-gm', 'bless-first-bm', 'speech-gfr', 'speech-bfr', 'speech-gfa', 'speech-bfa', 'speech-cfr', 'song-who-gfr', 'song-who-bfr', 'song-who-gfa', 'song-who-bfa', 'song-who-cfr', 'song-self-g', 'song-self-b', 'song-self-c'
+    'bless-one-gf', 'bless-one-bf', 'bless-one-gm', 'bless-one-bm', 'bless-first-gf', 'bless-first-bf', 'bless-first-gm', 'bless-first-bm', 'speech-gfr', 'speech-bfr', 'speech-gfa', 'speech-bfa', 'speech-cfr', 'song-who-gfr', 'song-who-bfr', 'song-who-gfa', 'song-who-bfa', 'song-who-cfr', 'song-self-g', 'song-self-b', 'song-self-c',
+    /* ★[ROLE_SHIP_1117 2026-11-17 대표님 «골랐어» · 대본 · 음성 방] 379 ~ 383 — 축사 · 축가를 안 고른 날 한 줄(5c · 11c) + 뒤 붙임 박수 한 줄 셋(A1 · B1 · C1 · 1.25초 사슬) · 366 ~ 378 은 새 멘트 글로 바뀜(옛 글은 소리 없이 쉬던 판) */
+    'speech-none', 'song-none', 'clap-speech', 'clap-song', 'clap-self'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -413,7 +415,7 @@
     'midvideo-in-story': "두 사람이 함께 걸어온 이야기를 영상에 담았습니다. 함께 보시겠습니다.",   // [MID17_CLIPS_1107] ★[FINAL_APPLY_1115 대표님 FINAL2 11/14 · MIDV_1114/RX2_1114 새 녹음] 352 = v352n · 옛 글 «두 사람이 오늘을 위해 정성스레 준비한 영상이 있습니다. 두 사람이 함께 걸어온 이야기, 함께 보시겠습니다.»
     'midvideo-in-plain': "두 사람이 준비한 영상 한 편, 함께 보시겠습니다.",   // [MID17_CLIPS_1107] ★[FINAL_APPLY_1115 대표님 FINAL2 11/14 · MIDV_1114/RX2_1114 새 녹음] 353 = v353n · 옛 글 «오늘의 특별한 순간을 더 특별하게 만들어 줄 영상을 두 사람이 준비했습니다. 함께 보시겠습니다.»
     'midvideo-out-thanks': "두 사람의 마음이 부모님께 잘 전해졌으리라 생각합니다. 따뜻한 박수 부탁드립니다.",   // [MID17_CLIPS_1107] ★[FINAL_APPLY_1115 대표님 FINAL2 11/14 · MIDV_1114/RX2_1114 새 녹음] 354 = 글 그대로 · 다시 녹음 v354
-    /* ★[NARR_ROLE_1115] 358 ~ 378 «누가» 줄 — 자료 U1 176 ~ 180 · 185 ~ 187 · NN 186 · 12_축가 376 · 321 원문의 이름 칸에 역할만(SOURCE_FIRST_1016 ①) */
+    /* ★[NARR_ROLE_1115] 358 ~ 378 «누가» 줄 — 자료 U1 176 ~ 180 · 185 ~ 187 · NN 186 · 12_축가 376 · 321 원문의 이름 칸에 역할만(SOURCE_FIRST_1016 ①) · ★[ROLE_SHIP_1117] 366 ~ 378 은 대표님 11/17 고른 새 글(축사 S1 · 축가 G2 · 두 분 직접 E1) */
     'bless-one-gf': "이제 두 사람의 행복한 가정을 기원하는 신랑 아버님의 귀중한 덕담 말씀이 있겠습니다.",
     'bless-one-bf': "이제 두 사람의 행복한 가정을 기원하는 신부 아버님의 귀중한 덕담 말씀이 있겠습니다.",
     'bless-one-gm': "이제 두 사람의 행복한 가정을 기원하는 신랑 어머님의 귀중한 덕담 말씀이 있겠습니다.",
@@ -422,19 +424,25 @@
     'bless-first-bf': "먼저, 신부 아버님의 따뜻한 덕담 말씀 듣겠습니다.",
     'bless-first-gm': "먼저, 신랑 어머님의 따뜻한 덕담 말씀 듣겠습니다.",
     'bless-first-bm': "먼저, 신부 어머님의 따뜻한 덕담 말씀 듣겠습니다.",
-    'speech-gfr': "오늘의 축사는요, 신랑의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
-    'speech-bfr': "오늘의 축사는요, 신부의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
-    'speech-gfa': "오늘의 축사는요, 신랑의 가족분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
-    'speech-bfa': "오늘의 축사는요, 신부의 가족분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
-    'speech-cfr': "오늘의 축사는요, 신랑 신부의 친구분께서 두 분의 새로운 출발을 축하하는 마음을 담아 진심 어린 축사를 준비해 주셨습니다.",
-    'song-who-gfr': "신랑의 친구분께서 축가를 준비해 주셨습니다.",
-    'song-who-bfr': "신부의 친구분께서 축가를 준비해 주셨습니다.",
-    'song-who-gfa': "신랑의 가족분께서 축가를 준비해 주셨습니다.",
-    'song-who-bfa': "신부의 가족분께서 축가를 준비해 주셨습니다.",
-    'song-who-cfr': "신랑 신부의 친구분께서 축가를 준비해 주셨습니다.",
-    'song-self-g': "다음은 신부를 위한 신랑의 축가가 있겠습니다.",
-    'song-self-b': "다음은 신랑을 위한 신부의 축가가 있겠습니다.",
-    'song-self-c': "다음은 신랑 신부가 직접 부르는 축가가 있겠습니다.",
+    'speech-gfr': "신랑의 친구분께서 진심 어린 축사를 준비해 주셨습니다.",
+    'speech-bfr': "신부의 친구분께서 진심 어린 축사를 준비해 주셨습니다.",
+    'speech-gfa': "신랑의 가족분께서 진심 어린 축사를 준비해 주셨습니다.",
+    'speech-bfa': "신부의 가족분께서 진심 어린 축사를 준비해 주셨습니다.",
+    'speech-cfr': "신랑 신부의 친구분께서 진심 어린 축사를 준비해 주셨습니다.",
+    'song-who-gfr': "신랑의 친구분께서 두 사람의 앞날을 축복하는 노래를 준비해 주셨습니다.",
+    'song-who-bfr': "신부의 친구분께서 두 사람의 앞날을 축복하는 노래를 준비해 주셨습니다.",
+    'song-who-gfa': "신랑의 가족분께서 두 사람의 앞날을 축복하는 노래를 준비해 주셨습니다.",
+    'song-who-bfa': "신부의 가족분께서 두 사람의 앞날을 축복하는 노래를 준비해 주셨습니다.",
+    'song-who-cfr': "신랑 신부의 친구분께서 두 사람의 앞날을 축복하는 노래를 준비해 주셨습니다.",
+    'song-self-g': "신랑이 신부를 위해 직접 부르는 축가입니다.",
+    'song-self-b': "신부가 신랑을 위해 직접 부르는 축가입니다.",
+    'song-self-c': "신랑 신부가 직접 부르는 축가입니다.",
+    /* ★[ROLE_SHIP_1117] 대표님 11/17 고름 — 축사 S1 · 축가 G2 · 두 분 직접 E1 · 뒤 붙임 A1 · B1 · C1(릴스 방 ROLE_FOLLOW_1117) · 366 ~ 378 도 이 판 글 */
+    'speech-none': "신랑 신부가 부탁드린 분께서 진심 어린 축사를 준비해 주셨습니다.",
+    'song-none': "두 사람의 앞날을 축복하는 축가입니다.",
+    'clap-speech': "따뜻한 박수로 맞이해 주시기 바랍니다.",
+    'clap-song': "큰 박수로 모시겠습니다.",
+    'clap-self': "뜨거운 응원의 박수 부탁드립니다.",
     'midvideo-out-story': "영상을 준비한 두 사람에게 따뜻한 박수 부탁드립니다.",   // [MID17_CLIPS_1107] ★[FINAL_APPLY_1115 대표님 FINAL2 11/14 · MIDV_1114/RX2_1114 새 녹음] 355 = v355n · 옛 글 «두 사람이 얼마나 정성스럽게 오늘을 준비했는지 알 수 있었던 시간이었습니다. 따뜻한 박수 부탁드립니다.»
     'narr-thanks-in': D.NARR.thanksIn,   // [THANKS_IN_VOW]
     'narr-declare-in-friend': D.NARR.declareIn   // [DECLARE_BY_PERSON] · [DECLARE_ANYONE] 여는 말은 하나(이름은 옛 판 그대로 · 134 · 135 는 RETIRED)
@@ -1361,10 +1369,10 @@
           hint: '마지막 음 · 잔향이 끝나면',   /* ★[COMBO_171_1030 검토 171 C03] 맺는 말이 «큰 박수 부탁드립니다»로 박수를 이끈다 — 박수가 잦아든 뒤 다시 청하지 않게 노래가 끝나는 순간에 */
           live: clapUp(applause('하객 박수 · 노래해 주신 분과 두 사람께', PARAM.declare.applauseMs / 1000))   // ★[SONG_END_1018 · CLAP_GO] 자료 글이 박수를 청한다 — 다음 순간은 디렉터 GO(박수가 여는 말에 묻히지 않게)
         })];
-        /* ★[NARR_ROLE_1115] 가족 · 친구가 부르는 날 «누가»를 고르면 19 뒤 «[역할]께서 축가를 준비해 주셨습니다.»(NN 183 ~ 186 짜임) 사슬 1.25초 · 노래 · 정적은 이 줄 뒤로 ·
-             두 분이 직접이면 build 끝에서 19 를 «다음은 신부를 위한 신랑의 축가가 있겠습니다.» 꼴 한 줄로(12_축가 376 · 321) */
-        var _sw = O.songWhoOf ? O.songWhoOf(S) : '';
-        if (_sw && EXTRA['song-who-' + _sw]) { var _s0 = _sa[0], _sc = cue({ k: 'song', blockN: '축가', slug: 'song-who-' + _sw, name: '축가 · 부르시는 분(' + O.whoLabel(O.GUEST_WHO, _sw) + ')', text: EXTRA['song-who-' + _sw], duck: _s0.duck, fire: 'chain', gapMs: 1250, post: _s0.post, live: _s0.live, note: _s0.note });
+        /* ★[NARR_ROLE_1115 → ★ROLE_SHIP_1117] 옛 «19 뒤 [역할]께서 축가를 준비해 주셨습니다» 사슬은 걷었다 — 이제 19 자체를 역할 줄로 바꾸고(빌드 끝 · roleSwapOf) 그 뒤 1.25초 사슬 박수 한 줄
+             가족 · 친구 = «큰 박수로 모시겠습니다.»(382) · 두 분 직접 = «뜨거운 응원의 박수 부탁드립니다.»(383) · 노래 · 정적(post) · 메모는 이 줄 뒤로 */
+        var _rc2 = roleClapOf(roleSwapOf(S, 'narr-song'));
+        if (_rc2 && EXTRA[_rc2]) { var _s0 = _sa[0], _sc = cue({ k: 'song', blockN: '축가', slug: _rc2, name: '축가 · 박수 청하기', text: EXTRA[_rc2], duck: _s0.duck, fire: 'chain', gapMs: 1250, post: _s0.post, live: _s0.live, note: _s0.note });
           _s0.live = null; _s0.post = []; _s0.note = ''; _sa.splice(1, 0, _sc); }
         return _sa;
       }
@@ -1424,6 +1432,9 @@
         /* ★★[MID17_ENGINE 2026-11-07 사장님 결정 · 식중 영상 · 새 녹음 0] 영상 갈래 = 58 여는 말 → 129 «한 장면씩 … 영상 함께 감상하시겠습니다.»(식전 영상 소개 예시 3 녹음을 그대로) → 영상(사람 순간 · [재생 안 됨]도 이 큐).
              58 → 129 는 한 소개라 사슬 1.25초([CHAIN_GAP_1014] 원고 «사슬 1.25초» · 말끝 → 말머리 · 콘솔 · 미리 듣기가 파일 앞뒤 무음을 뺀다) · 크기는 58 과 같다.
              같은 날 식전 영상 소개로 129 가 나가면(스튜디오 나레이션 판 · pvEx 예시 3) 58 하나만 — 같은 말 두 번 금지 · 130(시선 명령 [B2_GEUL_01]) · 261(식전 영상 받는 말)은 쓰지 않는다 · 축사 · 선물 · 기타는 종전 그대로 */
+        /* ★[ROLE_SHIP_1117] 축사 여는 말을 역할 줄로 바꾸는 날 — 1.25초 사슬 «따뜻한 박수로 맞이해 주시기 바랍니다.»(381) · 축사(사람 순간) · 메모는 이 줄 뒤로 */
+        var _rc = fk === 'speech' ? roleClapOf(roleSwapOf(S, 'narr-free-in-speech')) : '';
+        if (_rc && EXTRA[_rc]) { var _oc = { k: 'free', blockN: o.blockN, slug: _rc, name: '축사 · 박수 청하기', text: EXTRA[_rc], duck: o.duck, fire: 'chain', gapMs: 1250, live: o.live, note: o.note }; o.live = null; o.note = ''; return [cue(o), cue(_oc)]; }
         if (fk !== 'video' || (seq && seq.indexOf('prevideo') > -1 && pvSlugOf(S) === 'narr-prevideo-in-ex3')) return [cue(o)];
         var o2 = { k: 'free', blockN: o.blockN, slug: 'narr-prevideo-in-ex3', name: '식중 영상 소개', text: EXTRA['narr-prevideo-in-ex3'], duck: o.duck, fire: 'chain', gapMs: 1250, rescue: o.rescue, live: o.live, note: o.note };   // [MID17_CONSOLE] 메모는 영상 사람 순간과 함께 129 로
         o.rescue = null; o.live = null; o.note = '';
@@ -1678,6 +1689,23 @@
       return out;
     }
   };
+
+  /* ★★[ROLE_SHIP_1117 2026-11-17 대표님 «골랐어» · 대본 엔진 규칙 ② ~ ④] 축사 · 축가 여는 말 바꾸기 — 한 곳에서 정한다(빌드 끝 바꾸기 · 뒤 붙임 사슬이 같은 답을 본다)
+       축사(103) = 고른 날 «[역할]께서 진심 어린 축사를 준비해 주셨습니다.»(366 ~ 370) · 안 고름 · «그 밖의 분» = 379 «신랑 신부가 부탁드린 분께서 …»
+       축가 가족 · 친구(19) = 고른 날 371 ~ 375 · 안 고름 · 그 밖 = 380 «두 사람의 앞날을 축복하는 축가입니다.» · 두 분 직접 = 376 ~ 378(신랑 · 신부 · 둘이 함께를 고른 날)
+       ★다른 예시(여는 말 칩)를 고른 날 — «누가»를 고르면 역할 줄이 이긴다(더 구체적) · 안 고르면 고른 예시 그대로(바꾸지 않고 박수 한 줄도 붙이지 않는다) · 옛 코스는 그대로 */
+  function roleSwapOf(S, slug) {
+    if (!(S && D.COURSES[S.course] && D.COURSES[S.course].open)) return '';
+    var ex = (O.narExCue && O.narExCue(S, slug)) || ''; if (ex && !(SLUG[ex] && EXTRA[ex])) ex = '';
+    var s4 = '', w = '';
+    if (slug === 'narr-free-in-speech') { w = O.speechWhoOf ? O.speechWhoOf(S) : ''; s4 = w ? 'speech-' + w : (ex ? '' : 'speech-none'); }
+    else if (slug === 'narr-song') {
+      if (S.songBy === 'self') { w = O.songSelfOf ? O.songSelfOf(S) : ''; s4 = w ? 'song-self-' + w : ''; }
+      else { w = O.songWhoOf ? O.songWhoOf(S) : ''; s4 = w ? 'song-who-' + w : (ex ? '' : 'song-none'); } }
+    return (s4 && SLUG[s4] && EXTRA[s4]) ? s4 : '';
+  }
+  /* 바꾼 여는 말 뒤 1.25초 사슬 박수 한 줄(릴스 방 ROLE_FOLLOW_1117 · 대표님 A1 · B1 · C1) — 축사 381 · 축가 382 · 두 분 직접 383 */
+  function roleClapOf(s4) { return !s4 ? '' : /^speech-/.test(s4) ? 'clap-speech' : /^song-self-/.test(s4) ? 'clap-self' : 'clap-song'; }
 
   // ── 본체
   function build(S0, opts) {
@@ -2229,7 +2257,7 @@
       var m4 = function (k) { if (/^(welcome|vow|ring|declare|bless|song)$/.test(k)) return true; if (k === 'free') return !(b5.S5 && b5.S5.m === 'bed'); if (k === 'letter') return !(b5.S6 && b5.S6.m === 'bed'); if (k === 'toast') return prevM4; return false; };
       var P = []; cues.forEach(function (c) { P.push({ c: c, w: 'say', est: +c.est || 0 }); (c.post || []).forEach(function (p) { if (p.music === 'to') P.push({ c: c, w: 'post', p: p, est: 0 }); }); if (c.live && c.live.duck != null) P.push({ c: c, w: 'live', est: +(c.live.est || 0) }); });
       var lv = function (x) { return x.w === 'say' ? x.c.duck : x.w === 'live' ? x.c.live.duck : x.p.v; }, set = function (x, v) { if (x.w === 'say') x.c.duck = v; else if (x.w === 'live') x.c.live.duck = v; else x.p.v = v; };
-      var bedOpen = function (x) { return x.w === 'say' && ((x.c.k === 'letter' && b5.S6 && b5.S6.m === 'bed' && /^letter-/.test(x.c.slug || '')) || (x.c.k === 'free' && b5.S5 && b5.S5.m === 'bed' && x.c.slug === 'narr-free-in-speech')); };   /* ★[SEAM_BG02] «음악과 함께» 축사 · 편지 여는 말은 본식 곡(M4) 아래에서 말한다 — 앞이 정적이면 여는 말도 정적(M4 를 되살리지 않는다) · 낭독 · 축사(live)에서 고른 곡이 무음에서 */
+      var bedOpen = function (x) { return x.w === 'say' && ((x.c.k === 'letter' && b5.S6 && b5.S6.m === 'bed' && /^letter-/.test(x.c.slug || '')) || (x.c.k === 'free' && b5.S5 && b5.S5.m === 'bed' && (x.c.slug === 'narr-free-in-speech' || x.c.slug === 'clap-speech'))); };   /* ★[SEAM_BG02] «음악과 함께» 축사 · 편지 여는 말은 본식 곡(M4) 아래에서 말한다 — 앞이 정적이면 여는 말도 정적(M4 를 되살리지 않는다) · 낭독 · 축사(live)에서 고른 곡이 무음에서 */
       for (var j = 0; j < P.length; j++) { var x = P[j], k = x.c.k; if (k !== lastK) { prevM4 = lastK ? m4(lastK) : false; lastK = k; } var v = lv(x); if (v == null) continue;
         if (!m4(k) && !bedOpen(x)) { quiet = false; heard = false; continue; }   /* 다른 곡의 순간 — 그 곡은 무음에서 시작 · 본식 곡 정적은 여기서 끝 */
         if (v <= -60) { if (heard) quiet = true; continue; }
@@ -2281,12 +2309,11 @@
 
     /* ★★[NARR_ROLE_1115] «누가» 한 줄 — 말투(narExCue) · 호칭 뒤에 끼운다 · 슬러그(큐 열쇠)는 그대로 · 소리 파일 · 글만 역할 판으로 ·
          덕담 한 분 = 23(기본 여는 말일 때만 · 다른 예시를 고른 날은 그 예시 그대로) → 역할 한 줄 · 축사 = 여는 말(174 · 103 …) → 역할 한 줄(U1 185 ~ 187 = 103 꼴) ·
-         축가 두 분 직접 = 19(기본일 때만) → 역할 한 줄 · 안 고른 날은 지금 판 그대로 */
-    if (D.COURSES[S.course] && D.COURSES[S.course].open) { var _rb = O.blessWhoOf ? O.blessWhoOf(S) : [], _rs = O.speechWhoOf ? O.speechWhoOf(S) : '', _rf = O.songSelfOf ? O.songSelfOf(S) : '';
+         축사 · 축가는 ★[ROLE_SHIP_1117] roleSwapOf 한 곳(고름 → 역할 줄 · 안 고름 · 그 밖 → 379 · 380 · 다른 예시를 고른 날은 그 예시) · 덕담 안 고른 날은 지금 판 그대로 */
+    if (D.COURSES[S.course] && D.COURSES[S.course].open) { var _rb = O.blessWhoOf ? O.blessWhoOf(S) : [];
       cues.forEach(function (c) { var s4 = '';
         if (c.slug === 'narr-bless-mid' && !c.ex && _rb.length === 1 && !S.blessProxy) s4 = 'bless-one-' + _rb[0];
-        else if (c.slug === 'narr-free-in-speech' && _rs) s4 = 'speech-' + _rs;
-        else if (c.slug === 'narr-song' && !c.ex && _rf) s4 = 'song-self-' + _rf;
+        else if (c.slug === 'narr-free-in-speech' || c.slug === 'narr-song') s4 = roleSwapOf(S, c.slug);   /* ★[ROLE_SHIP_1117] 축사 · 축가(가족 · 친구 · 두 분 직접) — 고름 · 안 고름 모두 한 곳(roleSwapOf) */
         if (!s4 || !SLUG[s4] || !EXTRA[s4]) return;
         var e4 = sylSec(c.text); c.ex = s4; c.no = noOf(s4); c.file = fileOf(s4); if (c.est === e4) c.est = sylSec(EXTRA[s4]); c.text = EXTRA[s4]; }); }
 

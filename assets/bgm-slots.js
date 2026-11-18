@@ -180,7 +180,7 @@
   /* ★[BGM_R3_1023] 자리를 찾는 열쇠 = 줄이 나온 큐(빌더 _lSteps 의 of · 엔진 slug) — 글자(«목례» · «위하여»)로 찾지 않는다
      bow = 끝 선언 큐(narr-close-bow)에서 나온 말 없는 줄 바로 뒤 · cheers = 잔 드는 축배 큐(toast-…)에서 나온 «위하여» 차례 줄 바로 뒤 · video = 영상 상영 줄(skip) 바로 앞 */
   var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 },
-    speech: { talk: true, of: /^narr-free-in-speech/, after: 0 }, letter: { talk: true, of: /^letter-/, after: 0 } };   /* [BGM_R5_1023] 말하는 ○ 줄(차례 줄) 바로 앞 */
+    speech: { talk: true, of: /^(narr-free-in-speech|clap-speech)/, after: 0 },   /* ★[ROLE_SHIP_1117] 축사 여는 말을 역할 줄로 바꾼 날은 말씀(○)이 뒤 붙임 박수(381) 큐에 붙는다 */ letter: { talk: true, of: /^letter-/, after: 0 } };   /* [BGM_R5_1023] 말하는 ○ 줄(차례 줄) 바로 앞 */
   function flowFind(at, st) {
     st = st || []; var i, h = head(st), m = AT_OF[at];
     if (!m) return { i: h, hit: true };   /* top(옛 bridge 도 같다) */

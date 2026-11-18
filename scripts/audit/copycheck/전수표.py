@@ -267,6 +267,10 @@ SKIP.setdefault(('160','narr-entry-bow'), '2026-10-17 신설 — 맞절 예시 2
 for _no, _sl, *_r in rows:
     if _no.isdigit() and 358 <= int(_no) <= 378 and re.match(r'^(bless-(one|first)-[gb][fm]|speech-[gbc]f[ra]|song-who-[gbc]f[ra]|song-self-[gbc])$', _sl):
         SKIP.setdefault((_no, _sl), '2026-11-15 신설 — «누가» 줄 [NARR_ROLE_1115 · 대본 · 릴스 방 교통정리 2차 확정 21문장] · 자료 원문의 이름 칸에 역할만(SOURCE_FIRST_1016 ①) · 녹음 대기(음성 방 11/16 · 녹음 전엔 글로)')
+# ★[ROLE_SHIP_1117 2026-11-17 대표님 «골랐어»] 379 ~ 383 — 축사 · 축가 안 고른 날 한 줄 둘 + 뒤 붙임 박수 셋(대표님이 듣고 고른 글 · 릴스 방 ROLE_FOLLOW_1117) · 366 ~ 378 도 같은 날 고른 글로 바뀜 · 문체 회차에 올리지 않는다
+for _no, _sl, *_r in rows:
+    if _no.isdigit() and 379 <= int(_no) <= 383 and re.match(r'^(speech-none|song-none|clap-(speech|song|self))$', _sl):
+        SKIP.setdefault((_no, _sl), '2026-11-17 신설 — «누가» 안 고른 날 · 뒤 붙임 박수 [ROLE_SHIP_1117 · 대표님 «골랐어» · 릴스 방 ROLE_FOLLOW_1117] · 녹음 = 우성 테이크 그대로 ×1.0')
 LETTERS = {('10','letter-parent'),('11','letter-each'),('12','bless-father'),
            ('13','bless-mother'),('14','tribute'),('27','tribute-reply'),('43','parents-letter')}
 
