@@ -23303,7 +23303,7 @@ chk 'LISTEN_RESUME_1106' scripts/audit/listen-resume.mjs 1   # 위 넷(+축배 6
 chk 'PV_LEAD_NOCLAP_1106' assets/ritual-cue.js 1   # [J_A A11 · B2-쉼01] 박수 없는 개식(칩 1 ~ 5) 뒤 식전 영상 소개는 뜸 없이 사슬 3초만(당일 콘솔 6초 → 3초)
 chk "if (!_pvNoClap) _pc.goLeadMs" assets/ritual-cue.js 1
 chk 'K3_SHORT_1106' assets/ritual-cue.js 5   # [결정 K3 · D03] 예상 본식 10분 미만 = 10분 전 299s · 345s(guest-w-10m-n10-short · -meal · 348 · 349 · 녹음 대기)
-chk "nShort: gw('예식을 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.')" assets/ritual-cue.js 1   # ★[NARR_DEPLOY_1116 대본 11/16 03:09 «정말 낡은 기대만»] NARR_FIX_1115_1 R10 새 글 · 옛 핀 «기념 촬영이 있습니다» 은퇴 ·   # ★[FINAL_APPLY_1115 묶음 3 · 대본 11/15 «핀을 새 글로»] 대표님 FINAL2 11/14 확정 문정 글 — 옛 «nShort: gw('본식을 마친 뒤에는 기념 촬영이 있습니다.')…»
+chk "nShort: gw('마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.')" assets/ritual-cue.js 1   # ★[MJ_FINAL_1118 대본 11/18 문구 확정 m2 348] «예식을» 뺀 판   # ★[NARR_DEPLOY_1116 대본 11/16 03:09 «정말 낡은 기대만»] NARR_FIX_1115_1 R10 새 글 · 옛 핀 «기념 촬영이 있습니다» 은퇴 ·   # ★[FINAL_APPLY_1115 묶음 3 · 대본 11/15 «핀을 새 글로»] 대표님 FINAL2 11/14 확정 문정 글 — 옛 «nShort: gw('본식을 마친 뒤에는 기념 촬영이 있습니다.')…»
 chk 'PV_LEAD_NOCLAP_1106 · K3_SHORT_1106' scripts/audit/pv-lead-k3.mjs 1   # 두 결정 검사 파일이 살아 있는가
 chk 'REC_K3_1106' scripts/audit/pv-lead-k3.mjs 2   # [REC_K3_1106] 348 · 349 녹음이 들어오면 대기 명단 · 다시받기에서 빠졌는지 본다(들어오기 전엔 종전대로 대기)
 if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi
@@ -23961,7 +23961,8 @@ chk "v !== '문정'" scripts/build-layers.mjs 1
 chk 'FINAL_APPLY_1115 대표님 FINAL2 11/14 확정 · 대본 11/15 «배포 준비' docs/rules/나레이션.md 1
 chk '예식이 시작될 때까지 편안히 기다려 주세요.' assets/ritual-data.js 1
 chk '예식이 시작될 때까지 편안히 기다려 주세요.' assets/ritual-open.js 3
-chk "'guest-w-1m': \[GW.soon, GW.sit, GW.snapOk\]" assets/ritual-cue.js 1
+chk "'guest-w-1m': \[GW.soon, GW.sit\]" assets/ritual-cue.js 1   # ★[MJ_FINAL_1118 대본 11/18 315 = 후보 2] 셋째 문장(snapOk) 걷음 · 되살리지 않는다
+nochk 'snapOk: gw(' assets/ritual-cue.js
 chk "'after-photo': \[GW.done, GW.fam, GW.stay2, GW.goHome2, GW.things2, GW.day2\]" assets/ritual-cue.js 1
 chk "'after-photo-meal': \[GW.done, GW.fam, GW.stay2, GW.eatArr, GW.placeAt, GW.visitAfter\]" assets/ritual-cue.js 1   # ★[NARR_DEPLOY_1116 대본 11/16 03:09 «정말 낡은 기대만»] NARR_FIX_1115_1 · MEAL_SHORT_OWNER_1115 324 = 물건 줄 빼고 R1 · R2 · R3 · 옛 핀(things2 · goMeal · mealWhere) 은퇴
 chk "'narr-closing-mealnr': \[CL_THX2, CL_CHEER, CL_NJ, CL_GA\]" assets/ritual-cue.js 1
@@ -23978,9 +23979,18 @@ chk '문체 자(`scripts/audit/narr-words.mjs` W1 · W2 · W13)를 넘은 자리
 chk '\[SEAM_SAMPLE_1115\]' scripts/audit/seam-bg.mjs 1
 nochk 'x.t < a.T - 50' scripts/audit/seam-bg.mjs
 # ★[PICK315_1115 대표님 11/15 09:55 · 듣기 페이지 315] 315 · 316 첫 문장 «잠시 후 예식을 시작하겠습니다.» = ×0.9233(11% 느리게) · 두 클립 같은 값 — 결정 docs/rules/나레이션.md
-chk '^315_guest-w-1m#0	base	0\.9233	' assets/audio/_src/_layers/빠르기표_최종_1109.tsv 1
-chk '^316_guest-w-1m-online#0	base	0\.9233	' assets/audio/_src/_layers/빠르기표_최종_1109.tsv 1
+chk '^315_guest-w-1m#0	base	1	' assets/audio/_src/_layers/빠르기표_최종_1109.tsv 1   # ★[MJ_FINAL_1118 GUIDE_EAR] ×0.9233(PICK315_1115) → 테이크 그대로 ×1.0
+chk '^316_guest-w-1m-online#0	base	1	' assets/audio/_src/_layers/빠르기표_최종_1109.tsv 1   # ★[MJ_FINAL_1118 GUIDE_EAR] ×0.9233(PICK315_1115) → 테이크 그대로 ×1.0
 chk 'PICK315_1115 대표님 11/15 09:55' docs/rules/나레이션.md 1
+# ★★[MJ_FINAL_1118 대본 11/18 · 대표님 «문정 ×1.0 판» · MJ_GAP_DECIDE_1118 · MJ_319_324_HEAD_1118] 문정 28클립 = 받은 테이크 그대로 ×1.0(늦추기 · 쉼 덧대기 없음) · 문구 확정 6 · 317 문장별 조합 · 319/324 머리 셋 = 317 · 315 후보 2 — 결정 docs/rules/나레이션.md
+chk 'MJ_FINAL_1118 대표님 11/18' docs/rules/나레이션.md 1
+chk "soon: gw('잠시 후 예식이 시작됩니다.')" assets/ritual-cue.js 1
+chk "ten: gw('십 분 뒤 예식이 시작됩니다.')" assets/ritual-cue.js 1
+chk "stay2: gw('신랑 신부와 사진을 더 남기실 분들은 잠시 남아 주세요.')" assets/ritual-cue.js 1
+chk "greetThere: gw('신랑 신부도 촬영과 정리를 마친 뒤 그곳에서 인사드립니다.')" assets/ritual-cue.js 1
+chk '"317_after-photo#0"' assets/audio/_src/_layers/층2_쉼맞춤.json 1
+chk '목표 1.07초(−35 dB 말과 말 사이 · 대표님이 귀로 고른 샘플 결)' assets/audio/_src/_layers/층2_쉼맞춤.json 3
+chk '\[MJ_FINAL_1118 · 대표님 문정 ×1.0 판 · GUIDE_EAR\]' assets/audio/_src/_layers/빠르기표_최종_1109.tsv 60
 # ★[GA_W5_1115 릴스 분석 방 발견 · 대본 11/15 10:35] 빌더 5분 전 칸 틀이 식사 날 큐 guest-w5-meal(-online)을 안다 — 옛 틀이면 그 글이 10분 전 칸 끝에 붙는다 · 깨 보기는 open-course «[GA_W5_1115]»(16 조합)
 chk '_GA=\[/\^guest-w-arrival/,/\^guest-w-10m-/,/\^guest-(w-5m|w5-|3-5min)/,' order-preview.html 1
 nochk '/\^guest-(w-5m|3-5min)/,/\^guest-(w-1m' order-preview.html

@@ -13,13 +13,14 @@
 
 | 파일 | 성우 | 줄 | 클립 |
 |---|---|---|---|
-| 1_문정.txt | 문정 | 6 | 3 |
+| 1_문정.txt | 문정 | 7 | 4 |
 
 ## 받은 wav 를 되돌려 넣는 명령 (자동 생성 · 그대로 복사해 쓰세요)
 
 ```
-# 문정 — 6줄 · 3클립
+# 문정 — 7줄 · 4클립
 node scripts/assemble-narration.mjs --in <문정_받은폴더> \
-  --clip =264_narr-photo-upload,=88_guide-meal,=297_guest-w-arrival
+  --clip =264_narr-photo-upload,=88_guide-meal,=297_guest-w-arrival,=316_guest-w-1m-online
 ```
+★316_guest-w-1m-online 은 두 사람이 한 클립에 섞여 있습니다. 문정 것만으로는 조립되지 않으니 상대 성우 wav 를 같은 폴더에 함께 넣으세요.
 
