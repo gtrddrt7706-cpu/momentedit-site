@@ -4867,11 +4867,13 @@ function _fixSteps(kind){ var S2=_clS(), mF=!!(S2.meal&&S2.mealFull), cs=[];
     var gq=[], _gc=null, _GA=[/^guest-w-arrival/,/^guest-w-10m-/,/^guest-(w-5m|w5-|3-5min)/,/^guest-(w-1m|4-1min)/];   /* ★[GA_W5_1115 릴스 분석 방 발견 · 대본 11/15 10:35] 식사 날 5분 전 큐 이름 guest-w5-meal(-online)(W5M_FIX_1107)을 5분 전 칸이 알게 — 옛 틀은 그 글을 10분 전 칸 끝에 붙이고 5분 전 칸을 «안내가 없습니다»로 비웠다 */
     cs.forEach(function(c){ if(c.k!=='guest'||!c.text||/^narr-open/.test(c.slug||'')||/^bridge-/.test(c.slug||'')) { if(c.k!=='guest'||/^narr-open/.test(c.slug||'')) _gc=null; return; }
       var gi=-1; _GA.forEach(function(re,j){ if(re.test(c.slug||'')) gi=j; });
-      if(gi>-1){ _gc=gq[gi]={text:c.text}; } else if(_gc){ _gc.text+=' '+c.text; if(c.slug==='online-3-welcome') _gc.onl=true; } });
+      if(gi>-1){ _gc=gq[gi]={text:c.text,on:/-online$/.test(c.slug||'')}; } else if(_gc){ _gc.text+=' '+c.text; if(c.slug==='online-3-welcome') _gc.onl=true; } });
     /* ★[B2_NA_26 2026-11-06 BATCH2 나26] 그 시각 큐가 실제로 없으면(엔진을 받은 뒤) 다른 시각 글을 빌리지 않고 «현재 식순에는 이 시각의 안내가 없습니다.» ·
          1분 전 짧은 설명은 그 뒤에 온라인 환영(48)이 실제로 붙을 때만 «… · 온라인 참석자 환영» · 식사 확인처 설정은 바꾸지 않는다(B2-K10 결정 전) */
     var _none='현재 식순에는 이 시각의 안내가 없습니다.', _rd=cs.length>0, _g=function(i,d){ return gq[i]?{d:d,tx:gq[i].text}:_rd?{d:_none,tx:_none}:{d:d,tx:''}; };
-    var _g0=_g(0,'환영 · 사진 올리기 방법'), _g1=_g(1,mF?'시작 예고 · 식사 예고':'시작 예고'), _g2=_g(2,mF?'식사 장소 확인 · 사진 올리기':'사진 올리기'), _g3=_g(3,(gq[3]&&gq[3].onl)?'착석 · 휴대폰 무음 · 온라인 참석자 환영':'착석 · 휴대폰 무음');
+    var _g0=_g(0,'환영 · 사진 올리기 방법'), _g1=_g(1,mF?'시작 예고 · 식사 예고':'시작 예고'), _g2=_g(2,(mF?'식사 장소 확인 · 사진 올리기':'시작 알림')+((gq[2]&&gq[2].on)?' · 온라인 화면과 소리 확인':'')), _g3=_g(3,(gq[3]&&gq[3].onl)?'착석 · 휴대폰 무음 · 온라인 참석자 환영':'착석 · 휴대폰 무음');
+    /* ★[FIVE_LABEL_N20_19 2026-11-18 야간 점검 #19] 5분 전 짧은 설명 = 그 칸 소리 그대로 — 식사 없는 날 소리(03 · 314)는 «시작 오 분 전»뿐이라 «사진 올리기»가 아니다(W5M_FIX_1107 이 사진 줄을 걷었다) ·
+         온라인 판(314 · 357 · 슬러그 끝 -online)이면 «온라인 화면과 소리 확인»을 덧붙인다(1분 전 «온라인 참석자 환영»과 같은 틀) · 검사 scripts/audit/open-course.mjs */
     return [{t:'입장 때',n:'하객 맞이 안내',d:_g0.d,w:'v',tx:_g0.tx},
       {t:'10분 전',n:'하객 맞이 안내',d:_g1.d,w:'v',tx:_g1.tx},
       {t:'5분 전',n:'하객 맞이 안내',d:_g2.d,w:'v',tx:_g2.tx},
