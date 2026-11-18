@@ -21789,6 +21789,9 @@ chk 'function _clHints()' order-preview.html 1
 chk 'GROUP_PHOTO_199' order-preview.html 3   # [POST_FLOW_200] 셋은 POST_KS 로 합쳤다
 chk "function _photoLine()" order-preview.html 1
 chk "_fixSteps('post').map(fxRow).join('')" order-preview.html 1   # [FIX_FLOW_204 B] 예식 흐름 사진 · 정리 = 늘 있는 진행 한 벌
+chk 'FLOW_PLAY_TAP44_1118' order-preview.html 1   # 예식 흐름 «들어 보기» 누름 칸 44px(옛 32px) · [EXIT_TAP44] 보이는 크기 그대로
+chk 'margin-top:4px;min-height:44px;padding:0 10px;border:1px solid var(--gold)' order-preview.html 1   # [FLOW_PLAY_TAP44_1118]
+nochk 'margin-top:4px;min-height:32px;padding:0 10px;border:1px solid var(--gold)' order-preview.html   # [FLOW_PLAY_TAP44_1118] 32px 로 되돌리지 말 것
 chk "lab:k==='_after'?_post('_after').sub:" order-preview.html 1   # [POST_FLOW_200]
 chk "'+ 식사 안내 멘트: 애프터 웨딩에서 식당을 정하면 붙어요'" order-preview.html 1   # ★[MEAL_HINT_SHORT_204 사장님 «너무 길어요»] «마이페이지 ›» · «예약 시각» 뺌
 nochk '식사 안내 멘트: 마이페이지 ›' order-preview.html   # [CL_HINT_199] 진사 · 짧게(종전 긴 회색 문장) · [MEAL_HINT_1102] 무엇이 붙는지 · 언제 붙는지 한 줄
