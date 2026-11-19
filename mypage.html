@@ -7385,7 +7385,10 @@ function _prodFsSync(){
   var on = INVFLOW.active || (typeof TRKFLOW!=='undefined' && TRKFLOW.active) || SEATFLOW.active;   // 단체사진(PHOTOFLOW)은 전용 오버레이(mp_photoOverlay) 사용이라 제외
   var has = box.classList.contains('mp-fs');
   if(on && !has){ box.classList.add('mp-fs'); document.body.classList.add('mp-fs-on'); _mpLock(); }   // [FAB_OVER_FS] body 표식 — FAB 스택을 오버레이 위로 올리는 스위치
-  else if(!on && has){ box.classList.remove('mp-fs'); document.body.classList.remove('mp-fs-on'); _mpUnlock(); }
+  else if(!on && has){ _layerInertOff(box); box.classList.remove('mp-fs'); document.body.classList.remove('mp-fs-on'); _mpUnlock(); }   // [PROD_FS_INERT] 풀고 나서 연 단추로 초점을 돌린다
+  if(on) _layerInertOn(box);   /* ★[PROD_FS_INERT 2026-11-19 R3X #14] 청첩장 · 좌석 · 음료 · 애프터 웨딩 전체화면도 다른 겹화면([C2_LAYER_INERT])과 같은 약속 — 떠 있는 동안 뒤 페이지 inert.
+     종전엔 이 셋만 빠져 PC 에서 Tab 이 가려진 뒤 페이지(새로고침 · 계좌번호 복사 · «입금했어요» · 로그아웃)로 13 ~ 19번 나갔다 — 보이지 않는 단추를 Enter 로 누를 수 있었다.
+     위에 뜨는 판(확인 판 · 주소 창 · 알림 · 오른쪽 레일)은 z 가 더 커서 막지 않는다(_layerInertOn 의 keep 규칙) · 두 번 불러도 한 번만 건다 */
 }
 // [MPD4_H4] 전달완료 후 '내 완성물' 읽기전용 요약(§9-5-⑥) — 끝난 예식의 편집 대시보드 잔존 제거. 링크만 열람.
 function _myWorksHtml(p, inv){
