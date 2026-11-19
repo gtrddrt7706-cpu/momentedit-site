@@ -54,6 +54,18 @@ html{font-synthesis:weight}/* ★★[KO_NO_FAUX_ITALIC 2026-09-25 코워크 3편
      청첩장은 디자인이 상품이라, 대비·자간 같은 다른 실측 지적(옅은 장식 활자 ·
      이름 자간 24~50%)은 의도된 조판으로 보고 손대지 않았다. */
 .env-acc-copy,.acc-copy{min-height:40px;display:inline-flex;align-items:center;justify-content:center}
+/* ★[SHOWCASE_RM_N20_19 2026-11-19 R3X2 교차 점검] 움직임 줄이기 — 실물 cover-01 · 08 의 [DTL16] 킬스위치와 같은 처방(쇼케이스 사본에만 빠져 «스크롤 안내 줄»이 끝없이 돌았다) */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important;
+    scroll-behavior:auto !important;
+  }
+  .reveal{opacity:1 !important;transform:none !important}
+  .cover-scroll{opacity:1;animation:none}
+  .cover-scroll-line{animation:none}
+}
 </style>
 
 <style>
