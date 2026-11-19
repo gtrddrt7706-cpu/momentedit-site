@@ -23134,6 +23134,8 @@ chk "+_longTxBtn()+'</div>'" order-preview.html 1
 chk 'B2_FIX_NI16' api/after-concierge.js 1                  # 지도 분류 «갈래 > 끝 토막»
 chk 'B2_FIX_NI16' assets/ritual-preview-link.js 2           # 옛 끝 토막 꼴 — 분명한 음식 분류 낱말일 때만
 chk 'B2_FIX_NI16' scripts/audit/console-inject.mjs 2
+chk 'GD_OLDTAIL_1119' guide.html 4                # [GD_OLDTAIL_1119 NIGHT20 #14] 하객 안내도 옛 끝 토막(«한식 · 1.2km»)을 식순과 같게 가른다
+if command -v node >/dev/null 2>&1; then if node scripts/audit/guide-kind-same.mjs >/dev/null 2>&1; then echo 'ok guide-kind-same [GD_OLDTAIL_1119]'; else echo "REVERT? scripts/audit/guide-kind-same.mjs 빨강 — 하객 안내 pickKind 가 식순 diningStatusOf 와 다른 근거로 가른다(옛 끝 토막 · 낱말 목록)"; fail=1; fi; fi
 chk 'B2_FIX_MA_38_GAS' automation/platform/80_production.gs 1   # 하객 안내 대표 장소 = 이름 + venuePickPid(없으면 옛 초안처럼 이름)
 chk "String(v.pid || '').trim() === _ppid" automation/platform/80_production.gs 1
 chk 'B2_FIX_MA_38_GAS' automation/tests/guide.test.js 1
