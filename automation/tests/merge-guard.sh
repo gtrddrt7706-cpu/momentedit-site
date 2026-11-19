@@ -23159,6 +23159,8 @@ chk "+_longTxBtn()+'</div>'" order-preview.html 1
 chk 'B2_FIX_NI16' api/after-concierge.js 1                  # 지도 분류 «갈래 > 끝 토막»
 chk 'B2_FIX_NI16' assets/ritual-preview-link.js 2           # 옛 끝 토막 꼴 — 분명한 음식 분류 낱말일 때만
 chk 'B2_FIX_NI16' scripts/audit/console-inject.mjs 2
+chk 'PROD_FS_INERT' mypage.html 2                # [PROD_FS_INERT R3X #14] 청첩장 · 좌석 · 음료 · 애프터 웨딩 전체화면도 뒤 페이지 inert(Tab 이 가려진 본문으로 안 나간다)
+if command -v node >/dev/null 2>&1; then node scripts/audit/prod-fs-inert.mjs >/tmp/_pfi.txt 2>&1; _pfi=$?; if [ "$_pfi" = 1 ]; then echo 'REVERT? scripts/audit/prod-fs-inert.mjs 빨강 — 제작 전체화면이 떠 있는데 Tab 이 뒤 본문으로 나간다(또는 닫아도 막음이 남는다)'; grep FAIL /tmp/_pfi.txt | head -3; fail=1; else echo "ok prod-fs-inert [PROD_FS_INERT] (코드 $_pfi · 2 = 브라우저 없어 정적만)"; fi; fi
 chk 'B2_FIX_MA_38_GAS' automation/platform/80_production.gs 1   # 하객 안내 대표 장소 = 이름 + venuePickPid(없으면 옛 초안처럼 이름)
 chk "String(v.pid || '').trim() === _ppid" automation/platform/80_production.gs 1
 chk 'B2_FIX_MA_38_GAS' automation/tests/guide.test.js 1
