@@ -24110,3 +24110,8 @@ chk 'textContent = fmt(c.est || 0); } catch (e) {}   /\* ★\[CARD_PROG_RESET_N2
 # ★[LIVE_PROG_N20_1118 NIGHT20 #04] 미리 듣기 장면 카드(사람 순간)도 제 시간 막대를 그린다 — later 로 되돌리면 앞 소리 «0:09 / 0:08» · 가득 찬 막대가 10초 내내 남는다
 chk 'else runProg(c.live.est || 10, advance);   /\* ★\[LIVE_PROG_N20_1118' console.html 1
 nochk 'else later(function(){ advance(); }, (c.live.est || 10) \* 1000);' console.html 0
+
+# ★[MEAL_GUIDE_WORD_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정] 도와주실 분 — 식사가 확인된 날만 «식사 자리로 안내할 분» · 카페 · 미확인 날은 다른 말(319 카페 판과 같은 기준)
+chk 'MEAL_GUIDE_WORD_N06' assets/ritual-open.js 1
+chk 'MEAL_GUIDE_WORD_N06' mypage.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/meal-guide-word.mjs >/dev/null 2>&1; _mg=$?; node scripts/audit/meal-guide-word.mjs --selftest >/dev/null 2>&1; _mgs=$?; if [ "$_mg" != 0 ] || [ "$_mgs" != 0 ]; then echo "REVERT? meal-guide-word: 카페 날 도와주실 분 이름이 «식사 자리»로 돌아갔다 ($_mg/$_mgs) — node scripts/audit/meal-guide-word.mjs"; fail=1; else echo 'ok meal-guide-word'; fi; fi
