@@ -5027,7 +5027,9 @@ chk "+PN\[_pw\]+' 빼기</button>'" order-preview.html 1                  # 빼�
 chk 'PAIR_TILE_ON_1115' order-preview.html 1
 chk 'w?PICK_COPY.tileOn\[w\]:PICK_COPY.tile.free' order-preview.html 1                      # 담은 뒤 카드 한 줄 = 고른 쪽
 chk 'MID_COST_NEAR_1115' order-preview.html 2
-chk '<span class="pv-in pv-cost">쿠폰으로 기본 템플릿 무료 · 추가는 두 분 부담이에요</span>' order-preview.html 1     # 식중 영상 비용은 담기 단추 옆(펼침 안 아님) · ★[FM_COUPON_1116] 옛 핀 «제작비는 두 분 부담이에요»
+chk '<span class="pv-in pv-cost">쿠폰으로 기본 템플릿 무료&nbsp;· 추가는 두 분 부담이에요</span>' order-preview.html 1     # 식중 영상 비용은 담기 단추 옆(펼침 안 아님) · ★[FM_COUPON_1116] 옛 핀 «제작비는 두 분 부담이에요»
+chk 'MID_COST_NBSP_1120' order-preview.html 1     # [MID_COST_NBSP_1120] 점(·)이 줄머리에 오지 않게 «무료&nbsp;·»
+nochk '무료 · 추가는 두 분 부담이에요' order-preview.html 0
 chk 'PV_WHO_FOLD_1115' order-preview.html 1
 chk '.pv-who\[open\] summary::after{transform:rotate(-135deg)' order-preview.html 1         # «누가 하나요?» 꺾쇠(같은 창 장면 사진 칩과 같은 꼴)
 chk 'SONG_WHO_ONE_1115' order-preview.html 3
