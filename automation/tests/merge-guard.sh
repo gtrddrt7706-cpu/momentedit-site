@@ -24119,3 +24119,5 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/bless-card-who.mjs >
 # ★[RAIL_EMPTY_N06 2026-11-19 야간 점검 #06] 연습 끝 화면 — 줄이 없으면 PC 오른쪽 «예식 순서» 목록을 그리지 않는다(빈 제목만 홀로 서지 않게)
 chk 'RAIL_EMPTY_N06' order-preview.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/rail-empty.mjs >/dev/null 2>&1; _re=$?; node scripts/audit/rail-empty.mjs --selftest >/dev/null 2>&1; _res=$?; if [ "$_re" != 0 ] || [ "$_res" != 0 ]; then echo "REVERT? rail-empty: 끝 화면에 빈 «예식 순서» 목록이 다시 섰다 ($_re/$_res) — node scripts/audit/rail-empty.mjs"; fail=1; else echo 'ok rail-empty'; fi; fi
+# ★[VIMEO_ALLOW_EME_N20_19 2026-11-19 야간 점검 #19] 디지털 참석 영상 iframe 허용 목록에 encrypted-media(빠지면 영상이 붙을 때 콘솔 오류 3건)
+chk 'picture-in-picture; encrypted-media' live.html 1
