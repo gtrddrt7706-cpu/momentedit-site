@@ -23781,7 +23781,7 @@ chk 'SEG_FIRST_FAIL_1114' scripts/audit/console-bed-1114.mjs 3
 chk 'ARRIVE_SETTLE_PV_1114' assets/bgm-bed.js 4
 chk 'var ARRIVE_LEAD=1000;' assets/bgm-bed.js 1
 chk 'ARRIVE_SETTLE_PV_1114' scripts/audit/pv-fix-1114.mjs 1
-chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115' }" .github/workflows/merge-guard.yml 1   # [PV_FIX_1114] · [CONSOLE_R2_1115] 같은 칸
+chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115 one-flow' }" .github/workflows/merge-guard.yml 1   # [PV_FIX_1114] · [CONSOLE_R2_1115] 같은 칸
 chk 'PV_FIX_1114' scripts/audit/pv-fix-1114.mjs 1   # 검사 머리 이름(묶음) — CI bgm-sound f 칸
 # ★★[SONG_OPEN_FADE_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 후보 ⑦] 미리 듣기 · 연습 — 축가 여는 말 뒤 본식 피아노는 줄이 끝난 때부터 1.5초에 걸쳐 정적(엔진 큐 post 값 그대로 · 종전 0.3초 · MEANING_R1_1102 8) · 소리는 pv-fix-1114 ② 가 잰다
 chk 'SONG_OPEN_FADE_PV_1114' assets/bgm-bed.js 2
@@ -23904,7 +23904,7 @@ chk 'CARRY_HEARD_1115' scripts/audit/console-r3-1115.mjs 3
 chk 'RELIFT_XG_1115' scripts/audit/console-relift.mjs 3
 # ★★[PV_R3_1115 2026-11-15 BGM 섹션 · GPT 라운드 3] 미리 듣기 · 연습(bgm-bed) 고침 묶음 검사 — 옛 판 빨강 · 새 판 초록(BP_BED 로 깨 보기) · CI bgm-sound f 칸
 chk 'PV_R3_1115' scripts/audit/pv-r3-1115.mjs 1
-chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115' }" .github/workflows/merge-guard.yml 1
+chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115 one-flow' }" .github/workflows/merge-guard.yml 1
 # ★[CI_SPLIT_G_1115 2026-11-15] bgm-sound g 칸 — 라운드 3 검사 둘(console-r3-1115 · pv-r3-1115) · f 칸이 20분에 가까워 나눔
 chk 'CI_SPLIT_G_1115' .github/workflows/merge-guard.yml 1
 chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115' }" .github/workflows/merge-guard.yml 1
