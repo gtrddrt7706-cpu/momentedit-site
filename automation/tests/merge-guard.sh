@@ -24203,3 +24203,5 @@ chk 'class="chip-list" role="radiogroup" aria-required="true" aria-label="현재
 # ★[SEAT_INPUT16_N20_19 2026-11-20 R3X2] 좌석 화면 성함 찾기 칸 16px(아이폰 자동 확대 막기)
 chk 'SEAT_INPUT16_N20_19' seat.html 1
 chk 'color:var(--accent);padding:11px 12px}   /\* ★\[SEAT_INPUT16_N20_19' seat.html 1
+# ★[HOME_FOCUS_FORCED_N20_19 2026-11-20 R3X2] 홈 FAQ 검색칸 · 상담 도우미 입력칸 초점이 윈도 고대비에서도 보인다
+chk 'HOME_FOCUS_FORCED_N20_19' index.html 1
