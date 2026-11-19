@@ -24168,3 +24168,5 @@ chk 'H-5: 송출 켜기' docs/plans/PLAN_영상운영_기획안.md 1
 chk "if (GUEST && e.key === 'Escape' && !e.repeat && window.parent !== window) { try { window.parent.document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', bubbles: true })); } catch (_) {} return; }   /\* ★\[RP_ESC_IN_N20_04X_1119" console.html 1
 # ★[CTL_ROW_N20_04X_1119 R3X #04] 미리 듣기 단추 셋 아래 칸은 한 줄 전체 — 빠지면 빨간 오류 줄 폭만큼 «이전» 칸이 넓어져 좁은 폰에서 «다음 순서로»가 두 줄로 꺾인다
 chk 'body.guest .ctl .inner>div{grid-column:1/-1}   /\* ★\[CTL_ROW_N20_04X_1119' console.html 1
+# ★[TRYGO_CENTER_N20_04X_1119 R3X2 #04] 연습 끝 «두 분 차례 직접 해보기» 글자 가운데 — 빠지면 넓은 단추 안에서 글만 왼쪽에 붙는다
+chk 'border-color:var(--accent);justify-content:center}   /\* ★\[TRYGO_CENTER_N20_04X_1119' order-preview.html 1
