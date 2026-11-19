@@ -24110,3 +24110,6 @@ chk 'textContent = fmt(c.est || 0); } catch (e) {}   /\* ★\[CARD_PROG_RESET_N2
 # ★[LIVE_PROG_N20_1118 NIGHT20 #04] 미리 듣기 장면 카드(사람 순간)도 제 시간 막대를 그린다 — later 로 되돌리면 앞 소리 «0:09 / 0:08» · 가득 찬 막대가 10초 내내 남는다
 chk 'else runProg(c.live.est || 10, advance);   /\* ★\[LIVE_PROG_N20_1118' console.html 1
 nochk 'else later(function(){ advance(); }, (c.live.est || 10) \* 1000);' console.html 0
+# ★[LETTER_PREVIEW_READ_N20_19 2026-11-19 R3] 편지 미리보기 블록은 통째로 숨기지 않고(안내 두 줄은 화면 읽기에 들린다) 겉모양 흉내 넷만 aria-hidden
+chk 'id="letterPreview" style="display:none">' live.html 1
+chk 'lp-cta-preview" aria-hidden="true"' live.html 1
