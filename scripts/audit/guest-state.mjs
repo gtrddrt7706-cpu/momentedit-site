@@ -93,6 +93,9 @@ for (const [pg, label] of PAGES) {
       process.exit(2);
     }
     const said = m.txt.indexOf(want) !== -1;
+    /* [EXIT_ASK_ONLY_R3X2] «주소 끝이 잘려 …» 줄은 링크가 틀렸을 때만 — 날짜를 모를 때(링크는 멀쩡함)는 문의처만 */
+    const cut = m.txt.indexOf('끝이 잘려') !== -1, cutWant = exitRule === 'exit' && !/날짜를 모름/.test(name);
+    if (cut !== cutWant) { bad++; console.log(`    ✗ ${name} — «주소 끝이 잘려» 줄이 ${cutWant ? '있어야' : '없어야'} 하는데 ${cut ? '있다' : '없다'}`); }
     const exitOk = exitRule === 'any' || (exitRule === 'none' ? m.n === 0 : m.n >= 1);
     if (said && exitOk) console.log(`    ok ${name} — 「${want}」 · 출구 ${m.n}개`);
     else {

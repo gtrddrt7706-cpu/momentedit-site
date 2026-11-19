@@ -566,7 +566,8 @@ var EXIT_HTML='<div class="state-x">'
   +'<a class="state-x-b" href="https://pf.kakao.com/_CfxcxlX/chat" target="_blank" rel="noopener">카카오톡으로 문의하기</a>'
   +'<a class="state-x-b sub" href="mailto:contact@momentedit.kr">메일로 문의 · contact@momentedit.kr</a>'
   +'</div>';
-function stateHtml(msg, sm, x){ return '<div class="card"><div class="state" role="status">'+_ecHtml(msg)+(sm?'<div class="sm">'+_ecHtml(sm)+'</div>':'')+'</div>'+(x?EXIT_HTML:'')+'</div>'; }   // [ERR_CODE_GLUE] _ecHtml = esc + «(코드 X#)» 한 덩어리
+var EXIT_HTML_ASK=EXIT_HTML.replace(/<div class="state-x-s">[^<]*<\/div>/,'');   /* [EXIT_ASK_ONLY_R3X2 2026-11-19 NIGHT20 #12 교차 점검] «날짜를 모름»(reason 'unknown' · 링크는 멀쩡함)에는 «링크를 다시 받아 주세요 · 주소 끝이 잘려…» 줄이 맞지 않는다 — 그 한 줄만 빼고 문의처 둘은 그대로(x=2). 잘못된 주소 · 못 찾음은 종전대로(x=1) */
+function stateHtml(msg, sm, x){ return '<div class="card"><div class="state" role="status">'+_ecHtml(msg)+(sm?'<div class="sm">'+_ecHtml(sm)+'</div>':'')+'</div>'+(x?(x===2?EXIT_HTML_ASK:EXIT_HTML):'')+'</div>'; }   // [ERR_CODE_GLUE] _ecHtml = esc + «(코드 X#)» 한 덩어리
 function mapUrl(v){ return (v.url && /^https?:/i.test(v.url)) ? v.url : ('https://map.kakao.com/?q='+encodeURIComponent(v.n||'')); }
 function telUrl(t){ return 'tel:'+String(t||'').replace(/[^0-9+]/g,''); }
 var ICON_MAP='<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/>';
@@ -1393,7 +1394,7 @@ function renderDemo(){
     var un=GP.fail.length+GP.unsure.length+GP.rest.length, gp=(GP.sent?gpDoneMsg(GP.sent)+'.':'')+(un?(GP.sent?' ':'')+'아직 보내지 않은 사진이 '+un+'장 있어요.':'');   // [B2_FIX_MA_18]
     if(d.reason==='unknown'){
       /* 서버 문구가 이미 «확정되면 다시 열려요»를 담고 있다 — 부제에 같은 말을 반복하지 않는다(실렌더로 확인). */
-      $('root').innerHTML=stateHtml('안내를 준비하고 있어요.','예식 정보가 확정되면 이 링크가 다시 열려요.', d.help?1:0);
+      $('root').innerHTML=stateHtml('안내를 준비하고 있어요.','예식 정보가 확정되면 이 링크가 다시 열려요.', d.help?2:0);   // [EXIT_ASK_ONLY_R3X2]
     } else {
       $('root').innerHTML=stateHtml('예식이 끝나 안내가 닫혔어요.','함께해 주셔서 감사합니다.');
     }
