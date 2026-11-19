@@ -16476,6 +16476,11 @@ chk 'PR_SIMPLE' order-preview.html 2
 chk 'PR_JUMP' order-preview.html 4
 chk 'PR_WIDE' order-preview.html 3
 chk 'PR_NAV_COL' order-preview.html 1   # ★[NIGHT20 #11 1118] 연습하기 PC 아래 막대 = 오른쪽 칸 폭 — 520 고정은 왼쪽 칸을 덮었다
+chk 'TOUCH_HOVER_GATE_N20_11' order-preview.html 8   # ★[R3X #11 1119] 폰(터치)에서 누른 뒤 남는 :hover 여덟 자리를 (hover:hover) 안으로
+nochk '^\.ps-arw:hover{' order-preview.html   # [TOUCH_HOVER_GATE_N20_11] 맨바깥 :hover 로 되돌리지 말 것
+nochk '^\.ob-exit:hover{' order-preview.html   # [TOUCH_HOVER_GATE_N20_11]
+nochk '^\.lf-rr:hover{' order-preview.html   # [TOUCH_HOVER_GATE_N20_11]
+nochk '^\.mk-it:hover \.mk-t{' order-preview.html   # [TOUCH_HOVER_GATE_N20_11]
 nochk 'body.pr2 .nav{max-width:520px' order-preview.html   # [PR_NAV_COL] 되돌리지 말 것
 chk 'PR_RAIL' order-preview.html 6
 chk 'function _lRail(st)' order-preview.html 1
