@@ -24104,3 +24104,5 @@ chk "const ROLE_CLAP = /^clap-(speech|song|self)\$/;" scripts/audit/narr-words.m
 # ★[LIVE_PROG_N20_1118 NIGHT20 #04] 미리 듣기 장면 카드(사람 순간)도 제 시간 막대를 그린다 — later 로 되돌리면 앞 소리 «0:09 / 0:08» · 가득 찬 막대가 10초 내내 남는다
 chk 'else runProg(c.live.est || 10, advance);   /\* ★\[LIVE_PROG_N20_1118' console.html 1
 nochk 'else later(function(){ advance(); }, (c.live.est || 10) \* 1000);' console.html 0
+# ★[VIMEO_ALLOW_EME_N20_19 2026-11-19 야간 점검 #19] 디지털 참석 영상 iframe 허용 목록에 encrypted-media(빠지면 영상이 붙을 때 콘솔 오류 3건)
+chk 'picture-in-picture; encrypted-media' live.html 1
