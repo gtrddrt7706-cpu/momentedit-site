@@ -1918,6 +1918,7 @@ chk 'SCHED_FOOTER_LOGO' schedule.html 1                         # 스케줄 푸�
 chk '.sticky-label{color:var(--gold-text)}' schedule.html 1     # 9.5px 골드 라벨 2.54:1 → 5.71:1 · var(--gold)로 되돌리기 금지
 chk 'TRACK_RAMP8' index.html 1                              # 자간 8단계 램프 · 히어로/워드마크/목업 예외
 chk 'A11Y_PINCH_ZOOM' index.html 1                          # 핀치줌 허용 · user-scalable=no 재삽입 금지(WCAG 1.4.4)
+chk 'PV_KEEPALL_X' preview.html 1              # [2026-11-19 NIGHT20 R3X2 #15] 청첩장 미리 보기 아래 안내 낱말 단위 줄바꿈
 chk 'INV06_DARK_AA' i/cover-06.html 2              # [2026-11-19 NIGHT20 #15] 06 어두운 칸 라벨 · 꼬리 대비 AA — opacity 로 다시 흐리지 말 것
 chk 'INV06_DARK_AA' i-family/family-06.html 2
 chk 'A11Y_LETTER_EXPOSED' index.html 1                      # 받은편지 예시는 콘텐츠 · aria-hidden 되돌리면 버튼이 포커스만 되고 안 읽힘
