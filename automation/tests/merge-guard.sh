@@ -1527,6 +1527,7 @@ chk 'gold-text' guide.html 6                   # 토큰 정의 1 + 읽는 골드
 chk 'GUIDE_TAP40' guide.html 1                 # 지도·전화 71×34 · 뒤로 48×29 → 40px. ★뒤로는 .backbar top -4→-9를 함께 옮겨야 라벨이 안 어긋난다
 chk 'GUIDE_KO_TRACK' guide.html 1              # '여기로 모여요'(16%)·'단상·신랑 신부'(20%) — 영문 라벨 트래킹이 한글에 걸린 것. 홈/문의/live와 같은 처방
 chk 'GUIDE_ORPHAN' guide.html 1                # ★text-wrap:pretty는 한글을 재배분하지 않는다(실측). word-break:keep-all로 되돌리지 말 것
+chk 'og-seal.png?v=5' guide.html 1               # [GUIDE_OG_IMG_N20_18] 카톡으로 보내는 하객 안내 링크의 미리보기 그림(빠지면 그림 없는 글 상자)
 chk 'GUIDE_FOCUS' guide.html 1                 # .find input:focus{outline:none}가 초점 링을 지우고 있던 것. ★:where()는 특이도 0이라 .find input:focus-visible 재선언이 함께 있어야 이긴다
 chk 'GUIDE_HEADING' guide.html 1               # h1·h2가 0개였다 — 화면낭독기에 구조가 없었다
 chk 'h2 class="sec-t"' guide.html 4            # 섹션 제목 4곳(좌석·내자리·식사·사진). span으로 되돌리면 헤딩 구조가 다시 사라진다
