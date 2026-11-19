@@ -1310,6 +1310,15 @@ html.lsmini .ls::after,html.lsmini .mk::after,html.lsmini .pr::after{content:'';
   .ls-mini .lm-b:not(.lm-x){order:3}
   html.lsmini .ls::after,html.lsmini .mk::after,html.lsmini .pr::after{height:116px}   /* [MINI_ROOM · MINI_DOCK] 두 줄 플레이어(약 100px)만큼 맨 아래에 여유 — 마지막 칸이 그 뒤로 숨지 않게 */
 }
+/* ★[N20_MINI_TWO_ROW_1119 NIGHT20 R3X2 #09] 폭이 아니라 «작은 플레이어 자체의 폭»으로 두 줄을 고른다 — 작은 플레이어는 아래 단추 줄 폭(_opPad · 최대 484)을 따르는데,
+   화면이 561 ~ 1000 이면(태블릿 세로 · 가로 폰) 484 칸에 단추 일곱(약 410)이 한 줄로 서서 제목 칸이 47 ~ 73 으로 눌렸다(«감사 인사 2 / 3»이 두 줄로 쪼개지고 «신랑 차례 · …»로 잘림 · 768 실렌더).
+   그래서 플레이어 폭이 560 아래면(_opPad 가 .lm2 를 단다) 폰과 같은 두 줄(윗줄 제목 · ✕ / 아랫줄 크게 보기 · ‹ ▶ ›) — 위 @media 와 같은 규칙 · 684 칸(넓은 PC)은 그대로 한 줄 */
+.ls-mini.lm2{row-gap:0}
+.ls-mini.lm2 .lm-t{order:0;flex:1 1 calc(100% - 56px)}
+.ls-mini.lm2 .lm-x{order:1}
+.ls-mini.lm2 .lm-g{order:2;margin-left:-10px;margin-right:auto}
+.ls-mini.lm2 .lm-b:not(.lm-x){order:3}
+html.lsmini.lsmini2 .ls::after,html.lsmini.lsmini2 .mk::after,html.lsmini.lsmini2 .pr::after{height:116px}   /* 두 줄이면 맨 아래 여유도 폰과 같게 */
 .ls-full{position:fixed;inset:0;z-index:2147482000;background:var(--bg);overflow:auto}
 .ls-full[hidden]{display:none}
 body.lsfull{overflow:hidden}
@@ -9334,6 +9343,7 @@ function _opPad(){
   var sl=document.getElementById('pkSlim'), slOn=!!(sl&&sl.classList.contains('on')), mi=document.getElementById('lsMini'), miOn=de.classList.contains('lsmini')&&mi;
   de.style.scrollPaddingTop=Math.max(b?Math.round(b.getBoundingClientRect().height)+8:0, slOn?Math.round(sl.getBoundingClientRect().height)+8:0)+'px';   // [SLIM_SCROLL_PAD] PC 얇은 띠가 떠 있으면 그 높이도
   if(miOn&&n){ var _nr=n.getBoundingClientRect(); if(_nr.width>0){ mi.style.left=Math.round(_nr.left)+'px'; mi.style.width=Math.round(_nr.width)+'px'; mi.style.transform='none'; mi.style.bottom=Math.max(8,Math.round(window.innerHeight-_nr.top-8))+'px'; } }   // [MINI_DOCK] 아래 단추 줄과 같은 폭 · 그 바로 위(단추 줄 위 여백 16 안쪽 8)
+  if(mi){ var _m2=!!(miOn&&mi.getBoundingClientRect().width<561); mi.classList.toggle('lm2',_m2); de.classList.toggle('lsmini2',_m2); }   // ★[N20_MINI_TWO_ROW_1119] 플레이어 폭이 좁으면(태블릿 · 가로 폰 포함) 두 줄 — 높이가 바뀌니 아래 여유 계산보다 먼저
   de.style.scrollPaddingBottom=((n?Math.round(n.getBoundingClientRect().height)+8:0)+(miOn?Math.round(mi.getBoundingClientRect().height)+16:0))+'px';   // [MINI_ROOM] 작은 플레이어가 떠 있으면 그 높이도
   if(_padRO){ if(b&&b!==_padEl){ _padEl=b; _padRO.observe(b); } if(n&&!_padNav){ _padNav=true; _padRO.observe(n); } }
 }
