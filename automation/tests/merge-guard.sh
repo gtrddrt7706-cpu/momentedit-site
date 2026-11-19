@@ -24110,3 +24110,5 @@ chk 'textContent = fmt(c.est || 0); } catch (e) {}   /\* ★\[CARD_PROG_RESET_N2
 # ★[LIVE_PROG_N20_1118 NIGHT20 #04] 미리 듣기 장면 카드(사람 순간)도 제 시간 막대를 그린다 — later 로 되돌리면 앞 소리 «0:09 / 0:08» · 가득 찬 막대가 10초 내내 남는다
 chk 'else runProg(c.live.est || 10, advance);   /\* ★\[LIVE_PROG_N20_1118' console.html 1
 nochk 'else later(function(){ advance(); }, (c.live.est || 10) \* 1000);' console.html 0
+# ★[CTL_ROW_N20_04X_1119 R3X #04] 미리 듣기 단추 셋 아래 칸은 한 줄 전체 — 빠지면 빨간 오류 줄 폭만큼 «이전» 칸이 넓어져 좁은 폰에서 «다음 순서로»가 두 줄로 꺾인다
+chk 'body.guest .ctl .inner>div{grid-column:1/-1}   /\* ★\[CTL_ROW_N20_04X_1119' console.html 1
