@@ -1496,8 +1496,11 @@ chk 'HOME_CTA_KO' index.html 1                 # 주 버튼 한글 주·영문 �
 chk 'cta-eyebrow' index.html 4                 # 영문 아이브로우 3곳 + CSS 1. ★영문을 버튼 '안'에 2줄로 넣는 안(cta-btn-ko/en)은 2026-07-26 재검토로 폐기 — 되살리지 말 것(버튼 73px·영문 불투명 66%로 안 읽힘)
 chk 'BTN_TIER' index.html 4                    # 버튼 2단 체계(채움=전환 3곳 / 외곽=보조 이동 1곳). journal-guide-link를 채움 마룬으로 되돌리면 화면에 전환 버튼이 4개가 된다 — 복원 금지
 chk 'MAP_BREATH' index.html 1                  # 지도 블록 상하 여백 80/88 — margin-top만 두고 아래를 0으로 되돌리면 다시 푸터에 끼인다
+chk 'PRICE_LABEL_NOWRAP' index.html 2           # [2026-11-18 NIGHT20 #13] 가격표 항목 이름 한 줄 · 긴 덧말이 접힌다(390 «식중 / 영상» 쪼개짐)
 # ── 2026-07-26 inquiry.html 1라운드
 chk 'INQ_REQ_DOT' inquiry.html 1               # 필수 표시 점 3px 골드(2.54:1) 복원 금지 — 폼에서 가장 중요한 정보가 안 보였다
+chk 'REQ_DOT_SCOPE' inquiry.html 1             # [2026-11-18 NIGHT20 #13] .required-dot 규칙 앞 떨어진 «.field » 걷음 — 붙으면 입력칸 밖 필수 점 12곳이 0px
+nochk '}\.field /\* \[INQ_REQ_DOT\]' inquiry.html 0  # 같은 고장 되살림 막기
 chk 'INQ_RAIL_CLEAR' inquiry.html 1            # ★본문 우측 여백 확보 '금지' 기록(2026-07-26 철회 — 본문이 왼쪽으로 치우쳐 보임). 겹침을 이유로 padding-right를 다시 넣지 말 것
 chk 'INQ_TAP40' inquiry.html 1                 # 선택지 라벨 40px — 라디오는 opacity:0이라 라벨이 실제 탭 타깃
 chk 'INQ_NAV_HIDE' inquiry.html 1              # 네비 스크롤 숨김 로직 — 없으면 fixed·투명 네비가 페이지 전체에서 본문과 겹친다(홈엔 있고 여기만 빠져 있었다)
@@ -16424,6 +16427,8 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/line-even.mjs >/dev/
 chk 'PR_SIMPLE' order-preview.html 2
 chk 'PR_JUMP' order-preview.html 4
 chk 'PR_WIDE' order-preview.html 3
+chk 'PR_NAV_COL' order-preview.html 1   # ★[NIGHT20 #11 1118] 연습하기 PC 아래 막대 = 오른쪽 칸 폭 — 520 고정은 왼쪽 칸을 덮었다
+nochk 'body.pr2 .nav{max-width:520px' order-preview.html   # [PR_NAV_COL] 되돌리지 말 것
 chk 'PR_RAIL' order-preview.html 6
 chk 'function _lRail(st)' order-preview.html 1
 chk 'window.lsGoK=function(k)' order-preview.html 1
@@ -23516,6 +23521,8 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/b2-fix-r2.mjs >/dev/
 chk 'B2_FIX_NA_02_ORDER' console.html 3
 chk 'B2_FIX_NA_38_ONE' order-preview.html 1
 chk 'B2_FIX_NA_50_375' order-preview.html 1
+chk 'PC_EX_META_WRAP' order-preview.html 1   # ★[NIGHT20 #11 1118] PC 1000~1110 기록 카드 «… 약 9분» 잘림 — PC 도 « · » 자리에서 접는다
+chk '  .pk-ex-m{white-space:normal;min-width:0}' order-preview.html 1   # [PC_EX_META_WRAP] 되돌리면 1024 에서 27px 삐져나간다
 # ── 2026-11-06 [B2_FIX_* 재검증 재수정 PR3] 마이페이지 · guide · 디지털 참석 · 촬영 브리프 · 홈 · AI 지식
 chk 'B2_FIX_MA_50' brief.html 1                     # 사진 뒤 따로 있던 «감사 인사» 단계를 뺐다(닫는 인사가 맡는다)
 nochk '<b>감사 인사</b>' brief.html                  # 되살리지 말 것
@@ -24096,3 +24103,8 @@ nochk '께서 축가를 준비해 주셨습니다."' assets/ritual-cue.js 0   # 
 nochk "'speech-gfr': \"오늘의 축사는요" assets/ritual-cue.js 0   # 옛 긴 역할 축사 글(소리 없이 쉬던 판) 되살리지 않기
 chk 'ROLE_SHIP_1117 · 가이드 우성 카드' "assets/audio/_src/_layers/빠르기표_최종_1109.tsv" 26   # «누가» 새 멘트 18 + 덕담 8(ROLE_BLESS_X1_1117) = 빠르기표 1(테이크 그대로 ×1.0 · 늦추기 · 빠르게 하기 없음)
 chk "const ROLE_CLAP = /^clap-(speech|song|self)\$/;" scripts/audit/narr-words.mjs 1   # ★[ROLE_SHIP_1117] 뒤 붙임 박수 셋은 W7 밖 · 381 «따뜻한 박수»만 W1 밖
+# ★[CARD_PROG_RESET_N20_1118 NIGHT20 #04] 새 순서를 낼 때 막대 · 시간을 0 으로 — 빠지면 음악이 먼저 오르는 3 ~ 6초 동안 앞 카드 값(«0:25 / 0:04» · 막대 가득)이 새 카드 아래 남는다
+chk 'textContent = fmt(c.est || 0); } catch (e) {}   /\* ★\[CARD_PROG_RESET_N20_1118' console.html 1
+# ★[LIVE_PROG_N20_1118 NIGHT20 #04] 미리 듣기 장면 카드(사람 순간)도 제 시간 막대를 그린다 — later 로 되돌리면 앞 소리 «0:09 / 0:08» · 가득 찬 막대가 10초 내내 남는다
+chk 'else runProg(c.live.est || 10, advance);   /\* ★\[LIVE_PROG_N20_1118' console.html 1
+nochk 'else later(function(){ advance(); }, (c.live.est || 10) \* 1000);' console.html 0
