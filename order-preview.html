@@ -52,6 +52,7 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
 .ord-ask .oa-btns{display:flex;gap:8px;margin-top:20px}
 .ord-ask .oa-btns.one{justify-content:stretch}   /* [ORD_TELL] 알림형은 버튼 하나 — 확인 버튼이 판 전체 폭 */
 .ord-ask .oa-btns button{flex:1;min-height:48px;border-radius:999px;font-family:var(--sans);font-size:14px;cursor:pointer;padding:0 10px;word-break:keep-all}
+@media (max-width:374px){.ord-ask{padding:24px 16px}.ord-ask .oa-box{padding:26px 18px 18px}}   /* ★[ASK_360_N20X07 2026-11-19 NIGHT20 R3X2 #07] 360 폭(갤럭시 기본)에서 «저장하고 넘어가기» · «돌아가서 채우기»가 두 줄로 꺾였다 — 바깥 · 안 여백만 줄여 390 과 같은 단추 폭(약 142px)을 낸다 · 글 · 크기 · 두 단추 같은 폭은 그대로 */
 .ord-ask .oa-no{border:1px solid var(--bg2,#F5F3EF);background:var(--bg2,#F5F3EF);color:var(--sub,#5A554C);font-weight:600}   /* [UI_ONE] 아래 막대 «이전»(.btn-prev)과 같은 보조 단추 */
 .ord-ask .oa-yes{border:1px solid #4E3F31;background:#4E3F31;color:#fff;font-weight:600}   /* [R8-17] 아래 막대 «다음»(.btn-next)과 같은 주 단추 */
 .ord-ask .oa-yes.danger{border-color:var(--seal,#6B2A24);background:var(--seal,#6B2A24)}
