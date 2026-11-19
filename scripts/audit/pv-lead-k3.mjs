@@ -21,8 +21,8 @@ const loadCue = (src) => { if (src == null) return require(P('assets/ritual-cue.
 
 /* ── ① 엔진 — 개식 칩마다 개식 → 다음 큐 */
 /* ★[FINAL_APPLY_1115 묶음 3 · 대표님 FINAL2 11/14 · 안내 = 문정] «본식» → «예식» · 식사 줄 «촬영을 마친 뒤, 신랑 신부와» — 옛 «십 분 뒤 본식을 …» · «본식을 마친 뒤에는 …» · «식사는 촬영 뒤에 함께합니다.» */
-const TEXT_299S = '십 분 뒤 예식을 시작하겠습니다. 예식을 마친 뒤에는 기념 촬영이 있습니다.';
-const TEXT_345S = TEXT_299S + ' 식사는 촬영을 마친 뒤, 신랑 신부와 함께합니다.';
+const TEXT_299S = '십 분 뒤 예식이 시작됩니다. 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.';   /* ★[MJ_FINAL_1118 문구 확정 m1 · m2] «예식을 시작하겠습니다» → «예식이 시작됩니다» · «예식을 마친 뒤에는» → «마친 뒤에는» */   /* ★[NARR_DEPLOY_1116 검사 기대 갱신] NARR_FIX_1115_1 R10 새 글(옛 «기념 촬영이 있습니다») */
+const TEXT_345S = TEXT_299S + ' 식사는 단체 사진 뒤에 안내해 드립니다.';   /* ★[NARR_DEPLOY_1116] R6 새 글 */
 function pvRows(C) {
   const out = [];
   for (const on of [{ prevideo: 1 }, { prevideo: 1, candle: 1 }]) for (const digital of [0, 1]) for (const mode of ['console', 'preview']) for (let n = 0; n < 6; n++) {
@@ -78,7 +78,7 @@ function k3Check(C, label) {
 const C2 = C;
 ok('② [K3_SHORT_1106] 글 = 결정 문안 그대로(299s · 345s) · 소리 번호 348 · 349 · 녹음 대기(파일 없음)',
   C2.EXTRA['guest-w-10m-n10-short'] === TEXT_299S && C2.EXTRA['guest-w-10m-n10-short-meal'] === TEXT_345S && C2.fileOf('guest-w-10m-n10-short') === '348_guest-w-10m-n10-short' && C2.fileOf('guest-w-10m-n10-short-meal') === '349_guest-w-10m-n10-short-meal'
-  && !C2.RETIRED['guest-w-10m-n10-short'] && !/약 /.test(TEXT_299S) && C2.EXTRA['guest-w-10m-n10'] === '십 분 뒤 예식을 시작하겠습니다. 약 십 분간 진행되고, 마친 뒤에는 기념 촬영이 있습니다.',
+  && !C2.RETIRED['guest-w-10m-n10-short'] && !/약 /.test(TEXT_299S) && C2.EXTRA['guest-w-10m-n10'] === '십 분 뒤 예식이 시작됩니다. 약 십 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.' /* [NARR_DEPLOY_1116] R7 새 글 */,
   [C2.EXTRA['guest-w-10m-n10-short'], C2.EXTRA['guest-w-10m-n10-short-meal']]);
 k3Check(C2, '② 10분 전 판 고르기 — 예상 본식 10분 미만 = short(± 식사) · 10분 이상 = 종전 n10 · n15 · n20(± 식사) · 큐 · 화면 글 같음');
 { const bS = O.applyExample({ course: 'open' }, 'brief'); bS.course = 'open'; const pv = C2.build(bS, { mode: 'preview' }).cues.find((c) => /^guest-w-10m-/.test(c.slug || '')) || {};
