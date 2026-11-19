@@ -2024,6 +2024,7 @@ function fire(i, opt){
   if (!opt.clock && typeof MAN_HOLD !== 'undefined') { if (MAN_HOLD && startAt) { var _now = Date.now(); for (var _k = 0; _k < R.cues.length; _k++) { var _ck = R.cues[_k]; if (_k !== i && _ck.fire === 'clock' && !fired[_k] && _ck.atMin != null && _now >= startAt + _ck.atMin * 60000) fired[_k] = true; } } MAN_HOLD = false; }   // [B2_NA_02] 디렉터가 낸 순서 = 손 대기 풂 · 지난 시각 안내 버림
   cur = i; fired[i] = true; GWHY = null;   // [GUEST_WHY] 새 순서 — 앞 판(다시 듣기 · 이전)의 까닭이 남지 않게
   var c = resolve(R.cues[i]);
+  try { $('#nProg').firstElementChild.style.width = '0%'; $('#nEl').textContent = fmt(0); $('#nTo').textContent = fmt(c.est || 0); } catch (e) {}   /* ★[CARD_PROG_RESET_N20_1118 NIGHT20 #04] 새 순서 = 새 막대 — 종전엔 소리가 나기 전(음악이 먼저 오르는 3 ~ 6초 · 개식 · 화촉 등)과 첫 0.2초 동안 앞 순서 값이 남아 «0:25 / 0:04» · 막대 가득이 새 카드 아래 보였다 · clearT 가 앞 막대 타이머는 이미 멈췄다 */
   if (ESD.paused && !ESD.run) { if (esdIn(c) && !esdMain(c)) esdResume(); else ESD.paused = null; }   /* ★[B2_K16] 정지 뒤 입장 묶음의 다음 큐(도착 · 맞절)를 바로 내면 곡을 이어 그 큐 크기로(도착 = 잦아듦) · 묶음 밖이면 버린다 */
   if (ESD.run && (!esdIn(c) || esdMain(c))) esdStop(esdMain(c) ? 0.3 : (ES ? ES.OUTF : 4));
   else if (ESD.run && i !== ESD.run.i) esdVoiceCut(ESD.run);   /* ★[ENTRY_VOICE_CUT_1115] 입장 묶음 안의 다음 큐(도착 · 맞절)로 넘기면 장면 목소리(입장 멘트 · 구호)는 0.15초에 멈춘다 — 곡은 그대로(입장 장면 규칙) */   // [ENTRY_SCENE_DAY] 입장 묶음을 떠나면 곡은 4초에 걸쳐 잦아든다(배경음은 아래 duckTo 로 돌아온다)
@@ -2073,7 +2074,7 @@ function fire(i, opt){
           //   음원이 아직 없으면(조립 전) 종전대로 est 만큼 장면 카드를 띄우고 넘어간다.
           var cl = (GUEST && STORY) ? (STORY.castLivePlayOf ? STORY.castLivePlayOf(c) : []) : [];   // ★[CAST_TEXT_ONLY 2026-09-27] 대역 목소리는 틀지 않는다 — 장면 카드 + est 로 흐른다
           if (cl.length) playCastList(cl, advance, function(){ runProg(c.live.est || 10, advance); });
-          else later(function(){ advance(); }, (c.live.est || 10) * 1000);
+          else runProg(c.live.est || 10, advance);   /* ★[LIVE_PROG_N20_1118 NIGHT20 #04] 장면 카드도 제 시간 막대를 그린다 — 종전 later 는 막대 · 시간을 그리지 않아 앞 소리 값(«0:09 / 0:08» · 막대 가득)이 장면 카드 10초 내내 남았다(CAST_TEXT_ONLY 뒤 모든 사람 순간) · 멈춤 · 이어 듣기는 progS 가 잇는다 · 위 대역 목소리 없을 때 길과 같은 꼴 */
         }
         else {
           runProg(c.live.est || 30, null);
