@@ -15099,8 +15099,9 @@ nochk '먼저 가실 분들은 이때 식사 자리로 옮겨요.' mypage.html  
 nochk "var _flw=\[\['다 함께 한 장'" mypage.html                                    # 흐름 줄(알약) 되살리지 말 것 — 번호 줄이 곧 흐름
 chk 'PHOTO_SHOOT_ORDER' mypage.html 3
 chk 'PHOTO_CALLER_WORD' mypage.html 1
-chk '구도마다 사진작가가 이 분께 먼저 말씀드려요' mypage.html 1
+chk '구도마다 사진작가가 이분께 먼저 말씀드려요' mypage.html 1
 nochk '디렉터가 이 분께 먼저 말씀드려요' mypage.html                                   # [PHOTO_FREE] 부르는 것은 사진작가
+nochk '디렉터가 이분께 먼저 말씀드려요' mypage.html                                    # [N20_18_SPACING 11/18] 띄어쓰기 고친 뒤에도 부르는 것은 사진작가
 chk 'WISH_NEED_WHAT' mypage.html 2
 chk 'WISH_CAP_LINE' mypage.html 2
 chk 'PHOTO_DUP_LINE' mypage.html 3

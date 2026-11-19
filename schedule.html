@@ -1175,7 +1175,7 @@ function renderTime(){
   //   SCHED_AI_ROUTE(2026-07-25 사용자 지시): 카카오 연결 대신 AI 스케줄 도우미로 안내
   if(daySlots.every(t=>full.includes(t))){
     const note=document.createElement('div'); note.className='slots-full-note';
-    note.innerHTML='이 날은 모든 시간이 마감되었습니다.<br>다른 날짜를 선택해 주세요. 날짜 고민은 <a href="#" class="ai-link" onclick="openSchedAi();return false" style="color:var(--seal);text-decoration:underline;text-underline-offset:2px">AI 스케줄 도우미</a>에게 물어보세요.';
+    note.innerHTML='이날은 모든 시간이 마감되었습니다.<br>다른 날짜를 선택해 주세요. 날짜 고민은 <a href="#" class="ai-link" onclick="openSchedAi();return false" style="color:var(--seal);text-decoration:underline;text-underline-offset:2px">AI 스케줄 도우미</a>에게 물어보세요.';
     box.appendChild(note);
   }
 }
