@@ -695,6 +695,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
   .pcb-b .pcm{background:#262320;border:1px solid #3f3a33;color:#e8e2d8;border-radius:8px;padding:7px 11px;font-size:12.5px;text-align:left;line-height:1.35}   /* [AUTO_ONLY_1031] 누르는 단추가 아니라 메모 */
   .pcb-b .pcm b{display:block;font-weight:600}
   .bed-err{margin:8px 0 0;color:#b3261e;font-weight:700;font-size:13px}   /* [DETAIL_R3_1101 ②] */
+  .bed-err.bed-note{color:var(--sub);font-weight:400}   /* [PV_BED_NOTE_N06] 고장이 아닌 안내 — 회색 · 보통 굵기 */
   .pcb-b .pcm i{font-style:normal;color:#a39a8c;font-size:11px}
   </style>
   <div class="ctl">
@@ -1294,7 +1295,7 @@ function bedFade(k, to, sec){ var g = BED.xg[k], el = BED.el[k]; if (g && AC) { 
    ★[DETAIL_R3_1101 ③] 겹침(xf)이 끝나기 전 · 새 곡을 여는 중에 온 요청은 «들리는 재생기»의 src 를 바꾸지 않는다 — 마지막 요청 하나를 적어 두고 겹침이 끝난 뒤에 처리한다
    ★[DETAIL_R5_1101 규칙 7] 늦은 응답 · 타이머는 실행 전에 지금 재생 번호(BED.tk)를 확인한다 */
 var BED_OPEN_MS = 4000;
-function bedErr(m){ var e = $('#bedErr'); if (!e) return; e.textContent = m || ''; e.hidden = !m; BED.err = m || ''; }
+function bedErr(m){ var e = $('#bedErr'); if (!e) return; e.classList.remove('bed-note'); /* [PV_BED_NOTE_N06] 회색 안내는 @PV 자리만 */ e.textContent = m || ''; e.hidden = !m; BED.err = m || ''; }
 function bedPlay(sid, xf, at){ if (!SEGF[sid]) return false;
   if (BED.opening) { var po = BED.opening; BED.opening = null; try { BED.el[po.nx].pause(); } catch (e) {} }   /* [DETAIL_R3_1101 ③] 아직 소리 없는 «여는 중» 재생기는 새 요청이 쓴다(마지막 요청이 이긴다) */
   bedHush();   /* [NO_RELIFT_ALL_1115] 정적 뒤 새 곡 — 소리가 남은 재생기를 모두 정리한 뒤에 빈 재생기를 고른다(아래 미뤄 두는 길도 같은 처리) */
@@ -1311,6 +1312,9 @@ function bedPlay(sid, xf, at){ if (!SEGF[sid]) return false;
   var t0 = null, done = false, fin = function(ok){ if (done) return; done = true; clearTimeout(to); clearInterval(iv); el.removeEventListener('playing', onPl); el.removeEventListener('error', onEr);
       if (BED.tk !== tk) { if (BED.opening && BED.opening.tk === tk) BED.opening = null; return; }   /* 그사이 다른 재생(정지 · 새 곡)이 왔다 — 버린다 */
       BED.opening = null;
+      /* ★[PV_BED_NOTE_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 B] 미리듣기 예시 음악(@PV · PREVIEW_BED)이 없으면 빨간 고장 줄 대신 회색 안내 한 줄 «미리 듣기는 음악 없이 흘러요».
+           종전엔 로그인 없는 식순 미리 보기에서 첫 화면부터 «다 들으셨어요»까지 «곡 파일을 열지 못했어요.»가 붙어 있었다(고른 곡을 못 받아 @PV 로 내려앉는데 그 파일이 아직 없다 · docs A14). 고른 곡 · 디렉터 곡이 못 열린 때의 빨간 줄은 그대로 */
+      if (!ok && sid === '@PV') { try { el.pause(); el.removeAttribute('src'); el.load(); } catch (e) {} (BED.bad = BED.bad || {})[sid] = 1; bedUnhush(); bedErr('미리 듣기는 음악 없이 흘러요'); var _be = $('#bedErr'); if (_be) _be.classList.add('bed-note'); bedLater(); return; }
       if (!ok) { try { el.pause(); el.removeAttribute('src'); el.load(); } catch (e) {} (BED.bad = BED.bad || {})[sid] = 1; if (_ofl) { _ofl(sid); return; } bedUnhush(); var _pe = BED.el[BED.on], _keep = !!(_pe && _pe !== el && !_pe.paused && _pe.getAttribute('src')); bedErr(_keep ? '곡 파일을 열지 못했어요 · 재생 중인 곡은 그대로 이어집니다.' : '곡 파일을 열지 못했어요.'); bedLater(); return; }   /* [B2_NA_65] 이어질 곡이 실제로 흐를 때만 «그대로 이어집니다» */   /* ★[DETAIL_R5_1101 규칙 5] 못 연 곡은 이 예식에서 다시 시도하지 않는다 · 목록이 넘길 때 실패하면 그다음 곡으로(listGo) */
       if (sid !== BED.id) BED.keepErr = ''; bedErr(BED.keepErr || ''); var xm = Math.round(xf * 1000) + 120;   /* [DETAIL_R5_1101 규칙 5] 같은 곡을 이어 트는 동안은 상태 한 줄을 남긴다 */ BED.xing = Date.now(); bedFade(nx, 1, xf); if (BED.hushK === BED.on && BED.hushK != null && BED.hushK > -1) xm = Math.max(150, (BED.hushEnd || 0) - Date.now() + 60); else bedFade(BED.on, 0, xf);   /* [NO_RELIFT_WANT_1115] 내리는 중이면 다 내린 뒤에 멈춘다(DUCK_SKIP_3S_OWNER_1115 = 3초) */   /* [NO_RELIFT_XF_1114] 꺼 둔 앞 곡은 겹치지 않고 바로 멈춘다 */ BED.hushK = -1; clearTimeout(BED.hushT);
       var was = BED.on, wel = BED.el[was], wgen = BED.gen[was]; if (wel && !wel.paused && wel.getAttribute('src')) BED.fade[was] = Date.now() + xm;   /* 소리 나던 재생기만 «잦아드는 중» */ setTimeout(function(){ var _own = BED.gen[was] === wgen;   /* [NO_RELIFT_ALL_1115] bedHush 가 먼저 멈추고 내준 재생기는 이 타이머가 손대지 않는다(그사이 새 곡이 그 재생기를 쓸 수 있다) */ if (_own && BED.on !== was) { try { BED.el[was].pause(); } catch (e) {} xgHome(was); } if (_own && BED.fade[was] <= Date.now() + 5) BED.fade[was] = 0; if (!BED.fade.some(function(t){ return t > Date.now(); })) BED.xing = 0; bedLater(); }, xm);
