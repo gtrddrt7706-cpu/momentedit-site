@@ -381,7 +381,7 @@ function _pvCpnDo_(body, op) {
 }
 /* ★[PRE_CPN_RECLAIM_1119 2026-11-19 대표님 «추천대로»] 이 영상을 이제 틀지 않나 — 쿠폰을 거두고 회수하는 판정 한 곳(_pvPublic · _pvCpnQueue_ · adminPvCoupon)
    식중 = 식순에서 뺌(_mvOn_ · 읽는 때 판정 · on 을 이미 읽었으면 넘겨받는다) · 식전 = «사용하지 않기»(m.st off) */
-function _pvCpnOff_(kind, cust, m, on) { _gsr_();
+function _pvCpnOff_(kind, cust, m, on) { _gsr_();   // [PRE_CPN_RECLAIM_1119] 판정 한 곳(본문 표식 · 99_deployCheck 가 잰다)
   if (kind === 'mid') { if (on === undefined) { try { on = !!cust && _mvOn_(cust).on === true; } catch (e) { on = false; } } return on !== true; }
   return String((m || {}).st || '') === 'off';
 }
