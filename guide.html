@@ -33,7 +33,11 @@
      그동안 한글은 시스템 서체로 먼저 읽히고 브랜드 세리프가 도착하면 바뀐다(URL에 display=swap).
      ★폰트가 아예 안 와도 페이지는 읽힌다 — 전엔 영영 백지였다.
      ★브랜드 세리프 자체는 그대로 유지한다(2026-07-20 수정 취지) · 로드 '시점'만 바꾼 것. -->
-<link rel="preconnect" href="https://script.google.com"><!-- 실제 데이터가 오는 곳 — 핸드셰이크를 미리 -->
+<!-- 실제 데이터가 오는 곳 — 핸드셰이크를 미리.
+     ★[GAS_PRECONNECT_CORS 2026-11-19 NIGHT20 #16] crossorigin 이 없으면 미리 연 연결을 fetch()(쿠키 없는 연결)가 다시 쓰지 못한다 —
+     표시만 있고 효과가 없었다. 서버가 넘겨 주는 script.googleusercontent.com 까지 함께 연다(mypage · schedule 과 같은 모양). -->
+<link rel="preconnect" href="https://script.google.com" crossorigin>
+<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
