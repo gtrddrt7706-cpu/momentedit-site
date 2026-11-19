@@ -24110,3 +24110,7 @@ chk 'textContent = fmt(c.est || 0); } catch (e) {}   /\* ★\[CARD_PROG_RESET_N2
 # ★[LIVE_PROG_N20_1118 NIGHT20 #04] 미리 듣기 장면 카드(사람 순간)도 제 시간 막대를 그린다 — later 로 되돌리면 앞 소리 «0:09 / 0:08» · 가득 찬 막대가 10초 내내 남는다
 chk 'else runProg(c.live.est || 10, advance);   /\* ★\[LIVE_PROG_N20_1118' console.html 1
 nochk 'else later(function(){ advance(); }, (c.live.est || 10) \* 1000);' console.html 0
+
+# ★[PAIR_ARIA_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정] 고르기 «축사 · 축가» 칸 읽어 주는 이름 — 다른 칸과 같은 «○○ 담기» + 눌림(«축가 빼기, 눌림» 겹침 걷기)
+chk 'PAIR_ARIA_N06' order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/pair-aria.mjs >/dev/null 2>&1; _pa=$?; node scripts/audit/pair-aria.mjs --selftest >/dev/null 2>&1; _pas=$?; if [ "$_pa" != 0 ] || [ "$_pas" != 0 ]; then echo "REVERT? pair-aria: 축사 · 축가 칸 읽어 주는 이름이 «빼기»로 돌아갔다 ($_pa/$_pas) — node scripts/audit/pair-aria.mjs"; fail=1; else echo 'ok pair-aria'; fi; fi
