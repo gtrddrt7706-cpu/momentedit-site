@@ -5560,7 +5560,13 @@ chk 'photoShare' scripts/lib/engine-calls.mjs 1       # ★축을 안 흔들면 
 # ★[ENGINE_CALLS 2026-08-17] 이 축 표는 check-listen-cover 안에 있었다. 쓰는 곳이 셋이 되어 lib 으로 옮겼다.
 #   옮긴 것이지 폐지한 것이 아니다 — 파일만 바뀌고 규칙은 그대로다.
 # ★[MEAL_GUIDE 2026-09-23] 식사 자리 안내 스위치가 셋째로 들어왔다 — 같은 규칙(유무 boolean 만)
-chk "INJECT = \['digital', 'photoShare', 'meal', 'guide', 'mealFull', 'resv', 'photoN', 'photoWishN'\]" assets/ritual-preview-link.js 1   # [GUIDE_ON_1019] guide 더함   # [PHOTO_PRE_PICK_1030] mealFull · resv 더함(사진 전 안내 266 고르기)
+chk "INJECT = \['digital', 'photoShare', 'meal', 'guide', 'mealFull', 'photoN', 'photoWishN'\]" assets/ritual-preview-link.js 1   # ★[NARR_DEPLOY_1116 대본 11/16 03:09 «정말 낡은 기대만»] resv 뺌 — NARR_FIX_1115_1 식사 날 마무리 287 로 엔진이 S.resv 를 안 읽음(PREVIEW_KEYS 죽은 키) · 옛 핀 'mealFull', 'resv' 은퇴
+chk 'NARR_DEPLOY_1116' assets/ritual-preview-link.js 2
+chk 'NARR_DEPLOY_1116' assets/ritual-open.js 1
+chk 'NARR_DEPLOY_1116' scripts/audit/closing-line.mjs 2
+chk 'NARR_DEPLOY_1116' scripts/audit/console-inject.mjs 3
+chk 'NARR_DEPLOY_1116' scripts/audit/open-course.mjs 5   # (위 INJECT 핀의 옛 주석: [GUIDE_ON_1019] guide 더함 · [PHOTO_PRE_PICK_1030] mealFull · resv 더함 — resv 는 NARR_DEPLOY_1116 에 뺌)
+chk 'NARR_DEPLOY_1116' scripts/audit/screen-sound.mjs 1
 # ★주소를 미리듣기가 «옮기지» 말 것 — 유무 boolean 만 간다.
 # ★[NOCHK_SHAPE] 이름('photoShareUrl')이 아니라 **KEYS 에 실리는 모양**을 잡는다 — 처음엔 이름으로
 #   걸었다가 정당하게 읽는 photoShareOf() 와 그 주석을 스스로 물었다(자가덫 9번째).
@@ -13314,7 +13320,7 @@ nochk "'인사 사진'" assets/sequence-modal.js
 chk "['단체 사진', '15~33분쯤', ['10:40', '14:00', '17:20']" assets/sequence-modal.js 1   # [TOAST_LAST_1013] 15~32 → 15~33
 chk 'Private Snap 60분 · Ceremony 7~25분 · 단체 사진 15~33분' index.html 1   # [TOAST_LAST_1013]
 nochk '전체 사진과 두 분의 감사 인사 뒤 식사 자리로' index.html   # ★[END_FLOW_1030 검토 167] 감사 인사는 닫는 인사 · 식사는 예약 시간에 함께 — 옛 «감사 인사 뒤 식사 자리로 가시고 · 11시까지»를 되살리지 말 것
-chk '하객분들은 <strong>10시 입장 · 10시 20분 본식</strong>, 두 분의 감사 인사로 본식을 마친 뒤 전체 사진과 가족 · 친구 사진이 이어집니다. 식사를 예약하셨다면 정리를 마친 뒤 예약 시각에 두 분과 함께 시작합니다' index.html 1   # [FAQ_SLOT_WORD] · [END_FLOW_1030] · [H4_05] 식사는 140분 밖
+chk '하객분들은 <strong>10시 입장 · 10시 20분 본식</strong>, 두 분의 감사 인사로 본식을 마친 뒤 전체 사진과 가족 · 친구 사진이 이어집니다. 식사를 예약하셨다면 하객분들은 도착하시는 대로 드시고, 두 분은 정리를 마친 뒤 찾아가 인사드립니다' index.html 1   # [FAQ_SLOT_WORD] · [END_FLOW_1030] · [H4_05] 식사는 140분 밖
 nochk '9시 50분 입장' index.html
 chk 'DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20' mypage.html 1
 chk 'DAY_60 2026-09-26] 스냅 60 · 본식 10:10→10:20' automation/platform/95_notify.gs 1
@@ -14347,13 +14353,13 @@ chk '_dnRefocus(function' mypage.html 3
 # [DN_CLOCK_SAY] 애프터 웨딩 도착 시각은 말하는 꼴(«오후 3시» · «오전 11시 50분») — SLOT_CLOCK · wedTimeKo 를 거치지 않는다 · 브레이크 셈은 원값
 chk 'DN_CLOCK_SAY' mypage.html 5
 chk 'function _dnSayClock(hm)' mypage.html 1
-chk "{lead:'오후 예식은 3시 도착 기준이라" mypage.html 1
-chk "{lead:'오전 예식이라 식사는 11시 50분 도착 기준이에요." mypage.html 1
-chk "{lead:'저녁 예식이라 식사는 6시 10분 도착 기준이에요." mypage.html 1
+chk "{lead:'오후 예식은 하객이 2시 20분쯤부터 도착해" mypage.html 1   # [EARLY_EAT_OWNER_1115] 하객 도착 기준
+chk "{lead:'오전 예식이라 하객은 11시쯤부터 식당에 도착해요." mypage.html 1
+chk "{lead:'저녁 예식이라 하객은 5시 40분쯤부터 식당에 도착해요." mypage.html 1
 chk '_dnSayClock(arr2)' mypage.html 2
 chk '_dnSayClock(arr)' mypage.html 1
-chk "'식사&nbsp;도착')+' '+_dnSayClock(arr2).replace(/ /g,'&nbsp;')+'&nbsp;기준'" mypage.html 1
-chk "'&nbsp;·&nbsp;예식 후 '+_dnSayClock(arr).replace(/ /g,'&nbsp;')+'&nbsp;도착&nbsp;기준'" mypage.html 1
+chk "'&nbsp;·&nbsp;하객&nbsp;도착&nbsp;예상 '+_dnSayClock(arr2).replace(/ /g,'&nbsp;')+'쯤'" mypage.html 1
+chk "'&nbsp;·&nbsp;하객&nbsp;도착&nbsp;예상 '+_dnSayClock(arr).replace(/ /g,'&nbsp;')+'쯤'" mypage.html 1
 nochk "' · 예식 후 '+arr+' 도착 기준'" mypage.html
 nochk "'결혼식 후 '+(arr2?arr2+' 도착, '" mypage.html
 nochk "'식사 도착')+' '+arr2+' 기준'" mypage.html
@@ -21414,7 +21420,7 @@ chk 'VC_DECISIONS_1030' scripts/audit/vc-decisions-1030.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vc-decisions-1030.mjs >/dev/null 2>&1; _vdc=$?; if [ "$_vdc" != 0 ]; then echo 'FAIL vc-decisions-1030: AI 두 분 목소리 대표 결정 아홉(나눠 읽는 줄 거절 · 동의 글 · 나레이션 한 줄 · 90일 · 스튜디오 확인 · 3만 자 · 7일 전 모델 지우기 · 콘솔 기기 보관 · 디렉터 글) 판정이 어긋났습니다 — node scripts/audit/vc-decisions-1030.mjs'; fail=1; else echo "ok vc-decisions-1030 ($_vdc)"; fi; fi
 # ── 2026-10-30 [PAUSE_PREF_1030 · PHOTO_PRE_PICK_1030 · PHOTO_PRE_GAP_1030] 사장님 검수본 쉼 · 사진 전 안내 판 고르기 · 온라인 인사 뒤 2초
 chk 'const FLOW_FORCE = new Map(' scripts/build-typecast-import.mjs 1
-chk "function closingOf(S) { S = S || {}; var b = (S.meal && S.mealFull) ? (S.resv ? 'narr-closing-mealr' : 'narr-closing-mealnr') : 'narr-closing';" assets/ritual-cue.js 1   # ★[INFO_SPLIT_200] 식사 자리 × 예약 시각 · 하객 안내 갈래 없음   # ★[CLOSING_LINE_1031] 266 이 서던 조건 그대로 → 마무리 멘트 판
+chk "function closingOf(S) { S = S || {}; var b = 'narr-closing';" assets/ritual-cue.js 1   # ★[NARR_DEPLOY_1116 대본 11/16 03:09 «정말 낡은 기대만»] NARR_FIX_1115_1(대표님 11/15 12:09 · 12:24) 식사 날도 287 · 옛 핀(식사 × 예약 시각 342 · 339) 은퇴 ·   # ★[INFO_SPLIT_200] 식사 자리 × 예약 시각 · 하객 안내 갈래 없음   # ★[CLOSING_LINE_1031] 266 이 서던 조건 그대로 → 마무리 멘트 판
 chk 'function mealFullOf(dd, placeholders)' assets/ritual-preview-link.js 1
 chk 'c.goLeadMs || 0' console.html 1
 chk 'PHOTO_PRE_PICK_1030' scripts/audit/console-inject.mjs 1
@@ -21767,7 +21773,7 @@ nochk '첫 시작을 큰 박수와 함성으로' assets/ritual-data.js
 nochk '첫 시작을 큰 박수와 함성으로' order-preview.html
 # ── 2026-11-01 [GUEST_WELCOME_191 · AFTER_PHOTO_191 검토 191 · 사장님 14:50 «하객 맞이를 좀 더 친절하게» · «촬영 종료 후 멘트도 식순에 나오게» · 191 정정 «사진은 촬영 작가님이 컨트롤»]
 chk "var GUEST_PARTS = { 'guest-w-arrival': \[GW.hi, GW.voice, GW.snap\]" assets/ritual-cue.js 1
-chk "up: gw('모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 신랑 신부에게 바로 보내실 수 있어요.')" assets/ritual-cue.js 1   # ★[FINAL_APPLY_1115 묶음 3 · 대본 11/15 «핀을 새 글로»] 대표님 FINAL2 11/14 확정 문정 글 — 옛 «up: gw('받으신 모바일 청첩장을 열고, 하객 안내에서 사진 올리기를…»
+chk "up: gw('모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 신랑 신부에게 바로 보내실 수 있습니다.')" assets/ritual-cue.js 1   # ★[NARR_DEPLOY_1116 대본 11/16 03:09 «정말 낡은 기대만»] NARR_FIX_1115_1 R11 «있어요 → 있습니다» · 옛 핀 은퇴 ·   # ★[FINAL_APPLY_1115 묶음 3 · 대본 11/15 «핀을 새 글로»] 대표님 FINAL2 11/14 확정 문정 글 — 옛 «up: gw('받으신 모바일 청첩장을 열고, 하객 안내에서 사진 올리기를…»
 chk "five: gw('시작 오 분 전입니다.', '03_guest-3-5min#0')" assets/ritual-cue.js 1
 chk "function guestPick(S, i)" assets/ritual-cue.js 1
 chk "function afterPhotoOf(S)" assets/ritual-cue.js 1
@@ -21870,7 +21876,7 @@ chk "'narr-closing', 'narr-closing-guide', 'narr-closing-soft', 'narr-closing-so
 chk "'narr-photo-pre': 1, 'narr-photo-pre-meal': 1, 'narr-photo-free': 1, 'narr-close-ex2': 1," assets/ritual-cue.js 1
 chk "actId: 'photo-all'" assets/ritual-cue.js 1
 chk '작가님 안내에 따라' mypage.html 1
-chk '<p>전체 단체 사진을 찍고, 촬영 후 안내가 이어져요.</p><p>가족 사진 · 추가 촬영을 하지 않는 분은 먼저 식사 장소로 이동하셔도 돼요.</p>' guide.html 1   # [GATHER_200 → G08_GATHER_1106 2026-11-06 대본 4차 G08] 한 덩어리를 차례대로 세 줄로
+chk '<p>전체 단체 사진을 찍고, 촬영 후 안내가 이어져요.</p><p>가족 사진 · 추가 촬영을 하지 않는 분은 식사 장소로 먼저 가셔서, 도착하시는 대로 편하게 드세요.</p><p>두 분은 촬영과 정리를 마치고, 먼저 가신 하객보다 약 30분 뒤에 도착해 인사드려요.</p>' guide.html 1   # [GATHER_200 → G08_GATHER_1106 2026-11-06 대본 4차 G08] 한 덩어리를 차례대로 세 줄로
 nochk '예식 뒤: 모두 함께 단체 사진 한 장 → 이후 가족 사진' guide.html
 nochk '차례가 아닌 분은 자리에서 편히 쉬어 주세요' guide.html
 nochk "slug: 'narr-photo-free', name: '자유 사진 여는 말'" assets/ritual-cue.js
@@ -22923,6 +22929,57 @@ chk 'B2_MA_81' automation/platform/80_production.gs 2   # 첫 발급 때 «안�
 chk 'B2_MA_17' guide.html 2                       # #photos — 온라인 청첩장 · 디지털 참석의 «사진 올리기»
 chk 'B2_MA_17' live.html 3
 chk 'B2_MA_17' shared/hydrate.js 2
+# ── [GUIDE_NAME_OWNER_1115] 2026-11-15 대표님 «화면을 하객 안내로» — 안내 음성이 부르는 «모바일 청첩장의 하객 안내»가 화면 맨 위 · 모든 입구에 보이게(녹음은 그대로)
+chk 'GUIDE_NAME_OWNER_1115' guide.html 2
+chk '<p class="page-t">하객 안내</p>' guide.html 1          # 그리기 전 HTML — 불러오는 중 · 종료 · 실패 화면에도
+chk 'GUIDE_NAME_OWNER_1115' shared/hydrate.js 2
+chk "'하객 안내 · 사진 올리기'" shared/hydrate.js 1           # 온라인 청첩장 입구(누르면 종전처럼 #photos)
+nochk "'Photos' : 'Guest Guide'" shared/hydrate.js
+chk 'GUIDE_NAME_OWNER_1115' live.html 1
+chk '>하객 안내 · 사진 올리기</a>' live.html 1                   # 모바일 참석 화면 입구
+# ★[CAFE_OPEN_OWNER_1115 2026-11-15 대표님 «편하게 오시는 자리»] 카페 · 다과만 날 하객 안내 = «차 한잔 하실 분은» + 합류 한 줄 · «모여요» · «이동하셔도» 없음(K7 11/06 «현행 유지»를 바꿈)
+chk 'CAFE_OPEN_OWNER_1115' guide.html 3
+chk "_pk==='cafe'?'차 한잔 하실 분은':'여기로 모여요'" guide.html 1   # 칸 이름 — 식사 날 · 분류 모름은 그대로
+chk '<p>단체 사진 뒤에는 가족 사진과 추가 촬영이 이어져요.</p><p>두 분은 촬영과 정리를 마치고, 먼저 가신 하객보다 약 30분 뒤에 도착해 인사드려요.</p>' guide.html 1   # 카페 판(식사 판과 같은 합류 줄 · GPT 10회차)
+nochk 'K7 결정 전 더하지 않는다' guide.html                       # 옛 «결정 전» 주석이 남으면 결정이 안 들어간 것으로 읽힌다
+# ★[EARLY_EAT_OWNER_1115 2026-11-15 11:26 대표님 «어른들이 기다린다는 게 좀 그렇지 않아?»] 식사 날 = 하객은 도착하는 대로 드시고 두 분은 촬영 뒤 찾아가 인사 · 기다리라는 말 0(앞서 정한 EARLY_WAIT 를 바꿈) · 위 G08_GATHER 세 줄 검사도 새 기대로 바꿨다
+chk 'EARLY_EAT_OWNER_1115' guide.html 3
+chk 'EARLY_EAT_OWNER_1115' mypage.html 2
+nochk "'식사는 두 분과 함께해요.'" guide.html             # 하객 화면에 «식사는 … 두 분과 함께해요»(기다리라는 말)가 돌아오면 빨강
+nochk "' · 식사는 예약 시간에 두 분과 함께 시작해요'" mypage.html
+chk "var _DN_ARR={'10:00':'11:00','13:20':'14:20','16:40':'17:40'};" mypage.html 1   # [EARLY_EAT_OWNER_1115] 예약 = 하객 도착 시각(단체 사진 끝 + 나서는 5분 + 차 가운데 7분)
+nochk "'11:50','13:20':'15:00'" mypage.html                           # 옛 두 분 정리 뒤 기준
+chk "'하객이 먼저 도착하고, 저희 두 사람은 촬영과 정리로 30분쯤 늦게 합류해요. '" mypage.html 1
+# ★[JOIN_GAP_30_OWNER_1115 2026-11-15 12:06 대표님 «약 30분으로 여유 주자»] 두 분 합류 = 약 30분 뒤(통화 문구 · 사진 차례 머리 줄 · 하객 안내) · 녹음은 숫자 없이 · 리허설에서 다시 확인(JOIN_GAP_REHEARSAL)
+chk 'JOIN_GAP_30_OWNER_1115' guide.html 1
+chk 'JOIN_GAP_30_OWNER_1115' mypage.html 3
+chk '두 분은 촬영과 정리를 마치고 먼저 가신 하객보다 약 30분 뒤에 도착해 인사드려요' mypage.html 1
+nochk '정리를 마치고 약 30분 뒤' mypage.html                     # «마친 다음 30분 더»로 읽히던 꼴(GPT 9회차)
+nochk '정리를 마치고 약 30분 뒤' guide.html   # 식사 · 카페 두 판이 한 줄
+nochk '숫자는 오픈 전 리허설에서 잰 값으로 넣을 자리' mypage.html
+chk "먼저 오신 분부터 식사하실 수 있을까요?" mypage.html 1
+chk "(headTxt?'저희 둘을 포함해 '+headTxt:'')" mypage.html 1   # 인원은 두 분 포함(GPT 8회차)
+chk 'JOIN_GAP_REHEARSAL' mypage.html 2                                  # «약 ○○분 뒤» 숫자는 리허설에서 잰 값으로 넣을 자리
+# ★[EARLY_EAT_OWNER_1115] 홈 · AI 상담 지식도 «도착하는 대로 · 두 분은 찾아가 인사»(글 승인 카드 13 · 12:09) — 옛 «예약 시각에 (두 분과) 함께 식사 · 시작»은 기다리는 말
+chk '식사를 예약하셨다면 하객분들은 도착하시는 대로 드시고, 두 분은 정리를 마친 뒤 찾아가 인사드립니다.' index.html 2   # 자주 묻는 질문 + 검색용 같은 글(JSON-LD)
+chk '식사를 예약하셨다면, 하객분들은 도착하시는 대로 드시고 두 분은 정리를 마친 뒤 찾아가 인사드립니다.' index.html 1   # 순서 설명
+nochk '예약 시각에 함께 식사' index.html
+nochk '예약 시각에 두 분과 함께 시작' index.html
+nochk '예약 시각에 함께 식사' api/_kb.js
+nochk '예약 시각에 두 분과 함께 시작' api/_kb.js
+nochk '예약 시간에 맞춰 함께 시작' api/_ritual-kb.js
+chk 'MEAL_SHORT_OWNER_1115' mypage.html 1   # 사진 차례 «촬영 후 안내» 설명 — 식사 · 카페 날은 물건 말 없음(324 · 319 줄인 판과 같게)
+nochk '고, 그 밖의 분들께 식사 장소로 먼저' mypage.html   # 옛 판(식사 날도 «물건을 챙기고, …») 되살림 막기
+nochk '고, 차 한잔 함께하실 분께' mypage.html   # 카페 날 옛 판 되살림 막기
+nochk '촬영 뒤 함께 식사한다고' api/_ritual-kb.js
+chk 'EARLY_EAT_OWNER_1115' api/_kb.js 2
+chk 'EARLY_EAT_OWNER_1115' api/_ritual-kb.js 2
+nochk '먼저 식사 장소로 이동하셔도 돼요' guide.html
+chk 'CAFE_OPEN_OWNER_1115' mypage.html 4
+chk "meal:(meal==='yes'||meal==='no'||meal==='cafe')?meal:''" mypage.html 1   # 사진 차례 화면이 카페 날을 안다
+nochk '카페 이동 문장은 K7 결정 전 더하지 않는다' mypage.html
+chk '<span class="ln-bal">카페는 단체 예약이 어려운 곳이 많아요.</span> <span class="ln-bal">예약이 안 되면 예상 인원이라도 미리 알려 두세요.</span>' mypage.html 1   # 부부 화면 · 카페 통화 문구 아래 한 줄
+chk "'차 한잔 하실 분은\\\\'으로" mypage.html 1                  # 부부 화면 «하객 안내에 … 공개돼요»도 같은 칸 이름
 chk 'B2_MA_03' live.html 2                        # [d-11] 실패해도 자동 재조회를 시작 · 끝나면 «다시 불러오기»
 chk '예식 정보를 불러오지 못했어요. 다시 불러와 주세요.' live.html 2
 chk '아직 영상이 준비되지 않았어요. 화면을 새로 고쳐 다시 확인해 주세요.' live.html 2
@@ -23248,7 +23305,7 @@ chk 'LISTEN_RESUME_1106' scripts/audit/listen-resume.mjs 1   # 위 넷(+축배 6
 chk 'PV_LEAD_NOCLAP_1106' assets/ritual-cue.js 1   # [J_A A11 · B2-쉼01] 박수 없는 개식(칩 1 ~ 5) 뒤 식전 영상 소개는 뜸 없이 사슬 3초만(당일 콘솔 6초 → 3초)
 chk "if (!_pvNoClap) _pc.goLeadMs" assets/ritual-cue.js 1
 chk 'K3_SHORT_1106' assets/ritual-cue.js 5   # [결정 K3 · D03] 예상 본식 10분 미만 = 10분 전 299s · 345s(guest-w-10m-n10-short · -meal · 348 · 349 · 녹음 대기)
-chk "nShort: gw('예식을 마친 뒤에는 기념 촬영이 있습니다.')" assets/ritual-cue.js 1   # ★[FINAL_APPLY_1115 묶음 3 · 대본 11/15 «핀을 새 글로»] 대표님 FINAL2 11/14 확정 문정 글 — 옛 «nShort: gw('본식을 마친 뒤에는 기념 촬영이 있습니다.')…»
+chk "nShort: gw('마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.')" assets/ritual-cue.js 1   # ★[MJ_FINAL_1118 대본 11/18 문구 확정 m2 348] «예식을» 뺀 판   # ★[NARR_DEPLOY_1116 대본 11/16 03:09 «정말 낡은 기대만»] NARR_FIX_1115_1 R10 새 글 · 옛 핀 «기념 촬영이 있습니다» 은퇴 ·   # ★[FINAL_APPLY_1115 묶음 3 · 대본 11/15 «핀을 새 글로»] 대표님 FINAL2 11/14 확정 문정 글 — 옛 «nShort: gw('본식을 마친 뒤에는 기념 촬영이 있습니다.')…»
 chk 'PV_LEAD_NOCLAP_1106 · K3_SHORT_1106' scripts/audit/pv-lead-k3.mjs 1   # 두 결정 검사 파일이 살아 있는가
 chk 'REC_K3_1106' scripts/audit/pv-lead-k3.mjs 2   # [REC_K3_1106] 348 · 349 녹음이 들어오면 대기 명단 · 다시받기에서 빠졌는지 본다(들어오기 전엔 종전대로 대기)
 if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs >/dev/null 2>&1; _b3f=$?; if [ "$_b3f" = 1 ]; then echo 'REVERT? ritual-kb-facts: AI 상담 공통 사실 · 옛 문장 · 입력 상한 · 밤 안내 · 상태 꼴 중 어긋난 것이 있습니다 — node scripts/audit/ritual-kb-facts.mjs [B3_FACTS]'; fail=1; else echo 'ok ritual-kb-facts: 공통 사실 엔진 값 · 옛 문장 0 · 입력 상한 = 서버 [B3_FACTS]'; fi; fi
@@ -23256,7 +23313,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/ritual-kb-facts.mjs 
 # ── 2026-11-06 하객 화면 방 · 대본 4차(G08 · G10 · G13 · G15 · P-N05 · P-N06) — 하객 안내 · 온라인 참석 · 역할 문서
 chk 'G08_GATHER_1106' guide.html 4          # 식사 카드 세 줄 · 예약 시각은 분명한 시각만 한글로(ritual-preview-link resvTimeOk 와 같은 규칙 · G16=M18)
 chk 'function gdResvKo(t)' guide.html 1
-chk "'식사는 '+esc(_rko)+'에 두 분과 함께해요.'" guide.html 1
+nochk "'식사는 '+esc(_rko)+'에 두 분과 함께해요.'" guide.html   # [EARLY_EAT_OWNER_1115] 옛 G08 셋째 줄(시각 + 두 분과 함께) 은퇴 — 시각은 위 카드 예약 줄이 말한다
 chk 'DAY_INFO_1106' guide.html 2            # 신부 대기실 안내는 좌석과 상관없이 «예식 당일 안내» 칸에 한 번
 chk '+dayInfoHtml()' guide.html 1
 nochk "안내돼요.</div>'+NO_WAITROOM+'</div>'" guide.html
@@ -23906,9 +23963,10 @@ chk "v !== '문정'" scripts/build-layers.mjs 1
 chk 'FINAL_APPLY_1115 대표님 FINAL2 11/14 확정 · 대본 11/15 «배포 준비' docs/rules/나레이션.md 1
 chk '예식이 시작될 때까지 편안히 기다려 주세요.' assets/ritual-data.js 1
 chk '예식이 시작될 때까지 편안히 기다려 주세요.' assets/ritual-open.js 3
-chk "'guest-w-1m': \[GW.soon, GW.sit, GW.snapOk\]" assets/ritual-cue.js 1
+chk "'guest-w-1m': \[GW.soon, GW.sit\]" assets/ritual-cue.js 1   # ★[MJ_FINAL_1118 대본 11/18 315 = 후보 2] 셋째 문장(snapOk) 걷음 · 되살리지 않는다
+nochk 'snapOk: gw(' assets/ritual-cue.js
 chk "'after-photo': \[GW.done, GW.fam, GW.stay2, GW.goHome2, GW.things2, GW.day2\]" assets/ritual-cue.js 1
-chk "'after-photo-meal': \[GW.done, GW.fam, GW.stay2, GW.things2, GW.goMeal, GW.mealWhere\]" assets/ritual-cue.js 1
+chk "'after-photo-meal': \[GW.done, GW.fam, GW.stay2, GW.eatArr, GW.placeAt, GW.visitAfter\]" assets/ritual-cue.js 1   # ★[NARR_DEPLOY_1116 대본 11/16 03:09 «정말 낡은 기대만»] NARR_FIX_1115_1 · MEAL_SHORT_OWNER_1115 324 = 물건 줄 빼고 R1 · R2 · R3 · 옛 핀(things2 · goMeal · mealWhere) 은퇴
 chk "'narr-closing-mealnr': \[CL_THX2, CL_CHEER, CL_NJ, CL_GA\]" assets/ritual-cue.js 1
 nochk '식사는 두 분과 함께합니다.' docs/plans/식순연구/타입캐스트/manifest.json
 chk 'FINAL_APPLY_1115' assets/audio/_src/_layers/끊김_허용_1114.json 1
@@ -23923,9 +23981,18 @@ chk '문체 자(`scripts/audit/narr-words.mjs` W1 · W2 · W13)를 넘은 자리
 chk '\[SEAM_SAMPLE_1115\]' scripts/audit/seam-bg.mjs 1
 nochk 'x.t < a.T - 50' scripts/audit/seam-bg.mjs
 # ★[PICK315_1115 대표님 11/15 09:55 · 듣기 페이지 315] 315 · 316 첫 문장 «잠시 후 예식을 시작하겠습니다.» = ×0.9233(11% 느리게) · 두 클립 같은 값 — 결정 docs/rules/나레이션.md
-chk '^315_guest-w-1m#0	base	0\.9233	' assets/audio/_src/_layers/빠르기표_최종_1109.tsv 1
-chk '^316_guest-w-1m-online#0	base	0\.9233	' assets/audio/_src/_layers/빠르기표_최종_1109.tsv 1
+chk '^315_guest-w-1m#0	base	1	' assets/audio/_src/_layers/빠르기표_최종_1109.tsv 1   # ★[MJ_FINAL_1118 GUIDE_EAR] ×0.9233(PICK315_1115) → 테이크 그대로 ×1.0
+chk '^316_guest-w-1m-online#0	base	1	' assets/audio/_src/_layers/빠르기표_최종_1109.tsv 1   # ★[MJ_FINAL_1118 GUIDE_EAR] ×0.9233(PICK315_1115) → 테이크 그대로 ×1.0
 chk 'PICK315_1115 대표님 11/15 09:55' docs/rules/나레이션.md 1
+# ★★[MJ_FINAL_1118 대본 11/18 · 대표님 «문정 ×1.0 판» · MJ_GAP_DECIDE_1118 · MJ_319_324_HEAD_1118] 문정 28클립 = 받은 테이크 그대로 ×1.0(늦추기 · 쉼 덧대기 없음) · 문구 확정 6 · 317 문장별 조합 · 319/324 머리 셋 = 317 · 315 후보 2 — 결정 docs/rules/나레이션.md
+chk 'MJ_FINAL_1118 대표님 11/18' docs/rules/나레이션.md 1
+chk "soon: gw('잠시 후 예식이 시작됩니다.')" assets/ritual-cue.js 1
+chk "ten: gw('십 분 뒤 예식이 시작됩니다.')" assets/ritual-cue.js 1
+chk "stay2: gw('신랑 신부와 사진을 더 남기실 분들은 잠시 남아 주세요.')" assets/ritual-cue.js 1
+chk "greetThere: gw('신랑 신부도 촬영과 정리를 마친 뒤 그곳에서 인사드립니다.')" assets/ritual-cue.js 1
+chk '"317_after-photo#0"' assets/audio/_src/_layers/층2_쉼맞춤.json 1
+chk '목표 1.07초(−35 dB 말과 말 사이 · 대표님이 귀로 고른 샘플 결)' assets/audio/_src/_layers/층2_쉼맞춤.json 3
+chk '\[MJ_FINAL_1118 · 대표님 문정 ×1.0 판 · GUIDE_EAR\]' assets/audio/_src/_layers/빠르기표_최종_1109.tsv 60
 # ★[GA_W5_1115 릴스 분석 방 발견 · 대본 11/15 10:35] 빌더 5분 전 칸 틀이 식사 날 큐 guest-w5-meal(-online)을 안다 — 옛 틀이면 그 글이 10분 전 칸 끝에 붙는다 · 깨 보기는 open-course «[GA_W5_1115]»(16 조합)
 chk '_GA=\[/\^guest-w-arrival/,/\^guest-w-10m-/,/\^guest-(w-5m|w5-|3-5min)/,' order-preview.html 1
 nochk '/\^guest-(w-5m|3-5min)/,/\^guest-(w-1m' order-preview.html
@@ -24012,6 +24079,9 @@ chk '>왜 평일이 더 자연스러운가</h3>' index.html 1
 chk '30명이 모이는 자리라면 굳이 주말일 이유가 없습니다. 평일은 일정을 맞추기 수월하고, 원하는 날짜를 넉넉히 고를 수 있습니다.</p>' index.html 1
 chk '그렇게 생긴 하루의 여유는, 신혼여행과 부모님을 위한 다이닝으로 자연스럽게 이어집니다.</p>' index.html 1
 nochk '평일 예식은 주말·공휴일보다 80만&nbsp;원 낮습니다.' index.html
+# ★[U62_KEEP_1116 2026-11-16 23:13 대표님] 우성 62(온라인 입장 안내)는 라이브 판 그대로 — 가운데 새 문장 넣지 않음 · 다시 넣자고 제안하지 않음
+chk 'onlineIn:"화면으로 함께해 주시는 분들께도 두 사람이 인사드리겠습니다. 신랑 신부는 카메라를 향해 서주시기 바랍니다.",' assets/ritual-data.js 1
+nochk '현장에 계신 분들은 단체 사진 안내까지 자리를 지켜 주세요' assets/ritual-data.js
 
 # ★★[ROLE_SHIP_1117 2026-11-17 대표님 «골랐어» · 대본 엔진 규칙 ① ~ ⑤] «누가» 새 멘트 — 축사 · 축가 여는 말을 역할 줄로 바꾸고 1.25초 사슬 박수 한 줄 · 소리는 테이크 그대로 ×1.0
 chk 'function roleSwapOf(S, slug)' assets/ritual-cue.js 1   # 바꾸기는 한 곳(빌드 끝 · 뒤 붙임 사슬이 같은 답)
