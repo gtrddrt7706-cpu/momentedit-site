@@ -2567,6 +2567,7 @@ function applyCoupleInfo(couple){
     const firstEn = function (s) { var p = String(s || '').trim().split(/\s+/); return (p.length > 1 ? p.slice(1).join(' ') : (p[0] || '')); };
     enNames[0].textContent = (firstEn(couple.groomNameEn) || 'GROOM').toUpperCase();
     enNames[1].textContent = (firstEn(couple.brideNameEn) || 'BRIDE').toUpperCase();
+    if (typeof fitCoupleEn === 'function') fitCoupleEn();   // [HERO_EN_FIT_N20_18]
   }
 
   // 2. 한글 이름 (Cover) — couple-ko
@@ -2828,6 +2829,23 @@ function onAirSync(){
   var snd = document.getElementById('playerSound'); if (snd) snd.hidden = !on;   // [B2_MA_90]
 }
 setInterval(onAirSync, 60000);
+
+/* ★[HERO_EN_FIT_N20_18 2026-11-19 R3X2 교차 점검 #18] 머리 영문 이름(.couple-en)은 한 줄 고정(nowrap · 최소 28px)이라
+   흔한 이름도 좁은 폰에서 넘쳤다 — «SEUNG HYUN & JI YEON» 320 에서 양 끝 7px 잘림 · 화면 폭이 327 로 늘어 페이지 전체가 작아짐 ·
+   «GUNG HYUN WOO & YOO KYUNG» 는 390 에서도 넘침(로컬 실측). 넘칠 때만 글자 크기를 그 비율만큼 줄인다(평소 이름은 그대로 · 디자인 크기 그대로).
+   글자 크기를 지운 뒤 다시 재므로 화면을 돌리거나 키워도 맞는다. 16px 아래로는 줄이지 않는다. */
+function fitCoupleEn(){
+  var box = document.querySelector('.couple-en'); if (!box) return;
+  var parts = box.querySelectorAll('.couple-en-name, .couple-en-amp');
+  parts.forEach(function(el){ el.style.fontSize = ''; });
+  var par = box.parentElement, pcs = par ? getComputedStyle(par) : null;   // 부모(.couple)가 가운데 맞춤 flex 라 상자 폭 = 글 폭 — 부모 안쪽 폭으로 잰다
+  var avail = par ? par.clientWidth - (parseFloat(pcs.paddingLeft) || 0) - (parseFloat(pcs.paddingRight) || 0) : box.clientWidth, need = box.scrollWidth;
+  if (!avail || need <= avail) return;
+  var k = (avail - 2) / need;
+  parts.forEach(function(el){ var fs = parseFloat(getComputedStyle(el).fontSize) || 28; el.style.fontSize = Math.max(16, Math.floor(fs * k * 10) / 10) + 'px'; });
+}
+window.addEventListener('resize', function(){ fitCoupleEn(); }, { passive: true });
+try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitCoupleEn); } catch (_) {}
 
 // ═══════════════════════════════════════════════════════════════
 // HOME LINK · 같은 예식 청첩장에서 왔으면 그 청첩장으로 · 모르면 홈으로 (LIVE_BACK_DEST_1106)
