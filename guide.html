@@ -1395,6 +1395,10 @@ function renderDemo(){
       $('root').innerHTML=stateHtml('예식이 끝나 안내가 닫혔어요.','함께해 주셔서 감사합니다.');
     }
     if(gp){ var stEl=document.querySelector('#root .state'); if(stEl){ var gl=document.createElement('div'); gl.className='sm'; gl.id='gpClosed'; gl.textContent=gp; stEl.appendChild(gl); } }
+    /* ★[CUE_CLOSED_N20_18 2026-11-19 R3X 교차 점검 #18] 받아 둔 안내(캐시)를 먼저 그리면 render 끝의 gCue 가 «Scroll» 큐를 띄운다 —
+       곧이어 서버가 «닫혔어요»를 주면 짧은 닫힘 화면(320×568 실측 · 스크롤할 것 없음) 위에 큐가 2초 넘게 남았다.
+       닫힘 화면을 그린 뒤 다시 잰다(gCue 는 옛 큐를 지우고 «스크롤할 게 있을 때만» 새로 띄운다). */
+    if(window.gCue) window.gCue();
   }
   function load(attempt){
     gapi({action:'guideView', g:g})
