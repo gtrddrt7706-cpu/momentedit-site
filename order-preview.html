@@ -8403,6 +8403,11 @@ function _lRefExpand(q){
     /* ★[B2_FIX_GEUL_18 2026-11-06 재검증 재수정] 선언을 «그 밖의 분»이 읽고 «덕담도 이어서 · 네»면 첫 덕담 차례는 그분 — 예시 읽는 분(«신부 아버지») 대신 «신랑 할아버님 차례» ·
          화면 차례 이름만(새 녹음 없음 · B2-K28 현행) · 원고를 받았으면(_scrT) 그 원고 그대로 */
     if(x.k==='bless'&&grp.length&&_blessFirstWho()){ grp[0].who=_blessFirstWho(); grp[0].lab=grp[0].who+' 차례'; }
+    /* ★[BLESS_CARD_WHO_N06 2026-11-18 야간 점검 #06 · 가족 · 카페 날] 말씀하실 분을 고른 날(NARR_ROLE_1115) — 연습 · 이어 보기 카드 이름도 고른 분으로.
+         종전엔 나레이션이 «먼저, 신랑 아버님의 …»(362)라고 부른 바로 뒤 카드가 예시 인물 «신부 아버지 차례»였다(흐름 줄은 _bwOrder 로 이미 고른 차례 · 카드만 남았다).
+         예시 카드 수 = 고른 분 수면 차례대로 그분 이름 · 한 분만 골랐으면 그 역할 · 그 밖은 «부모님»(아래 _sumOn 이 여러 장을 부르는 말과 같다) ·
+         대신 읽기(blessProxy) · 받은 원고(_scrT) · 위 _blessFirstWho 판은 그대로 · 예시 글은 그대로(이름표만) */
+    else if(x.k==='bless'&&grp.length&&!_scrT&&!S.blessProxy&&R.blessWhoOf){ var _bwA=R.blessWhoOf(S)||[]; if(_bwA.length){ grp.forEach(function(q,i){ var n=_bwA.length===grp.length?R.whoLabel(R.BLESS_WHO,_bwA[i]):_bwA.length===1?R.whoLabel(R.BLESS_WHO,_bwA[0]):'부모님'; q.who=n; q.lab=n+' 차례'; }); } }
     if(x.k==='vow') grp=_vowPract(grp,x);
     /* ★[PRACTICE_WALK_1101 9] 연습 — 축사는 두 분이 읽는 글이 아니다: 요약 한 장(«축사하실 분이 말하는 자리예요 · 두 분은 그분을 바라보며 들어요») + 예시 · 원고 전문은 펼쳐 보기 */
     /* ★[PRACTICE_WALK_R2 5] 성혼 선언 · 덕담도 같은 모양 — 두 분에게 «소리 내어 읽어 보세요»가 남아 있었다(읽는 분은 아버님 · 지인 · 부모님) */
