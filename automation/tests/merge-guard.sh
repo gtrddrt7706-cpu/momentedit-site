@@ -1496,6 +1496,9 @@ chk 'HOME_CTA_KO' index.html 1                 # 주 버튼 한글 주·영문 �
 chk 'cta-eyebrow' index.html 4                 # 영문 아이브로우 3곳 + CSS 1. ★영문을 버튼 '안'에 2줄로 넣는 안(cta-btn-ko/en)은 2026-07-26 재검토로 폐기 — 되살리지 말 것(버튼 73px·영문 불투명 66%로 안 읽힘)
 chk 'BTN_TIER' index.html 4                    # 버튼 2단 체계(채움=전환 3곳 / 외곽=보조 이동 1곳). journal-guide-link를 채움 마룬으로 되돌리면 화면에 전환 버튼이 4개가 된다 — 복원 금지
 chk 'MAP_BREATH' index.html 1                  # 지도 블록 상하 여백 80/88 — margin-top만 두고 아래를 0으로 되돌리면 다시 푸터에 끼인다
+chk 'PRIV_REP_EMAIL_1119' privacy.html 2          # [2026-11-19 대표님 «추천대로» · DEC4] 필수 항목 «대표 이메일» · 맨 위 개정일
+nochk '대표 연락처(휴대전화), 신랑·신부 이메일' privacy.html 0
+chk '직전 개정 2026년 11월 14일 (식중 영상 항목 추가' privacy.html 1
 chk 'PRICE_LABEL_NOWRAP' index.html 2           # [2026-11-18 NIGHT20 #13] 가격표 항목 이름 한 줄 · 긴 덧말이 접힌다(390 «식중 / 영상» 쪼개짐)
 # ── 2026-07-26 inquiry.html 1라운드
 chk 'INQ_REQ_DOT' inquiry.html 1               # 필수 표시 점 3px 골드(2.54:1) 복원 금지 — 폼에서 가장 중요한 정보가 안 보였다
@@ -17781,7 +17784,7 @@ chk '2026년 10월 8일' privacy.html 2   # [PRIVACY_REV_1031] 3 → 2 — 개�
 # ★[PRIVACY_REV_1031 2026-10-31 사장님 승인] 처리방침 개정 공고 · 시행 10/31 — 두 분 목소리 보관 기간 구체화(VC_DECISIONS_1030 · 7일 전 AI 목소리 삭제 · 예식일 없음 90일).
 #   보관을 줄이기만 해 정보주체에게 불리하지 않다 → 10조 단서로 공고일 시행. 맨 위 날짜는 VOICE_UP.from 보다 늦어도 된다(voice-open.mjs) · «부터» 날짜 10/8 은 그대로
 chk '2026년 10월 31일 (두 분 목소리 보관 기간 구체화' privacy.html 1   # [MID_OPEN_1114] 맨 위는 11/14 로 넘어갔다 · 10/31 은 «직전 개정»으로 남는다
-chk '그 전 개정 2026년 10월 8일 (두 분 목소리 항목 추가' privacy.html 1
+chk '이전 개정 2026년 10월 8일 (두 분 목소리 항목 추가' privacy.html 1   # [PRIV_REP_EMAIL_1119 · RULES_SLIM ⑧] 11/19 개정이 맨 위로 오며 이력 이름표가 «직전 11/14 · 그 전 10/31 · 이전 10/8 · 그보다 앞선 9/26»으로 한 칸씩 밀렸다
 chk 'PRIVACY_REV_1031' privacy.html 2
 chk 'PRIVACY_REV_1031' scripts/audit/voice-open.mjs 4
 chk 'VOICE_OPEN_1008' deploy-marks.json 1
