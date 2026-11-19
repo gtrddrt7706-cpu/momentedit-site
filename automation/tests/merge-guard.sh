@@ -24213,3 +24213,6 @@ chk 'color:var(--accent);padding:11px 12px}   /\* ★\[SEAT_INPUT16_N20_19' seat
 chk 'HOME_FOCUS_FORCED_N20_19' index.html 1
 # ★[OP_FORCED_N20_19 2026-11-20 R3X2] 식순 빌더 고른 칩(분위기 · 목소리 등)이 윈도 고대비에서도 보인다
 chk 'OP_FORCED_N20_19' order-preview.html 1
+# ★[GALLERY_FORCED_N20_19 2026-11-20 R3X2] 청첩장 갤러리 오프라인·온라인 고른 밑줄이 윈도 고대비에서도 보인다
+chk 'GALLERY_FORCED_N20_19' invitation-gallery.html 1
+chk '.gv-dots button::before{forced-color-adjust:none;background:CanvasText}' invitation-gallery.html 1

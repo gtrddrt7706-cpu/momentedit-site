@@ -193,6 +193,11 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
   background:var(--seal);transform:scaleX(0);transform-origin:center;transition:transform 0.3s var(--ease)}
 .gv-ver-b[aria-pressed="true"]{color:var(--accent);font-weight:500}
 .gv-ver-b[aria-pressed="true"]::after{transform:scaleX(1)}
+/* ★[GALLERY_FORCED_N20_19 2026-11-20 R3X2 교차 점검] 윈도 고대비 — 고른 판 밑줄이 배경색(--seal)이라 사라지고 굵기만 남았다 · 시스템 강조색으로 남긴다 · 평소 화면엔 안 걸림 */
+@media (forced-colors: active){ .gv-ver-b::after{forced-color-adjust:none;background:Highlight;height:2px}
+  /* 아래 «몇 번째 디자인» 점(PC)도 배경색이라 고대비에서 통째로 사라졌다 — 점은 글자색 · 지금 자리는 강조색 */
+  .gv-dots button::before{forced-color-adjust:none;background:CanvasText}
+  .gv-dots button.active::before,.gv-dots button.active:hover::before{background:Highlight} }
 /* ★[SEP_CONTRAST 2026-09-12] 카운터의 「/」와 판 토글의 「·」가 장식 금색(--gold)이었다 — 1.77:1 · 2.54:1.
    글자와 같은 줄에 붙은 기호는 «글자»다. 규칙이 그렇게 적혀 있다 — 기호·단위·화살표 글리프도 --gold-text 로.
    ★opacity:0.65 도 걷었다. 흐리게 해서 위계를 내면 대비만 깎인다. 위계는 이미 크기(13px)가 내고 있다. */
