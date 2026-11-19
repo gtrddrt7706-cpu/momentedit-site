@@ -8410,7 +8410,7 @@ function _lRefExpand(q){
     /* ★[PRACTICE_WALK_1101 9] 연습 — 축사는 두 분이 읽는 글이 아니다: 요약 한 장(«축사하실 분이 말하는 자리예요 · 두 분은 그분을 바라보며 들어요») + 예시 · 원고 전문은 펼쳐 보기 */
     /* ★[PRACTICE_WALK_R2 5] 성혼 선언 · 덕담도 같은 모양 — 두 분에게 «소리 내어 읽어 보세요»가 남아 있었다(읽는 분은 아버님 · 지인 · 부모님) */
     var _sumOn={free:R.FREE_KIND[R.chipOf('free',S)]==='speech',declare:true,bless:true}[x.k];
-    if(_sumOn&&_inPr()&&grp.length&&!grp.some(function(q){ return q.wk||q.both; })){ var _ft=grp.map(function(q){ return (grp.length>1?q.who+' · ':'')+q.txt; }).join(' '), _fr=!grp[0].mine;
+    if(_sumOn&&_inPr()&&grp.length&&!grp.some(function(q){ return q.wk||q.both; })){ var _ft=grp.map(function(q,qi){ return (grp.length>1&&(qi===0||grp[qi-1].who!==q.who)?q.who+' · ':'')+q.txt; }).join('\n\n'), _fr=!grp[0].mine;   /* [ROLE_REF_PARA_N20_01] 같은 분이 이어 말하는 예시 문단은 이름표를 첫 문단에만 · 문단은 빈 줄로 나눈다(역할 전달 글 · 읽기 전용 쪽에서 «신부 친구 ·»가 문단마다 글 가운데 되풀이됐다) */
       var _sw=x.k==='free'?'축사하시는 분':grp.length>1?'부모님':grp[0].who, _sl={free:'예시 축사 전문 보기',declare:'예시 선언문 전문 보기',bless:'예시 덕담 전문 보기'}[x.k];
       if(x.k==='free') grp=[{k:x.k,lab:'축사하시는 분 차례',who:'축사하시는 분',src:null,pending:true,talk2:true,talkTxt:x.txt,txt:'축사하실 분이 말하는 자리예요',full:_ft,fullRef:_fr,fullLab:_sl,ms:6000,ldk:x.ldk,sum:true}];
       else grp=[{k:x.k,lab:_sw+' 차례',who:_sw,src:null,pending:true,talk2:true,talkTxt:x.txt,txt:(x.k==='declare'?'선언하시는':'말씀하시는')+' 분이 말하는 자리예요',full:_ft,fullRef:_fr,fullLab:_sl,ms:6000,ldk:x.ldk,sum:true}]; }
