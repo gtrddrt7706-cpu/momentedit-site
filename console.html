@@ -219,6 +219,7 @@ body.guest #setup{display:none !important}
 body.guest #bPos, body.guest #bClock, body.guest #bSheet, body.guest #bExit,
 body.guest .sub3, body.guest .vol, body.guest .now .no{display:none !important}
 body.guest .ctl .inner{display:grid;grid-template-columns:auto auto 1fr;gap:10px;align-items:stretch}   /* [GUEST_PREV] 왼쪽 '이전' + [GUEST_PAUSE] '멈춤' + 오른쪽 '다음으로' */
+body.guest .ctl .inner>div{grid-column:1/-1}   /* ★[CTL_ROW_N20_04X_1119 R3X #04] 단추 셋 아래 칸(빨간 «곡 파일을 열지 못했어요.» 등)은 한 줄 전체 — 첫 칸에 끼면 그 글 폭(133px)만큼 «이전» 칸이 넓어져 320 에서 «다음 순서로»가 79px 로 줄고 두 줄로 꺾였다 · PC 는 «이전» 133 · «멈춤» 96 으로 [GUEST_PC_BAL] 한 자가 깨졌다 */
 body.guest .main{background:var(--bg3);color:var(--text);font-size:17px;font-weight:600;padding:20px 16px}
 body.guest .main small{opacity:.72;font-weight:400}
 body.guest .now h2{font-size:clamp(21px,5.4vw,30px)}
