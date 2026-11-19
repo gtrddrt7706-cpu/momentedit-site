@@ -12239,6 +12239,7 @@ chk 'GUIDE_PATH_READ' guide.html 1
 #   짧은 주소 넷(form·admin·schedule·cancel)도 같은 모양이라 한 규칙으로 묶었다 — «짧은 주소는 두 철자를 다 받는다».
 #   ★토큰 글자집합에 / 가 없어 /g/a/b·/g// 는 여전히 안 받는다(guide-path-route ①-3 이 고정).
 chk '/?\$' vercel.json 5
+chk '"\^/mypage/?\$"' vercel.json 1           # [MYPAGE_SHORT_1119 R3X #14] momentedit.kr/mypage(.html 없이) → /mypage.html 308 · 종전엔 영문 Vercel 404(«This page doesn't exist · COPY DEBUG PROMPT»)
 chk 'SLASH_BOTH' scripts/audit/guide-path-route.mjs 1   # 실검사는 ①-3 — 구간이 통째로 지워지면 여기서 걸린다
 
 # ★★[FORM_ONE 2026-09-11 점검] /form 은 «한 장»이다 — 사본을 되살리지 말 것.
