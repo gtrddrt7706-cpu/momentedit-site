@@ -24179,3 +24179,5 @@ chk 'body.guest .ctl .inner>div{grid-column:1/-1}   /\* ★\[CTL_ROW_N20_04X_111
 # ★[SHOWCASE_RM_N20_19 2026-11-19 R3X2] 청첩장 쇼케이스 01 · 08 움직임 줄이기(실물 [DTL16] 처방과 같음)
 chk 'SHOWCASE_RM_N20_19' i/invitations/invitation-01-classic.html 1
 chk 'SHOWCASE_RM_N20_19' i/invitations/invitation-08-noir.html 1
+# ★[TRYGO_CENTER_N20_04X_1119 R3X2 #04] 연습 끝 «두 분 차례 직접 해보기» 글자 가운데 — 빠지면 넓은 단추 안에서 글만 왼쪽에 붙는다
+chk 'border-color:var(--accent);justify-content:center}   /\* ★\[TRYGO_CENTER_N20_04X_1119' order-preview.html 1
