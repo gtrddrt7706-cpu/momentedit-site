@@ -26,7 +26,7 @@ const RESV = '식사는 안내해 드린 시간에 신랑 신부와 함께할 �
 const E = C.EXTRA, A = sents(E['end-2-goodbye']), M = sents(E['narr-photo-pre-meal']).slice(3, 5), U = E['narr-photo-upload'], UM = '오늘 찍으신 사진도 그곳에서 바로 올리실 수 있습니다.', W = E['end-0-photo'], CH = '두 사람의 앞날에도 변함없는 응원과 축복 부탁드립니다.', GA = ['이어서 단체 사진을 찍겠습니다.'];   // [END_FLOW_200 사장님 17:08] 한 문장   // ★[END_FLOW_200] 마무리 멘트 끝 = 늘 모이기 두 문장(새 녹음)   // ★[CLOSING_CHEER_195]   // ★[CLOSING_MEAL_DUP 검토 185] 식사 판 마지막 문장
 
 export function want(o) {
-  const meal = o.meal && o.mealFull, nt = o.close === 2 || o.close === 3;   /* ★[INFO_SPLIT_200 검토 200 수정 2] 식사 날(식사 자리) × 예약 시각 · 하객 안내 갈래 없음 */   /* ★[CLOSING_SRC_1031 검토 179] 닫는 멘트 186(2) · 187(3) = 47#0 «… 진심으로 감사드립니다» 없이 */
+  const meal = false && o.meal && o.mealFull, nt = o.close === 2 || o.close === 3;   /* ★[NARR_DEPLOY_1116 검사 기대 갱신] NARR_FIX_1115_1(대표님 11/15 12:09 · 12:24) 식사 날도 식사 없는 판(287 · 292 · 325) — 식사 · 인사는 촬영 후 안내(324) 한 곳 · 옛 기대 = 식사 날 342 · 339 */   /* ★[INFO_SPLIT_200 검토 200 수정 2] 식사 날(식사 자리) × 예약 시각 · 하객 안내 갈래 없음 */   /* ★[CLOSING_SRC_1031 검토 179] 닫는 멘트 186(2) · 187(3) = 47#0 «… 진심으로 감사드립니다» 없이 */
   const nc = o.close === 2;   /* ★[CLOSING_CHEER_195 검토 195] 186 «다정하게»는 칩이 이미 응원을 부탁해 응원 문장(CH)도 뺀다 */
   const thx = (nt ? [] : [meal && !o.resv ? THX2 : A[0]]).concat(nc ? [] : [CH]);   /* [FINAL_APPLY_1115] 339 감사 = THX2 */
   const body = meal ? thx.concat(o.resv ? [RESV, JOIN] : [NJ]) : thx;   /* ★[INFO_SPLIT_200] 식사 시각 · 합류만 — 경로 · 사진은 5분 전 · «남은 하루»는 촬영 후 안내 */
@@ -104,7 +104,7 @@ if (direct) {
       if (!String(p[3] || '').trim()) s4.push(`${id}#${i} 자료 판정(src) 칸이 비었다`); });
   }
   /* ★[FINAL_APPLY_1115 묶음 3] 새 문장 = 응원 · 모이기 + 식사 날 새 글 넷(RESV · JOIN · NJ · THX2 · 대표님 FINAL2) */
-  if (NEW.size !== 6 || [...NEW].some((t) => t !== CH && t !== RESV && t !== JOIN && t !== NJ && t !== THX2 && GA.indexOf(t) < 0)) s4.push(`새 녹음 문장 ${NEW.size}개 — 응원 한 줄(CLOSING_CHEER_195) + 모이기 한 줄(END_FLOW_200) + 식사 예약 시각 없음 · 합류 두 줄(INFO_SPLIT_200)만이어야 한다 · 예약 시각 있음은 321 을 빌린다`);
+  if (NEW.size !== 2 || [...NEW].some((t) => t !== CH && GA.indexOf(t) < 0)) s4.push(   /* ★[NARR_DEPLOY_1116 검사 기대 갱신] 식사 판(339 ~ 344)이 쉬어 새 녹음 문장 = 응원 · 모이기 둘(옛 기대 6 · RESV · JOIN · NJ · THX2 포함) */ `새 녹음 문장 ${NEW.size}개 — 응원 한 줄(CLOSING_CHEER_195) + 모이기 한 줄(END_FLOW_200) + 식사 예약 시각 없음 · 합류 두 줄(INFO_SPLIT_200)만이어야 한다 · 예약 시각 있음은 321 을 빌린다`);
   ok('④ 마무리 = 안내 한 목소리(문정 · FINAL_APPLY_1115 · 옛 진희) · 새 녹음 3문장(266 식사 두 줄 진희판 · 식사 판 사진 올리기 «오늘 찍으신 사진도 그곳에서 …» [CLOSING_MEAL_DUP]) · 나머지는 빌려 온 진희 녹음 · 44 없음 · mp3 · 문장마다 자료 판정(src) [CLOSING_ONE_VOICE_1031 · CLOSING_NO_CREW_1031]', !s4.length, s4);
   /* ⑤ 흐름 쉼 */
   const s5 = [];
@@ -114,7 +114,7 @@ if (direct) {
   /* ⑥ 화면 글 */
   const mp = rd('mypage.html'), gd = rd('guide.html'), kb = rd('api/_kb.js');
   ok('⑥ 마이페이지 · 하객 안내 · AI 상담 — 사진은 작가님 안내 · 안내 음성이 모으지 않는다', /마무리 인사가 끝나면 작가님 안내에 따라 진행해요/.test(mp) && mp.indexOf('시작할 때 안내 음성이 «촬영 차례가 아닌 분들은') < 0
-    && /전체 단체 사진을 찍고, 촬영 후 안내가 이어져요\.<\/p><p>가족 사진 · 추가 촬영을 하지 않는 분은 먼저 식사 장소로 이동하셔도 돼요\./.test(gd)   /* [G08_GATHER_1106] 하객 안내 식사 카드는 세 줄(전체 단체 사진 → 촬영 후 안내 → 이동) */ && (/마무리 인사\(안내 음성\) 뒤 작가님 안내에 따라/.test(kb) || /마무리 멘트\(안내 음성\) 뒤 하객 모두와 전체 단체 사진을 먼저 남긴다\. 전체 단체 사진을 마치면 촬영 후 안내/.test(kb))   /* [B2_HOME_POST_FLOW 2026-11-06 2차 홈] AI 상담 지식이 POST_FLOW_200 차례(마무리 멘트 → 전체 단체 사진 → 촬영 후 안내 → 가족 사진)로 바뀌었다 — 안내 음성이 «모여 달라»를 맡지 않는 뜻은 같다 */ && kb.indexOf('사진 전 안내 뒤 하객 모두와') < 0);
+    && /전체 단체 사진을 찍고, 촬영 후 안내가 이어져요\.<\/p><p>가족 사진 · 추가 촬영을 하지 않는 분은 식사 장소로 먼저 가셔서, 도착하시는 대로 편하게 드세요\./.test(gd)   /* [G08_GATHER_1106] 하객 안내 식사 카드는 세 줄(전체 단체 사진 → 촬영 후 안내 → 이동) · [EARLY_EAT_OWNER_1115] 둘째 줄 «도착하시는 대로 편하게 드세요» */ && (/마무리 인사\(안내 음성\) 뒤 작가님 안내에 따라/.test(kb) || /마무리 멘트\(안내 음성\) 뒤 하객 모두와 전체 단체 사진을 먼저 남긴다\. 전체 단체 사진을 마치면 촬영 후 안내/.test(kb))   /* [B2_HOME_POST_FLOW 2026-11-06 2차 홈] AI 상담 지식이 POST_FLOW_200 차례(마무리 멘트 → 전체 단체 사진 → 촬영 후 안내 → 가족 사진)로 바뀌었다 — 안내 음성이 «모여 달라»를 맡지 않는 뜻은 같다 */ && kb.indexOf('사진 전 안내 뒤 하객 모두와') < 0);
   /* 스스로 깨 보기 */
   let dead = 0;
   const brk = (mut) => (S, mode) => { const r0 = C.build(S, { mode }); return { cues: mut(r0.cues.slice()) }; };

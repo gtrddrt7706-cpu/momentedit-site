@@ -5,6 +5,30 @@
   "60_narr-photo-split": {
    "dB": 2.4,
    "why": "대본 21:55 — 새 60 말소리 RMS −18.86 dB · 예전 −17.01 dB(짧은 클립이라 loudnorm 이 낮게 잡음) · 같게: loudnorm 뒤 +2.4 dB · −1.5 dBFS 리미터(리미터가 0.5 dB 먹는다) → −16.90 dB · 최고 −1.77"
+  },
+  "298_guest-w-arrival-guide": {
+   "dB": 0.55,
+   "why": "[NARR_FIX_1115_1 가이드판 · 카드 6 «클립 전체는 지금 판 LUFS 에 맞춤»] 새 판 -16.66 LUFS · 지금 판 -16.11 LUFS(pyloudnorm) → loudnorm 뒤 +0.55 dB"
+  },
+  "299_guest-w-10m-n10": {
+   "dB": -0.57,
+   "why": "[NARR_FIX_1115_1 가이드판 · 카드 6 «클립 전체는 지금 판 LUFS 에 맞춤»] 새 판 -15.47 LUFS · 지금 판 -16.04 LUFS(pyloudnorm) → loudnorm 뒤 -0.57 dB"
+  },
+  "345_guest-w-10m-n10-meal": {
+   "dB": -0.79,
+   "why": "[NARR_FIX_1115_1 가이드판 · 카드 6 «클립 전체는 지금 판 LUFS 에 맞춤»] 새 판 -15.28 LUFS · 지금 판 -16.07 LUFS(pyloudnorm) → loudnorm 뒤 -0.79 dB"
+  },
+  "346_guest-w-10m-n15-meal": {
+   "dB": -0.62,
+   "why": "[NARR_FIX_1115_1 가이드판 · 카드 6 «클립 전체는 지금 판 LUFS 에 맞춤»] 새 판 -15.35 LUFS · 지금 판 -15.97 LUFS(pyloudnorm) → loudnorm 뒤 -0.62 dB"
+  },
+  "347_guest-w-10m-n20-meal": {
+   "dB": -0.52,
+   "why": "[NARR_FIX_1115_1 가이드판 · 카드 6 «클립 전체는 지금 판 LUFS 에 맞춤»] 새 판 -15.68 LUFS · 지금 판 -16.2 LUFS(pyloudnorm) → loudnorm 뒤 -0.52 dB"
+  },
+  "349_guest-w-10m-n10-short-meal": {
+   "dB": -0.78,
+   "why": "[NARR_FIX_1115_1 가이드판 · 카드 6 «클립 전체는 지금 판 LUFS 에 맞춤»] 새 판 -15.26 LUFS · 지금 판 -16.04 LUFS(pyloudnorm) → loudnorm 뒤 -0.78 dB"
   }
  },
  "slots": {
