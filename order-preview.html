@@ -1687,6 +1687,7 @@ body.mkd .mk-strip{top:44px;margin:0 -16px 12px;padding:0;border-bottom:0}   /* 
 .mk-pl.on{color:var(--bg)} .mk-pl.on::before{background:var(--accent);box-shadow:none} .mk-pl.on svg{margin-left:0} .mk-pl[disabled]:not(.ld) svg{opacity:.45}
 .mk-pl.off{cursor:default} .mk-pl.off svg{opacity:.45} @media (hover:hover){ .mk-pl.off:hover::before{background:#fff} }   /* ★[AI_PLAY_READY 2026-10-08 사장님] 들을 소리가 아직 없는 AI 줄 ▶ — 기다리는 ▶(disabled)와 같은 흐림 · 누를 수는 있다(그 줄 아래 한 줄 · _playOffNote) */
 .mk-ploff{margin:8px 0 0}   /* [AI_PLAY_READY] 누른 ▶ · 이 순간 전체 듣기 바로 아래 한 줄 */
+.mk-ploff.bed-pub{font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}   /* ★[N20_BEDPUB_1119 NIGHT20 #10] 공개 미리보기 «음악은 마이페이지에서 함께 들어 볼 수 있어요»(bgm-bed.js pubLine) — .mk-note 가 없어 16px 진한 글로 흐름 줄처럼 튀었다 · 옆 안내 줄(.mk-note)과 같은 크기 · 색 · 글은 그대로 */
 @media (hover:hover){ .mk-pl:hover::before{background:var(--bg2)} .mk-pl.on:hover::before{background:var(--accent)} }
 .mk-pl:focus-visible{outline:none} .mk-pl:focus-visible::before{outline:2px solid var(--seal);outline-offset:3px}   /* ★[PILL_FOCUS 2026-10-07] 키보드 고리도 알약 모양. 단추 칸(58×44)에 두르면 모서리 4px 네모가 알약을 감쌌다(같은 줄 «목소리 만들기» 알약은 고리도 알약 · 390 실렌더로 잡음). 굵기 · 색 · 띄움(2px · 진사 · 3px)은 다른 단추와 같다. ★단추 칸에 고리를 되돌리지 말 것 */
 /* ★★[WAIT_FILL 2026-10-07 사장님 «참고 예시를 바꾸면 플레이 버튼이 활성화되기까지 시간이 걸린다 · 러닝타임을 직관적으로 · 점점 진해지면서» → 시안 A]
