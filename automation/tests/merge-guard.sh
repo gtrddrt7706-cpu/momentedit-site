@@ -24105,6 +24105,8 @@ chk "const ROLE_CLAP = /^clap-(speech|song|self)\$/;" scripts/audit/narr-words.m
 chk "_g2=_g(2,(mF?'식사 장소 확인 · 사진 올리기':'시작 알림')" order-preview.html 1
 nochk "_g2=_g(2,mF?'식사 장소 확인 · 사진 올리기':'사진 올리기')" order-preview.html
 chk 'FIVE_LABEL_N20_19' scripts/audit/open-course.mjs 1
+# ★[CARD_PROG_RESET_N20_1118 NIGHT20 #04] 새 순서를 낼 때 막대 · 시간을 0 으로 — 빠지면 음악이 먼저 오르는 3 ~ 6초 동안 앞 카드 값(«0:25 / 0:04» · 막대 가득)이 새 카드 아래 남는다
+chk 'textContent = fmt(c.est || 0); } catch (e) {}   /\* ★\[CARD_PROG_RESET_N20_1118' console.html 1
 # ★[LIVE_PROG_N20_1118 NIGHT20 #04] 미리 듣기 장면 카드(사람 순간)도 제 시간 막대를 그린다 — later 로 되돌리면 앞 소리 «0:09 / 0:08» · 가득 찬 막대가 10초 내내 남는다
 chk 'else runProg(c.live.est || 10, advance);   /\* ★\[LIVE_PROG_N20_1118' console.html 1
 nochk 'else later(function(){ advance(); }, (c.live.est || 10) \* 1000);' console.html 0
