@@ -24110,3 +24110,7 @@ chk 'textContent = fmt(c.est || 0); } catch (e) {}   /\* ★\[CARD_PROG_RESET_N2
 # ★[LIVE_PROG_N20_1118 NIGHT20 #04] 미리 듣기 장면 카드(사람 순간)도 제 시간 막대를 그린다 — later 로 되돌리면 앞 소리 «0:09 / 0:08» · 가득 찬 막대가 10초 내내 남는다
 chk 'else runProg(c.live.est || 10, advance);   /\* ★\[LIVE_PROG_N20_1118' console.html 1
 nochk 'else later(function(){ advance(); }, (c.live.est || 10) \* 1000);' console.html 0
+# ★[STREAM_AT_5_N20_19 2026-11-19 · 대표님 승인 11/19 17:18] 온라인 날 송출은 5분 전부터 — 하객 화면 글 · 콘솔 5분 전 카드 한 줄 · 운영 기획안 H-5
+chk '예식 5분 전부터 화면이 열립니다' live.html 1
+chk '온라인 날 · 이 안내 전에 송출 켜기' assets/ritual-cue.js 1
+chk 'H-5: 송출 켜기' docs/plans/PLAN_영상운영_기획안.md 1

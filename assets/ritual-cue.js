@@ -1743,6 +1743,9 @@
       if (k === 'prevideo' && seq.indexOf('guest') > -1) return;
       var got = BUILD[k](S, seq) || [];   // [OPEN_COURSE] guest 가 seq 를 본다(04 판)
       for (var i = 0; i < got.length; i++) cues.push(got[i]);
+      /* ★[STREAM_AT_5_N20_19 2026-11-19 · 대표님 승인 11/19 17:18 «추천대로» · #19 보고 1(가)] 온라인 날 5분 전 안내(314 · 357)부터 온라인 하객에게 하는 말이 나온다(1분 전 316 · 환영 48 도 예식 전) —
+           디렉터 카드에 «송출을 먼저 켠다» 한 줄 · 소리 · 글 · 시각은 그대로 · 하객 화면 글(live.html «예식 5분 전부터»)과 운영 기획안 H-5 를 같은 PR 에서 맞춘다 */
+      if (k === 'guest' && S.digital) for (var si = 0; si < got.length; si++) { if (/^guest-w(-5m|5-meal)-online$/.test(got[si].slug || '') && !got[si].hint) got[si].hint = '온라인 날 · 이 안내 전에 송출 켜기'; }
       // 하객 맞이 뒤에는 식전 고정 클립 2개가 붙는다(코스와 무관)
       if (k === 'guest') {
         if (S.digital) cues.push(cue({
