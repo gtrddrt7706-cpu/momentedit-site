@@ -544,7 +544,7 @@
   /* ★★[END_FLOW_1030 · BODY_CAP_1030 검토 167 2026-10-30 사장님] 닫는 인사 뒤 몫 — 40분 셈에 넣는다(본식 + 테이블 인사 + 이 몫 + 단체 사진 = 40).
        pre = 사진 전 안내(265 · 266)가 옛 사진 안내(26 · 닫는 인사 몫 46초 안)보다 긴 초(식사 있음 21 · 없음 9 · 엔진 글 길이 셈 · open-course 가 대조) ·
        online = 디지털 참석 날 온라인 인사(62 + 두 분 2분 · 엔진 live 와 같은 값). 빌더는 S 에 digital · meal 이 없어 마이페이지가 준 값을 setPost 로 싣는다 */
-  var POST_SEC = { none: 5, noneNt: 0, noneNc: 0, meal: 12, mealNt: 6, mealNc: 2, mealNr: 10, mealNrNt: 5, mealNrNc: 0, online: 120 };   // ★[INFO_SPLIT_200 검토 200 수정 2] 마무리 멘트 판 = 식사 없음 · 식사 + 예약 시각 · 식사 + 예약 시각 없음 × 칩(Nt · Nc) — 엔진 셈 그대로(body-cap 이 대조)
+  var POST_SEC = { none: 5, noneNt: 0, noneNc: 0, meal: 5, mealNt: 0, mealNc: 0, mealNr: 5, mealNrNt: 0, mealNrNc: 0, online: 120 };   /* ★[NARR_DEPLOY_1116 검사 기대 갱신] NARR_FIX_1115_1 식사 날 마무리도 287 · 292 · 325 판 → 식사 판 몫 = 식사 없는 판 몫(엔진 셈 · body-cap 대조 · 옛 meal 12 · mealNt 6 · mealNc 2 · mealNr 10 · mealNrNt 5) */   // ★[INFO_SPLIT_200 검토 200 수정 2] 마무리 멘트 판 = 식사 없음 · 식사 + 예약 시각 · 식사 + 예약 시각 없음 × 칩(Nt · Nc) — 엔진 셈 그대로(body-cap 이 대조)
   var _POST = {};
   function setPost(o) { _POST = o || {}; }
   function _postOf(S, f) { if (S && typeof S[f] === 'boolean') return S[f]; if (f === 'guide') return S && S.guide != null ? !!S.guide : _POST.guide !== false; return !!_POST[f]; }   // ★[GUIDE_ALWAYS_202] 하객 안내는 기본 켜짐(ritual-cue gOn 과 같은 규칙)
