@@ -24110,3 +24110,7 @@ chk 'textContent = fmt(c.est || 0); } catch (e) {}   /\* ★\[CARD_PROG_RESET_N2
 # ★[LIVE_PROG_N20_1118 NIGHT20 #04] 미리 듣기 장면 카드(사람 순간)도 제 시간 막대를 그린다 — later 로 되돌리면 앞 소리 «0:09 / 0:08» · 가득 찬 막대가 10초 내내 남는다
 chk 'else runProg(c.live.est || 10, advance);   /\* ★\[LIVE_PROG_N20_1118' console.html 1
 nochk 'else later(function(){ advance(); }, (c.live.est || 10) \* 1000);' console.html 0
+
+# ★[BLESS_CARD_WHO_N06 2026-11-18 야간 점검 #06] 덕담 말씀하실 분을 고른 날 — 연습 · 이어 보기 카드 이름 = 고른 분(예시 인물 «신부 아버지 차례» 되살리지 않기)
+chk 'BLESS_CARD_WHO_N06' order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/bless-card-who.mjs >/dev/null 2>&1; _bcw=$?; node scripts/audit/bless-card-who.mjs --selftest >/dev/null 2>&1; _bcws=$?; if [ "$_bcw" != 0 ] || [ "$_bcws" != 0 ]; then echo "REVERT? bless-card-who: 덕담 카드 이름이 고른 분이 아니다 ($_bcw/$_bcws) — node scripts/audit/bless-card-who.mjs"; fail=1; else echo 'ok bless-card-who'; fi; fi
