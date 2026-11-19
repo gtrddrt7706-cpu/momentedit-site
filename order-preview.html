@@ -1802,7 +1802,7 @@ body.mkd .mk-strip{top:44px;margin:0 -16px 12px;padding:0;border-bottom:0}   /* 
 /* [PR_WIDE] PC — 좌우를 넓게: 왼쪽 장면 카드(따라 내려옴) · 오른쪽 순간 목록 */
 @media (min-width:1000px){
   body.op4.pr2:not(.pk2) .wrap{max-width:min(1080px,calc(100vw - 176px))}   /* RIT_WIDTH_720 보다 한 단 세게 */
-  body.pr2 .nav{max-width:520px;margin-left:auto;width:100%}
+  body.pr2 .nav{max-width:calc((100% - 56px) / 2.15);margin-left:auto;width:100%}   /* ★[PR_NAV_COL 2026-11-18 NIGHT20 #11] 종전 520px 고정 — 오른쪽 순간 목록 칸(1fr = (폭 − 사이 56) ÷ 2.15)보다 넓어 «이전» 알약과 아래 흐림이 왼쪽 칸(«직접 해보기로 시작» · «준비할 것» 상자)을 덮었다(1024 에서 112px · 1280 에서 4px + 흐림 · 1440 에서 «준비할 것» 오른쪽 끝). 아래 막대 폭 = 오른쪽 칸 폭 */
   .pr-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:0 56px;align-items:start}
   .pr-lead{position:sticky;top:72px}
   .pr-pick{margin:6px 0 0}
