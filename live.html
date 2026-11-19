@@ -2066,7 +2066,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
 </section>
 
 <!-- ═══ TOAST ═══ -->
-<div class="toast" id="toast" role="status" aria-live="polite">Copied</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div><!-- ★[TOAST_EMPTY_N20_18 2026-11-19 R3X2 #18] 처음 글 «Copied» 를 비운다 — 투명(opacity 0)일 뿐 문서에 남아 화면 읽기 · 글 추출이 모든 화면 맨 끝(링크 오류 화면까지)에서 «COPIED» 를 읽었다 · 띄울 때 showToast 가 글을 채우고 숨긴 뒤 비운다 -->
 
 <script>
 // ── 아코디언 토글 (단일 오픈 — 한 번에 하나만 열림) ──
@@ -2145,7 +2145,7 @@ function showToast(msg) {
   toast.textContent = msg;
   toast.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+  toastTimer = setTimeout(() => { toast.classList.remove('show'); setTimeout(() => { if (!toast.classList.contains('show')) toast.textContent = ''; }, 400); }, 2000);   // [TOAST_EMPTY_N20_18] 사라진 뒤 글도 비운다(전환 0.35s 뒤)
 }
 
 // ── Reveal on scroll ──
