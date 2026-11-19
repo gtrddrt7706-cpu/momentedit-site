@@ -24216,3 +24216,7 @@ chk 'OP_FORCED_N20_19' order-preview.html 1
 # ★[GALLERY_FORCED_N20_19 2026-11-20 R3X2] 청첩장 갤러리 오프라인·온라인 고른 밑줄이 윈도 고대비에서도 보인다
 chk 'GALLERY_FORCED_N20_19' invitation-gallery.html 1
 chk '.gv-dots button::before{forced-color-adjust:none;background:CanvasText}' invitation-gallery.html 1
+# ★[INQ_FORCED_N20_19 2026-11-20 R3X2] 상담 신청서 고름 표시가 윈도 고대비에서도 보인다(시스템 강조색 Highlight)
+chk 'INQ_FORCED_N20_19' inquiry.html 1
+chk '.compact-mark::after{forced-color-adjust:none;background:Highlight}' inquiry.html 1
+chk '.required-dot{forced-color-adjust:none;background:CanvasText}' inquiry.html 1
