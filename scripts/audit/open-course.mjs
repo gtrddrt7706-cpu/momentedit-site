@@ -285,6 +285,19 @@ ok('[ONEMIN_FIRST · GUEST_WELCOME_191 · INFO_SPLIT_200] 식전 영상이 없�
     && C.EXTRA['guest-w5-meal'] === '시작 오 분 전입니다. 식사 장소 확인과 사진 올리기는 모바일 청첩장의 하객 안내에서 하실 수 있습니다.' /* ★[MJ_FINAL_1118 문구 확정 m5 356] ★[FINAL_APPLY_1115 묶음 3 · 대본 11/15] 안내 = 문정 · 대표님 FINAL2 11/14 확정 글 */ && /온라인으로 함께하시는 분들은 화면과 소리를 확인해 주세요\.$/.test(C.EXTRA['guest-w5-meal-online'] || '')
     && ['guest-w-5m-mgr', 'guest-w-5m-mg', 'guest-w-5m-g', 'guest-w-5m-mgr-online', 'guest-w-5m-mg-online', 'guest-w-5m-g-online'].every((x) => C.RETIRED[x])
     && slugs({ course: 'open', on: {}, digital: 1 }).indexOf('guest-w-1m-online') > -1 && slugs({ course: 'open', on: {} }).indexOf('guest-w-1m') > -1; })());
+/* ★[FIVE_LABEL_N20_19 2026-11-18 야간 점검 #19] 빌더 5분 전 짧은 설명이 그 칸 소리와 같은 말을 한다 — 식사 × 온라인 넷 · 설명에 «사진»이 있으면 소리에도 · «온라인»도 같게 ·
+     깨 보기: 옛 식 «mF?'식사 장소 확인 · 사진 올리기':'사진 올리기'»면 식사 없는 날(03 · 314)이 «사진»을 말해 빨강 */
+ok('[FIVE_LABEL_N20_19] 빌더 5분 전 짧은 설명 = 그 칸 소리(사진 · 온라인 있고 없음) — 식사 × 디지털 넷', (() => {
+  const OP = fs.readFileSync(P('order-preview.html'), 'utf8'), m = OP.match(/_g2=_g\(2,(.*?)\), _g3=/); if (!m || !/on:\/-online\$\/\.test\(c\.slug\|\|''\)/.test(OP)) return false;
+  const lab = Function('mF', 'gq', 'return (' + m[1] + ');');
+  let good = true;
+  for (const meal of [0, 1]) for (const digital of [0, 1]) {
+    const o = Object.assign({ course: 'open', on: {}, digital }, meal ? { meal: 1, mealFull: 1 } : {});
+    const five = C.build(o, { mode: 'console' }).cues.find((c) => c.atMin === -5); if (!five) { good = false; continue; }
+    const d = lab(!!meal, [null, null, { on: /-online$/.test(five.slug || '') }]);
+    if (/사진/.test(d) !== /사진/.test(five.text || '') || /온라인/.test(d) !== /온라인/.test(five.text || '')) good = false;
+  }
+  return good; })());
 ok('[GA_W5_1115] 빌더 하객 안내 네 칸(입장 · 10 · 5 · 1분 전) 틀이 엔진 시계 큐 이름을 전부 제 칸으로 — 식사 · 예약 · 온라인 · 하객 안내 16 조합 · 깨 보기: 옛 5분 전 틀 /^guest-(w-5m|3-5min)/ 이면 식사 날이 빠진다', (() => {
   const OP = fs.readFileSync(P('order-preview.html'), 'utf8'), m = OP.match(/_GA=\[([^\n]*?)\];/); if (!m) return false;
   const GA = Function('return [' + m[1] + ']')(), OLD5 = /^guest-(w-5m|3-5min)/, want = [/^guest-w-arrival|^guest-1-arrival/, /^guest-w-10m-|^guest-2-10min/, /^guest-(w-5m|w5-|3-5min)/, /^guest-(w-1m|4-1min)/];
