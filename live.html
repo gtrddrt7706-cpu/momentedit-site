@@ -1774,6 +1774,9 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
     <span class="crop-mark br"></span>
   </div>
 
+  <!-- ★[SOUND_FIRST_N20_19 2026-11-19 R3 · 대기·대표님 결정] 소리는 꺼진 채 시작하니 하객이 꼭 할 일은 «소리 켜기» — 영상 아래 세 줄 중 맨 위로(종전 맨 아래) ·
+       글 · 표시 조건([B2_MA_90] 영상이 붙었을 때만)은 그대로, 자리만 옮김 -->
+  <p class="player-fs-hint" id="playerSound" hidden>영상에서 소리를 켜 주세요.</p><!-- [B2_MA_90 2026-11-06 2차 B2-마90] 영상은 소리 꺼진 채 자동 재생(muted=1)으로 붙는다 — 영상이 붙었을 때만 한 줄 · 소리를 저절로 켜지 않는다 -->
   <p class="player-note">이 자리는 두 분이 초대하신 분들만을 위해<br>비공개로 진행됩니다.</p><!-- [GUESTS_OPEN_BUILDER 2026-10-13] «가까운 분들만» → «초대하신 분들만»(비공개는 초대의 몫 · GUESTS_OPEN) -->
   <p class="player-fs-hint">
     <svg class="fs-icon" viewBox="0 0 16 16" aria-hidden="true">
@@ -1781,7 +1784,6 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
     </svg>
     <span>영상을 탭하시면 전체화면으로 감상하실 수 있습니다.</span>
   </p>
-  <p class="player-fs-hint" id="playerSound" hidden>영상에서 소리를 켜 주세요.</p><!-- [B2_MA_90 2026-11-06 2차 B2-마90] 영상은 소리 꺼진 채 자동 재생(muted=1)으로 붙는다 — 영상이 붙었을 때만 한 줄 · 소리를 저절로 켜지 않는다 -->
 
   <!-- CREDIT BAR -->
   <div class="credit-bar" style="padding:0;margin-top:36px">
@@ -3259,6 +3261,9 @@ a.brand-mark-link .back-arrow{color:var(--gold-text)}
 .env-q-parents .of{opacity:1}
 /* [B2_MA_90] 소리 안내는 영상이 붙었을 때만(클래스의 inline-flex 가 [hidden] 을 이기지 않게) · [B2_MA_61] 한글 열쇠는 영문 자간(0.28em)을 쓰지 않는다(LIVE_KO_TRACK 과 같은 처방) */
 .player-fs-hint[hidden]{display:none}
+/* [SOUND_FIRST_N20_19] 소리 안내가 맨 위일 때 — 첫 줄 여백(22px)을 받고 아래 비공개 안내는 줄 사이 여백(10px)으로 · 숨으면 종전 그대로 */
+#playerSound:not([hidden]){margin-top:22px}
+#playerSound:not([hidden]) + .player-note{margin-top:10px}
 .credit-key-ko{letter-spacing:0.06em}
 /* [B2_MA_91] 편지 칸 아래 한 줄 — 빈칸(공백만)일 때 그 칸 바로 아래 */
 .lf-err{margin:6px 0 0;font-size:12px;line-height:1.6;color:var(--seal);letter-spacing:0.02em}

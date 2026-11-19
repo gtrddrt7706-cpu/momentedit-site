@@ -24110,3 +24110,5 @@ chk 'textContent = fmt(c.est || 0); } catch (e) {}   /\* ★\[CARD_PROG_RESET_N2
 # ★[LIVE_PROG_N20_1118 NIGHT20 #04] 미리 듣기 장면 카드(사람 순간)도 제 시간 막대를 그린다 — later 로 되돌리면 앞 소리 «0:09 / 0:08» · 가득 찬 막대가 10초 내내 남는다
 chk 'else runProg(c.live.est || 10, advance);   /\* ★\[LIVE_PROG_N20_1118' console.html 1
 nochk 'else later(function(){ advance(); }, (c.live.est || 10) \* 1000);' console.html 0
+# ★[SOUND_FIRST_N20_19 2026-11-19 R3] 디지털 참석 영상 아래 «소리를 켜 주세요»가 세 줄 중 맨 위(비공개 안내보다 앞)
+chk '#playerSound:not(\[hidden\]) + .player-note' live.html 1
