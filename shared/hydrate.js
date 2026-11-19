@@ -608,13 +608,13 @@
         sec.innerHTML = '<div style="max-width:340px;margin:0 auto;padding:26px 22px;border:1px solid ' + _bd + ';border-radius:14px">'
           /* [CTA_EYEBROW] opacity .55는 11px에서 3.1:1로 AA 미달(axe, 2026-08-01). .68 → 5.0:1.
              ★고정 hex로 바꾸지 말 것 — 08 같은 어두운 디자인에서는 상속색이 반전돼야 한다. 위계는 opacity가 아니라 크기(11px)가 낸다. */
-          + '<div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.68;margin-bottom:10px">' + (mode === 'photo' ? 'Photos' : 'Guest Guide') + '</div>'
+          + '<div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.68;margin-bottom:10px">' + 'Guest Guide' + '</div>'   /* ★[GUIDE_NAME_OWNER_1115 2026-11-15 대표님] 온라인 커버도 «하객 안내» 입구 — 머리는 가족 카드와 같은 Guest Guide */
           + (mode === 'photo' ? ''   // [B2_MA_17] 온라인 커버 — 단추 하나(설명 없이)
             : mode === 'fail' ? '<div style="font-size:14px;line-height:1.7;word-break:keep-all;margin-bottom:16px">하객 안내를 불러오지 못했어요.</div>'   // [B2_MA_36]
             : '<div style="font-size:14px;line-height:1.7;word-break:keep-all;margin-bottom:16px">예식 당일의 식사 안내 · 자리 찾기 ·<br>사진 올리기를 한 곳에 모아 두었어요.</div>')   /* [PHOTO_UP_1019 검토 138-2] 나레이션(5분 전 · 단체 사진 뒤)이 «청첩장 속 하객 안내 → 사진 올리기»로 부른다 — 카드에도 그 이름이 있어야 지나치지 않는다 */
           + (mode === 'fail'
             ? '<button type="button" id="meGuideCtaRetry" style="' + _btnCss + '">다시 불러오기</button>'
-            : '<a id="meGuideCtaBtn" href="' + href + '" style="' + _btnCss + '">' + (mode === 'photo' ? '사진 올리기' : '하객 안내 열기') + '</a>')
+            : '<a id="meGuideCtaBtn" href="' + href + '" style="' + _btnCss + '">' + (mode === 'photo' ? '하객 안내 · 사진 올리기' : '하객 안내 열기') +   /* ★[GUIDE_NAME_OWNER_1115] 음성이 «모바일 청첩장의 하객 안내»로 부른다 — 온라인 커버 단추에도 그 이름(누르면 종전처럼 사진 칸 #photos · B2_MA_17 단추 하나 그대로) */ '</a>')
           + '</div>';
         // 100vh~118vh 본문 섹션 뒤에 홀로 떨어져 '너무 내려가' 보이던 문제(family-02·03·06·07) → 마지막 본문 섹션(.sec) 안 끝에 삽입해 계좌와 함께 흐르게. 섹션이 없으면 footer 앞으로 폴백(2026-07-22 · marker: meGuideCta-inline)
         var _secs = document.querySelectorAll('.sec');
