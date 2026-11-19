@@ -698,7 +698,7 @@ details.env-acc-item[open] > .env-acc-q{
 .foot-mark{
   display:inline-flex;align-items:center;gap:14px;margin-top:30px;
   font-family:var(--serif-en);font-weight:500;font-size:10px;letter-spacing:0.4em;
-  color:var(--dancheong);padding-left:0.4em;opacity:0.8;text-transform:uppercase;
+  color:var(--dancheong);padding-left:0.4em;text-transform:uppercase;/* ★[INV06_DARK_AA] 꼬리 «한 순간의 기록» 10px 단청 + opacity .8 = 4.29:1 → 투명도 빼서 6.41:1(계산값) */
 }
 .foot-mark .m-line{width:18px;height:1px;background:var(--dancheong);opacity:0.5}
 
@@ -788,8 +788,7 @@ details.env-acc-item[open] > .env-acc-q{
 /* === 다크 배경 라벨 톤다운 (JOIN 다크 섹션만, 가독성 정책) === */
 .join-eyebrow,
 .join-features{
-  color:var(--ink-light);
-  opacity:0.7;
+  color:#A0968B;   /* ★[INV06_DARK_AA 2026-11-19 NIGHT20 #15] 어두운 칸(--ink #2C2825) 위 작은 라벨 --ink-light + opacity .7 = 4.03:1(AA 미달) → 같은 색조 한 색 #A0968B(5.03:1 계산값) · 투명도로 흐리지 말 것 */
 }
 .join-features .sep{background:var(--ink-light);opacity:0.5}
 /* [MAST_TOP 2026-08-04] 머리글 위 공간을 줄였다(사용자 지시 "모먼트에디트 로고 윗쪽 간격이 너무 넓은데").
