@@ -1497,6 +1497,7 @@ chk 'cta-eyebrow' index.html 4                 # 영문 아이브로우 3곳 + C
 chk 'BTN_TIER' index.html 4                    # 버튼 2단 체계(채움=전환 3곳 / 외곽=보조 이동 1곳). journal-guide-link를 채움 마룬으로 되돌리면 화면에 전환 버튼이 4개가 된다 — 복원 금지
 chk 'MAP_BREATH' index.html 1                  # 지도 블록 상하 여백 80/88 — margin-top만 두고 아래를 0으로 되돌리면 다시 푸터에 끼인다
 chk 'PILL_FOCUS_ROUND_1119' order-preview.html 1  # [2026-11-19 NIGHT20 #13 R3X2] 알약 단추는 키보드 초점에서도 둥글게(전역 4px 에 지지 않게)
+chk 'NEXT_SEG_1119' order-preview.html 2          # [2026-11-19 NIGHT20 #13 R3X2] ② 다음 단추 글은 «·» 마디째로만 줄바꿈(320 «하객 / 맞이 안내» 끊김)
 chk 'DEPOSIT_WORD_1119' index.html 2             # [2026-11-19 대표님 «추천대로» · DEC3] 예약금은 «입금» 한 낱말(FAQ · 예약 및 환불)
 chk 'DEPOSIT_WORD_1119' inquiry.html 1
 chk 'DEPOSIT_WORD_1119' api/_kb.js 1
