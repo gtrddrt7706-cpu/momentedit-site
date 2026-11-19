@@ -1904,6 +1904,7 @@ chk 'SCHED_FOOTER_LOGO' schedule.html 1                         # 스케줄 푸�
 chk '.sticky-label{color:var(--gold-text)}' schedule.html 1     # 9.5px 골드 라벨 2.54:1 → 5.71:1 · var(--gold)로 되돌리기 금지
 chk 'TRACK_RAMP8' index.html 1                              # 자간 8단계 램프 · 히어로/워드마크/목업 예외
 chk 'A11Y_PINCH_ZOOM' index.html 1                          # 핀치줌 허용 · user-scalable=no 재삽입 금지(WCAG 1.4.4)
+chk 'MU_LI_NONE_R3' assets/bgm-bed.js 1        # [2026-11-19 NIGHT20 R3 #15] radiogroup 안 li role=none
 chk 'A11Y_LETTER_EXPOSED' index.html 1                      # 받은편지 예시는 콘텐츠 · aria-hidden 되돌리면 버튼이 포커스만 되고 안 읽힘
 # ★★[LETTER_SAMPLE 2026-09-06] 위 aria-label 은 «스크린리더에만» 예시라고 말한다.
 #   눈에 보이는 «예시» 글자는 0개였다(실측). 바로 위 문장이 「스튜디오를 거치지 않고 두 분께만
