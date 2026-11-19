@@ -1,0 +1,1301 @@
+{
+ "_왜": "[NARR_REDO_1115 · TYPECAST_END_1118 K2] 대표님 «다시 녹음» 12문장(R1 · R2 새 글 둘 포함)을 톤 3가지 × 4테이크로 받은 원본 그대로(손대지 않음 · wav→flac 무손실). Typecast 프로젝트가 11/19 지워져도 남게. 고른 톤은 artifact db redo4 → 반영은 대표님 승인 뒤.",
+ "takes": {
+  "316__joy__t1": {
+   "n": "316",
+   "text": "예식 중에도 자리에서 편하게 사진을 찍으셔도 괜찮습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t1",
+   "md5_wav": "23c455b2eb7f42f7ace77b9bc77666e2",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "316__joy__t2": {
+   "n": "316",
+   "text": "예식 중에도 자리에서 편하게 사진을 찍으셔도 괜찮습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t2",
+   "md5_wav": "142a15ae7ff48f132d0758f20083a41c",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "316__joy__t3": {
+   "n": "316",
+   "text": "예식 중에도 자리에서 편하게 사진을 찍으셔도 괜찮습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t3",
+   "md5_wav": "fdd59fb32910b8f5a9b023a9f8e758c0",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "316__joy__t4": {
+   "n": "316",
+   "text": "예식 중에도 자리에서 편하게 사진을 찍으셔도 괜찮습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t4",
+   "md5_wav": "4c9316cbe8afeec754e44fffc2230978",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "316__high__t1": {
+   "n": "316",
+   "text": "예식 중에도 자리에서 편하게 사진을 찍으셔도 괜찮습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t1",
+   "md5_wav": "aa122df96217b27794020785dfc3a3a0",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "316__high__t2": {
+   "n": "316",
+   "text": "예식 중에도 자리에서 편하게 사진을 찍으셔도 괜찮습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t2",
+   "md5_wav": "74dbb7075ad00728f699dd4013e64e31",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "316__high__t3": {
+   "n": "316",
+   "text": "예식 중에도 자리에서 편하게 사진을 찍으셔도 괜찮습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t3",
+   "md5_wav": "faef6a2520c2490e00d616fa59091ecd",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "316__high__t4": {
+   "n": "316",
+   "text": "예식 중에도 자리에서 편하게 사진을 찍으셔도 괜찮습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t4",
+   "md5_wav": "1da723399a2929f1c577958883ab5610",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "316__bright__t1": {
+   "n": "316",
+   "text": "예식 중에도 자리에서 편하게 사진을 찍으셔도 괜찮습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t1",
+   "md5_wav": "09ef3c63f43917d2465fe42aa800dbaf",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "316__bright__t2": {
+   "n": "316",
+   "text": "예식 중에도 자리에서 편하게 사진을 찍으셔도 괜찮습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t2",
+   "md5_wav": "5a8bea30d8d887edf28076851462c2bc",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "316__bright__t3": {
+   "n": "316",
+   "text": "예식 중에도 자리에서 편하게 사진을 찍으셔도 괜찮습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t3",
+   "md5_wav": "cee07ba949a1e9b3216bbbd425ffcf56",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "316__bright__t4": {
+   "n": "316",
+   "text": "예식 중에도 자리에서 편하게 사진을 찍으셔도 괜찮습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t4",
+   "md5_wav": "7ecf7cfceb026d05d14c224f05bebfd1",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D3__joy__t1": {
+   "n": "D3",
+   "text": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t1",
+   "md5_wav": "8aecd9ac49e8980eb5d9704ce4e0faa7",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D3__joy__t2": {
+   "n": "D3",
+   "text": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t2",
+   "md5_wav": "3ca3e2e2945e121aa0fb81ee48d9b7de",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D3__joy__t3": {
+   "n": "D3",
+   "text": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t3",
+   "md5_wav": "dd17ac4b753d31e4c968f0df212a111c",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D3__joy__t4": {
+   "n": "D3",
+   "text": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t4",
+   "md5_wav": "2567b512717de8c952a2397643ca9e38",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D3__high__t1": {
+   "n": "D3",
+   "text": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t1",
+   "md5_wav": "5ad31468096cd6998daf322767b19c7a",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D3__high__t2": {
+   "n": "D3",
+   "text": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t2",
+   "md5_wav": "b14fd22c37980a74a8d415964cd626d2",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D3__high__t3": {
+   "n": "D3",
+   "text": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t3",
+   "md5_wav": "d2d8c62da92fa631644f0e2efb699508",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D3__high__t4": {
+   "n": "D3",
+   "text": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t4",
+   "md5_wav": "b72b46e8b794333de0a0a36d66c9df2d",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D3__bright70__t1": {
+   "n": "D3",
+   "text": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t1",
+   "md5_wav": "582933114e28ab008192cd970746db9a",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D3__bright70__t2": {
+   "n": "D3",
+   "text": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t2",
+   "md5_wav": "2ec5664ae37172254da186c577a9f716",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D3__bright70__t3": {
+   "n": "D3",
+   "text": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t3",
+   "md5_wav": "f17d4c86a18b44b870c1dd7668383826",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D3__bright70__t4": {
+   "n": "D3",
+   "text": "다른 분들은 이제 편히 돌아가셔도 좋습니다.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t4",
+   "md5_wav": "813f3e39e5a7b25df7b140dd234ff8e5",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D4__joy__t1": {
+   "n": "D4",
+   "text": "가실 때 두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t1",
+   "md5_wav": "4d6543fc73ba3ca29e2404f846aba1c0",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D4__joy__t2": {
+   "n": "D4",
+   "text": "가실 때 두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t2",
+   "md5_wav": "fd8876bff27584f5910d6aa228551264",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D4__joy__t3": {
+   "n": "D4",
+   "text": "가실 때 두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t3",
+   "md5_wav": "66737efbb7639134c044c56735b1a39a",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D4__joy__t4": {
+   "n": "D4",
+   "text": "가실 때 두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t4",
+   "md5_wav": "71a9c8d20e07490c50c920083bb425e9",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D4__high__t1": {
+   "n": "D4",
+   "text": "가실 때 두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t1",
+   "md5_wav": "e692a38bfddb972507c86bacce8c84e0",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D4__high__t2": {
+   "n": "D4",
+   "text": "가실 때 두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t2",
+   "md5_wav": "1c2b484ede05d79cd5f8e8daec870fd4",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D4__high__t3": {
+   "n": "D4",
+   "text": "가실 때 두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t3",
+   "md5_wav": "4d6645e0fff426a2da815156259b4203",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D4__high__t4": {
+   "n": "D4",
+   "text": "가실 때 두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t4",
+   "md5_wav": "d2f21d1a1c6397c7a949751420e2d083",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D4__bright70__t1": {
+   "n": "D4",
+   "text": "가실 때 두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t1",
+   "md5_wav": "31c8cea0235b2602bdb659782e160477",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D4__bright70__t2": {
+   "n": "D4",
+   "text": "가실 때 두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t2",
+   "md5_wav": "c77a6f0235c236bf3d7cbfa4544137c5",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D4__bright70__t3": {
+   "n": "D4",
+   "text": "가실 때 두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t3",
+   "md5_wav": "0fc2fdb25b0967fb9c4815fc6f453e4c",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "D4__bright70__t4": {
+   "n": "D4",
+   "text": "가실 때 두고 가시는 물건이 없는지 한 번 살펴 주세요.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t4",
+   "md5_wav": "e37f0c865c7277815d5d3139edd29703",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "F0__joy__t1": {
+   "n": "F0",
+   "text": "십 분 뒤 예식을 시작하겠습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t1",
+   "md5_wav": "4bbecb76bf7689fbb0361a12567fe3fa",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "F0__joy__t2": {
+   "n": "F0",
+   "text": "십 분 뒤 예식을 시작하겠습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t2",
+   "md5_wav": "00bb53ac4cd0bc1459b266ca605de319",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "F0__joy__t3": {
+   "n": "F0",
+   "text": "십 분 뒤 예식을 시작하겠습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t3",
+   "md5_wav": "97f0b04ffafcd81eb675e06c515ce224",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "F0__joy__t4": {
+   "n": "F0",
+   "text": "십 분 뒤 예식을 시작하겠습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t4",
+   "md5_wav": "be381dcdf244834b373e724637ae0501",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "F0__high__t1": {
+   "n": "F0",
+   "text": "십 분 뒤 예식을 시작하겠습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t1",
+   "md5_wav": "99079a895d5ae20e0d3927e26f49ee7e",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "F0__high__t2": {
+   "n": "F0",
+   "text": "십 분 뒤 예식을 시작하겠습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t2",
+   "md5_wav": "1b98a5c2db148b0b620d55f189e3d323",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "F0__high__t3": {
+   "n": "F0",
+   "text": "십 분 뒤 예식을 시작하겠습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t3",
+   "md5_wav": "90874fa0cbeef95090661434a548d108",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "F0__high__t4": {
+   "n": "F0",
+   "text": "십 분 뒤 예식을 시작하겠습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t4",
+   "md5_wav": "d3e12c9b499bc55ea33e3831b8ccfc79",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "F0__bright__t1": {
+   "n": "F0",
+   "text": "십 분 뒤 예식을 시작하겠습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t1",
+   "md5_wav": "b73696b74641d59062b61f8d8fdee1c9",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "F0__bright__t2": {
+   "n": "F0",
+   "text": "십 분 뒤 예식을 시작하겠습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t2",
+   "md5_wav": "297649dca05912e2853e6513a7bedb56",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "F0__bright__t3": {
+   "n": "F0",
+   "text": "십 분 뒤 예식을 시작하겠습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t3",
+   "md5_wav": "05859433bf9ffe04609d4ad8c561bc98",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "F0__bright__t4": {
+   "n": "F0",
+   "text": "십 분 뒤 예식을 시작하겠습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t4",
+   "md5_wav": "6c353b5e9484850cc5e5a8d5ff749491",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R10__joy__t1": {
+   "n": "R10",
+   "text": "예식을 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t1",
+   "md5_wav": "1f0e18afcd879aae848222e865e4a1ee",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R10__joy__t2": {
+   "n": "R10",
+   "text": "예식을 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t2",
+   "md5_wav": "b6a800a4152c81a80fe8170bc82c1f4b",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R10__joy__t3": {
+   "n": "R10",
+   "text": "예식을 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t3",
+   "md5_wav": "b6a800a4152c81a80fe8170bc82c1f4b",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R10__joy__t4": {
+   "n": "R10",
+   "text": "예식을 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t4",
+   "md5_wav": "02de59fd03b8c9da55a5d1c876eafccd",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R10__high__t1": {
+   "n": "R10",
+   "text": "예식을 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t1",
+   "md5_wav": "7a831e0e8a87a77433e7410642953ad2",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R10__high__t2": {
+   "n": "R10",
+   "text": "예식을 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t2",
+   "md5_wav": "5353dffac92cf3d9d72ff591a2dc97f8",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R10__high__t3": {
+   "n": "R10",
+   "text": "예식을 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t3",
+   "md5_wav": "51bfc0756b9b46d7bd243842e4dcf2ac",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R10__high__t4": {
+   "n": "R10",
+   "text": "예식을 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t4",
+   "md5_wav": "f126370009736a90d99c8683c15b5df3",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R10__bright__t1": {
+   "n": "R10",
+   "text": "예식을 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t1",
+   "md5_wav": "9d12c3e569f4e4dba259410f00551ea8",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R10__bright__t2": {
+   "n": "R10",
+   "text": "예식을 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t2",
+   "md5_wav": "9c608167051dda93eb3d284665e9991f",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R10__bright__t3": {
+   "n": "R10",
+   "text": "예식을 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t3",
+   "md5_wav": "d7058248051383edd2604c554799a1ba",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R10__bright__t4": {
+   "n": "R10",
+   "text": "예식을 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t4",
+   "md5_wav": "abd2bed91b9313b5c2fcb270936e7815",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R11__joy__t1": {
+   "n": "R11",
+   "text": "모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 신랑 신부에게 바로 보내실 수 있습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t1",
+   "md5_wav": "cdecb364dbe791f792c58258c506cfc4",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R11__joy__t2": {
+   "n": "R11",
+   "text": "모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 신랑 신부에게 바로 보내실 수 있습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t2",
+   "md5_wav": "7a422ed45da84cb0ded50b954edb0d35",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R11__joy__t3": {
+   "n": "R11",
+   "text": "모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 신랑 신부에게 바로 보내실 수 있습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t3",
+   "md5_wav": "a487df6e871af21f0ecfafcc40cbfc6f",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R11__joy__t4": {
+   "n": "R11",
+   "text": "모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 신랑 신부에게 바로 보내실 수 있습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t4",
+   "md5_wav": "05da3c1231ac0a2d47e438572781b9e2",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R11__high__t1": {
+   "n": "R11",
+   "text": "모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 신랑 신부에게 바로 보내실 수 있습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t1",
+   "md5_wav": "b7f2705c20efc0512c14fda0331177ad",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R11__high__t2": {
+   "n": "R11",
+   "text": "모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 신랑 신부에게 바로 보내실 수 있습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t2",
+   "md5_wav": "980c3bba4cc6411932f79fafd377a770",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R11__high__t3": {
+   "n": "R11",
+   "text": "모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 신랑 신부에게 바로 보내실 수 있습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t3",
+   "md5_wav": "5160ff7449428d0743a13cee0e096eb8",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R11__high__t4": {
+   "n": "R11",
+   "text": "모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 신랑 신부에게 바로 보내실 수 있습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t4",
+   "md5_wav": "c3da6fa7f87aed1aa50683f01169af21",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R11__bright__t1": {
+   "n": "R11",
+   "text": "모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 신랑 신부에게 바로 보내실 수 있습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t1",
+   "md5_wav": "f0c0f3b52643666663e9d58616f1670c",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R11__bright__t2": {
+   "n": "R11",
+   "text": "모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 신랑 신부에게 바로 보내실 수 있습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t2",
+   "md5_wav": "debdf60a3d5d4ad345d2dbc365456f6a",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R11__bright__t3": {
+   "n": "R11",
+   "text": "모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 신랑 신부에게 바로 보내실 수 있습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t3",
+   "md5_wav": "3b37099be1c9a464c790b4d333d75b79",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R11__bright__t4": {
+   "n": "R11",
+   "text": "모바일 청첩장의 하객 안내에서 사진 올리기를 누르시면, 신랑 신부에게 바로 보내실 수 있습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t4",
+   "md5_wav": "d26b7a3b82b0a01f4ee934b69c33f1fe",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R1n__joy__t1": {
+   "n": "R1n",
+   "text": "그 밖의 분들께서는 식사 장소로 먼저 가셔서, 편히 식사하고 계시기 바랍니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t1",
+   "md5_wav": "916461d5a662421deda43a1e0bf2619b",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R1n__joy__t2": {
+   "n": "R1n",
+   "text": "그 밖의 분들께서는 식사 장소로 먼저 가셔서, 편히 식사하고 계시기 바랍니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t2",
+   "md5_wav": "0d1a2d55ca58e2291f178a9651498885",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R1n__joy__t3": {
+   "n": "R1n",
+   "text": "그 밖의 분들께서는 식사 장소로 먼저 가셔서, 편히 식사하고 계시기 바랍니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t3",
+   "md5_wav": "e9ef2e1c20e30470108a07045da1daa3",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R1n__joy__t4": {
+   "n": "R1n",
+   "text": "그 밖의 분들께서는 식사 장소로 먼저 가셔서, 편히 식사하고 계시기 바랍니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t4",
+   "md5_wav": "83dbacff31dc2ca74ec157b4da73343b",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R1n__high__t1": {
+   "n": "R1n",
+   "text": "그 밖의 분들께서는 식사 장소로 먼저 가셔서, 편히 식사하고 계시기 바랍니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t1",
+   "md5_wav": "831eb025fc533cd669f93ee83a785dc6",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R1n__high__t2": {
+   "n": "R1n",
+   "text": "그 밖의 분들께서는 식사 장소로 먼저 가셔서, 편히 식사하고 계시기 바랍니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t2",
+   "md5_wav": "b8dd57294bd0ecbd44d3151645b92dff",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R1n__high__t3": {
+   "n": "R1n",
+   "text": "그 밖의 분들께서는 식사 장소로 먼저 가셔서, 편히 식사하고 계시기 바랍니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t3",
+   "md5_wav": "fefcd65b726acde9de98c2e8628b5ab0",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R1n__high__t4": {
+   "n": "R1n",
+   "text": "그 밖의 분들께서는 식사 장소로 먼저 가셔서, 편히 식사하고 계시기 바랍니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t4",
+   "md5_wav": "cf19f70a6fbd32e1d5445ef50dd1911d",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R1n__bright70__t1": {
+   "n": "R1n",
+   "text": "그 밖의 분들께서는 식사 장소로 먼저 가셔서, 편히 식사하고 계시기 바랍니다.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t1",
+   "md5_wav": "084ad725988b81056448ae88b736aaa4",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R1n__bright70__t2": {
+   "n": "R1n",
+   "text": "그 밖의 분들께서는 식사 장소로 먼저 가셔서, 편히 식사하고 계시기 바랍니다.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t2",
+   "md5_wav": "ac1c6f861cce41e62c5c9d35dcc5258a",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R1n__bright70__t3": {
+   "n": "R1n",
+   "text": "그 밖의 분들께서는 식사 장소로 먼저 가셔서, 편히 식사하고 계시기 바랍니다.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t3",
+   "md5_wav": "baca8b31cf28abd73ece4b0de7886e4f",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R1n__bright70__t4": {
+   "n": "R1n",
+   "text": "그 밖의 분들께서는 식사 장소로 먼저 가셔서, 편히 식사하고 계시기 바랍니다.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t4",
+   "md5_wav": "69bc3897dcd840e65c901f720e5eebd9",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R2n__joy__t1": {
+   "n": "R2n",
+   "text": "식사 장소는 모바일 청첩장의 하객 안내에서 확인하실 수 있습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t1",
+   "md5_wav": "85bc5c4b6a8fd937f4b7407f09ef3aed",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R2n__joy__t2": {
+   "n": "R2n",
+   "text": "식사 장소는 모바일 청첩장의 하객 안내에서 확인하실 수 있습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t2",
+   "md5_wav": "71fc61bbbf219c57365027f9c6c3cb59",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R2n__joy__t3": {
+   "n": "R2n",
+   "text": "식사 장소는 모바일 청첩장의 하객 안내에서 확인하실 수 있습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t3",
+   "md5_wav": "346488af57550886a1fd17ca5ab58d8c",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R2n__joy__t4": {
+   "n": "R2n",
+   "text": "식사 장소는 모바일 청첩장의 하객 안내에서 확인하실 수 있습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t4",
+   "md5_wav": "99abf2facb82bba5d1a2e291e595d8c5",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R2n__high__t1": {
+   "n": "R2n",
+   "text": "식사 장소는 모바일 청첩장의 하객 안내에서 확인하실 수 있습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t1",
+   "md5_wav": "5d7c8f3ada37e626c3791e862d4fe0ff",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R2n__high__t2": {
+   "n": "R2n",
+   "text": "식사 장소는 모바일 청첩장의 하객 안내에서 확인하실 수 있습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t2",
+   "md5_wav": "46f95d1f642ac0118103f2d1ca14373f",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R2n__high__t3": {
+   "n": "R2n",
+   "text": "식사 장소는 모바일 청첩장의 하객 안내에서 확인하실 수 있습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t3",
+   "md5_wav": "b06cb012479b4c46565878a15b29c5a8",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R2n__high__t4": {
+   "n": "R2n",
+   "text": "식사 장소는 모바일 청첩장의 하객 안내에서 확인하실 수 있습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t4",
+   "md5_wav": "7fb03393ac0c7cc07a7a1da2fff53425",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R2n__bright70__t1": {
+   "n": "R2n",
+   "text": "식사 장소는 모바일 청첩장의 하객 안내에서 확인하실 수 있습니다.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t1",
+   "md5_wav": "17b143cc98775bfc21bebb173ed3ce63",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R2n__bright70__t2": {
+   "n": "R2n",
+   "text": "식사 장소는 모바일 청첩장의 하객 안내에서 확인하실 수 있습니다.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t2",
+   "md5_wav": "261a25df63288347017233fe87e5b0e1",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R2n__bright70__t3": {
+   "n": "R2n",
+   "text": "식사 장소는 모바일 청첩장의 하객 안내에서 확인하실 수 있습니다.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t3",
+   "md5_wav": "261a25df63288347017233fe87e5b0e1",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R2n__bright70__t4": {
+   "n": "R2n",
+   "text": "식사 장소는 모바일 청첩장의 하객 안내에서 확인하실 수 있습니다.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t4",
+   "md5_wav": "a017227bdf517e8864c4ac2894a0d7d9",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R5__joy__t1": {
+   "n": "R5",
+   "text": "신랑 신부도 촬영과 정리를 마친 뒤 그곳에서 인사드리겠습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t1",
+   "md5_wav": "c7b5dfd54ca5c7ffa6365a891398c562",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R5__joy__t2": {
+   "n": "R5",
+   "text": "신랑 신부도 촬영과 정리를 마친 뒤 그곳에서 인사드리겠습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t2",
+   "md5_wav": "b13cfa5803086356498b519a36e3e9a2",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R5__joy__t3": {
+   "n": "R5",
+   "text": "신랑 신부도 촬영과 정리를 마친 뒤 그곳에서 인사드리겠습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t3",
+   "md5_wav": "91122079ba23b499a7617cbdd4242b0b",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R5__joy__t4": {
+   "n": "R5",
+   "text": "신랑 신부도 촬영과 정리를 마친 뒤 그곳에서 인사드리겠습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t4",
+   "md5_wav": "bea80bd2bc52e764319ceccc6cb90e42",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R5__high__t1": {
+   "n": "R5",
+   "text": "신랑 신부도 촬영과 정리를 마친 뒤 그곳에서 인사드리겠습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t1",
+   "md5_wav": "225545bfcd1449547851a20532160e02",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R5__high__t2": {
+   "n": "R5",
+   "text": "신랑 신부도 촬영과 정리를 마친 뒤 그곳에서 인사드리겠습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t2",
+   "md5_wav": "66721c1a8effc9b3523030c4b5c5bc65",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R5__high__t3": {
+   "n": "R5",
+   "text": "신랑 신부도 촬영과 정리를 마친 뒤 그곳에서 인사드리겠습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t3",
+   "md5_wav": "f5be7cfb0bf25090e8b5c5932d38e3cc",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R5__high__t4": {
+   "n": "R5",
+   "text": "신랑 신부도 촬영과 정리를 마친 뒤 그곳에서 인사드리겠습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t4",
+   "md5_wav": "f8465e0c45a611c89073b908129ad5a5",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R5__bright70__t1": {
+   "n": "R5",
+   "text": "신랑 신부도 촬영과 정리를 마친 뒤 그곳에서 인사드리겠습니다.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t1",
+   "md5_wav": "134df9b45786fa986580504ea4e2f02a",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R5__bright70__t2": {
+   "n": "R5",
+   "text": "신랑 신부도 촬영과 정리를 마친 뒤 그곳에서 인사드리겠습니다.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t2",
+   "md5_wav": "4481614bb09e8d1e6b77b49f0dc86204",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R5__bright70__t3": {
+   "n": "R5",
+   "text": "신랑 신부도 촬영과 정리를 마친 뒤 그곳에서 인사드리겠습니다.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t3",
+   "md5_wav": "4481614bb09e8d1e6b77b49f0dc86204",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R5__bright70__t4": {
+   "n": "R5",
+   "text": "신랑 신부도 촬영과 정리를 마친 뒤 그곳에서 인사드리겠습니다.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t4",
+   "md5_wav": "eb87aeb56019c1ea5b5ebea4d1d03f9a",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R7__joy__t1": {
+   "n": "R7",
+   "text": "약 십 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t1",
+   "md5_wav": "3c84ed1252420fb4ac3e2a20e42a21ab",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R7__joy__t2": {
+   "n": "R7",
+   "text": "약 십 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t2",
+   "md5_wav": "6b3b2018b3af6f200f0e172fee021ca7",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R7__joy__t3": {
+   "n": "R7",
+   "text": "약 십 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t3",
+   "md5_wav": "c0dd9c9f528dde7f20035e343527e5e8",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R7__joy__t4": {
+   "n": "R7",
+   "text": "약 십 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t4",
+   "md5_wav": "8c413e20c10ca40f8d26b4a8d7fb3ea3",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R7__high__t1": {
+   "n": "R7",
+   "text": "약 십 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t1",
+   "md5_wav": "0fd8ceee1f4ec0fd7298f73251a252e9",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R7__high__t2": {
+   "n": "R7",
+   "text": "약 십 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t2",
+   "md5_wav": "0d95b7cc178f92065ff1a79070f84bff",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R7__high__t3": {
+   "n": "R7",
+   "text": "약 십 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t3",
+   "md5_wav": "1ba77c00706087adfdf67cab7facfee4",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R7__high__t4": {
+   "n": "R7",
+   "text": "약 십 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t4",
+   "md5_wav": "954f5ee2113e805c045a1c9436233b75",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R7__bright__t1": {
+   "n": "R7",
+   "text": "약 십 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t1",
+   "md5_wav": "b1ea87cd1a4062eb2ffd35ea3deeaad6",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R7__bright__t2": {
+   "n": "R7",
+   "text": "약 십 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t2",
+   "md5_wav": "3f983c301150516007b0cf1a0076bc86",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R7__bright__t3": {
+   "n": "R7",
+   "text": "약 십 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t3",
+   "md5_wav": "b627999e6eb8fe4e5517ddcecb531bc2",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R7__bright__t4": {
+   "n": "R7",
+   "text": "약 십 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t4",
+   "md5_wav": "32fcd43257e173fba6007fbad045d396",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R8__joy__t1": {
+   "n": "R8",
+   "text": "약 십오 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t1",
+   "md5_wav": "d1543c62f52a376f231e6d868d89078a",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R8__joy__t2": {
+   "n": "R8",
+   "text": "약 십오 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t2",
+   "md5_wav": "a37eb554cf34bd3c14247ffd96154439",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R8__joy__t3": {
+   "n": "R8",
+   "text": "약 십오 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t3",
+   "md5_wav": "24e6c88f7594c0bb053bb6466ed4db1b",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R8__joy__t4": {
+   "n": "R8",
+   "text": "약 십오 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t4",
+   "md5_wav": "98848abda12fa5fdb0d50cf84c175847",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R8__high__t1": {
+   "n": "R8",
+   "text": "약 십오 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t1",
+   "md5_wav": "f0eea3b0f08500a681ed2d3e62fad5ec",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R8__high__t2": {
+   "n": "R8",
+   "text": "약 십오 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t2",
+   "md5_wav": "ba3185517b902e9a51c05dcfc2dfa654",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R8__high__t3": {
+   "n": "R8",
+   "text": "약 십오 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t3",
+   "md5_wav": "d725bfa541e4c18ba713c6e1f7fbd600",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R8__high__t4": {
+   "n": "R8",
+   "text": "약 십오 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t4",
+   "md5_wav": "d1c6dd9a78a2583a74532bc2d9d25d74",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R8__bright__t1": {
+   "n": "R8",
+   "text": "약 십오 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t1",
+   "md5_wav": "47fc414fcbabf191dc923982fff74fbb",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R8__bright__t2": {
+   "n": "R8",
+   "text": "약 십오 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t2",
+   "md5_wav": "5676ea998c272dcf0ff1d2952e99e11c",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R8__bright__t3": {
+   "n": "R8",
+   "text": "약 십오 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t3",
+   "md5_wav": "01f83f9a0af66b1afa18ae7ce7ad98a9",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "R8__bright__t4": {
+   "n": "R8",
+   "text": "약 십오 분간 진행되고, 마친 뒤에는 다 함께 단체 사진 한 장을 찍습니다.",
+   "tone": "문정 «안내 밝게» 100% · 피치 0",
+   "take": "t4",
+   "md5_wav": "b9e6179829f87c87f69ad09129006dde",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "S2__joy__t1": {
+   "n": "S2",
+   "text": "신랑 신부와 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t1",
+   "md5_wav": "8031131402459eee9b834bf3899c8701",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "S2__joy__t2": {
+   "n": "S2",
+   "text": "신랑 신부와 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t2",
+   "md5_wav": "b68cee5dec51e33d0f4f1eb9d45beff8",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "S2__joy__t3": {
+   "n": "S2",
+   "text": "신랑 신부와 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t3",
+   "md5_wav": "92c855d953bf50195da547017c81c397",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "S2__joy__t4": {
+   "n": "S2",
+   "text": "신랑 신부와 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.",
+   "tone": "문정 «기쁨» · 피치 0",
+   "take": "t4",
+   "md5_wav": "32afd020c567dfb6c90615e30f8e3627",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "S2__high__t1": {
+   "n": "S2",
+   "text": "신랑 신부와 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t1",
+   "md5_wav": "448adfa917700de31adfe2e4c241fe7e",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "S2__high__t2": {
+   "n": "S2",
+   "text": "신랑 신부와 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t2",
+   "md5_wav": "f3f873fd110140de379818f2868b9220",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "S2__high__t3": {
+   "n": "S2",
+   "text": "신랑 신부와 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t3",
+   "md5_wav": "f4e60f06828d4d32c995debe57ad5a64",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "S2__high__t4": {
+   "n": "S2",
+   "text": "신랑 신부와 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.",
+   "tone": "문정 «높은 톤» · 피치 0",
+   "take": "t4",
+   "md5_wav": "fba9515272950536bbc6933738ddff30",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "S2__bright70__t1": {
+   "n": "S2",
+   "text": "신랑 신부와 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t1",
+   "md5_wav": "6601f0130f3f12bea4f2dc5049bd7b3f",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "S2__bright70__t2": {
+   "n": "S2",
+   "text": "신랑 신부와 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t2",
+   "md5_wav": "29eb4b52a4c033710a2b484f53bae122",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "S2__bright70__t3": {
+   "n": "S2",
+   "text": "신랑 신부와 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t3",
+   "md5_wav": "433b30937bc70fb774ebd6945a72ba31",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  },
+  "S2__bright70__t4": {
+   "n": "S2",
+   "text": "신랑 신부와 사진을 더 남기고 싶으신 분들은 편하게 남아 주세요.",
+   "tone": "문정 «안내 밝게» 70% · 피치 0",
+   "take": "t4",
+   "md5_wav": "3ae4a7fd1837cae297159ec680bdc215",
+   "project": "JINHEE_MUNJEONG_1111 copy 4 (Take 1) · copy 5 (Take 2 ~ 4 · 재생성)",
+   "when": "2026-11-15"
+  }
+ }
+}
