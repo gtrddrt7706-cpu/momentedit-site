@@ -11014,7 +11014,7 @@ function renderDone(){
   var _resumeHead=_restored&&!_doneSaved;
   /* ★[RIT_DONE_TITLE 4부 16] 저장 전에 «완성됐어요»라고 하지 않는다 — 저장 전 «이대로 저장하면 완성돼요» · 저장 뒤 «두 분의 예식이 완성됐어요» */
   var _doneT=_resumeHead?'식순을 한눈에 확인해 주세요':(isOpen()&&!_doneSaved)?(_mkTodoN()?'지금까지 저장해 두세요':'이대로 저장하면 완성돼요'):(isOpen()&&_mkTodoN()?'저장했어요 · 남은 할 일을 확인해 주세요':'두 분의 예식이 완성됐어요');   /* [R2-16] 마감은 아래 «순서는 예식 14일 전까지…» 한 줄이 맡는다 · 저장 뒤에도 미완료가 있으면 «완성됐어요»라 하지 않는다 */   /* [R1-22] 미완료가 남았으면 «완성돼요»라 하지 않는다 */
-  var h='<div class="done-hd"><h2 class="t" id="stepHead" tabindex="-1">'+_doneT+'</h2><div class="s">'+esc(headLine(bs.length))+(_resumeHead?' · 이어서 다듬으실 수 있어요':'')+'</div></div>';
+  var h='<div class="done-hd"><h2 class="t" id="stepHead" tabindex="-1">'+_doneT+'</h2><div class="s">'+esc(_nb(headLine(bs.length)).replace(/ · /g,NBS+'· '))+(_resumeHead?' · 이어서 다듬으실 수 있어요':'')+'</div></div>';   /* ★[N20_DONE_HEAD_1119 NIGHT20 #10] ④ 머리 줄 — 390 에서 «단체 / 사진»이 갈리고 «·»가 줄 머리에 섰다 · 화면 글만 _nb(약 · 단체 사진 · 테이블 인사 붙임) + «·» 앞 붙는 빈칸(PREP_SUM_1019 와 같은 규칙) · headLine 자체(대본 머리 · 파일 이름)는 그대로 */
   /* ★[I2_DONE_FLOW · I3_EDIT_WINDOW 2026-09-26 코워크 최종판 5-3] 머리 아래 — 감동 흐름 그림(① 과 같은 함수 · ★ 이름 · 넓은 화면은 순간 이름까지)
      + «순서는 예식 14일 전까지, 글은 예식 7일 전까지 고칠 수 있어요.» 그림은 그린 뒤 실제 폭으로 채운다(_donePaint). */
   if(isOpen()&&RitualOpen.picked(S).length)
