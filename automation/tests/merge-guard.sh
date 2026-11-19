@@ -1918,6 +1918,13 @@ chk 'SCHED_FOOTER_LOGO' schedule.html 1                         # 스케줄 푸�
 chk '.sticky-label{color:var(--gold-text)}' schedule.html 1     # 9.5px 골드 라벨 2.54:1 → 5.71:1 · var(--gold)로 되돌리기 금지
 chk 'TRACK_RAMP8' index.html 1                              # 자간 8단계 램프 · 히어로/워드마크/목업 예외
 chk 'A11Y_PINCH_ZOOM' index.html 1                          # 핀치줌 허용 · user-scalable=no 재삽입 금지(WCAG 1.4.4)
+# [SHOWCASE_JOSA_X 2026-11-19 NIGHT20 R3X2 #15] 쇼케이스 «○○의 장남» 조사 붙여 씀 · noir 조사 대체 글 제거
+chk 'SHOWCASE_JOSA_X' i/invitations/invitation-02-editorial.html 1
+chk 'SHOWCASE_JOSA_X' i/invitations/invitation-03-letterpress.html 1
+chk 'SHOWCASE_JOSA_X' i/invitations/invitation-06-hangeul.html 1
+chk 'SHOWCASE_JOSA_X' i/invitations/invitation-07-architect.html 1
+chk 'SHOWCASE_JOSA_X' i/invitations/invitation-08-noir.html 1
+nochk '이서연을(를)' i/invitations/invitation-08-noir.html
 chk 'INV06_DARK_AA' i/cover-06.html 2              # [2026-11-19 NIGHT20 #15] 06 어두운 칸 라벨 · 꼬리 대비 AA — opacity 로 다시 흐리지 말 것
 chk 'INV06_DARK_AA' i-family/family-06.html 2
 chk 'A11Y_LETTER_EXPOSED' index.html 1                      # 받은편지 예시는 콘텐츠 · aria-hidden 되돌리면 버튼이 포커스만 되고 안 읽힘
