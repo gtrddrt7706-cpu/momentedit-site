@@ -22464,7 +22464,7 @@ chk '검토 A-2' console.html 2
 chk 'BED.cut = { id: BED.id, t: _ce.currentTime' console.html 1
 chk 'ONE_FLOW_1106 ⑤' assets/ritual-cue.js 1
 chk 'T08 끊긴 곡 이어 듣기' scripts/audit/one-flow.mjs 1
-chk 'meaning-r2 gpt-r1 one-flow' .github/workflows/merge-guard.yml 1
+chk 'pv-fix-1114 console-r2-1115 one-flow' .github/workflows/merge-guard.yml 1   # ★[CELL_D_ONEFLOW_1119] one-flow 는 f 칸에서 돈다(d 칸 30분 한도) · CI 에서 빠지면 빨강
 chk 'SPEECH_SONG_1115' scripts/audit/one-flow.mjs 6   # ★[SPEECH_SONG_1115 · RULES_SLIM ⑧] one-flow 판 둘(축사 쪽 · 축가 쪽) · T05 새 기대(옛 저장본 축사 + 축가 = 축가만 · 여는 말 −15) · T08 꺼진 자리 = 축가 줄 안 첫 끊김 — 깨 보기: BP_CUE 로 midMigrate 를 끄면 T05 빨강
 # ★★[SHOW_PAIR_1116 2026-11-16 대본 ALL_GO_1116] 한 카드 = 축사 · 축가 · 축하 공연 중 하나 · 선물 · 기타 칩은 걷음(상담 메모 · 옛 초안은 midMigrate 가 끈다) · 창 보기 셋 · 공연 여는 말 58 그대로
 # ★[NO_SHOW_1116 · RULES_SLIM ⑧] 대표님 16:53 «공연은 빼자» — 아래 공연 핀(PAIR 셋 · 칩 «축하 공연» · 큐 이름 · 홈 · 상담 글)은 NO_SHOW_1116 블록의 새 기대로 바꿨다 · 표식 개수는 걷은 자리만큼 줄였다(옛 ritual-open 6 · order-preview 10)
@@ -23817,7 +23817,7 @@ chk 'SEG_FIRST_FAIL_1114' scripts/audit/console-bed-1114.mjs 3
 chk 'ARRIVE_SETTLE_PV_1114' assets/bgm-bed.js 4
 chk 'var ARRIVE_LEAD=1000;' assets/bgm-bed.js 1
 chk 'ARRIVE_SETTLE_PV_1114' scripts/audit/pv-fix-1114.mjs 1
-chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115' }" .github/workflows/merge-guard.yml 1   # [PV_FIX_1114] · [CONSOLE_R2_1115] 같은 칸
+chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115 one-flow' }" .github/workflows/merge-guard.yml 1   # [PV_FIX_1114] · [CONSOLE_R2_1115] 같은 칸
 chk 'PV_FIX_1114' scripts/audit/pv-fix-1114.mjs 1   # 검사 머리 이름(묶음) — CI bgm-sound f 칸
 # ★★[SONG_OPEN_FADE_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 후보 ⑦] 미리 듣기 · 연습 — 축가 여는 말 뒤 본식 피아노는 줄이 끝난 때부터 1.5초에 걸쳐 정적(엔진 큐 post 값 그대로 · 종전 0.3초 · MEANING_R1_1102 8) · 소리는 pv-fix-1114 ② 가 잰다
 chk 'SONG_OPEN_FADE_PV_1114' assets/bgm-bed.js 2
@@ -23940,7 +23940,7 @@ chk 'CARRY_HEARD_1115' scripts/audit/console-r3-1115.mjs 3
 chk 'RELIFT_XG_1115' scripts/audit/console-relift.mjs 3
 # ★★[PV_R3_1115 2026-11-15 BGM 섹션 · GPT 라운드 3] 미리 듣기 · 연습(bgm-bed) 고침 묶음 검사 — 옛 판 빨강 · 새 판 초록(BP_BED 로 깨 보기) · CI bgm-sound f 칸
 chk 'PV_R3_1115' scripts/audit/pv-r3-1115.mjs 1
-chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115' }" .github/workflows/merge-guard.yml 1
+chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115 one-flow' }" .github/workflows/merge-guard.yml 1
 # ★[CI_SPLIT_G_1115 2026-11-15] bgm-sound g 칸 — 라운드 3 검사 둘(console-r3-1115 · pv-r3-1115) · f 칸이 20분에 가까워 나눔
 chk 'CI_SPLIT_G_1115' .github/workflows/merge-guard.yml 1
 chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115' }" .github/workflows/merge-guard.yml 1
