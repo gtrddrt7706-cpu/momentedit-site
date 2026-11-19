@@ -1930,6 +1930,8 @@ chk 'SHOWCASE_JOSA_X' i/invitations/invitation-06-hangeul.html 1
 chk 'SHOWCASE_JOSA_X' i/invitations/invitation-07-architect.html 1
 chk 'SHOWCASE_JOSA_X' i/invitations/invitation-08-noir.html 1
 nochk '이서연을(를)' i/invitations/invitation-08-noir.html
+chk 'ADV_SPACE_X' assets/advisor-kb.js 1         # [2026-11-20 NIGHT20 R3X2 #15] 상담 도우미 «적어 주세요» 띄어 씀
+chk 'ADV_SPACE_X' index.html 1
 chk 'INV06_DARK_AA' i/cover-06.html 2              # [2026-11-19 NIGHT20 #15] 06 어두운 칸 라벨 · 꼬리 대비 AA — opacity 로 다시 흐리지 말 것
 chk 'INV06_DARK_AA' i-family/family-06.html 2
 chk 'A11Y_LETTER_EXPOSED' index.html 1                      # 받은편지 예시는 콘텐츠 · aria-hidden 되돌리면 버튼이 포커스만 되고 안 읽힘
