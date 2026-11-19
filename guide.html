@@ -66,7 +66,7 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .sec-n{font-family:var(--serif);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
 
 .pick{background:var(--bg2);border:1px solid var(--gold);border-radius:9px;padding:13px 14px;margin-bottom:12px}
-.pick .pl{font-family:var(--serif);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep)}
+.pick .pl{font-family:var(--serif);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep)}
 .pick .pn{font-size:15px;font-weight:500;color:var(--accent);margin-top:3px}
 .pick .pm{font-size:12px;color:var(--sub);margin-top:4px}
 .pick .rsv{font-size:12.5px;color:var(--gold-deep);margin-top:5px}
@@ -96,7 +96,8 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 /* 내 자리 홀 배치 — 검색 일치 시 홀 전체 테이블 위치를 그려 현장에서 넘버·명패 없이 바로 찾아가게(2026-07-17).
    이름은 본인 것 하나만 · 나머지 자리는 익명 점(타인 명단 비노출) */
 .mtb-wrap{margin:14px auto 2px;text-align:center}
-.mtb-stage{font-size:9.5px;letter-spacing:.2em;color:var(--gold-deep);opacity:.75;margin-bottom:8px;border:1px dashed var(--border);border-radius:20px;padding:6px;max-width:300px;margin-left:auto;margin-right:auto}
+/* [GUIDE_SEAT_12_R3 2026-11-19 NIGHT20 R3 #15] 하객이 자기 자리를 찾는 지도 글 9.5~11 → 11~12 · 단상 · 여기로 모여요 · 가족석 11 · 지도 속 내 이름 · 안내 두 줄 12 · 영문 섹션 머리(sec-n)는 장식이라 그대로 */
+.mtb-stage{font-size:11px;letter-spacing:.2em;color:var(--gold-deep);opacity:.75;margin-bottom:8px;border:1px dashed var(--border);border-radius:20px;padding:6px;max-width:300px;margin-left:auto;margin-right:auto}
 .gr-room{display:flex;gap:2px;align-items:stretch;max-width:330px;margin:0 auto}
 .gr-aisle{position:relative;width:12px;flex-shrink:0;border-radius:8px;background:linear-gradient(180deg,rgba(184,154,117,.13),rgba(184,154,117,.04));border-left:1px dashed var(--border);border-right:1px dashed var(--border)}
 .gr-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px;align-items:center}
@@ -105,14 +106,14 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .gr-tbl.hit::before{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,154,117,.25)}
 .gr-no{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:44px;text-align:center;font-family:var(--serif-ko);font-size:11px;font-weight:600;color:var(--accent);line-height:1.2;word-break:keep-all}
 .gr-dot{position:absolute;transform:translate(-50%,-50%);width:9px;height:9px;border-radius:50%;background:#E9E2D5;border:1px solid var(--border)}
-.gr-me{position:absolute;transform:translate(-50%,-50%);max-width:86px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--serif-ko);font-size:10.5px;padding:3px 8px;border-radius:11px;background:#F4ECDD;border:1px solid var(--gold);color:var(--accent);font-weight:600;z-index:2}
+.gr-me{position:absolute;transform:translate(-50%,-50%);max-width:86px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--serif-ko);font-size:12px;padding:3px 8px;border-radius:11px;background:#F4ECDD;border:1px solid var(--gold);color:var(--accent);font-weight:600;z-index:2}
 .gr-dot.me{width:13px;height:13px;background:#F4ECDD;border-color:var(--gold);z-index:2}   /* 다중 일치 강조(이름 없음) */
 .gr-nm{position:absolute;transform:translate(-50%,-50%);max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--serif-ko);font-size:9.5px;padding:2px 6px;border-radius:9px;background:var(--card-white);border:1px solid var(--border);color:var(--sub)}   /* 전체 공개 좌석표 이름 라벨(차분한 톤) */
-.mtb-cap{font-family:var(--serif-ko);font-size:11px;color:var(--light);margin-top:6px}
+.mtb-cap{font-family:var(--serif-ko);font-size:12px;color:var(--light);margin-top:6px}
 .find-res b{color:var(--seal);font-weight:600}
 .find-res .rt{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:var(--seal);color:#fff;font-size:12px;font-weight:500;margin-right:6px;vertical-align:middle}
 .mapall{display:block;text-align:center;font-size:12px;color:var(--gold-deep);text-decoration:none;margin-top:12px}
-.privacy{font-size:10.5px;color:var(--faint);text-align:center;margin-top:9px}
+.privacy{font-size:12px;color:var(--faint);text-align:center;margin-top:9px}
 /* [GUEST_PHOTO_IN] 업로드 진행·결과 한 줄 — 버튼 바로 아래, 안내문과 같은 크기로 조용하게 */
 /* [GUEST_PHOTO_IN] .ps-btn 은 원래 <a> 용이라 폭이 저절로 찬다 — <button> 은 안 그래서 명시한다.
    ★버튼은 부모 글꼴도 상속하지 않는다(브라우저 기본값이 이긴다) → font 도 여기서 되돌린다. */
@@ -382,7 +383,7 @@ body{
 .gr-list{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;max-width:104px;margin:-6px auto 0}
 .gr-nm.gr-li{position:static;transform:none;max-width:none}
 /* ★[SEAT_NAME_BELOW 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-1] 표 이름은 원 아래 한 줄 — 번호 아래(원 안)에 두면 원 밖으로 넘쳐 자리 이름표를 덮었다(seat.html 같은 절) */
-.gr-cap{display:block;max-width:110px;margin:2px auto 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--serif-ko);font-size:9.5px;font-weight:400;line-height:1.2;color:var(--accent);text-align:center}   /* 글자 모양은 번호 아래 있던 그대로(9.5px · 400 · accent) — 자리만 옮겼다 */
+.gr-cap{display:block;max-width:110px;margin:2px auto 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--serif-ko);font-size:11px;font-weight:400;line-height:1.2;color:var(--accent);text-align:center}   /* 글자 모양은 번호 아래 있던 그대로(9.5px · 400 · accent) — 자리만 옮겼다 */
 .gr-cap+.gr-list{margin-top:4px}
 /* ★[SEAT_LABEL_CLAMP 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-2] 이름표 · «내 자리» 알약을 가운데 세로선(번호) 바깥 · 제 칸(열) 안에 세운다(seat.html 같은 절 · 식도 같다).
    칸 반폭 --lb-ch = 배치도 폭(카드 안쪽 + 18 × 2 · 최대 380) − 통로 12 − 틈 4 의 1/4 = min(91px, 25vw − 12px) — GUIDE_SEAT_FIT 의 C/2 와 같은 뿌리(카드 여백 · 통로 폭을 바꾸면 함께).
