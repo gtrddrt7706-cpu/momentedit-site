@@ -9554,8 +9554,8 @@ function _pkEx(ex){
 }
 function _pkPeakHtml(){
   var R=RitualOpen, pl=R.peakLine(S);
-  if(!pl) return esc(R.PEAK_NONE);   /* [PEAK_COLOR] ★ 걷음 */
-  if(pl.tail) return esc(pl.tail);   /* [R1-34] 뒤쪽 정점 — 이름은 곡선 위 «★ 이름»과 흐름 줄이 이미 말한다(세 번째로 말하지 않는다) */
+  if(!pl) return esc(R.PEAK_NONE).replace(/ · /g,NBS+'· ');   /* [PEAK_COLOR] ★ 걷음 */
+  if(pl.tail) return esc(pl.tail).replace(/ · /g,NBS+'· ');   /* ★[N20_PEAK_DOT_1119 R3X #10] ① «가장 벅찬 순간이 될 것을 … 보세요 · 서약 · …» — PC 1280 오른쪽 칸 · 폰에서 둘째 줄이 «·»부터 섰다 · «·» 앞 붙는 빈칸(PREP_SUM_1019 · N20_DONE_HEAD 와 같은 규칙) · 글자 그대로 */   /* [R1-34] 뒤쪽 정점 — 이름은 곡선 위 «★ 이름»과 흐름 줄이 이미 말한다(세 번째로 말하지 않는다) */   /* [R1-34] 뒤쪽 정점 — 이름은 곡선 위 «★ 이름»과 흐름 줄이 이미 말한다(세 번째로 말하지 않는다) */
   return '가장 벅찬 순간은 <b class="op-pk">'+esc(pl.n)+'</b>'+pl.be+'.';   /* [D3] */
 }
 /* ★[BODY_CAP_1030 검토 167] 담는 쪽 한 줄 — «남은 본식 시간 약 n분» · 이미 넘은 옛 초안은 알림만(막지 않는다 · 새로 담기만 막힌다) */
