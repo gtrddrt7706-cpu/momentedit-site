@@ -24101,3 +24101,6 @@ nochk '께서 축가를 준비해 주셨습니다."' assets/ritual-cue.js 0   # 
 nochk "'speech-gfr': \"오늘의 축사는요" assets/ritual-cue.js 0   # 옛 긴 역할 축사 글(소리 없이 쉬던 판) 되살리지 않기
 chk 'ROLE_SHIP_1117 · 가이드 우성 카드' "assets/audio/_src/_layers/빠르기표_최종_1109.tsv" 26   # «누가» 새 멘트 18 + 덕담 8(ROLE_BLESS_X1_1117) = 빠르기표 1(테이크 그대로 ×1.0 · 늦추기 · 빠르게 하기 없음)
 chk "const ROLE_CLAP = /^clap-(speech|song|self)\$/;" scripts/audit/narr-words.mjs 1   # ★[ROLE_SHIP_1117] 뒤 붙임 박수 셋은 W7 밖 · 381 «따뜻한 박수»만 W1 밖
+# ★[LIVE_PROG_N20_1118 NIGHT20 #04] 미리 듣기 장면 카드(사람 순간)도 제 시간 막대를 그린다 — later 로 되돌리면 앞 소리 «0:09 / 0:08» · 가득 찬 막대가 10초 내내 남는다
+chk 'else runProg(c.live.est || 10, advance);   /\* ★\[LIVE_PROG_N20_1118' console.html 1
+nochk 'else later(function(){ advance(); }, (c.live.est || 10) \* 1000);' console.html 0
