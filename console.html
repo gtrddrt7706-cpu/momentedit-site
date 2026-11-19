@@ -2074,7 +2074,7 @@ function fire(i, opt){
           //   음원이 아직 없으면(조립 전) 종전대로 est 만큼 장면 카드를 띄우고 넘어간다.
           var cl = (GUEST && STORY) ? (STORY.castLivePlayOf ? STORY.castLivePlayOf(c) : []) : [];   // ★[CAST_TEXT_ONLY 2026-09-27] 대역 목소리는 틀지 않는다 — 장면 카드 + est 로 흐른다
           if (cl.length) playCastList(cl, advance, function(){ runProg(c.live.est || 10, advance); });
-          else later(function(){ advance(); }, (c.live.est || 10) * 1000);
+          else runProg(c.live.est || 10, advance);   /* ★[LIVE_PROG_N20_1118 NIGHT20 #04] 장면 카드도 제 시간 막대를 그린다 — 종전 later 는 막대 · 시간을 그리지 않아 앞 소리 값(«0:09 / 0:08» · 막대 가득)이 장면 카드 10초 내내 남았다(CAST_TEXT_ONLY 뒤 모든 사람 순간) · 멈춤 · 이어 듣기는 progS 가 잇는다 · 위 대역 목소리 없을 때 길과 같은 꼴 */
         }
         else {
           runProg(c.live.est || 30, null);

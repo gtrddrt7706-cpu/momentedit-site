@@ -5419,6 +5419,9 @@ body {
   justify-content: space-between;
   align-items: baseline;
   gap: 10px;
+  /* ★[PRICE_LABEL_NOWRAP 2026-11-18 NIGHT20 #13] 항목 이름은 한 줄로 · 긴 덧말이 접힌다.
+     덧말(.li-meta)이 flex-shrink:0 이라 390 폭에서 «식중 영상» 이름이 «식중 / 영상» 두 줄로 쪼개졌다. */
+  white-space: nowrap;
 }
 .transparency-list li:last-child {
   border-bottom: none;
@@ -5430,7 +5433,9 @@ body {
   color: var(--light);
   letter-spacing: 0.04em;
   font-weight: 300;
-  flex-shrink: 0;
+  flex-shrink: 1; /* [PRICE_LABEL_NOWRAP] 줄어드는 쪽은 덧말 */
+  white-space: normal;
+  text-wrap: balance; /* 접힐 때 «두 / 분» 처럼 한 낱말만 넘어가지 않게 */
   text-align: right;
 }
 .transparency-list .li-price {
