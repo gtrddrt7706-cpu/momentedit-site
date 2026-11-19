@@ -63,6 +63,8 @@ const SEAT_LOG = process.env.SEAT_LOG || '';
 const KEEP_Q = String(arg('--keep-quiet', '') || '').split(',').filter(Boolean).map((x) => { const [k, t] = x.split('@'); return { k, t: Number(t) }; });
 const _edge = (f) => { const { runs, dur } = _qRuns(_pcm(f), -30, 0.01); const h = runs.find((r) => r.head), t = runs.find((r) => r.tail); return { head: h ? h.b - h.a : 0, tail: t ? t.b - t.a : 0, dur }; };
 const LOUD_ADJ = Object.fromEntries(String(arg('--loud-adj', '') || '').split(',').filter(Boolean).map((x) => { const [k, v] = x.split('='); return [k, Number(v) || 0]; }));
+/* ★[TRIM_TUNE_1116 · 대표님 11/16 07:18 «문장 크기를 클립 가운데 ±0.5 LU»] 문장 크기 뒤 맞춤 — 'key#i=dB,…' 를 loudnorm 뒤 그 문장 구간에만 준다(loudnorm 은 한 클립을 통째로 움직여 앞 이득(6층)이 첫 문장에서 거의 지워진다) · 준 클립만 −1.5 dBFS 리미터 · 표에 없는 클립은 바이트 그대로 */
+const SENT_POST = Object.fromEntries(String(arg('--sent-post', '') || '').split(',').filter(Boolean).map((x) => { const [k, v] = x.split('='); return [k, Number(v) || 0]; }));
 
 if (!fs.existsSync(MAN)) { console.error('✗ manifest.json이 없습니다. node scripts/build-typecast-import.mjs 먼저 돌리세요.'); process.exit(1); }
 const man = JSON.parse(fs.readFileSync(MAN, 'utf8'));
@@ -637,6 +639,7 @@ const norm = (f) => {                       // 48k/24bit mono로 통일해 conca
 };
 
 let made = 0;
+function _postAf(key, spans) { const v = spans.map(([a, b], i) => [a, b, SENT_POST[key + '#' + i]]).filter((x) => x[2]); return v.length ? v.map(([a, b, g]) => `volume=${g}dB:enable='between(t,${a.toFixed(4)},${b.toFixed(4)})',`).join('') + 'alimiter=limit=0.8414:level=disabled:attack=3:release=40,' : ''; }   // [TRIM_TUNE_1116]
 const _recWritten = [];   // [RECORDED_TRUTH] 이번 실행이 실제로 만든 클립 — 아래에서 _recorded.json 에 반영
 const outDirs = new Set();
 for (const w of work) {
@@ -654,10 +657,11 @@ for (const w of work) {
     const headSec = +(c.head + (c.sents[0]?.before || 0)).toFixed(3);          // 클립 가장자리 — 차감 없음
     const tailSec = +(c.tail + (c.sents[c.sents.length - 1]?.after || 0)).toFixed(3);
     const seq = [sil(headSec)];
+    const _spans = [];   // [TRIM_TUNE_1116] 문장 구간(뒤 맞춤)
     let _t = headSec;   // [LAYER_PLAN_1108] 조립 시간선 — 문장 · 자리의 위치를 SEAT_LOG 에 남긴다(loudnorm 은 시간을 옮기지 않는다)
     for (let i = 0; i < norms.length; i++) {
       seq.push(norms[i]);
-      const _d = SEAT_LOG ? dur(norms[i]) : 0; if (SEAT_LOG) fs.appendFileSync(SEAT_LOG, JSON.stringify({ key: `${c.no}_${c.file}`, s: i, a: +_t.toFixed(4), b: +(_t + _d).toFixed(4) }) + '\n'); _t += _d;
+      const _d = (SEAT_LOG || Object.keys(SENT_POST).length) ? dur(norms[i]) : 0; _spans.push([_t, _t + _d]); if (SEAT_LOG) fs.appendFileSync(SEAT_LOG, JSON.stringify({ key: `${c.no}_${c.file}`, s: i, a: +_t.toFixed(4), b: +(_t + _d).toFixed(4) }) + '\n'); _t += _d;
       if (i + 1 >= norms.length) continue;
       const raw = c.sents[i].after + c.sents[i + 1].before;
       let g = Math.max(0, GAP_NET(raw) + (GAP_ADJ[`${c.no}_${c.file}#${i}`] || 0));   // [LAYER_PLAN_1108] GAP_ADJ
@@ -681,7 +685,7 @@ for (const w of work) {
     outDirs.add(outDir);
     const dst = path.join(outDir, `${c.no}_${c.file}.mp3`);
     execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', joined,
-      '-af', `loudnorm=I=-16:TP=-1.5:LRA=11,${LOUD_ADJ[`${c.no}_${c.file}`] ? `volume=${LOUD_ADJ[`${c.no}_${c.file}`]}dB,alimiter=limit=0.8414:level=disabled:attack=3:release=40,` : ''}afade=t=in:st=0:d=0.015,afade=t=out:st=${Math.max(0, total - 0.04).toFixed(3)}:d=0.04`,   // [LAYER_PLAN_1108] LOUD_ADJ
+      '-af', `loudnorm=I=-16:TP=-1.5:LRA=11,${LOUD_ADJ[`${c.no}_${c.file}`] ? `volume=${LOUD_ADJ[`${c.no}_${c.file}`]}dB,alimiter=limit=0.8414:level=disabled:attack=3:release=40,` : ''}${_postAf(`${c.no}_${c.file}`, _spans)}afade=t=in:st=0:d=0.015,afade=t=out:st=${Math.max(0, total - 0.04).toFixed(3)}:d=0.04`,   // [LAYER_PLAN_1108] LOUD_ADJ
       '-ar', '48000', '-b:a', '192k', dst]);
     made++;
     _recWritten.push({ dir: outDir, key: `${c.no}_${c.file}`, text: c.sents.map((s) => s.text).join(' ') });
