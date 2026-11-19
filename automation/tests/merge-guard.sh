@@ -24168,3 +24168,7 @@ chk 'H-5: 송출 켜기' docs/plans/PLAN_영상운영_기획안.md 1
 chk "if (GUEST && e.key === 'Escape' && !e.repeat && window.parent !== window) { try { window.parent.document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', bubbles: true })); } catch (_) {} return; }   /\* ★\[RP_ESC_IN_N20_04X_1119" console.html 1
 # ★[CTL_ROW_N20_04X_1119 R3X #04] 미리 듣기 단추 셋 아래 칸은 한 줄 전체 — 빠지면 빨간 오류 줄 폭만큼 «이전» 칸이 넓어져 좁은 폰에서 «다음 순서로»가 두 줄로 꺾인다
 chk 'body.guest .ctl .inner>div{grid-column:1/-1}   /\* ★\[CTL_ROW_N20_04X_1119' console.html 1
+
+# ★[ROLE_FAB_GAP_N06 2026-11-20 NIGHT20 #06 R3X2] 폰 — 연습하기 «역할 전달하기» 단추가 상담 말풍선(RAIL_LOCKED) 세로줄을 비켜선다(비켜서는 쪽은 이 줄)
+chk 'ROLE_FAB_GAP_N06' order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/role-fab-gap.mjs >/dev/null 2>&1; _rf=$?; node scripts/audit/role-fab-gap.mjs --selftest >/dev/null 2>&1; _rfs=$?; if [ "$_rf" != 0 ] || [ "$_rfs" != 0 ]; then echo "REVERT? role-fab-gap: 폰 역할 전달 단추가 말풍선 아래로 다시 들어갔다 ($_rf/$_rfs) — node scripts/audit/role-fab-gap.mjs"; fail=1; else echo 'ok role-fab-gap'; fi; fi
