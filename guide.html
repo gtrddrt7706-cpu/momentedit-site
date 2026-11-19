@@ -19,7 +19,7 @@
      카톡 미리보기가 그림 없는 글 상자로만 떴다(홈 · live 는 있음). 홈과 같은 브랜드 그림을 단다 · og:url 은 토큰마다 달라 넣지 않는다. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Moment Edit">
-<meta property="og:image" content="https://momentedit.kr/assets/og/og-seal.png?v=5">
+<meta property="og:image" content="https://www.momentedit.kr/assets/og/og-seal.png?v=5">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Moment Edit 하객 안내">
@@ -33,7 +33,11 @@
      그동안 한글은 시스템 서체로 먼저 읽히고 브랜드 세리프가 도착하면 바뀐다(URL에 display=swap).
      ★폰트가 아예 안 와도 페이지는 읽힌다 — 전엔 영영 백지였다.
      ★브랜드 세리프 자체는 그대로 유지한다(2026-07-20 수정 취지) · 로드 '시점'만 바꾼 것. -->
-<link rel="preconnect" href="https://script.google.com"><!-- 실제 데이터가 오는 곳 — 핸드셰이크를 미리 -->
+<!-- 실제 데이터가 오는 곳 — 핸드셰이크를 미리.
+     ★[GAS_PRECONNECT_CORS 2026-11-19 NIGHT20 #16] crossorigin 이 없으면 미리 연 연결을 fetch()(쿠키 없는 연결)가 다시 쓰지 못한다 —
+     표시만 있고 효과가 없었다. 서버가 넘겨 주는 script.googleusercontent.com 까지 함께 연다(mypage · schedule 과 같은 모양). -->
+<link rel="preconnect" href="https://script.google.com" crossorigin>
+<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -65,6 +69,9 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .hero{text-align:center;padding:24px 0 20px;border-bottom:1px solid var(--hair)}
 .hero .ek{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--gold-deep);letter-spacing:.02em}
 .hero .couple{font-size:23px;font-weight:500;letter-spacing:.02em;margin:8px 0 6px}
+/* [GUIDE_KEEPALL_ZOOM_R3X2 2026-11-19 NIGHT20 #12 교차 점검] 글자 200% 확대(폭 195 · 실측)에서 «이/하윤» «예식/일이에요» «모으/기» «올리/기»처럼 낱말 가운데가 갈렸다(150%까지는 없음) —
+   이 파일의 FOOT_KEEPALL · .state-x-s 와 같은 규칙(어절 단위)을 이 넷에도. 아주 긴 이름은 들어가지 않을 때만 아무 데서나 끊어 넘치지 않게(overflow-wrap:anywhere) */
+.hero .couple,.hero .today,.sec-t,.ps-btn{word-break:keep-all;overflow-wrap:anywhere}
 .hero .heart{font-family:var(--serif);font-style:italic;color:var(--gold);margin:0 7px;font-weight:400}
 .hero .today{display:inline-block;margin-top:10px;background:var(--gold-deep);color:#fff;font-size:12px;font-weight:600;border-radius:20px;padding:6px 14px;letter-spacing:.01em}
 .hero .date{font-size:12.5px;color:var(--sub)}
@@ -563,7 +570,8 @@ var EXIT_HTML='<div class="state-x">'
   +'<a class="state-x-b" href="https://pf.kakao.com/_CfxcxlX/chat" target="_blank" rel="noopener">카카오톡으로 문의하기</a>'
   +'<a class="state-x-b sub" href="mailto:contact@momentedit.kr">메일로 문의 · contact@momentedit.kr</a>'
   +'</div>';
-function stateHtml(msg, sm, x){ return '<div class="card"><div class="state" role="status">'+_ecHtml(msg)+(sm?'<div class="sm">'+_ecHtml(sm)+'</div>':'')+'</div>'+(x?EXIT_HTML:'')+'</div>'; }   // [ERR_CODE_GLUE] _ecHtml = esc + «(코드 X#)» 한 덩어리
+var EXIT_HTML_ASK=EXIT_HTML.replace(/<div class="state-x-s">[^<]*<\/div>/,'');   /* [EXIT_ASK_ONLY_R3X2 2026-11-19 NIGHT20 #12 교차 점검] «날짜를 모름»(reason 'unknown' · 링크는 멀쩡함)에는 «링크를 다시 받아 주세요 · 주소 끝이 잘려…» 줄이 맞지 않는다 — 그 한 줄만 빼고 문의처 둘은 그대로(x=2). 잘못된 주소 · 못 찾음은 종전대로(x=1) */
+function stateHtml(msg, sm, x){ return '<div class="card"><div class="state" role="status">'+_ecHtml(msg)+(sm?'<div class="sm">'+_ecHtml(sm)+'</div>':'')+'</div>'+(x?(x===2?EXIT_HTML_ASK:EXIT_HTML):'')+'</div>'; }   // [ERR_CODE_GLUE] _ecHtml = esc + «(코드 X#)» 한 덩어리
 function mapUrl(v){ return (v.url && /^https?:/i.test(v.url)) ? v.url : ('https://map.kakao.com/?q='+encodeURIComponent(v.n||'')); }
 function telUrl(t){ return 'tel:'+String(t||'').replace(/[^0-9+]/g,''); }
 var ICON_MAP='<path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/>';
@@ -1390,7 +1398,7 @@ function renderDemo(){
     var un=GP.fail.length+GP.unsure.length+GP.rest.length, gp=(GP.sent?gpDoneMsg(GP.sent)+'.':'')+(un?(GP.sent?' ':'')+'아직 보내지 않은 사진이 '+un+'장 있어요.':'');   // [B2_FIX_MA_18]
     if(d.reason==='unknown'){
       /* 서버 문구가 이미 «확정되면 다시 열려요»를 담고 있다 — 부제에 같은 말을 반복하지 않는다(실렌더로 확인). */
-      $('root').innerHTML=stateHtml('안내를 준비하고 있어요.','예식 정보가 확정되면 이 링크가 다시 열려요.', d.help?1:0);
+      $('root').innerHTML=stateHtml('안내를 준비하고 있어요.','예식 정보가 확정되면 이 링크가 다시 열려요.', d.help?2:0);   // [EXIT_ASK_ONLY_R3X2]
     } else {
       $('root').innerHTML=stateHtml('예식이 끝나 안내가 닫혔어요.','함께해 주셔서 감사합니다.');
     }
