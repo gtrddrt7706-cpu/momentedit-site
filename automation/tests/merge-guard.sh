@@ -19174,6 +19174,8 @@ nochk '<strong>02.</strong> 담당 디렉터 메일 안내' index.html
 nochk '02. 담당 디렉터 메일 안내 (영업일 48시간 이내) 03.' index.html
 nochk '담당 디렉터가 메일로 개별 안내를 드립니다' index.html
 chk 'KAKAO_HOURS_LABEL' index.html 1
+chk 'NOSCRIPT_REVEAL_N20_11' index.html 1   # ★[R3X2 #11 1120] 스크립트 꺼짐 · 미리보기 봇에서 홈 .reveal 34곳 · 사진이 opacity 0 으로 남던 것 — noscript 안에서만 보이게
+chk '.reveal,.ph-img,.archive-grid-cell,.archive-grid-cell img,.jr-shot:first-of-type{opacity:1!important;transform:none!important}</style></noscript>' index.html 1   # [NOSCRIPT_REVEAL_N20_11] 되돌리면 0
 chk "카카오톡 답변 시간 '+KB.escalation.hours" index.html 1
 chk 'ADV_GREET_FIRST' assets/advisor-kb.js 1
 nochk '아래에서 궁금한 주제를' assets/advisor-kb.js
