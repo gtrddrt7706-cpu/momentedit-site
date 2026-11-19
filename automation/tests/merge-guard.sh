@@ -24189,3 +24189,10 @@ chk 'SHOWCASE_RM_N20_19' i/invitations/invitation-01-classic.html 1
 chk 'SHOWCASE_RM_N20_19' i/invitations/invitation-08-noir.html 1
 # ★[TRYGO_CENTER_N20_04X_1119 R3X2 #04] 연습 끝 «두 분 차례 직접 해보기» 글자 가운데 — 빠지면 넓은 단추 안에서 글만 왼쪽에 붙는다
 chk 'border-color:var(--accent);justify-content:center}   /\* ★\[TRYGO_CENTER_N20_04X_1119' order-preview.html 1
+# ★[OG_WWW_1120 대본 11/20 «guide.html og:image www · 정본 www 와 맞춤» · COURSE_WIDE 로 같은 꼴 다섯 쪽] og:image · og:url 은 www 주소 — www 없는 주소로 되돌리면 빨강
+nochk 'content="https://momentedit\.kr/' guide.html
+nochk 'content="https://momentedit\.kr/' cancel.html
+nochk 'content="https://momentedit\.kr/' form.html
+nochk 'content="https://momentedit\.kr/' mypage.html
+nochk 'content="https://momentedit\.kr/' schedule.html
+chk 'content="https://www.momentedit.kr/assets/og/og-seal.png?v=5"' guide.html 1
