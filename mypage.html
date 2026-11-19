@@ -2317,6 +2317,7 @@ button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .pvc-now-k{font-family:var(--serif-ko);font-size:11px;letter-spacing:.06em;color:var(--gold-deep)}
 .pvc-now b{font-family:var(--serif-ko);font-size:14px;font-weight:500;line-height:1.5;color:var(--accent);word-break:keep-all}
 .pvc-now-d{font-weight:400;color:var(--sub);white-space:nowrap}
+.pvc-now-dt{white-space:nowrap}   /* ★[PVC_DUE_NOWRAP_1120] 폰 360 폭 이하에서 «12월 22일 / (화) · D-33» 으로 날짜가 쪼개지던 것 — 날짜와 점을 한 덩이로(꺾이면 «12월 22일(화) · / D-33») · NIGHT20 R3X2 #17 */
 .pvc-feel.pvc-3{margin:0 0 4px}
 .pvc-feel.pvc-3 li{padding-bottom:14px}
 .pvc-feel.pvc-3 .pvc-feel-lk{display:inline-flex;align-items:center;min-height:44px;padding:0;color:var(--gold-deep);text-decoration-color:currentColor}
@@ -12154,7 +12155,7 @@ function _pvcNow(){   // [VIDEO_UMBRELLA_1115] 날짜는 준비 목록 머리 �
     var ca=(F.conf&&F.conf.at)?_pvcMd(F.conf.at):''; F._doneAt=!!ca;
     return '<div class="pvc-now"><p><span class="pvc-now-k">확정</span><b>'+(ca?escapeHtml(ca)+' 확정했어요':'확정했어요')+'</b></p>'+(t&&!(l!=null&&l<0)?'<p><span class="pvc-now-k">바꿀 수 있는 때</span><b>'+escapeHtml(t.replace(' 23:59',''))+'까지</b></p>':'')+'</div>'; }
   return '<div class="pvc-now"><p><span class="pvc-now-k">지금 하실 일</span><b>'+escapeHtml(d)+'</b></p>'
-    +(t?'<p><span class="pvc-now-k">확정 기한</span><b>'+escapeHtml(t.replace(' 23:59',''))+(l!=null?('<span class="pvc-now-d"> · '+(l<0?'지남':(l===0?'오늘':'D-'+l))+'</span>'):'')+'</b></p>':'')+'</div>'; }
+    +(t?'<p><span class="pvc-now-k">확정 기한</span><b><span class="pvc-now-dt">'+escapeHtml(t.replace(' 23:59',''))+(l!=null?' ·':'')+'</span>'+(l!=null?(' <span class="pvc-now-d">'+(l<0?'지남':(l===0?'오늘':'D-'+l))+'</span>'):'')+'</b></p>':'')+'</div>'; }
 function _pvcThree(){ var mid=PVCFLOW.kind==='mid';
   return '<ol class="pvc-feel pvc-3">'
     +'<li><b>영상 준비</b><span>'+(mid?('식순에 정한 길이는 '+(+PVCFLOW.len||3)+'분이에요. '):'')+(PVC_FEEL_ON?'두 가지 중 편한 길로 준비해 주세요.':'')+'</span>'+_pvcWays()+'</li>'   /* ★[TWO_WAY_1116 2026-11-16 대표님 17:34 «② 다른 곳에 맡기기 · ③ 직접 만든 영상 — 우리 입장에서 같은 거잖아»] 길 둘(① 협력사 필메이커 · ② 직접 준비하기) · 필메이커 길을 거두면 고를 것이 없어 이 문장도 없다 · 옛 «세 가지 중» 되살리지 말 것 · ★[FM_COUPON_1116] 옛 고를 길 셋(협력사 필메이커 · 다른 곳 · 직접) — 옛 한 문장 «필메이커 템플릿(쿠폰으로 무료) · 업체 제작 · 직접 만든 영상 중 하나로» · ★[VU_COUPON_ONCE_1115] 쿠폰 · 비용 말은 이 걸음 안 한 곳(①)에만 */
