@@ -611,6 +611,11 @@ body.mkd .op-steps-c{margin:0}   /* 머리 줄 → 8(.stage 위 여백) → 네 
 .ob-menu[hidden]{display:none}
 .ob-menu .ob-exit{display:flex;width:100%;justify-content:flex-start;min-height:44px;padding:0 16px;border:0;border-radius:0;background:none;font-size:14px;color:var(--accent);white-space:nowrap;min-width:0}
 .ob-menu .ob-exit:focus-visible{background:var(--bg2);color:var(--accent)} @media (hover:hover){ .ob-menu .ob-exit:hover{background:var(--bg2);color:var(--accent)} }   /* [TOUCH_HOVER_GATE_N20_11] */
+/* ★[PILL_FOCUS_ROUND_1119 2026-11-19 NIGHT20 #13 R3X2] 키보드 초점(Tab · 메뉴를 Esc 로 닫은 뒤)에서 둥근 알약(«⋯» · 저장 · 나가기)이
+   모서리 4px 네모로 바뀌었다 — 전역 [ORD_FOCUS] :focus-visible 의 border-radius:4px 가 뒤에 있어 .ob-exit 999px 를 이겼다.
+   알약은 초점에서도 알약 · 메뉴 안 줄(.ob-menu .ob-exit)은 종전처럼 네모. */
+body .ob-exit:focus-visible{border-radius:999px}
+body .ob-menu .ob-exit:focus-visible{border-radius:0}
 .ob-exit:active{border-color:var(--gold-deep);color:var(--gold-deep)}
 /* ★[REFRESH_BTN 2026-10-05 사장님 «여기에 새로고침 버튼 · 모바일은 아래로 당기면 새로고침»] «⋯»와 같은 동그란 알약 · 마이페이지 «지금 안내» 새로고침과 같은 그림.
    손가락 기기(마우스 없음)는 알약을 숨기고 맨 위에서 당겨 새로고침(_obPull) — 390 머리 줄에 알약을 하나 더 세우지 않는다 */
