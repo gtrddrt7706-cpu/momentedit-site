@@ -24110,3 +24110,7 @@ chk 'textContent = fmt(c.est || 0); } catch (e) {}   /\* ★\[CARD_PROG_RESET_N2
 # ★[LIVE_PROG_N20_1118 NIGHT20 #04] 미리 듣기 장면 카드(사람 순간)도 제 시간 막대를 그린다 — later 로 되돌리면 앞 소리 «0:09 / 0:08» · 가득 찬 막대가 10초 내내 남는다
 chk 'else runProg(c.live.est || 10, advance);   /\* ★\[LIVE_PROG_N20_1118' console.html 1
 nochk 'else later(function(){ advance(); }, (c.live.est || 10) \* 1000);' console.html 0
+
+# ★[LF_MORE_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 A] 크게 보기 — 글이 아래 막대 밑으로 이어질 때만 막대 위를 옅게 흐린다(폰 긴 읽기 글 끝줄이 숨어 끝난 글처럼 보이던 것)
+chk 'LF_MORE_N06' order-preview.html 3
+if command -v node >/dev/null 2>&1; then node scripts/audit/lf-more.mjs >/dev/null 2>&1; _lm=$?; node scripts/audit/lf-more.mjs --selftest >/dev/null 2>&1; _lms=$?; if [ "$_lm" != 0 ] || [ "$_lms" != 0 ]; then echo "REVERT? lf-more: 아래가 더 있다는 흐림이 빠졌거나 늘 걸린다 ($_lm/$_lms) — node scripts/audit/lf-more.mjs"; fail=1; else echo 'ok lf-more'; fi; fi
