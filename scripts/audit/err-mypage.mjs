@@ -165,7 +165,7 @@ await sec('②③', async () => {
   ok('③ 서버 한글 까닭 + 0(ecode C0) → 글 그대로 · 코드 없음(글이 곧 까닭) [ERR_SRV_REASON]', s.ec0 === '서명할 계약서가 없습니다.', s.ec0);
   ok('③ 토스 코드가 붙어 온 글도 «이미 붙은 코드» — 두 번 안 붙이고 마침표만 걷는다 [ERR_CODE_TAIL]', s.toss === '결제 승인에 실패했습니다 (코드 P4 · REJECT_CARD_COMPANY)' && s.tossC === 'P4 · REJECT_CARD_COMPANY', s.toss + ' | ' + s.tossC);
   ok('③ 서버 까닭이 없을 때 화면이 만든 대체 글에는 0 코드 [ERR_SRV_REASON]', s.fb === '후기를 보내지 못했어요 · 다시 눌러 주세요 (코드 R0)' && s.fb2 === '수정 요청을 보내지 못했어요 (코드 R0)', s.fb + ' | ' + s.fb2);
-  ok('③ 옛 서버 — 잠금 대기 → 1 · 처리 못 함 → 9', /\(서버 혼잡\) \(코드 P1\)$/.test(s.busyOld) && /\(코드 C9\)$/.test(s.excOld), s.busyOld + ' | ' + s.excOld);
+  ok('③ 옛 서버 — 잠금 대기 → 1(옛 글 «(서버 혼잡)»은 싣지 않는다 [ERR_BUSY_WORD_R3]) · 처리 못 함 → 9', s.busyOld === '요청이 몰렸어요 · 잠시 뒤 다시 눌러 주세요 (코드 P1)' && /\(코드 C9\)$/.test(s.excOld), s.busyOld + ' | ' + s.excOld);
   ok('③ 영문 기술어는 싣지 않고 사고번호는 남긴다 «저장이 안 됐어요 · 다시 눌러 주세요 (코드 G9 · K7QA)»', s.eng === '저장이 안 됐어요 · 다시 눌러 주세요 (코드 G9 · K7QA)', s.eng);
   ok('③ 로그인 풀림(글 없음) → «로그인이 풀렸어요 · 다시 로그인해 주세요 (코드 P8)»', s.sess === '로그인이 풀렸어요 · 다시 로그인해 주세요 (코드 P8)', s.sess);
   ok('③ 서버가 까닭 없이 거절 → 그 자리의 말 + 0 · 객체 아닌 답 → 7 · 줄여도 코드는 남는다', s.empty === '후기를 보내지 못했어요 · 다시 눌러 주세요 (코드 R0)' && /\(코드 S7\)$/.test(s.nul) && /… \(코드 S9 · 7KQ2\)$/.test(s.clip) && s.clip.length <= 61, JSON.stringify([s.empty, s.nul, s.clip]));
@@ -282,7 +282,7 @@ await sec('⑥', async () => {
     const f8 = await relay({ type: 'momentedit:orderDraft', data: { S: { a: 2 }, summary: {} } }, 'momentedit:orderDraftFail');
     GAS.saveProductionTrack = { json: { ok: false, ecode: 'S1', error: '잠시 후 다시 시도해 주세요. (서버 혼잡) (코드 S1)' } };
     const f1 = await relay({ type: 'momentedit:orderDraft', data: { S: { a: 3 }, summary: {} } }, 'momentedit:orderDraftFail');
-    ok('⑥ orderDraftFail 이 까닭을 싣는다 — 서버 글 그대로(0 은 글에 코드 없이 · ecode S0 칸) · 로그인 풀림 sess · S8 · 새 서버 코드는 한 번만', f0.msg === '저장할 내용이 너무 길어요. 12,000자 안으로 줄여 주세요.' && f0.ecode === 'S0' && f0.sess === false && f8.sess === true && f8.ecode === 'S8' && /\(코드 S8\)$/.test(f8.msg) && f1.msg === '잠시 후 다시 시도해 주세요. (서버 혼잡) (코드 S1)', JSON.stringify([f0, f8, f1]));
+    ok('⑥ orderDraftFail 이 까닭을 싣는다 — 서버 글 그대로(0 은 글에 코드 없이 · ecode S0 칸) · 로그인 풀림 sess · S8 · 새 서버 코드는 한 번만', f0.msg === '저장할 내용이 너무 길어요. 12,000자 안으로 줄여 주세요.' && f0.ecode === 'S0' && f0.sess === false && f8.sess === true && f8.ecode === 'S8' && /\(코드 S8\)$/.test(f8.msg) && f1.msg === '요청이 몰렸어요 · 잠시 뒤 다시 눌러 주세요 (코드 S1)', JSON.stringify([f0, f8, f1]));
     GAS.saveProductionTrack = { abort: 1 };
     const s6 = await relay({ type: 'momentedit:orderSave', data: { S: { a: 4 }, summary: {} } }, 'momentedit:orderSaveFail');
     ok('⑥ orderSaveFail — 끊김 «연결이 끊겼어요 · 다시 눌러 주세요 (코드 S6)»(종전 «네트워크를 확인하고») · ecode · kind', s6.msg === '연결이 끊겼어요 · 다시 눌러 주세요 (코드 S6)' && s6.ecode === 'S6' && s6.kind === 'net', JSON.stringify(s6));
