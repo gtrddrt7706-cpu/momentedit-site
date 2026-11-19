@@ -1496,6 +1496,14 @@ chk 'HOME_CTA_KO' index.html 1                 # 주 버튼 한글 주·영문 �
 chk 'cta-eyebrow' index.html 4                 # 영문 아이브로우 3곳 + CSS 1. ★영문을 버튼 '안'에 2줄로 넣는 안(cta-btn-ko/en)은 2026-07-26 재검토로 폐기 — 되살리지 말 것(버튼 73px·영문 불투명 66%로 안 읽힘)
 chk 'BTN_TIER' index.html 4                    # 버튼 2단 체계(채움=전환 3곳 / 외곽=보조 이동 1곳). journal-guide-link를 채움 마룬으로 되돌리면 화면에 전환 버튼이 4개가 된다 — 복원 금지
 chk 'MAP_BREATH' index.html 1                  # 지도 블록 상하 여백 80/88 — margin-top만 두고 아래를 0으로 되돌리면 다시 푸터에 끼인다
+chk 'DEPOSIT_WORD_1119' index.html 2             # [2026-11-19 대표님 «추천대로» · DEC3] 예약금은 «입금» 한 낱말(FAQ · 예약 및 환불)
+chk 'DEPOSIT_WORD_1119' inquiry.html 1
+chk 'DEPOSIT_WORD_1119' api/_kb.js 1
+nochk '예약금 결제 확인 시' index.html 0
+nochk '100,000원</strong> 송금' index.html 0
+nochk '₩100,000</strong> 송금' inquiry.html 0
+nochk '예약금 100,000원 송금' api/_kb.js 0
+nochk '예약금 100,000원 송금' assets/advisor-kb.js 0
 chk 'PRICE_LABEL_NOWRAP' index.html 2           # [2026-11-18 NIGHT20 #13] 가격표 항목 이름 한 줄 · 긴 덧말이 접힌다(390 «식중 / 영상» 쪼개짐)
 # ── 2026-07-26 inquiry.html 1라운드
 chk 'INQ_REQ_DOT' inquiry.html 1               # 필수 표시 점 3px 골드(2.54:1) 복원 금지 — 폼에서 가장 중요한 정보가 안 보였다
