@@ -1502,6 +1502,7 @@ button.mk-vmn{text-decoration:underline;text-decoration-color:var(--border);text
    글 줄임은 화면만 · 화면 읽기는 aria-label 에 온 뜻(«본식 9개 순간 중 6번째 …») · 셈(_mkStat · 본식 번호)은 그대로. 옅은 테 = «눌린다» 표시(채움은 펼쳤을 때만 · 고르기 전 눌린 모양 금지). */
 /* ★[MK_HEAD_PILL 1101 사장님 PC 스크린샷 «PC 버전은 좀 이상한데»] 상태 단추는 오른쪽 도구와 같은 알약 — 옅은 테 · 카드 바탕 · 좌우 15(폰 12) · 높이 44 · 글 12.5/500(.ob-exit 와 같은 옷 · 저장의 강조 테는 안 쓴다).
    자리가 넉넉하면 한 줄(.one «하나씩 만들기 · 본식 6/9 · 빠뜨린 4 ⌄») · 모자랄 때만 두 층(모서리 22) — _mkStatFit 이 실제 폭으로 고른다. 꺾쇠는 글 바로 뒤. 종전 네모 · 작은 모서리(6px)는 폼 입력칸처럼 읽혔다 */
+.nx-seg{display:inline-block;max-width:100%}   /* [NEXT_SEG_1119] */
 .mk-status{display:grid;grid-template-columns:auto 12px;justify-content:start;align-content:center;align-items:center;column-gap:8px;flex:0 1 auto;min-width:0;min-height:44px;margin:0;padding:3px 15px;border:1px solid var(--border);border-radius:22px;background:var(--card);text-align:left;color:var(--sub);font:inherit;font-size:12.5px;font-weight:500;line-height:18px;letter-spacing:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .mk-status[hidden],.mk-status.one[hidden]{display:none}   /* ★[CLEAR_HEAD_1102 사장님 아이폰 «모두 비우기 하면 위에 ‹식전 1/2›가 남아 있다»] .one(inline-flex)이 뒤에 있어 [hidden] 을 이겼다 — ② 를 떠나도 단추가 남았다. 되돌리지 말 것 */
 .mk-status[aria-expanded="true"]{background:var(--bg2)}
@@ -3873,7 +3874,7 @@ function render(){
       :_doneSaved?(EMBED?'마이페이지로 나가기':'마이페이지로 가기')   /* ★[DONE_BTN_ACT_1023 코워크 묶음 A-1] 큰 단추는 할 행동만 — 기한은 위 한 줄(EDIT_WINDOW «순서는 14일 · 글은 7일»)이 말하고 «저장됐어요»는 단추 위 배너가 말한다 · 종전 단추 글(«저장됨 · 예식 14일 …»)은 글 마감도 14일로 읽혔다 · 되살리지 말 것 */
       :_saveErr?(_isSess(_saveErr)?'로그인하기':'다시 저장하기'):'이대로 저장하기')   /* [RELOGIN_BTN] */
     : '다음';
-  var _nxHtml=editReturn?'요약으로 돌아가기':_crsGo?(esc(COURSES[_crsGo].nm)+' 코스로 시작하기'):(st.k==='intro')?'다음':(st.k==='intro2')?'시작하기':(st.k==='pick'&&isOpen())?'다음 · 하나씩 만들기':(st.k==='listen'&&isOpen())?esc(_mkNextLab()):(st.k==='listen')?'다음 · 준비하기':(st.k==='practice')?'다음 · 완성':(idx===STEPS.length-2)?'완성 보기':_lastN;   // [FLOW_MAKE] ② 는 다음 순간 이름까지
+  var _nxHtml=editReturn?'요약으로 돌아가기':_crsGo?(esc(COURSES[_crsGo].nm)+' 코스로 시작하기'):(st.k==='intro')?'다음':(st.k==='intro2')?'시작하기':(st.k==='pick'&&isOpen())?'다음 · 하나씩 만들기':(st.k==='listen'&&isOpen())?_nxSeg(esc(_mkNextLab())):(st.k==='listen')?'다음 · 준비하기':(st.k==='practice')?'다음 · 완성':(idx===STEPS.length-2)?'완성 보기':_lastN;   // [FLOW_MAKE] ② 는 다음 순간 이름까지
   nx.innerHTML=_nxHtml;
   nx.classList.toggle('seal', isOpen()&&st.k==='done'&&!editReturn&&!_doneSaved&&!_saving);   // ★[SEAL_POINTS 2026-09-26 사장님] ④ «이대로 저장하기»(확정 단추 · 화면에 하나)만 진사 채움 — 저장 중 · 저장된 뒤 · 수정 중은 종전 색
   /* [ORD_SAVE_STATE] '저장 중'은 disabled 가 아니라 busy 다.
@@ -9468,6 +9469,10 @@ var REC_PEND='녹음 전이라 글로 먼저 보여 드려요';
 function _pendT(x,short){ if(x&&x.pwhy) return short?String(x.pwhy).split(' · ')[0]:x.pwhy;   // [PLAY_FILE_WHY] 이 기기에 없는 녹음 — 상태 글(코드 없음)
   var c=(x&&x.pfail)||((LREC_ERR&&!(x&&x.own))?LREC_ERR:''); if(!c) return short?'아직 녹음 전':REC_PEND;
   return (/^L/.test(c)?(short?'소리를 못 불러왔어요':'소리를 불러오지 못해 글로 보여 드려요'):(short?'소리를 틀지 못했어요':'소리를 틀지 못해 글로 보여 드려요'))+' (코드 '+c+')'; }
+/* ★[NEXT_SEG_1119 2026-11-19 NIGHT20 #13 R3X2] ② 다음 단추 글은 «·» 마디째로만 줄이 갈린다 — 320 폭에서
+   «이 흐름으로 시작하기 · 하객 / 맞이 안내» · «… · 촬영 / 후 안내»처럼 이름 가운데가 끊겼다. 마디는 inline-block(한 마디가 단추보다 길면 그 안에서만 접힘) ·
+   «·»는 앞 마디 끝에 붙여 줄 머리에 서지 않게 · 글자(textContent)는 그대로라 검사 · 화면 읽기 그대로. */
+function _nxSeg(h){ var p=String(h).split(' · '); if(p.length<2) return h; return p.map(function(x,i){ return '<span class="nx-seg">'+x+(i<p.length-1?' ·':'')+'</span>'; }).join(' '); }
 function _nb(t){ return String(t||'').replace(/약 /g,'약'+NBS).replace(/단체 사진/g,'단체'+NBS+'사진').replace(/테이블 인사/g,'테이블'+NBS+'인사'); }   /* [TABLE_APART] «테이블 / 인사»도 안 갈리게 */   // [D5 · 3-9] «약 N~M분» · «단체 사진»이 두 줄로 갈리지 않게
 function _nd(t){ return String(t||'').replace(/ · /g,' ·'+NBS); }
 function _n2(t){ return String(t||'').replace(/두 분/g,'두'+NBS+'분').replace(/\(한 분 1분쯤\)/g,'(한'+NBS+'분'+NBS+'1분쯤)'); }   /* [PAREN_KEEP 2026-10-11] «(한 분 / 1분쯤)»처럼 괄호 안이 두 줄로 갈리지 않게(서약 · 덕담 미리 보기 · 폰) */   /* [R1-41] «두 / 분»으로 갈리지 않게 — 칸 · 미리 보기 창 · ② 쪽 설명 공통 */
