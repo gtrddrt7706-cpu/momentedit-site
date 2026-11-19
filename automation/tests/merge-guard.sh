@@ -24171,3 +24171,4 @@ chk 'body.guest .ctl .inner>div{grid-column:1/-1}   /\* ★\[CTL_ROW_N20_04X_111
 # ★[INQ_FORCED_N20_19 2026-11-20 R3X2] 상담 신청서 고름 표시가 윈도 고대비에서도 보인다(시스템 강조색 Highlight)
 chk 'INQ_FORCED_N20_19' inquiry.html 1
 chk '.compact-mark::after{forced-color-adjust:none;background:Highlight}' inquiry.html 1
+chk '.required-dot{forced-color-adjust:none;background:CanvasText}' inquiry.html 1

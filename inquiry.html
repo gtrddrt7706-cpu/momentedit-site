@@ -265,6 +265,8 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
   .compact-mark::after{forced-color-adjust:none;background:Highlight}
   .consent-check input:checked ~ .consent-mark{forced-color-adjust:none;background:Highlight;border-color:Highlight}
   .consent-check .consent-mark::after{forced-color-adjust:none;border-color:HighlightText}
+  /* 필수 점(.required-dot · 배경색 점)도 고대비에서 통째로 사라졌다 — 글자색으로 남긴다(안내문 «( )표시는 필수 항목입니다» 앞 점 포함) */
+  .required-dot{forced-color-adjust:none;background:CanvasText}
 }
 </style>
 <script type="application/ld+json">
