@@ -2804,7 +2804,9 @@ function attachVimeoPlayer(vimeoId, vimeoHash){
 
   const iframe = document.createElement('iframe');
   iframe.src = 'https://player.vimeo.com/video/' + encodeURIComponent(id) + '?' + params;
-  iframe.allow = 'autoplay; fullscreen; picture-in-picture';
+  /* ★[VIMEO_ALLOW_EME_N20_19 2026-11-19 야간 점검 #19] Vimeo 플레이어가 encrypted-media 를 묻는데 허용 목록에 없어 영상이 붙을 때마다 콘솔 오류 3건 —
+     Vimeo 기본 퍼가기 코드처럼 encrypted-media 를 더한다(실측: 더하면 0건) · 나머지 셋은 그대로 */
+  iframe.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media';
   iframe.allowFullscreen = true;
   iframe.title = 'Moment Edit Digital Attendance';
 

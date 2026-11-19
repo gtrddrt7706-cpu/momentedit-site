@@ -33,7 +33,7 @@ html,body{height:100%}
    마이페이지 · 홈 · 문의 · 일정 등은 이미 «스크롤바 전역 숨김(브랜드 규칙)»인데 이 화면만 빠져 있었다 — 같은 규칙(스크롤은 그대로) */
 html,body{scrollbar-width:none;-ms-overflow-style:none}
 html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0;display:none}
-.mk-dlg-c{scrollbar-width:none}.mk-dlg-c::-webkit-scrollbar{width:0;display:none}   /* [NO_BAR_SHIFT] 작은 창도 — 글만큼 높이가 바뀌는 창(나오는 곳)이 화면을 넘나들 때 안이 좌우로 밀리지 않게 */
+.mk-dlg-c{scrollbar-width:none}.mk-dlg-c::-webkit-scrollbar{width:0;display:none} .ls-full{scrollbar-width:none}.ls-full::-webkit-scrollbar{width:0;display:none}   /* ★[N20_PLAYER_BAR_1119 NIGHT20 #05] 연습 큰 화면(.ls-full · 고정 · 세로 스크롤)도 같은 규칙 — PC 에서 글이 길어 넘치는 줄마다 스크롤바가 생겼다 사라지며 화면 전체가 좌우로 흔들렸다(라이브 1280 실측 사진 왼쪽 113 ↔ 103 · 스크롤바 19px) · 스크롤은 그대로 */   /* [NO_BAR_SHIFT] 작은 창도 — 글만큼 높이가 바뀌는 창(나오는 곳)이 화면을 넘나들 때 안이 좌우로 밀리지 않게 */
 body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-height:1.7;-webkit-text-size-adjust:100%;display:flex;flex-direction:column;min-height:100dvh;letter-spacing:-.01em;word-break:keep-all;overflow-wrap:break-word}   /* [POLISH_0925 2-11] 한글 줄바꿈 «완성됐어 / 요» 끊김 막기 */
 .q-title,.intro-lead,.crs-nm,.nar,.done-hd .t,.ev-n{font-family:var(--ko-serif);letter-spacing:0}
 .wrap{max-width:520px;width:100%;margin:0 auto;padding:0 18px;flex:1;display:flex;flex-direction:column}
@@ -969,6 +969,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .cf-r .cf-who{display:inline-block;margin-left:6px;font-size:11px;color:var(--sub);border:1px solid var(--border);border-radius:999px;padding:0 7px;vertical-align:1px}
 .cf-r .cf-who.v{color:var(--accent);border-color:var(--gold)}
 .cf-r .cf-pl{display:inline-flex;align-items:center;gap:4px;margin-top:4px;min-height:32px;padding:0 10px;border:1px solid var(--gold);border-radius:999px;background:none;color:var(--accent);font:inherit;font-size:12.5px;cursor:pointer}
+.cf-r .cf-pl{position:relative}.cf-r .cf-pl::after{content:'';position:absolute;left:0;right:0;top:-13px;bottom:0;z-index:1}   /* ★[N20_TAP44_1119 NIGHT20 #10] ② 예식 흐름 «▶ 들어 보기» 알약 — 보이는 높이 32 는 그대로 · 누르는 칸만 위로 13px 넓혀 45(아래는 줄 칸이 잘라서 위로만) */
 .cf-when{margin:4px 0 0 82px;font-size:12.5px;color:var(--sub)}
 .pk-act-h{font-size:14px;font-weight:600;color:var(--gold-deeper);margin:0;line-height:1.4}
 .pk-act-d{font-size:12.5px;color:var(--light);margin:0 0 8px;line-height:1.45}
@@ -1376,6 +1377,7 @@ body.lsfull{overflow:hidden}
    테두리 · 바탕 · 번호를 걷고 글자만 놓는 탭(에디토리얼) · 지금 = 굵게 + 밑줄 · 다 됨 = 금빛 ✓ · 지나온 미완료 = 진사 글자 + 빈 동그라미 · 앞으로 = 옅은 글자
    번호는 쪽 제목 · «다음 · 6 성혼 선언» 단추에만 남긴다(어디쯤인지는 거기서) · 읽어 주는 이름(aria-label)에는 번호가 그대로 있다 */
 .mk-it{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:0 10px;border:0;border-radius:0;background:none;color:var(--light);font:inherit;font-size:12.5px;white-space:nowrap;cursor:pointer}
+button.mk-it{min-width:44px;justify-content:center}   /* ★[N20_TAP44_1119 NIGHT20 #10] ② 순간 띠 — 두 글자 이름(화촉 · 입장 · 맞절 · 축가) 43px · ⓘ 34px → 누르는 칸 44 · 구분 줄(.mk-sep)은 단추가 아니라 그대로 */
 .mk-it:hover .mk-t{color:var(--accent)}
 .mk-it.done{color:var(--sub)}
 .mk-it.done .mk-mk{color:var(--gold-deeper)}
@@ -1670,6 +1672,7 @@ body.mkd .mk-strip{top:44px;margin:0 -16px 12px;padding:0;border-bottom:0}   /* 
 .mk-flow li.n{display:flex;gap:8px;align-items:flex-start;font-size:16px;line-height:1.75;color:var(--accent)}   /* ★[FLOW_LINE_TYPE 2026-10-02 사장님 «재생 버튼 메시지 글꼴과 스타일을 하객 맞이 카드랑 통일»] 나레이션 글 = 줄 카드 글(.mk-vtx 16 · 1.75 · accent) */
 .mk-ltx1{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}   /* [VP_FLOW_CLAMP] 두 분 목소리 줄 — 전문은 아래 줄 카드에 */
 .pk-cnt{margin:2px 0 10px;font-size:12.5px;line-height:1.5;color:var(--sub);word-break:keep-all}.pk-cnt b{font-weight:600;color:var(--accent)}.mk-sc .pk-cnt{display:block;flex:0 0 auto;line-height:44px;margin:0 8px 0 2px;white-space:nowrap}   /* [EVENT_COUNT_CAP] 카운터 · ★[CNT_ROW_ALIGN_1102 사장님 «라인이 안 맞는데»] 진행 줄 글자(.mk-it · 높이 44 가운데)와 같은 줄 높이 · 가운데 — 종전엔 위 여백 4px 로 붙어 한 줄 위로 떠 보였다 */
+@media (min-width:1000px){ .mk-sc .pk-cnt{margin-left:10px} }   /* ★[CNT_COL_ALIGN 2026-11-18 NIGHT20 #11] PC 는 진행 줄이 두 줄로 접히는데(MK_STRIP_WRAP) 첫 줄 카운터 «고른 본식 순간 6/6 · 긴 순간 3/3»만 본문 왼쪽 선보다 8px 바깥(290 · 본문 298)에 앉았다 — 둘째 줄 순간 글(✓ 298) · 아래 «한눈에 보기»(298)와 한 세로선 · 폰(한 줄 넘기기)은 그대로 */
 .mk-alt{display:block;margin-top:5px;font-size:14px;color:var(--ink-soft,#6b625a);line-height:1.6}   /* [CLOSING_SRC_1031 검토 179] 길어지면 바뀌는 말 — 본 줄보다 옅게 */
 .mk-flow li.q,.mk-flow li.t{padding-left:47px;font-size:16px;line-height:1.6;color:var(--accent)}   /* ★[FLOW_THREAD] 행동 · 차례 줄 = 나레이션 글과 같은 세로선(47) · 같은 16px. 종전 «말 없는 줄 = 옅게 12.5px»(QUIET_LINES · MK_ROWS 42)는 이 결정으로 바뀌었다 */
 .mk-flow li.t b{font-weight:600}
@@ -1688,6 +1691,7 @@ body.mkd .mk-strip{top:44px;margin:0 -16px 12px;padding:0;border-bottom:0}   /* 
 .mk-pl.on{color:var(--bg)} .mk-pl.on::before{background:var(--accent);box-shadow:none} .mk-pl.on svg{margin-left:0} .mk-pl[disabled]:not(.ld) svg{opacity:.45}
 .mk-pl.off{cursor:default} .mk-pl.off svg{opacity:.45} @media (hover:hover){ .mk-pl.off:hover::before{background:#fff} }   /* ★[AI_PLAY_READY 2026-10-08 사장님] 들을 소리가 아직 없는 AI 줄 ▶ — 기다리는 ▶(disabled)와 같은 흐림 · 누를 수는 있다(그 줄 아래 한 줄 · _playOffNote) */
 .mk-ploff{margin:8px 0 0}   /* [AI_PLAY_READY] 누른 ▶ · 이 순간 전체 듣기 바로 아래 한 줄 */
+.mk-ploff.bed-pub{font-size:12.5px;line-height:1.6;color:var(--sub);word-break:keep-all}   /* ★[N20_BEDPUB_1119 NIGHT20 #10] 공개 미리보기 «음악은 마이페이지에서 함께 들어 볼 수 있어요»(bgm-bed.js pubLine) — .mk-note 가 없어 16px 진한 글로 흐름 줄처럼 튀었다 · 옆 안내 줄(.mk-note)과 같은 크기 · 색 · 글은 그대로 */
 @media (hover:hover){ .mk-pl:hover::before{background:var(--bg2)} .mk-pl.on:hover::before{background:var(--accent)} }
 .mk-pl:focus-visible{outline:none} .mk-pl:focus-visible::before{outline:2px solid var(--seal);outline-offset:3px}   /* ★[PILL_FOCUS 2026-10-07] 키보드 고리도 알약 모양. 단추 칸(58×44)에 두르면 모서리 4px 네모가 알약을 감쌌다(같은 줄 «목소리 만들기» 알약은 고리도 알약 · 390 실렌더로 잡음). 굵기 · 색 · 띄움(2px · 진사 · 3px)은 다른 단추와 같다. ★단추 칸에 고리를 되돌리지 말 것 */
 /* ★★[WAIT_FILL 2026-10-07 사장님 «참고 예시를 바꾸면 플레이 버튼이 활성화되기까지 시간이 걸린다 · 러닝타임을 직관적으로 · 점점 진해지면서» → 시안 A]
@@ -2252,6 +2256,7 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h3[tabindex="-1"]:focus,h4[tabin
 .sumry.op .sr-l{grid-area:l;flex:none}
 .sumry.op .sr-v{grid-area:v;min-width:0}
 .sumry.op .sr-c{grid-area:c;min-width:0;min-height:44px;padding:0 6px;border:0;background:none;border-radius:0;color:var(--gold-deeper);font-size:12.5px;text-decoration:underline;text-underline-offset:3px}
+.sumry.op .sr-c{position:relative}.sumry.op .sr-c::after{content:'';position:absolute;top:0;bottom:0;left:-5px;right:-5px}   /* ★[N20_TAP44_1119 NIGHT20 #10] ④ 순서 요약 «변경 · 채우기 · 보기» 글 단추 폭 35 → 누르는 칸만 좌우 5px 넓혀 45 · 보이는 자리 · 글 그대로 */
 /* [RIT_RESTART_LOW] ④ 맨 아래 작은 밑줄 글 */
 .op-reset-low{justify-content:center;margin:4px 0 calc(18px + env(safe-area-inset-bottom))}
 .op-reset-low[hidden]{display:none}
@@ -7872,7 +7877,7 @@ function _mkSum(){ var R=RitualOpen, ps=_mkPages(), sp=R.span(S), wed=(CUST&&CUS
   var todo=_mkTodoAll();
   /* ★[MK_SUM_ONE 2026-09-27 사장님 «지저분한 중복 전부 제거 · 미니멀하게»] 종전엔 «미완료 14» 목록과 아래 «부탁 · 보낼 것» 목록이 같은 항목을 두 번 늘어놓았다(녹음 네 줄은 두 번씩 여덟 줄).
      이제 한 항목은 한 번만 — 미완료 수는 머리 한 줄에 · «두 분이 할 말»만 따로 모으고 · 부탁 · 보낼 것은 줄마다 ✓ 또는 «가기» · 녹음은 순간마다 한 줄(몇 개 중 몇 개). 되살리지 말 것 */
-  h+='<p class="mk-one">본식 순서 '+_opMoments()+'개'+(dropped.length?' · 뺀 순간 '+dropped.length:'')+' · 본식 '+esc(_nb(sp.body))+(sp.tm?' · 테이블 인사 '+esc(_nb(sp.table)):'')+(todo.length?' · <b class="mk-todo-n">남은 할 일 '+_mkTodoN()+'가지</b>':'')+'</p>'+(_afterOn()?'<p class="mk-note">본식 뒤 · '+esc(POST_KS.map(function(k){ return _post(k).n; }).join(' → '))+'</p>':'');   /* ★[POST_FLOW_200 6] 한눈에 보기 · 본식 뒤 차례 한 줄 · ★[B2_FIX_GEUL_19 2026-11-06 재검증 재수정 · 확정 규칙 «식후» 대신 «본식 뒤»] «식후 · »를 걷었다 · 되살리지 말 것 */   /* ★[QA_TODO_UNIT 2026-10-04 점검] 진행 줄은 «미완료 순간 2»(순간 수) · 여기는 할 일 수 — 단위 없이 «미완료 6»이라 둘이 어긋나 보였다 */
+  h+='<p class="mk-one">본식'+NBS+'순서'+NBS+_opMoments()+'개'+(dropped.length?NBS+'· 뺀'+NBS+'순간'+NBS+dropped.length:'')+NBS+'· 본식'+NBS+esc(_nb(sp.body))+(sp.tm?NBS+'· 테이블'+NBS+'인사'+NBS+esc(_nb(sp.table)):'')+(todo.length?NBS+'· <b class="mk-todo-n">남은 할 일 '+_mkTodoN()+'가지</b>':'')+'</p>'+(_afterOn()?'<p class="mk-note">본식 뒤 · '+esc(POST_KS.map(function(k){ return _post(k).n; }).join(' → '))+'</p>':'');   /* ★[POST_FLOW_200 6] 한눈에 보기 · 본식 뒤 차례 한 줄 · ★[B2_FIX_GEUL_19 2026-11-06 재검증 재수정 · 확정 규칙 «식후» 대신 «본식 뒤»] «식후 · »를 걷었다 · 되살리지 말 것 */   /* ★[QA_TODO_UNIT 2026-10-04 점검] 진행 줄은 «미완료 순간 2»(순간 수) · 여기는 할 일 수 — 단위 없이 «미완료 6»이라 둘이 어긋나 보였다 */   /* ★[N20_GLANCE_LINE_1119 NIGHT20 #10] ② 한눈에 보기 요약 줄 — 390 에서 둘째 줄이 «· 남은 할 일 4가지»로 «·»부터 섰다 · «·» 앞 붙는 빈칸(④ PREP_SUM_1019 · N20_DONE_HEAD 와 같은 규칙) · 이름표와 값도 붙임(줄은 «·» 뒤에서만 꺾인다) · 글자 그대로 */
   h+='<p class="mk-prgo"><button type="button" class="rowbtn" data-fk="sumpr" onclick="opStepNav(\'practice\')">이 식순으로 연습하기</button></p>';   /* ★[PR_WAY_198 ⑧] 한눈에 보기(코스 요약)에서 바로 연습 첫 화면으로 */
   var txTodo=todo.filter(function(x){ return x.t.kind==='tx'; }), txK=[], txW={};
   txTodo.forEach(function(x){ if(!txW[x.k]){ txW[x.k]=[]; txK.push(x.k); } txW[x.k].push(x.t); });   // [EX_NAME_TODO_1023] 칸째 모아 _txTodoWord 로 한 줄   // 순간마다 한 줄(신랑 · 신부 두 줄로 나누지 않는다)
@@ -8406,6 +8411,11 @@ function _lRefExpand(q){
     /* ★[B2_FIX_GEUL_18 2026-11-06 재검증 재수정] 선언을 «그 밖의 분»이 읽고 «덕담도 이어서 · 네»면 첫 덕담 차례는 그분 — 예시 읽는 분(«신부 아버지») 대신 «신랑 할아버님 차례» ·
          화면 차례 이름만(새 녹음 없음 · B2-K28 현행) · 원고를 받았으면(_scrT) 그 원고 그대로 */
     if(x.k==='bless'&&grp.length&&_blessFirstWho()){ grp[0].who=_blessFirstWho(); grp[0].lab=grp[0].who+' 차례'; }
+    /* ★[BLESS_CARD_WHO_N06 2026-11-18 야간 점검 #06 · 가족 · 카페 날] 말씀하실 분을 고른 날(NARR_ROLE_1115) — 연습 · 이어 보기 카드 이름도 고른 분으로.
+         종전엔 나레이션이 «먼저, 신랑 아버님의 …»(362)라고 부른 바로 뒤 카드가 예시 인물 «신부 아버지 차례»였다(흐름 줄은 _bwOrder 로 이미 고른 차례 · 카드만 남았다).
+         예시 카드 수 = 고른 분 수면 차례대로 그분 이름 · 한 분만 골랐으면 그 역할 · 그 밖은 «부모님»(아래 _sumOn 이 여러 장을 부르는 말과 같다) ·
+         대신 읽기(blessProxy) · 받은 원고(_scrT) · 위 _blessFirstWho 판은 그대로 · 예시 글은 그대로(이름표만) */
+    else if(x.k==='bless'&&grp.length&&!_scrT&&!S.blessProxy&&R.blessWhoOf){ var _bwA=R.blessWhoOf(S)||[]; if(_bwA.length){ grp.forEach(function(q,i){ var n=_bwA.length===grp.length?R.whoLabel(R.BLESS_WHO,_bwA[i]):_bwA.length===1?R.whoLabel(R.BLESS_WHO,_bwA[0]):'부모님'; q.who=n; q.lab=n+' 차례'; }); } }
     if(x.k==='vow') grp=_vowPract(grp,x);
     /* ★[PRACTICE_WALK_1101 9] 연습 — 축사는 두 분이 읽는 글이 아니다: 요약 한 장(«축사하실 분이 말하는 자리예요 · 두 분은 그분을 바라보며 들어요») + 예시 · 원고 전문은 펼쳐 보기 */
     /* ★[PRACTICE_WALK_R2 5] 성혼 선언 · 덕담도 같은 모양 — 두 분에게 «소리 내어 읽어 보세요»가 남아 있었다(읽는 분은 아버님 · 지인 · 부모님) */
@@ -9177,7 +9187,7 @@ function _lFull(){
     if(practice&&st){ var _pv=LP.q[LP.i-1], _first=!_pv||_pv.k!==st.k, _cp=_fgCardPos(LP.q,LP.i);   /* [FLOW_GRASP_1101 3 · 4] */
       if(_first&&st.k==='entry') h+='<p class="lf-turn">여기부터 두 분 차례예요</p>';
       if(!_pv||_fgCardPos(LP.q,LP.i-1)!==_cp) h+='<p class="lf-pos">지금 두 분 · '+esc(FG_NOW[_cp]||FG_LAB[_cp])+'</p>'; }   /* [PRACTICE_WALK_R2 2] 카드마다 자리 — 이동 줄 뒤에서 바뀐다 */
-    h+='<div class="lf-lab'+(st.talk2?' who':'')+'">'+esc(st.both?'두 분 함께':(_prIn&&st.talk2&&/^(신랑|신부)$/.test(st.who||''))?st.who+_josa(st.who,'이','가')+' 읽어요':(_prIn&&st.talk2&&st.who==='두 분')?'두 분 함께':st.talk2||st.ref?st.who+' 차례':st.lab)   /* [PR_WAY_198 ②] «신랑이 읽어요 / 신부가 읽어요 / 두 분 함께» */+(st.pending&&!st.talk2?' · <span class="ls-new">'+esc(_pendT(st))+'</span>':'')+'</div>';   /* [CAST_TEXT_ONLY] 두 분 차례는 녹음할 것이 아니다 — «녹음 전» 꼬리표를 달지 않는다 */   /* [G8 2026-09-26] «하객 입장 때 글로 먼저…»가 한 문장으로 읽혔다 — 이름표와 녹음 전 표시 사이에 가운뎃점 */
+    h+='<div class="lf-lab'+(st.talk2?' who':'')+'">'+esc(st.both?'두 분 함께':(_prIn&&st.talk2&&/^(신랑|신부)$/.test(st.who||''))?st.who+_josa(st.who,'이','가')+' 읽어요':(_prIn&&st.talk2&&st.who==='두 분')?'두 분 함께':st.talk2||st.ref?st.who+' 차례':(function(l){ var _sn=st.stage?_stName(st)+' · ':''; return _sn&&String(l||'').indexOf(_sn)===0?String(l).slice(_sn.length):l; })(st.lab))   /* ★[N20_AFTER_LAB_1119 NIGHT20 #05] 큰 화면 제목이 이미 단계 이름(«촬영 후 안내»)이면 작은 줄 앞의 같은 이름을 뺀다 — «촬영 후 안내 / 촬영 후 안내 · 전체 단체 사진을 마치면 재생» 두 번 → «전체 단체 사진을 마치면 재생» · 흐름 · 대본 줄(lab · slab)은 그대로 */   /* [PR_WAY_198 ②] «신랑이 읽어요 / 신부가 읽어요 / 두 분 함께» */+(st.pending&&!st.talk2?' · <span class="ls-new">'+esc(_pendT(st))+'</span>':'')+'</div>';   /* [CAST_TEXT_ONLY] 두 분 차례는 녹음할 것이 아니다 — «녹음 전» 꼬리표를 달지 않는다 */   /* [G8 2026-09-26] «하객 입장 때 글로 먼저…»가 한 문장으로 읽혔다 — 이름표와 녹음 전 표시 사이에 가운뎃점 */
     if(LP.pace&&(st.act||st.said)){ var _lfe=_lpEstT(st.est); if(_lfe) h+='<p class="lf-state lf-est">실제로는 '+esc(_lfe)+'</p>'; }   /* [LEAD_LONGER_1031] 크게 보기에도 «실제로는 약 …»(행동 · 말하는 차례 줄이 흐를 때만) */
     if(LP.note&&LP.note.st===st) h+='<p class="'+(_ecHas(LP.note.t)?'mk-exw':'lf-state')+' lf-note" role="status">'+esc(LP.note.t)+'</p>';
     if(LP.bedNote) h+='<p class="bgm-note bed-load lp-bednote" role="status">'+esc(LP.bedNote)+'</p>';   // [BED_LOAD_1101] 곡 받기 한 줄(크게 보기)   // [LISTEN_NOTE] 그 줄 알림 — 실패(코드)는 진사 · 오래 걸림은 옅은 글 · 다음 줄로 가면 사라진다
@@ -9273,6 +9283,7 @@ function _lFull(){
 /* ★[PR_RAIL 2026-10-05 사장님 «PC 버전 연습 공간 · 좌우 공간 넓게 써서 활용도 좋게»] 크게 보기(처음부터 끝까지)의 순간 목록 —
    PC(1000 이상)에서만 오른쪽에 선다(폰은 숨김 · ⏮ ⏭ 와 ⌄ 로 충분하다). 지금 순간은 진사 막대 · 지난 순간은 옅게 · 누르면 그 순간부터 이어서 흐른다(lsGoK) */
 function _lRail(st){ var ks=[]; LP.q.forEach(function(x){ var rk=x.seg==='_after'?'_after':x.k; if(ks.indexOf(rk)<0) ks.push(rk); });   /* [STAGE_SHOW_NI11] 본식 뒤 줄은 «본식 뒤 촬영 후 안내» 한 칸 · 지금 줄이 그쪽이면 닫는 인사가 아니라 그 칸 */
+  if(!ks.length) return '';   /* ★[RAIL_EMPTY_N06 2026-11-19 야간 점검 #06] 끝 화면(«끝까지 보셨어요»)은 LP.q 가 비어 PC 오른쪽에 «예식 순서» 제목만 홀로 남았다 — 줄이 없으면 목록을 그리지 않는다 */
   var cur=st?(st.seg==='_after'?'_after':st.k):'', ci=ks.indexOf(cur);
   return '<aside class="lf-rail" aria-label="순간 목록"><p class="lf-rh">'+(cur==='_after'?(_inPr()?'본식 뒤 · 사진 순서':'본식 뒤 · 예식 순서'):'예식 순서')+'</p><ol>'+ks.map(function(k,i){ var on=k===cur, no=_mkNo(k);
     return '<li><button type="button" class="lf-rr'+(on?' on':(ci>-1&&i<ci)?' past':'')+'" data-fk="lfk:'+k+'"'+(on?' aria-current="step"':'')+' onclick="lsGoK(\''+k+'\')">'
@@ -11011,7 +11022,7 @@ function renderDone(){
   var _resumeHead=_restored&&!_doneSaved;
   /* ★[RIT_DONE_TITLE 4부 16] 저장 전에 «완성됐어요»라고 하지 않는다 — 저장 전 «이대로 저장하면 완성돼요» · 저장 뒤 «두 분의 예식이 완성됐어요» */
   var _doneT=_resumeHead?'식순을 한눈에 확인해 주세요':(isOpen()&&!_doneSaved)?(_mkTodoN()?'지금까지 저장해 두세요':'이대로 저장하면 완성돼요'):(isOpen()&&_mkTodoN()?'저장했어요 · 남은 할 일을 확인해 주세요':'두 분의 예식이 완성됐어요');   /* [R2-16] 마감은 아래 «순서는 예식 14일 전까지…» 한 줄이 맡는다 · 저장 뒤에도 미완료가 있으면 «완성됐어요»라 하지 않는다 */   /* [R1-22] 미완료가 남았으면 «완성돼요»라 하지 않는다 */
-  var h='<div class="done-hd"><h2 class="t" id="stepHead" tabindex="-1">'+_doneT+'</h2><div class="s">'+esc(headLine(bs.length))+(_resumeHead?' · 이어서 다듬으실 수 있어요':'')+'</div></div>';
+  var h='<div class="done-hd"><h2 class="t" id="stepHead" tabindex="-1">'+_doneT+'</h2><div class="s">'+esc(_nb(headLine(bs.length)).replace(/ · /g,NBS+'· '))+(_resumeHead?' · 이어서 다듬으실 수 있어요':'')+'</div></div>';   /* ★[N20_DONE_HEAD_1119 NIGHT20 #10] ④ 머리 줄 — 390 에서 «단체 / 사진»이 갈리고 «·»가 줄 머리에 섰다 · 화면 글만 _nb(약 · 단체 사진 · 테이블 인사 붙임) + «·» 앞 붙는 빈칸(PREP_SUM_1019 와 같은 규칙) · headLine 자체(대본 머리 · 파일 이름)는 그대로 */
   /* ★[I2_DONE_FLOW · I3_EDIT_WINDOW 2026-09-26 코워크 최종판 5-3] 머리 아래 — 감동 흐름 그림(① 과 같은 함수 · ★ 이름 · 넓은 화면은 순간 이름까지)
      + «순서는 예식 14일 전까지, 글은 예식 7일 전까지 고칠 수 있어요.» 그림은 그린 뒤 실제 폭으로 채운다(_donePaint). */
   if(isOpen()&&RitualOpen.picked(S).length)
@@ -11357,6 +11368,7 @@ function _headPills(k){
 function _obMenu(open,back,kbd){ var menu=document.getElementById('obMenu'), mb=document.getElementById('obMore'); if(!menu||!mb) return;
   if(!!open===!menu.hidden){ if(!open&&back) try{ mb.focus({preventScroll:true}); }catch(e){} return; }
   menu.hidden=!open; mb.setAttribute('aria-expanded',String(!!open));
+  if(open){ menu.style.right=''; try{ var _mr=menu.getBoundingClientRect(); if(_mr.left<8) menu.style.right=(_mr.left-8)+'px'; }catch(e){} }   /* ★[N20_MENU_EDGE_1119 NIGHT20 #05] «⋯» 작은 창이 단추 오른쪽 끝에 맞춰 열려 폰 390 하나씩 만들기(오른쪽 «본식 n/9» 알약이 있을 때)에서 왼쪽 5px 가 화면 밖으로 잘렸다 — 열 때 왼쪽이 8px 안으로 들어오게만 민다(위치 · 모양 · 줄 그대로) */
   if(open&&kbd){ var f=menu.querySelector('[role="menuitem"]'); if(f) try{ f.focus({preventScroll:true}); }catch(e){} }   /* [MENU_TAP_NORING] */
   else if(back) try{ mb.focus({preventScroll:true}); }catch(e){} }
 /* ★★[RESTART_IN_PLACE 2026-09-27 사장님 «누르면 처음 화면으로 가는 게 아니고 선택했던 것들이 전부 취소되게»]

@@ -1904,6 +1904,8 @@ chk 'SCHED_FOOTER_LOGO' schedule.html 1                         # 스케줄 푸�
 chk '.sticky-label{color:var(--gold-text)}' schedule.html 1     # 9.5px 골드 라벨 2.54:1 → 5.71:1 · var(--gold)로 되돌리기 금지
 chk 'TRACK_RAMP8' index.html 1                              # 자간 8단계 램프 · 히어로/워드마크/목업 예외
 chk 'A11Y_PINCH_ZOOM' index.html 1                          # 핀치줌 허용 · user-scalable=no 재삽입 금지(WCAG 1.4.4)
+chk 'INV06_DARK_AA' i/cover-06.html 2              # [2026-11-19 NIGHT20 #15] 06 어두운 칸 라벨 · 꼬리 대비 AA — opacity 로 다시 흐리지 말 것
+chk 'INV06_DARK_AA' i-family/family-06.html 2
 chk 'A11Y_LETTER_EXPOSED' index.html 1                      # 받은편지 예시는 콘텐츠 · aria-hidden 되돌리면 버튼이 포커스만 되고 안 읽힘
 # ★★[LETTER_SAMPLE 2026-09-06] 위 aria-label 은 «스크린리더에만» 예시라고 말한다.
 #   눈에 보이는 «예시» 글자는 0개였다(실측). 바로 위 문장이 「스튜디오를 거치지 않고 두 분께만
@@ -15097,8 +15099,9 @@ nochk '먼저 가실 분들은 이때 식사 자리로 옮겨요.' mypage.html  
 nochk "var _flw=\[\['다 함께 한 장'" mypage.html                                    # 흐름 줄(알약) 되살리지 말 것 — 번호 줄이 곧 흐름
 chk 'PHOTO_SHOOT_ORDER' mypage.html 3
 chk 'PHOTO_CALLER_WORD' mypage.html 1
-chk '구도마다 사진작가가 이 분께 먼저 말씀드려요' mypage.html 1
+chk '구도마다 사진작가가 이분께 먼저 말씀드려요' mypage.html 1
 nochk '디렉터가 이 분께 먼저 말씀드려요' mypage.html                                   # [PHOTO_FREE] 부르는 것은 사진작가
+nochk '디렉터가 이분께 먼저 말씀드려요' mypage.html                                    # [N20_18_SPACING 11/18] 띄어쓰기 고친 뒤에도 부르는 것은 사진작가
 chk 'WISH_NEED_WHAT' mypage.html 2
 chk 'WISH_CAP_LINE' mypage.html 2
 chk 'PHOTO_DUP_LINE' mypage.html 3
@@ -22365,6 +22368,8 @@ chk '.ls-bed.bed-one .bed-box .bed-info{display:none}' order-preview.html 1
 nochk '동안 아래 곡들이 차례로 흘러요' assets/bgm-bed.js
 # ★[CNT_ROW_ALIGN_1102 사장님 «본식 순간 6/6 · 긴 순간 3/3 라인이 안 맞는데»] 진행 줄 안 카운터 = 높이 44 가운데(순간 글자와 한 줄)
 chk 'CNT_ROW_ALIGN_1102' order-preview.html 1
+chk 'CNT_COL_ALIGN' order-preview.html 1   # ★[NIGHT20 #11 1118] PC 진행 줄 첫 줄 카운터 = 본문 왼쪽 선(종전 8px 바깥)
+chk '@media (min-width:1000px){ .mk-sc .pk-cnt{margin-left:10px} }' order-preview.html 1   # [CNT_COL_ALIGN] 되돌리면 290 · 아래 줄 298
 nochk '.mk-sc .pk-cnt{margin:4px 2px 8px}' order-preview.html
 # ★[NO_RELIFT_1102 사장님 «이어 듣기 하면 전에 틀었던 BGM 이 나오는 버그»] 정적 뒤 앞 곡을 되살리지 않는다 — 엔진 한 표(duck · live.duck)에서 · 미리 듣기 박수 줄도 그 값 · 정적으로 끝나면 여운 없음 · 축배 곡(M7) 지키기(검사 = CI bgm-sound b 칸)
 chk 'NO_RELIFT_1102' assets/ritual-cue.js 2
@@ -22425,7 +22430,7 @@ chk '검토 A-2' console.html 2
 chk 'BED.cut = { id: BED.id, t: _ce.currentTime' console.html 1
 chk 'ONE_FLOW_1106 ⑤' assets/ritual-cue.js 1
 chk 'T08 끊긴 곡 이어 듣기' scripts/audit/one-flow.mjs 1
-chk 'meaning-r2 gpt-r1 one-flow' .github/workflows/merge-guard.yml 1
+chk 'pv-fix-1114 console-r2-1115 one-flow' .github/workflows/merge-guard.yml 1   # ★[CELL_D_ONEFLOW_1119] one-flow 는 f 칸에서 돈다(d 칸 30분 한도) · CI 에서 빠지면 빨강
 chk 'SPEECH_SONG_1115' scripts/audit/one-flow.mjs 6   # ★[SPEECH_SONG_1115 · RULES_SLIM ⑧] one-flow 판 둘(축사 쪽 · 축가 쪽) · T05 새 기대(옛 저장본 축사 + 축가 = 축가만 · 여는 말 −15) · T08 꺼진 자리 = 축가 줄 안 첫 끊김 — 깨 보기: BP_CUE 로 midMigrate 를 끄면 T05 빨강
 # ★★[SHOW_PAIR_1116 2026-11-16 대본 ALL_GO_1116] 한 카드 = 축사 · 축가 · 축하 공연 중 하나 · 선물 · 기타 칩은 걷음(상담 메모 · 옛 초안은 midMigrate 가 끈다) · 창 보기 셋 · 공연 여는 말 58 그대로
 # ★[NO_SHOW_1116 · RULES_SLIM ⑧] 대표님 16:53 «공연은 빼자» — 아래 공연 핀(PAIR 셋 · 칩 «축하 공연» · 큐 이름 · 홈 · 상담 글)은 NO_SHOW_1116 블록의 새 기대로 바꿨다 · 표식 개수는 걷은 자리만큼 줄였다(옛 ritual-open 6 · order-preview 10)
@@ -23776,7 +23781,7 @@ chk 'SEG_FIRST_FAIL_1114' scripts/audit/console-bed-1114.mjs 3
 chk 'ARRIVE_SETTLE_PV_1114' assets/bgm-bed.js 4
 chk 'var ARRIVE_LEAD=1000;' assets/bgm-bed.js 1
 chk 'ARRIVE_SETTLE_PV_1114' scripts/audit/pv-fix-1114.mjs 1
-chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115' }" .github/workflows/merge-guard.yml 1   # [PV_FIX_1114] · [CONSOLE_R2_1115] 같은 칸
+chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115 one-flow' }" .github/workflows/merge-guard.yml 1   # [PV_FIX_1114] · [CONSOLE_R2_1115] 같은 칸
 chk 'PV_FIX_1114' scripts/audit/pv-fix-1114.mjs 1   # 검사 머리 이름(묶음) — CI bgm-sound f 칸
 # ★★[SONG_OPEN_FADE_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 후보 ⑦] 미리 듣기 · 연습 — 축가 여는 말 뒤 본식 피아노는 줄이 끝난 때부터 1.5초에 걸쳐 정적(엔진 큐 post 값 그대로 · 종전 0.3초 · MEANING_R1_1102 8) · 소리는 pv-fix-1114 ② 가 잰다
 chk 'SONG_OPEN_FADE_PV_1114' assets/bgm-bed.js 2
@@ -23899,7 +23904,7 @@ chk 'CARRY_HEARD_1115' scripts/audit/console-r3-1115.mjs 3
 chk 'RELIFT_XG_1115' scripts/audit/console-relift.mjs 3
 # ★★[PV_R3_1115 2026-11-15 BGM 섹션 · GPT 라운드 3] 미리 듣기 · 연습(bgm-bed) 고침 묶음 검사 — 옛 판 빨강 · 새 판 초록(BP_BED 로 깨 보기) · CI bgm-sound f 칸
 chk 'PV_R3_1115' scripts/audit/pv-r3-1115.mjs 1
-chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115' }" .github/workflows/merge-guard.yml 1
+chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115 one-flow' }" .github/workflows/merge-guard.yml 1
 # ★[CI_SPLIT_G_1115 2026-11-15] bgm-sound g 칸 — 라운드 3 검사 둘(console-r3-1115 · pv-r3-1115) · f 칸이 20분에 가까워 나눔
 chk 'CI_SPLIT_G_1115' .github/workflows/merge-guard.yml 1
 chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115' }" .github/workflows/merge-guard.yml 1
@@ -24110,3 +24115,12 @@ chk 'textContent = fmt(c.est || 0); } catch (e) {}   /\* ★\[CARD_PROG_RESET_N2
 # ★[LIVE_PROG_N20_1118 NIGHT20 #04] 미리 듣기 장면 카드(사람 순간)도 제 시간 막대를 그린다 — later 로 되돌리면 앞 소리 «0:09 / 0:08» · 가득 찬 막대가 10초 내내 남는다
 chk 'else runProg(c.live.est || 10, advance);   /\* ★\[LIVE_PROG_N20_1118' console.html 1
 nochk 'else later(function(){ advance(); }, (c.live.est || 10) \* 1000);' console.html 0
+
+# ★[BLESS_CARD_WHO_N06 2026-11-18 야간 점검 #06] 덕담 말씀하실 분을 고른 날 — 연습 · 이어 보기 카드 이름 = 고른 분(예시 인물 «신부 아버지 차례» 되살리지 않기)
+chk 'BLESS_CARD_WHO_N06' order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/bless-card-who.mjs >/dev/null 2>&1; _bcw=$?; node scripts/audit/bless-card-who.mjs --selftest >/dev/null 2>&1; _bcws=$?; if [ "$_bcw" != 0 ] || [ "$_bcws" != 0 ]; then echo "REVERT? bless-card-who: 덕담 카드 이름이 고른 분이 아니다 ($_bcw/$_bcws) — node scripts/audit/bless-card-who.mjs"; fail=1; else echo 'ok bless-card-who'; fi; fi
+# ★[RAIL_EMPTY_N06 2026-11-19 야간 점검 #06] 연습 끝 화면 — 줄이 없으면 PC 오른쪽 «예식 순서» 목록을 그리지 않는다(빈 제목만 홀로 서지 않게)
+chk 'RAIL_EMPTY_N06' order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/rail-empty.mjs >/dev/null 2>&1; _re=$?; node scripts/audit/rail-empty.mjs --selftest >/dev/null 2>&1; _res=$?; if [ "$_re" != 0 ] || [ "$_res" != 0 ]; then echo "REVERT? rail-empty: 끝 화면에 빈 «예식 순서» 목록이 다시 섰다 ($_re/$_res) — node scripts/audit/rail-empty.mjs"; fail=1; else echo 'ok rail-empty'; fi; fi
+# ★[VIMEO_ALLOW_EME_N20_19 2026-11-19 야간 점검 #19] 디지털 참석 영상 iframe 허용 목록에 encrypted-media(빠지면 영상이 붙을 때 콘솔 오류 3건)
+chk 'picture-in-picture; encrypted-media' live.html 1
