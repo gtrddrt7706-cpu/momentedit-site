@@ -4908,6 +4908,9 @@ chk 'VIDEO_UMBRELLA_1115' order-preview.html 4
 nochk "var VU_NAME='예식 영상'" mypage.html 0
 # ★★[UMBRELLA_ROW_1116 2026-11-16 대본 12:59 · 대표님 캡처 «이것도 이름 바꿔야지 · 식중 영상도 있잖아»] 준비 목록은 늘 «상영 영상» 한 줄 — 식전만 · 식중만이면 그 단추 그대로(mp_pvcStart · mp_mvcStart) ·
 #   둘 다면 한 줄(✓ 둘 다 완료 · 꼬리표 확정 기한 · 단추 mp_vuOpen 시작하기 / 보기) 아래 펼침(mp_vuFold)에 식전 · 식중 두 줄 · 옛 머리 줄(vu-head) · 늘 펼친 두 줄은 은퇴(RULES_SLIM ⑧) — video-umbrella 가 390 · 1280 실렌더로 잰다
+# ★[PVC_DUE_NOWRAP_1120] «확정 기한» 날짜는 한 덩이(360 폭 이하에서 «12월 22일 / (화)» 로 쪼개지지 않게) · 점은 날짜 쪽에 붙는다
+chk 'PVC_DUE_NOWRAP_1120' mypage.html 1
+chk '<b><span class="pvc-now-dt">' mypage.html 1
 chk 'UMBRELLA_ROW_1116' mypage.html 5
 chk "html:row(VU_NAME, _pvR.st, 'mp_pvcStart'" mypage.html 1
 chk "html:row(VU_NAME, _mvR.st, 'mp_mvcStart'" mypage.html 1
