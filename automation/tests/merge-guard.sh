@@ -4933,6 +4933,18 @@ chk 'COUPON_GATE_1116' admin.html 3
 chk 'COUPON_GATE_1116' scripts/audit/fm-coupon.mjs 5
 chk "if (op === 'req' && kind === 'mid' && !_pvRitOk_(cust)) return { ok: false, ecode: 'S0', error: '식순을 확정하면 쿠폰을 요청할 수 있어요' };" automation/platform/89_prevideo.gs 1
 chk "if (kind === 'mid' && (_mvOn_(cust).on !== true || !_pvRitOk_(cust))) return { ok: false, error: '식순 확정 전이에요 · 식순에 식중 영상이 확정된 뒤 보내 주세요.' };" automation/admin/admin.gs 1
+# ★★[PRE_CPN_RECLAIM_1119 2026-11-19 대표님 17:14 «추천대로» · NIGHT20 #20 보고 1번] 식전 «사용하지 않기» = 식중 뺌과 같은 규칙 —
+#   발급 전 요청은 거둔다(관리자 줄 없음 · 고객 상태를 읽을 때 시트에서도 지움 · 관리자 넣기 거절) · 발급 뒤면 관리자 «협력사쿠폰회수» 줄(gone · 까닭 «사용하지 않기»)
+#   판정은 _pvCpnOff_ 한 곳(식중 = 식순에서 뺌 · 식전 = m.st off) — scripts/audit/fm-coupon.mjs ⑦ 이 잰다(옛 코드로 되돌리면 10건 빨강 확인)
+chk 'PRE_CPN_RECLAIM_1119' automation/platform/89_prevideo.gs 3
+chk 'PRE_CPN_RECLAIM_1119' automation/admin/admin.gs 2
+chk 'PRE_CPN_RECLAIM_1119' scripts/audit/fm-coupon.mjs 3
+chk "function _pvCpnOff_(kind, cust, m, on) { _gsr_();" automation/platform/89_prevideo.gs 1
+chk "  return String((m || {}).st || '') === 'off';" automation/platform/89_prevideo.gs 1
+chk "    if (_pvCpnOff_(kind, cust, row.m, out.on) && _pvCpnState_((row.m || {}).cpn) === 'req') {" automation/platform/89_prevideo.gs 1
+chk "    } else if (_pvCpnOff_('pre', null, m)) { if (st === 'req') return; st = (st === 'issued') ? 'gone' : st; }" automation/platform/89_prevideo.gs 1
+chk "if (kind === 'pre' && _pvCpnOff_('pre', cust, m)) return { ok: false, error: '고객이 식전 영상을 «사용하지 않기»로 정했어요 · 보내지 않아도 돼요.' };" automation/admin/admin.gs 1
+nochk "    if (kind === 'mid' && out.on !== true && _pvCpnState_((row.m || {}).cpn) === 'req') {" automation/platform/89_prevideo.gs   # 깨 보기: 식중만 거두던 옛 줄로 되돌리면 빨강
 chk "if (c.at && c.revoked) return 'used';" automation/platform/89_prevideo.gs 1   # 한 편에 한 장 — 회수 뒤 다시 요청 못 함
 chk "function _pvcCpnOpen(){ var F=PVCFLOW; return F.way==='fm' && (F.kind!=='mid' || F.rok===true); }" mypage.html 1
 chk '쿠폰은 영상 한 편에 한 장이에요 · 받은 뒤 진행하지 않아도 다시 드리지 않아요' mypage.html 1

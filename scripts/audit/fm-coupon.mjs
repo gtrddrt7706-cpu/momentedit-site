@@ -10,6 +10,7 @@
       식중 요청은 식순 확정 뒤만(tracks.ritual 완료 · 순서 마감 예식 14일 전) · 두 번 요청 · 받은 뒤 · 회수 뒤 거절(S0) · 발급 전 취소는 다시 요청 ·
       식중 뺌 → 발급 전 요청 자동 취소 · 발급 뒤 회수 줄(gone) · 관리자 넣기 막힘(식중 미확정 · 큐 ✗ · 흐린 단추) · 고르는 카드(번호 없음 · 처음 둘 다 안 눌림 · 고른 카드만 테 · 다음 행동은 그 안에서만) ·
       «직접 준비하기» = 발급 전 요청 거둠 · 확인 칸은 화면 안(confirm 0)
+   ⑦ ★[PRE_CPN_RECLAIM_1119 2026-11-19 대표님 «추천대로»] 식전 «사용하지 않기» = 식중 뺌과 같은 규칙 — 발급 전 요청 거둠(관리자 줄 없음 · 넣기 거절) · 발급 뒤 회수 줄(gone · 까닭 «사용하지 않기»)
       ★[RULES_SLIM ⑧] 옛 기대 «① ② 번호» · «같은 요청 두 번 = ok same» · «쿠폰 요청하기가 바로 보임» · «회수 뒤 다시 요청 단추»는 이 PR 에서 새 기대로 바꿨다
    종료 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs';
@@ -139,7 +140,28 @@ store.T1 = { d: { v: 1, mode: 'upload', link: 'https://drive.google.com/x' }, m:
 ok(G._pvPublic('T1', cust(), 'pre').way === 'fm', '⑥ 옛 줄(way 없음) · 쿠폰 받은 줄 = 필메이커 길로 읽는다', G._pvPublic('T1', cust(), 'pre').way);
 r = way('self'); ok(r && r.ok && store.T1.m.st === 'done' && store.T1.d.link === 'https://drive.google.com/x' && store.T1.m.cpn.code === 'C', '⑥ 고르기는 초안 · 상태 · 발급된 쿠폰을 건드리지 않는다', store.T1);
 store = {};
+console.log('━━ ⑦ [PRE_CPN_RECLAIM_1119] 식전 «사용하지 않기» = 식중 뺌과 같은 규칙(발급 전 요청 거둠 · 발급 뒤 회수 줄)');
+cache = new Map(); mails = [];
+const off = () => G.handlePvSave({ token: 't', op: 'off', kind: 'pre', rev: (store.T1 && store.T1.m.rev) || 0 });
+const reopen = () => G.handlePvSave({ token: 't', op: 'reopen', kind: 'pre', rev: (store.T1 && store.T1.m.rev) || 0 });
+// 가) 요청 → 사용하지 않기
+r = way('fm'); r = req('pre'); ok(r && r.ok && r.cpn.st === 'req' && queue().T1 && queue().T1[0].st === 'req', '⑦ 전 · 식전 요청 = 관리자 요청 줄', queue());
+r = off(); ok(r && r.ok && store.T1.m.st === 'off', '⑦ «사용하지 않기» 저장', r && (r.error || r.ok));
+ok(!queue().T1, '⑦ 후 · 발급 전 요청은 관리자 줄 없음(읽는 때 판정 · 디렉터가 보내지 않는다)', queue());
+const p7 = G._pvPublic('T1', cust(), 'pre'); ok(p7.cpn.st === 'none' && !(store.T1.m.cpn || {}).req, '⑦ 후 · 고객 상태를 읽을 때 발급 전 요청을 거둔다(시트에서도 지움)', [p7.cpn, store.T1.m.cpn]);
+r = G.adminPvCoupon('T1', 'pre', 'issue', 'FM-PRE'); ok(r && r.ok === false && !(store.T1.m.cpn || {}).code, '⑦ 후 · 관리자 넣기도 막힘(거둔 요청 · 사용하지 않기)', r);
+r = reopen(); ok(r && r.ok && store.T1.m.st !== 'off' && G._pvPublic('T1', cust(), 'pre').cpn.st === 'none', '⑦ 다시 하기로 돌아와도 거둔 요청은 돌아오지 않는다(다시 요청하면 된다)', [r && (r.error || r.ok), store.T1.m.st]);
+// 나) 발급 → 사용하지 않기
+r = req('pre'); ok(r && r.ok && r.cpn.st === 'req', '⑦ 다시 요청', r);
+store.T1.m.st = 'off'; r = G.adminPvCoupon('T1', 'pre', 'issue', 'FM-PRE'); ok(r && r.ok === false && /사용하지 않기/.test(r.error) && !store.T1.m.cpn.code && store.T1.m.cpn.req, '⑦ 요청 뒤 «사용하지 않기»로 바뀐 줄 = 관리자 넣기 거절(서버 · 글이 곧 까닭 · 고객이 화면을 열기 전이라도)', r);
+r = reopen(); r = G.adminPvCoupon('T1', 'pre', 'issue', 'FM-PRE'); ok(r && r.ok && pub('pre').st === 'issued' && !queue().T1, '⑦ 전 · 발급 = 쓰는 중(할 일 없음)', [pub('pre'), queue()]);
+r = off(); ok(r && r.ok && store.T1.m.st === 'off', '⑦ 발급 뒤 «사용하지 않기»', r && (r.error || r.ok));
+let q7 = queue(); ok(q7.T1 && q7.T1.length === 1 && q7.T1[0].kind === 'pre' && q7.T1[0].st === 'gone', '⑦ 후 · 발급 뒤 = 관리자 회수 줄(gone · 식전)', q7);
+ok(store.T1.m.cpn.code === 'FM-PRE' && !store.T1.m.cpn.revoked, '⑦ 후 · 회수 전까지 발급 기록은 그대로(관리자가 필메이커에서 회수)', store.T1.m.cpn);
+r = G.adminPvCoupon('T1', 'pre', 'revoke', ''); ok(r && r.ok && pub('pre').st === 'used' && !queue().T1, '⑦ 회수하면 줄 없음 · 고객 used', [r, queue()]);
+store = {};
 const gs = read('automation/platform/89_prevideo.gs');
+ok(/function _pvCpnOff_\(kind, cust, m, on\) \{ _gsr_\(\);/.test(gs) && (gs.match(/_pvCpnOff_\(/g) || []).length >= 4 && /_pvCpnOff_\('pre', cust, m\)/.test(read('automation/admin/admin.gs')), '⑦ 판정 한 곳(_pvCpnOff_) — _pvPublic · _pvCpnQueue_ · adminPvCoupon 이 같은 함수를 부른다');
 ok(/function handlePvCpnReq\(body\) \{ _gsr_\(\);/.test(gs) && /function handlePvCpnCancel\(body\) \{ _gsr_\(\);/.test(gs) && /function adminPvCoupon\(code, kind, op, val\) \{\n  _requireAdmin\(\);/.test(read('automation/admin/admin.gs')), '④ 첫 줄 — 고객 입구 _gsr_ · 관리 _requireAdmin [B19_LOCK]');
 ok(/case 'pvCpnReq':\s+return jsonOut\(handlePvCpnReq\(body\)\);/.test(read('automation/consultation/consultation-booking.gs')) && /'pvCpnReq', 'pvCpnCancel'/.test(read('automation/platform/95_notify.gs')) && /pvCpnReq:'S',pvCpnCancel:'S'/.test(read('mypage.html')), '④ 길(doPost) · 실패 코드 자리 S(서버 ERR_AREA · 화면 ERR_ACT)');
 ok(!/쿠폰|cpn/.test(fnSrc(read('automation/platform/80_production.gs'), 'buildProductionState').replace(/_pvPublic/g, '')) && /out\.cpn = _pvCpnPub_\(row\.m \|\| \{\}\);/.test(gs), '④ 마이페이지 상태는 _pvPublic 한 곳이 싣는다(코드는 발급 뒤에만)');
@@ -155,6 +177,8 @@ try {
   ok(it.length === 2 && it[0].kind === '협력사쿠폰' && it[0].fm === 'mid' && it[0].badge.text === '제휴 확정 전' && /^협력사 쿠폰 요청 · 식중 · 식순 확정 ✓/.test(it[0].sub) && it[0].fmOk === true && it[1].kind === '협력사쿠폰회수' && it[1].fm === 'pre', '④ 요청 = «협력사쿠폰»(식중 · 제휴 확정 전 · «협력사 쿠폰 요청 · 식중 · 식순 확정 ✓») · 발급 뒤 취소 = «협력사쿠폰회수»(식전)', it.map((x) => [x.kind, x.fm, x.badge && x.badge.text, x.sub]));
   it = home('제작중', { 'ME-TEST': [{ kind: 'mid', st: 'req', req: '', rok: false }, { kind: 'pre', st: 'req', req: '', rok: true }, { kind: 'mid', st: 'gone', req: '' }] });
   ok(it.length === 3 && it[0].fmOk === false && /식순 확정 ✗/.test(it[0].sub) && it[1].fmOk === true && /^협력사 쿠폰 요청 · 식전 · 쿠폰/.test(it[1].sub) && !/식순 확정/.test(it[1].sub) && it[2].kind === '협력사쿠폰회수' && /식순에서 식중 영상을 뺐어요/.test(it[2].sub), '④ [COUPON_GATE_1116] 식중 미확정 = ✗ · 넣기 흐림(fmOk false) · 식전은 확정 표시 없음 · 식순에서 뺀 발급 뒤 = 회수 줄', it.map((x) => [x.kind, x.fmOk, x.sub]));
+  it = home('제작중', { 'ME-TEST': [{ kind: 'pre', st: 'gone', req: '' }] });
+  ok(it.length === 1 && it[0].kind === '협력사쿠폰회수' && it[0].fm === 'pre' && /^식전 영상 · 고객이 «사용하지 않기»로 정했어요 · 보낸 쿠폰을 필메이커에서 회수한 뒤 «회수»를 눌러 주세요$/.test(it[0].sub) && !/식순에서/.test(it[0].sub), '④ [PRE_CPN_RECLAIM_1119] 식전 회수 줄 = «사용하지 않기» 까닭(식중 글을 빌리지 않는다)', it);
   it = home('취소', { 'ME-TEST': [{ kind: 'mid', st: 'req', req: '' }] });
   ok(it.length === 0, '④ 닫힌 고객(취소)은 줄 없음', it);
   it = home('제작중', {});

@@ -158,9 +158,10 @@ function _pvPublic(code, cust, kind) { _gsr_();
     var sh = _pvSheet_(), row = _pvRow_(sh, key);
     if (!row) return out;
     /* [COUPON_GATE_1116] 식순에서 식중 영상을 뺐는데 쿠폰 요청이 발급 전이면 요청을 거둔다(읽는 때 판정 · 잠금 안에서 다시 보고 쓴다) — 발급 뒤면 그대로 두고 관리자 «처리할 일»이 회수 줄을 세운다(_pvCpnQueue_) */
-    if (kind === 'mid' && out.on !== true && _pvCpnState_((row.m || {}).cpn) === 'req') {
+    /* ★[PRE_CPN_RECLAIM_1119 2026-11-19 대표님 «추천대로»] 식전도 같은 길 — «사용하지 않기»(m.st off)면 발급 전 요청을 거둔다 · 발급 뒤면 회수 줄(_pvCpnQueue_ gone) · 판정은 _pvCpnOff_ 한 곳 */
+    if (_pvCpnOff_(kind, cust, row.m, out.on) && _pvCpnState_((row.m || {}).cpn) === 'req') {
       var lk0 = LockService.getScriptLock();
-      try { lk0.waitLock(8000); var r0 = _pvRow_(sh, key); if (r0 && _pvCpnState_((r0.m || {}).cpn) === 'req' && _mvOn_(cust).on !== true) { r0.m.cpn = {}; _pvWrite_(sh, r0, key, r0.d, r0.m); row = r0; try { if (typeof _recordHandler === 'function') _recordHandler(code, '식중 영상 협력사 쿠폰 요청 자동 취소(식순에서 뺌)'); } catch (e3) {} } } catch (e) {} finally { try { lk0.releaseLock(); } catch (e2) {} }
+      try { lk0.waitLock(8000); var r0 = _pvRow_(sh, key); if (r0 && _pvCpnState_((r0.m || {}).cpn) === 'req' && _pvCpnOff_(kind, cust, r0.m)) { r0.m.cpn = {}; _pvWrite_(sh, r0, key, r0.d, r0.m); row = r0; try { if (typeof _recordHandler === 'function') _recordHandler(code, _pvName_(kind) + ' 협력사 쿠폰 요청 자동 취소(' + (kind === 'mid' ? '식순에서 뺌' : '사용하지 않기') + ')'); } catch (e3) {} } } catch (e) {} finally { try { lk0.releaseLock(); } catch (e2) {} }
     }
     out.cpn = _pvCpnPub_(row.m || {});
     out.way = _pvWayOf_(row.m || {});
@@ -378,6 +379,12 @@ function _pvCpnDo_(body, op) {
   if (mail) { try { var mc = CacheService.getScriptCache(), mk = 'pvCpnMail_' + key + op; if (!mc.get(mk)) { mc.put(mk, '1', 600); if (typeof _nfAdminLineEmail === 'function') _nfAdminLineEmail(mail); } } catch (e) {} }
   return { ok: true, cpn: out };
 }
+/* ★[PRE_CPN_RECLAIM_1119 2026-11-19 대표님 «추천대로»] 이 영상을 이제 틀지 않나 — 쿠폰을 거두고 회수하는 판정 한 곳(_pvPublic · _pvCpnQueue_ · adminPvCoupon)
+   식중 = 식순에서 뺌(_mvOn_ · 읽는 때 판정 · on 을 이미 읽었으면 넘겨받는다) · 식전 = «사용하지 않기»(m.st off) */
+function _pvCpnOff_(kind, cust, m, on) { _gsr_();
+  if (kind === 'mid') { if (on === undefined) { try { on = !!cust && _mvOn_(cust).on === true; } catch (e) { on = false; } } return on !== true; }
+  return String((m || {}).st || '') === 'off';
+}
 // [FM_COUPON_1116] 관리자 «처리할 일» 재료 — 시트를 읽기만 한다(없으면 빈 표 · 만들지 않는다) · { 개인코드: [{ kind, st: 'req' | 'cancel' | 'gone', req, rok }] }
 function _pvCpnQueue_(sh) {
   /* [COUPON_GATE_1116] 식중 줄은 읽는 때 식순을 본다(새 상태를 쓰지 않는다) — 식순에서 뺐으면: 발급 전 요청은 줄 없음(자동 취소 · 고객 화면이 열릴 때 지운다) · 발급 뒤는 gone(회수 줄) ·
@@ -393,7 +400,7 @@ function _pvCpnQueue_(sh) {
       var on = false; try { on = !!cust && _mvOn_(cust).on === true; } catch (e) { on = false; }
       if (!on) { if (st === 'req') return; st = (st === 'issued') ? 'gone' : st; }   // 식순에서 뺌 — 발급 전 요청은 거둔 것 · 발급 뒤(쓰는 중)는 회수 줄
       else rok = _pvRitOk_(cust);
-    }
+    } else if (_pvCpnOff_('pre', null, m)) { if (st === 'req') return; st = (st === 'issued') ? 'gone' : st; }   // ★[PRE_CPN_RECLAIM_1119] 식전 «사용하지 않기» — 식중과 같은 규칙(발급 전 요청은 거둔 것 · 발급 뒤는 회수 줄)
     if (st === 'issued') return;   // 쓰는 중(식순에 담겨 있음) — 할 일 없음
     (out[cd] = out[cd] || []).push({ kind: mid ? 'mid' : 'pre', st: st, req: String((m.cpn || {}).req || ''), rok: rok });
   });
