@@ -22365,6 +22365,8 @@ chk '.ls-bed.bed-one .bed-box .bed-info{display:none}' order-preview.html 1
 nochk '동안 아래 곡들이 차례로 흘러요' assets/bgm-bed.js
 # ★[CNT_ROW_ALIGN_1102 사장님 «본식 순간 6/6 · 긴 순간 3/3 라인이 안 맞는데»] 진행 줄 안 카운터 = 높이 44 가운데(순간 글자와 한 줄)
 chk 'CNT_ROW_ALIGN_1102' order-preview.html 1
+chk 'CNT_COL_ALIGN' order-preview.html 1   # ★[NIGHT20 #11 1118] PC 진행 줄 첫 줄 카운터 = 본문 왼쪽 선(종전 8px 바깥)
+chk '@media (min-width:1000px){ .mk-sc .pk-cnt{margin-left:10px} }' order-preview.html 1   # [CNT_COL_ALIGN] 되돌리면 290 · 아래 줄 298
 nochk '.mk-sc .pk-cnt{margin:4px 2px 8px}' order-preview.html
 # ★[NO_RELIFT_1102 사장님 «이어 듣기 하면 전에 틀었던 BGM 이 나오는 버그»] 정적 뒤 앞 곡을 되살리지 않는다 — 엔진 한 표(duck · live.duck)에서 · 미리 듣기 박수 줄도 그 값 · 정적으로 끝나면 여운 없음 · 축배 곡(M7) 지키기(검사 = CI bgm-sound b 칸)
 chk 'NO_RELIFT_1102' assets/ritual-cue.js 2
