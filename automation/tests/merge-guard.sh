@@ -7156,7 +7156,7 @@ chk 'LEAD_IN_SAY' parents.html 2
 # ── 2026-08-30 전수점검 라운드 [AUDIT_0830] ──
 # [INV_CANONICAL_PATH] 청첩장 SEO 8페이지 canonical·og:url·prev/next = 실경로 /i/invitations/ (구 루트 경로는 404 · 08은 velour→noir 오기까지).
 chk 'INV_CANONICAL_PATH' i/invitations/invitation-01-classic.html 1
-chk 'https://momentedit.kr/i/invitations/invitation-08-noir.html' i/invitations/invitation-08-noir.html 2
+chk 'https://www.momentedit.kr/i/invitations/invitation-08-noir.html' i/invitations/invitation-08-noir.html 2   # [WWW_CANON_1119] 정본은 www
 # [SNAP_BALANCE_D7] 스냅 잔금 = 촬영 D-7(스냅 계약서 §4 표) — 시그니처 9 재사용으로 되돌리지 말 것.
 chk '잔금일수전_스냅' automation/platform/70_journey.gs 3
 chk '잔금일수전_스냅' automation/admin/admin.gs 1
@@ -12306,6 +12306,13 @@ fi
 #   ★noindex 쪽에 meta description 을 요구하지 않는다(검색 미리보기용이라 뜻이 없다).
 #   ★form.html 은 구글폼으로 즉시 이동해 DOM 이 이미 다른 문서다 — 그 쪽만 소스로 본다.
 chk 'PUBLIC_SWEEP' scripts/audit/public-sweep.mjs 1
+# [WWW_CANON_1119] 정본 주소는 www 하나 (NIGHT20 #17 · 2026-11-19) — 라이브는 www 없는 주소를 307 로 www 에 넘긴다.
+#   canonical·og:url·사이트맵·robots 가 www 없는 주소를 정본이라 하면 검색엔진에 엇갈린 신호. 실행 검사는 public-sweep 사이트맵 칸.
+chk 'WWW_CANON_1119' scripts/audit/public-sweep.mjs 2
+nochk 'https://momentedit\.kr' sitemap.xml 0
+nochk 'https://momentedit\.kr' robots.txt 0
+nochk 'https://momentedit\.kr' index.html 0
+nochk 'i/invitations/invitation-gallery\.html' i/invitations/invitation-01-classic.html 0   # 없는 쪽 — 갤러리는 루트 /invitation-gallery.html
 chk 'FORM_LABEL' inquiry.html 2        # 입력칸 2개의 프로그래밍 라벨(낭독기가 「편집란, 비어 있음」으로 읽던 것)
 chk 'aria-labelledby' inquiry.html 2
 chk 'CAN_EXIT' cancel.html 1           # 종착 화면에서 «말한 길»(카카오톡)을 실제로 열어 준다
