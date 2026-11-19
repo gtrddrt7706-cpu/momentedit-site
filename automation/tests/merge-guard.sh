@@ -24110,3 +24110,5 @@ chk 'textContent = fmt(c.est || 0); } catch (e) {}   /\* ★\[CARD_PROG_RESET_N2
 # ★[LIVE_PROG_N20_1118 NIGHT20 #04] 미리 듣기 장면 카드(사람 순간)도 제 시간 막대를 그린다 — later 로 되돌리면 앞 소리 «0:09 / 0:08» · 가득 찬 막대가 10초 내내 남는다
 chk 'else runProg(c.live.est || 10, advance);   /\* ★\[LIVE_PROG_N20_1118' console.html 1
 nochk 'else later(function(){ advance(); }, (c.live.est || 10) \* 1000);' console.html 0
+# ★[RP_ESC_IN_N20_04X_1119 R3X #04] 미리듣기 창 안에서 누른 Esc 를 바깥 창의 닫기 길로 넘긴다 — 빠지면 «듣기 시작»을 누른 뒤 Esc 로 안 닫히고 소리가 계속 난다
+chk "if (GUEST && e.key === 'Escape' && !e.repeat && window.parent !== window) { try { window.parent.document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', bubbles: true })); } catch (_) {} return; }   /\* ★\[RP_ESC_IN_N20_04X_1119" console.html 1
