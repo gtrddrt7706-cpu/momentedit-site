@@ -24205,3 +24205,5 @@ chk 'SEAT_INPUT16_N20_19' seat.html 1
 chk 'color:var(--accent);padding:11px 12px}   /\* ★\[SEAT_INPUT16_N20_19' seat.html 1
 # ★[HOME_FOCUS_FORCED_N20_19 2026-11-20 R3X2] 홈 FAQ 검색칸 · 상담 도우미 입력칸 초점이 윈도 고대비에서도 보인다
 chk 'HOME_FOCUS_FORCED_N20_19' index.html 1
+# ★[OP_FORCED_N20_19 2026-11-20 R3X2] 식순 빌더 고른 칩(분위기 · 목소리 등)이 윈도 고대비에서도 보인다
+chk 'OP_FORCED_N20_19' order-preview.html 1

@@ -774,7 +774,9 @@ input[type=checkbox],input[type=radio]{accent-color:var(--seal,#6B2A24)}
 .op-chip{min-height:44px;padding:0 14px;border-radius:22px;border:1px solid var(--border);background:var(--bg);color:var(--ink2);font:inherit;font-size:12.5px;cursor:pointer}
 .op-chip .cg-t{display:inline-flex;flex-direction:column;align-items:center}   /* [CHIP_W_FIX] */
 .op-chip .cg-t::after{content:attr(data-t);height:0;overflow:hidden;visibility:hidden;font-weight:600;pointer-events:none;user-select:none}
-.op-chip[aria-pressed="true"],.op-chip[aria-checked="true"]{border-color:var(--gold-deep);background:#F3ECDF;color:var(--accent);font-weight:600} /* [SEL_THIN] */   /* [CHIP_CHECKED] ② 칩은 role=radio(aria-checked) — 옛 aria-pressed 만 보면 고른 것이 안 보인다(390 스크린샷으로 잡음) */
+.op-chip[aria-pressed="true"],.op-chip[aria-checked="true"]{border-color:var(--gold-deep);background:#F3ECDF;color:var(--accent);font-weight:600}
+/* ★[OP_FORCED_N20_19 2026-11-20 R3X2 교차 점검] 윈도 고대비 — 고른 칩 표시(테두리 · 배경 · 글색)가 덮어써져 굵기만 남았다 · 시스템 강조색으로 남긴다 · 평소 화면엔 안 걸림 */
+@media (forced-colors: active){ .op-chip[aria-pressed="true"],.op-chip[aria-checked="true"]{forced-color-adjust:none;background:Highlight;color:HighlightText;border-color:Highlight} } /* [SEL_THIN] */   /* [CHIP_CHECKED] ② 칩은 role=radio(aria-checked) — 옛 aria-pressed 만 보면 고른 것이 안 보인다(390 스크린샷으로 잡음) */
 .op-more{margin-top:4px;padding:0;min-height:44px;border:0;background:none;color:var(--gold-deeper);font:inherit;font-size:12.5px;cursor:pointer}
 .op-det{font-size:12.5px;line-height:1.65;color:var(--sub);border-top:1px dashed var(--border);padding-top:7px;margin-top:2px;word-break:keep-all}
 .op-det p{margin:3px 0}
