@@ -2492,7 +2492,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1118mj"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1115e5"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1107ig"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1117rs"></script><script src="/assets/bgm-picks.js?v=1116H"></script><script src="/assets/narration-pad.js?v=1118mj"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1115bg"></script><script src="/assets/bgm-form.js?v=1106b3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1119l5"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1115e5"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1107ig"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1117rs"></script><script src="/assets/bgm-picks.js?v=1116H"></script><script src="/assets/narration-pad.js?v=1118mj"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1115bg"></script><script src="/assets/bgm-form.js?v=1106b3"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -3338,7 +3338,7 @@ function engine(){
   if(ENG) return Promise.resolve(ENG);
   if(ENGP) return ENGP;
   var g={}, gen=++ENG_GEN, ac=null, tm=0; try{ ac=new AbortController(); }catch(e){ ac=null; }
-  var ASSET_V='1118mj';   /* [MJ_FINAL_1118] #1658(1117m) + main(ROLE_SHIP 1117rs) 합침 · [ROLE_SHIP_1117] 축사 · 축가 «누가» 역할 줄 + 박수 한 줄 · 26클립 ×1.0 · 옛 1116wd: [WALK_LIVE_DUCK_1116] 말없이 걷기 콘솔 −12 · 옛 1116ns: [NO_SHOW_1116 · NO_INSTRUMENT_1116] 축하 공연 걷음 · 축가 악기 연주 문구 · 옛 1116H: [SHOW_PAIR_1116 · SPEECH_SONG_1115] 이 가지(1116sb) + main(1116G2 식중 영상 새 판) 합침 · 옛 1116G2: [MID_OK_1116] 식중 영상 새 판(VIDEO_V 1116g) + BGM 고침 #1655 를 한 값으로 · 옛 1116Mb:   /* [SONGS_5_1115 · BGM 고침 #1655 와 합침] · [MID_OK_1116] ritual-open VIDEO_V 1116m(식중 첫 화면 그림) · 옛 1115R1:  [RING_OK_1115] ritual-open 의 VIDEO_V(반지 장면 영상 새 판) · [MID17_NAME · MID17_ENGINE · MID17_CONSOLE] ritual-open 식중 영상 이름 · ritual-cue 58 → 129 · 식중 영상 디렉터 메모 */   // [ASSET_V] 위 주석 · [ONE_FLOW_1106] ritual-open · ritual-cue · bgm-picks · bgm-slots · bgm-bed · [B2_FIX_R1 · B2_FIX_R2] ritual-open · ritual-cue 를 바꿨다 · #1619 와 합침
+  var ASSET_V='1119l5';   /* [STREAM_AT_5_N20_19] 1118mj → 1119l5 · 온라인 날 5분 전 카드 한 줄(ritual-cue.js) ·  [MJ_FINAL_1118] #1658(1117m) + main(ROLE_SHIP 1117rs) 합침 · [ROLE_SHIP_1117] 축사 · 축가 «누가» 역할 줄 + 박수 한 줄 · 26클립 ×1.0 · 옛 1116wd: [WALK_LIVE_DUCK_1116] 말없이 걷기 콘솔 −12 · 옛 1116ns: [NO_SHOW_1116 · NO_INSTRUMENT_1116] 축하 공연 걷음 · 축가 악기 연주 문구 · 옛 1116H: [SHOW_PAIR_1116 · SPEECH_SONG_1115] 이 가지(1116sb) + main(1116G2 식중 영상 새 판) 합침 · 옛 1116G2: [MID_OK_1116] 식중 영상 새 판(VIDEO_V 1116g) + BGM 고침 #1655 를 한 값으로 · 옛 1116Mb:   /* [SONGS_5_1115 · BGM 고침 #1655 와 합침] · [MID_OK_1116] ritual-open VIDEO_V 1116m(식중 첫 화면 그림) · 옛 1115R1:  [RING_OK_1115] ritual-open 의 VIDEO_V(반지 장면 영상 새 판) · [MID17_NAME · MID17_ENGINE · MID17_CONSOLE] ritual-open 식중 영상 이름 · ritual-cue 58 → 129 · 식중 영상 디렉터 메모 */   // [ASSET_V] 위 주석 · [ONE_FLOW_1106] ritual-open · ritual-cue · bgm-picks · bgm-slots · bgm-bed · [B2_FIX_R1 · B2_FIX_R2] ritual-open · ritual-cue 를 바꿨다 · #1619 와 합침
   ENGP=Promise.all(['/assets/ritual-data.js','/assets/ritual-open.js','/assets/ritual-cue.js','/assets/ritual-story.js'].map(function(u){ u+='?v='+ASSET_V;   /* [ASSET_V] */
     return fetch(u,ac?{credentials:'same-origin',signal:ac.signal}:{credentials:'same-origin'}).then(function(r){ if(!r.ok){ var _e0=new Error(u); _e0.meN=0; throw _e0; } return r.text(); },function(){ var _e6=new Error(u); _e6.meN=6; throw _e6; });   /* [ERR_CODE_BUILDER] 못 받은 까닭 — 서버가 거절 L0 · 연결 L6 · 받은 글이 깨짐 L7 */
   })), _to=new Promise(function(_ok,no){ tm=setTimeout(function(){ var _e5=new Error('engine'); _e5.meN=5; no(_e5); try{ if(ac) ac.abort(); }catch(e){} },ENG_TO_MS); });
@@ -8420,7 +8420,7 @@ function _lRefExpand(q){
     /* ★[PRACTICE_WALK_1101 9] 연습 — 축사는 두 분이 읽는 글이 아니다: 요약 한 장(«축사하실 분이 말하는 자리예요 · 두 분은 그분을 바라보며 들어요») + 예시 · 원고 전문은 펼쳐 보기 */
     /* ★[PRACTICE_WALK_R2 5] 성혼 선언 · 덕담도 같은 모양 — 두 분에게 «소리 내어 읽어 보세요»가 남아 있었다(읽는 분은 아버님 · 지인 · 부모님) */
     var _sumOn={free:R.FREE_KIND[R.chipOf('free',S)]==='speech',declare:true,bless:true}[x.k];
-    if(_sumOn&&_inPr()&&grp.length&&!grp.some(function(q){ return q.wk||q.both; })){ var _ft=grp.map(function(q){ return (grp.length>1?q.who+' · ':'')+q.txt; }).join(' '), _fr=!grp[0].mine;
+    if(_sumOn&&_inPr()&&grp.length&&!grp.some(function(q){ return q.wk||q.both; })){ var _ft=grp.map(function(q,qi){ return (grp.length>1&&(qi===0||grp[qi-1].who!==q.who)?q.who+' · ':'')+q.txt; }).join('\n\n'), _fr=!grp[0].mine;   /* [ROLE_REF_PARA_N20_01] 같은 분이 이어 말하는 예시 문단은 이름표를 첫 문단에만 · 문단은 빈 줄로 나눈다(역할 전달 글 · 읽기 전용 쪽에서 «신부 친구 ·»가 문단마다 글 가운데 되풀이됐다) */
       var _sw=x.k==='free'?'축사하시는 분':grp.length>1?'부모님':grp[0].who, _sl={free:'예시 축사 전문 보기',declare:'예시 선언문 전문 보기',bless:'예시 덕담 전문 보기'}[x.k];
       if(x.k==='free') grp=[{k:x.k,lab:'축사하시는 분 차례',who:'축사하시는 분',src:null,pending:true,talk2:true,talkTxt:x.txt,txt:'축사하실 분이 말하는 자리예요',full:_ft,fullRef:_fr,fullLab:_sl,ms:6000,ldk:x.ldk,sum:true}];
       else grp=[{k:x.k,lab:_sw+' 차례',who:_sw,src:null,pending:true,talk2:true,talkTxt:x.txt,txt:(x.k==='declare'?'선언하시는':'말씀하시는')+' 분이 말하는 자리예요',full:_ft,fullRef:_fr,fullLab:_sl,ms:6000,ldk:x.ldk,sum:true}]; }
@@ -9554,8 +9554,8 @@ function _pkEx(ex){
 }
 function _pkPeakHtml(){
   var R=RitualOpen, pl=R.peakLine(S);
-  if(!pl) return esc(R.PEAK_NONE);   /* [PEAK_COLOR] ★ 걷음 */
-  if(pl.tail) return esc(pl.tail);   /* [R1-34] 뒤쪽 정점 — 이름은 곡선 위 «★ 이름»과 흐름 줄이 이미 말한다(세 번째로 말하지 않는다) */
+  if(!pl) return esc(R.PEAK_NONE).replace(/ · /g,NBS+'· ');   /* [PEAK_COLOR] ★ 걷음 */
+  if(pl.tail) return esc(pl.tail).replace(/ · /g,NBS+'· ');   /* ★[N20_PEAK_DOT_1119 R3X #10] ① «가장 벅찬 순간이 될 것을 … 보세요 · 서약 · …» — PC 1280 오른쪽 칸 · 폰에서 둘째 줄이 «·»부터 섰다 · «·» 앞 붙는 빈칸(PREP_SUM_1019 · N20_DONE_HEAD 와 같은 규칙) · 글자 그대로 */   /* [R1-34] 뒤쪽 정점 — 이름은 곡선 위 «★ 이름»과 흐름 줄이 이미 말한다(세 번째로 말하지 않는다) */   /* [R1-34] 뒤쪽 정점 — 이름은 곡선 위 «★ 이름»과 흐름 줄이 이미 말한다(세 번째로 말하지 않는다) */
   return '가장 벅찬 순간은 <b class="op-pk">'+esc(pl.n)+'</b>'+pl.be+'.';   /* [D3] */
 }
 /* ★[BODY_CAP_1030 검토 167] 담는 쪽 한 줄 — «남은 본식 시간 약 n분» · 이미 넘은 옛 초안은 알림만(막지 않는다 · 새로 담기만 막힌다) */

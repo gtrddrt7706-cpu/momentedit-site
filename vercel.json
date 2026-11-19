@@ -53,6 +53,11 @@
       "dest": "/guide.html?g=$1"
     },
     {
+      "src": "^/mypage/?$",
+      "status": 308,
+      "headers": { "Location": "/mypage.html" }
+    },
+    {
       "src": "^/form/?$",
       "dest": "/form.html"
     },

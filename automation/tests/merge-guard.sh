@@ -1496,6 +1496,17 @@ chk 'HOME_CTA_KO' index.html 1                 # 주 버튼 한글 주·영문 �
 chk 'cta-eyebrow' index.html 4                 # 영문 아이브로우 3곳 + CSS 1. ★영문을 버튼 '안'에 2줄로 넣는 안(cta-btn-ko/en)은 2026-07-26 재검토로 폐기 — 되살리지 말 것(버튼 73px·영문 불투명 66%로 안 읽힘)
 chk 'BTN_TIER' index.html 4                    # 버튼 2단 체계(채움=전환 3곳 / 외곽=보조 이동 1곳). journal-guide-link를 채움 마룬으로 되돌리면 화면에 전환 버튼이 4개가 된다 — 복원 금지
 chk 'MAP_BREATH' index.html 1                  # 지도 블록 상하 여백 80/88 — margin-top만 두고 아래를 0으로 되돌리면 다시 푸터에 끼인다
+chk 'DEPOSIT_WORD_1119' index.html 2             # [2026-11-19 대표님 «추천대로» · DEC3] 예약금은 «입금» 한 낱말(FAQ · 예약 및 환불)
+chk 'DEPOSIT_WORD_1119' inquiry.html 1
+chk 'DEPOSIT_WORD_1119' api/_kb.js 1
+nochk '예약금 결제 확인 시' index.html 0
+nochk '100,000원</strong> 송금' index.html 0
+nochk '₩100,000</strong> 송금' inquiry.html 0
+nochk '예약금 100,000원 송금' api/_kb.js 0
+nochk '예약금 100,000원 송금' assets/advisor-kb.js 0
+chk 'PRIV_REP_EMAIL_1119' privacy.html 2          # [2026-11-19 대표님 «추천대로» · DEC4] 필수 항목 «대표 이메일» · 맨 위 개정일
+nochk '대표 연락처(휴대전화), 신랑·신부 이메일' privacy.html 0
+chk '직전 개정 2026년 11월 14일 (식중 영상 항목 추가' privacy.html 1
 chk 'PRICE_LABEL_NOWRAP' index.html 2           # [2026-11-18 NIGHT20 #13] 가격표 항목 이름 한 줄 · 긴 덧말이 접힌다(390 «식중 / 영상» 쪼개짐)
 # ── 2026-07-26 inquiry.html 1라운드
 chk 'INQ_REQ_DOT' inquiry.html 1               # 필수 표시 점 3px 골드(2.54:1) 복원 금지 — 폼에서 가장 중요한 정보가 안 보였다
@@ -1527,6 +1538,9 @@ chk 'gold-text' guide.html 6                   # 토큰 정의 1 + 읽는 골드
 chk 'GUIDE_TAP40' guide.html 1                 # 지도·전화 71×34 · 뒤로 48×29 → 40px. ★뒤로는 .backbar top -4→-9를 함께 옮겨야 라벨이 안 어긋난다
 chk 'GUIDE_KO_TRACK' guide.html 1              # '여기로 모여요'(16%)·'단상·신랑 신부'(20%) — 영문 라벨 트래킹이 한글에 걸린 것. 홈/문의/live와 같은 처방
 chk 'GUIDE_ORPHAN' guide.html 1                # ★text-wrap:pretty는 한글을 재배분하지 않는다(실측). word-break:keep-all로 되돌리지 말 것
+chk 'og-seal.png?v=5' guide.html 1               # [GUIDE_OG_IMG_N20_18] 카톡으로 보내는 하객 안내 링크의 미리보기 그림(빠지면 그림 없는 글 상자)
+chk 'KEEPALL_NAME_N20_18' guide.html 1        # 가게 이름 · 예약 줄도 어절 단위(«예 / 약» · «잔디광 / 장» 갈림 · R3X #18) · overflow-wrap:anywhere 를 빼면 띄어쓰기 없는 긴 상호가 칸 밖으로 나간다
+chk 'CUE_CLOSED_N20_18' guide.html 1          # 받아 둔 안내 뒤 «닫혔어요»가 오면 Scroll 큐를 다시 잰다(짧은 닫힘 화면 위에 큐가 남던 것 · R3X #18)
 chk 'GUIDE_FOCUS' guide.html 1                 # .find input:focus{outline:none}가 초점 링을 지우고 있던 것. ★:where()는 특이도 0이라 .find input:focus-visible 재선언이 함께 있어야 이긴다
 chk 'GUIDE_HEADING' guide.html 1               # h1·h2가 0개였다 — 화면낭독기에 구조가 없었다
 chk 'h2 class="sec-t"' guide.html 4            # 섹션 제목 4곳(좌석·내자리·식사·사진). span으로 되돌리면 헤딩 구조가 다시 사라진다
@@ -4935,6 +4949,18 @@ chk 'COUPON_GATE_1116' admin.html 3
 chk 'COUPON_GATE_1116' scripts/audit/fm-coupon.mjs 5
 chk "if (op === 'req' && kind === 'mid' && !_pvRitOk_(cust)) return { ok: false, ecode: 'S0', error: '식순을 확정하면 쿠폰을 요청할 수 있어요' };" automation/platform/89_prevideo.gs 1
 chk "if (kind === 'mid' && (_mvOn_(cust).on !== true || !_pvRitOk_(cust))) return { ok: false, error: '식순 확정 전이에요 · 식순에 식중 영상이 확정된 뒤 보내 주세요.' };" automation/admin/admin.gs 1
+# ★★[PRE_CPN_RECLAIM_1119 2026-11-19 대표님 17:14 «추천대로» · NIGHT20 #20 보고 1번] 식전 «사용하지 않기» = 식중 뺌과 같은 규칙 —
+#   발급 전 요청은 거둔다(관리자 줄 없음 · 고객 상태를 읽을 때 시트에서도 지움 · 관리자 넣기 거절) · 발급 뒤면 관리자 «협력사쿠폰회수» 줄(gone · 까닭 «사용하지 않기»)
+#   판정은 _pvCpnOff_ 한 곳(식중 = 식순에서 뺌 · 식전 = m.st off) — scripts/audit/fm-coupon.mjs ⑦ 이 잰다(옛 코드로 되돌리면 10건 빨강 확인)
+chk 'PRE_CPN_RECLAIM_1119' automation/platform/89_prevideo.gs 3
+chk 'PRE_CPN_RECLAIM_1119' automation/admin/admin.gs 2
+chk 'PRE_CPN_RECLAIM_1119' scripts/audit/fm-coupon.mjs 3
+chk "function _pvCpnOff_(kind, cust, m, on) { _gsr_();" automation/platform/89_prevideo.gs 1
+chk "  return String((m || {}).st || '') === 'off';" automation/platform/89_prevideo.gs 1
+chk "    if (_pvCpnOff_(kind, cust, row.m, out.on) && _pvCpnState_((row.m || {}).cpn) === 'req') {" automation/platform/89_prevideo.gs 1
+chk "    } else if (_pvCpnOff_('pre', null, m)) { if (st === 'req') return; st = (st === 'issued') ? 'gone' : st; }" automation/platform/89_prevideo.gs 1
+chk "if (kind === 'pre' && _pvCpnOff_('pre', cust, m)) return { ok: false, error: '고객이 식전 영상을 «사용하지 않기»로 정했어요 · 보내지 않아도 돼요.' };" automation/admin/admin.gs 1
+nochk "    if (kind === 'mid' && out.on !== true && _pvCpnState_((row.m || {}).cpn) === 'req') {" automation/platform/89_prevideo.gs   # 깨 보기: 식중만 거두던 옛 줄로 되돌리면 빨강
 chk "if (c.at && c.revoked) return 'used';" automation/platform/89_prevideo.gs 1   # 한 편에 한 장 — 회수 뒤 다시 요청 못 함
 chk "function _pvcCpnOpen(){ var F=PVCFLOW; return F.way==='fm' && (F.kind!=='mid' || F.rok===true); }" mypage.html 1
 chk '쿠폰은 영상 한 편에 한 장이에요 · 받은 뒤 진행하지 않아도 다시 드리지 않아요' mypage.html 1
@@ -7158,7 +7184,7 @@ chk 'LEAD_IN_SAY' parents.html 2
 # ── 2026-08-30 전수점검 라운드 [AUDIT_0830] ──
 # [INV_CANONICAL_PATH] 청첩장 SEO 8페이지 canonical·og:url·prev/next = 실경로 /i/invitations/ (구 루트 경로는 404 · 08은 velour→noir 오기까지).
 chk 'INV_CANONICAL_PATH' i/invitations/invitation-01-classic.html 1
-chk 'https://momentedit.kr/i/invitations/invitation-08-noir.html' i/invitations/invitation-08-noir.html 2
+chk 'https://www.momentedit.kr/i/invitations/invitation-08-noir.html' i/invitations/invitation-08-noir.html 2   # [WWW_CANON_1119] 정본은 www
 # [SNAP_BALANCE_D7] 스냅 잔금 = 촬영 D-7(스냅 계약서 §4 표) — 시그니처 9 재사용으로 되돌리지 말 것.
 chk '잔금일수전_스냅' automation/platform/70_journey.gs 3
 chk '잔금일수전_스냅' automation/admin/admin.gs 1
@@ -12241,6 +12267,7 @@ chk 'GUIDE_PATH_READ' guide.html 1
 #   짧은 주소 넷(form·admin·schedule·cancel)도 같은 모양이라 한 규칙으로 묶었다 — «짧은 주소는 두 철자를 다 받는다».
 #   ★토큰 글자집합에 / 가 없어 /g/a/b·/g// 는 여전히 안 받는다(guide-path-route ①-3 이 고정).
 chk '/?\$' vercel.json 5
+chk '"\^/mypage/?\$"' vercel.json 1           # [MYPAGE_SHORT_1119 R3X #14] momentedit.kr/mypage(.html 없이) → /mypage.html 308 · 종전엔 영문 Vercel 404(«This page doesn't exist · COPY DEBUG PROMPT»)
 chk 'SLASH_BOTH' scripts/audit/guide-path-route.mjs 1   # 실검사는 ①-3 — 구간이 통째로 지워지면 여기서 걸린다
 
 # ★★[FORM_ONE 2026-09-11 점검] /form 은 «한 장»이다 — 사본을 되살리지 말 것.
@@ -12308,6 +12335,13 @@ fi
 #   ★noindex 쪽에 meta description 을 요구하지 않는다(검색 미리보기용이라 뜻이 없다).
 #   ★form.html 은 구글폼으로 즉시 이동해 DOM 이 이미 다른 문서다 — 그 쪽만 소스로 본다.
 chk 'PUBLIC_SWEEP' scripts/audit/public-sweep.mjs 1
+# [WWW_CANON_1119] 정본 주소는 www 하나 (NIGHT20 #17 · 2026-11-19) — 라이브는 www 없는 주소를 307 로 www 에 넘긴다.
+#   canonical·og:url·사이트맵·robots 가 www 없는 주소를 정본이라 하면 검색엔진에 엇갈린 신호. 실행 검사는 public-sweep 사이트맵 칸.
+chk 'WWW_CANON_1119' scripts/audit/public-sweep.mjs 2
+nochk 'https://momentedit\.kr' sitemap.xml 0
+nochk 'https://momentedit\.kr' robots.txt 0
+nochk 'https://momentedit\.kr' index.html 0
+nochk 'i/invitations/invitation-gallery\.html' i/invitations/invitation-01-classic.html 0   # 없는 쪽 — 갤러리는 루트 /invitation-gallery.html
 chk 'FORM_LABEL' inquiry.html 2        # 입력칸 2개의 프로그래밍 라벨(낭독기가 「편집란, 비어 있음」으로 읽던 것)
 chk 'aria-labelledby' inquiry.html 2
 chk 'CAN_EXIT' cancel.html 1           # 종착 화면에서 «말한 길»(카카오톡)을 실제로 열어 준다
@@ -17784,7 +17818,7 @@ chk '2026년 10월 8일' privacy.html 2   # [PRIVACY_REV_1031] 3 → 2 — 개�
 # ★[PRIVACY_REV_1031 2026-10-31 사장님 승인] 처리방침 개정 공고 · 시행 10/31 — 두 분 목소리 보관 기간 구체화(VC_DECISIONS_1030 · 7일 전 AI 목소리 삭제 · 예식일 없음 90일).
 #   보관을 줄이기만 해 정보주체에게 불리하지 않다 → 10조 단서로 공고일 시행. 맨 위 날짜는 VOICE_UP.from 보다 늦어도 된다(voice-open.mjs) · «부터» 날짜 10/8 은 그대로
 chk '2026년 10월 31일 (두 분 목소리 보관 기간 구체화' privacy.html 1   # [MID_OPEN_1114] 맨 위는 11/14 로 넘어갔다 · 10/31 은 «직전 개정»으로 남는다
-chk '그 전 개정 2026년 10월 8일 (두 분 목소리 항목 추가' privacy.html 1
+chk '이전 개정 2026년 10월 8일 (두 분 목소리 항목 추가' privacy.html 1   # [PRIV_REP_EMAIL_1119 · RULES_SLIM ⑧] 11/19 개정이 맨 위로 오며 이력 이름표가 «직전 11/14 · 그 전 10/31 · 이전 10/8 · 그보다 앞선 9/26»으로 한 칸씩 밀렸다
 chk 'PRIVACY_REV_1031' privacy.html 2
 chk 'PRIVACY_REV_1031' scripts/audit/voice-open.mjs 4
 chk 'VOICE_OPEN_1008' deploy-marks.json 1
@@ -23139,6 +23173,8 @@ chk "+_longTxBtn()+'</div>'" order-preview.html 1
 chk 'B2_FIX_NI16' api/after-concierge.js 1                  # 지도 분류 «갈래 > 끝 토막»
 chk 'B2_FIX_NI16' assets/ritual-preview-link.js 2           # 옛 끝 토막 꼴 — 분명한 음식 분류 낱말일 때만
 chk 'B2_FIX_NI16' scripts/audit/console-inject.mjs 2
+chk 'PROD_FS_INERT' mypage.html 2                # [PROD_FS_INERT R3X #14] 청첩장 · 좌석 · 음료 · 애프터 웨딩 전체화면도 뒤 페이지 inert(Tab 이 가려진 본문으로 안 나간다)
+if command -v node >/dev/null 2>&1; then node scripts/audit/prod-fs-inert.mjs >/tmp/_pfi.txt 2>&1; _pfi=$?; if [ "$_pfi" = 1 ]; then echo 'REVERT? scripts/audit/prod-fs-inert.mjs 빨강 — 제작 전체화면이 떠 있는데 Tab 이 뒤 본문으로 나간다(또는 닫아도 막음이 남는다)'; grep FAIL /tmp/_pfi.txt | head -3; fail=1; else echo "ok prod-fs-inert [PROD_FS_INERT] (코드 $_pfi · 2 = 브라우저 없어 정적만)"; fi; fi
 chk 'B2_FIX_MA_38_GAS' automation/platform/80_production.gs 1   # 하객 안내 대표 장소 = 이름 + venuePickPid(없으면 옛 초안처럼 이름)
 chk "String(v.pid || '').trim() === _ppid" automation/platform/80_production.gs 1
 chk 'B2_FIX_MA_38_GAS' automation/tests/guide.test.js 1
@@ -24124,3 +24160,11 @@ chk 'RAIL_EMPTY_N06' order-preview.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/rail-empty.mjs >/dev/null 2>&1; _re=$?; node scripts/audit/rail-empty.mjs --selftest >/dev/null 2>&1; _res=$?; if [ "$_re" != 0 ] || [ "$_res" != 0 ]; then echo "REVERT? rail-empty: 끝 화면에 빈 «예식 순서» 목록이 다시 섰다 ($_re/$_res) — node scripts/audit/rail-empty.mjs"; fail=1; else echo 'ok rail-empty'; fi; fi
 # ★[VIMEO_ALLOW_EME_N20_19 2026-11-19 야간 점검 #19] 디지털 참석 영상 iframe 허용 목록에 encrypted-media(빠지면 영상이 붙을 때 콘솔 오류 3건)
 chk 'picture-in-picture; encrypted-media' live.html 1
+# ★[STREAM_AT_5_N20_19 2026-11-19 · 대표님 승인 11/19 17:18] 온라인 날 송출은 5분 전부터 — 하객 화면 글 · 콘솔 5분 전 카드 한 줄 · 운영 기획안 H-5
+chk '예식 5분 전부터 화면이 열립니다' live.html 1
+chk '온라인 날 · 이 안내 전에 송출 켜기' assets/ritual-cue.js 1
+chk 'H-5: 송출 켜기' docs/plans/PLAN_영상운영_기획안.md 1
+# ★[RP_ESC_IN_N20_04X_1119 R3X #04] 미리듣기 창 안에서 누른 Esc 를 바깥 창의 닫기 길로 넘긴다 — 빠지면 «듣기 시작»을 누른 뒤 Esc 로 안 닫히고 소리가 계속 난다
+chk "if (GUEST && e.key === 'Escape' && !e.repeat && window.parent !== window) { try { window.parent.document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', bubbles: true })); } catch (_) {} return; }   /\* ★\[RP_ESC_IN_N20_04X_1119" console.html 1
+# ★[CTL_ROW_N20_04X_1119 R3X #04] 미리 듣기 단추 셋 아래 칸은 한 줄 전체 — 빠지면 빨간 오류 줄 폭만큼 «이전» 칸이 넓어져 좁은 폰에서 «다음 순서로»가 두 줄로 꺾인다
+chk 'body.guest .ctl .inner>div{grid-column:1/-1}   /\* ★\[CTL_ROW_N20_04X_1119' console.html 1

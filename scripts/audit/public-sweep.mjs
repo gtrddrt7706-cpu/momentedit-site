@@ -191,6 +191,42 @@ console.log('\n══ 사이트맵 ══');
     if (noindex && inMap) { bad++; console.log('   ✗ ' + f + ' 는 noindex 인데 사이트맵에 있다 (신호 충돌)'); }
   }
   console.log('   ✓ 사이트맵 대조 끝');
+
+  /* [WWW_CANON_1119] 정본 주소는 www 하나 (NIGHT20 #17 · 2026-11-19).
+     라이브는 https://momentedit.kr/… 을 307 로 https://www.momentedit.kr/… 에 넘긴다.
+     그런데 canonical·og:url·사이트맵·robots 가 www 없는 주소를 «정본»이라 말하고 있었다 — 검색엔진에 엇갈린 신호.
+     ① 사이트맵 주소 · robots 의 Sitemap 줄은 www 로 시작해야 한다
+     ② 사이트맵에 실린 쪽(과 privacy)의 소스에는 www 없는 https 주소가 0 이어야 한다
+     ③ 그 쪽들이 적은 우리 사이트 절대 주소는 실제 파일을 가리켜야 한다
+        (청첩장 7쪽이 /i/invitations/invitation-gallery.html — 없는 쪽 — 을 구조화 데이터에 적고 있었다) */
+  const WWW = 'https://www.momentedit.kr/';
+  for (const u of locs) if (!u.startsWith(WWW)) { bad++; console.log('   ✗ [WWW_CANON_1119] 사이트맵 주소가 www 가 아니다: ' + u); }
+  const rb = fs.readFileSync(path.join(ROOT, 'robots.txt'), 'utf8');
+  const smLine = (rb.match(/^Sitemap:\s*(\S+)/mi) || [])[1] || '';
+  if (!smLine.startsWith(WWW)) { bad++; console.log('   ✗ [WWW_CANON_1119] robots.txt Sitemap 줄이 www 가 아니다: ' + (smLine || '(없음)')); }
+  const canonFiles = new Set(['privacy.html']);
+  for (const u of locs) {
+    let p = u.replace(/^https?:\/\/[^/]+/, '').split(/[?#]/)[0];
+    if (p === '/' || p === '') p = '/index.html';
+    canonFiles.add(decodeURIComponent(p.replace(/^\//, '')));
+  }
+  let seenAbs = 0;
+  for (const f of canonFiles) {
+    const fp = path.join(ROOT, f);
+    if (!fs.existsSync(fp)) continue;
+    const html = fs.readFileSync(fp, 'utf8');
+    const apex = (html.match(/https:\/\/momentedit\.kr/g) || []).length;
+    if (apex) { bad++; console.log('   ✗ [WWW_CANON_1119] ' + f + ' 에 www 없는 주소 ' + apex + '곳 — 정본은 ' + WWW); }
+    for (const m of html.matchAll(/https:\/\/(?:www\.)?momentedit\.kr(\/[^"'\s<>)\\]*)?/g)) {
+      seenAbs++;
+      let p = (m[1] || '/').split(/[?#]/)[0];
+      if (p === '/' || p === '') p = '/index.html';
+      if (!/\.[a-z0-9]+$/i.test(p)) continue;   // 확장자 없는 주소(api 등)는 파일 대조에서 뺀다
+      if (!fs.existsSync(path.join(ROOT, decodeURIComponent(p.replace(/^\//, ''))))) { bad++; console.log('   ✗ [WWW_CANON_1119] ' + f + ' 가 없는 쪽을 가리킨다: ' + m[0]); }
+    }
+  }
+  if (!seenAbs) { bad++; console.log('   ✗ [WWW_CANON_1119] 절대 주소를 하나도 못 읽었다 — 못 잰 것'); }
+  else console.log('   ✓ [WWW_CANON_1119] 정본 www · 절대 주소 ' + seenAbs + '곳 대조 끝 (' + canonFiles.size + '쪽)');
 }
 srv.close(); await eng.close?.();
 console.log('\n' + (bad ? '✗ PUBLIC SWEEP — 개선점 ' + bad + '건' : '✓ PUBLIC SWEEP OK — 개선점 0'));

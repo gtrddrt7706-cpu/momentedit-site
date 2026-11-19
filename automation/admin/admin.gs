@@ -676,7 +676,7 @@ function adminHome() {
          식순에서 식중을 뺀 발급 뒤 쿠폰 = 회수 줄(gone) */
       var _rv = q.st === 'cancel' || q.st === 'gone', _ok = q.kind !== 'mid' || q.rok !== false;
       pushQ({ code: code, names: names, product: product, kind: _rv ? '협력사쿠폰회수' : '협력사쿠폰', fm: q.kind, fmOk: _rv ? true : _ok,
-        sub: q.st === 'gone' ? (_vn + ' · 식순에서 식중 영상을 뺐어요 · 보낸 쿠폰을 필메이커에서 회수한 뒤 «회수»를 눌러 주세요')
+        sub: q.st === 'gone' ? (_vn + (q.kind === 'mid' ? ' · 식순에서 식중 영상을 뺐어요' : ' · 고객이 «사용하지 않기»로 정했어요') + ' · 보낸 쿠폰을 필메이커에서 회수한 뒤 «회수»를 눌러 주세요')   // ★[PRE_CPN_RECLAIM_1119] 식전 회수 줄 까닭
           : q.st === 'cancel' ? (_vn + ' · 고객이 필메이커 쿠폰을 쓰지 않기로 했어요 · 필메이커에서 회수한 뒤 «회수»를 눌러 주세요')
           : ('협력사 쿠폰 요청 · ' + (q.kind === 'mid' ? '식중' : '식전') + (q.kind === 'mid' ? (' · 식순 확정 ' + (_ok ? '✓' : '✗')) : '') + ' · ' + (_ok ? '쿠폰 코드(또는 링크)를 넣어 주세요' : '식순이 확정되면 보낼 수 있어요')),
         badge: { level: 'yellow', text: '제휴 확정 전' }, _urgent: false, _loss: 4, _stage: 8, _wait: _ymdOf(q.req) || createdYmd });
@@ -2554,6 +2554,7 @@ function adminPvCoupon(code, kind, op, val) {
     if (op === 'issue') {
       if (st !== 'req') return { ok: false, error: st === 'issued' ? '이미 보냈어요.' : '고객이 요청한 쿠폰이 없어요.' };   // 요청 없이 나가는 길 없음
       if (kind === 'mid' && (_mvOn_(cust).on !== true || !_pvRitOk_(cust))) return { ok: false, error: '식순 확정 전이에요 · 식순에 식중 영상이 확정된 뒤 보내 주세요.' };   // [COUPON_GATE_1116] 식중 쿠폰은 식순에 담겼고 순서가 확정된 때만
+      if (kind === 'pre' && _pvCpnOff_('pre', cust, m)) return { ok: false, error: '고객이 식전 영상을 «사용하지 않기»로 정했어요 · 보내지 않아도 돼요.' };   // ★[PRE_CPN_RECLAIM_1119] 식전 쿠폰도 틀지 않을 영상엔 나가지 않는다
       var isLink = /^https:\/\//i.test(v);
       m.cpn = { req: c.req, code: isLink ? '' : v, link: isLink ? v : '', at: now, revoked: '' };
     } else {
