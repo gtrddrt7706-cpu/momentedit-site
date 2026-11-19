@@ -319,7 +319,8 @@ var EXIT_HTML='<div class="state-x">'
 /* ★[SEAT_STATE_H1 2026-09-25 코워크 실측] 오류·만료 화면에 h1 이 하나도 없었다 —
    화면낭독기 사용자는 «이 문서가 무엇인지» 들을 길이 없다(axe page-has-heading-one).
    상태 문장 자체가 그 화면의 제목이다. 모양은 .state 클래스가 그대로 지므로 보이는 것은 안 바뀐다. */
-function stateHtml(msg, sm, x){ return '<div class="card"><h1 class="state" role="status">'+_ecHtml(msg)+(sm?'<div class="sm">'+_ecHtml(sm)+'</div>':'')+'</h1>'+(x?EXIT_HTML:'')+'</div>'; }   // [ERR_CODE_GLUE] _ecHtml = esc + «(코드 X#)» 한 덩어리
+var EXIT_HTML_ASK=EXIT_HTML.replace(/<div class="state-x-s">[^<]*<\/div>/,'');   /* [EXIT_ASK_ONLY_R3X2 2026-11-19 NIGHT20 #12 교차 점검] «날짜를 모름»(reason 'unknown' · 링크는 멀쩡함)에는 «링크를 다시 받아 주세요 · 주소 끝이 잘려…» 줄이 맞지 않는다 — 그 한 줄만 빼고 문의처 둘은 그대로(x=2). 잘못된 주소 · 못 찾음은 종전대로(x=1) */
+function stateHtml(msg, sm, x){ return '<div class="card"><h1 class="state" role="status">'+_ecHtml(msg)+(sm?'<div class="sm">'+_ecHtml(sm)+'</div>':'')+'</h1>'+(x?(x===2?EXIT_HTML_ASK:EXIT_HTML):'')+'</div>'; }   // [ERR_CODE_GLUE] _ecHtml = esc + «(코드 X#)» 한 덩어리
 
 var TABLES=[];   // 렌더된 테이블(하이라이트용)
 var NUMS={};     // 배열 인덱스 → 행순서 표시 번호(지도 배지·검색 결과가 같은 번호를 쓰게)
@@ -587,7 +588,7 @@ function seatFailHtml(sm){   // [ERR_CODE_PAGES] sm = 무슨 일 · 할 일 · �
              ★서버(80_production.gs _guideCloseInfo)가 reason·help 를 준다 — 모르는 경우에만 문의처를 함께 낸다.
              ★문구는 guide.html 과 같은 말로 맞춘다. 한쪽만 고치지 말 것(scripts/audit/guest-state.mjs 가 둘을 함께 잰다). */
           if(d.reason==='unknown'){
-            $('root').innerHTML=stateHtml('좌석 안내를 준비하고 있어요.','예식 정보가 확정되면 이 링크가 다시 열려요.', d.help?1:0);
+            $('root').innerHTML=stateHtml('좌석 안내를 준비하고 있어요.','예식 정보가 확정되면 이 링크가 다시 열려요.', d.help?2:0);   // [EXIT_ASK_ONLY_R3X2]
           } else {
             $('root').innerHTML=stateHtml('예식이 끝나 좌석 안내가 닫혔어요.','함께해 주셔서 감사합니다.');
           } }
