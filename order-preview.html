@@ -1311,6 +1311,9 @@ html.lsmini .ls::after,html.lsmini .mk::after,html.lsmini .pr::after{content:'';
 }
 .ls-full{position:fixed;inset:0;z-index:2147482000;background:var(--bg);overflow:auto}
 .ls-full[hidden]{display:none}
+/* ★[SAY_LONG_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 B] 폰 — 두 분이 소리 내어 읽는 글(.say)이 110자를 넘으면 한 단계 작게(24~28 → 20~24px) 한 화면에 담는다.
+     종전엔 390 «신부가 읽어요»(긴 참고 예시)의 마지막 줄 «보답하겠습니다.»가 아래 막대 뒤에 숨었다. PC · 짧은 글은 그대로(PR_WAY_198) */
+@media (max-width:600px){ .lf-in.pr .lf-txt.say.long{font-size:clamp(20px,5.4vw,24px)} }
 body.lsfull{overflow:hidden}
 .lf-in{max-width:520px;margin:0 auto;padding:12px 18px 0;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;box-sizing:border-box}   /* ★[BIG_CTL_FIXED 2026-09-26 사장님 «아래 플레이는 고정됐으면 · 위아래로 움직이는 게 정신없어»] 글이 짧아도 단추 줄이 화면 맨 아래 — 아래 여백은 .lf-ctl 의 safe-area 가 맡는다 */
 .lf-h{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--sub);margin-bottom:10px;position:sticky;top:0;z-index:2;background:var(--bg);padding:6px 0}   /* [BIG_END 2-10] 칩이 많아도 ⌄ · n / N 이 남는다 */
@@ -9197,7 +9200,7 @@ function _lFull(){
       var _tl=(!st.src&&!LP.paused&&LP.tAt&&LP.tMs&&LP.loadSt!==st)?Math.max(0,Date.now()-LP.tAt):-1;
       if(_tl>=0) h+='<div class="lf-tbar" aria-hidden="true"><i style="animation-duration:'+LP.tMs+'ms;animation-delay:-'+Math.min(_tl,LP.tMs)+'ms"></i></div>';
       else h+='<div class="lf-tbar'+(st.src?' au':' still')+'" aria-hidden="true"><i id="lfTbarI" style="animation:none;transform:scaleX('+(st.src&&LP.el&&LP.el.duration?Math.min(1,LP.el.currentTime/LP.el.duration):0)+')"></i></div>'; }   /* [TBAR_UP 2026-10-05 사장님 «타이머 배치가 아래로 처져 있다»] 할 일 줄 바로 아래 · 글 상자 위 */
-    h+='<p class="lf-txt'+(st.hint?' hint':'')+(st.talk||st.skip||st.ref?' talk':'')+(st.ref?' ref':'')+((_prIn&&st.talk2&&!st.sum)?' say':'')+'">'+esc(st.txt||'')+'</p>';
+    h+='<p class="lf-txt'+(st.hint?' hint':'')+(st.talk||st.skip||st.ref?' talk':'')+(st.ref?' ref':'')+((_prIn&&st.talk2&&!st.sum)?' say'+((st.txt||'').length>110?' long':''):'')+'">'+esc(st.txt||'')+'</p>';   /* [SAY_LONG_N06] 긴 읽기 글 */
     if(st.talk2){ if(PT.errK===LP.i&&PT.err) h+='<p class="lf-state" role="status">'+esc(PT.err)+'</p>'; }
     h+=_rh;   // [PR_ORDER]
     if(practice&&st&&st.k!=='_close'){ var _nx2=LP.q[LP.i+1]; if(_nx2&&_nx2.k!==st.k) h+='<p class="lf-next">'+esc(_fgNext(st.k,_nx2.k))+'</p>'; }   /* [FLOW_GRASP_1101 2] 순간 끝 · 본문 아래 · 닫는 인사 뒤는 «이후 사진 촬영…» 줄이 말한다 */

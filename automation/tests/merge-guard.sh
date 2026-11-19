@@ -24110,3 +24110,7 @@ chk 'textContent = fmt(c.est || 0); } catch (e) {}   /\* ★\[CARD_PROG_RESET_N2
 # ★[LIVE_PROG_N20_1118 NIGHT20 #04] 미리 듣기 장면 카드(사람 순간)도 제 시간 막대를 그린다 — later 로 되돌리면 앞 소리 «0:09 / 0:08» · 가득 찬 막대가 10초 내내 남는다
 chk 'else runProg(c.live.est || 10, advance);   /\* ★\[LIVE_PROG_N20_1118' console.html 1
 nochk 'else later(function(){ advance(); }, (c.live.est || 10) \* 1000);' console.html 0
+
+# ★[SAY_LONG_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 B] 폰 — 소리 내어 읽는 글이 110자를 넘으면 한 단계 작게(끝줄이 아래 막대 뒤에 숨던 것)
+chk 'SAY_LONG_N06' order-preview.html 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/say-long.mjs >/dev/null 2>&1; _sl=$?; node scripts/audit/say-long.mjs --selftest >/dev/null 2>&1; _sls=$?; if [ "$_sl" != 0 ] || [ "$_sls" != 0 ]; then echo "REVERT? say-long: 폰 긴 읽기 글 크기 줄이 빠졌다 ($_sl/$_sls) — node scripts/audit/say-long.mjs"; fail=1; else echo 'ok say-long'; fi; fi
