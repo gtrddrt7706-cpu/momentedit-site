@@ -23517,6 +23517,8 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/b2-fix-r2.mjs >/dev/
 chk 'B2_FIX_NA_02_ORDER' console.html 3
 chk 'B2_FIX_NA_38_ONE' order-preview.html 1
 chk 'B2_FIX_NA_50_375' order-preview.html 1
+chk 'PC_EX_META_WRAP' order-preview.html 1   # ★[NIGHT20 #11 1118] PC 1000~1110 기록 카드 «… 약 9분» 잘림 — PC 도 « · » 자리에서 접는다
+chk '  .pk-ex-m{white-space:normal;min-width:0}' order-preview.html 1   # [PC_EX_META_WRAP] 되돌리면 1024 에서 27px 삐져나간다
 # ── 2026-11-06 [B2_FIX_* 재검증 재수정 PR3] 마이페이지 · guide · 디지털 참석 · 촬영 브리프 · 홈 · AI 지식
 chk 'B2_FIX_MA_50' brief.html 1                     # 사진 뒤 따로 있던 «감사 인사» 단계를 뺐다(닫는 인사가 맡는다)
 nochk '<b>감사 인사</b>' brief.html                  # 되살리지 말 것
