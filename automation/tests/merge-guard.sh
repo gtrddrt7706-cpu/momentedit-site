@@ -24196,3 +24196,7 @@ nochk 'content="https://momentedit\.kr/' form.html
 nochk 'content="https://momentedit\.kr/' mypage.html
 nochk 'content="https://momentedit\.kr/' schedule.html
 chk 'content="https://www.momentedit.kr/assets/og/og-seal.png?v=5"' guide.html 1
+# ★[INQ_CHIP_GROUP_N20_19 2026-11-20 R3X2] 상담 신청서 칩 묶음 셋에 묶음 역할 + 질문 이름
+chk 'class="chip-list" role="group" aria-label="가장 중요하게 생각하시는 것"' inquiry.html 1
+chk 'class="chip-list" role="group" aria-label="가장 망설여지는 점"' inquiry.html 1
+chk 'class="chip-list" role="radiogroup" aria-required="true" aria-label="현재 준비 상황"' inquiry.html 1
