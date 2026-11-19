@@ -4504,7 +4504,7 @@ function renderMyPage(d){
         sub  = (_needM && _needBv) ? '이제 남은 결제(중도금·잔금)만 진행하시면 돼요.'
              : (_needM ? '이제 중도금만 입금하시면 돼요.'
              : (_needBv ? '이제 잔금만 입금하시면 끝이에요.'
-             : ((_pp.midSig || _pp.balSig) ? '입금 확인 중이에요. 확인되는 대로 알려드릴게요.' : '예식날 정성껏 준비해서 뵐게요.')));
+             : ((_pp.midSig || _pp.balSig) ? '입금 확인 중이에요. 확인되는 대로 알려드릴게요.' : '예식 날 정성껏 준비해서 뵐게요.')));
       } else if (_mDue || _bDue) {
         var _dueNm = (_mDue && _bDue) ? '중도금·잔금' : (_bDue ? '잔금' : '중도금');
         head = _dueNm + '을 입금해 주세요';   // [NOW_PAY_DUE] 묶음은 입금완료 hold 갈래와 같은 문장
@@ -6244,7 +6244,7 @@ function renderContractReqForm(ctx){
     if(td.indexOf(sel)!==-1){ sel=''; if(hid) hid.value=''; }
     row.innerHTML=_wedAvail.slots.map(function(t){ var lab=(_wedAvail.labels&&_wedAvail.labels[t])||''; var tk=td.indexOf(t)!==-1;
       return '<button type="button" class="wed-slot'+(tk?' taken':'')+(sel===t?' sel':'')+'" aria-pressed="'+(sel===t)+'" data-t="'+escapeHtml(t)+'"'+(tk?' disabled':'')+'>'+(lab?'<span class="ws-lab">'+escapeHtml(lab)+'</span>':'')+'<span class="ws-t">'+escapeHtml(SLOT_CLOCK[t]||t)+'</span>'+(tk?'<span class="ws-x">마감</span>':'')+'</button>'; }).join('');
-    if(note) note.textContent=(td.length>=_wedAvail.slots.length)?'이 날은 예약이 모두 마감됐어요. 다른 날짜를 선택해 주세요.':'';
+    if(note) note.textContent=(td.length>=_wedAvail.slots.length)?'이날은 예약이 모두 마감됐어요. 다른 날짜를 선택해 주세요.':'';
     row.querySelectorAll('.wed-slot:not(.taken)').forEach(function(b){ b.addEventListener('click',function(){ var h=$('mp_ciWedTime'); if(h) h.value=b.getAttribute('data-t'); row.querySelectorAll('.wed-slot').forEach(function(x){x.classList.remove('sel'); x.setAttribute('aria-pressed','false');}); b.classList.add('sel'); b.setAttribute('aria-pressed','true'); }); });   // [SEL_ONE] 고름은 눈과 귀에 같이
   }
   initDatePicker({wrap:'mpcw_wrap',trigger:'mpcw_trigger',text:'mpcw_text',panel:'mpcw_panel',grid:'mpcw_grid',title:'mpcw_title',prev:'mpcw_prev',next:'mpcw_next',hidden:'mp_ciWed',onPick:_renderSlots});
@@ -6660,7 +6660,7 @@ function renderChangeWizard(ctx, host){
     if(td.indexOf(sel)!==-1){ sel=''; if(hid) hid.value=''; }
     row.innerHTML=_av.slots.map(function(t){ var lab=(_av.labels&&_av.labels[t])||''; var tk=td.indexOf(t)!==-1;
       return '<button type="button" class="wed-slot'+(tk?' taken':'')+(sel===t?' sel':'')+'" aria-pressed="'+(sel===t)+'" data-t="'+escapeHtml(t)+'"'+(tk?' disabled':'')+'>'+(lab?'<span class="ws-lab">'+escapeHtml(lab)+'</span>':'')+'<span class="ws-t">'+escapeHtml(SLOT_CLOCK[t]||t)+'</span>'+(tk?'<span class="ws-x">마감</span>':'')+'</button>'; }).join('');
-    if(note) note.textContent=(td.length>=_av.slots.length)?'이 날은 예약이 모두 마감됐어요. 다른 날짜를 선택해 주세요.':'';
+    if(note) note.textContent=(td.length>=_av.slots.length)?'이날은 예약이 모두 마감됐어요. 다른 날짜를 선택해 주세요.':'';
     row.querySelectorAll('.wed-slot:not(.taken)').forEach(function(b){ b.addEventListener('click',function(){ var h=$('mp_chgTime'); if(h) h.value=b.getAttribute('data-t'); row.querySelectorAll('.wed-slot').forEach(function(x){x.classList.remove('sel'); x.setAttribute('aria-pressed','false');}); b.classList.add('sel'); b.setAttribute('aria-pressed','true'); _fetchQuote(); }); });   // [SEL_ONE]
     _resetQuote(); _fetchQuote();   // 날짜만 다시 고른 경우 — 기존 슬롯 유지면 즉시 재견적
   }
@@ -10896,7 +10896,7 @@ function renderPhoto(box){
      관리자 화면과 콘솔 «촬영 안내 골라 틀기» 판이 이 값을 읽는다. */
   var _pc=PHOTOFLOW.caller=(PHOTOFLOW.caller||{groom:'',bride:''});
   h+='<div class="ph-sec ph-sec-in">불러 모아 주실 분 <span class="opt-tag">· 선택</span></div>';
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px"><span class="ln-bal">가족사진 때 친척분들을 모아 주실 분이에요.</span><span class="ln-bal">구도마다 사진작가가 이 분께 먼저 말씀드려요 · 가족분들을 모아 주시면 빨라요.</span></div>';   /* ★[PHOTO_CALLER_WORD 2026-09-27] 옛 «디렉터가 이 분께» — [PHOTO_FREE] 로 부르는 것은 사진작가다(나레이션 «작가님이 순서대로 불러 드립니다»와 같은 사람) */
+  h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px"><span class="ln-bal">가족사진 때 친척분들을 모아 주실 분이에요.</span><span class="ln-bal">구도마다 사진작가가 이분께 먼저 말씀드려요 · 가족분들을 모아 주시면 빨라요.</span></div>';   /* ★[PHOTO_CALLER_WORD 2026-09-27] 옛 «디렉터가 이 분께» — [PHOTO_FREE] 로 부르는 것은 사진작가다(나레이션 «작가님이 순서대로 불러 드립니다»와 같은 사람) */
   /* [PC_LABEL] 칸마다 보이는 이름표 — 자리표시(placeholder)만 두면 적는 순간 «신랑 쪽»이 사라져 어느 칸인지 모른다(390 실렌더에서 봤다) */
   h+='<label for="mp_pcGroom" style="display:block;font-size:12px;color:var(--sub);margin:0 0 4px">신랑 쪽</label>';
   h+='<input id="mp_pcGroom" class="cc-input" data-pc="groom" maxlength="40" autocomplete="off" placeholder="예: 큰아버지 김○○" value="'+escapeHtml(_pc.groom||'')+'" style="margin:0 0 10px">';
