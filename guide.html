@@ -574,11 +574,19 @@ function spotHtml(v, withTel){
 /* [B2_MA_64] 지금 고른 곳(pick)의 음식 분류 — meal · cafe · ''(모름). ritual-preview-link.js diningStatusOf 와 같은 근거 · 근거가 엇갈리거나 없으면 모름 */
 var GD_CAFE_RE=/카페|디저트|베이커리|제과|다과|티룸|커피/;
 function _gdKind(t){ t=String(t||'').trim(); return t?(GD_CAFE_RE.test(t)?'cafe':'meal'):''; }
+/* ★[GD_OLDTAIL_1119 2026-11-19 야간 점검 NIGHT20 #14] 옛 저장분 — 지도가 분류 끝 토막만 보내던 때 담은 곳(«한식 · 1.2km · 주소»)은 «>»가 없어 하객 화면만 «모름»이었다.
+   식순(ritual-preview-link.js [B2_FIX_NI16] _mapKind)은 같은 곳을 식사로 보아 나레이션 324 «먼저 가셔서 식사 … 하객 안내에서 확인»이 나가는데, 이 화면엔 식사 줄이 없었다([B2_MA_64] «같은 근거»가 어긋남).
+   같은 규칙을 그대로 옮긴다 — 첫 토막이 분명한 음식 분류 낱말일 때만(숫자 든 토막 · 상호는 근거 아님) · 목록(DINE_DB)에 있는 곳은 목록의 f 만 본다(식순이 목록에서 담은 곳의 설명을 안 보는 것과 같게).
+   아래 낱말 목록은 ritual-preview-link.js MAP_MEAL_RE 와 글자까지 같아야 한다(scripts/audit/guide-kind-same.mjs 가 잰다) */
+var GD_MAP_MEAL_RE = /^(한식|중식|중국요리|일식|양식|분식|뷔페|한정식|아시아음식|패밀리레스토랑|레스토랑|퓨전요리|이탈리안|프랑스음식|스테이크,립|육류,고기|갈비|삼겹살|해물,생선|회|초밥,롤|샤브샤브|국수|칼국수|냉면|국밥|해장국|곰탕|설렁탕|감자탕|찌개,전골|곱창,막창|오리|장어|닭요리|돈까스,우동|족발,보쌈|쌈밥|두부전문점|순대|추어|매운탕,해물탕|게,대게|조개|복어|낙지|주꾸미|아구|베트남음식|태국음식|인도음식|멕시칸,브라질|치킨|피자|브런치)$/;
+function _gdOldTail(m){ var t=String(String(m||'').split(' · ')[0]||'').trim(); if(!t||/\d/.test(t)||t.indexOf('>')>-1) return ''; if(GD_CAFE_RE.test(t)) return 'cafe'; return GD_MAP_MEAL_RE.test(t)?'meal':''; }   /* [GD_OLDTAIL_1119] */
 function pickKind(dn){
   var p=String((dn&&dn.pick)||'').trim(), ev=[]; if(!p) return '';
   var db=window.DINE_DB||[];
-  for(var i=0;i<db.length;i++) if(db[i]&&String(db[i].n||'').trim()===p){ var k=_gdKind(Array.isArray(db[i].f)?db[i].f.join(' '):''); if(k) ev.push(k); break; }
-  (dn.restos||[]).forEach(function(v){ if(String((v&&v.n)||'').trim()!==p) return; var parts=String(v.m||'').split(' · '); for(var j=0;j<parts.length;j++) if(parts[j].indexOf('>')>-1){ var mk=_gdKind(parts[j]); if(mk) ev.push(mk); break; } });
+  var inDb=false;   // [GD_OLDTAIL_1119] 목록에 있는 곳이면 옛 끝 토막을 보지 않는다
+  for(var i=0;i<db.length;i++) if(db[i]&&String(db[i].n||'').trim()===p){ inDb=true; var k=_gdKind(Array.isArray(db[i].f)?db[i].f.join(' '):''); if(k) ev.push(k); break; }
+  (dn.restos||[]).forEach(function(v){ if(String((v&&v.n)||'').trim()!==p) return; var parts=String(v.m||'').split(' · '), got=false; for(var j=0;j<parts.length;j++) if(parts[j].indexOf('>')>-1){ got=true; var mk=_gdKind(parts[j]); if(mk) ev.push(mk); break; }
+    if(!got && !inDb){ var _ot=_gdOldTail(v.m); if(_ot) ev.push(_ot); } });   // [GD_OLDTAIL_1119] «>» 토막이 없을 때만 옛 끝 토막
   if(!ev.length) return '';
   for(var x=1;x<ev.length;x++) if(ev[x]!==ev[0]) return '';
   return ev[0];
