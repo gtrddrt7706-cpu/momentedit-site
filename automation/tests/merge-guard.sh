@@ -20354,6 +20354,9 @@ chk 'DRESS_NO_DATE' mypage.html 2                                         # 상�
 chk 'DRESS_CARD_SEE' mypage.html 2                                        # 카드 제목 «드레스 미리 보기» · 0벌 말 · 단추 «드레스 둘러보기»
 nochk '<div class="cc-title">드레스 미리 보기</div>' mypage.html 0                # [DRESS_STICKER] 따로 카드 제목은 걷었다 — 이름은 스티커 글 · 겹화면 머리
 chk 'DRESS_NOTE_APPLY' inquiry.html 1                                     # 신청서 켜질 첫 문장 «신청하시면 마이페이지에서 상담 날 입어 보실 드레스를 미리 둘러보실 수 있습니다»
+chk 'FORM_HOVER_GATE_N20_11' inquiry.html 1   # ★[R3X2 #11 1120] 신청서 칩 · 선택지 · 동의 체크 마우스 올림을 (hover:hover) 안으로 — 폰에서 풀어도 골라진 듯 남던 것
+chk '@media (hover:hover){.chip:hover .chip-label{' inquiry.html 1   # [FORM_HOVER_GATE_N20_11]
+nochk '}\.chip:hover \.chip-label{' inquiry.html   # [FORM_HOVER_GATE_N20_11] 맨바깥으로 되돌리지 말 것
 chk 'DRESS_APPLY_OPEN' automation/consultation/consultation-booking.gs 3  # 서버 = 신청접수 ~ 상담확정 · 취소면 거절
 chk "stages: \['신청접수', '상담확정'\]" automation/consultation/consultation-booking.gs 1
 chk 'DRESS_NO_DATE' automation/consultation/consultation-booking.gs 3     # 날짜가 정해진 때만 마감(신청접수 · 변경제안 = 열림)
