@@ -24169,3 +24169,6 @@ chk 'H-5: 송출 켜기' docs/plans/PLAN_영상운영_기획안.md 1
 chk "if (GUEST && e.key === 'Escape' && !e.repeat && window.parent !== window) { try { window.parent.document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', bubbles: true })); } catch (_) {} return; }   /\* ★\[RP_ESC_IN_N20_04X_1119" console.html 1
 # ★[CTL_ROW_N20_04X_1119 R3X #04] 미리 듣기 단추 셋 아래 칸은 한 줄 전체 — 빠지면 빨간 오류 줄 폭만큼 «이전» 칸이 넓어져 좁은 폰에서 «다음 순서로»가 두 줄로 꺾인다
 chk 'body.guest .ctl .inner>div{grid-column:1/-1}   /\* ★\[CTL_ROW_N20_04X_1119' console.html 1
+# ★[SHOWCASE_RM_N20_19 2026-11-19 R3X2] 청첩장 쇼케이스 01 · 08 움직임 줄이기(실물 [DTL16] 처방과 같음)
+chk 'SHOWCASE_RM_N20_19' i/invitations/invitation-01-classic.html 1
+chk 'SHOWCASE_RM_N20_19' i/invitations/invitation-08-noir.html 1
