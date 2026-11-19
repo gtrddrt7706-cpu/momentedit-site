@@ -95,7 +95,8 @@ body{background:var(--bg);color:var(--accent);font-family:var(--sans);line-heigh
   font-family:var(--sans);font-size:12.5px;line-height:1.5;color:var(--sub);letter-spacing:-.01em;white-space:nowrap;   /* [RIT_TYPE5] 12.5 이상 */
   padding:15px 2px 9px;margin:-15px -2px -12px;min-height:44px;box-sizing:border-box;text-decoration:underline;text-underline-offset:3px;
   text-decoration-color:var(--border);-webkit-tap-highlight-color:transparent}
-.prog-reset:hover,.prog-reset:active{color:var(--seal);text-decoration-color:var(--seal)}
+.prog-reset:active{color:var(--seal);text-decoration-color:var(--seal)}
+@media (hover:hover){ .prog-reset:hover{color:var(--seal);text-decoration-color:var(--seal)} }   /* ★[TOUCH_HOVER_GATE_N20_11 2026-11-19 R3X #11] 폰(터치)은 누른 뒤 :hover 가 남는다(iOS 는 다른 곳을 누를 때까지) — 이 줄도 다른 마우스 올림처럼 (hover:hover) 안으로 · PC 는 그대로 */
 /* [HEAD_ONE 3-5] 새 코스 ①~④ — 머리는 «나가기»만 남기고 나머지는 네 걸음 표시가 대신한다 */
 body.op4 #pnow,body.op4 .prog-bar,body.op4 .prog-sub{display:none!important}
 body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 2026-09-26 · #pnow 를 숨기면 space-between 에 자식이 #obExitSlot 하나만 남아 «저장 · 나가기»가 왼쪽에 붙었다 — 안내 1/2 · 2/2 와 다른 위저드는 모두 오른쪽 위(537행 «진행 스트립 1행 오른쪽») */
@@ -592,7 +593,7 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 /* [HEAD_PILLS 2026-09-27] 알약 넷(안내 · 다시 만들기 · 저장 · 나가기) — 좁은 화면은 짧은 이름 · 최소 폭을 풀어 한 줄에(390 · 360 실측) */
 .ob-nav .sh{display:none}
 @media (max-width:560px){ .ob-nav .lg{display:none} .ob-nav .sh{display:inline} body.op4 .ob-save,body.op4 #obExit{min-width:0} body.op4 .ob-exit{padding:0 12px} body.op4 #obExitSlot{gap:6px} body.op4 .ob-save{min-width:80px} }   /* ★[SAVE_PILL_STEADY 2026-10-09 A~Z 점검 1라운드 A-12] 저장 알약은 «저장 · 저장 중… · 저장됨»이 같은 폭 — 종전 50 · 79 · 62px 로 바뀌며 «⋯»가 29px 까지 움직였다(1280 은 86px 고정) */
-.ob-exit:hover{border-color:var(--gold-deep);color:var(--gold-deep)}
+@media (hover:hover){ .ob-exit:hover{border-color:var(--gold-deep);color:var(--gold-deep)} }   /* [TOUCH_HOVER_GATE_N20_11] */
 /* ★[MK_HEAD_D 1101] 폰(560 이하) 머리 알약 사이 4 · 나가기 48(문구 · 44 높이 · 바로 보임은 그대로) — 360 에서 상태 단추가 한 줄 두 층(140px)에 든다.
    ① · ③ · ④ 도 같은 폭이라 걸음을 옮겨도 «⋯ · 저장 · 나가기»가 한 픽셀도 안 움직인다(HEAD_PILLS 의 나가기 약 61 → 48 은 이것으로 대체) */
 @media (max-width:560px){ body.op4 #obExitSlot{gap:4px} body.op4 #obExit{min-width:48px;padding:0 4px} }
@@ -609,7 +610,7 @@ body.mkd .op-steps-c{margin:0}   /* 머리 줄 → 8(.stage 위 여백) → 네 
 .ob-menu{position:absolute;right:0;top:calc(100% + 6px);z-index:60;min-width:200px;margin:0;padding:4px 0;list-style:none;background:var(--bg);border:1px solid var(--border);border-radius:8px}
 .ob-menu[hidden]{display:none}
 .ob-menu .ob-exit{display:flex;width:100%;justify-content:flex-start;min-height:44px;padding:0 16px;border:0;border-radius:0;background:none;font-size:14px;color:var(--accent);white-space:nowrap;min-width:0}
-.ob-menu .ob-exit:hover,.ob-menu .ob-exit:focus-visible{background:var(--bg2);color:var(--accent)}
+.ob-menu .ob-exit:focus-visible{background:var(--bg2);color:var(--accent)} @media (hover:hover){ .ob-menu .ob-exit:hover{background:var(--bg2);color:var(--accent)} }   /* [TOUCH_HOVER_GATE_N20_11] */
 .ob-exit:active{border-color:var(--gold-deep);color:var(--gold-deep)}
 /* ★[REFRESH_BTN 2026-10-05 사장님 «여기에 새로고침 버튼 · 모바일은 아래로 당기면 새로고침»] «⋯»와 같은 동그란 알약 · 마이페이지 «지금 안내» 새로고침과 같은 그림.
    손가락 기기(마우스 없음)는 알약을 숨기고 맨 위에서 당겨 새로고침(_obPull) — 390 머리 줄에 알약을 하나 더 세우지 않는다 */
@@ -1079,7 +1080,7 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .ps-view{border-radius:10px;outline-offset:2px}
 .ps-nav{display:flex;align-items:center;justify-content:center;gap:12px;margin:6px 0 0}
 .ps-arw{width:44px;height:44px;border:0;border-radius:50%;background:none;color:var(--accent);font-size:22px;line-height:1;cursor:pointer}
-.ps-arw:hover{background:var(--bg2)}
+@media (hover:hover){ .ps-arw:hover{background:var(--bg2)} }   /* [TOUCH_HOVER_GATE_N20_11] */
 .ps-cnt{min-width:3.5em;text-align:center;font-size:12.5px;color:var(--sub);font-variant-numeric:tabular-nums}
 .ps-fold{margin:18px 0 0;padding-top:12px;border-top:1px solid var(--border)}
 .ps-fold>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-size:14px;font-weight:600;color:var(--accent)}
@@ -1241,7 +1242,7 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .mk-ctl{display:flex;flex-wrap:wrap;column-gap:28px;row-gap:4px}   /* [PAUSE_STEP] 말 빠르기 · 문장 사이 쉼 한 칸 — PC 는 나란히 · 폰은 두 줄 */
 .mk-ctl .mk-tp{flex:1 1 260px}
 .tp-b{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--accent);font:inherit;font-size:16px;line-height:1;cursor:pointer}
-.tp-b:hover:not(:disabled){border-color:var(--gold-deep)}
+@media (hover:hover){ .tp-b:hover:not(:disabled){border-color:var(--gold-deep)} }   /* [TOUCH_HOVER_GATE_N20_11] */
 .tp-b:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .tp-b:disabled{color:var(--border);cursor:default}
 .tp-v{display:inline-block;min-width:56px;text-align:center;font-size:14px;font-variant-numeric:tabular-nums;color:var(--accent)}
@@ -1298,8 +1299,7 @@ html.lsmini .ls::after,html.lsmini .mk::after,html.lsmini .pr::after{content:'';
 .ls-mini{background:#fff;color:var(--accent);border:1px solid var(--border);box-shadow:0 6px 20px rgba(28,27,25,.10)}
 .ls-mini .lm-b{background:none}
 .ls-mini .lm-b.lm-p{background:var(--accent);color:#FAFAF8}
-.ls-mini .lm-b:hover{background:var(--bg2)}
-.ls-mini .lm-b.lm-p:hover{background:var(--accent)}
+@media (hover:hover){ .ls-mini .lm-b:hover{background:var(--bg2)} .ls-mini .lm-b.lm-p:hover{background:var(--accent)} }   /* [TOUCH_HOVER_GATE_N20_11] */
 .ls-mini .lm-t small{opacity:1;color:var(--sub)}
 .lm-n{font-weight:400;color:var(--gold-deeper);margin-left:4px;font-variant-numeric:tabular-nums}   /* [LINE_STEP] 몇째 줄인지 */
 @media (max-width:560px){   /* [MINI_DOCK] 폰 — 윗줄 제목 · ✕ / 아랫줄 크게 보기 · ‹ ▶ › (한 줄에 다 넣으면 제목이 «하객/맞이/안내»로 세로로 눌렸다 · 390 실렌더) */
@@ -1310,6 +1310,15 @@ html.lsmini .ls::after,html.lsmini .mk::after,html.lsmini .pr::after{content:'';
   .ls-mini .lm-b:not(.lm-x){order:3}
   html.lsmini .ls::after,html.lsmini .mk::after,html.lsmini .pr::after{height:116px}   /* [MINI_ROOM · MINI_DOCK] 두 줄 플레이어(약 100px)만큼 맨 아래에 여유 — 마지막 칸이 그 뒤로 숨지 않게 */
 }
+/* ★[N20_MINI_TWO_ROW_1119 NIGHT20 R3X2 #09] 폭이 아니라 «작은 플레이어 자체의 폭»으로 두 줄을 고른다 — 작은 플레이어는 아래 단추 줄 폭(_opPad · 최대 484)을 따르는데,
+   화면이 561 ~ 1000 이면(태블릿 세로 · 가로 폰) 484 칸에 단추 일곱(약 410)이 한 줄로 서서 제목 칸이 47 ~ 73 으로 눌렸다(«감사 인사 2 / 3»이 두 줄로 쪼개지고 «신랑 차례 · …»로 잘림 · 768 실렌더).
+   그래서 플레이어 폭이 560 아래면(_opPad 가 .lm2 를 단다) 폰과 같은 두 줄(윗줄 제목 · ✕ / 아랫줄 크게 보기 · ‹ ▶ ›) — 위 @media 와 같은 규칙 · 684 칸(넓은 PC)은 그대로 한 줄 */
+.ls-mini.lm2{row-gap:0}
+.ls-mini.lm2 .lm-t{order:0;flex:1 1 calc(100% - 56px)}
+.ls-mini.lm2 .lm-x{order:1}
+.ls-mini.lm2 .lm-g{order:2;margin-left:-10px;margin-right:auto}
+.ls-mini.lm2 .lm-b:not(.lm-x){order:3}
+html.lsmini.lsmini2 .ls::after,html.lsmini.lsmini2 .mk::after,html.lsmini.lsmini2 .pr::after{height:116px}   /* 두 줄이면 맨 아래 여유도 폰과 같게 */
 .ls-full{position:fixed;inset:0;z-index:2147482000;background:var(--bg);overflow:auto}
 .ls-full[hidden]{display:none}
 body.lsfull{overflow:hidden}
@@ -1328,7 +1337,7 @@ body.lsfull{overflow:hidden}
 .lf-rr.past .pr-no{color:var(--light)}
 .lf-rr.on{color:var(--accent);font-weight:600;background:var(--bg2)}
 .lf-rr.on::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:2px;border-radius:2px;background:var(--seal)}
-.lf-rr:hover{background:var(--bg2);color:var(--accent)}
+@media (hover:hover){ .lf-rr:hover{background:var(--bg2);color:var(--accent)} }   /* [TOUCH_HOVER_GATE_N20_11] */
 .lf-rr:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 @media (min-width:1000px){
   .lf-in.lf-wide{max-width:min(1120px,calc(100vw - 96px));padding-left:32px;padding-right:32px}
@@ -1378,7 +1387,7 @@ body.lsfull{overflow:hidden}
    번호는 쪽 제목 · «다음 · 6 성혼 선언» 단추에만 남긴다(어디쯤인지는 거기서) · 읽어 주는 이름(aria-label)에는 번호가 그대로 있다 */
 .mk-it{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:0 10px;border:0;border-radius:0;background:none;color:var(--light);font:inherit;font-size:12.5px;white-space:nowrap;cursor:pointer}
 button.mk-it{min-width:44px;justify-content:center}   /* ★[N20_TAP44_1119 NIGHT20 #10] ② 순간 띠 — 두 글자 이름(화촉 · 입장 · 맞절 · 축가) 43px · ⓘ 34px → 누르는 칸 44 · 구분 줄(.mk-sep)은 단추가 아니라 그대로 */
-.mk-it:hover .mk-t{color:var(--accent)}
+@media (hover:hover){ .mk-it:hover .mk-t{color:var(--accent)} }   /* [TOUCH_HOVER_GATE_N20_11] */
 .mk-it.done{color:var(--sub)}
 .mk-it.done .mk-mk{color:var(--gold-deeper)}
 .mk-it.mk-sep{color:var(--light);font-size:12.5px}   /* [POST_FLOW_200 E] 단체 사진 · 추가 촬영 구분 줄 */
@@ -2206,7 +2215,7 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h3[tabindex="-1"]:focus,h4[tabin
 .mk-rclip.fit+.mk-rmore{display:none}
 .mk-rmore{display:inline-flex;align-items:center;min-height:44px;margin:-6px 0 4px;padding:0 2px;border:0;background:none;color:var(--accent);font:inherit;font-size:12.5px;font-weight:500;letter-spacing:.04em;text-decoration:underline;text-underline-offset:3px;cursor:pointer}   /* [REF_FOLD] 글 단추 · 모든 순간 보기(mk-fbtn)와 같은 크기 · 색 */
 .mk-rmore:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
-.lf-refd{display:block;margin-top:4px}.lf-turn{margin:0 0 6px;font-size:14px;font-weight:600;color:var(--accent)}.lf-pos{display:inline-block;width:fit-content;align-self:flex-start;margin:0 0 6px;padding:1px 10px;border:1px solid var(--border);border-radius:999px;font-size:12.5px;color:var(--sub)}.lf-next{margin:12px 0 0;padding-top:10px;border-top:1px solid var(--border);font-size:14px;color:var(--ink2);word-break:keep-all}.pr-flow{margin:4px 0 12px;font-size:12.5px;line-height:1.7;color:var(--sub);word-break:keep-all}.pr-flow b{display:block;color:var(--accent);font-weight:600}.pr-min{margin-left:8px;font-size:12.5px;color:var(--sub);font-weight:400}   /* [FLOW_GRASP_1101] */.lf-ord{margin:0 0 8px;font-size:12.5px;color:var(--gold-deeper);word-break:keep-all}.lf-full{margin:0 0 8px;font-size:14px;line-height:1.7;color:var(--sub)}.lf-full>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--accent);font-size:14px}   /* [PRACTICE_WALK_1101] */
+.lf-refd{display:block;margin-top:4px}.lf-turn{margin:0 0 6px;font-size:14px;font-weight:600;color:var(--accent)}.lf-pos{display:inline-block;width:fit-content;align-self:flex-start;margin:0 0 6px;padding:1px 10px;border:1px solid var(--border);border-radius:999px;font-size:12.5px;color:var(--sub)}.lf-next{margin:12px 0 0;padding-top:10px;border-top:1px solid var(--border);font-size:14px;color:var(--ink2);word-break:keep-all}.pr-flow{margin:4px 0 12px;font-size:12.5px;line-height:1.7;color:var(--sub);word-break:keep-all}.pr-flow b{display:block;color:var(--accent);font-weight:600}.pr-min{margin-left:8px;font-size:12.5px;color:var(--sub);font-weight:400;display:inline-block}/* ★[PR_MIN_ONE_N20_03 2026-11-19 R3X2 #03] 연습 «골라서 연습하기» 줄 — 오른쪽 «당일 직접 · 선언하실 분»이 길면 «당일 약 50초»가 «당일 / 약 50초»로 쪼개졌다(390 성혼 선언) · 한 덩어리로 다음 줄에(nowrap 은 320 에서 오른쪽 말과 겹쳐 inline-block) */   /* [FLOW_GRASP_1101] */.lf-ord{margin:0 0 8px;font-size:12.5px;color:var(--gold-deeper);word-break:keep-all}.lf-full{margin:0 0 8px;font-size:14px;line-height:1.7;color:var(--sub)}.lf-full>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--accent);font-size:14px}   /* [PRACTICE_WALK_1101] */
 .lf-refb{display:inline-block;margin-right:8px;padding:1px 8px;border:1px solid var(--gold-deeper);border-radius:999px;font-size:11px;color:var(--gold-deeper);letter-spacing:.04em}
 .lf-state{margin:0 0 2px;font-size:12.5px;line-height:1.5;color:var(--sub);word-break:keep-all}
 .lf-mode{text-align:center}
@@ -2219,7 +2228,7 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h3[tabindex="-1"]:focus,h4[tabin
 .lf-prep{margin:12px 0;padding:16px;border:1px solid var(--border);border-radius:10px;background:var(--card);text-align:center} .lf-prepn{margin:0;font-family:var(--ko-serif);font-size:48px;line-height:1.1;color:#6B2A24} .lf-prept{margin:8px 0 0;font-size:16px;color:var(--accent)} .lf-preps{margin:4px 0 0;font-size:12.5px;color:var(--sub)}   /* [PR_WAY_198 ⑨ ⑩] */
 .pr-roles{margin:16px 0 0} .pr-roles h4{font-size:14px;font-weight:600;color:var(--accent);margin:0} .pr-roles ul{list-style:none;margin:6px 0 0;padding:0} .pr-roles li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--border);font-size:14px} .pr-roles .rowbtn{min-height:44px;flex:0 0 auto}   /* [PR_WAY_198 ⑫] */
 .pr-resume{margin:0 0 12px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--card)} .pr-resume b{font-family:var(--ko-serif);font-size:16px;color:var(--accent)} .pr-rz1{margin:4px 0 0;font-size:14px;color:var(--accent)} .pr-rz2{margin:2px 0 8px;font-size:12.5px;color:var(--sub)} .pr-resume .rowbtn{min-height:44px}   /* [PR_WAY_198 ⑪] */
-.lf-trytip{margin:14px 0 6px;font-size:12.5px;color:var(--sub)} .lf-trygo{min-height:48px;width:100%;max-width:320px;background:var(--accent);color:#fff;border-color:var(--accent)}
+.lf-trytip{margin:14px 0 6px;font-size:12.5px;color:var(--sub)} .lf-trygo{min-height:48px;width:100%;max-width:320px;background:var(--accent);color:#fff;border-color:var(--accent);justify-content:center}   /* ★[TRYGO_CENTER_N20_04X_1119 R3X2 #04] 연습 끝 «두 분 차례 직접 해보기» 글자를 가운데로 — .rowbtn 이 inline-flex(왼쪽 붙음)라 넓은 단추에서 글만 왼쪽에 붙어 위아래 가운데 줄(안내 · 다시 보기 · 다음 · 완성)과 어긋났다 */
 .mk-prgo{margin:10px 0 4px} .mk-prgo .rowbtn{min-height:44px}
 .lf-ord b.on{color:var(--accent);font-weight:700;text-decoration:underline;text-underline-offset:3px} .lf-full{scroll-margin-top:12px;scroll-margin-bottom:96px} .lf-ctl.pr3 .pr-main{flex:1;width:auto;min-width:0;height:52px;border-radius:26px;background:var(--accent);color:#fff;border-color:var(--accent);font:inherit;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center} .lf-ctl.pr3 .pr-main.wait{background:#6B2A24;border-color:#6B2A24} .lf-ctl.pr3 .ln{flex:0 0 48px}   /* [PR_WAY_198 ④] */
 .lf-listb{border:1px solid var(--border);border-radius:16px;background:var(--card);min-height:44px;padding:0 12px;font:inherit;font-size:12.5px;color:var(--accent);cursor:pointer} .lf-list .lf-rail{display:block;margin:8px 0;padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:var(--card)} .lf-list .lf-rr{min-height:44px}
@@ -9334,6 +9343,7 @@ function _opPad(){
   var sl=document.getElementById('pkSlim'), slOn=!!(sl&&sl.classList.contains('on')), mi=document.getElementById('lsMini'), miOn=de.classList.contains('lsmini')&&mi;
   de.style.scrollPaddingTop=Math.max(b?Math.round(b.getBoundingClientRect().height)+8:0, slOn?Math.round(sl.getBoundingClientRect().height)+8:0)+'px';   // [SLIM_SCROLL_PAD] PC 얇은 띠가 떠 있으면 그 높이도
   if(miOn&&n){ var _nr=n.getBoundingClientRect(); if(_nr.width>0){ mi.style.left=Math.round(_nr.left)+'px'; mi.style.width=Math.round(_nr.width)+'px'; mi.style.transform='none'; mi.style.bottom=Math.max(8,Math.round(window.innerHeight-_nr.top-8))+'px'; } }   // [MINI_DOCK] 아래 단추 줄과 같은 폭 · 그 바로 위(단추 줄 위 여백 16 안쪽 8)
+  if(mi){ var _m2=!!(miOn&&mi.getBoundingClientRect().width<561); mi.classList.toggle('lm2',_m2); de.classList.toggle('lsmini2',_m2); }   // ★[N20_MINI_TWO_ROW_1119] 플레이어 폭이 좁으면(태블릿 · 가로 폰 포함) 두 줄 — 높이가 바뀌니 아래 여유 계산보다 먼저
   de.style.scrollPaddingBottom=((n?Math.round(n.getBoundingClientRect().height)+8:0)+(miOn?Math.round(mi.getBoundingClientRect().height)+16:0))+'px';   // [MINI_ROOM] 작은 플레이어가 떠 있으면 그 높이도
   if(_padRO){ if(b&&b!==_padEl){ _padEl=b; _padRO.observe(b); } if(n&&!_padNav){ _padNav=true; _padRO.observe(n); } }
 }

@@ -1524,6 +1524,9 @@ chk '적어 주세요' inquiry.html 2               # 보조용언 띄어쓰기 
 chk 'gold-text' inquiry.html 14                # 읽는 골드 텍스트 24건 → 2건(대비 2.54→5.71)
 # ── 2026-07-26 live.html 1라운드(하객이 예식 당일 여는 화면)
 chk 'LIVE_KO_TRACK' live.html 1                # 영문 트래킹이 한글에 걸려 낱글자로 흩어지던 것(최악 .couple-ko 24% — 신랑·신부 이름) + 히어로 eyebrow 3줄 방지
+chk 'TOAST_EMPTY_N20_18' live.html 2            # 복사 알림 상자의 처음 글을 비워 둔다(투명한 «Copied» 를 화면 읽기가 모든 화면 끝에서 읽던 것 · R3X2 #18)
+nochk 'aria-live="polite">Copied</div>' live.html
+chk 'HERO_EN_FIT_N20_18' live.html 2            # 머리 영문 이름이 넘칠 때만 줄인다(«SEUNG HYUN & JI YEON» 320 넘침 · R3X2 #18) — 부르기 · 정의 주석
 chk 'LIVE_CONTRAST' live.html 3                # 본문 1 + CONTRAST2 1 + OPACITY 주석 1. 장식용 골드(2.54:1)를 글자색으로 되돌리지 말 것(선·테두리엔 --gold 유지)
 chk 'LIVE_TAP40' live.html 1                   # 복사 29px·브랜드 27px·편지 수신인 33px → 40px. ★브랜드는 ::before 히트영역이 아니라 헤더 패딩 14→8 + 앵커 min-height로 '박스 자체'를 키운 것
 chk 'LIVE_OPACITY' live.html 1                 # ★색만 고쳐도 opacity로 다시 흐려지던 자리(영상 안내문·전체화면 힌트·'의 아들'). 투명도로 위계를 만들지 말 것 — 크기·서체로
@@ -1918,6 +1921,14 @@ chk 'SCHED_FOOTER_LOGO' schedule.html 1                         # 스케줄 푸�
 chk '.sticky-label{color:var(--gold-text)}' schedule.html 1     # 9.5px 골드 라벨 2.54:1 → 5.71:1 · var(--gold)로 되돌리기 금지
 chk 'TRACK_RAMP8' index.html 1                              # 자간 8단계 램프 · 히어로/워드마크/목업 예외
 chk 'A11Y_PINCH_ZOOM' index.html 1                          # 핀치줌 허용 · user-scalable=no 재삽입 금지(WCAG 1.4.4)
+chk 'PV_KEEPALL_X' preview.html 1              # [2026-11-19 NIGHT20 R3X2 #15] 청첩장 미리 보기 아래 안내 낱말 단위 줄바꿈
+# [SHOWCASE_JOSA_X 2026-11-19 NIGHT20 R3X2 #15] 쇼케이스 «○○의 장남» 조사 붙여 씀 · noir 조사 대체 글 제거
+chk 'SHOWCASE_JOSA_X' i/invitations/invitation-02-editorial.html 1
+chk 'SHOWCASE_JOSA_X' i/invitations/invitation-03-letterpress.html 1
+chk 'SHOWCASE_JOSA_X' i/invitations/invitation-06-hangeul.html 1
+chk 'SHOWCASE_JOSA_X' i/invitations/invitation-07-architect.html 1
+chk 'SHOWCASE_JOSA_X' i/invitations/invitation-08-noir.html 1
+nochk '이서연을(를)' i/invitations/invitation-08-noir.html
 chk 'INV06_DARK_AA' i/cover-06.html 2              # [2026-11-19 NIGHT20 #15] 06 어두운 칸 라벨 · 꼬리 대비 AA — opacity 로 다시 흐리지 말 것
 chk 'INV06_DARK_AA' i-family/family-06.html 2
 chk 'A11Y_LETTER_EXPOSED' index.html 1                      # 받은편지 예시는 콘텐츠 · aria-hidden 되돌리면 버튼이 포커스만 되고 안 읽힘
@@ -16465,6 +16476,11 @@ chk 'PR_SIMPLE' order-preview.html 2
 chk 'PR_JUMP' order-preview.html 4
 chk 'PR_WIDE' order-preview.html 3
 chk 'PR_NAV_COL' order-preview.html 1   # ★[NIGHT20 #11 1118] 연습하기 PC 아래 막대 = 오른쪽 칸 폭 — 520 고정은 왼쪽 칸을 덮었다
+chk 'TOUCH_HOVER_GATE_N20_11' order-preview.html 8   # ★[R3X #11 1119] 폰(터치)에서 누른 뒤 남는 :hover 여덟 자리를 (hover:hover) 안으로
+nochk '^\.ps-arw:hover{' order-preview.html   # [TOUCH_HOVER_GATE_N20_11] 맨바깥 :hover 로 되돌리지 말 것
+nochk '^\.ob-exit:hover{' order-preview.html   # [TOUCH_HOVER_GATE_N20_11]
+nochk '^\.lf-rr:hover{' order-preview.html   # [TOUCH_HOVER_GATE_N20_11]
+nochk '^\.mk-it:hover \.mk-t{' order-preview.html   # [TOUCH_HOVER_GATE_N20_11]
 nochk 'body.pr2 .nav{max-width:520px' order-preview.html   # [PR_NAV_COL] 되돌리지 말 것
 chk 'PR_RAIL' order-preview.html 6
 chk 'function _lRail(st)' order-preview.html 1
@@ -24168,3 +24184,15 @@ chk 'H-5: 송출 켜기' docs/plans/PLAN_영상운영_기획안.md 1
 chk "if (GUEST && e.key === 'Escape' && !e.repeat && window.parent !== window) { try { window.parent.document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', bubbles: true })); } catch (_) {} return; }   /\* ★\[RP_ESC_IN_N20_04X_1119" console.html 1
 # ★[CTL_ROW_N20_04X_1119 R3X #04] 미리 듣기 단추 셋 아래 칸은 한 줄 전체 — 빠지면 빨간 오류 줄 폭만큼 «이전» 칸이 넓어져 좁은 폰에서 «다음 순서로»가 두 줄로 꺾인다
 chk 'body.guest .ctl .inner>div{grid-column:1/-1}   /\* ★\[CTL_ROW_N20_04X_1119' console.html 1
+# ★[SHOWCASE_RM_N20_19 2026-11-19 R3X2] 청첩장 쇼케이스 01 · 08 움직임 줄이기(실물 [DTL16] 처방과 같음)
+chk 'SHOWCASE_RM_N20_19' i/invitations/invitation-01-classic.html 1
+chk 'SHOWCASE_RM_N20_19' i/invitations/invitation-08-noir.html 1
+# ★[TRYGO_CENTER_N20_04X_1119 R3X2 #04] 연습 끝 «두 분 차례 직접 해보기» 글자 가운데 — 빠지면 넓은 단추 안에서 글만 왼쪽에 붙는다
+chk 'border-color:var(--accent);justify-content:center}   /\* ★\[TRYGO_CENTER_N20_04X_1119' order-preview.html 1
+# ★[OG_WWW_1120 대본 11/20 «guide.html og:image www · 정본 www 와 맞춤» · COURSE_WIDE 로 같은 꼴 다섯 쪽] og:image · og:url 은 www 주소 — www 없는 주소로 되돌리면 빨강
+nochk 'content="https://momentedit\.kr/' guide.html
+nochk 'content="https://momentedit\.kr/' cancel.html
+nochk 'content="https://momentedit\.kr/' form.html
+nochk 'content="https://momentedit\.kr/' mypage.html
+nochk 'content="https://momentedit\.kr/' schedule.html
+chk 'content="https://www.momentedit.kr/assets/og/og-seal.png?v=5"' guide.html 1
