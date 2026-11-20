@@ -1522,6 +1522,7 @@ chk 'KAKAO_LINK_INQ' inquiry.html 4             # [2026-11-19 NIGHT20 #13 R3 · 
 chk 'MID_META_PAY' index.html 1               # [2026-11-19 NIGHT20 #13 R3 · 대표님 결정 대기] 가격표 식중 영상 덧말 «추가는 두 분 부담»
 chk 'DRESS_WEAR_WORD' inquiry.html 1            # [2026-11-19 NIGHT20 #13 R3 · 대표님 결정 대기] 대여 벌 수는 «예식 착용» · 시착과 따로
 chk 'LEDE_SPACE_KO' index.html 1               # [2026-11-19 NIGHT20 #13 R3 · 대표님 결정 대기] 가격 카드 윗줄 «디지털 참석 · 단체 사진» 띄어 쓰기
+chk 'ABOUT_WEEKDAY_SPACE' index.html 1         # [2026-11-19 NIGHT20 #13 R3 · 대표님 결정 대기] 소개 글 «평일 결혼식» 띄어 쓰기
 chk 'PRICE_LABEL_NOWRAP' index.html 2           # [2026-11-18 NIGHT20 #13] 가격표 항목 이름 한 줄 · 긴 덧말이 접힌다(390 «식중 / 영상» 쪼개짐)
 # ── 2026-07-26 inquiry.html 1라운드
 chk 'INQ_REQ_DOT' inquiry.html 1               # 필수 표시 점 3px 골드(2.54:1) 복원 금지 — 폼에서 가장 중요한 정보가 안 보였다
