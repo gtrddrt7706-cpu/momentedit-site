@@ -11545,7 +11545,7 @@ function _spWhen(D, R, due){
     +'</ul>';
   /* [SNAP_DESIGN_0926] 마감 줄 — 배경 칠한 안내 상자 → 작은 라벨 + 한 줄([NO_SIDE_STRIPE] «배경색 칠한 안내 상자도 금지» · 디자인 점검) */
   var _had=_snapFilledD(((SNAPFLOW.p||{}).snapDraft)||{});   // [SNAP_WORD_SCENE] 늦은 날 — 아직 안 낸 사람에게는 «고르셔도»(카드와 같은 말) · 낸 사람에게는 «고치셔도»
-  if(due) h+='<div class="snp-due"><span class="snp-due-k">마감</span>'+(due.today?(_had?'오늘이 마감이에요. 고치셔도 디렉터에게 바로 전해져요.':'오늘까지 골라 주세요. 디렉터가 확인해 사진작가에게 전해요.'):due.late?('예식 14일 전이 지났어요. 지금 '+(_had?'고치셔도':'고르셔도')+' 디렉터에게 바로 전해져요.'):('예식 14일 전 <b>'+due.due+'('+due.dueDow+')</b>까지 남겨 주세요. 디렉터가 확인해 사진작가에게 전해요.'))+'</div>';
+  if(due) h+='<div class="snp-due"><span class="snp-due-k">마감</span>'+(due.today?(_had?'오늘이 마감이에요. 고치셔도 디렉터에게 바로 전해져요.':'오늘까지 골라 주세요. 디렉터가 확인해 사진작가에게 전해요.'):due.late?(due.edit+'\u2060('+due.editDow+')\u2060까지 '+(_had?'고치시면':'고르시면')+' 디렉터에게 바로 전해져요.'):   /* [SNAP_LATE_DATE_R3 안 B] */ ('예식 14일 전 <b>'+due.due+'('+due.dueDow+')</b>까지 남겨 주세요. 디렉터가 확인해 사진작가에게 전해요.'))+'</div>';
   return h;
 }
 function _spHasImg(R, z){ return z.base.concat(z.pick).some(function(s){ return !!R.img(s) || (s.ex||[]).some(function(e){ return !!R.exImg(e); }); }); }   // [SNAP_PHOTO_FIRST] 예시 사진이 한 장이라도 오면 그 공간은 사진 칸   // [SNAP_NOIMG_LIST] 사진이 한 장이라도 들어온 공간 = 칸 · 없으면 목록
@@ -12589,7 +12589,7 @@ function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞
       + '<div class="cc-title">스냅 기획</div>'
       + '<div class="cc-sub">'+(lock?'사진작가가 장면을 골라 담아요.':'고르신 장면을 사진작가에게 전해요.')+'</div>'   // 잠긴 뒤엔 «고르신 장면을 전해요»가 아래 «고를 수 없어요»와 어긋난다(390 실측) · [CC_SUB_FIT] 19자 — 390px 한 줄(21자 한도 · 고아 줄 방지) · «그대로 찍어요»는 약속 과잉이라 뺐다(시간이 줄면 앞 번호부터 · 책임질 수 없는 안심 금지)
       + (lock?'<div class="cc-note" style="text-align:center">예식&nbsp;3일&nbsp;전부터는 여기서 고를 수 없어요.</div>'
-             :((due?('<div class="cc-note" style="text-align:center">'+(due.today?'오늘까지 골라 주세요':due.late?'마감이 지났지만 지금 고르셔도 디렉터에게 바로 전해져요.':(due.due+'('+due.dueDow+')까지 골라 주세요'))+'</div>'):'')   // [SNAP_WORD_SCENE] 마감 줄에 할 일을 넣는다
+             :((due?('<div class="cc-note" style="text-align:center">'+(due.today?'오늘까지 골라 주세요':due.late?(due.edit+'\u2060('+due.editDow+')\u2060까지 고르시면 디렉터에게 바로 전해져요.'):   /* [SNAP_LATE_DATE_R3 안 B · 대기] 마감은 한 날만 — NOW «…까지 고르실 수 있어요»와 같은 날 · «지났지만»은 뺐다 */ (due.due+'('+due.dueDow+')까지 골라 주세요'))+'</div>'):'')   // [SNAP_WORD_SCENE] 마감 줄에 할 일을 넣는다
                /* [SNAP_BTN_GHOST 2026-09-26 사장님 결정 ⑥ · 고객 점검 prod-4 · x-4] 채움(cc-btn) → 테두리(cc-btn-ghost) — 개요 화면의 유일한 채움 버튼이
                   «선택이에요»라고 밝힌 스냅 기획이라, 필수 준비(예식 준비 행은 전부 테두리 · TRK_BTN_SAME)보다 «지금 할 일»로 먼저 읽혔다.
                   카드 자리(예식 준비 앞)·문구·크기는 그대로 — 무게만 내린다. 채움으로 되돌리지 말 것. */
