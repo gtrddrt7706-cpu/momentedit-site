@@ -3734,7 +3734,9 @@ function _errCode(x, L){ return _errInfo(x, L).c; }
    ★★[ERR_CODE_DOT · P2] 코드 앞 끝 마침표는 걷는다 — «…주세요. (코드 B8)» → «…주세요 (코드 B8)». 서버가 이미 붙여 온 글도 같은 꼴로(_errTidy). */
 function _errTidy(t){ return String(t==null?'':t).replace(/([^\s.。])[\s.。]*(\(코드 [A-Z]\d[^)]*\))\s*$/, '$1 $2'); }
 function _errLine(x, L, base, todo){
-  var i=_errInfo(x, L); if(i.has) return _errTidy(i.t);
+  var i=_errInfo(x, L);
+  if(i.n===1 && ERR_BUSY_OLD.test(String(i.t||'').replace(/\s*\(코드 [^)]*\)\s*$/,''))) i={n:1, c:i.c, t:'요청이 몰렸어요 · 다시 해 주세요'};   /* [ERR_BUSY_WORD_R3 안 B · 대기] 옛 서버 잠금 대기 글은 하객 · 예약 화면(_ecSrv)과 같은 말로 — «요청이 몰렸어요 · 다시 해 주세요 (코드 S1)» */
+  if(i.has) return _errTidy(i.t);
   if(i.t && !i.n) return i.t;   // [ERR_SRV_REASON] 서버 까닭 글 그대로 · 코드 없음
   var d=(todo&&typeof todo==='object')?todo[i.n]:todo;
   var w=i.t || (i.n===8 ? ERR_W[8]+' · '+ERR_DO[8] : (ERR_W[i.n] ? ERR_W[i.n]+' · '+(d||ERR_DO[i.n]) : (base||'처리하지 못했어요 · 다시 눌러 주세요')));
