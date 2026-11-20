@@ -1279,10 +1279,13 @@ guestsInput.addEventListener('input', () => {
   var hidden = document.getElementById('dateFixed');
 
   var today = new Date(); today.setHours(0,0,0,0);
-  var viewY = today.getFullYear();
-  var viewM = today.getMonth();
+  /* ★[CAL_OPEN_FLOOR 2026-11-19 NIGHT20 #13 R3 · 대기·대표님 결정] 오픈(2027-04-29) 전 날짜는 못 고른다 ·
+     달력도 오픈 달부터 열린다. 전에는 오늘부터 골라져 오픈 전 날짜로 예식 신청이 들어갈 수 있었다. */
+  var OPEN = new Date(2027, 3, 29);
+  var MIN = today > OPEN ? new Date(today) : new Date(OPEN); // 오늘과 오픈일 중 늦은 날 이후만
+  var viewY = MIN.getFullYear();
+  var viewM = MIN.getMonth();
   var selected = null;
-  var MIN = new Date(today); // 오늘 이후만
   var WD_KO = ['일','월','화','수','목','금','토'];
 
   function pad(n){ return (n<10?'0':'')+n; }
@@ -1326,9 +1329,9 @@ guestsInput.addEventListener('input', () => {
       if (selected && cur.getTime() === selected.getTime()) btn.classList.add('selected');
       grid.appendChild(btn);
     }
-    // 이전 달 이동 제한 (오늘 이전 달로는 못 감)
+    // 이전 달 이동 제한 (고를 수 있는 첫 달 이전으로는 못 감 · [CAL_OPEN_FLOOR])
     var firstOfView = new Date(viewY, viewM, 1);
-    var firstOfThis = new Date(today.getFullYear(), today.getMonth(), 1);
+    var firstOfThis = new Date(MIN.getFullYear(), MIN.getMonth(), 1);
     prevBtn.disabled = (firstOfView <= firstOfThis);
   }
   function open(){ panel.classList.add('open'); requestAnimationFrame(function(){ panel.classList.add('visible'); }); trigger.setAttribute('aria-expanded','true'); panel.setAttribute('aria-hidden','false'); }
