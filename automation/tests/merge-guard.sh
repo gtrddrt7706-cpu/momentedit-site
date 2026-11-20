@@ -1959,6 +1959,14 @@ chk 'INV_TIME_12_R3' i-family/family-08.html 1
 chk 'LABEL_NAME_R3' live.html 1                # [2026-11-19 NIGHT20 R3 #15] 단추 이름 = 보이는 글로 시작(WCAG 2.5.3)
 chk 'LABEL_NAME_R3' invitation-gallery.html 2
 chk 'MU_LI_NONE_R3' assets/bgm-bed.js 1        # [2026-11-19 NIGHT20 R3 #15] radiogroup 안 li role=none
+# [SHOWCASE_AA_R3 2026-11-19 NIGHT20 R3 #15] 쇼케이스 7쪽 글자 대비 AA(글자색만 · 장식 그대로)
+chk 'SHOWCASE_AA_R3' i/invitations/invitation-01-classic.html 1
+chk 'SHOWCASE_AA_R3' i/invitations/invitation-02-editorial.html 2
+chk 'SHOWCASE_AA_R3' i/invitations/invitation-03-letterpress.html 1
+chk 'SHOWCASE_AA_R3' i/invitations/invitation-04-Vermilion.html 1
+chk 'SHOWCASE_AA_R3' i/invitations/invitation-05-botanical.html 1
+chk 'SHOWCASE_AA_R3' i/invitations/invitation-07-architect.html 1
+chk 'SHOWCASE_AA_R3' i/invitations/invitation-08-noir.html 1
 chk 'A11Y_LETTER_EXPOSED' index.html 1                      # 받은편지 예시는 콘텐츠 · aria-hidden 되돌리면 버튼이 포커스만 되고 안 읽힘
 # ★★[LETTER_SAMPLE 2026-09-06] 위 aria-label 은 «스크린리더에만» 예시라고 말한다.
 #   눈에 보이는 «예시» 글자는 0개였다(실측). 바로 위 문장이 「스튜디오를 거치지 않고 두 분께만
