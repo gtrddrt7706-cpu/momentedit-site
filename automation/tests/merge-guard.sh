@@ -24283,3 +24283,6 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/meal-guide-word.mjs 
 # ★[LF_MORE_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 A] 크게 보기 — 글이 아래 막대 밑으로 이어질 때만 막대 위를 옅게 흐린다(폰 긴 읽기 글 끝줄이 숨어 끝난 글처럼 보이던 것)
 chk 'LF_MORE_N06' order-preview.html 3
 if command -v node >/dev/null 2>&1; then node scripts/audit/lf-more.mjs >/dev/null 2>&1; _lm=$?; node scripts/audit/lf-more.mjs --selftest >/dev/null 2>&1; _lms=$?; if [ "$_lm" != 0 ] || [ "$_lms" != 0 ]; then echo "REVERT? lf-more: 아래가 더 있다는 흐림이 빠졌거나 늘 걸린다 ($_lm/$_lms) — node scripts/audit/lf-more.mjs"; fail=1; else echo 'ok lf-more'; fi; fi
+# ★[PAIR_ARIA_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정] 고르기 «축사 · 축가» 칸 읽어 주는 이름 — 다른 칸과 같은 «○○ 담기» + 눌림(«축가 빼기, 눌림» 겹침 걷기)
+chk 'PAIR_ARIA_N06' order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/pair-aria.mjs >/dev/null 2>&1; _pa=$?; node scripts/audit/pair-aria.mjs --selftest >/dev/null 2>&1; _pas=$?; if [ "$_pa" != 0 ] || [ "$_pas" != 0 ]; then echo "REVERT? pair-aria: 축사 · 축가 칸 읽어 주는 이름이 «빼기»로 돌아갔다 ($_pa/$_pas) — node scripts/audit/pair-aria.mjs"; fail=1; else echo 'ok pair-aria'; fi; fi
