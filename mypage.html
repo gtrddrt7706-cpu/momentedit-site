@@ -8463,7 +8463,9 @@ function _ritPrepFold(rd, base, dd, asLink){
   /* ★[GOODS_STUDIO 2026-10-06 사장님] 케이크 · 꽃 · 부케는 늘 저희가 준비 — 옛 초안이 «챙길 것»에 남긴 케이크 · 꽃 줄은 건너뛰고 «저희가 준비해요»로 옮긴다 */
   var _oldGoods=/^(케이크|부모님께 드릴 꽃) · 크기 · 도착 시각/;
   (sm.prep||[]).filter(function(q){ return !_oldGoods.test(String((q&&q.what)||'')); }).forEach(function(q){ var w=String(q.what||'').replace(/\s*·\s*(사흘 전까지|예식 3일 전까지)(?=$|\()/,''); var dt=dueTxt(q), li='<li>'+escapeHtml(w)+(dt?' <span class="due">· '+escapeHtml(dt)+'</span>':'')+'</li>'; (q.who==='parents'?par:two).push(li); });
-  var hp=(sm.helpers||[]).slice(); if(dd&&dd.dining_on==='Y') hp.push(['식사 자리로 안내할 분','애프터 웨딩을 고른 날']);
+  /* ★[MEAL_GUIDE_WORD_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정] 식사가 확인된 날(mealFull)만 «식사 자리» · 카페 · 미확인 날은 «애프터 웨딩 자리로 안내할 분» — 촬영 후 안내(319 · 카페 판)가 «식사»를 쓰지 않는 것과 같은 기준(meal 있음 · mealFull 아님) */
+  var _mgFull=true; try{ _mgFull=!!RitualPreviewLink.mealFullOf(dd, DN_PLACEHOLDER); }catch(e){}
+  var hp=(sm.helpers||[]).slice(); if(dd&&dd.dining_on==='Y') hp.push([_mgFull?'식사 자리로 안내할 분':'애프터 웨딩 자리로 안내할 분','애프터 웨딩을 고른 날']);
   /* [GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 맡긴 케이크 · 꽃 — 직접 준비분은 이미 prep(챙길 것)에 있다 */
   var stu=(Array.isArray(sm.goods)?sm.goods:[]).filter(function(g){ return g&&g.what&&!/^(부모님께 드릴 꽃|케이크)/.test(String(g.what)); })   /* [CAKE_OLD_OFF_1017] 옛 초안의 케이크도 «저희가 준비해요»에 안 싣는다 */.map(function(g){ return String(g.what||''); });   /* ★[FLOWER_OFF_OLD_1013] 10/13 전에 저장한 식순의 «부모님께 드릴 꽃»은 보이지 않는다(꽃 전달 폐지 · 계약서 v1.15 · 식순 화면 ③ 과 같게) */   // [GOODS_STUDIO] 옛 «직접 준비»도 이제 저희가
   var _bq=Array.isArray(sm.prep);   // [GOODS_STUDIO] 기본 조화 부케 줄 — 준비 목록이 있는 초안에만(옛 초안은 아무것도 안 그린다)

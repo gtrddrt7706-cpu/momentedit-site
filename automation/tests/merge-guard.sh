@@ -24276,3 +24276,7 @@ chk '#playerSound:not(\[hidden\]) + .player-note' live.html 1
 # ★[LETTER_PREVIEW_READ_N20_19 2026-11-19 R3] 편지 미리보기 블록은 통째로 숨기지 않고(안내 두 줄은 화면 읽기에 들린다) 겉모양 흉내 넷만 aria-hidden
 chk 'id="letterPreview" style="display:none">' live.html 1
 chk 'lp-cta-preview" aria-hidden="true"' live.html 1
+# ★[MEAL_GUIDE_WORD_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정] 도와주실 분 — 식사가 확인된 날만 «식사 자리로 안내할 분» · 카페 · 미확인 날은 다른 말(319 카페 판과 같은 기준)
+chk 'MEAL_GUIDE_WORD_N06' assets/ritual-open.js 1
+chk 'MEAL_GUIDE_WORD_N06' mypage.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/meal-guide-word.mjs >/dev/null 2>&1; _mg=$?; node scripts/audit/meal-guide-word.mjs --selftest >/dev/null 2>&1; _mgs=$?; if [ "$_mg" != 0 ] || [ "$_mgs" != 0 ]; then echo "REVERT? meal-guide-word: 카페 날 도와주실 분 이름이 «식사 자리»로 돌아갔다 ($_mg/$_mgs) — node scripts/audit/meal-guide-word.mjs"; fail=1; else echo 'ok meal-guide-word'; fi; fi
