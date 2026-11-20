@@ -1948,6 +1948,13 @@ chk 'INV_PARENTS_13_R3' i-family/family-06.html 1
 chk 'INV_PARENTS_13_R3' i/cover-07.html 1
 chk 'INV_PARENTS_13_R3' i-family/family-07.html 1
 chk 'INV_PARENTS_13_R3' i-family/family-08.html 1
+# [INV_TIME_12_R3 2026-11-19 NIGHT20 R3 #15] 실물 청첩장 표지 시간 줄 12px
+chk 'INV_TIME_12_R3' i/cover-04.html 1
+chk 'INV_TIME_12_R3' i-family/family-04.html 1
+chk 'INV_TIME_12_R3' i/cover-07.html 1
+chk 'INV_TIME_12_R3' i-family/family-07.html 1
+chk 'INV_TIME_12_R3' i/cover-08.html 1
+chk 'INV_TIME_12_R3' i-family/family-08.html 1
 chk 'A11Y_LETTER_EXPOSED' index.html 1                      # 받은편지 예시는 콘텐츠 · aria-hidden 되돌리면 버튼이 포커스만 되고 안 읽힘
 # ★★[LETTER_SAMPLE 2026-09-06] 위 aria-label 은 «스크린리더에만» 예시라고 말한다.
 #   눈에 보이는 «예시» 글자는 0개였다(실측). 바로 위 문장이 「스튜디오를 거치지 않고 두 분께만
