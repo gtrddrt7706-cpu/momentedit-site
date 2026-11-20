@@ -24271,3 +24271,5 @@ chk '.gv-dots button::before{forced-color-adjust:none;background:CanvasText}' in
 chk 'INQ_FORCED_N20_19' inquiry.html 1
 chk '.compact-mark::after{forced-color-adjust:none;background:Highlight}' inquiry.html 1
 chk '.required-dot{forced-color-adjust:none;background:CanvasText}' inquiry.html 1
+# ★[SOUND_FIRST_N20_19 2026-11-19 R3] 디지털 참석 영상 아래 «소리를 켜 주세요»가 세 줄 중 맨 위(비공개 안내보다 앞)
+chk '#playerSound:not(\[hidden\]) + .player-note' live.html 1
