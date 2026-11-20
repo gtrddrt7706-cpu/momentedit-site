@@ -1330,6 +1330,7 @@ html.lsmini .ls::after,html.lsmini .mk::after,html.lsmini .pr::after{content:'';
 html.lsmini.lsmini2 .ls::after,html.lsmini.lsmini2 .mk::after,html.lsmini.lsmini2 .pr::after{height:116px}   /* 두 줄이면 맨 아래 여유도 폰과 같게 */
 .ls-full{position:fixed;inset:0;z-index:2147482000;background:var(--bg);overflow:auto}
 .ls-full[hidden]{display:none}
+.ls-full.lf-more .lf-ctl::before{content:'';position:absolute;left:0;right:0;bottom:100%;height:32px;background:linear-gradient(to bottom,color-mix(in srgb,var(--bg) 0%,transparent),var(--bg));pointer-events:none}   /* [LF_MORE_N06] 아래가 더 있을 때만 막대 위를 옅게 */
 body.lsfull{overflow:hidden}
 .lf-in{max-width:520px;margin:0 auto;padding:12px 18px 0;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;box-sizing:border-box}   /* ★[BIG_CTL_FIXED 2026-09-26 사장님 «아래 플레이는 고정됐으면 · 위아래로 움직이는 게 정신없어»] 글이 짧아도 단추 줄이 화면 맨 아래 — 아래 여백은 .lf-ctl 의 safe-area 가 맡는다 */
 .lf-h{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--sub);margin-bottom:10px;position:sticky;top:0;z-index:2;background:var(--bg);padding:6px 0}   /* [BIG_END 2-10] 칩이 많아도 ⌄ · n / N 이 남는다 */
@@ -9174,6 +9175,9 @@ function _lfSteady(f){
     p.style.minHeight=Math.max(H,other)+'px';   // 두 모양 중 큰 쪽 — 나레이션 줄과 «사람이 말하는 자리» 줄을 오가도 칩이 안 뛴다
   }catch(e){}
 }
+/* ★[LF_MORE_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 A] 크게 보기 — 글이 아래 막대(.lf-ctl · sticky) 밑으로 이어지면 막대 위 32px 를 배경색으로 옅게 흐려 «아래가 더 있다»를 보인다.
+     종전엔 폰 390 «신부가 읽어요»(긴 참고 예시)의 마지막 줄 «보답하겠습니다.»가 막대 뒤에 숨어 끝난 글처럼 보였다(내리면 보임). 끝까지 내리면 흐림이 걷힌다 · 글씨 크기(PR_WAY_198)는 그대로 */
+function _lfMore(f){ if(!f) return; var m=(f.scrollHeight-f.scrollTop-f.clientHeight)>4; f.classList.toggle('lf-more',m); if(!f.__lfm){ f.__lfm=1; f.addEventListener('scroll',function(){ _lfMore(f); },{passive:true}); } }
 function _lFull(){
   var f=document.getElementById('lsFull');
   if(!f){ f=document.createElement('div'); f.id='lsFull'; f.className='ls-full'; f.setAttribute('role','dialog'); f.setAttribute('aria-modal','true'); f.setAttribute('aria-label','연습 · 크게 보기'); document.body.appendChild(f); }
@@ -9290,6 +9294,7 @@ function _lFull(){
   _nbWrap(f); f.hidden=false; document.body.classList.add('lsfull');   // [RIT_WRAP]
   _lfSteady(f);   // [LF_STEADY]
   if(LP._lfI!==LP.i||LP._lfQ!==LP.q){ LP._lfI=LP.i; LP._lfQ=LP.q; try{ f.scrollTop=0; }catch(e){} }   /* [PR_WAY_198 ⑤] 다음 줄은 첫 문장부터 */
+  _lfMore(f); setTimeout(function(){ _lfMore(f); },350);   /* [LF_MORE_N06] 글이 아래 막대 밑으로 이어지면 막대 위를 옅게 흐린다 */
   ['.wrap','#nav','#meAdvStack'].forEach(function(q){ var w=document.querySelector(q); if(w) w.setAttribute('inert',''); });   // [DETAIL_0925 C3] 뒤를 잠근다 · [A11Y_0925 3장] 상담 말풍선은 .wrap 밖이라 포커스가 샜다(RAIL 은 그대로 · 잠깐 잠글 뿐)
   var v=f.querySelector('video'); if(v){ var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches; if(!rm&&!LP.paused&&st&&v.paused&&!v.ended){ var pp=v.play(); if(pp&&pp['catch']) pp['catch'](function(){}); } }   /* [LF_VID_KEEP] 이미 돌고 있으면 다시 부르지 않는다 · [LVID_ONCE] 끝까지 돈 영상은 같은 순간 안에서 다시 틀지 않는다(끝 장면에 머문다 → ★2026-10-09 [VID_REST_THUMB] 끝나면 썸네일 사진으로 돌아가 그대로) */
   // 포커스 — 같은 자리로 · 칩에 있다가 순간이 바뀌어 칩이 사라지면 ❚❚ 로

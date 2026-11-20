@@ -24280,3 +24280,6 @@ chk 'lp-cta-preview" aria-hidden="true"' live.html 1
 chk 'MEAL_GUIDE_WORD_N06' assets/ritual-open.js 1
 chk 'MEAL_GUIDE_WORD_N06' mypage.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/meal-guide-word.mjs >/dev/null 2>&1; _mg=$?; node scripts/audit/meal-guide-word.mjs --selftest >/dev/null 2>&1; _mgs=$?; if [ "$_mg" != 0 ] || [ "$_mgs" != 0 ]; then echo "REVERT? meal-guide-word: 카페 날 도와주실 분 이름이 «식사 자리»로 돌아갔다 ($_mg/$_mgs) — node scripts/audit/meal-guide-word.mjs"; fail=1; else echo 'ok meal-guide-word'; fi; fi
+# ★[LF_MORE_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 A] 크게 보기 — 글이 아래 막대 밑으로 이어질 때만 막대 위를 옅게 흐린다(폰 긴 읽기 글 끝줄이 숨어 끝난 글처럼 보이던 것)
+chk 'LF_MORE_N06' order-preview.html 3
+if command -v node >/dev/null 2>&1; then node scripts/audit/lf-more.mjs >/dev/null 2>&1; _lm=$?; node scripts/audit/lf-more.mjs --selftest >/dev/null 2>&1; _lms=$?; if [ "$_lm" != 0 ] || [ "$_lms" != 0 ]; then echo "REVERT? lf-more: 아래가 더 있다는 흐림이 빠졌거나 늘 걸린다 ($_lm/$_lms) — node scripts/audit/lf-more.mjs"; fail=1; else echo 'ok lf-more'; fi; fi
