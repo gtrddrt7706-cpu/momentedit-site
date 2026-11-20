@@ -2413,6 +2413,10 @@ chk 'IG_LEGIBLE' index.html 2                            # 마크 다층 그림�
 chk 'IG_GAP' index.html 1                                # 기록 갤러리 세로 리듬(눈썹 4 / 그리드 24·PC 20) · 공용값(12/36)으로 되돌리면 아이디가 위아래 어디에도 안 붙어 뜬다
 chk 'IG_MARK' index.html 1                               # 제목 옆 인스타 마크 하나 · 빼면 '@momentedit.kr'이 세리프에선 홈페이지 주소로 읽힌다(.kr 때문에 특히)
 chk 'archive-grid-ig' index.html 14                      # 사진 9장 우상단 마크(마크업 9 + CSS) · 정중앙 흰 원으로 되돌리면 인물 얼굴 위에 다시 얹힌다
+# ★[IG_PHOTO_OFF_1119] [대기·대표님 결정] 인스타 게시물 0개 동안 사진 9장은 링크 없는 사진(마크는 CSS 로 숨김 · 마크업 그대로) — 게시물이 채워지면 이 커밋 revert
+chk 'IG_PHOTO_OFF_1119' index.html 2
+chk 'data-ig-off' index.html 13
+nochk 'aria-label="Wedding moment 0' index.html 0
 chk 'DM_FOOT_SIGN' index.html 1                          # 편지 맺음 = 이름(Moment Edit) 위 · 문장 아래 · 메일 없음 · 되돌리면 금색(대비 2.3) 문구가 위로 서고 연락처가 편지 안에 다시 들어온다
 # ── 순서 묶음 [HOME_ORDER_1114] (2026-11-14 INSTA 보고 1 · 대본 판정 · 번호마다 커밋 하나 — 빼려면 그 커밋만 revert)
 chk 'CTA_PLACE_OWNER_1114' index.html 1                # S-1 은 2026-11-14 사장님이 뺌 — 가격 구간 상담 버튼은 스냅 표 아래(구간 끝) 그대로

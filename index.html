@@ -3349,6 +3349,12 @@ a.ig-handle:hover {
     opacity: 1;
   }
 }
+/* ★[IG_PHOTO_OFF_1119] 링크가 아닌 사진 칸 — 인스타 마크 · 누를 수 있다는 신호(커서 · 막 · 확대)를 걷는다 */
+.archive-grid-cell[data-ig-off] { cursor: default; }
+.archive-grid-cell[data-ig-off] .archive-grid-ig { display: none; }
+.archive-grid-cell[data-ig-off]:hover::after,
+.archive-grid-cell[data-ig-off]:active::after { background: transparent; }
+.archive-grid-cell[data-ig-off]:hover img { transform: none; }
 /* 눌렸다는 응답 — hover가 없는 화면의 유일한 신호 */
 @media (hover: none) {
   .archive-grid-cell:active::after {
@@ -6103,8 +6109,11 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
   <div class="sec-title"><a class="sec-title-link ig-title" href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" aria-label="@momentedit.kr · Moment Edit Instagram 바로가기">@momentedit.kr</a></div>
 </div>
 <!-- [ARIA_ROLELESS_DIV] 같은 이유 — 링크 9개를 묶은 덩어리라 group 으로 선언한다(안쪽 링크는 그대로 읽힌다) -->
-<div class="reveal archive-grid" data-archive-grid role="group" aria-label="Visual Archive · 인스타그램에서 더 보기">
-  <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm" aria-label="Wedding moment 01 on Instagram">
+<!-- ★[IG_PHOTO_OFF_1119] [대기·대표님 결정] 인스타 계정이 아직 게시물 0개라(2026-11-19 실측) 사진 9장을 «인스타로 나가는 문»에서 «사진만»으로 바꿨다.
+     사진을 누르면 빈 계정이 열려 «아직 아무것도 없는 곳»이라는 인상을 줬다. 제목 @momentedit.kr · 바닥 · 오른쪽 레일의 인스타 문은 그대로다.
+     마크(.archive-grid-ig) 마크업은 남기고 CSS 로만 숨긴다 — 게시물이 채워지면 이 커밋을 revert 하면 9개 문이 그대로 돌아온다. -->
+<div class="reveal archive-grid" data-archive-grid role="group" aria-label="Visual Archive · 촬영 예시">
+  <div class="archive-grid-cell mood-warm" data-ig-off>
     <picture><source type="image/webp" srcset="/assets/home/gallery-01.webp"><img src="/assets/home/gallery-01.jpg" alt="스몰웨딩 스냅 촬영 예시 1" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
       <svg viewBox="0 0 24 24">
@@ -6113,8 +6122,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
       </svg>
     </span>
-  </a>
-  <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-light" aria-label="Wedding moment 02 on Instagram">
+  </div>
+  <div class="archive-grid-cell mood-light" data-ig-off>
     <picture><source type="image/webp" srcset="/assets/home/gallery-02.webp"><img src="/assets/home/gallery-02.jpg" alt="스몰웨딩 스냅 촬영 예시 2" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
       <svg viewBox="0 0 24 24">
@@ -6123,8 +6132,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
       </svg>
     </span>
-  </a>
-  <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm-2" aria-label="Wedding moment 03 on Instagram">
+  </div>
+  <div class="archive-grid-cell mood-warm-2" data-ig-off>
     <picture><source type="image/webp" srcset="/assets/home/gallery-03.webp"><img src="/assets/home/gallery-03.jpg" alt="스몰웨딩 스냅 촬영 예시 3" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
       <svg viewBox="0 0 24 24">
@@ -6133,8 +6142,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
       </svg>
     </span>
-  </a>
-  <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm-3" aria-label="Wedding moment 04 on Instagram">
+  </div>
+  <div class="archive-grid-cell mood-warm-3" data-ig-off>
     <picture><source type="image/webp" srcset="/assets/home/gallery-04.webp"><img src="/assets/home/gallery-04.jpg" alt="프라이빗 웨딩 촬영 예시 4" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
       <svg viewBox="0 0 24 24">
@@ -6143,8 +6152,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
       </svg>
     </span>
-  </a>
-  <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-deep" aria-label="Wedding moment 05 on Instagram">
+  </div>
+  <div class="archive-grid-cell mood-deep" data-ig-off>
     <picture><source type="image/webp" srcset="/assets/home/gallery-05.webp"><img src="/assets/home/gallery-05.jpg" alt="프라이빗 웨딩 촬영 예시 5" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
       <svg viewBox="0 0 24 24">
@@ -6153,8 +6162,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
       </svg>
     </span>
-  </a>
-  <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm" aria-label="Wedding moment 06 on Instagram">
+  </div>
+  <div class="archive-grid-cell mood-warm" data-ig-off>
     <picture><source type="image/webp" srcset="/assets/home/gallery-06.webp"><img src="/assets/home/gallery-06.jpg" alt="마이크로웨딩 촬영 예시 · Moment Edit 캔들존" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
       <svg viewBox="0 0 24 24">
@@ -6163,8 +6172,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
       </svg>
     </span>
-  </a>
-  <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-light-2" aria-label="Wedding moment 07 on Instagram">
+  </div>
+  <div class="archive-grid-cell mood-light-2" data-ig-off>
     <picture><source type="image/webp" srcset="/assets/home/gallery-07.webp"><img src="/assets/home/gallery-07.jpg" alt="마이크로웨딩 촬영 예시 · Moment Edit 화이트존" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
       <svg viewBox="0 0 24 24">
@@ -6173,8 +6182,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
       </svg>
     </span>
-  </a>
-  <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm-2" aria-label="Wedding moment 08 on Instagram">
+  </div>
+  <div class="archive-grid-cell mood-warm-2" data-ig-off>
     <picture><source type="image/webp" srcset="/assets/home/gallery-08.webp"><img src="/assets/home/gallery-08.jpg" alt="웨딩스냅 예식 영상 촬영 예시 8" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
       <svg viewBox="0 0 24 24">
@@ -6183,8 +6192,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
       </svg>
     </span>
-  </a>
-  <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm-3" aria-label="Wedding moment 09 on Instagram">
+  </div>
+  <div class="archive-grid-cell mood-warm-3" data-ig-off>
     <picture><source type="image/webp" srcset="/assets/home/gallery-09.webp"><img src="/assets/home/gallery-09.jpg" alt="웨딩스냅 예식 영상 촬영 예시 9" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
       <svg viewBox="0 0 24 24">
@@ -6193,7 +6202,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
       </svg>
     </span>
-  </a>
+  </div>
 </div>
 <!-- [IG_ONCE] 아래 '사진 더 보기' 문 폐지 (2026-08-03 사용자 "미니멀하게").
      사진 9장이 전부 인스타 마크를 달고 전부 링크다 — 문은 이미 아홉 개다.
