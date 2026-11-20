@@ -648,7 +648,7 @@
     var cr=!cur&&carried(sg); if(folded(sg)&&(cs||cr)) return foldHtml(sg,k,cs||P.byF(cr.f));   /* [MUSIC_FOLD_1031 · MUSIC_FOLD_PICK_1031] 고른 곡이 있으면 접힌 한 줄 · «바꾸기»로 편 방문만 목록 */
     var h='<ul class="mu-list" role="radiogroup" aria-label="'+e(gl)+'">';
     L.forEach(function(p,i){ var on=cur===p.f, pl=CARD.f===p.f&&CARD.sg===sg, miss=AV.st==='ok'&&!AV.set[p.f];
-      h+='<li class="mu-row'+(on?' on':'')+'">'
+      h+='<li class="mu-row'+(on?' on':'')+'" role="none">'   /* [MU_LI_NONE_R3 2026-11-19 NIGHT20 R3 #15] radiogroup 안 li 는 표시 역할 없음(role=none) · 화면 읽기가 «목록 밖 항목»으로 헤매지 않게 · 모양 · 동작 그대로 */
         +(emb()?plBtn(sg,k,p,pl,miss):'')
         +'<button type="button" class="mu-pick" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!cur&&i===0))?0:-1)+'" data-fk="bed:'+sg+':'+p.f+'" onclick="bedAct(\'pick\',\''+p.f+'\',\''+e(k)+'\',\''+sg+'\')"><span class="mu-t">'+e(p.t)+'</span><span class="mu-a">'+e(p.a||'')+'</span></button>'+rowLd(sg,p.f)+'</li>'; });   /* ★[SONG_ROW_PLAIN_1101 사장님 «제목 가수만 나오면 될 거 같아»] 곡 줄은 제목 · 가수(연주자)만 — «노래» · 판(src) · 분위기 한 줄(why)은 화면에서 뺐다(데이터는 bgm-picks.js 그대로 · 콘솔 설정 화면 그대로) · 가사 있는 곡 안내는 고른 뒤 아래 한 줄이 맡는다 */
     var none=emb()&&AV.st==='ok'&&!Object.keys(AV.set).length;   /* ★[BED_EMPTY_RELIST_1031 식순 걷기 3라운드 3] 들어 볼 곡이 하나도 없다고 받았으면 한 줄 + 다시 불러오기(입장 추천 곡과 같게) */
