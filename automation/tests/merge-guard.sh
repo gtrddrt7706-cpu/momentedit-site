@@ -1316,6 +1316,13 @@ if [ "$_stray" -gt 0 ]; then echo "REVERT? 루트 __*.html 임시 사본 재유�
 #   배포 대상으로 남아 있었다. 2026-07-26 __b5 사고와 같은 구멍이 한 칸 좁은 자리에서 재발한 것이다.
 _ign=$(grep -c '^_\*\.html' .gitignore 2>/dev/null); _ign=${_ign:-0}
 _vig=$(grep -c '^_\*\.html' .vercelignore 2>/dev/null); _vig=${_vig:-0}
+# [HIDE_NONSITE_1119] 사이트가 안 쓰는 소스 · 작업 파일은 배포에서 뺀다(NIGHT20 #17) — 빠지면 저장소를 닫아도 사이트 주소로 열린다
+chk 'HIDE_NONSITE_1119' .vercelignore 1
+chk '^\.github/$' .vercelignore 1
+chk '^_asr/$' .vercelignore 1
+chk '^청첩장/$' .vercelignore 1
+chk '^skills-lock\.json$' .vercelignore 1
+chk '^r4a\.txt$' .vercelignore 1
 if [ "$_ign" -lt 1 ] || [ "$_vig" -lt 1 ]; then echo "REVERT? _*.html 무시 규칙 소실(.gitignore=$_ign .vercelignore=$_vig)"; fail=1; else echo 'ok _*.html 무시 규칙 .gitignore+.vercelignore 유지(밑줄 하나부터)'; fi
 _stray1=$(git ls-files | grep -cE '^_[^/]*\.html$'); _stray1=${_stray1:-0}
 if [ "$_stray1" -gt 0 ]; then echo "note 루트 _*.html 추적 중 $_stray1개 — 배포에선 제외됨(.vercelignore). 목록:"; git ls-files | grep -E '^_[^/]*\.html$' | sed 's/^/    /'; fi
