@@ -1518,6 +1518,7 @@ nochk '대표 연락처(휴대전화), 신랑·신부 이메일' privacy.html 0
 chk '직전 개정 2026년 11월 14일 (식중 영상 항목 추가' privacy.html 1
 chk 'CAL_OPEN_FLOOR' inquiry.html 2             # [2026-11-19 NIGHT20 #13 R3 · 대표님 결정 대기] 달력은 오픈일(2027-04-29) 전 날짜를 못 고른다
 chk 'SLOT_SUB_ARRIVE' assets/sequence-modal.js 1 # [2026-11-19 NIGHT20 #13 R3 · 대표님 결정 대기] 시간표 탭 아랫줄은 «도착» 시각
+chk 'KAKAO_LINK_INQ' inquiry.html 4             # [2026-11-19 NIGHT20 #13 R3 · 대표님 결정 대기] «카카오톡으로 문의» 자리에 채널 링크 · 없는 전화 안내 걷음
 chk 'PRICE_LABEL_NOWRAP' index.html 2           # [2026-11-18 NIGHT20 #13] 가격표 항목 이름 한 줄 · 긴 덧말이 접힌다(390 «식중 / 영상» 쪼개짐)
 # ── 2026-07-26 inquiry.html 1라운드
 chk 'INQ_REQ_DOT' inquiry.html 1               # 필수 표시 점 3px 골드(2.54:1) 복원 금지 — 폼에서 가장 중요한 정보가 안 보였다
