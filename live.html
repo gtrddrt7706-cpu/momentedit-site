@@ -1657,7 +1657,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
     <!-- [LIVE_INFRAME] 갤러리 프레임 안에서는 화살표를 지운다 — 폰 목업 안에서 홈으로 항해하면
          미리보기 여정이 갤러리 밖으로 샌다(guide.html [GUIDE_INFRAME]과 같은 처방).
          워드마크는 남기고 링크 성질만 없앤다(브랜드 노출은 유지). -->
-    <a href="/" class="brand-mark brand-mark-link" data-home-link aria-label="모먼트에디트 홈으로">
+    <a href="/" class="brand-mark brand-mark-link" data-home-link aria-label="MOMENTEDIT · 모먼트에디트 홈으로">
       <span class="back-arrow">←</span>
       <span class="brand-mark-text">MOMENT<span class="dot"></span>EDIT</span>
     </a>
@@ -2869,7 +2869,7 @@ try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitC
   links.forEach(link => {
     const name = inv ? '청첩장으로 돌아가기' : '모먼트에디트 홈으로';
     link.setAttribute('href', inv || '/');
-    link.setAttribute('aria-label', name); link.setAttribute('title', name);
+    link.setAttribute('aria-label', 'MOMENTEDIT · ' + name); link.setAttribute('title', name);   // [LABEL_NAME_R3] 이름은 보이는 «MOMENTEDIT» 로 시작(음성으로 부르면 눌리게)
     if (!inv) return;   // 홈은 보통 링크 그대로
     link.addEventListener('click', (e) => {
       if (!fromRef || window.history.length < 2) return;   // 기록에 그 청첩장이 없으면 링크 그대로 연다
