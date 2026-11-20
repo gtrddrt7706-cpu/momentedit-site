@@ -1316,6 +1316,13 @@ if [ "$_stray" -gt 0 ]; then echo "REVERT? 루트 __*.html 임시 사본 재유�
 #   배포 대상으로 남아 있었다. 2026-07-26 __b5 사고와 같은 구멍이 한 칸 좁은 자리에서 재발한 것이다.
 _ign=$(grep -c '^_\*\.html' .gitignore 2>/dev/null); _ign=${_ign:-0}
 _vig=$(grep -c '^_\*\.html' .vercelignore 2>/dev/null); _vig=${_vig:-0}
+# [HIDE_NONSITE_1119] 사이트가 안 쓰는 소스 · 작업 파일은 배포에서 뺀다(NIGHT20 #17) — 빠지면 저장소를 닫아도 사이트 주소로 열린다
+chk 'HIDE_NONSITE_1119' .vercelignore 1
+chk '^\.github/$' .vercelignore 1
+chk '^_asr/$' .vercelignore 1
+chk '^청첩장/$' .vercelignore 1
+chk '^skills-lock\.json$' .vercelignore 1
+chk '^r4a\.txt$' .vercelignore 1
 if [ "$_ign" -lt 1 ] || [ "$_vig" -lt 1 ]; then echo "REVERT? _*.html 무시 규칙 소실(.gitignore=$_ign .vercelignore=$_vig)"; fail=1; else echo 'ok _*.html 무시 규칙 .gitignore+.vercelignore 유지(밑줄 하나부터)'; fi
 _stray1=$(git ls-files | grep -cE '^_[^/]*\.html$'); _stray1=${_stray1:-0}
 if [ "$_stray1" -gt 0 ]; then echo "note 루트 _*.html 추적 중 $_stray1개 — 배포에선 제외됨(.vercelignore). 목록:"; git ls-files | grep -E '^_[^/]*\.html$' | sed 's/^/    /'; fi
@@ -1509,6 +1516,13 @@ nochk '예약금 100,000원 송금' assets/advisor-kb.js 0
 chk 'PRIV_REP_EMAIL_1119' privacy.html 2          # [2026-11-19 대표님 «추천대로» · DEC4] 필수 항목 «대표 이메일» · 맨 위 개정일
 nochk '대표 연락처(휴대전화), 신랑·신부 이메일' privacy.html 0
 chk '직전 개정 2026년 11월 14일 (식중 영상 항목 추가' privacy.html 1
+chk 'CAL_OPEN_FLOOR' inquiry.html 2             # [2026-11-19 NIGHT20 #13 R3 · 대표님 결정 대기] 달력은 오픈일(2027-04-29) 전 날짜를 못 고른다
+chk 'SLOT_SUB_ARRIVE' assets/sequence-modal.js 1 # [2026-11-19 NIGHT20 #13 R3 · 대표님 결정 대기] 시간표 탭 아랫줄은 «도착» 시각
+chk 'KAKAO_LINK_INQ' inquiry.html 4             # [2026-11-19 NIGHT20 #13 R3 · 대표님 결정 대기] «카카오톡으로 문의» 자리에 채널 링크 · 없는 전화 안내 걷음
+chk 'MID_META_PAY' index.html 1               # [2026-11-19 NIGHT20 #13 R3 · 대표님 결정 대기] 가격표 식중 영상 덧말 «추가는 두 분 부담»
+chk 'DRESS_WEAR_WORD' inquiry.html 1            # [2026-11-19 NIGHT20 #13 R3 · 대표님 결정 대기] 대여 벌 수는 «예식 착용» · 시착과 따로
+chk 'LEDE_SPACE_KO' index.html 1               # [2026-11-19 NIGHT20 #13 R3 · 대표님 결정 대기] 가격 카드 윗줄 «디지털 참석 · 단체 사진» 띄어 쓰기
+chk 'ABOUT_WEEKDAY_SPACE' index.html 1         # [2026-11-19 NIGHT20 #13 R3 · 대표님 결정 대기] 소개 글 «평일 결혼식» 띄어 쓰기
 chk 'PRICE_LABEL_NOWRAP' index.html 2           # [2026-11-18 NIGHT20 #13] 가격표 항목 이름 한 줄 · 긴 덧말이 접힌다(390 «식중 / 영상» 쪼개짐)
 # ── 2026-07-26 inquiry.html 1라운드
 chk 'INQ_REQ_DOT' inquiry.html 1               # 필수 표시 점 3px 골드(2.54:1) 복원 금지 — 폼에서 가장 중요한 정보가 안 보였다
@@ -1532,6 +1546,7 @@ chk 'HERO_EN_FIT_N20_18' live.html 2            # 머리 영문 이름이 넘칠
 chk 'LIVE_CONTRAST' live.html 3                # 본문 1 + CONTRAST2 1 + OPACITY 주석 1. 장식용 골드(2.54:1)를 글자색으로 되돌리지 말 것(선·테두리엔 --gold 유지)
 chk 'LIVE_TAP40' live.html 1                   # 복사 29px·브랜드 27px·편지 수신인 33px → 40px. ★브랜드는 ::before 히트영역이 아니라 헤더 패딩 14→8 + 앵커 min-height로 '박스 자체'를 키운 것
 chk 'LIVE_OPACITY' live.html 1                 # ★색만 고쳐도 opacity로 다시 흐려지던 자리(영상 안내문·전체화면 힌트·'의 아들'). 투명도로 위계를 만들지 말 것 — 크기·서체로
+chk 'LIVE_LBL_11_R3' live.html 3            # [2026-11-19 NIGHT20 R3 #15] 하객 한글 · 일시 라벨 9→11
 chk 'LIVE_LINK_UNKNOWN' live.html 4            # 링크가 틀렸을 때 더미 예식(이서준·정하윤 / 국민은행 123456-78-901234 + 복사 버튼)이 진짜처럼 뜨던 것. CSS·마크업·JS·핸들러 4곳 — 하나만 지워도 가짜 계좌가 돌아온다
 chk 'link-unknown-box\[hidden\]' live.html 1   # ★.lp-message-box{display:flex}가 브라우저 기본 [hidden]을 이겨서 정상 화면에도 안내문이 떴던 사고. 이 한 줄 지우면 재발
 chk 'LIVE_LETTER_KO' live.html 1               # 편지 폼 aria-label 3종 + 한글 CTA + 한글 안내문
@@ -1935,6 +1950,37 @@ chk 'ADV_SPACE_X' assets/advisor-kb.js 1         # [2026-11-20 NIGHT20 R3X2 #15]
 chk 'ADV_SPACE_X' index.html 1
 chk 'INV06_DARK_AA' i/cover-06.html 2              # [2026-11-19 NIGHT20 #15] 06 어두운 칸 라벨 · 꼬리 대비 AA — opacity 로 다시 흐리지 말 것
 chk 'INV06_DARK_AA' i-family/family-06.html 2
+chk 'FAQ_A_14_R3' index.html 4                # [2026-11-19 NIGHT20 R3 #15] 폰 FAQ 답 14 · 순서 상자 12
+chk 'GV_TAB_ONE_R3' invitation-gallery.html 2   # [2026-11-19 NIGHT20 R3 #15] 갤러리 화면 밖 카드 inert · 미리 보기 초점 테두리
+chk 'GUIDE_SEAT_12_R3' guide.html 1           # [2026-11-19 NIGHT20 R3 #15] 하객 좌석 지도 글 11~12
+# [INV_PARENTS_13_R3 2026-11-19 NIGHT20 R3 #15] 실물 청첩장 부모님 이름 13px
+chk 'INV_PARENTS_13_R3' i/cover-02.html 1
+chk 'INV_PARENTS_13_R3' i-family/family-02.html 1
+chk 'INV_PARENTS_13_R3' i/cover-03.html 1
+chk 'INV_PARENTS_13_R3' i-family/family-03.html 1
+chk 'INV_PARENTS_13_R3' i/cover-06.html 1
+chk 'INV_PARENTS_13_R3' i-family/family-06.html 1
+chk 'INV_PARENTS_13_R3' i/cover-07.html 1
+chk 'INV_PARENTS_13_R3' i-family/family-07.html 1
+chk 'INV_PARENTS_13_R3' i-family/family-08.html 1
+# [INV_TIME_12_R3 2026-11-19 NIGHT20 R3 #15] 실물 청첩장 표지 시간 줄 12px
+chk 'INV_TIME_12_R3' i/cover-04.html 1
+chk 'INV_TIME_12_R3' i-family/family-04.html 1
+chk 'INV_TIME_12_R3' i/cover-07.html 1
+chk 'INV_TIME_12_R3' i-family/family-07.html 1
+chk 'INV_TIME_12_R3' i/cover-08.html 1
+chk 'INV_TIME_12_R3' i-family/family-08.html 1
+chk 'LABEL_NAME_R3' live.html 1                # [2026-11-19 NIGHT20 R3 #15] 단추 이름 = 보이는 글로 시작(WCAG 2.5.3)
+chk 'LABEL_NAME_R3' invitation-gallery.html 2
+chk 'MU_LI_NONE_R3' assets/bgm-bed.js 1        # [2026-11-19 NIGHT20 R3 #15] radiogroup 안 li role=none
+# [SHOWCASE_AA_R3 2026-11-19 NIGHT20 R3 #15] 쇼케이스 7쪽 글자 대비 AA(글자색만 · 장식 그대로)
+chk 'SHOWCASE_AA_R3' i/invitations/invitation-01-classic.html 1
+chk 'SHOWCASE_AA_R3' i/invitations/invitation-02-editorial.html 2
+chk 'SHOWCASE_AA_R3' i/invitations/invitation-03-letterpress.html 1
+chk 'SHOWCASE_AA_R3' i/invitations/invitation-04-Vermilion.html 1
+chk 'SHOWCASE_AA_R3' i/invitations/invitation-05-botanical.html 1
+chk 'SHOWCASE_AA_R3' i/invitations/invitation-07-architect.html 1
+chk 'SHOWCASE_AA_R3' i/invitations/invitation-08-noir.html 1
 chk 'A11Y_LETTER_EXPOSED' index.html 1                      # 받은편지 예시는 콘텐츠 · aria-hidden 되돌리면 버튼이 포커스만 되고 안 읽힘
 # ★★[LETTER_SAMPLE 2026-09-06] 위 aria-label 은 «스크린리더에만» 예시라고 말한다.
 #   눈에 보이는 «예시» 글자는 0개였다(실측). 바로 위 문장이 「스튜디오를 거치지 않고 두 분께만
@@ -2374,6 +2420,10 @@ chk 'IG_LEGIBLE' index.html 2                            # 마크 다층 그림�
 chk 'IG_GAP' index.html 1                                # 기록 갤러리 세로 리듬(눈썹 4 / 그리드 24·PC 20) · 공용값(12/36)으로 되돌리면 아이디가 위아래 어디에도 안 붙어 뜬다
 chk 'IG_MARK' index.html 1                               # 제목 옆 인스타 마크 하나 · 빼면 '@momentedit.kr'이 세리프에선 홈페이지 주소로 읽힌다(.kr 때문에 특히)
 chk 'archive-grid-ig' index.html 14                      # 사진 9장 우상단 마크(마크업 9 + CSS) · 정중앙 흰 원으로 되돌리면 인물 얼굴 위에 다시 얹힌다
+# ★[IG_PHOTO_OFF_1119] [대기·대표님 결정] 인스타 게시물 0개 동안 사진 9장은 링크 없는 사진(마크는 CSS 로 숨김 · 마크업 그대로) — 게시물이 채워지면 이 커밋 revert
+chk 'IG_PHOTO_OFF_1119' index.html 2
+chk 'data-ig-off' index.html 13
+nochk 'aria-label="Wedding moment 0' index.html 0
 chk 'DM_FOOT_SIGN' index.html 1                          # 편지 맺음 = 이름(Moment Edit) 위 · 문장 아래 · 메일 없음 · 되돌리면 금색(대비 2.3) 문구가 위로 서고 연락처가 편지 안에 다시 들어온다
 # ── 순서 묶음 [HOME_ORDER_1114] (2026-11-14 INSTA 보고 1 · 대본 판정 · 번호마다 커밋 하나 — 빼려면 그 커밋만 revert)
 chk 'CTA_PLACE_OWNER_1114' index.html 1                # S-1 은 2026-11-14 사장님이 뺌 — 가격 구간 상담 버튼은 스냅 표 아래(구간 끝) 그대로
@@ -23532,7 +23582,7 @@ chk '본식 동안이에요(고른 순서에 따라 약 7~25분)' api/_kb.js 1  
 chk '식중 영상은 선택이에요. 축사 · 축가 뒤(편지 낭독 앞)에 넣고, 축사나 축가와 함께 담을 수 있어요. 쿠폰으로 기본 템플릿은 무료이고, 추가는 두 분이 부담해요. 예식 7일 전까지 확정해 주세요. 확정하지 않으면 영상 없이 진행해요.' api/_kb.js 1   # ★[FM_COUPON_1116] 옛 «제작 비용은 두 분이 부담해요.»   # ★[SPEECH_SONG_1115] 자리 · 함께 담기(옛 «축사 자리(덕담 뒤 · 축가 앞)에 축사 대신») · [H4_MIDVIDEO · MID17_14] 사장님 11/06 · 계약서 v1.16 3조②
 # ★[MID17_14 2026-11-07 대본 줄 14] 홈 FAQ · JSON-LD · 별도 표에 식중 영상(선택 · 제작 비용 두 분 · 7일 전 · 없으면 영상 없이) — «포함» 칸 · 업체 이름 · 쿠폰 금지
 chk '기한까지 확정하지 않으면 영상 없이 진행합니다.' index.html 2
-chk '<li>식중 영상 <span class="li-meta">선택 · 쿠폰으로 기본 템플릿 무료 · 추가는 두 분</span></li>' index.html 1   # ★[FM_COUPON_1116 · RULES_SLIM ⑧] 옛 핀 «선택 · 제작 비용 두 분»
+chk '<li>식중 영상 <span class="li-meta">선택 · 쿠폰으로 기본 템플릿 무료 · 추가는 두 분 부담</span></li>' index.html 1   # [MID_META_PAY 2026-11-19 · RULES_SLIM ⑧] «추가는 두 분» → «추가는 두 분 부담» 로 기대를 옮김 · ★[FM_COUPON_1116 · RULES_SLIM ⑧] 옛 핀 «선택 · 제작 비용 두 분»
 # ★[FM_COUPON_1116] 옛 nochk '식중 영상.*쿠폰' index.html(MID17_14 · 홈에 쿠폰 금지)은 은퇴 — 대본 11/16 15:55 «쿠폰으로 기본 템플릿 무료 · 추가는 두 분». 업체 이름은 여전히 홈 · 공개 AI 에 쓰지 않는다
 nochk '필메이커' index.html
 nochk '필메이커' api/_kb.js
@@ -24228,3 +24278,18 @@ chk '.gv-dots button::before{forced-color-adjust:none;background:CanvasText}' in
 chk 'INQ_FORCED_N20_19' inquiry.html 1
 chk '.compact-mark::after{forced-color-adjust:none;background:Highlight}' inquiry.html 1
 chk '.required-dot{forced-color-adjust:none;background:CanvasText}' inquiry.html 1
+# ★[SOUND_FIRST_N20_19 2026-11-19 R3] 디지털 참석 영상 아래 «소리를 켜 주세요»가 세 줄 중 맨 위(비공개 안내보다 앞)
+chk '#playerSound:not(\[hidden\]) + .player-note' live.html 1
+# ★[LETTER_PREVIEW_READ_N20_19 2026-11-19 R3] 편지 미리보기 블록은 통째로 숨기지 않고(안내 두 줄은 화면 읽기에 들린다) 겉모양 흉내 넷만 aria-hidden
+chk 'id="letterPreview" style="display:none">' live.html 1
+chk 'lp-cta-preview" aria-hidden="true"' live.html 1
+# ★[MEAL_GUIDE_WORD_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정] 도와주실 분 — 식사가 확인된 날만 «식사 자리로 안내할 분» · 카페 · 미확인 날은 다른 말(319 카페 판과 같은 기준)
+chk 'MEAL_GUIDE_WORD_N06' assets/ritual-open.js 1
+chk 'MEAL_GUIDE_WORD_N06' mypage.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/meal-guide-word.mjs >/dev/null 2>&1; _mg=$?; node scripts/audit/meal-guide-word.mjs --selftest >/dev/null 2>&1; _mgs=$?; if [ "$_mg" != 0 ] || [ "$_mgs" != 0 ]; then echo "REVERT? meal-guide-word: 카페 날 도와주실 분 이름이 «식사 자리»로 돌아갔다 ($_mg/$_mgs) — node scripts/audit/meal-guide-word.mjs"; fail=1; else echo 'ok meal-guide-word'; fi; fi
+# ★[LF_MORE_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 A] 크게 보기 — 글이 아래 막대 밑으로 이어질 때만 막대 위를 옅게 흐린다(폰 긴 읽기 글 끝줄이 숨어 끝난 글처럼 보이던 것)
+chk 'LF_MORE_N06' order-preview.html 3
+if command -v node >/dev/null 2>&1; then node scripts/audit/lf-more.mjs >/dev/null 2>&1; _lm=$?; node scripts/audit/lf-more.mjs --selftest >/dev/null 2>&1; _lms=$?; if [ "$_lm" != 0 ] || [ "$_lms" != 0 ]; then echo "REVERT? lf-more: 아래가 더 있다는 흐림이 빠졌거나 늘 걸린다 ($_lm/$_lms) — node scripts/audit/lf-more.mjs"; fail=1; else echo 'ok lf-more'; fi; fi
+# ★[PAIR_ARIA_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정] 고르기 «축사 · 축가» 칸 읽어 주는 이름 — 다른 칸과 같은 «○○ 담기» + 눌림(«축가 빼기, 눌림» 겹침 걷기)
+chk 'PAIR_ARIA_N06' order-preview.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/pair-aria.mjs >/dev/null 2>&1; _pa=$?; node scripts/audit/pair-aria.mjs --selftest >/dev/null 2>&1; _pas=$?; if [ "$_pa" != 0 ] || [ "$_pas" != 0 ]; then echo "REVERT? pair-aria: 축사 · 축가 칸 읽어 주는 이름이 «빼기»로 돌아갔다 ($_pa/$_pas) — node scripts/audit/pair-aria.mjs"; fail=1; else echo 'ok pair-aria'; fi; fi

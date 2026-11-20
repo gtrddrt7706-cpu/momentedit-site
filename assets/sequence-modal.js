@@ -10,9 +10,11 @@
   if (window.__meSeqInit) return; window.__meSeqInit = true;
 
   var SLOTS = [
-    { key: 'am', tab: '오전', sub: '9시 시작', end: '11:20' },
-    { key: 'pm', tab: '오후', sub: '12시 20분 시작', end: '14:40' },
-    { key: 'ev', tab: '늦은 오후', sub: '3시 40분 시작', end: '18:00' },
+    /* ★[SLOT_SUB_ARRIVE 2026-11-19 NIGHT20 #13 R3 · 대기·대표님 결정] 탭 아랫줄은 두 분 «도착» 시각이다.
+       «9시 시작»이라 쓰면 신청서 칩 «오전 (10:20)»(본식 시작)과 «시작»이 두 뜻으로 읽혔다. */
+    { key: 'am', tab: '오전', sub: '9시 도착', end: '11:20' },
+    { key: 'pm', tab: '오후', sub: '12시 20분 도착', end: '14:40' },
+    { key: 'ev', tab: '늦은 오후', sub: '3시 40분 도착', end: '18:00' },
   ];
   // 고객 진행 흐름만 — [순서, 소요, [오전, 오후, 늦은오후 시작시각], 상세, 하이라이트?]
   var ROWS = [

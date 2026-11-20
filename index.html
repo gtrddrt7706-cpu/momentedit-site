@@ -3349,6 +3349,12 @@ a.ig-handle:hover {
     opacity: 1;
   }
 }
+/* ★[IG_PHOTO_OFF_1119] 링크가 아닌 사진 칸 — 인스타 마크 · 누를 수 있다는 신호(커서 · 막 · 확대)를 걷는다 */
+.archive-grid-cell[data-ig-off] { cursor: default; }
+.archive-grid-cell[data-ig-off] .archive-grid-ig { display: none; }
+.archive-grid-cell[data-ig-off]:hover::after,
+.archive-grid-cell[data-ig-off]:active::after { background: transparent; }
+.archive-grid-cell[data-ig-off]:hover img { transform: none; }
 /* 눌렸다는 응답 — hover가 없는 화면의 유일한 신호 */
 @media (hover: none) {
   .archive-grid-cell:active::after {
@@ -3702,7 +3708,7 @@ footer {
   .faq-q {
     min-height: 48px;
     padding: 16px 0;
-    font-size: 13px;
+    font-size: 15px;   /* [FAQ_A_14_R3] 안 B · 질문 13 → 15 · 답(14)보다 한 단 크게 위계 유지 */
     line-height: 1.5;
   }
   .faq-q strong {
@@ -3713,11 +3719,11 @@ footer {
     top: 16px;
   }
   .faq-a-inner {
-    font-size: 12px;
+    font-size: 14px;   /* [FAQ_A_14_R3 2026-11-19 NIGHT20 R3 #15] 안 B · 폰 답 12 → 14 · PC 13보다 작던 역전 해소 · 가격 · 환불 같은 핵심을 폰에서 읽게 */
     line-height: 1.85;
   }
   .faq-seq {
-    font-size: 11px;
+    font-size: 12px;   /* [FAQ_A_14_R3] 순서 상자 11 → 12 */
   }
   .cta-btn {
     width: 100%;
@@ -5998,7 +6004,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
        소개 105→71 · 서비스 리드 108→74 · 두 공간 103→63 · 의상과 소품 122→76자.
        ★짧던 곳(존 카드 50자대·관점 70자)은 손대지 않는다 — 줄이는 게 목적이 아니라 읽히는 게 목적이다.
        ★가격·인원 같은 '결정에 필요한 사실'은 지우지 않는다(전환). 지운 건 수식과 중복뿐. -->
-  <p class="t-body" style="margin-top:14px;font-size:14px;color:var(--sub)">가장 가까운 30명과 올리는 마이크로웨딩, 평일결혼식의 여유까지.<br class="pc-hide"> 촬영·디지털 참석·청첩장을 한 흐름으로 잇는 140분, 예식 뒤 식사·카페는 인근 후보를 안내해 드려요.</p>
+  <p class="t-body" style="margin-top:14px;font-size:14px;color:var(--sub)">가장 가까운 30명과 올리는 마이크로웨딩, 평일 결혼식의 여유까지.<!-- ★[ABOUT_WEEKDAY_SPACE 2026-11-19 NIGHT20 #13 R3 · 대기·대표님 결정] 화면 글만 띄어 쓴다 · 검색 닻(숨은 h2 «평일 결혼식» · FAQ 스키마)은 그대로 --><br class="pc-hide"> 촬영·디지털 참석·청첩장을 한 흐름으로 잇는 140분, 예식 뒤 식사·카페는 인근 후보를 안내해 드려요.</p>
   <!-- ★[OPEN_TIMING 2026-09-06 사용자 지시 "적절하게 올린다"]
        「2027년 하반기 정식 오픈」이 FAQ 아코디언 안, 그것도 «얼마나 전에 예약해야 하나요?» 라는
        **다른 질문의 답** 끝에만 있었다(y≈21,000). 위에서부터 읽는 고객은 그 전에
@@ -6100,11 +6106,14 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
 <section id="archive">
 <div class="reveal">
   <h3 class="sec-label">Visual Archive ·<span class="ll-ko"> 촬영 예시</span></h3><!-- [H4_10 2026-11-06 홈 4차 H10] 오픈 전이라 «기록»이 아니라 «촬영 예시» · 사진 9장 위 상시 표시는 [IG_ONCE](사진 위 배지 금지)라 넣지 않았다 -->
-  <div class="sec-title"><a class="sec-title-link ig-title" href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" aria-label="Moment Edit Instagram 바로가기">@momentedit.kr</a></div>
+  <div class="sec-title"><a class="sec-title-link ig-title" href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" aria-label="@momentedit.kr · Moment Edit Instagram 바로가기">@momentedit.kr</a></div>
 </div>
 <!-- [ARIA_ROLELESS_DIV] 같은 이유 — 링크 9개를 묶은 덩어리라 group 으로 선언한다(안쪽 링크는 그대로 읽힌다) -->
-<div class="reveal archive-grid" data-archive-grid role="group" aria-label="Visual Archive · 인스타그램에서 더 보기">
-  <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm" aria-label="Wedding moment 01 on Instagram">
+<!-- ★[IG_PHOTO_OFF_1119] [대기·대표님 결정] 인스타 계정이 아직 게시물 0개라(2026-11-19 실측) 사진 9장을 «인스타로 나가는 문»에서 «사진만»으로 바꿨다.
+     사진을 누르면 빈 계정이 열려 «아직 아무것도 없는 곳»이라는 인상을 줬다. 제목 @momentedit.kr · 바닥 · 오른쪽 레일의 인스타 문은 그대로다.
+     마크(.archive-grid-ig) 마크업은 남기고 CSS 로만 숨긴다 — 게시물이 채워지면 이 커밋을 revert 하면 9개 문이 그대로 돌아온다. -->
+<div class="reveal archive-grid" data-archive-grid role="group" aria-label="Visual Archive · 촬영 예시">
+  <div class="archive-grid-cell mood-warm" data-ig-off>
     <picture><source type="image/webp" srcset="/assets/home/gallery-01.webp"><img src="/assets/home/gallery-01.jpg" alt="스몰웨딩 스냅 촬영 예시 1" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
       <svg viewBox="0 0 24 24">
@@ -6113,8 +6122,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
       </svg>
     </span>
-  </a>
-  <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-light" aria-label="Wedding moment 02 on Instagram">
+  </div>
+  <div class="archive-grid-cell mood-light" data-ig-off>
     <picture><source type="image/webp" srcset="/assets/home/gallery-02.webp"><img src="/assets/home/gallery-02.jpg" alt="스몰웨딩 스냅 촬영 예시 2" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
       <svg viewBox="0 0 24 24">
@@ -6123,8 +6132,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
       </svg>
     </span>
-  </a>
-  <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm-2" aria-label="Wedding moment 03 on Instagram">
+  </div>
+  <div class="archive-grid-cell mood-warm-2" data-ig-off>
     <picture><source type="image/webp" srcset="/assets/home/gallery-03.webp"><img src="/assets/home/gallery-03.jpg" alt="스몰웨딩 스냅 촬영 예시 3" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
       <svg viewBox="0 0 24 24">
@@ -6133,8 +6142,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
       </svg>
     </span>
-  </a>
-  <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm-3" aria-label="Wedding moment 04 on Instagram">
+  </div>
+  <div class="archive-grid-cell mood-warm-3" data-ig-off>
     <picture><source type="image/webp" srcset="/assets/home/gallery-04.webp"><img src="/assets/home/gallery-04.jpg" alt="프라이빗 웨딩 촬영 예시 4" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
       <svg viewBox="0 0 24 24">
@@ -6143,8 +6152,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
       </svg>
     </span>
-  </a>
-  <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-deep" aria-label="Wedding moment 05 on Instagram">
+  </div>
+  <div class="archive-grid-cell mood-deep" data-ig-off>
     <picture><source type="image/webp" srcset="/assets/home/gallery-05.webp"><img src="/assets/home/gallery-05.jpg" alt="프라이빗 웨딩 촬영 예시 5" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
       <svg viewBox="0 0 24 24">
@@ -6153,8 +6162,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
       </svg>
     </span>
-  </a>
-  <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm" aria-label="Wedding moment 06 on Instagram">
+  </div>
+  <div class="archive-grid-cell mood-warm" data-ig-off>
     <picture><source type="image/webp" srcset="/assets/home/gallery-06.webp"><img src="/assets/home/gallery-06.jpg" alt="마이크로웨딩 촬영 예시 · Moment Edit 캔들존" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
       <svg viewBox="0 0 24 24">
@@ -6163,8 +6172,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
       </svg>
     </span>
-  </a>
-  <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-light-2" aria-label="Wedding moment 07 on Instagram">
+  </div>
+  <div class="archive-grid-cell mood-light-2" data-ig-off>
     <picture><source type="image/webp" srcset="/assets/home/gallery-07.webp"><img src="/assets/home/gallery-07.jpg" alt="마이크로웨딩 촬영 예시 · Moment Edit 화이트존" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
       <svg viewBox="0 0 24 24">
@@ -6173,8 +6182,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
       </svg>
     </span>
-  </a>
-  <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm-2" aria-label="Wedding moment 08 on Instagram">
+  </div>
+  <div class="archive-grid-cell mood-warm-2" data-ig-off>
     <picture><source type="image/webp" srcset="/assets/home/gallery-08.webp"><img src="/assets/home/gallery-08.jpg" alt="웨딩스냅 예식 영상 촬영 예시 8" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
       <svg viewBox="0 0 24 24">
@@ -6183,8 +6192,8 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
       </svg>
     </span>
-  </a>
-  <a href="https://www.instagram.com/momentedit.kr/" target="_blank" rel="noopener" class="archive-grid-cell mood-warm-3" aria-label="Wedding moment 09 on Instagram">
+  </div>
+  <div class="archive-grid-cell mood-warm-3" data-ig-off>
     <picture><source type="image/webp" srcset="/assets/home/gallery-09.webp"><img src="/assets/home/gallery-09.jpg" alt="웨딩스냅 예식 영상 촬영 예시 9" loading="lazy" onerror="this.style.display='none'"></picture>
     <span class="archive-grid-ig" aria-hidden="true">
       <svg viewBox="0 0 24 24">
@@ -6193,7 +6202,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
         <circle cx="17.4" cy="6.6" r="1.05" fill="currentColor" stroke="none"/>
       </svg>
     </span>
-  </a>
+  </div>
 </div>
 <!-- [IG_ONCE] 아래 '사진 더 보기' 문 폐지 (2026-08-03 사용자 "미니멀하게").
      사진 9장이 전부 인스타 마크를 달고 전부 링크다 — 문은 이미 아홉 개다.
@@ -6540,7 +6549,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
   <div class="price-block">
     <h2 class="price-title" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">투명한 올인원 구성</h2>
     <div class="price-title">Standard Investment</div>
-    <p class="price-lede" style="font-size:13px;color:var(--sub);margin-bottom:28px;margin-top:8px">청첩장&#8288;·<wbr>웨딩스냅&#8288;·<wbr>본식&#8288;·<wbr>디지털참석&#8288;·<wbr>영상&#8288;·<wbr>단체사진&#8288;·<wbr>애프터 웨딩 안내<br>한 명의 디렉터가 한 흐름으로 잇는 140분 시그니처 시퀀스.</p>
+    <p class="price-lede" style="font-size:13px;color:var(--sub);margin-bottom:28px;margin-top:8px">청첩장&#8288;·<wbr>웨딩스냅&#8288;·<wbr>본식&#8288;·<wbr>디지털&nbsp;참석&#8288;·<wbr>영상&#8288;·<wbr>단체&nbsp;사진&#8288;·<wbr>애프터 웨딩 안내<!-- ★[LEDE_SPACE_KO 2026-11-19 NIGHT20 #13 R3 · 대기·대표님 결정] «디지털참석 · 단체사진» 붙여 쓰기 → 사이트 다른 곳과 같은 «디지털 참석 · 단체 사진» · 항목 안에서 줄이 갈리지 않게 붙임 빈칸 --><br>한 명의 디렉터가 한 흐름으로 잇는 140분 시그니처 시퀀스.</p>
     <div class="price-row">
       <div><div class="price-label">Weekend &amp; Holiday</div><div class="price-value">&#8361;3,300,000</div></div>
       <!-- [HOME_PRICE_FMT] 금액 표기 규칙(2026-07-26 사용자 결정) — 같은 250만 원이 '250만'·'250만원'·'₩2,500,000'
@@ -6613,7 +6622,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
             <li>헤어 · 메이크업 <span class="li-meta">외부 진행</span></li>
             <li>부케 (생화) <span class="li-meta">협력 플로리스트 소개</span></li>
             <li>추가 의상 <span class="li-meta">선택</span></li>
-            <li>식중 영상 <span class="li-meta">선택 · 쿠폰으로 기본 템플릿 무료 · 추가는 두 분</span></li><!-- [MID17_14] 별도 칸 — «포함»으로 읽히지 않게 -->
+            <li>식중 영상 <span class="li-meta">선택 · 쿠폰으로 기본 템플릿 무료 · 추가는 두 분 부담</span></li><!-- [MID17_14] 별도 칸 — «포함»으로 읽히지 않게 · ★[MID_META_PAY 2026-11-19 NIGHT20 #13 R3 · 대기·대표님 결정] «추가는 두 분»에서 끝나 무엇을 두 분이 하는지 몰랐다 → 마이페이지 식중 영상 머리줄(_mvcCond «추가는 두 분 부담") · FAQ «추가 제작 비용은 두 분이 부담»과 같은 말 -->
             <!-- ★[CAKE_OFF_1013 2026-10-13 사장님 «케익은 빼자»] «케이크 · 스튜디오 준비(별도)» 줄 금지 — 사용자 지시로 삭제(계약서 v1.14 별도 비용 줄도 걷음 · #1227 때 이 줄을 놓쳤다) -->
             <!-- ★[FLOWER_OFF_1013 2026-10-13 사장님 «부모님 인사에서 꽃 주는 건 빼자»] «부모님께 드릴 꽃 · 스튜디오 준비(별도)» 줄 금지 — 사용자 지시로 삭제(계약서 v1.15 별도 비용 줄도 걷음) --><!-- (옛) [GOODS_CHOICE 2026-09-25 사장님] 값에 들지 않는다 → [GOODS_STUDIO 2026-10-06 사장님] 늘 저희가 준비(별도 비용) · «직접 준비» 갈래는 걷었다 -->
           </ul>
@@ -6709,11 +6718,12 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
       <div class="jr-cap">계약 후, 두 분께 열리는 실제 진행 화면</div>
     </div>
     <ol class="jr-steps">
-      <li class="jr-step on"><button type="button" class="jr-step-btn" aria-label="진행 현황 화면 보기"><span class="jr-n">01</span><span class="jr-step-tx"><b>플래너 없이도 막힘없이</b><i>지금 하실 일을 맨 먼저 안내하고, 때가 되면 먼저 알려드려요. 헤맬 일이 없어요.</i></span><span class="jr-step-bar"></span></button></li>
-      <li class="jr-step"><button type="button" class="jr-step-btn" aria-label="좌석·음료 화면 보기"><span class="jr-n">02</span><span class="jr-step-tx"><b>자리마다 이름과 음료를 정해요</b><i>테이블을 누르면 하객분 성함과 음료를 함께 골라요. 인원은 자동으로 계산돼요.</i></span><span class="jr-step-bar"></span></button></li>
-      <li class="jr-step"><button type="button" class="jr-step-btn" aria-label="예식 준비 화면 보기"><span class="jr-n">03</span><span class="jr-step-tx"><b>무엇이 끝났고 무엇이 남았는지</b><i>청첩장·식순·좌석·애프터 웨딩까지, 두 분이 정한 것과 남은 것이 한 장에 있어요.</i></span><span class="jr-step-bar"></span></button></li>
-      <li class="jr-step"><button type="button" class="jr-step-btn" aria-label="청첩장 만들기 화면 보기"><span class="jr-n">04</span><span class="jr-step-tx"><b>청첩장, 두 편을 직접 완성해요</b><i>온라인·오프라인 두 편의 이름·문구·디자인을 두 분이 직접, 예식 전까지 몇 번이든 고쳐요.</i></span><span class="jr-step-bar"></span></button></li>
-      <li class="jr-step"><button type="button" class="jr-step-btn" aria-label="식순 만들기 화면 보기"><span class="jr-n">05</span><span class="jr-step-tx"><b>식순은 눌러 보며 완성돼요</b><i>담을 순간을 고르고, 안내 음성과 두 분의 말을 미리 듣고 연습해요. 완성한 식순은 당일 대본으로 이어져요.</i></span><span class="jr-step-bar"></span></button></li>
+      <!-- [LABEL_NAME_R3 2026-11-19 NIGHT20 R3 #15] 단추 이름 = 보이는 글(WCAG 2.5.3) · 다섯 단추의 «○○ 화면 보기» 이름표를 빼 음성으로 «플래너 없이도…» 하고 부르면 눌리게 · 인스타 링크도 보이는 «@momentedit.kr» 로 시작 -->
+      <li class="jr-step on"><button type="button" class="jr-step-btn"><span class="jr-n">01</span><span class="jr-step-tx"><b>플래너 없이도 막힘없이</b><i>지금 하실 일을 맨 먼저 안내하고, 때가 되면 먼저 알려드려요. 헤맬 일이 없어요.</i></span><span class="jr-step-bar"></span></button></li>
+      <li class="jr-step"><button type="button" class="jr-step-btn"><span class="jr-n">02</span><span class="jr-step-tx"><b>자리마다 이름과 음료를 정해요</b><i>테이블을 누르면 하객분 성함과 음료를 함께 골라요. 인원은 자동으로 계산돼요.</i></span><span class="jr-step-bar"></span></button></li>
+      <li class="jr-step"><button type="button" class="jr-step-btn"><span class="jr-n">03</span><span class="jr-step-tx"><b>무엇이 끝났고 무엇이 남았는지</b><i>청첩장·식순·좌석·애프터 웨딩까지, 두 분이 정한 것과 남은 것이 한 장에 있어요.</i></span><span class="jr-step-bar"></span></button></li>
+      <li class="jr-step"><button type="button" class="jr-step-btn"><span class="jr-n">04</span><span class="jr-step-tx"><b>청첩장, 두 편을 직접 완성해요</b><i>온라인·오프라인 두 편의 이름·문구·디자인을 두 분이 직접, 예식 전까지 몇 번이든 고쳐요.</i></span><span class="jr-step-bar"></span></button></li>
+      <li class="jr-step"><button type="button" class="jr-step-btn"><span class="jr-n">05</span><span class="jr-step-tx"><b>식순은 눌러 보며 완성돼요</b><i>담을 순간을 고르고, 안내 음성과 두 분의 말을 미리 듣고 연습해요. 완성한 식순은 당일 대본으로 이어져요.</i></span><span class="jr-step-bar"></span></button></li>
     </ol>
   </div>
 </div>
@@ -6865,7 +6875,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
   <div class="sec-title-sub">스몰웨딩 자주 묻는 질문 · 서비스 운영 원칙 및 가이드</div>
 </div>
 <div class="faq-item"><div class="faq-q"><span>하객은 몇 분까지 함께할 수 있나요?</span></div><div class="faq-a"><div class="faq-a-inner">모먼트에디트는 양가 합산 <strong>최대 30명</strong>까지 전원 착석으로 모실 수 있습니다.<br><br>인원과 구성은 자유롭게 정하시면 됩니다. 가족만 모셔도, 친구들과 함께하셔도 괜찮습니다. 12명이 모이는 자리든 24명이 모이는 자리든, 그날의 인원에 맞추어 테이블과 좌석을 다시 배치하여 자연스러운 자리를 만들어 드립니다.<br><br>서른 분 모두 앉아서 식을 보실 수 있게 자리를 놓습니다(인원에 따른 추가 요금은 없습니다 · 공간·안전상 30명이 상한입니다). 멀리 계신 분께는 디지털 참석으로 자리를 내어드립니다.<br><br>구체적인 인원과 동선은 상담을 통해 함께 설계해 드립니다.</div></div></div>
-<div class="faq-item"><div class="faq-q"><span>스몰웨딩 비용은 얼마인가요?</span></div><div class="faq-a"><div class="faq-a-inner">모먼트에디트의 올인원 구성은 주말·공휴일 <strong>330만 원</strong>, 평일결혼식 <strong>250만 원</strong>입니다(VAT 포함). 가족·친구 30명까지 함께하는 마이크로웨딩 동일 시퀀스로 진행됩니다. 촬영(원본 전체 + 보정 10장)·예식 영상·모바일청첩장·애프터 웨딩 안내까지 필수 항목이 모두 포함되어 있습니다. <strong>필수 추가 비용은 없습니다</strong>.<br><br><strong>일반 웨딩홀이 식대·꽃·스드메를 항목마다 따로 청구하는 것과 달리, 하나의 통합 가격에 본질적인 항목만 담아낸 구성입니다.</strong><br><br>평일 웨딩스냅만 원하시는 경우, 운영 초기 한정으로 60만 원에 진행하고 있습니다(정가 80만 원).<br><br><span style="display:block;padding:14px 16px;background:var(--bg2);border-radius:6px;font-size:12px;line-height:1.85;color:var(--sub)"><strong style="color:var(--accent);font-size:13px;letter-spacing:0.04em">선택 항목 안내</strong><br>다이닝 식사 비용은 선택하신 식당에 <strong style="color:var(--accent)">직접</strong> 지불하십니다(저희가 청구하지 않습니다). 인근 식당은 1인 2.5~4만 원대가 가장 많습니다. <strong style="color:var(--accent)">하객 30명 기준 약 75~120만 원</strong>, 가벼운 곳은 약 45~60만 원입니다. 식당·인원에 따라 달라지므로 정확한 금액은 예약하실 때 확인하시게 됩니다.<br>그 밖에 추가 보정 1컷 20,000원, 추가 시착 1벌 50,000원(3벌째부터)입니다. 헤어·메이크업은 외부에서 별도 진행됩니다.</span></div></div></div>
+<div class="faq-item"><div class="faq-q"><span>스몰웨딩 비용은 얼마인가요?</span></div><div class="faq-a"><div class="faq-a-inner">모먼트에디트의 올인원 구성은 주말·공휴일 <strong>330만 원</strong>, 평일결혼식 <strong>250만 원</strong>입니다(VAT 포함). 가족·친구 30명까지 함께하는 마이크로웨딩 동일 시퀀스로 진행됩니다. 촬영(원본 전체 + 보정 10장)·예식 영상·모바일청첩장·애프터 웨딩 안내까지 필수 항목이 모두 포함되어 있습니다. <strong>필수 추가 비용은 없습니다</strong>.<br><br><strong>일반 웨딩홀이 식대·꽃·스드메를 항목마다 따로 청구하는 것과 달리, 하나의 통합 가격에 본질적인 항목만 담아낸 구성입니다.</strong><br><br>평일 웨딩스냅만 원하시는 경우, 운영 초기 한정으로 60만 원에 진행하고 있습니다(정가 80만 원).<br><br><span style="display:block;padding:14px 16px;background:var(--bg2);border-radius:6px;font-size:13px;line-height:1.85;color:var(--sub)" data-mark="FAQ_A_14_R3"><strong style="color:var(--accent);font-size:14px;letter-spacing:0.04em">선택 항목 안내</strong><br>다이닝 식사 비용은 선택하신 식당에 <strong style="color:var(--accent)">직접</strong> 지불하십니다(저희가 청구하지 않습니다). 인근 식당은 1인 2.5~4만 원대가 가장 많습니다. <strong style="color:var(--accent)">하객 30명 기준 약 75~120만 원</strong>, 가벼운 곳은 약 45~60만 원입니다. 식당·인원에 따라 달라지므로 정확한 금액은 예약하실 때 확인하시게 됩니다.<br>그 밖에 추가 보정 1컷 20,000원, 추가 시착 1벌 50,000원(3벌째부터)입니다. 헤어·메이크업은 외부에서 별도 진행됩니다.</span></div></div></div>
 <div class="faq-item" id="faq-140"><div class="faq-q"><span>예식은 얼마나 진행되나요?</span></div><div class="faq-a"><div class="faq-a-inner">모먼트에디트의 140분은 본질만 남긴 시간입니다. 불필요한 대기와 반복을 걷어내고, 주인공의 에너지가 가장 선명한 순간만을 담습니다.<div class="faq-seq"><strong>140분 시그니처 시퀀스</strong><br>20m | Getting Ready · 의상 착장, 컨디션 정돈<br>60m | Private Snap · 하객과 분리된 캔들존 · 화이트존에서 촬영 55분 · 입장 준비 5분<br>7~25m | The Ceremony · 모든 시선이 집중되는, 정갈한 예식의 중심<br>15~33m | Group Record · 전체 단체 사진 → 촬영 후 안내 → 가족 사진·추가 촬영<br>20m | Farewell · 옷을 갈아입고 하루를 정리하는 시간<br>· 본식과 Group Record의 길이는 고르신 식순에 따라 달라집니다. 두 시간의 합은 40분이라 하루 140분은 그대로입니다.</div><!-- [FAQ_GUEST_WINDOW] 2026-08-03 추가. 이 질문을 하는 진짜 이유는 '하객분들께 몇 시라고 안내하지?'인데
      사이트 어디에도 그 숫자가 없어 청첩장 시간을 잡을 수 없었다.
      수치 출처는 고객 대면 진행 시간표 assets/sequence-modal.js:18~26(SLOTS·ROWS) 실측:
@@ -6923,7 +6933,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
      ★«폐백» 한 줄은 뺐다 — [NO_TRADITION] 이 고객 화면에서 전통 절차를 먼저 꺼내지 않게 막는다(구현 보고 2 · 제안으로 올림).
      ★[BOUQUET_FLORIST 2026-09-25 사장님 둘째 결정] 부케는 «주문해 드림(옵션)»이 아니라 협력 플로리스트 «소개»다(다이닝과 같은 소개 · 조율).
        주문 · 결제는 고객과 플로리스트 사이 · 저희는 받는 시각과 장소만 안내한다. «주문해 드려요»를 되살리지 말 것. 부케 던지기 순서는 없다. -->
-<div class="faq-item" id="faq-day"><div class="faq-q"><span>행진 · 축가 · 축사는 어떻게 하나요?</span></div><div class="faq-a"><div class="faq-a-inner"><strong>행진은 없나요?</strong><br>별도의 행진은 없습니다. 테이블 인사와 축배를 담으셨다면, 본식이 끝나기 전에 이 순서로 진행합니다. 본식을 마친 뒤에는 전체 단체 사진을 남깁니다.<br><br><strong>아버지와 함께 입장할 수는 없나요?</strong><br>두 분이 함께 들어옵니다. 아버님은 성혼 선언을 읽으시거나, 덕담을 하시거나, 어머님과 함께 화촉을 밝히실 수 있습니다.<br><br><strong>친구가 축가를 불러도 되나요?</strong><br>네. 식순에 «축가»를 담으시면, 정해진 축가 순서에 가까운 분이나 두 분이 한 곡을 부를 수 있습니다. 반주(MR) 파일은 예식 3일 전까지 보내 주세요. 저희가 틀어 드립니다. 악기 연주는 받지 않습니다.<!-- [SONG_BACK_1011] [B2_HOME_11] 축가 · 축사는 다른 순간을 빼도 고를 수 있다 — 성혼 선언 · 덕담 자리와 묶어 말하지 않는다 --><br><br><strong>친구가 축사를 해도 되나요?</strong><br>네. 식순에 «축사»를 담으시면, 친구·형제자매·은사님 등 가까운 분이 정해진 축사 순서에 말씀하실 수 있습니다. 축사와 축가는 둘 중 하나를 고르실 수 있습니다. 3분 안팎이 알맞고, 길이는 10분 안에서 정해 주세요. 원고는 예식 3일 전까지 보내 주세요. 큰 글씨로 돌려드립니다.<br><br><strong>예식 중에 영상을 틀 수 있나요?</strong><br>네, 식중 영상은 선택입니다. 축사 · 축가 뒤(편지 낭독 앞)에 두 분이 준비한 영상을 틀 수 있고, 축사나 축가와 함께 담을 수 있습니다. 쿠폰으로 기본 템플릿은 무료이고, 추가 제작 비용은 두 분이 부담합니다. 영상은 예식 7일 전까지 확정해 주세요. 식순에 식중 영상을 담으시면 마이페이지 «식중 영상»에서 링크로 보내실 수 있습니다. 기한까지 확정하지 않으면 영상 없이 진행합니다.<!-- ★[MID17_14 2026-11-07 대본 줄 14 · 계약서 v1.16 3조②] 선택 · 축사와 택1 · 제작 비용 두 분 · 7일 전 확정 · 없으면 영상 없이 · 협력사 이름 · 할인권 말 없음 · 마이페이지 «식중 영상» 줄이 켜지면 «보내는 방법은 상담 때»를 «마이페이지 «식중 영상»에서 링크로»로 --><br><br><strong>이름을 불러 주나요?</strong><br>나레이션은 이름을 부르지 않습니다. 두 분 이름은 식순지에 들어가며, 식전 영상을 담으시면 첫 장면에도 나옵니다. 성혼 선언을 담으신 경우에는 선언문을 읽는 분이 두 분 이름을 부릅니다.<br><br><strong>신부 대기실이 있나요?</strong><br>따로 두지 않습니다. 식 전에는 두 분이 단독 스냅을 찍고, 예식을 마치는 인사 때 두 분이 하객 모두께 함께 감사 인사를 드리고, 이어서 전체 사진을 남깁니다.<br><br><strong>드레스는 누가 입혀 주나요?</strong><br>세미 웨딩드레스라 어렵지 않습니다. 저희가 도와드립니다.<br><br><strong>부케는 어떻게 준비하나요?</strong><br>기본 조화 부케는 저희가 준비해 드립니다. 생화 부케를 원하시면 협력 플로리스트를 소개해 드립니다(별도 비용). 주문 · 결제는 플로리스트와 직접 하시고, 예식 당일 정해진 시각까지 스튜디오로 보내 주시면 됩니다.</div></div></div>
+<div class="faq-item" id="faq-day"><div class="faq-q"><span>행진 · 축가 · 축사는 어떻게 하나요?</span></div><div class="faq-a"><div class="faq-a-inner"><strong>행진은 없나요?</strong><br>별도의 행진은 없습니다. 테이블 인사와 축배를 담으셨다면, 본식이 끝나기 전에 이 순서로 진행합니다. 본식을 마친 뒤에는 전체 단체 사진을 남깁니다.<br><br><strong>아버지와 함께 입장할 수는 없나요?</strong><br>두 분이 함께 들어옵니다. 아버님은 성혼 선언을 읽으시거나, 덕담을 하시거나, 어머님과 함께 화촉을 밝히실 수 있습니다.<br><br><strong>친구가 축가를 불러도 되나요?</strong><br>네. 식순에 «축가»를 담으시면, 정해진 축가 순서에 가까운 분이나 두 분이 한 곡을 부를 수 있습니다. 반주(MR) 파일은 예식 3일 전까지 보내 주세요. 저희가 틀어 드립니다. 악기 연주는 받지 않습니다.<!-- [SONG_BACK_1011] [B2_HOME_11] 축가 · 축사는 다른 순간을 빼도 고를 수 있다 — 성혼 선언 · 덕담 자리와 묶어 말하지 않는다 --><br><br><strong>친구가 축사를 해도 되나요?</strong><br>네. 식순에 «축사»를 담으시면, 친구·형제자매·은사님 등 가까운 분이 정해진 축사 순서에 말씀하실 수 있습니다. 축사와 축가는 둘 중 하나를 고르실 수 있습니다. 3분 안팎이 알맞고, 길이는 10분 안에서 정해 주세요. 원고는 예식 3일 전까지 보내 주세요. 큰 글씨로 돌려드립니다.<br><br><strong>예식 중에 영상을 틀 수 있나요?</strong><br>네, 식중 영상은 선택입니다. 축사 · 축가 뒤(편지 낭독 앞)에 두 분이 준비한 영상을 틀 수 있고, 축사나 축가와 함께 담을 수 있습니다. 쿠폰으로 기본 템플릿은 무료이고, 추가 제작 비용은 두 분이 부담합니다. 영상은 예식 7일 전까지 확정해 주세요. 식순에 식중 영상을 담으시면 마이페이지 «식중 영상»에서 링크로 보내실 수 있습니다. 기한까지 확정하지 않으면 영상 없이 진행합니다.<!-- ★[MID17_14 2026-11-07 대본 줄 14 · 계약서 v1.16 3조②] 선택 · (11/15 [SPEECH_SONG_1115] 로 «축사와 택1»은 걷힘 — 식중 영상은 따로 넣고 뺀다 · 위 글 «축사나 축가와 함께 담을 수 있습니다»가 지금 판) · 제작 비용 두 분 · 7일 전 확정 · 없으면 영상 없이 · 협력사 이름 · 할인권 말 없음 · 마이페이지 «식중 영상» 줄이 켜지면 «보내는 방법은 상담 때»를 «마이페이지 «식중 영상»에서 링크로»로 --><br><br><strong>이름을 불러 주나요?</strong><br>나레이션은 이름을 부르지 않습니다. 두 분 이름은 식순지에 들어가며, 식전 영상을 담으시면 첫 장면에도 나옵니다. 성혼 선언을 담으신 경우에는 선언문을 읽는 분이 두 분 이름을 부릅니다.<br><br><strong>신부 대기실이 있나요?</strong><br>따로 두지 않습니다. 식 전에는 두 분이 단독 스냅을 찍고, 예식을 마치는 인사 때 두 분이 하객 모두께 함께 감사 인사를 드리고, 이어서 전체 사진을 남깁니다.<br><br><strong>드레스는 누가 입혀 주나요?</strong><br>세미 웨딩드레스라 어렵지 않습니다. 저희가 도와드립니다.<br><br><strong>부케는 어떻게 준비하나요?</strong><br>기본 조화 부케는 저희가 준비해 드립니다. 생화 부케를 원하시면 협력 플로리스트를 소개해 드립니다(별도 비용). 주문 · 결제는 플로리스트와 직접 하시고, 예식 당일 정해진 시각까지 스튜디오로 보내 주시면 됩니다.</div></div></div>
 <div class="faq-item"><div class="faq-q"><span>사회자 없이도 예식이 매끄럽게 진행되나요?</span></div><div class="faq-a"><div class="faq-a-inner">네. 모먼트에디트는 사회자를 두지 않고, <strong>미리 준비한 안내 음성</strong>으로 진행합니다.<br><br>AI 성우 나레이션과 식순 대본 가이드가 기본 구성에 들어 있어, 순서마다 안내가 흘러나옵니다. 현장에서 동선을 잡는 일은 디렉터가 맡습니다.<br><br>어떤 순간을 담을지, 어떤 말투로 안내할지는 계약 후 <strong>마이페이지에서 두 분이</strong> 고르시고, 순서와 이음은 저희가 맞춥니다. 성혼 선언·혼인 서약 같은 순간을 넣을지 말지도 두 분이 정하십니다.<br><br>작은 예식이라 이렇게 준비했습니다. 진행 안내는 저희가 맡으니, 두 분은 서로에게만 집중하시면 됩니다.</div></div></div>
 <div class="faq-item"><div class="faq-q"><span>예식 없이 촬영만 따로 진행할 수 있나요?</span></div><div class="faq-a"><div class="faq-a-inner">네, 평일 한정으로 Weekday Editorial Snap을 운영하고 있습니다. 약 60~90분간 캔들존과 화이트존 두 공간에서 자유롭게 진행되는 프라이빗 포토 세션입니다. 원본 전체(300컷~)와 보정 셀렉트 컷 10장이 포함됩니다. 운영 초기 한정으로 정가 80만 원 → 60만 원의 오프닝 예우를 적용해 드립니다.</div></div></div>
 </div>
@@ -7153,7 +7163,7 @@ var els=[document.querySelector('.hero-tease-main'),document.querySelector('.her
     </div>
     <div class="terms-row">
       <div class="terms-label">예약 및 환불</div>
-      <div class="terms-value">예약금 입금 확인 시 예약이 확정됩니다.<!-- [DEPOSIT_WORD_1119] --> 상담 <strong>24시간 전</strong>까지 일정 변경이 가능합니다. 이후 변경은 카카오톡으로 문의해 주세요.</div>
+      <div class="terms-value">예약금 입금 확인 시 예약이 확정됩니다.<!-- [DEPOSIT_WORD_1119] --> 상담 <strong>24시간 전</strong>까지 일정 변경이 가능합니다. 이후 변경은 <a href="https://pf.kakao.com/_CfxcxlX/chat" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px">카카오톡</a>으로 문의해 주세요.</div><!-- [KAKAO_LINK_INQ] 신청서와 같은 채널 링크 -->
     </div>
     <div class="terms-row">
       <div class="terms-label">계약 기준</div>

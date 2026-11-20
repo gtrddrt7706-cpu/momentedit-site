@@ -179,7 +179,7 @@ body.couple-ready{
 }
 .eyebrow .ko{
   letter-spacing:0.18em;
-  font-size:9px;
+  font-size:11px;   /* [LIVE_LBL_11_R3 2026-11-19 NIGHT20 R3 #15] 9 → 11 · 하객이 읽는 한글 · 일시 라벨 · 영문 장식(Ed. · Scroll)은 9 그대로 */
   font-weight:400;
 }
 
@@ -585,8 +585,8 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
 }
 .credit-row:last-child{border-bottom:none}
 .credit-key{
-  font-size:9px;
-  letter-spacing:0.28em;
+  font-size:11px;   /* [LIVE_LBL_11_R3 2026-11-19 NIGHT20 R3 #15] 9 → 11 · 하객이 읽는 한글 · 일시 라벨 · 영문 장식(Ed. · Scroll)은 9 그대로 */
+  letter-spacing:0.22em;   /* [LIVE_LBL_11_R3] 11px 로 키운 만큼 자간 줄여 320 폭에서 BROADCAST 가 값과 붙지 않게 */
   text-transform:uppercase;
   color:var(--light);
   font-weight:400;
@@ -670,7 +670,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   color:var(--sub);
   margin-left:10px;
   letter-spacing:0.16em;
-  font-size:9px;
+  font-size:11px;   /* [LIVE_LBL_11_R3 2026-11-19 NIGHT20 R3 #15] 9 → 11 · 하객이 읽는 한글 · 일시 라벨 · 영문 장식(Ed. · Scroll)은 9 그대로 */
 }
 
 .sec-title{
@@ -1657,7 +1657,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
     <!-- [LIVE_INFRAME] 갤러리 프레임 안에서는 화살표를 지운다 — 폰 목업 안에서 홈으로 항해하면
          미리보기 여정이 갤러리 밖으로 샌다(guide.html [GUIDE_INFRAME]과 같은 처방).
          워드마크는 남기고 링크 성질만 없앤다(브랜드 노출은 유지). -->
-    <a href="/" class="brand-mark brand-mark-link" data-home-link aria-label="모먼트에디트 홈으로">
+    <a href="/" class="brand-mark brand-mark-link" data-home-link aria-label="MOMENTEDIT · 모먼트에디트 홈으로">
       <span class="back-arrow">←</span>
       <span class="brand-mark-text">MOMENT<span class="dot"></span>EDIT</span>
     </a>
@@ -1775,6 +1775,9 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
     <span class="crop-mark br"></span>
   </div>
 
+  <!-- ★[SOUND_FIRST_N20_19 2026-11-19 R3 · 대기·대표님 결정] 소리는 꺼진 채 시작하니 하객이 꼭 할 일은 «소리 켜기» — 영상 아래 세 줄 중 맨 위로(종전 맨 아래) ·
+       글 · 표시 조건([B2_MA_90] 영상이 붙었을 때만)은 그대로, 자리만 옮김 -->
+  <p class="player-fs-hint" id="playerSound" hidden>영상에서 소리를 켜 주세요.</p><!-- [B2_MA_90 2026-11-06 2차 B2-마90] 영상은 소리 꺼진 채 자동 재생(muted=1)으로 붙는다 — 영상이 붙었을 때만 한 줄 · 소리를 저절로 켜지 않는다 -->
   <p class="player-note">이 자리는 두 분이 초대하신 분들만을 위해<br>비공개로 진행됩니다.</p><!-- [GUESTS_OPEN_BUILDER 2026-10-13] «가까운 분들만» → «초대하신 분들만»(비공개는 초대의 몫 · GUESTS_OPEN) -->
   <p class="player-fs-hint">
     <svg class="fs-icon" viewBox="0 0 16 16" aria-hidden="true">
@@ -1782,7 +1785,6 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
     </svg>
     <span>영상을 탭하시면 전체화면으로 감상하실 수 있습니다.</span>
   </p>
-  <p class="player-fs-hint" id="playerSound" hidden>영상에서 소리를 켜 주세요.</p><!-- [B2_MA_90 2026-11-06 2차 B2-마90] 영상은 소리 꺼진 채 자동 재생(muted=1)으로 붙는다 — 영상이 붙었을 때만 한 줄 · 소리를 저절로 켜지 않는다 -->
 
   <!-- CREDIT BAR -->
   <div class="credit-bar" style="padding:0;margin-top:36px">
@@ -1818,10 +1820,12 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   <div class="form-frame">
 
     <!-- 프리뷰 모드 · 예식 ID 없을 때: 실제 폼 구조와 동일 (textarea 자리에만 프리뷰 메시지) -->
-    <div class="letter-preview" id="letterPreview" style="display:none" aria-hidden="true">
+    <!-- ★[LETTER_PREVIEW_READ_N20_19 2026-11-19 R3 · 대기·대표님 결정] 블록 통째 aria-hidden 이면 눈에 보이는 안내(«편지 칸은 받으신 링크에서 열립니다»)가
+         화면 읽기에는 안 들렸다 — 겉모양 흉내(To. 칸 · PREVIEW 표 · From. 칸 · 보내기 모양)만 숨기고 안내 두 줄은 읽힌다 · 숨김(display:none)일 땐 종전과 같음 -->
+    <div class="letter-preview" id="letterPreview" style="display:none">
 
       <!-- 수신인 세그먼트 (비활성 데모) -->
-      <div class="lf-recipient-block">
+      <div class="lf-recipient-block" aria-hidden="true">
         <div class="lf-recipient-segment" role="group">
           <span class="lf-mark" aria-hidden="true">To.</span>
           <span class="lf-seg-group">
@@ -1835,7 +1839,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
       <!-- textarea 자리: 프리뷰 메시지 -->
       <div class="lf-field">
         <div class="lp-message-box">
-          <div class="lp-message-mark">PREVIEW</div>
+          <div class="lp-message-mark" aria-hidden="true">PREVIEW</div>
           <!-- ★[GA_TABS 2026-08-18] 이 블록은 **프리뷰에서만** 뜬다(진짜 링크를 받은 하객에겐 실제 폼이 나온다).
                그래서 두 사람이 본다 — ①링크 없이 들어온 하객 ②홈페이지 목업으로 이 화면을 보는 예비 부부.
                옛 문구('…접근할 수 있습니다 / 다시 접속해 주세요')는 ①에게만 맞는 지시문이라,
@@ -1846,7 +1850,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
       </div>
 
       <!-- 이름 / 관계 input (비활성 데모) -->
-      <div class="lf-row">
+      <div class="lf-row" aria-hidden="true">
         <span class="lf-mark" aria-hidden="true">From.</span>
         <div class="lf-field lf-field-half">
           <div class="lf-input-ph">이름</div>
@@ -1857,7 +1861,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
       </div>
 
       <!-- Deliver 버튼 (비활성 데모) -->
-      <div class="lf-cta lp-cta-preview">
+      <div class="lf-cta lp-cta-preview" aria-hidden="true">
         <span class="lf-cta-text">편지 보내기</span>
         <svg class="lf-cta-icon" viewBox="0 0 16 16" aria-hidden="true">
           <path d="M2,8 L13,8 M9,4 L13,8 L9,12" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2869,7 +2873,7 @@ try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitC
   links.forEach(link => {
     const name = inv ? '청첩장으로 돌아가기' : '모먼트에디트 홈으로';
     link.setAttribute('href', inv || '/');
-    link.setAttribute('aria-label', name); link.setAttribute('title', name);
+    link.setAttribute('aria-label', 'MOMENTEDIT · ' + name); link.setAttribute('title', name);   // [LABEL_NAME_R3] 이름은 보이는 «MOMENTEDIT» 로 시작(음성으로 부르면 눌리게)
     if (!inv) return;   // 홈은 보통 링크 그대로
     link.addEventListener('click', (e) => {
       if (!fromRef || window.history.length < 2) return;   // 기록에 그 청첩장이 없으면 링크 그대로 연다
@@ -3280,6 +3284,9 @@ a.brand-mark-link .back-arrow{color:var(--gold-text)}
 .env-q-parents .of{opacity:1}
 /* [B2_MA_90] 소리 안내는 영상이 붙었을 때만(클래스의 inline-flex 가 [hidden] 을 이기지 않게) · [B2_MA_61] 한글 열쇠는 영문 자간(0.28em)을 쓰지 않는다(LIVE_KO_TRACK 과 같은 처방) */
 .player-fs-hint[hidden]{display:none}
+/* [SOUND_FIRST_N20_19] 소리 안내가 맨 위일 때 — 첫 줄 여백(22px)을 받고 아래 비공개 안내는 줄 사이 여백(10px)으로 · 숨으면 종전 그대로 */
+#playerSound:not([hidden]){margin-top:22px}
+#playerSound:not([hidden]) + .player-note{margin-top:10px}
 .credit-key-ko{letter-spacing:0.06em}
 /* [B2_MA_91] 편지 칸 아래 한 줄 — 빈칸(공백만)일 때 그 칸 바로 아래 */
 .lf-err{margin:6px 0 0;font-size:12px;line-height:1.6;color:var(--seal);letter-spacing:0.02em}
