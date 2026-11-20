@@ -1937,6 +1937,7 @@ chk 'INV06_DARK_AA' i/cover-06.html 2              # [2026-11-19 NIGHT20 #15] 06
 chk 'INV06_DARK_AA' i-family/family-06.html 2
 chk 'FAQ_A_14_R3' index.html 4                # [2026-11-19 NIGHT20 R3 #15] 폰 FAQ 답 14 · 순서 상자 12
 chk 'GV_TAB_ONE_R3' invitation-gallery.html 2   # [2026-11-19 NIGHT20 R3 #15] 갤러리 화면 밖 카드 inert · 미리 보기 초점 테두리
+chk 'GUIDE_SEAT_12_R3' guide.html 1           # [2026-11-19 NIGHT20 R3 #15] 하객 좌석 지도 글 11~12
 chk 'A11Y_LETTER_EXPOSED' index.html 1                      # 받은편지 예시는 콘텐츠 · aria-hidden 되돌리면 버튼이 포커스만 되고 안 읽힘
 # ★★[LETTER_SAMPLE 2026-09-06] 위 aria-label 은 «스크린리더에만» 예시라고 말한다.
 #   눈에 보이는 «예시» 글자는 0개였다(실측). 바로 위 문장이 「스튜디오를 거치지 않고 두 분께만
