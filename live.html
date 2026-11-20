@@ -1820,10 +1820,12 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
   <div class="form-frame">
 
     <!-- 프리뷰 모드 · 예식 ID 없을 때: 실제 폼 구조와 동일 (textarea 자리에만 프리뷰 메시지) -->
-    <div class="letter-preview" id="letterPreview" style="display:none" aria-hidden="true">
+    <!-- ★[LETTER_PREVIEW_READ_N20_19 2026-11-19 R3 · 대기·대표님 결정] 블록 통째 aria-hidden 이면 눈에 보이는 안내(«편지 칸은 받으신 링크에서 열립니다»)가
+         화면 읽기에는 안 들렸다 — 겉모양 흉내(To. 칸 · PREVIEW 표 · From. 칸 · 보내기 모양)만 숨기고 안내 두 줄은 읽힌다 · 숨김(display:none)일 땐 종전과 같음 -->
+    <div class="letter-preview" id="letterPreview" style="display:none">
 
       <!-- 수신인 세그먼트 (비활성 데모) -->
-      <div class="lf-recipient-block">
+      <div class="lf-recipient-block" aria-hidden="true">
         <div class="lf-recipient-segment" role="group">
           <span class="lf-mark" aria-hidden="true">To.</span>
           <span class="lf-seg-group">
@@ -1837,7 +1839,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
       <!-- textarea 자리: 프리뷰 메시지 -->
       <div class="lf-field">
         <div class="lp-message-box">
-          <div class="lp-message-mark">PREVIEW</div>
+          <div class="lp-message-mark" aria-hidden="true">PREVIEW</div>
           <!-- ★[GA_TABS 2026-08-18] 이 블록은 **프리뷰에서만** 뜬다(진짜 링크를 받은 하객에겐 실제 폼이 나온다).
                그래서 두 사람이 본다 — ①링크 없이 들어온 하객 ②홈페이지 목업으로 이 화면을 보는 예비 부부.
                옛 문구('…접근할 수 있습니다 / 다시 접속해 주세요')는 ①에게만 맞는 지시문이라,
@@ -1848,7 +1850,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
       </div>
 
       <!-- 이름 / 관계 input (비활성 데모) -->
-      <div class="lf-row">
+      <div class="lf-row" aria-hidden="true">
         <span class="lf-mark" aria-hidden="true">From.</span>
         <div class="lf-field lf-field-half">
           <div class="lf-input-ph">이름</div>
@@ -1859,7 +1861,7 @@ a.brand-mark-link:hover .back-arrow{transform:translateX(-3px)}
       </div>
 
       <!-- Deliver 버튼 (비활성 데모) -->
-      <div class="lf-cta lp-cta-preview">
+      <div class="lf-cta lp-cta-preview" aria-hidden="true">
         <span class="lf-cta-text">편지 보내기</span>
         <svg class="lf-cta-icon" viewBox="0 0 16 16" aria-hidden="true">
           <path d="M2,8 L13,8 M9,4 L13,8 L9,12" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>

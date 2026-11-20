@@ -24273,3 +24273,6 @@ chk '.compact-mark::after{forced-color-adjust:none;background:Highlight}' inquir
 chk '.required-dot{forced-color-adjust:none;background:CanvasText}' inquiry.html 1
 # ★[SOUND_FIRST_N20_19 2026-11-19 R3] 디지털 참석 영상 아래 «소리를 켜 주세요»가 세 줄 중 맨 위(비공개 안내보다 앞)
 chk '#playerSound:not(\[hidden\]) + .player-note' live.html 1
+# ★[LETTER_PREVIEW_READ_N20_19 2026-11-19 R3] 편지 미리보기 블록은 통째로 숨기지 않고(안내 두 줄은 화면 읽기에 들린다) 겉모양 흉내 넷만 aria-hidden
+chk 'id="letterPreview" style="display:none">' live.html 1
+chk 'lp-cta-preview" aria-hidden="true"' live.html 1
