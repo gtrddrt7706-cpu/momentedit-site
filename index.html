@@ -8913,6 +8913,12 @@ function replayHeroAnimation(){
   border-color: var(--gold-text);
   box-shadow: inset 0 0 0 1px var(--gold-text); /* [FOCUS_ONE · FIELD_LINE_1115] */
 }
+/* ★[HOME_FOCUS_FORCED_N20_19 2026-11-20 R3X2 교차 점검] 윈도 고대비 — FAQ 검색칸 · 상담 도우미 입력칸의 초점(금빛 테 + 안쪽 그림자)이
+   고대비에서 둘 다 지워져 초점이 와도 모양이 그대로였다(실측 0.09%) · 고대비에서만 시스템 강조색 테를 더한다 · 평소 화면엔 안 걸림 */
+@media (forced-colors: active) {
+  .faq-ask-form:focus-within,
+  .me-adv-input:focus { outline: 2px solid Highlight; outline-offset: 2px; }
+}
 .me-adv-send {
   flex: 0 0 auto;
   width: 44px;
@@ -8987,7 +8993,7 @@ function replayHeroAnimation(){
     <div class="me-adv-body" id="meAdvBody"></div>
     <footer class="me-adv-foot">
       <form class="me-adv-form" id="meAdvForm">
-        <textarea class="me-adv-input" id="meAdvInput" rows="1" placeholder="궁금한 점을 적어주세요" aria-label="질문 입력"></textarea>
+        <textarea class="me-adv-input" id="meAdvInput" rows="1" placeholder="궁금한 점을 적어 주세요" data-mark="ADV_SPACE_X" aria-label="질문 입력"></textarea>
         <button type="submit" class="me-adv-send" id="meAdvSend" aria-label="전송">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2.8 11.3 20.3 4.2c.5-.2 1 .3.8.8l-4.7 15.2c-.15.5-.8.6-1.1.16l-3.4-4.8-3 2.4c-.3.24-.75.03-.76-.35l-.06-3.9-5.2-1.1c-.5-.1-.55-.8-.06-1Z" fill="none" stroke="var(--seal,#6B2A24)" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></svg>
         </button>

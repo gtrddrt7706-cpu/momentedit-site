@@ -1496,6 +1496,8 @@ chk 'HOME_CTA_KO' index.html 1                 # 주 버튼 한글 주·영문 �
 chk 'cta-eyebrow' index.html 4                 # 영문 아이브로우 3곳 + CSS 1. ★영문을 버튼 '안'에 2줄로 넣는 안(cta-btn-ko/en)은 2026-07-26 재검토로 폐기 — 되살리지 말 것(버튼 73px·영문 불투명 66%로 안 읽힘)
 chk 'BTN_TIER' index.html 4                    # 버튼 2단 체계(채움=전환 3곳 / 외곽=보조 이동 1곳). journal-guide-link를 채움 마룬으로 되돌리면 화면에 전환 버튼이 4개가 된다 — 복원 금지
 chk 'MAP_BREATH' index.html 1                  # 지도 블록 상하 여백 80/88 — margin-top만 두고 아래를 0으로 되돌리면 다시 푸터에 끼인다
+chk 'PILL_FOCUS_ROUND_1119' order-preview.html 1  # [2026-11-19 NIGHT20 #13 R3X2] 알약 단추는 키보드 초점에서도 둥글게(전역 4px 에 지지 않게)
+chk 'NEXT_SEG_1119' order-preview.html 2          # [2026-11-19 NIGHT20 #13 R3X2] ② 다음 단추 글은 «·» 마디째로만 줄바꿈(320 «하객 / 맞이 안내» 끊김)
 chk 'DEPOSIT_WORD_1119' index.html 2             # [2026-11-19 대표님 «추천대로» · DEC3] 예약금은 «입금» 한 낱말(FAQ · 예약 및 환불)
 chk 'DEPOSIT_WORD_1119' inquiry.html 1
 chk 'DEPOSIT_WORD_1119' api/_kb.js 1
@@ -1929,6 +1931,8 @@ chk 'SHOWCASE_JOSA_X' i/invitations/invitation-06-hangeul.html 1
 chk 'SHOWCASE_JOSA_X' i/invitations/invitation-07-architect.html 1
 chk 'SHOWCASE_JOSA_X' i/invitations/invitation-08-noir.html 1
 nochk '이서연을(를)' i/invitations/invitation-08-noir.html
+chk 'ADV_SPACE_X' assets/advisor-kb.js 1         # [2026-11-20 NIGHT20 R3X2 #15] 상담 도우미 «적어 주세요» 띄어 씀
+chk 'ADV_SPACE_X' index.html 1
 chk 'INV06_DARK_AA' i/cover-06.html 2              # [2026-11-19 NIGHT20 #15] 06 어두운 칸 라벨 · 꼬리 대비 AA — opacity 로 다시 흐리지 말 것
 chk 'INV06_DARK_AA' i-family/family-06.html 2
 chk 'A11Y_LETTER_EXPOSED' index.html 1                      # 받은편지 예시는 콘텐츠 · aria-hidden 되돌리면 버튼이 포커스만 되고 안 읽힘
@@ -4908,6 +4912,9 @@ chk 'VIDEO_UMBRELLA_1115' order-preview.html 4
 nochk "var VU_NAME='예식 영상'" mypage.html 0
 # ★★[UMBRELLA_ROW_1116 2026-11-16 대본 12:59 · 대표님 캡처 «이것도 이름 바꿔야지 · 식중 영상도 있잖아»] 준비 목록은 늘 «상영 영상» 한 줄 — 식전만 · 식중만이면 그 단추 그대로(mp_pvcStart · mp_mvcStart) ·
 #   둘 다면 한 줄(✓ 둘 다 완료 · 꼬리표 확정 기한 · 단추 mp_vuOpen 시작하기 / 보기) 아래 펼침(mp_vuFold)에 식전 · 식중 두 줄 · 옛 머리 줄(vu-head) · 늘 펼친 두 줄은 은퇴(RULES_SLIM ⑧) — video-umbrella 가 390 · 1280 실렌더로 잰다
+# ★[PVC_DUE_NOWRAP_1120] «확정 기한» 날짜는 한 덩이(360 폭 이하에서 «12월 22일 / (화)» 로 쪼개지지 않게) · 점은 날짜 쪽에 붙는다
+chk 'PVC_DUE_NOWRAP_1120' mypage.html 1
+chk '<b><span class="pvc-now-dt">' mypage.html 1
 chk 'UMBRELLA_ROW_1116' mypage.html 5
 chk "html:row(VU_NAME, _pvR.st, 'mp_pvcStart'" mypage.html 1
 chk "html:row(VU_NAME, _mvR.st, 'mp_mvcStart'" mypage.html 1
@@ -5038,7 +5045,9 @@ chk "+PN\[_pw\]+' 빼기</button>'" order-preview.html 1                  # 빼�
 chk 'PAIR_TILE_ON_1115' order-preview.html 1
 chk 'w?PICK_COPY.tileOn\[w\]:PICK_COPY.tile.free' order-preview.html 1                      # 담은 뒤 카드 한 줄 = 고른 쪽
 chk 'MID_COST_NEAR_1115' order-preview.html 2
-chk '<span class="pv-in pv-cost">쿠폰으로 기본 템플릿 무료 · 추가는 두 분 부담이에요</span>' order-preview.html 1     # 식중 영상 비용은 담기 단추 옆(펼침 안 아님) · ★[FM_COUPON_1116] 옛 핀 «제작비는 두 분 부담이에요»
+chk '<span class="pv-in pv-cost">쿠폰으로 기본 템플릿 무료&nbsp;· 추가는 두 분 부담이에요</span>' order-preview.html 1     # 식중 영상 비용은 담기 단추 옆(펼침 안 아님) · ★[FM_COUPON_1116] 옛 핀 «제작비는 두 분 부담이에요»
+chk 'MID_COST_NBSP_1120' order-preview.html 1     # [MID_COST_NBSP_1120] 점(·)이 줄머리에 오지 않게 «무료&nbsp;·»
+nochk '무료 · 추가는 두 분 부담이에요' order-preview.html 0
 chk 'PV_WHO_FOLD_1115' order-preview.html 1
 chk '.pv-who\[open\] summary::after{transform:rotate(-135deg)' order-preview.html 1         # «누가 하나요?» 꺾쇠(같은 창 장면 사진 칩과 같은 꼴)
 chk 'SONG_WHO_ONE_1115' order-preview.html 3
@@ -24201,3 +24210,21 @@ nochk 'content="https://momentedit\.kr/' form.html
 nochk 'content="https://momentedit\.kr/' mypage.html
 nochk 'content="https://momentedit\.kr/' schedule.html
 chk 'content="https://www.momentedit.kr/assets/og/og-seal.png?v=5"' guide.html 1
+# ★[INQ_CHIP_GROUP_N20_19 2026-11-20 R3X2] 상담 신청서 칩 묶음 셋에 묶음 역할 + 질문 이름
+chk 'class="chip-list" role="group" aria-label="가장 중요하게 생각하시는 것"' inquiry.html 1
+chk 'class="chip-list" role="group" aria-label="가장 망설여지는 점"' inquiry.html 1
+chk 'class="chip-list" role="radiogroup" aria-required="true" aria-label="현재 준비 상황"' inquiry.html 1
+# ★[SEAT_INPUT16_N20_19 2026-11-20 R3X2] 좌석 화면 성함 찾기 칸 16px(아이폰 자동 확대 막기)
+chk 'SEAT_INPUT16_N20_19' seat.html 1
+chk 'color:var(--accent);padding:11px 12px}   /\* ★\[SEAT_INPUT16_N20_19' seat.html 1
+# ★[HOME_FOCUS_FORCED_N20_19 2026-11-20 R3X2] 홈 FAQ 검색칸 · 상담 도우미 입력칸 초점이 윈도 고대비에서도 보인다
+chk 'HOME_FOCUS_FORCED_N20_19' index.html 1
+# ★[OP_FORCED_N20_19 2026-11-20 R3X2] 식순 빌더 고른 칩(분위기 · 목소리 등)이 윈도 고대비에서도 보인다
+chk 'OP_FORCED_N20_19' order-preview.html 1
+# ★[GALLERY_FORCED_N20_19 2026-11-20 R3X2] 청첩장 갤러리 오프라인·온라인 고른 밑줄이 윈도 고대비에서도 보인다
+chk 'GALLERY_FORCED_N20_19' invitation-gallery.html 1
+chk '.gv-dots button::before{forced-color-adjust:none;background:CanvasText}' invitation-gallery.html 1
+# ★[INQ_FORCED_N20_19 2026-11-20 R3X2] 상담 신청서 고름 표시가 윈도 고대비에서도 보인다(시스템 강조색 Highlight)
+chk 'INQ_FORCED_N20_19' inquiry.html 1
+chk '.compact-mark::after{forced-color-adjust:none;background:Highlight}' inquiry.html 1
+chk '.required-dot{forced-color-adjust:none;background:CanvasText}' inquiry.html 1
