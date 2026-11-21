@@ -1,0 +1,29 @@
+name: Prevideo intro selection
+on:
+  pull_request:
+    paths:
+      - order-preview.html
+      - assets/ritual-open.js
+      - assets/ritual-data.js
+      - assets/ritual-cue.js
+      - scripts/audit/pv-nar-chips.mjs
+      - .github/workflows/prevideo-intro.yml
+permissions:
+  contents: read
+jobs:
+  selection:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /order-preview.html
+            /assets/ritual-open.js
+            /assets/ritual-data.js
+            /assets/ritual-cue.js
+            /scripts/audit/pv-nar-chips.mjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/audit/pv-nar-chips.mjs
