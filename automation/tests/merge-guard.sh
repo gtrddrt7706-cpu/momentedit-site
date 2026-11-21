@@ -2263,6 +2263,15 @@ chk '{{WEDDING_YEAR}}' i-family/family-04.html 1      # 04 가족판 콜로폰 �
 for _f in i/cover-02.html i/cover-03.html i/cover-05.html i/cover-06.html i/cover-07.html i-family/family-02.html i-family/family-03.html i-family/family-05.html i-family/family-06.html i-family/family-07.html; do
   if grep -v '<!--' "$_f" | grep -q 'role="grid"'; then echo "REVERT? $_f: 장식 달력에 role=grid 재유입"; fail=1; else echo "ok $_f: role=grid 없음(주석 제외)"; fi
 done
+# [AUD16_GRID_SHOWCASE 2026-11-19 NIGHT20 #15] 쇼케이스 사본 다섯 쪽도 같은 금지 — 실물만 고치고 사본에 남아 있던 자리
+for _f in i/invitations/invitation-02-editorial.html i/invitations/invitation-03-letterpress.html i/invitations/invitation-05-botanical.html i/invitations/invitation-06-hangeul.html i/invitations/invitation-07-architect.html; do
+  if grep -v '<!--' "$_f" | grep -q 'role="grid"'; then echo "REVERT? $_f: 장식 달력에 role=grid 재유입"; fail=1; else echo "ok $_f: role=grid 없음(주석 제외)"; fi
+done
+chk 'AUD16_GRID_SHOWCASE' i/invitations/invitation-02-editorial.html 1
+chk 'AUD16_GRID_SHOWCASE' i/invitations/invitation-03-letterpress.html 1
+chk 'AUD16_GRID_SHOWCASE' i/invitations/invitation-05-botanical.html 1
+chk 'AUD16_GRID_SHOWCASE' i/invitations/invitation-06-hangeul.html 1
+chk 'AUD16_GRID_SHOWCASE' i/invitations/invitation-07-architect.html 1
 # ── 2026-08-02 변주 스트레스 심화 [DTL16] — 16종 하나씩 점검 라운드
 chk 'DTL16' i/cover-01.html 9                     # 변주(긴이름·결손·6주달력·오전) 견고성 교정 마커
 chk 'DTL16' i/cover-02.html 7                     # 변주(긴이름·결손·6주달력·오전) 견고성 교정 마커
