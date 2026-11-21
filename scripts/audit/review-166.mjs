@@ -24,6 +24,7 @@ try {
     S = JSON.parse(S0); R.applyExample(S, 'family'); R.setChip(S, 'tribute', 'none'); buildSteps(); S.tributeText = '옛 인사 글ZZ'; out.b4 = !/ZZ/.test(scriptTextOpen());
     S = JSON.parse(S0); R.applyExample(S, 'standard'); S.vow = 'ok'; S.vowHow = 'alt'; buildSteps(); LS.ref = { vow: 2 }; out.b7 = q('vow');
     out.b8 = R.prepOf('song', { on: { song: 1 }, songBy: 'self' }).every((x) => !/부르실 분 정하기/.test(x[1])) && R.prepOf('song', { on: { song: 1 } }).some((x) => /부르실 분 정하기/.test(x[1]));
+    out.b8w = [R.prepOf('song', { on: { song: 1 }, songWho: 'gfr' })[0][1], R.prepOf('song', { on: { song: 1 }, songWho: 'etc' })[0][1], R.prepOf('song', { on: { song: 1 } })[0][1]].join(' / ');   /* ★[N20_SONG_ASK_1119] */
     S = JSON.parse(S0); S.on = { declare: 1, tribute: 1 }; R.setChip(S, 'tribute', 'long'); buildSteps(); out.b12 = R.narExList(S, 'tribute').map((x) => x[1]).join(',');
     S = JSON.parse(S0); S.on = { declare: 1 }; buildSteps(); out.b11 = _declNoWho();
     S = JSON.parse(S0); R.applyExample(S, 'standard'); buildSteps(); idx = STEPS.findIndex((x) => x.k === 'listen'); render(); LP.q = [{ k: 'declare', txt: 'x' }]; LP.paused = false; LP.cur = 'declare'; out.b13ok = R.narExOk(S, 'declare', 2); mkNarEx('declare', 2); out.b13 = LP.paused === true;
@@ -40,6 +41,7 @@ try {
   const b7w = W(r.b7).split(',').filter((w) => w !== '두 분');
   ok('[REVIEW_166_1030 B7] «한 줄씩 번갈아» — 인용으로 시작하는 줄은 앞 문장과 한 칸 · 같은 사람 줄 연달아 없음', !r.b7.some((x) => /\|["“]/.test(x)) && b7w.every((w, i) => !i || w !== b7w[i - 1]), JSON.stringify(r.b7));
   ok('[REVIEW_166_1030 B8] 축가 «두 분이 직접» = «부르실 분 정하기» 없음 · MR 은 그대로', r.b8);
+  ok('[N20_SONG_ASK_1119] 축가 «누가»를 고르면 «… 께 부탁드리기» · 안 고르면 «부르실 분 정하기»', r.b8w === '신랑 친구께 축가 부탁드리기 / 부르실 분께 축가 부탁드리기 / 축가 부르실 분 정하기', r.b8w);
   ok('[REVIEW_166_1030 B9 · B10] 한눈에 보기 — 축사 «축사하실 분이 현장에서» · 끝 신호는 칸이 있는 분에게만', r.b9 && r.b10);
   ok('[REVIEW_166_1030 B11] 서약 없는 날 선언 읽는 분 안 적음 = «… 이 순간을 빼 주세요» (서약으로 마무리 아님)', /성혼 선언을 하지 않으려면 이 순간을 빼 주세요\.$/.test(r.b11), r.b11);
   ok('[REVIEW_166_1030 B12] 선언 바로 뒤 부모님께 인사 — 기본과 같은 소리가 되는 칩 숨김', r.b12 === '뭉클하게,담백하게,감사하게', r.b12);

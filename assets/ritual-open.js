@@ -874,7 +874,8 @@
       case 'declare': { var dp = declBy(S);   // [DECLARE_BY_PERSON] 늘 사람이 읽는다 · [DECLARE_ANYONE] 적은 분께 부탁 · 안 적었으면 «정하기»가 할 일로 남는다(예시는 칸에만)
         return dp ? [['couple', '성혼 선언문 낭독 · ' + dp + '께 부탁드리기', 'ask', null, NOTE_ASK]] : [['couple', '성혼 선언문 읽어 주실 분 정하기', 'ask', null, NOTE_ASK]]; }
       /* [SONG_BACK_1011] 부르실 분께 부탁 · 반주(MR)는 두 분이 사흘 전까지 보낸다(준비한 순서 영상과 같은 마감) */
-      case 'song': return (S && S.songBy === 'self' ? [] : [['couple', '축가 부르실 분 정하기', 'ask', null, NOTE_ASK]]).concat([   /* ★[REVIEW_166_1030 검토 166 B8] «두 분이 직접»이면 섭외 할 일은 없다(MR 준비는 그대로) */   /* [SONG_ANYONE_WORDS_1013] «불러 주실 분께 부탁드리기»는 두 분이 직접 부르는 날 틀린 말 */ ['couple', '축가 반주(MR) 파일 · 곡 이름과 함께 · 3분 안팎 한 곡', 'send', 3]]);   // ★[SONG_3MIN 2026-10-12] 자료 B «하이라이트만 3분 안쪽» · C 3:00 · L 3분 · 시간 표 210초(TIME.song)
+      case 'song': { var sgw = songWhoOf(S), sgL = sgw ? whoLabel(GUEST_WHO, sgw) : (S && S.songWho === 'etc' ? '부르실 분' : '');   /* ★[N20_SONG_ASK_1119 R3 #05 · 대기·대표님 결정] «누가» 칩을 고른 날은 «정하기»가 아니라 «그분께 부탁드리기» — 성혼 선언([DECLARE_ANYONE] «… 께 부탁드리기»)과 같은 꼴 · 고른 뒤 «다음»의 «축가 부르실 분 정하기가 남아 있어요»가 이미 고른 것을 또 하라는 말로 읽혔다 · 안 고른 날 · 두 분 직접은 종전 그대로 */
+        return (S && S.songBy === 'self' ? [] : [['couple', sgL ? sgL + '께 축가 부탁드리기' : '축가 부르실 분 정하기', 'ask', null, NOTE_ASK]]).concat([   /* ★[REVIEW_166_1030 검토 166 B8] «두 분이 직접»이면 섭외 할 일은 없다(MR 준비는 그대로) */   /* [SONG_ANYONE_WORDS_1013] «불러 주실 분께 부탁드리기»는 두 분이 직접 부르는 날 틀린 말 */ ['couple', '축가 반주(MR) 파일 · 곡 이름과 함께 · 3분 안팎 한 곡', 'send', 3]]); }   // ★[SONG_3MIN 2026-10-12] 자료 B «하이라이트만 3분 안쪽» · C 3:00 · L 3분 · 시간 표 210초(TIME.song)
       case 'tribute': { var t = chipOf('tribute', S), tr = t === 'none' ? [] : [['couple', crossTribute(S) ? '서로의 부모님께 드릴 말 · 한마디부터 1분쯤까지' : '부모님께 드릴 말 · 한마디부터 1분쯤까지'   /* [TRIB_ONE_SAY] */, 'write', null, NOTE_TRIB]];
         return tr.concat(goodsPrep('tribute', S)); }
       case 'free': {   // [FREE_WHAT] 무엇을 · 길이가 곧장 반영된다
