@@ -2218,7 +2218,7 @@ button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
 /* [PV_FEEL_1106] 필메이커 안내 네 걸음 — 번호는 금빛 테 원(진사는 칠하지 않는다) · 이름 14/600(SUBHEAD_ONE) · 설명 13 보조색 */
 .pvc-feel{list-style:none;margin:20px 0 4px;padding:0;counter-reset:pvf}
 .pvc-feel li{counter-increment:pvf;position:relative;padding:0 0 16px 32px}
-.pvc-feel li::before{content:counter(pvf);position:absolute;left:0;top:1px;width:20px;height:20px;box-sizing:border-box;border:1px solid var(--gold-deep);border-radius:50%;font-family:var(--serif);font-size:12px;line-height:18px;text-align:center;color:var(--gold-deep)}
+.pvc-feel li::before{content:counter(pvf);position:absolute;left:0;top:1px;width:20px;height:20px;box-sizing:border-box;border:1px solid var(--gold-deep);border-radius:50%;font-family:var(--serif);font-size:12px;line-height:18px;text-align:center;color:var(--gold-deep);font-variant-numeric:lining-nums}   /* ★[PVF_LINING_1118 2026-11-18 고객 점검] Cormorant 기본 숫자(옛 꼴)는 «1»이 «I»로 · «3»이 아래로 처져 동그라미 번호가 «I · 2 · 3»으로 읽혔다 — 가족 · 친구 스냅 걸음 번호(lining)와 같은 꼴 */
 .pvc-feel b{display:block;font-family:var(--serif-ko);font-size:14px;font-weight:600;color:var(--text)}
 .pvc-feel span{display:block;margin-top:3px;font-family:var(--serif-ko);font-size:13px;line-height:1.7;color:var(--sub)}
 .pvc-feel .pvc-feel-go{display:inline-flex;align-items:center;min-height:44px;font-family:var(--serif-ko);font-size:13px}
@@ -2347,6 +2347,7 @@ button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .pvc-way-acts .pvc-cpn-x{color:var(--sub)}
 .pvc-cond{display:flex;flex-wrap:wrap;margin:-8px 0 14px;font-family:var(--serif-ko);font-size:12px;line-height:1.6;color:var(--gold-deep)}
 .pvc-cond span+span::before{content:'·';margin:0 8px;color:var(--label-soft)}
+.pvc-cond{overflow:hidden}.pvc-cond span{position:relative;margin-left:17px}.pvc-cond span+span::before{position:absolute;left:-10px;margin:0}.pvc-cond{margin-left:-17px}   /* ★[PVC_COND_NODANGLE_1118 2026-11-18 고객 점검] 390 식중 영상 머리 덧말이 셋째 칸에서 줄을 넘겨 «· 추가는 두 분 부담»으로 «·»가 줄 머리에 섰다([CHECKS_NO_DANGLE]) — 줄 머리 칸의 «·»는 틀 밖(왼쪽 17px)으로 밀려 잘린다 · 한 줄일 땐 종전과 같은 자리 */
 .pvc-caps{margin:0;font-family:var(--serif-ko);text-align:left}
 .pvc-caps div{padding:8px 0;border-bottom:1px solid var(--hairline)}
 .pvc-caps dt{font-size:12px;color:var(--label-soft)}
@@ -10342,7 +10343,7 @@ function _guideNoteHtml(p){   // [GUIDE_NOTE_TRUE] 칩 아래 한 줄 — 빈 �
      (전역 cc-note balance · [CHECKS_NO_DANGLE]) — 마침표 두 문장을 한 덩어리씩(.ln-bal) · «애프터&nbsp;웨딩»은 한 낱말로(«애프터 / 웨딩» 갈림) · 목록 «·» 양옆은 U+2060 */
   var g=_guideSections(p), t2='';
   if(g.seat && g.dining) return '';   // ③
-  if(!(g.dnPend || g.seatPend || g.dnOff)) t2='애프터&nbsp;웨딩&#8288;·&#8288;좌석 배치를 완료하면 그 부분부터 열려요.';   // 끝내지 않은 줄 때문에 빈 칩 — 종전 문장 그대로(점만 마침표로)
+  if(!g.seat && !g.dining && !(g.dnPend || g.seatPend || g.dnOff)) t2='애프터&nbsp;웨딩&#8288;·&#8288;좌석 배치를 완료하면 그 부분부터 열려요.';   // 끝내지 않은 줄 때문에 빈 칩 — 종전 문장 그대로(점만 마침표로) · ★[GUIDE_NOTE_ONE_1118] 둘 다 빈 판에만 — 한쪽이 ✓ 인데 «애프터 웨딩 · 좌석 배치를 완료하면»이 떴다(2026-11-18 고객 점검) · 한쪽만 빈 판은 아래 칩별 줄이 맡는다
   else { var a=[];   // 행은 끝났는데 칩이 빈 판 — 칩마다 무엇을 하면 열리는지(할 것이 없으면 말하지 않는다) · 둘이면 «열려요»를 한 번만(보이스 가이드 §6-B 어미 반복)
     if(!g.seat) a.push(g.seatPend?'자리에 이름을 넣으면 자리 찾기가':'좌석 배치를 완료하면 자리 찾기가');
     if(!g.dining && !g.dnOff) a.push(g.dnPend?'애프터&nbsp;웨딩에서 식당을 고르면 식사 안내가':'애프터&nbsp;웨딩을 완료하면 식사 안내가');

@@ -4991,6 +4991,12 @@ chk 'FM_COUPON_1116' admin.html 4
 chk 'FM_COUPON_1116' automation/platform/89_prevideo.gs 5
 chk 'FM_COUPON_1116' automation/admin/admin.gs 4
 chk "if (st === 'req') return { ok: false, ecode: 'S0', error: '이미 요청하셨어요 · 디렉터가 쿠폰을 보내 드려요', cpn: _pvCpnPub_(m) };" automation/platform/89_prevideo.gs 1   # ★[COUPON_GATE_1116 · RULES_SLIM ⑧] 같은 요청 두 번 = 서버 거절(옛 핀 «ok same»)
+# ★[GUIDE_NOTE_ONE_1118 2026-11-18 고객 점검] 하객 안내 칩 아래 줄 — «애프터 웨딩 · 좌석 배치를 완료하면»은 둘 다 빈 판에만(한쪽 ✓ 인데 뜨던 것)
+chk 'if(!g.seat && !g.dining && !(g.dnPend || g.seatPend || g.dnOff)) t2=' mypage.html 1
+# ★[PVC_COND_NODANGLE_1118] 식중 영상 머리 덧말 — 줄을 넘겨도 «·»가 줄 머리에 서지 않게(줄 머리 칸의 점은 틀 밖으로 잘린다)
+chk '.pvc-cond span+span::before{position:absolute;left:-10px;margin:0}' mypage.html 1
+# ★[PVF_LINING_1118] 식전 · 식중 영상 걸음 동그라미 번호 — «1»이 «I»로 읽히던 옛 꼴 숫자 대신 lining
+chk 'counter(pvf);.*font-variant-numeric:lining-nums' mypage.html 1
 nochk "if (st === 'issued' || st === 'req') return { ok: true, same: true" automation/platform/89_prevideo.gs   # 깨 보기: 옛 «두 번 = 한 번(ok)»으로 되돌리면 빨강
 chk "if (st !== 'req') return { ok: false, error: st === 'issued' ? '이미 보냈어요.' : '고객이 요청한 쿠폰이 없어요.' };" automation/admin/admin.gs 1   # 요청 없이 나가는 길 없음
 chk "if (cn >= PV_UP.cpnHour) return { ok: false, ecode: 'S0'" automation/platform/89_prevideo.gs 1   # 한 시간 상한
