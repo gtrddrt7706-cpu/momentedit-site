@@ -17561,6 +17561,13 @@ chk "'G3-3b', '혼인 서약 시작 · 신부부터', 'narr-vow-in-b'" scripts/b
 chk "'vowFirst'" assets/ritual-preview-link.js 1
 chk 'c.live.tv || c.live.t' console.html 1
 chk 'VOW_FIRST' scripts/audit/vow-form.mjs 1
+# ★★[VOW_GROOM_FIRST_1122 2026-11-22 사장님 «먼저 읽는 분은 신랑으로 고정 · 선택이 별로 의미가 없을 거 같아»] 칩 삭제 · 엔진 norm 이 옛 'b' 를 지운다 · 127 · 166 ~ 168 retired
+chk 'VOW_GROOM_FIRST_1122' assets/ritual-cue.js 1
+chk "delete s.vowFirst;" assets/ritual-cue.js 1
+chk "function _vowFirst(){ return 'g'; }" order-preview.html 1
+nochk "L('vowFirst','먼저 읽는 분'" order-preview.html 0
+chk 'VOW_GROOM_FIRST_1122' assets/audio/clip-status.json 4
+chk 'VOW_GROOM_FIRST_1122' scripts/audit/vow-form.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vow-form.mjs >/dev/null 2>&1; _vwf=$?; if [ "$_vwf" = 1 ]; then echo 'FAIL vow-form: 서약 순서 · 글칸 · 끝 신호가 어긋났습니다 — node scripts/audit/vow-form.mjs'; fail=1; else echo "ok vow-form ($_vwf)"; fi; fi
 # ★[WAIT_BOX 2026-10-06 사장님 «불러오는 중 · 직관적이게 · 기다리면 되는구나 싶게»] 옅은 «불러오는 중이에요…» 한 줄 → 기다리는 칸(제목 · 움직이는 막대 · «잠깐이면 돼요» · 8초 넘으면 «조금 오래 걸리고 있어요»)
 chk 'WAIT_BOX' order-preview.html 6

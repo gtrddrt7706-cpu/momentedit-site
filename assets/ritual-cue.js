@@ -695,6 +695,7 @@
     var _dt0 = (S.declTitle || S.declareWho) && O.declTitleOf ? O.declTitleOf(S) : ''; if (_dt0) s.declTitle = _dt0; else delete s.declTitle;
     if (S.declBless === 'yes' || S.declBless === 'no') { s.declBless = S.declBless; s.declBlessKey = String(S.declBlessKey || ''); } else { delete s.declBless; delete s.declBlessKey; }
     if (S.tribHug === 'off') s.tribHug = 'off'; else delete s.tribHug;
+    delete s.vowFirst;   /* ★★[VOW_GROOM_FIRST_1122 2026-11-22 사장님 «먼저 읽는 분은 신랑으로 고정»] 서약 · 감사문은 늘 신랑부터 — 옛 저장분 «신부부터»('b')도 여기서 지운다 · 'b' 갈래(127 · 166 ~ 168)는 이제 안 난다 */
     s.declareWho = O.declBy(s);   // ★[DECLARE_ANYONE 2026-10-12] 두 분이 적은 글(다듬어 30자) · 옛 gdad · bdad = 그 이름 · 옛 friend · narr · family · ask · chorus · clap = «아직 안 정함»('')
     if (!D.LETTER[s.letter]) s.letter = cd.letter;
     if (!s.extra) s.extra = {};
