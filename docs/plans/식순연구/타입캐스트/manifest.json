@@ -8863,7 +8863,7 @@
     {
       "no": "266",
       "id": "G13-9",
-      "label": "사진 전 안내 · 식사 있음(애프터 웨딩 식사 · 하객 안내가 있는 날 · END_FLOW_1030 검토 167)",
+      "label": "사진 전 안내 · 식사 있음(예식 후 식사 · 하객 안내가 있는 날 · END_FLOW_1030 검토 167)",
       "file": "narr-photo-pre-meal",
       "role": "진행",
       "part": "6_예식뒤.txt",
@@ -9158,7 +9158,7 @@
     {
       "no": "287",
       "id": "M-narr-closing",
-      "label": "마무리 멘트 · 애프터 웨딩 없음",
+      "label": "마무리 멘트 · 예식 후 식사 없음",
       "file": "narr-closing",
       "role": "안내",
       "part": "6_예식뒤.txt",
@@ -9189,7 +9189,7 @@
     {
       "no": "288",
       "id": "M-narr-closing-guide",
-      "label": "마무리 멘트 · 애프터 웨딩 없음 · 하객 안내",
+      "label": "마무리 멘트 · 예식 후 식사 없음 · 하객 안내",
       "file": "narr-closing-guide",
       "role": "안내",
       "part": "6_예식뒤.txt",
@@ -9423,7 +9423,7 @@
     {
       "no": "292",
       "id": "M-narr-closing-nt",
-      "label": "마무리 멘트 · 애프터 웨딩 없음 · 감사 없이(닫는 멘트 187 «격식 있게» 고른 날 · CLOSING_SRC_1031)",
+      "label": "마무리 멘트 · 예식 후 식사 없음 · 감사 없이(닫는 멘트 187 «격식 있게» 고른 날 · CLOSING_SRC_1031)",
       "file": "narr-closing-nt",
       "role": "안내",
       "part": "6_예식뒤.txt",
@@ -9448,7 +9448,7 @@
     {
       "no": "293",
       "id": "M-narr-closing-guide-nt",
-      "label": "마무리 멘트 · 애프터 웨딩 없음 · 하객 안내 · 감사 없이(닫는 멘트 187 «격식 있게» 고른 날 · CLOSING_SRC_1031)",
+      "label": "마무리 멘트 · 예식 후 식사 없음 · 하객 안내 · 감사 없이(닫는 멘트 187 «격식 있게» 고른 날 · CLOSING_SRC_1031)",
       "file": "narr-closing-guide-nt",
       "role": "안내",
       "part": "6_예식뒤.txt",
@@ -9646,7 +9646,7 @@
     {
       "no": "325",
       "id": "M-narr-closing-nt-nc",
-      "label": "마무리 멘트 · 애프터 웨딩 없음 · 감사 · 응원 없이(닫는 멘트 186 «다정하게» 고른 날 · CLOSING_CHEER_195)",
+      "label": "마무리 멘트 · 예식 후 식사 없음 · 감사 · 응원 없이(닫는 멘트 186 «다정하게» 고른 날 · CLOSING_CHEER_195)",
       "file": "narr-closing-nt-nc",
       "role": "안내",
       "part": "6_예식뒤.txt",
@@ -9665,7 +9665,7 @@
     {
       "no": "326",
       "id": "M-narr-closing-guide-nt-nc",
-      "label": "마무리 멘트 · 애프터 웨딩 없음 · 하객 안내 · 감사 · 응원 없이(닫는 멘트 186 «다정하게» 고른 날 · CLOSING_CHEER_195)",
+      "label": "마무리 멘트 · 예식 후 식사 없음 · 하객 안내 · 감사 · 응원 없이(닫는 멘트 186 «다정하게» 고른 날 · CLOSING_CHEER_195)",
       "file": "narr-closing-guide-nt-nc",
       "role": "안내",
       "part": "6_예식뒤.txt",
