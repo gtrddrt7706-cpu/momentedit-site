@@ -21234,6 +21234,8 @@ chk "M1: \['B36', 'B01', 'B24'\]" assets/bgm-picks.js 1   # ★[PONYO_FIRST_1122
 chk "var FILL = { M1: \['B13', 'B33', 'B35', 'B37'\]" assets/bgm-picks.js 1
 chk 'PONYO_FIRST_1122' console.html 1
 chk 'PONYO_FIRST_1122' assets/bgm-bed.js 1
+chk '_fd > _fa + 20' console.html 1   # [PONYO_FIT_1122] 넣은 파일이 강조 자리 + 20초보다 짧으면 처음부터(detail-r3 R5 · console-relift ⑤ 의 짧은 시험 파일)
+chk '+st > _d0 - 20) return m.head' console.html 1   # [PONYO_FIT_1122] 다시 트는 자리(reHookC)도 같은 규칙
 nochk "M1: \['B01', 'B24', 'B13'\]" assets/bgm-picks.js   # 옛 1순위 되살리지 말 것
 chk 'MATJEOL_WORD_1122' assets/bgm-slots.js 1
 nochk '하객을 향해 서시면 본식 피아노가 잔잔하게 깔려요' assets/bgm-slots.js   # [MATJEOL_WORD_1122] 맞절 듣기에서 안 나는 소리 약속 금지
