@@ -92,6 +92,14 @@ const K4 = ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter', 'son
   const c1 = O1[bi(O1, 'narr-open') + 1] || {};
   ok('1 개식사 — 하객 맞이 곡 2초 내림 + 정적 1초 · 멘트 · 박수는 음악 없이', o1.duck === -90 && o1.fadeMs === 2000 && o1.goLeadMs >= 3000 && (!o1.live || o1.live.duck === -90), { duck: o1.duck, fade: o1.fadeMs, lead: o1.goLeadMs, live: o1.live && o1.live.duck });
   ok('1 영상 없는 날 — 화촉 첫 큐는 정적 1초 뒤 무음에서 M2 를 6초 앞서(−8)', c1.k === 'candle' && c1.goLeadMs >= 6000 && c1.leadDb === -8 && c1.gapMs >= 1000, { k: c1.k, lead: c1.goLeadMs, ldb: c1.leadDb, gap: c1.gapMs });
+  /* ★[PREVIDEO_SONG_1122 사장님 11/22] 영상 있는 날 — 영상이 끝나면(GO) 화촉 곡이 바로 무음에서: 영상 뒤 첫 화촉 줄(91 이음말 · 없으면 여는 말)에 6초 앞 −8 · 91 은 곡 위 말 아래(−15) · 받는 말(261)이 남은 판이면 그 줄은 정적 · 화촉 없는 날은 b7 정적 그대로 */
+  { const PV = []; ['mothers', 'parents', 'fathers', 'others'].forEach((who) => [0, 1, 2, 3].forEach((nx) => { const cs = B2({ on: { prevideo: 1, candle: 1 }, candleWho: who, narEx: { candle: nx } }), iv = cs.findIndex((c) => c.k === 'prevideo' && c.live);
+      let j = iv + 1; const out = cs[j] && cs[j].slug === 'narr-prevideo-out' ? cs[j] : null; if (out) j++; const f = cs[j] || {};
+      PV.push({ who, nx, out: out ? out.duck : null, f: f.slug, k: f.k, lead: f.goLeadMs, ldb: f.leadDb, duck: f.duck, b14: /^bridge-b14/.test(f.slug || '') }); }));
+    const bad = PV.filter((x) => !(x.k === 'candle' && x.lead >= 6000 && x.ldb === -8 && (!x.b14 || x.duck === -15) && (x.out == null || x.out === -90)));
+    ok('PREVIDEO_SONG_1122 영상 뒤 첫 화촉 줄 — 6초 앞 −8 로 곡이 먼저 · 91 이음말은 곡 위 −15 · 받는 말 261 은 정적(서는 분 넷 × 예시 넷)', PV.length === 16 && !bad.length && PV.some((x) => x.b14), bad.slice(0, 3));
+    const N = B2({ on: { prevideo: 1, candle: 0 } }), nb7 = by(N, 'bridge-b7-entry-ready');
+    ok('PREVIDEO_SONG_1122 화촉 없는 날 — 영상 뒤 입장 앞 이음말(b7)은 정적 · 입장 곡은 입장 GO 에서(미리 틀지 않는다)', nb7.duck === -90 && !(nb7.goLeadMs > 0 && nb7.leadDb != null), { b7: [nb7.duck, nb7.goLeadMs, nb7.leadDb] }); }
   /* ★[THANKS_LEAD_FIX_1122] 감사문 날(welcomeKind thanks) — 맞절 뒤 이음말 244(k welcome)는 정적 · 곡 뜸(6초 앞 −8)은 133 에만(244 에 뜸이 걸리면 피아노가 켜졌다 꺼지고 다시 켜졌다) */
   { const T = B2({ on: { welcome: 1, vow: 1 }, welcomeKind: 'thanks' }), ib = T.findIndex((c) => c.slug === 'bridge-b8-face-guests'), b = T[ib] || {}, n = T[ib + 1] || {};
     ok('THANKS_LEAD_FIX_1122 감사문 날 — 244 정적 · 뜸 없음 → 133 에 6초 앞 −8', ib > -1 && b.k === 'welcome' && b.duck === -90 && !(b.goLeadMs > 0) && b.leadDb == null && n.slug === 'narr-thanks-in' && n.goLeadMs >= 6000 && n.leadDb === -8, { b: [b.k, b.duck, b.goLeadMs, b.leadDb], n: [n.slug, n.goLeadMs, n.leadDb] }); }
