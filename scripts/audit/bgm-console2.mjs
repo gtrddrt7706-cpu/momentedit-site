@@ -46,8 +46,8 @@ try {
     const ti = await idx(pg, 'toast-toast'); await pg.evaluate((i) => window.__bgmGo.fire(i), ti);
     const live = await waitSt(pg, () => window.__bgmSt().phase === 'live', 40000); await pg.waitForTimeout(1600);
     const A = await st(pg), L1 = await pg.evaluate(() => window.__L.slice());
-    const rose = L1.filter((x) => x.db !== undefined && x.db > -15);   /* ★[BGM_TIMING_1101] 축배 여는 말 · «위하여» 대기 −8 → −15 */
-    ok('① 축배 선창 클립이 끝나도 «위하여 대기» — 음악 −15 그대로 · 0 dB 로 오르지 않는다 [TOAST_GO · BGM_TIMING_1101]', live && A.cur === ti && A.phase === 'live' && A.want === -15 && !rose.length && A.main.indexOf('축배 음악 올리기') === 0, { live, A, rose });
+    const rose = L1.filter((x) => x.db !== undefined && x.db > -20);   /* ★[DUCK20_1122] −15 → −20 */   /* ★[BGM_TIMING_1101] 축배 여는 말 · «위하여» 대기 −8 → −15 */
+    ok('① 축배 선창 클립이 끝나도 «위하여 대기» — 음악 −15 그대로 · 0 dB 로 오르지 않는다 [TOAST_GO · BGM_TIMING_1101]', live && A.cur === ti && A.phase === 'live' && A.want === -20 && !rose.length && A.main.indexOf('축배 음악 올리기') === 0, { live, A, rose });
     await pg.evaluate(() => window.__bgmGo.tap()); await pg.waitForTimeout(300);
     const B = await st(pg), up = (await pg.evaluate(() => window.__L.slice())).filter((x) => x.db === 0);
     ok('① 첫 GO — 순서는 그대로(축배 사람 구간) · 0.6초에 toastLevel(0) 로 오른다', B.cur === ti && B.phase === 'live' && B.want === 0 && up.length === 1 && up[0].ms === 600, { B, up });
@@ -72,14 +72,14 @@ try {
     const ia0 = await idx(pg, 'bridge-b8-face-guests'), ib = await idx(pg, 'narr-welcome-in', ia0 > -1 ? ia0 : 0), ia = ia0 > -1 ? ia0 : ib;   /* ★[SEAM_WORD_1107 J06 · FACE_LEAD_1107] 맞절 뒤 b8 이 없으면(350 첫머리) 감사 인사 첫 큐를 GO — 무음에서 −8 로 뜬 곡을 말 0.4초 전에 −16 으로 */
     await pg.evaluate((i) => window.__bgmGo.fire(i), ia);
     await pg.waitForFunction((j) => window.__bgmSt().cur === j && window.__L.some((x) => x.play && /welcome-in/.test(x.play)), ib, { timeout: 60000 }).catch(() => {});
-    const L = await pg.evaluate(() => window.__L.slice()); const dn = L.filter((x) => x.db === -15), pl = L.filter((x) => x.play && /welcome-in/.test(x.play));
+    const L = await pg.evaluate(() => window.__L.slice()); const dn = L.filter((x) => x.db === -20), pl = L.filter((x) => x.play && /welcome-in/.test(x.play));
     const lead = dn.length && pl.length ? pl[0].t - dn[0].t : null;
     ok('③ 이어지는 큐(이음말 −8 → 감사 인사 11 −15) — 사이 끝 2초 전(내림 1.6초 + 0.4초 · LAYER7_DUCK_1108)에 미리 내려 음성은 그 뒤에 [PRE_DUCK]', lead != null && lead >= 330 && (lead <= 2300 || (dn[0].t < pl[0].t && !L.some((x) => x.db !== undefined && x.db > -15 && x.t > dn[0].t && x.t < pl[0].t))), { lead, dn: dn.slice(0, 2), pl: pl.slice(0, 1) });   /* [MEANING_R1_1102 4] 이음말(b8)이 이미 −15 이면 내릴 것이 없다 — 음성 앞에서 −15 아래면 된다 */
     /* GO 로 여는 큐 — 서약 맺는 말 14(−15) 뒤 지금 −8 상태에서 디렉터가 «선언 여는 말»이 아니라 서약 여는 말 13(−15)을 GO */
     await pg.evaluate(() => { window.__L.length = 0; }); const iv = await idx(pg, 'narr-vow-in');
     await pg.evaluate(() => { window.__bgmGo.duck(-8, 10); }); await pg.waitForTimeout(200); await pg.evaluate(() => { window.__L.length = 0; });
     await pg.evaluate((i) => window.__bgmGo.fire(i), iv); await pg.waitForFunction(() => window.__L.some((x) => x.play), null, { timeout: 20000 }).catch(() => {});
-    const L2 = await pg.evaluate(() => window.__L.slice()); const d2 = L2.find((x) => x.db === -15), p2 = L2.find((x) => x.play);
+    const L2 = await pg.evaluate(() => window.__L.slice()); const d2 = L2.find((x) => x.db === -20), p2 = L2.find((x) => x.play);
     const lead2 = d2 && p2 ? p2.t - d2.t : null;
     ok('③ GO 로 여는 큐(−8 상태 → 서약 13 −15) — GO 순간 1.6초에 내리고 음성은 다 낮아진 뒤 0.4초(2.0초 · LAYER7_DUCK_1108) [PRE_DUCK]', lead2 != null && lead2 >= 1850 && lead2 <= 2400, { lead2, L2: L2.slice(0, 3) });
     ok('⑤ 쪽 오류 0(앞 낮춤)', !errs.length, errs.slice(0, 2)); await ctx.close(); }
