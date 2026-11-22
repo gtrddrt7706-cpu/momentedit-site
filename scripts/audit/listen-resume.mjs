@@ -67,7 +67,7 @@ if (want(1)) {
     const c = r.cues.find((q) => q.k === 'entry' && /^entry-[A-F]$/.test(q.slug || '')); if (!c || !c.live || c.live.est !== W.day) bad.push(`${S.course}/${S.entry || 'ex'}/${S.on && S.on.candle ? '화촉' : '-'} est=${c && c.live && c.live.est}`); });
   ok(`1 엔진 입장 큐 live.est = WALK.day(51) — 판 A ~ F × 코스 둘 × 화촉 있음 / 없음 + 예시 넷(${S0.length}판) · 당일은 디렉터 GO 그대로`, !bad.length, bad.slice(0, 6));
   { const r = C.build({ course: 'open', entry: 'A', on: {} }, { mode: 'console' }), c = r.cues.find((q) => /^entry-A$/.test(q.slug || '')), i = r.cues.indexOf(c), nx = r.cues[i + 1];
-    ok('1 당일 콘솔 — 입장 뒤 다음 큐(받는 말)는 그대로 사람 GO(타이머로 넘기지 않는다 · 걸음 실측과 무관)', c.fire === 'manual' && nx && nx.slug === 'narr-entry-arrive' && nx.fire === 'manual', { f: c.fire, nx: nx && [nx.slug, nx.fire] }); }
+    ok('1 당일 콘솔 — 입장 뒤 다음 큐(맞절 여는 말 · 144 걷음 [ENTRY_ARRIVE_OFF_1122])는 그대로 사람 GO(타이머로 넘기지 않는다 · 걸음 실측과 무관)', c.fire === 'manual' && nx && nx.slug === 'narr-entry-bow' && nx.fire === 'manual', { f: c.fire, nx: nx && [nx.slug, nx.fire] }); }
   /* [TOAST_EST60_1106] 축배 사람 구간 60초 한 곳 — 엔진(당일 · 미리 듣기 fullEst) · 본식 표 */
   { const T = []; for (const ex of ['record', 'standard']) { const S = O.applyExample({ course: 'open' }, ex); S.on.toast = 1; for (const mode of ['console', 'preview']) { const c = C.build(S, { mode }).cues.find((q) => q.slug === 'toast-toast'); T.push([ex, mode, c && c.live && (c.live.fullEst || c.live.est)]); } }
     ok('1 [TOAST_EST60_1106] 축배 사람 구간 = RitualOpen.TOAST_SEC 60초 — 엔진 당일 · 미리 듣기(«실제로는 약 1분») · 본식 표 말 없는 시간(옛 30 · 20)', O.TOAST_SEC === 60 && T.every((r) => r[2] === 60) && O.TIME.toast.only[2] === 60 && O.TIME.toast.both[2] === 60, { T, sec: O.TOAST_SEC, time: O.TIME.toast }); }

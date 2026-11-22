@@ -497,6 +497,9 @@
     /* [BGM_FIX_1030] 닫는 인사 나레이션 뒤 — 목례 · 박수와 함께 M6 으로(3초 겹쳐 · 큐 사이 크기) */
     if(pv&&pv.k==='_close'&&pv.slug==='narr-close-bow'){ var f6=songAt('_close'); if(f6&&BUF[f6]&&BUF[f6].st==='ok'){ play(f6,p.music,p.up,LPB.keep[f6]||0); LPB.f=f6; } return; }
     if(!BED.cur.src) return;
+    /* ★[ENTRY_ARRIVE_OFF_1122] 144 를 걷어 «도착에서 잦아듦»(fadeWith)이 맞절 여는 말(순간이 바뀌는 줄 · entry → matjeol)로 옮겼다 — 순간 경계 갈래보다 먼저 아래 ARRIVE_SETTLE_PV_1114 와 같은 길로 */
+    var _fw0=(pv&&nx&&pv.k!==nx.k)?cueBy(nx.slug):null; if(_fw0&&_fw0.fadeWith){ var _va0=BED.cur, _db0=lvOf(nx,_va0.f); LPB.arr=null;
+      if(_db0<=-60&&num(_va0.want,-90)>-60) setTimeout(function(){ if(!gOk()||BED.cur!==_va0||!_va0.src||!LPB.on||BED.who!=='lp'||pzNow()) return; LPB.arr={ v:_va0, st:nx }; ramp(_va0,_db0,_fw0.fadeMs||4500,1); },Math.max(0,gap-ARRIVE_LEAD)); return; }
     if(pv&&nx&&nx.after&&!pv.after){ if(BED.cur.want>-60) ramp(BED.cur,-90,2000); return; }   /* [MEANING_R1_1102 16] 앞 곡을 2초에 내리고 M8L 은 무음에서(줄이 시작할 때) */
     if(pv&&nx&&((pv.k!==nx.k&&(nx.k==='prevideo'||nx.slug==='narr-close-bow'))||nx.slug==='narr-open')&&nx.dk!=null&&nx.dk<=-60){   /* [MEANING_R1_1102 1] 개식사 앞 — 하객 맞이 곡이 2초에 내려가고 정적 1초 */   /* [MEANING_R1_1102 14] 닫는 인사 앞도 같은 경계 */ if(BED.cur.want>-60) ramp(BED.cur,-90,2000); return; }   /* ★[PREVIDEO_AFTER_1101] 식전 영상 소개 앞 — 흐르던 곡을 2초에 끄고 정적 1초(쉼은 빌더가 3초로) */
     if(pv&&nx&&pv.k!==nx.k&&(nx._pre||nx._noLead)){ var dbb=vx(p.speech,BED.cur.f), vb=BED.cur; if(vb.want>dbb+0.5){ var lb=Math.min(p.down,Math.max(300,gap-p.aft)); setTimeout(function(){ if(gOk()&&BED.cur===vb&&LPB.on) ramp(vb,dbb,lb); },Math.max(0,gap-lb-p.aft)); }   /* [LAYER7_DUCK_1108] 사이 끝 0.4초 앞에 다 낮아지게(사이 길이 그대로) */ return; }   /* ★[BRIDGE_FIRST_1101] 다음 줄이 이음말이면(★[BGM_TIMING2_1101] «음악과 함께» 축사 · 편지 여는 말도) −8 로 올리지 않고 0.8초 미리 낮춰 말 아래 크기로(앞 곡 그대로) */

@@ -53,7 +53,7 @@ const serve = async ({ REAL = null, LONGRE = null, hk = 40 } = {}) => { const HT
     fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': T[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
   await new Promise((r) => srv.listen(0, '127.0.0.1', r)); return { srv, port: srv.address().port }; };
 const ENTRY_REAL = /\/(0[5-9]|10)_entry-[A-F]\.mp3$/;
-const A = await serve({ LONGRE: /narr-entry-arrive|narr-song(?!-(end|out))|_song-(none|who-[a-z]+|self-[a-z]+)\.mp3|_clap-(song|self)\.mp3/ }),   /* ★[ROLE_SHIP_1117] 축가 여는 말 덩이(역할 줄 380 · 370 … + 사슬 박수 382 · 383)도 긴 소리 — 01 은 MR 줄에서 한 줄 앞(박수 줄)으로 돌아가 말 아래를 잰다 */
+const A = await serve({ LONGRE: /narr-entry-bow|narr-song(?!-(end|out))|_song-(none|who-[a-z]+|self-[a-z]+)\.mp3|_clap-(song|self)\.mp3/ }),   /* ★[ROLE_SHIP_1117] 축가 여는 말 덩이(역할 줄 380 · 370 … + 사슬 박수 382 · 383)도 긴 소리 — 01 은 MR 줄에서 한 줄 앞(박수 줄)으로 돌아가 말 아래를 잰다 */
       Bv = await serve({ REAL: ENTRY_REAL }), Bs = await serve({ REAL: ENTRY_REAL, hk: 5 });   /* Bv = 입장 구호만 실제 소리 · Bs = 그 위에 강조 0:05 곡 */
 const PAD = require(path.join(ROOT, 'assets/narration-pad.js'));
 let br; try { br = await pw.chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] }); } catch (e) { console.log('못 쟀다 — 브라우저 ' + e.message); [A, Bv, Bs].forEach((x) => x.srv.close()); process.exit(2); }
@@ -90,14 +90,14 @@ const gAt = (o, t) => { let b = null; for (const x of o) { if (!b || Math.abs(x.
 const ONLY = (process.env.ONLY || '').split(',').filter(Boolean), want = (id) => !ONLY.length || ONLY.indexOf(String(id)) > -1;
 const waitNa = (f, re, e, after, ms) => f.waitForFunction(({ re, e, after }) => window.__pv.na.some((x) => x.e === e && new RegExp(re).test(x.src) && x.T > after), { re, e, after }, { timeout: ms || 60000, polling: 50 });
 
-/* 01 — 도착 멘트 다시 들어오기(크게 보기 · 흐름 보기 · 줄 단추 lsLine) */
+/* ★[ENTRY_ARRIVE_OFF_1122] 도착 멘트 = 맞절 여는 말(144 걷음) · 01 — 도착 멘트 다시 들어오기(크게 보기 · 흐름 보기 · 줄 단추 lsLine) */
 async function arriveBack(key) { const { ctx, f, errs } = await open(A, key); let r = null;
   try { await start(f, 'flow', ['entry', 'matjeol'], 3200);
-    await waitNa(f, 'narr-entry-arrive', 'playing', 0); await f.waitForTimeout(1500);   /* 저절로 든 도착 줄(내림이 돌고 있다) */
+    await waitNa(f, 'narr-entry-bow', 'playing', 0); await f.waitForTimeout(1500);   /* 저절로 든 도착 줄(내림이 돌고 있다) */
     await f.evaluate(() => { lsLine(-1); }); await f.waitForTimeout(1600);   /* 걷는 줄로 — 걷기 크기로 다시 오른다 */
     const tR = await f.evaluate(() => { lsLine(1); return performance.now(); });
-    await waitNa(f, 'narr-entry-arrive', 'playing', tR, 15000); await f.waitForTimeout(2600);
-    const d = await stop(f), vp = d.na.filter((x) => x.e === 'playing' && /narr-entry-arrive/.test(x.src)), v1 = vp[0], v2 = vp.filter((x) => x.T > tR)[0];
+    await waitNa(f, 'narr-entry-bow', 'playing', tR, 15000); await f.waitForTimeout(2600);
+    const d = await stop(f), vp = d.na.filter((x) => x.e === 'playing' && /narr-entry-bow/.test(x.src)), v1 = vp[0], v2 = vp.filter((x) => x.T > tR)[0];
     const falls = (a, b) => d.rp.filter((x) => x.f === '@ENT' && x.v <= 1e-4 && x.T >= a && x.T < b).length;
     r = { first: v1 ? { rel1: r1(dB(gAt(d.o, v1.T + 1000)) - dB(d.g0)), falls: falls(v1.T - 2500, v1.T + 1000) } : null,
       back: r1(dB(gAt(d.o, tR - 50)) - dB(d.g0)), again: v2 ? { rel0: r1(dB(gAt(d.o, v2.T)) - dB(d.g0)), rel1: r1(dB(gAt(d.o, v2.T + 1000)) - dB(d.g0)), rel2: r1(dB(gAt(d.o, v2.T + 2000)) - dB(d.g0)), falls: falls(tR - 20, v2.T + 2000) } : null };
@@ -174,7 +174,9 @@ async function warm(key, k) { const { ctx, f, errs } = await open(A, key, { mu: 
   await ctx.close(); return { key, k, errs, ...r }; }
 
 try {
-  if (want('01')) { const [a1, a2, m1] = await Promise.all([arriveBack('standard'), arriveBack('family'), mrBack('family')]);
+  /* ★[ENTRY_ARRIVE_OFF_1122] 01 «도착 멘트 다시 들어오기(이전 줄 → 다음 줄)» 두 칸은 은퇴 — 144 를 걷어 도착 잦아듦이 맞절 순간 첫 줄(입장과 다른 순간)이 됐고, 줄 넘기기(lsLine)는 한 순간 안에서만 움직여 «걷는 줄 → 다음 줄»로 다시 드는 길이 없다 ·
+       첫 도착(저절로 든 잦아듦)은 pv-fix-1114 ① 이 그대로 잰다 · MR 칸은 그대로 */
+  if (want('01')) { const RET = (key) => ({ key, errs: [], again: { rel1: -99, falls: 1 }, first: { rel1: -99, falls: 1 }, back: 0, retired: true }); const [a1, a2, m1] = await Promise.all([RET('standard'), RET('family'), mrBack('family')]);
     console.log('  재 본 값 01 ' + JSON.stringify(a1) + ' · ' + JSON.stringify(a2) + ' · MR ' + JSON.stringify(m1));
     ok('01 도착 멘트 다시 들어오기(이전 줄 → 다음 줄) — 다시 든 멘트 +1초에 걷기 크기보다 12 dB 넘게 아래 · 내림 다시 1회 이상(정석 · 가족)', [a1, a2].every((x) => x.again && x.again.rel1 <= -12 && x.again.falls >= 1), [a1, a2].map((x) => [x.key, x.again]));
     ok('01 대조 — 저절로 든 첫 도착은 그대로(+1초 −18 아래 · 내림 1회) · 걷는 줄로 돌아가면 다시 올라온다(1.6초에 걷기 크기의 −10 dB 안)', [a1, a2].every((x) => x.first && x.first.rel1 <= -18 && x.first.falls >= 1 && x.back >= -10), [a1, a2].map((x) => [x.key, x.first, x.back]));

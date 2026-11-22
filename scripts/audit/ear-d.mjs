@@ -131,7 +131,7 @@ try {
     ok('① 콘솔 오류 0', !c.errs.length, c.errs.slice(0, 3)); await c.ctx.close(); } } catch (e) { ok('A 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })(),
   (async () => { try { if (want('B')) {
     /* ② 도착 멘트 — 150초 곡 · 걷는 중 도착 GO */
-    const c = await entryCon({ sec: 150, hook: 40 }); const iA = c.Rq.findIndex((x) => x.slug === 'narr-entry-arrive');
+    const c = await entryCon({ sec: 150, hook: 40 }); const iA = c.Rq.findIndex((x) => x.slug === 'narr-entry-bow');   /* ★[ENTRY_ARRIVE_OFF_1122] 도착 멘트 = 맞절 여는 말(144 걷음) */
     await c.pg.waitForFunction(() => window.__esd.s().phase !== 'clip', null, { timeout: 60000 }).catch(() => {}); await c.pg.waitForTimeout(2000);
     const w0 = await c.pg.evaluate(() => window.__earD()); const pr = c.smp(7000); await c.pg.waitForTimeout(100); await c.pg.evaluate((j) => window.__bgmGo.fire(j), iA); const o = await pr;
     const k = o.findIndex((x) => x.cur === iA && x.nar), fw = k > -1 ? o[k] : null, go = o.findIndex((x) => x.cur === iA), rel = fw ? Math.round((dB(fw.e) - dB(w0.e)) * 10) / 10 : null;

@@ -775,7 +775,7 @@
      그래서 자리는 남기고 여기 표시한다 — 안 하면 녹음 대기 목록이
      "소리가 없으니 녹음하라"고 하고, 폐지한 것을 다시 녹음하게 된다(실제로 한 번 그렇게 나왔다).
      ★되살리려면 여기서 빼는 것만으로는 안 된다. GADD 부터 되돌려야 하고 그건 사용자 지시에 반한다. */
-  var RETIRED = { 'narr-ringwarm-out': 1, 'ringwarm-family': 1, 'ringwarm-all': 1,
+  var RETIRED = { 'narr-entry-arrive': 1 /* ★[ENTRY_ARRIVE_OFF_1122] 144 입장 받는 말 — 2026-11-22 사용자 지시로 삭제 · 되살리지 말 것 */, 'narr-ringwarm-out': 1, 'ringwarm-family': 1, 'ringwarm-all': 1,
     /* ★★[CAKE_FILES_OFF_1110 사장님 11/10 12:42 «케이크는 없어졌잖아 삭제해» · 대본 A] 케이크 5클립(41 toast-cake · 42 toast-both · 76 toast-both-b · 77 narr-cake-out · 107 toast-both-pour-b)은
        mp3 · _src · 대장까지 지웠다 — FILES 에는 번호 자리만 남긴다(빼면 뒤 번호가 전부 밀린다) · 되살리기 금지 · 옛 초안 both → toast 옮기기는 그대로(CAKE_OLD_OFF_1017) */
     'toast-cake': 1, 'toast-both': 1, 'toast-both-b': 1, 'narr-cake-out': 1, 'toast-both-pour-b': 1,
@@ -1204,10 +1204,9 @@
       })()].slice(0, openC ? 1 : 2);   // [ENTRY_OUT_OFF] · ★[MATJEOL_SPLIT_1013] 맞절(132)은 이제 다음 순간 matjeol 이 싣는다 — 입장 끝 concat 으로 되돌리지 말 것
       /* ★★[ENTRY_ARRIVE_1014] 새 코스 — 입장 받는 말(144). 두 분이 앞에 서고 박수가 잦아들면 디렉터 GO · 다음 맞절(132)이 사슬로 이어진다.
          옛 «바라보기» 도착 큐(narr-entry-out)를 되살리는 것이 아니다 — 바라보기 · 맞절 사람 순간 없이 «섰다»만 받는 한 줄 */
-      if (openC) entryCues.push(cue({
-        k: 'entry', blockN: '신랑·신부 입장', slug: 'narr-entry-arrive', name: '입장 받는 말', text: D.NARR.entryArrive, duck: -12,
-        hint: '두 분이 앞에 서고 박수가 잦아들면'
-      }));
+      /* ★«입장 받는 말»(144 narr-entry-arrive «… 두 사람이 한자리에 섰습니다.») 금지 — 2026-11-22 사용자 지시로 삭제 [ENTRY_ARRIVE_OFF_1122]
+           대표님 21:4x «144 이 멘트도 필요할까? 맞절 멘트가 바로 나온다면?» · 대본 찬성 — 두 분이 앞에 서고 박수가 잦아들면 디렉터 GO 로 맞절 여는 말(132 · 칩 판)이 바로 ·
+           입장 곡 «도착에서 잦아듦»(fadeWith 4.5초)은 맞절 여는 말이 받는다(아래 ENTRY_SETTLE) · 맞절은 새 코스에 늘 있어(ALWAYS) «맞절 없는 날»은 없다 · 소리 144 는 RETIRED(파일 보존) */
       return entryCues;
     },
 
@@ -1220,7 +1219,7 @@
     matjeol: function (S) {
       return [cue({
         k: 'matjeol', blockN: '신랑·신부 맞절', slug: 'narr-entry-bow', name: '맞절', text: D.NARR.entryBow, duck: -12,
-        fire: 'chain', gapMs: 2000,   // ★[LAYER7_DUCK_1108] 1.25 → 2초(대본 확정 · #1636 맞절 뒤 환영 goLeadMs 6000 · leadDb 와는 나레이션 층 가지 위에서 하나로) · ★[ENTRY_ARRIVE_1014] 입장 받는 말(144)에 이어 사슬 · 옛 «두 분이 앞에 나란히 서면» 디렉터 GO 는 받는 말이 맡는다
+        fire: 'manual', hint: '두 분이 앞에 서고 박수가 잦아든 뒤',   // ★★[ENTRY_ARRIVE_OFF_1122] 144 를 걷어 맞절 여는 말이 입장 뒤 첫 줄 — 디렉터 GO(옛 «144 에 이어 사슬 2초»는 144 와 함께 걷음)   // 옛: ★[LAYER7_DUCK_1108] 1.25 → 2초(대본 확정 · #1636 맞절 뒤 환영 goLeadMs 6000 · leadDb 와는 나레이션 층 가지 위에서 하나로) · ★[ENTRY_ARRIVE_1014] 입장 받는 말(144)에 이어 사슬 · 옛 «두 분이 앞에 나란히 서면» 디렉터 GO 는 받는 말이 맡는다
         live: { t: '두 분이 마주 보고 무도회 맞절 (신랑은 가슴에 손 얹고 숙이고 · 신부는 치맛자락 잡고 무릎 굽혀 · 서로 눈맞춤)', est: 12, self: true, doing: 'move', duck: -12, hintNext: '두 분이 다시 앞을 보면' }
       })];   // [MATJEOL_1011] 의 큐 그대로 · k 와 blockN 만 맞절
     },
@@ -2211,8 +2210,8 @@
       var _rp = cues[r2 - 1] || null, _rpq = !_rp || ((_rp.live && _rp.live.duck != null ? _rp.live.duck : _rp.duck) <= -60);   /* 앞 큐가 정적으로 끝났나(화촉이 없는 날 개식사 뒤 등) */
       /* [ENTRY_HUSH] b7 은 아래(식전 영상 정리 뒤 · SEAM_BG01)에서 */
       /* [ENTRY_SETTLE] 입장 곡은 «도착에서 잦아듦» — 도착 멘트 시작부터 4.5초에 걸쳐 −90(박수 아래로 · 음성은 기다리지 않는다 fadeWith) · 맞절 안내 · 맞절 = 정적 */
-      if (_rs === 'narr-entry-arrive') { _rc.duck = PARAM.duckOff; _rc.fadeMs = 4500; _rc.fadeWith = true; }
-      if (_rc.k === 'matjeol' && _rs === 'narr-entry-bow') { _rc.duck = PARAM.duckOff; if (_rc.live) _rc.live.duck = PARAM.duckOff; }
+      if (_rc.k === 'matjeol' && _rs === 'narr-entry-bow') { _rc.duck = PARAM.duckOff; if (_rc.live) _rc.live.duck = PARAM.duckOff;
+        if (_rp && _rp.k === 'entry') { _rc.fadeMs = 4500; _rc.fadeWith = true; } }   /* ★[ENTRY_ARRIVE_OFF_1122] 입장 바로 뒤 맞절 여는 말이 «도착에서 잦아듦»을 받는다(옛 144 몫 · GO 1초 뒤 말 · 곡은 GO 부터 4.5초에 −90) */
       /* [ENTRY_SETTLE] 하객을 향해 서시겠습니다(b8) = 정적 → 줄 끝에서 감사 인사 곡을 무음에서 뜸(6초 앞서 −8 · 종전 3초 겹침 대신) */
       if (_rs === 'bridge-b8-face-guests' && _rp && _rp.k === 'matjeol') { _rc.duck = PARAM.duckOff;   /* 맞절 바로 뒤만 — 편지 끝 이음말(b8 · 편지 «음악과 함께» 곡 아래)은 그대로 */ var _rn = cues[r2 + 1]; if (_rn && _rn.k === _rc.k) { _rn.goLeadMs = Math.max(_rn.goLeadMs || 0, 6000); _rn.leadDb = PARAM.duckMusic; _rn.gapMs = Math.max(_rn.gapMs || 0, 1000); } }
       /* ★[SEAM_WORD_1107 J06 · FACE_LEAD_1107] 350(«…향해 서주시기 바랍니다» 가 첫머리)이 맞절 바로 뒤 — b8 이 하던 «무음에서 감사 인사 곡을 뜸(6초 앞서 −8 · 정적 1초)»을 350 이 받는다 */

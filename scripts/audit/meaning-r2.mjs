@@ -91,11 +91,11 @@ try {
     /* E 엔진 한 표 */
     { const E = await f.evaluate(() => { const cs = ENG.RitualCue.build(S, { mode: 'console' }).cues, by = (s) => cs.find((c) => c.slug === s) || {}, ix = (s) => cs.findIndex((c) => c.slug === s);
         const b8 = ix('bridge-b8-face-guests'), nx8 = cs[b8 + 1] || {}, mj = cs.find((c) => c.k === 'matjeol') || {};
-        return { b7: [by('bridge-b7-entry-ready').duck, JSON.stringify(by('bridge-b7-entry-ready').post)], ar: [by('narr-entry-arrive').duck, by('narr-entry-arrive').fadeMs, !!by('narr-entry-arrive').fadeWith], mj: [mj.duck, mj.live && mj.live.duck],
+        return { b7: [by('bridge-b7-entry-ready').duck, JSON.stringify(by('bridge-b7-entry-ready').post)], ar: [mj.duck, mj.fadeMs, !!mj.fadeWith, !cs.some((c) => c.slug === 'narr-entry-arrive')] /* ★[ENTRY_ARRIVE_OFF_1122] 도착 잦아듦은 맞절 여는 말이 받는다(144 걷음) */, mj: [mj.duck, mj.live && mj.live.duck],
           b8: [b8, (cs.find((c) => c.k === 'welcome') || {}).slug, (cs.find((c) => c.k === 'welcome') || {}).goLeadMs, (cs.find((c) => c.k === 'welcome') || {}).leadDb], dl: (by('narr-declare-family-out').live || {}), ti: (by('tribute-in').live || {}) }; });
       ok('E 입장 앞 b7 −15 · 줄 끝 2초에 −90 + 정적 1초', E.b7[0] === -15 && E.b7[1] === '[{"music":"to","v":-90,"ms":2000},{"wait":1000}]', E.b7);
       /* ★[SEAM_WORD_1107 J06 · 1층 · CI 5개 1층 조건 맞춤 11/10] 맞절 뒤 b8 이음말이 빠지고 350(narr-welcome-in)이 감사 인사 첫 줄 — b8 에 걸던 «다음 줄 6초 앞 −8 뜸»을 감사 인사 첫 줄에서 본다 */
-      ok('E 도착 멘트 −90 을 4.5초(멘트와 함께) · 맞절 안내 · 맞절 정적 · b8 없음 → 감사 인사 첫 줄(350) 6초 앞 −8', E.ar.join() === '-90,4500,true' && E.mj.join() === '-90,-90' && E.b8[0] === -1 && E.b8[1] === 'narr-welcome-in' && E.b8[2] >= 6000 && E.b8[3] === -8, E);
+      ok('E 맞절 여는 말(입장 바로 뒤 · 144 없음)이 −90 을 4.5초(멘트와 함께) · 맞절 정적 · b8 없음 → 감사 인사 첫 줄(350) 6초 앞 −8 [ENTRY_ARRIVE_OFF_1122]', E.ar.join() === '-90,4500,true,true' && E.mj.join() === '-90,-90' && E.b8[0] === -1 && E.b8[1] === 'narr-welcome-in' && E.b8[2] >= 6000 && E.b8[3] === -8, E);
       ok('E 선언 뒤 박수 = 새 곡(newSong · 0.6초 · −8) · 부모님께 걸어가기 −12 · 말하는 차례 −20', E.dl.newSong === true && E.dl.upMs === 600 && E.dl.duck === -8 && E.ti.walkDuck === -12 && E.ti.duck === -20, { dl: E.dl, ti: E.ti }); }
     /* P 이어 듣기 */
     await go(f, 'candle');
@@ -103,9 +103,9 @@ try {
     const b7 = segs(o, (x) => x.s === 'bridge-b7-entry-ready' && x.on && x.f !== '@ENT');
     const lastC = o.reduce((a, x, i) => (x.on && x.f && x.f !== '@ENT' && x.k !== 'welcome' && i < o.findIndex((y) => y.f === '@ENT' && y.on) ? i : a), -1), firstE = o.findIndex((x) => x.f === '@ENT' && x.on);
     ok('P2 b7 줄 −15 · 화촉 곡과 입장 곡 사이 정적 ≥ 1초(겹침 0)', b7.length > 0 && b7[b7.length - 1].want === -15 && firstE > lastC && lastC >= 0 && o[firstE].t - o[lastC].t >= 1000 && !o.slice(lastC + 1, firstE).some((x) => x.on), { b7: b7.length && b7[b7.length - 1].want, gap: firstE > 0 && lastC >= 0 ? Math.round(o[firstE].t - o[lastC].t) : null });
-    const walk = segs(o, (x) => x.k === 'entry' && x.act && x.on), arr = segs(o, (x) => x.s === 'narr-entry-arrive'), arrQ = arr.filter((x) => !x.on);
-    const mjb8 = segs(o, (x) => (x.k === 'matjeol' || x.s === 'bridge-b8-face-guests') && x.on), w1 = o.findIndex((x) => x.k === 'welcome' && x.on && x.f !== '@ENT');
-    ok('P1 걷기 0 dB · 도착 멘트 동안 −90 으로 · 맞절 안내 · 맞절 · b8 재생 0 · 감사 인사 곡은 무음에서 −8 뜸', walk.length > 0 && walk[walk.length - 1].want === 0 && arrQ.length > 0 && !mjb8.length && w1 > 0 && !o[w1 - 1].on && o[w1].want === -8,
+    const walk = segs(o, (x) => x.k === 'entry' && x.act && x.on), arr = segs(o, (x) => x.s === 'narr-entry-bow'), arrQ = arr.filter((x) => !x.on);   /* ★[ENTRY_ARRIVE_OFF_1122] 도착 잦아듦 = 맞절 여는 말 */
+    const mjb8 = segs(o, (x) => ((x.k === 'matjeol' && x.s !== 'narr-entry-bow') || x.s === 'bridge-b8-face-guests') && x.on),   /* [ENTRY_ARRIVE_OFF_1122] 맞절 여는 말은 잦아드는 동안 재생 중(위 arrQ) · 맞절 사람 구간 · b8 은 정적 */ w1 = o.findIndex((x) => x.k === 'welcome' && x.on && x.f !== '@ENT');
+    ok('P1 걷기 0 dB · 맞절 여는 말 동안 −90 으로(144 없음) · 맞절 · b8 재생 0 · 감사 인사 곡은 무음에서 −8 뜸 [ENTRY_ARRIVE_OFF_1122]', walk.length > 0 && walk[walk.length - 1].want === 0 && arrQ.length > 0 && !mjb8.length && w1 > 0 && !o[w1 - 1].on && o[w1].want === -8,
       { walk: [...new Set(walk.map((x) => x.want))], arrQ: arrQ.length, mjb8: mjb8.slice(0, 3).map((x) => [x.k, x.s || x.lab, x.f, x.want]), w1: w1 > 0 ? [o[w1].f, o[w1].want] : null });
     /* 3 곡 넘김은 장면 경계에서만 — 같은 줄(i) 안의 행동 · 두 분 차례 줄에서 곡 이름이 바뀌지 않는다 */
     const chg = []; for (let j = 1; j < o.length; j++) { const a = o[j - 1], b = o[j]; if (a.i === b.i && a.on && b.on && a.f !== b.f && (b.act || b.talk) && /^(welcome|vow|ring|bless)$/.test(b.k)) chg.push([b.k, b.lab, a.f + '→' + b.f]); }

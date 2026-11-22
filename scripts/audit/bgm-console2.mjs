@@ -57,7 +57,7 @@ try {
     ok('⑤ 쪽 오류 0(축배)', !errs.length, errs.slice(0, 2)); await ctx.close(); }
 
   /* ② 짧은 이음 네 자리 */
-  for (const [ex, a, b, gap] of [['standard', 'narr-entry-arrive', 'narr-entry-bow', 1.25], ['standard', 'narr-tribute-name', 'tribute-in', 1], ['record+declare', 'narr-tribute-pair', 'tribute-in', 1], ['brief', 'narr-open', 'narr-prevideo-in', 3]]) {
+  for (const [ex, a, b, gap] of [/* ★[ENTRY_ARRIVE_OFF_1122] 144 → 맞절 이음은 144 와 함께 걷음 */ ['standard', 'narr-tribute-name', 'tribute-in', 1], ['record+declare', 'narr-tribute-pair', 'tribute-in', 1], ['brief', 'narr-open', 'narr-prevideo-in', 3]]) {
     const { ctx, pg, errs } = await open(SOF(ex)); const ia = await idx(pg, a), ib = await idx(pg, b, ia);
     await pg.evaluate((i) => window.__bgmGo.fire(i), ia);
     const got = await waitSt(pg, () => window.__bgmSt().cur > 0 && window.__bgmSt().slug !== null, 1000);

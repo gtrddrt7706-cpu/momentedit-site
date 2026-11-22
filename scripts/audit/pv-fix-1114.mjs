@@ -89,16 +89,16 @@ const gAt = (o, t) => { let b = null; for (const x of o) { if (!b || Math.abs(x.
 const ONLY = (process.env.ONLY || '').split(',').filter(Boolean), want = (id) => !ONLY.length || ONLY.indexOf(String(id)) > -1;
 const COURSES = ['standard', 'record', 'family', 'brief'];
 
-/* ① 도착 멘트 — 코스 하나(쪽 하나)에서 세 길을 차례로 */
+/* ★[ENTRY_ARRIVE_OFF_1122] 도착 멘트 = 맞절 여는 말(144 걷음) · ① 도착 멘트 — 코스 하나(쪽 하나)에서 세 길을 차례로 */
 async function arrive(key) { const { ctx, f, errs } = await open(A.port, key); const out = {};
   for (const way of ['flow', 'try', 'listen']) { await f.evaluate(() => { try { BgmBed.turn(); } catch (e) {} window.__hold = 3000; }); const q = await start(f, way, ['entry', 'matjeol'], 3200);   /* 걷는 줄 3.2초 — 걷기 크기(0 dB)까지 다 오른 뒤 넘긴다 */
-    try { await f.waitForFunction(() => window.__pv.na.some((x) => x.e === 'playing' && /narr-entry-arrive/.test(x.src)), null, { timeout: 60000, polling: 50 }); await f.waitForTimeout(5600); } catch (e) {}
-    const d = await stop(f), vp = d.na.find((x) => x.e === 'playing' && /narr-entry-arrive/.test(x.src));
+    try { await f.waitForFunction(() => window.__pv.na.some((x) => x.e === 'playing' && /narr-entry-bow/.test(x.src)), null, { timeout: 60000, polling: 50 }); await f.waitForTimeout(5600); } catch (e) {}
+    const d = await stop(f), vp = d.na.find((x) => x.e === 'playing' && /narr-entry-bow/.test(x.src));
     if (!vp || !(d.g0 > 0)) { out[way] = { none: true, q: q.slice(0, 6), g0: d.g0 }; continue; }
     const tv = vp.T, w = d.o.filter((x) => x.t < tv - 1500 && x.k === 'entry' && x.f === '@ENT'), walk = w.filter((x) => x.act);
     const fall = d.rp.filter((x) => x.f === '@ENT' && x.v <= 1e-4 && x.T > tv - 4000 && x.T < tv + 1000)[0], mj = d.o.filter((x) => x.k === 'matjeol' && x.t > tv + 4200);   /* 무음으로 가는 첫 내림 예약 = 잦아듦 시작 */
     out[way] = { rel0: r1(dB(gAt(d.o, tv)) - dB(d.g0)), rel1: r1(dB(gAt(d.o, tv + 1000)) - dB(d.g0)), rel37: r1(dB(gAt(d.o, tv + 3700)) - dB(d.g0)), pre: r1(dB(gAt(d.o, tv - 1500)) - dB(d.g0)), lead: fall ? Math.round(tv - fall.T) : null, shape: fall ? fall.m + '/' + fall.ms : null, walkDb: walk.length ? r1(dB(Math.max(...walk.map((x) => x.g))) - dB(d.g0)) : null, walkWant: walk.length ? walk[walk.length - 1].want : null,
-      gap: (() => { const a = d.o.find((x) => /narr-entry-arrive/.test(x.s)); return a ? Math.round(tv - a.t) : null; })(), mjOn: mj.filter((x) => x.f && x.want > -60).length, mjN: mj.length }; }
+      gap: (() => { const a = d.o.find((x) => /narr-entry-bow/.test(x.s)); return a ? Math.round(tv - a.t) : null; })(), mjOn: mj.filter((x) => x.f && x.want > -60).length, mjN: mj.length }; }
   await ctx.close(); return { key, out, errs }; }
 
 /* ② 축가 여는 말 → MR 자리 */

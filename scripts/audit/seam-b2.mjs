@@ -154,7 +154,7 @@ try {
     await pg.goto(`http://127.0.0.1:${port}/console.html`); await pg.evaluate(() => { localStorage.setItem('me_admin_token', 'T0K'); });
     await pg.goto(`http://127.0.0.1:${port}/console.html?S=${encodeURIComponent(Buffer.from(JSON.stringify(S1)).toString('base64'))}&rf=ME0001`); await pg.waitForTimeout(800);
     await pg.waitForFunction(() => window.__esd.s().st === 'ok', null, { timeout: 60000 }).catch(() => {}); await pg.click('#go'); await pg.waitForFunction(() => window.__esd.s().v0 && window.__esd.idx().e >= 0, null, { timeout: 60000 }).catch(() => {});
-    const Rq = await pg.evaluate(() => window.__bgmR()), I = await pg.evaluate(() => window.__esd.idx()), iA = Rq.findIndex((x) => x.slug === 'narr-entry-arrive');
+    const Rq = await pg.evaluate(() => window.__bgmR()), I = await pg.evaluate(() => window.__esd.idx()), iA = Rq.findIndex((x) => x.slug === 'narr-entry-bow' /* ★[ENTRY_ARRIVE_OFF_1122] 도착 멘트 = 맞절 여는 말 */);
     await pg.evaluate((j) => window.__esd.fire(j), I.e); await pg.waitForTimeout(500);
     for (let k = 0; k < 3 && !(await pg.evaluate(() => window.__esd.s().run)); k++) { await pg.waitForTimeout(1500); await pg.evaluate((j) => window.__esd.fire(j), I.e); await pg.waitForTimeout(500); }
     await pg.waitForFunction(() => window.__esd.s().phase !== 'clip', null, { timeout: 60000 }).catch(() => {}); await pg.waitForTimeout(2000);
@@ -187,7 +187,7 @@ try {
     await pg.goto(`http://127.0.0.1:${port}/console.html`); await pg.evaluate(() => { localStorage.setItem('me_admin_token', 'T0K'); });
     await pg.goto(`http://127.0.0.1:${port}/console.html?S=${encodeURIComponent(Buffer.from(JSON.stringify(S1)).toString('base64'))}&rf=ME0001`); await pg.waitForTimeout(800);
     await pg.waitForFunction(() => window.__esd.s().st === 'ok', null, { timeout: 60000 }).catch(() => {}); await pg.click('#go'); await pg.waitForFunction(() => window.__esd.s().v0 && window.__esd.idx().e >= 0, null, { timeout: 60000 }).catch(() => {});   /* 시작(GO 판)이 서고 입장 큐가 잡힐 때까지 */
-    const Rq = await pg.evaluate(() => window.__bgmR()), I = await pg.evaluate(() => window.__esd.idx()), iA = Rq.findIndex((x) => x.slug === 'narr-entry-arrive'), i8 = Rq.findIndex((x, j) => j > iA && x.slug === 'bridge-b8-face-guests'), iW = Rq.findIndex((x, j) => j > i8 && x.k !== 'entry' && x.k !== 'matjeol' && x.slug !== 'bridge-b8-face-guests');
+    const Rq = await pg.evaluate(() => window.__bgmR()), I = await pg.evaluate(() => window.__esd.idx()), iA = Rq.findIndex((x) => x.slug === 'narr-entry-bow' /* ★[ENTRY_ARRIVE_OFF_1122] 도착 멘트 = 맞절 여는 말 */), i8 = Rq.findIndex((x, j) => j > iA && x.slug === 'bridge-b8-face-guests'), iW = Rq.findIndex((x, j) => j > i8 && x.k !== 'entry' && x.k !== 'matjeol' && x.slug !== 'bridge-b8-face-guests');
     await pg.evaluate((j) => window.__esd.fire(j), I.e); await pg.waitForFunction(() => window.__esd.s().phase !== 'clip', null, { timeout: 60000 }).catch(() => {}); await pg.waitForTimeout(3000);
     const walk = await pg.evaluate(() => window.__esd.s()); await pg.evaluate((j) => window.__bgmGo.fire(j), iA);
     const tr = []; for (let k = 0; k < 120; k++) { await pg.waitForTimeout(100); tr.push(await pg.evaluate(() => { const x = window.__esd.s(), a = window.__bgmSt(); return { cur: a.cur, phase: a.phase, run: x.run, dkg: x.dkg }; })); }

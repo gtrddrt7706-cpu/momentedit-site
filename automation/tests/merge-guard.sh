@@ -8500,8 +8500,8 @@ chk 'CANDLE_CALL_1014' scripts/audit/open-course.mjs 2
 chk 'CANDLE_TONE_1014' assets/ritual-cue.js 2          # 입장 «격식 있게»면 맺는 말 «두 가정의 마음이 하나의 불꽃이 되었습니다»(140 · 라운드 5 SOURCE_BEST_1015 · 옛 «양가의 촛불이 모두 켜졌습니다»)
 chk "slug: 'narr-candle-out', name: '화촉 마무리'," assets/ritual-cue.js 1   # ★[CANDLE_OUT_ONE_1023 검토 152] 입장 C 갈래(140) 걷음 · 옛 핀 «slug: (S.entry === 'C' ? 'narr-candle-out-formal' : …)»
 chk 'CANDLE_FF_1014' assets/ritual-open.js 1          # 화촉 여는 말 앞 문장(부모님 판 셋 · 다른 두 분 판은 그대로 · 참이 아닐 수 있다)
-chk 'ENTRY_ARRIVE_1014' assets/ritual-cue.js 3         # 입장 받는 말(144 · 두 분이 앞에 서고 박수가 잦아들면 GO) → 맞절 1.25초 사슬
-chk "slug: 'narr-entry-arrive'" assets/ritual-cue.js 1
+chk 'ENTRY_ARRIVE_1014' assets/ritual-cue.js 4         # ★[ENTRY_ARRIVE_OFF_1122] 3 → 4(144 큐를 걷음) · 옛: 입장 받는 말(144 · 두 분이 앞에 서고 박수가 잦아들면 GO) → 맞절 1.25초 사슬
+nochk "slug: 'narr-entry-arrive'" assets/ritual-cue.js 0   # ★[ENTRY_ARRIVE_OFF_1122] 144 큐 걷음(옛 chk 은퇴)
 nochk "slug: 'entry-arrive'" assets/ritual-cue.js       # /^entry-/ 가 두 분 목소리 입장 줄로 읽는다(order-preview · console) — narr- 로 시작
 chk "fire: 'chain', gapMs: 2000,   // ★\[LAYER7_DUCK_1108\] 1.25 → 2초" assets/ritual-cue.js 1
 chk 'MATJEOL_4_1014' assets/ritual-data.js 1          # 맞절 4판(순서 안내 → 마주 보기 3초 → 뜻 → 구호)
@@ -22744,7 +22744,7 @@ nochk 'B2-K16 대기 · 그 경우는 지금 동작 그대로' console.html
 chk "no-relift seam-bg" .github/workflows/merge-guard.yml 1
 # ★[MEANING_R2_1102 사장님 «도착에서 잦아듦으로 고쳐» · «이런 포인트들을 식순 전체에 녹여»] 행진은 음악 · 의식은 조용한 고점 · 새 장면은 새 곡 — 엔진 한 표 + bgm-bed · 콘솔(검사 = CI bgm-sound e 칸)
 chk 'MEANING_R2_1102 원칙' assets/ritual-cue.js 1
-chk "if (_rs === 'narr-entry-arrive') { _rc.duck = PARAM.duckOff; _rc.fadeMs = 4500; _rc.fadeWith = true; }" assets/ritual-cue.js 1
+chk "if (_rp && _rp.k === 'entry') { _rc.fadeMs = 4500; _rc.fadeWith = true; }" assets/ritual-cue.js 1   # ★[ENTRY_ARRIVE_OFF_1122] 도착 잦아듦 = 맞절 여는 말(옛 144 자리 은퇴)
 chk "_rc.live.newSong = true; _rc.live.upMs = 600;" assets/ritual-cue.js 1
 chk 'ENTRY_HUSH' assets/bgm-bed.js 2
 chk 'DECLARE_LIFT' assets/bgm-bed.js 1
@@ -24417,3 +24417,8 @@ chk 'if (exRoleWins(S, k)) return false;' assets/ritual-open.js 1
 # ★[TRIBUTE_NOTES_OFF_1122 2026-11-22 사장님 «고르지 않으시면 말로 인사해요 · 신랑분은 원하시면 큰절을 … 굳이 없어도 될 것 같아»] 부모님께 인사 인사말 칩 아래 두 줄을 걷었다 · 돌아오면 빨강
 chk 'TRIBUTE_NOTES_OFF_1122' order-preview.html 2
 nochk '고르지 않으시면 말없이 인사해요' order-preview.html 0
+# ★★[ENTRY_ARRIVE_OFF_1122] 입장 받는 말(144) 걷기 · 맞절 여는 말 GO · 도착 잦아듦 — 상세 docs/rules/나레이션.md
+chk "'narr-entry-arrive': 1 /\* ★\[ENTRY_ARRIVE_OFF_1122\]" assets/ritual-cue.js 1
+nochk "slug: 'narr-entry-arrive', name: '입장 받는 말'" assets/ritual-cue.js 0   # ★[ENTRY_ARRIVE_OFF_1122] 144 큐 — 2026-11-22 사용자 지시로 삭제 · 되살리지 말 것
+chk 'ENTRY_ARRIVE_OFF_1122' docs/rules/나레이션.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/entry-arrive-off-1122.mjs >/dev/null 2>&1; _ea=$?; if [ "$_ea" != 0 ]; then echo 'FAIL entry-arrive-off-1122: 입장 받는 말(144) 걷기 · 맞절 여는 말 GO · 도착 잦아듦이 대표님 11/22 결정과 다릅니다 — node scripts/audit/entry-arrive-off-1122.mjs'; fail=1; else echo 'ok entry-arrive-off-1122'; fi; fi
