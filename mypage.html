@@ -2423,7 +2423,7 @@ button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
      ★인라인 스크립트보다 **앞**에 둔다. 뒤로 옮기지 말 것. (head 로도 올리지 말 것 — MPD_E1) -->
 <script src="/assets/seat-plan.js?v=1122a"></script><!-- [SEAT_PLAN_9] 캔들존 확정 배치(9테이블 · 35석) 단일 원천 — 좌석 편집기 · seat · guide · admin 공용 -->
 <script src="/assets/dining-data.js?v=1105a"></script><!-- [DINE_DATA_NI16] 식당 · 카페 목록 단일 원천(관리자 «당일 콘솔»도 읽는다) -->
-<script src="/assets/ritual-preview-link.js?v=1117m"></script>
+<script src="/assets/ritual-preview-link.js?v=1122t1"></script>
 <script src="/assets/snap-refs.js"></script><!-- [SNAP_REFS] 스냅 기획 레퍼런스 목록(단 하나의 원천) — 인라인 스크립트보다 앞 -->
 <script src="/assets/dress-refs.js"></script><!-- [DRESS_REFS] 시착 드레스 목록(단 하나의 원천) · 스위치 live 가 꺼져 있으면 카드가 그려지지 않는다 -->
 <script src="/assets/photo-refs.js"></script><!-- [PHOTO_EX_VIEW] 가족 · 친구 스냅 예시 사진 목록(단 하나의 원천) -->
@@ -2462,9 +2462,10 @@ function contractSrc(product, docVersion){
   if(v==='v1.12') return '/contract/archive/v1-12.html';   // [CONTRACT_V113] v1.12 서명자는 3조 ①-2 «라이브 노래·연주는 진행하지 않는다» · 축가 조항 없는 보존본으로
   if(v==='v1.13') return '/contract/archive/v1-13.html';   // [CONTRACT_V114] v1.13 서명자는 3조 ⑥ 별도 비용에 «케이크 · '을' 준비» 줄이 있는 보존본으로
   if(v==='v1.14') return '/contract/archive/v1-14.html';   // [CONTRACT_V115] v1.14 서명자는 3조 ⑥ 별도 비용에 «부모님께 드릴 꽃 · '을' 준비» 줄이 있는 보존본으로
+  if(v==='v1.16') return '/contract/archive/v1-16.html';   // [CONTRACT_V117] v1.16 서명자는 하객 «최대 30명»이 적힌 보존본을 연다(v1.17 은 35명)
   if(v==='v1.15') return '/contract/archive/v1-15.html';   // [CONTRACT_V116] v1.15 서명자는 제5조① 식순 «예식 종료까지 자유 수정» · Farewell «배웅» · 식전 영상 «사진으로 3분 영상» · 식당 «파트너사 예약 조율» 이 적힌 보존본으로
   if(v==='v1.9') return '/contract/archive/v1-9.html';   // [CONTRACT_V110] v1.9 서명자는 그 판 보존본으로
-  return '/contract/v1-1.html';   // 현행(v1.16) — ★인상 때 이 주석도 같이 고칠 것. 낡은 채로 두면 다음 사람이 보존본 분기를 잘못 읽는다
+  return '/contract/v1-1.html';   // 현행(v1.17) — ★인상 때 이 주석도 같이 고칠 것. 낡은 채로 두면 다음 사람이 보존본 분기를 잘못 읽는다
 }
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
@@ -2758,7 +2759,7 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
       var _gOn=false; try{ _gOn=!!(window.RitualPreviewLink && RitualPreviewLink.guideOf(p&&p.guideToken, _guideLinkClosed(p&&p.base))); }catch(e7){}   // [GUIDE_ON_1019] 하객 안내 «열림»만(열쇠 아님)
       var _vo=(p&&p.voice)||((p&&p.production&&p.production.voice))||null;   // ★[VOICE_UP_FROM 2026-09-28] 두 분 목소리 날짜 문 · AI 스위치(켜짐 여부만)
       /* ★[TABLE_GREET_1008 2026-10-08 사장님] 테이블 인사 시간 = 테이블 수 × 1분 30초 — 좌석 배치도의 테이블 수(없으면 확정 인원 ÷ 5 · SEAT_PER5) 한 숫자만 실어 준다 */
-      var _tbl=0; try{ var _sd=(p&&p.seatDraft)||{}; _tbl=(_sd.tables&&_sd.tables.length)||0; if(!_tbl){ var _hc=+(((p&&p.finalDraft)||{}).headcount)||0; if(_hc>0) _tbl=Math.ceil(_hc/5); } }catch(e6){}
+      var _tbl=0; try{ var _sd=(p&&p.seatDraft)||{}; _tbl=(_sd.tables||[]).filter(function(t){ return ((t&&t.seats)||[]).some(function(x){ return String(x||'').trim(); }); }).length||0;   /* [SEAT_PLAN_9] 확정 배치는 늘 9테이블이라 «하객이 앉은 테이블» 수를 센다(테이블 인사 시간) */ if(!_tbl){ var _hc=+(((p&&p.finalDraft)||{}).headcount)||0; if(_hc>0) _tbl=Math.ceil(_hc/5); } }catch(e6){}
       var _acct=''; try{ _acct=String(_mpAcct()||''); }catch(e8){} if(!_acctOk(_acct) || (p&&p.code&&String(p.code)!==_acct)) _acct='';   /* ★[ACCT_KEYS 2026-10-30] 이 창이 그린 계정(로그인 상태) — 식순 화면은 이 코드를 받기 전에는 이 기기 초안을 읽지도 쓰지도 않는다(me_order_<코드>) · 모르면 '' (서버 판만) */
       fr.contentWindow.postMessage({type:'momentedit:orderFill', acct:_acct, draft:rd, reload:!!_rdOv, done:_rdn, cust:_cu, digital:_dig, photoShare:_pho, meal:_meal, mealFull:_mealF, resv:_resv, dining:_dst, guide:_gOn, voice:_vo, tables:_tbl, at:(opt&&opt.at)||''}, location.origin);   // ORDERFILL_DONE · [PHOTO_ASK] 사진 링크 «유무»만(주소 아님)
       setTimeout(function(){ fr.style.opacity='1'; },70);
@@ -6891,7 +6892,7 @@ function _finalGateHtml(hard){
   }
   // 소프트(폴백) — 확정 흐름 없을 때: 지금처럼 결제 허용(갇힘 방지)
   return '<div style="margin:12px 0 2px;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:left">'
-    +'<div class="cc-sub" style="text-align:left;margin:0">하객은 30명까지 추가 요금 없이 모십니다.<br><b>좌석·음료를 먼저 마치면</b> 당일 준비가 그대로 이어져요.</div>'
+    +'<div class="cc-sub" style="text-align:left;margin:0">하객은 35명까지 추가 요금 없이 모십니다.<br><b>좌석·음료를 먼저 마치면</b> 당일 준비가 그대로 이어져요.</div>'
     +(hasProd?'<button type="button" class="cc-btn-ghost" data-bal-final style="margin-top:9px">좌석·음료 먼저 하기</button>':'')
     +'<div class="cc-note" style="text-align:left;margin:7px 0 0;color:var(--light)">지금 결제하셔도 돼요. 인원이 늘어도 추가 요금은 없어요.</div></div>';
 }
@@ -12722,10 +12723,10 @@ function prodConfirmHtml(p, inv){
     /* ★[B2_MA_88 2026-11-06 2차 B2-마88] 식순 빌더가 전체 대본으로 정한 «대본에 담긴 글»(summary.texts)이 있으면 그것만 — 뺀 순간 · 현장에서 바로 하기 · 안 함의 보관 글은 목록에서 뺀다(저장 내용은 그대로).
        없으면(옛 저장) 종전 «작성됨» 줄 그대로 · 담긴 글이 없으면 줄을 내지 않는다 */
     if(Object.prototype.toString.call(rd.summary.texts)==='[object Array]'){ if(rd.summary.texts.length) _mi.push('대본에 담긴 글: '+rd.summary.texts.map(function(x){ return escapeHtml(String(x)); }).join(' · ')); }
-    else if(rd.S){ var _wo=[]; if(rd.S.vowText)_wo.push(rd.S.vowKind==='thanks'?'감사문':'서약문');   /* [THANKS_IN_VOW] 서약 카드에서 감사문을 골랐으면 */ if(rd.S.letterText)_wo.push('편지'); if(rd.S.welcomeText)_wo.push('감사 인사'); if(rd.S.tributeText)_wo.push('부모님께 드릴 말'); var _tx=rd.S.tx||{}; if(String(_tx['toast.g']||'').trim()||String(_tx['toast.b']||'').trim())_wo.push('축배 한마디'); /* [TOAST_SAY 2026-10-07] 옛 한 칸 없이 S.tx 두 칸 */ if(_wo.length) _mi.push(_wo.join(' · ')+' 작성됨'); }
+    else if(rd.S){ var _wo=[]; if(rd.S.vowText)_wo.push('서약문');   /* [THANKS_SWAP_1122] 서약 카드는 늘 서약 · 감사문은 감사 인사 자리의 판 */ if(rd.S.letterText)_wo.push('편지'); if(rd.S.welcomeText)_wo.push(rd.S.welcomeKind==='thanks'?'감사문':'감사 인사'); if(rd.S.tributeText)_wo.push('부모님께 드릴 말'); var _tx=rd.S.tx||{}; if(String(_tx['toast.g']||'').trim()||String(_tx['toast.b']||'').trim())_wo.push('축배 한마디'); /* [TOAST_SAY 2026-10-07] 옛 한 칸 없이 S.tx 두 칸 */ if(_wo.length) _mi.push(_wo.join(' · ')+' 작성됨'); }
     if(_mi.length) rv+='<br><span class="cc-mini">'+_mi.join('<br>')+'</span>'; }
   else if(_rDone && rd._v===3 && rd.summary){ rv=escapeHtml(String(rd.summary.course||''))+' 코스 · '+escapeHtml(String(rd.summary.count||''))+'개 순서 · '+escapeHtml(String(rd.summary.min||''));
-    if(rd.S){ var _w=[]; if(rd.S.vowText)_w.push(rd.S.vowKind==='thanks'?'감사문':'서약문');   /* [THANKS_IN_VOW] */ if(rd.S.letterText)_w.push('편지'); if(rd.S.welcomeText)_w.push('감사 인사');   /* [THANKS_GREET_1013 · CHIP_NAME_1014] 옛 판 요약도 같은 이름 */ if(rd.S.tributeText)_w.push('부모님께 드릴 말'); if(_w.length) rv+=' · '+_w.join('·')+' 작성됨'; } }
+    if(rd.S){ var _w=[]; if(rd.S.vowText)_w.push('서약문');   /* [THANKS_SWAP_1122] */ if(rd.S.letterText)_w.push('편지'); if(rd.S.welcomeText)_w.push(rd.S.welcomeKind==='thanks'?'감사문':'감사 인사');   /* [THANKS_GREET_1013 · CHIP_NAME_1014] 옛 판 요약도 같은 이름 */ if(rd.S.tributeText)_w.push('부모님께 드릴 말'); if(_w.length) rv+=' · '+_w.join('·')+' 작성됨'; } }
   else if(_rDone){ rv='완료'; }
   // 식순 줄은 아래 [CF_ORDER_0926] 자리에서 붙인다(값만 여기서 만든다)
   var dv='';
@@ -13442,7 +13443,7 @@ function bindSeat(box){
 // ── 다이닝·식순 입력 위저드 (03) — 청첩장과 같은 UX·같은 저장(제작임시저장.{track}Draft) ──
 var TRKFLOW = { active:false, track:'', step:0, draft:{}, base:{}, steps:1 };
 var TRK_META = { dining:{ label:'예식 후 식사', steps:2, names:['고르기','확인'] }, final:{ label:'좌석 · 음료', steps:3, names:['인원','음료','좌석'] } };   // names = 진행 표시 이름([WZ_STEPS])   // ★ritual 항목 복원 금지 — 식순은 전용 빌더(order-preview iframe) 단일 경로(2026-07-25 Wave 4 PR-A) · final 3단계=①인원 ②음료(확정 저장) ③좌석 캔버스(확정 저장 후 자동 진입 · 2026-07-19 스탭바이스탭 통합)
-var MP_FINAL_POLICY = { seats:30, max:30, unit:0 };   // [SEATED30] 서른 분 전원 착석(2026-09-13 검토38) — seats 를 25 로 되돌리지 말 것   // 표시용 기본값 — 서버(finalPolicy)가 오면 덮어씀(단일 기준은 GAS FINAL_CONFIRM)
+var MP_FINAL_POLICY = { seats:35, max:35, unit:0 };   // [CAP_35 2026-11-22 사장님 «35석으로 올리기»] 확정 배치 35석 · 서버 FINAL_CONFIRM 과 한 벌   // [SEATED30] 서른 분 전원 착석(2026-09-13 검토38) — seats 를 25 로 되돌리지 말 것   // 표시용 기본값 — 서버(finalPolicy)가 오면 덮어씀(단일 기준은 GAS FINAL_CONFIRM)
 function startTrkFlow(track, draft, base){
   if(!TRK_META[track]) return;
   try{ if(TRKFLOW&&TRKFLOW._dac) TRKFLOW._dac.abort(); }catch(e){}   // [B2_HOME_07] 앞 편집이 보낸 AI 추천 요청은 끊는다(늦은 답이 새 편집에 그려지지 않게)

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* ★[REFUND_TERMS_SAME 2026-11-06 대본 지시 3 · L20] «옛 판 서명 건은 그 판 조건» — 70_journey REFUND_TERMS_SAME 목록이 보존본과 맞는가.
  *
- *   환불 조항 = 시그니처 제4조 ⑧(시착 공제) · 제7조 · 제8조 · 제9조 / 스냅 제7조 · 제8조 · 제9조.
+ *   환불 조항 = 시그니처 제4조 ⑧(시착 공제) · 제7조 · 제8조(③ 인원 줄은 돈이 없으면 뺀다 · CAP_35) · 제9조 / 스냅 제7조 · 제8조 · 제9조.
  *   보존본(contract/archive/v1-N · snap-v1-N)의 그 조문이 지금 판(contract/v1-1.html · snap-v1-0.html)과 글자까지 같으면 «같은 판»이다.
  *   ① 같은 판인데 목록에 없다 → 그 판 서명자가 괜히 «확인 필요»를 받는다(빨강)
  *   ② 다른 판인데 목록에 있다 → 그 판 서명자의 환불을 지금 판 표로 자동 계산한다(빨강 · 위험한 쪽)
@@ -18,7 +18,11 @@ function art(html, n) {   // <span class="art-num">제N조</span> 부터 다음 
   const b = html.indexOf('<span class="art-num">', a + 10); return strip(html.slice(a, b < 0 ? undefined : b));
 }
 function terms(html, sig) {
-  const o = { 7: art(html, 7), 8: art(html, 8), 9: art(html, 9) };
+  /* ★[CAP_35 2026-11-22] 제8조③(인원·옵션 변경)은 정원 수(30 → 35)만 말하고 돈이 오가지 않는다(초과단가 0 · «추가 요금 없이»).
+     그 줄까지 재면 정원을 올릴 때마다 옛 판 서명자 전원이 «환불 확인 필요»로 떨어진다 → ③ 한 줄만 빼고 잰다.
+     ③ 에 금액(원 · %)이 다시 들어오면 그 줄도 재도록 아래에서 막는다. */
+  const a8 = art(html, 8), m3 = a8 && a8.match(/③[^④]*/), a8x = (a8 && m3 && !/\d[\d,]*\s*원|%/.test(m3[0])) ? a8.replace(m3[0], '③') : a8;
+  const o = { 7: art(html, 7), 8: a8x, 9: art(html, 9) };
   if (sig) { const a4 = art(html, 4) || ''; const m = a4.match(/⑧[^⑨]*/); o['4⑧'] = m ? m[0] : null; }
   return o;
 }

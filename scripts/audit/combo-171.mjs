@@ -14,7 +14,9 @@ const O = require(path.join(ROOT, 'assets/ritual-open.js')), C = require(path.jo
 const fam = (t, ans) => { const S = O.applyExample({ course: 'open' }, 'family'); S.course = 'open'; if (t) S.declTitle = t; if (ans) { S.declBless = ans; S.declBlessKey = O.declBlessKey(S); } const cs = C.build(C.norm(S), { mode: 'console' }).cues; const i = cs.findIndex((c) => c.k === 'bless'); return { cs, i }; };
 { const a = fam('gdad', 'yes'), b = fam('other'), z = fam('');
   ok('C02 선언한 분이 첫 덕담도 이어서(네) — 255 없이 덕담으로 이어 감', !/^bridge-b9-declare-seat-end/.test(a.cs[a.i - 1].slug) && a.cs[a.i].fire !== 'manual');
-  ok('C02 다른 분 · 안 고름 — 255(자리로) 뒤 디렉터 GO 로 덕담', b.cs[b.i - 1].slug === 'bridge-b9-declare-seat-end' && b.cs[b.i].fire === 'manual' && /마이크가 부모님께 넘어가면/.test(b.cs[b.i].hint || '') && z.cs[z.i - 1].slug === 'bridge-b9-declare-seat-end' && z.cs[z.i].fire === 'manual'); }
+  /* ★[NARR_GO_1122 ④] 선언 박수 뒤 255(자리로) → 111(«정말 고맙습니다») 순서 — 덕담 바로 앞은 111 · 255 는 그 앞(옛 기대 «바로 앞 255»를 새 순서로) */
+  const seat = (q) => /^bridge-b9-declare-seat-end/.test(q.cs[q.i - 1].slug) || (q.cs[q.i - 1].slug === 'bridge-b3-clap-thanks' && /^bridge-b9-declare-seat-end/.test(q.cs[q.i - 2].slug));
+  ok('C02 다른 분 · 안 고름 — 255(자리로) · 111 뒤 디렉터 GO 로 덕담', seat(b) && b.cs[b.i].fire === 'manual' && /마이크가 부모님께 넘어가면/.test(b.cs[b.i].hint || '') && seat(z) && z.cs[z.i].fire === 'manual'); }
 { const S = O.applyExample({ course: 'open' }, 'standard'); S.course = 'open'; const cs = C.build(C.norm(S), { mode: 'console' }).cues, e = cs.find((c) => /^narr-song-end/.test(c.slug || ''));
   ok('C03 축가 맺는 말 힌트 «마지막 음 · 잔향이 끝나면»(녹음이 박수를 이끈다)', !!e && e.hint === '마지막 음 · 잔향이 끝나면');
   S.songBy = 'self'; const s2 = C.build(C.norm(S), { mode: 'console' }).cues.find((c) => c.slug === 'narr-song');

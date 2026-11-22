@@ -566,7 +566,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 
 <!-- ★DECL_ADMIN_MIRROR — 식순 문안·선택지 원천. 선언 주체 라벨을 하드코딩하지 않고 여기서 읽는다.
      async/defer 금지(파일 헤더 4행) · 인라인 스크립트보다 먼저 로드돼야 DECLBY(선언문 원천)를 참조할 수 있다. -->
-<script src="/assets/ritual-data.js"></script><script src="/assets/dining-data.js?v=1105a"></script><script src="/assets/ritual-preview-link.js?v=1116ns"></script><!-- [CONSOLE_INJECT_1019] 당일 콘솔 주소의 식사 · 사진 · 하객 안내 유무 -->
+<script src="/assets/ritual-data.js"></script><script src="/assets/dining-data.js?v=1105a"></script><script src="/assets/ritual-preview-link.js?v=1122t1"></script><!-- [CONSOLE_INJECT_1019] 당일 콘솔 주소의 식사 · 사진 · 하객 안내 유무 -->
 <script src="/assets/seat-plan.js?v=1122a"></script><!-- [SEAT_PLAN_9] 좌석표 프린트 번호 · 의자 방향 --><script src="/assets/rec-process.js"></script><!-- [RF_STUDIO_UP] 스튜디오 대신 올리기 — 두 분 화면과 같은 다듬기(한 원천) -->
 <script src="/assets/snap-refs.js"></script><script src="/assets/dress-refs.js"></script><!-- [DRESS_ADMIN_ROWS] 시착 드레스 이름 · 사진 원천(고객 화면과 같은 파일) --><script src="/assets/err-codes.js"></script><!-- [ERR_CODES] 고객 화면 «(코드 S6)»의 뜻 — 검색창 «코드 찾기» · 고객 상세 «최근 실패» --><!-- [SNAP_REFS] 스냅 기획 장면 이름·준비물 원천(부부 화면·브리프와 같은 파일) -->
 <script>
@@ -3160,7 +3160,7 @@ function prodTrackDetail(dd,rd,fd,sd,seatToken,gi,sn,d){
          ★[SPEECH_SONG_1115] 새 코스는 축사를 담았을 때만 — 축사 · 축가는 둘 중 하나라 축가로 바꾼 초안에 남은 축사 원고(tx free.p)를 보이지 않는다 */
       +((s3d.freeWhat!=='speech'||(s3d.course==='open'&&!(s3d.on&&s3d.on.free)))?'':(s3d.mkc&&s3d.mkc['p:free:0']==='site')?'<div class="kv"><span class="k">축사 원고</span><span class="v">원고 없이 현장에서 바로</span></div>'
       :(s3d.tx&&String(s3d.tx['free.p']||'').trim())?'<div class="kv"><span class="k">축사 원고</span><span class="v" style="white-space:pre-wrap">'+esc(String(s3d.tx['free.p']).trim())+'</span></div>':'')   /* [R2-06] 두 분이 붙여 둔 부모님 덕담 원고(큰 글씨 카드로 준비) — 저장 초안 S.tx 그대로(GAS 변경 없음) */
-      +row('직접 쓰는 글', [s3d.vowText?(s3d.vowKind==='thanks'?'감사문':'서약문')+'(카드 인쇄)':null /* [THANKS_IN_VOW] · [VOW_CARD_PRINT_1014] */, s3d.letterText?'편지':null, s3d.welcomeText?'감사 인사(카드 인쇄)':null /* [WELCOME_CARD_1014] */, s3d.tributeText?'부모님께 드릴 말(카드 인쇄)':null, (s3d.tx&&(String(s3d.tx['toast.g']||'').trim()||String(s3d.tx['toast.b']||'').trim()))?'축배 한마디':null /* [TOAST_SAY 2026-10-07] S.tx 두 칸 */].filter(function(x){return x;}).join(' · ')||'아직 없음')
+      +row('직접 쓰는 글', [s3d.vowText?'서약문(카드 인쇄)':null /* [THANKS_SWAP_1122] 서약은 늘 서약 · [VOW_CARD_PRINT_1014] */, s3d.letterText?'편지':null, s3d.welcomeText?(s3d.welcomeKind==='thanks'?'감사문':'감사 인사')+'(카드 인쇄)':null /* [WELCOME_CARD_1014] */, s3d.tributeText?'부모님께 드릴 말(카드 인쇄)':null, (s3d.tx&&(String(s3d.tx['toast.g']||'').trim()||String(s3d.tx['toast.b']||'').trim()))?'축배 한마디':null /* [TOAST_SAY 2026-10-07] S.tx 두 칸 */].filter(function(x){return x;}).join(' · ')||'아직 없음')
       +(s3d.growth==='on'?lrow('식전 성장영상', s3d.growthLink||'켬 · 링크 미첨부'):'');   /* [ADM_LINK_CLICK] */
     /* ★[ADM_PV_VOICE_BTN 2026-10-07 ERR_CODE_ADMIN] 식전 영상 소개(pvVoice)만 두 분 목소리로 고른 예식도 «파일 보기»가 뜬다(#15) — 종전엔 하객 맞이 · 입장 인사만 보아
        pv 파일 · AI 목소리 칸 · «마지막 실패»(V4 안내가 가리키는 줄)를 볼 길이 없었다. admRfLoad 는 이미 pv 를 그린다 */
@@ -4126,9 +4126,10 @@ function contractPath(product, docVersion){
   if(v==='v1.12') return '/contract/archive/v1-12.html';   // [CONTRACT_V113] v1.12 서명자는 3조 ①-2 «라이브 노래·연주는 진행하지 않는다» · 축가 조항 없는 보존본으로
   if(v==='v1.13') return '/contract/archive/v1-13.html';   // [CONTRACT_V114] v1.13 서명자는 3조 ⑥ 별도 비용에 «케이크 · '을' 준비» 줄이 있는 보존본으로
   if(v==='v1.14') return '/contract/archive/v1-14.html';   // [CONTRACT_V115] v1.14 서명자는 3조 ⑥ 별도 비용에 «부모님께 드릴 꽃 · '을' 준비» 줄이 있는 보존본으로
+  if(v==='v1.16') return '/contract/archive/v1-16.html';   // [CONTRACT_V117] v1.16 서명자는 하객 «최대 30명»이 적힌 보존본을 연다(v1.17 은 35명)
   if(v==='v1.15') return '/contract/archive/v1-15.html';   // [CONTRACT_V116] v1.15 서명자는 제5조① 식순 «예식 종료까지 자유 수정» · Farewell «배웅» · 식전 영상 «사진으로 3분 영상» · 식당 «파트너사 예약 조율» 이 적힌 보존본으로
   if(v==='v1.9') return '/contract/archive/v1-9.html';   // [CONTRACT_V110] v1.9 서명자는 «성우 나레이션» · 케이크 · 꽃 줄 없는 보존본으로
-  return '/contract/v1-1.html';   // 현행(v1.16) · 서명 시점 docVersion 문서를 열람(관리자=고객 동일 뷰)
+  return '/contract/v1-1.html';   // 현행(v1.17) · 서명 시점 docVersion 문서를 열람(관리자=고객 동일 뷰)
 }
 function contractFullUrl(product){ return 'https://momentedit.kr'+contractPath(product); }
 // [계약] 관리자 계약서 미리보기 — 고객이 보는 '채워진' 계약서(상품별)를 같은 방식(iframe+postMessage)으로. 서명 이미지는 관리자 클라 미보유 → '서명 완료'로 표시.

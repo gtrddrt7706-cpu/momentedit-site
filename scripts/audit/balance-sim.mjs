@@ -144,8 +144,8 @@ ok(b.amount === 1050000 && b.extra === null && b.extraPending === false,
    'S11b 스탠딩 3명·요금 0 → 잔금 그대로·추가 줄 없음', { a: b.amount, x: b.extra });
 ok(sb._balanceExtraInfo(cust).amount === 0 && (sb._balanceExtraInfo(cust).standing || 0) === 0,
    'S11c [SEATED30] 28명도 전원 착석 — 스탠딩 0·금액 0', sb._balanceExtraInfo(cust));
-ok(sb.FINAL_CONFIRM.착석 === 30 && sb.FINAL_CONFIRM.최대 === 30,
-   'S11c2 정책 = 서른 분 전원 착석(검토38)', sb.FINAL_CONFIRM);
+ok(sb.FINAL_CONFIRM.착석 === 35 && sb.FINAL_CONFIRM.최대 === 35,
+   'S11c2 정책 = 서른다섯 분 전원 착석(검토38 · CAP_35 2026-11-22 확정 배치 35석)', sb.FINAL_CONFIRM);
 
 /* 11-d) ★[STALE_EXTRA_FEE] «옛 세대 데이터»를 손으로 만들어 넣는다 — 이 케이스만이 상한을 지킨다.
    setFinal() 은 이제 살아 있는 상수에서 단가를 가져오므로, 정책 구간에서는 옛 값이 든 행이
