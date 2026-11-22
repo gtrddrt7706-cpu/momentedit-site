@@ -143,7 +143,7 @@ try {
     /* G [LISTEN_LOOK_LEVEL_1101 ②] 곡 보정 +7 dB(곡 −23 LUFS → 나레이션 −16 기준 · musicTrim −3.1 은 그대로) · 음악 버스 끝 리미터(−1 dB · 20 · 2ms · 150ms) */
     const g5 = await f.evaluate(() => { const B = BgmBed._t, L = B.BUS(), p = (ENG && ENG.RitualCue && ENG.RitualCue.PARAM) || {}; return { song: p.songGain, trim: p.musicTrim, g16: B.gainOf(-16), g8: B.gainOf(-8), g0: B.gainOf(0), lim: L ? [L.n.threshold.value, L.n.ratio.value, Math.round(L.n.attack.value * 1000), Math.round(L.n.release.value * 1000)] : null }; });
     const dbOf = (g) => Math.round(20 * Math.log10(g) * 10) / 10;
-    ok(`${W} G 곡 보정 +7 dB — 나레이션 아래(−16) · 큐 사이(−8) · 축배(0) 가 각각 +7 −3.1 · 음악 버스 끝 리미터 [LISTEN_LOOK_LEVEL_1101]`, g5.song === 7 && g5.trim === -3.1 && dbOf(g5.g16) === -12.1 && dbOf(g5.g8) === -4.1 && dbOf(g5.g0) === 3.9 && JSON.stringify(g5.lim) === '[-1,20,2,150]', { ...g5, d: [dbOf(g5.g16), dbOf(g5.g8), dbOf(g5.g0)] });
+    ok(`${W} G 곡 보정 +10 dB(★[DUCK20_1122] 7 → 10) — 나레이션 아래(−16) · 큐 사이(−8) · 축배(0) 가 각각 +7 −3.1 · 음악 버스 끝 리미터 [LISTEN_LOOK_LEVEL_1101]`, g5.song === 10 && g5.trim === -3.1 && dbOf(g5.g16) === -9.1 && dbOf(g5.g8) === -1.1 && dbOf(g5.g0) === 6.9 && JSON.stringify(g5.lim) === '[-1,20,2,150]', { ...g5, d: [dbOf(g5.g16), dbOf(g5.g8), dbOf(g5.g0)] });
     /* D3 보컬 — 하객 맞이 */
     {
       await go(f, 'guest'); r = await row(f, 'M1');

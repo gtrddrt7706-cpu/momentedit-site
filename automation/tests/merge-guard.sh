@@ -22264,7 +22264,7 @@ chk 'LISTEN_LOOK_LEVEL_1101' console.html 3
 chk 'LISTEN_LOOK_LEVEL_1101' scripts/audit/listen-pace.mjs 2
 chk 'LISTEN_LOOK_LEVEL_1101' scripts/audit/bgm-preview.mjs 1
 chk 'LISTEN_LOOK_LEVEL_1101' scripts/audit/bgm-seg8.mjs 1
-chk '    songGain: 7,' assets/ritual-cue.js 1
+chk '    songGain: 10,' assets/ritual-cue.js 1   # [DUCK20_1122] 7 → 10
 chk 'return db<=-80?0.00003:Math.pow(10,(db+p.trim+p.song)/20);' assets/bgm-bed.js 1
 chk 'v.g.connect(bus(a));' assets/bgm-bed.js 1
 chk 'function lpFin()' assets/bgm-bed.js 1
@@ -23874,7 +23874,7 @@ chk '_tblWatch(_tb0); };' order-preview.html 1
 chk 'RA5_TABLE_NOTE' scripts/audit/toast-min.mjs 1
 chk 'RA5_RULES' scripts/audit/ra5-rules.mjs 1
 # ★[LAYER7_DUCK_1108] 7층 음악 낮추기 — 말 아래 −15 · 내림 1.6초 · 올림 2.0초 dB 코사인 · 첫 말 0.4초 뒤 · 콘솔 · 미리 듣기 한 원천(RitualCue.dbRamp)
-chk "    duckSpeech: -15,       // 말이 주인공" assets/ritual-cue.js 1
+chk "    duckSpeech: -20,       // 말이 주인공" assets/ritual-cue.js 1   # [DUCK20_1122] −15 → −20
 chk "    vocalExtra: -6," assets/ritual-cue.js 1   # 보컬 곡 말 아래 = −15 − 6 = −21(대본 확정)
 chk "  function dbRamp(prm, ac, to, sec) {" assets/ritual-cue.js 1
 chk "PARAM: PARAM, dbRamp: dbRamp," assets/ritual-cue.js 1
@@ -24560,6 +24560,9 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/close-c-go-1122.mjs 
 chk 'online: 0 };' assets/ritual-open.js 1
 nochk '온라인 인사까지' order-preview.html 0
 nochk '온라인 인사 약 2분' api/_kb.js 0
+# ★[DUCK20_1122] lane f 기대도 −20 — console-r2 B ①② 옛 «−15 → −20 내림» 은퇴 · one-flow T05 · T06 축가 여는 말 −20
+chk 'DUCK20_1122' scripts/audit/console-r2-1115.mjs 2
+chk 'DUCK20_1122' scripts/audit/one-flow.mjs 1
 # ★★[GAP_SWEEP_GO_1122 대표님 11/22 23:15 «①③ 승인 · 엔진 반영»] «음악만 먼저»가 승인한 쉼을 덮던 두 자리 — 244 → 다음 줄 1.2초 · 개식 → 사슬 화촉 여는 말 3.0초 · 뜸 없음 — 상세 docs/rules/나레이션.md
 chk 'GAP_SWEEP_GO_1122' assets/ritual-cue.js 2
 chk 'GAP_SWEEP_GO_1122' docs/rules/나레이션.md 1
@@ -24570,3 +24573,7 @@ chk 'SONG_PICK_RING_1123' scripts/audit/detail-r1.mjs 2
 # ★[SUB_JOSA_1123] «‹곡›이 대신» → «‹곡› 곡이 대신»(‹Summer›이 처럼 곡 이름 따라 조사가 틀림) — 줄 아래 · 미리 듣기 알림 둘 다
 nochk '›이 대신 흘러요' assets/bgm-bed.js 0
 chk '› 곡이 대신 흘러요' assets/bgm-bed.js 2
+chk 'DUCK20_1122' scripts/audit/entry-nofile-1115.mjs 3   # [DUCK20_1122] lane g — 입장 멘트 아래 말 아래 표준 −20
+chk 'DUCK20_1122' scripts/audit/seam-bg.mjs 5   # [DUCK20_1122] lane e — 말 아래 −20 기대
+chk 'DUCK20_1122' scripts/audit/seam-b2.mjs 1   # 음09 · 음10 — 시험만 나레이션 줄을 −15 로 다르게(옮김을 크기로 본다)
+chk 'DUCK20_1122' scripts/audit/no-relift.mjs 2

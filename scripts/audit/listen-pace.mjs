@@ -172,7 +172,7 @@ try {
         await new Promise((res) => { const iv = setInterval(() => { try { const st = LP.q[LP.i], B = BgmBed._t.BED; o.push({ t: performance.now() - t0, k: st && st.k, i: LP.i, src: !!B.cur.src, who: B.who, want: B.cur.want, f: B.cur.f }); if ((st && st.k === 'ring' && st.src && LP.i > 0 && LP.q.slice(0, LP.i).some((x) => x.k === 'ring' && x.src)) || performance.now() - t0 > 70000) { clearInterval(iv); res(); } } catch (x) {} }, 100); });
         try { lsStop(); } catch (x) {} try { lsCloseBig(); } catch (x) {} return o; });
       const s0 = r13.findIndex((x) => x.src), bi = r13.findIndex((x) => x.k === 'ring'), gap = r13.slice(s0 > -1 ? s0 : 0).filter((x) => !x.src), atB = r13.slice(Math.max(0, bi - 2), bi + 3);
-      ok(`${W} P13 이어 듣기 — 화촉 → 반지 사이 음악이 끊기지 않는다 · 경계에서 말 아래 크기(−16 · 입장 앞 이음말 b7 · MEANING_R2_1102 ENTRY_HUSH) 이상`, s0 > -1 && bi > s0 && !gap.length && atB.every((x) => x.src && x.want >= -16.5), { s0, bi, gapN: gap.length, gap: gap.slice(0, 3), atB }); }
+      ok(`${W} P13 이어 듣기 — 화촉 → 반지 사이 음악이 끊기지 않는다 · 경계에서 말 아래 크기(−16 · 입장 앞 이음말 b7 · MEANING_R2_1102 ENTRY_HUSH) 이상`, s0 > -1 && bi > s0 && !gap.length && atB.every((x) => x.src && x.want >= -20.5 /* ★[DUCK20_1122] 말 아래 −20 */), { s0, bi, gapN: gap.length, gap: gap.slice(0, 3), atB }); }
     /* P5 손으로 스크롤하면 따라가기 멈춤 */
     await go(f, 'tribute'); await f.evaluate(() => { window.scrollTo(0, 0); lsPlay('tribute'); }); await wait(f, 4200);
     await f.evaluate(() => { window.dispatchEvent(new WheelEvent('wheel', { deltaY: 40 })); window.scrollTo(0, 0); }); const y0 = await f.evaluate(() => scrollY); await wait(f, 6000);
