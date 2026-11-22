@@ -24455,3 +24455,7 @@ nochk '고르지 않으시면 말없이 인사해요' order-preview.html 0
 
 # ★[HEAD_GAP_1122 2026-11-22 사장님 «맨 위 간격이 좁다»] 머리 줄이 붙으면 맨 위에서 10px 띄움(옛 −15px = 딱 붙음)
 chk 'body.mkd .prog{position:sticky;top:-5px;' order-preview.html 1
+# ★[PREVIEW_BGM2_1122 2026-11-22 대표님 23:02] 예식 미리듣기 배경 음악 = 마이페이지 «전체 듣기» · 당일과 같은 스튜디오 곡 — 바로 연 판은 두 분 로그인으로 직접 받기 · 예시 음악(@PV)으로 내려앉지 않기 · 정말 못 받을 때만 빨간 한 줄
+chk 'function pvsDirect(f)' console.html 1
+chk "if (window.parent === window) { pvsDirect(f); return; }" console.html 1
+nochk "SEGF\['@PV'\] = PREVIEW_BED; BED.seg = id; BED.list = \['@PV'\]" console.html   # 옛 예시 음악 내려앉기 되살리지 말 것

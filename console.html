@@ -1371,15 +1371,26 @@ function bedLater(){ var q = BED.later; BED.later = null; if (q && BED.mode !== 
      곡 계획은 당일 콘솔과 같은 함수(segPlan → BgmPicks.plan · 이어짐 · 목록) · 파일은 부모(식순 화면 · 마이페이지)가 두 분 계정으로 받아 준다(key bed · 받기만)
      · 곡을 못 받은 구간만 예시 음악(PREVIEW_BED · '@PV')으로 내려앉고 고지 줄이 «곡을 불러오지 못해 예시 음악이 흘러요» · 다른 구간은 고른 곡
      · 디렉터가 고른 배경 음악 파일(BGMURL)이 있으면 그 파일이 이긴다(종전 그대로) · 크기 = 미리듣기 감쇠(BED_TRIM_DB) · 곡 보정(+songGain · 예시 음악은 0 dB) */
-var PVS = { wait: {}, fail: {}, want: '', missAny: false };
+var PVS = { wait: {}, fail: {}, err: {}, dir: {}, want: '', missAny: false };
 function pvsOn(){ return (MODE === 'preview' || GUEST) && !BGMURL; }
-function pvsGet(f){ if (!pvsOn() || !f || f === '@PV' || SEGF[f] || PVS.wait[f] || PVS.fail[f]) return; if (window.parent === window) { PVS.fail[f] = 1; return; }
-  PVS.wait[f] = setTimeout(function(){ if (PVS.wait[f]) { delete PVS.wait[f]; PVS.fail[f] = 1; pvsArrive(f); } }, 20000);
+function pvsGet(f){ if (!pvsOn() || !f || f === '@PV' || SEGF[f] || PVS.wait[f] || PVS.fail[f]) return; if (window.parent === window) { pvsDirect(f); return; }   /* ★[PREVIEW_BGM2_1122] 혼자 열린 미리듣기(로그인한 두 분) — 부모 중계 없이 두 분 계정으로 직접 받는다 */
+  PVS.wait[f] = setTimeout(function(){ if (PVS.wait[f]) { delete PVS.wait[f]; PVS.fail[f] = 1; PVS.err[f] = 'L5'; pvsArrive(f); } }, 60000);   /* [PREVIEW_BGM2_1122] 20 → 60초 — 마이페이지 중계는 서버를 180초까지 기다린다(곡 한 곡 base64) · 20초에 먼저 포기하면 받던 곡을 버렸다 */
   try { window.parent.postMessage({ type: 'momentedit:ritualFileGet', data: { key: 'bed', id: f } }, location.origin); } catch (e) { clearTimeout(PVS.wait[f]); delete PVS.wait[f]; PVS.fail[f] = 1; } }
 window.addEventListener('message', function(ev){ var d = ev.data || {}; if (!pvsOn() || ev.origin !== location.origin || ev.source !== window.parent || d.type !== 'momentedit:ritualFileData' || d.key !== 'bed' || !d.id) return;
   var f = String(d.id); if (!PVS.wait[f]) return; clearTimeout(PVS.wait[f]); delete PVS.wait[f];
-  if (d.ok && d.data) { try { var bin = atob(d.data), u8 = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); SEGF[f] = URL.createObjectURL(new Blob([u8], { type: d.mime || 'audio/mpeg' })); } catch (e) { PVS.fail[f] = 1; } } else PVS.fail[f] = 1;
+  if (d.ok && d.data) { try { var bin = atob(d.data), u8 = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); SEGF[f] = URL.createObjectURL(new Blob([u8], { type: d.mime || 'audio/mpeg' })); } catch (e) { PVS.fail[f] = 1; PVS.err[f] = 'L7'; } } else { if (!PVS.dir[f] && pvsTok()) { PVS.dir[f] = 1; pvsDirect(f); return; } PVS.fail[f] = 1; PVS.err[f] = /^L\d$/.test(String(d.ecode || '')) ? d.ecode : 'L4'; }   /* [PREVIEW_BGM2_1122] 중계가 못 받아 주면(로그인 없는 식순 화면 등) 이 기기의 두 분 로그인으로 한 번 직접 · 실패 코드 = 중계가 준 코드 */
   pvsArrive(f); });
+/* ★★[PREVIEW_BGM2_1122 2026-11-22 대표님 23:02] 예식 미리듣기는 로그인한 두 분만 · 배경 음악 = 마이페이지 «전체 듣기» · 당일과 같은 스튜디오 곡(같은 함수 segPlan · 같은 자리 · 엔진 크기) —
+     부모(식순 화면 · 마이페이지)가 없는 판(주소로 바로 연 미리듣기)은 이 기기에 저장된 두 분 로그인(me_token)으로 서버에서 직접 받는다(ritualFileGet · key bed · 받기만 · 마이페이지 중계와 같은 서버 길) ·
+     로그인이 없으면 받지 않는다(PVS.err L8 · 화면 막기는 로그인 확인이 맡는다) · 예시 음악(옛 preview-bed.mp3 · '@PV')으로 내려앉지 않는다 · 곡을 정말 못 받은 때만 빨간 한 줄 */
+function pvsTok(){ try { return localStorage.getItem('me_token') || ''; } catch (e) { return ''; } }
+function pvsDirect(f){ var tok = pvsTok(); if (!tok) { PVS.fail[f] = 1; PVS.err[f] = 'L8'; return; }
+  PVS.wait[f] = setTimeout(function(){ if (PVS.wait[f]) { delete PVS.wait[f]; PVS.fail[f] = 1; PVS.err[f] = 'L5'; pvsArrive(f); } }, 60000);
+  fetch(RF_EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'ritualFileGet', token: tok, key: 'bed', id: f }) }).then(function(r){ return r.json(); }).then(function(r){
+    if (!PVS.wait[f]) return; clearTimeout(PVS.wait[f]); delete PVS.wait[f];
+    if (r && r.ok && r.data) { try { var bin = atob(r.data), u8 = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); SEGF[f] = URL.createObjectURL(new Blob([u8], { type: r.mime || 'audio/mpeg' })); } catch (e) { PVS.fail[f] = 1; PVS.err[f] = 'L7'; } }
+    else { PVS.fail[f] = 1; PVS.err[f] = (r && /^L\d$/.test(String(r.ecode || ''))) ? r.ecode : 'L4'; }
+    pvsArrive(f); }, function(){ if (!PVS.wait[f]) return; clearTimeout(PVS.wait[f]); delete PVS.wait[f]; PVS.fail[f] = 1; PVS.err[f] = 'L6'; pvsArrive(f); }); }
 /* 이 판에서 흐를 곡을 미리 받는다 — 한 곡 칸은 첫 곡 · 목록 칸은 앞 두 곡 */
 function pvsWarm(){ var pa = segPlanAll(); if (!pa) return; var all = BP.plan(S, { on: segOnC }); Object.keys(all || {}).forEach(function(id){ (all[id].list || []).slice(0, BP.loopy && BP.loopy(id) ? 2 : 1).forEach(pvsGet); }); }
 /* 구간 곡이 아직 없다 — 받는 중이면 기다렸다가(pvsArrive) · 받을 곡이 다 실패했으면 그 구간만 예시 음악 */
@@ -1387,11 +1398,11 @@ function pvsMiss(id, cur){ if (!pvsOn()) return false; var all = BP.plan(S, { on
   var c = cur && BP.carryOf ? BP.carryOf(S, id, cur) : ''; if (c) want = [c].concat(want.filter(function(x){ return x !== c; }));
   if (!want.length) return false; want.slice(0, 2).forEach(pvsGet);
   if (want.some(function(f){ return PVS.wait[f]; })) { PVS.want = id; return false; }
-  if (want.slice(0, 2).every(function(f){ return PVS.fail[f]; })) { PVS.missAny = true; SEGF['@PV'] = PREVIEW_BED; BED.seg = id; BED.list = ['@PV']; BED.li = 0; return bedPlay('@PV', SEG_XF); }
+  if (want.slice(0, 2).every(function(f){ return PVS.fail[f]; })) { PVS.missAny = true; var _ec = PVS.err[want[0]] || PVS.err[want[1]] || 'L4'; BED.seg = id; if (BED.id) { BED.list = [BED.id]; BED.li = 0; } BED.keepErr = '곡을 불러오지 못했어요 (코드 ' + _ec + ')'; bedErr(BED.keepErr); return false; }   /* ★[PREVIEW_BGM2_1122] 예시 음악(@PV)으로 내려앉지 않는다 — 고른 곡을 정말 못 받은 때만 빨간 한 줄(keepErr · 이 구간 동안 남는다) · 지금 곡(있으면)은 그 한 곡으로 잇고(목록이 다른 곡으로 넘어가 줄을 지우지 않게) · 이 구간은 다시 받지 않는다(BED.seg) */
   return false; }
 function pvsArrive(f){ var id = PVS.want; if (!id) { pvsNote(); return; } if (BED.seg === id) { PVS.want = ''; return; } var L = segPlan(id, segCur()); if (L) { PVS.want = ''; segGo(id); return; } pvsMiss(id, segCur()); }
 /* 고지 줄 — 고른 곡이 흐를 때 «두 분이 고른 곡» · 예시 음악으로 내려앉았을 때 «곡을 불러오지 못해» (소리가 실제로 날 때만 · 종전 규칙) */
-function pvsNote(){ var e = $('#gBed'); if (!e || !pvsOn()) return; e.textContent = (BED.id === '@PV') ? '곡을 불러오지 못해 예시 음악이 흘러요' : '두 분이 고른 곡으로 흘러요 · 고르지 않은 칸은 저희가 정한 곡이에요'; }
+function pvsNote(){ var e = $('#gBed'); if (!e || !pvsOn()) return; e.textContent = '두 분이 고른 곡으로 흘러요 · 고르지 않은 칸은 저희가 정한 곡이에요'; }   /* [PREVIEW_BGM2_1122] 예시 음악 갈래 걷음 */
 [aBgm2, aBgm3].forEach(function(el){ el.addEventListener('playing', function(){ var e = $('#gBed'); if (e && GUEST && BED.el[BED.on] === el) { pvsNote(); e.classList.add('on'); } }); });
 /* 구간 바꾸기 — 같은 구간이면 그대로 · 곡이 없으면 지금 곡을 잇는다(돌려준 값 = 바꿨나) */
 function segGo(id){ if (!id || ((MODE === 'preview' || GUEST) && !pvsOn())) return false; if (BED.seg === id) return false; var cur = segCur(), L = segPlan(id, cur); if (!L) return pvsMiss(id, cur);   /* [PREVIEW_LINK_SONGS_1101] 미리듣기 = 고른 곡을 받아 온다 */
