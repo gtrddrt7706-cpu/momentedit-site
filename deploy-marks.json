@@ -3731,6 +3731,30 @@
    "fn": "adminPvCoupon",
    "mark": "PRE_CPN_RECLAIM_1119",
    "why": "식전 사용하지 않기면 쿠폰 넣기 거절 · 회수 줄 까닭 «사용하지 않기»"
+  },
+  {
+   "file": "80_production",
+   "fn": "_prodPack",
+   "mark": "MEAL_NAME_1122",
+   "why": "고객 · 운영 글 이름 «애프터 웨딩» → «예식 후 식사»(사장님 11/22)"
+  },
+  {
+   "file": "70_journey",
+   "fn": "adminConfirmWeddingChange",
+   "mark": "MEAL_NAME_1122",
+   "why": "고객 · 운영 글 이름 «애프터 웨딩» → «예식 후 식사»(사장님 11/22)"
+  },
+  {
+   "file": "88_place_audit",
+   "fn": "awMonthlyAudit",
+   "mark": "MEAL_NAME_1122",
+   "why": "고객 · 운영 글 이름 «애프터 웨딩» → «예식 후 식사»(사장님 11/22)"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfAdminText",
+   "mark": "MEAL_NAME_1122",
+   "why": "고객 · 운영 글 이름 «애프터 웨딩» → «예식 후 식사»(사장님 11/22)"
   }
  ],
  "fns": {
@@ -4963,7 +4987,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-11-19 17:33 · 47ee8a1",
+ "_생성": "2026-11-22 13:27 · eebdf8b",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -5537,5 +5561,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "7481084be0df"
+ "_표식서명": "47c97c86c319"
 }

@@ -49,7 +49,7 @@ try {
 
     for (const [trk, dr] of [['dining', { need: 'yes', _step: 0 }], ['dining', { need: 'none', _step: 1 }]]) {
       startTrkFlow(trk, dr, { weddingTime: '13:20', expectedGuests: '25' }); await w(200);
-      measure('애프터 웨딩 _step=' + (dr._step));
+      measure('예식 후 식사 _step=' + (dr._step));
       TRKFLOW.active = false;
     }
     startSeatFlow({ tables: [{ n: 1, seats: ['정희', '픽시', '', ''], drinks: ['샴페인', '', '', ''] }, { n: 2, seats: ['', '', ''], drinks: ['', '', ''] }] }, {}, 'tok', {}); await w(250);
