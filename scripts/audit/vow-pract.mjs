@@ -22,7 +22,7 @@ try {
     out.eachB = vowQ({ vowHow: 'each', vowFirst: 'b' });
     out.altG = vowQ({ vowHow: 'alt', vowFirst: 'g' });
     out.altB = vowQ({ vowHow: 'alt', vowFirst: 'b' });
-    out.thanks = vowQ({ vowKind: 'thanks', vowHow: 'each' });
+    out.thanks = (function (o) { S = JSON.parse(S0); Object.assign(S, o); return _lRefExpand(_lSteps(ENG, ['welcome']).filter((x) => !x.quiet)).filter((x) => x.talk2).map((x) => (x.both ? '함께' : x.who) + '|' + x.txt); })({ welcomeKind: 'thanks' });   /* [THANKS_SWAP_1122] 감사문 = 감사 인사 자리의 판 · 신랑 → 신부 → 두 분 함께 */
     out.mineB = vowQ({ vowHow: 'alt', vowFirst: 'b', tx: { 'vow.g': '신랑 첫째. 신랑 둘째.', 'vow.b': '신부 첫째. 신부 둘째. 신부 셋째.' } });
     S = JSON.parse(S0); S.vowHow = 'each'; S.vowFirst = 'b'; S.tx = { 'vow.g': '신랑 글.', 'vow.b': '신부 글.' }; out.script = scriptTextOpen();
     S = JSON.parse(S0); S.vowHow = 'alt'; S.vowFirst = 'g'; S.tx = { 'vow.g': '신랑 하나. 신랑 둘.', 'vow.b': '신부 하나.' }; out.scriptAlt = scriptTextOpen();
@@ -40,7 +40,7 @@ try {
   const alt = who(r.altG); ok('[VOW_PRACT_1018 131-3] 번갈아 · 신랑부터 — 한 줄씩 번갈아(신랑 · 신부 …) · 끝에 «두 분 함께»', alt[0] === '신랑' && alt[1] === '신부' && alt.length > 3 && alt[alt.length - 1] === '함께' && alt.slice(0, -1).every((w, i, a) => i === 0 || w !== a[i - 1] || a.slice(0, i).filter((x) => x === w).length > a.slice(0, i).filter((x) => x !== w).length), JSON.stringify(r.altG));
   ok('[VOW_PRACT_1018] 번갈아 · 신부부터 — 첫 줄이 신부', who(r.altB)[0] === '신부' && who(r.altB)[1] === '신랑', JSON.stringify(r.altB));
   ok('[VOW_PRACT_1018] 두 분 글 · 번갈아 · 신부부터 — 신부 · 신랑 · 신부 · 신랑 · 신부 · 함께(적은 문장 그대로)', r.mineB.join(' / ') === '신부|신부 첫째. / 신랑|신랑 첫째. / 신부|신부 둘째. / 신랑|신랑 둘째. / 신부|신부 셋째. / 함께|' + BOTH, r.mineB.join(' / '));
-  ok('[VOW_PRACT_1018 131-2] 감사문 — 끝 «두 분 함께 · 감사합니다.»', r.thanks[r.thanks.length - 1] === '함께|감사합니다.', JSON.stringify(r.thanks));
+  ok('[VOW_PRACT_1018 131-2 · THANKS_SWAP_1122] 감사문(감사 인사 자리) — 신랑 먼저 · 끝 «두 분 함께 · 감사합니다.»', r.thanks[r.thanks.length - 1] === '함께|감사합니다.' && /^신랑\|/.test(r.thanks[0] || ''), JSON.stringify(r.thanks));
   ok('[VOW_PRACT_1018 131-1] 글로 한눈에 보기 — 각자 · 신부부터면 신부 글이 먼저', /서약문\(두 분 작성 · 카드로 인쇄\):\n신부 · 신부 글\.\n\n신랑 · 신랑 글\./.test(r.script), r.script.slice(r.script.indexOf('서약문'), r.script.indexOf('서약문') + 80));
   ok('[VOW_PRACT_1018 131-3] 글로 한눈에 보기 — 번갈아면 한 줄씩', /신랑 · 신랑 하나\.\n신부 · 신부 하나\.\n신랑 · 신랑 둘\./.test(r.scriptAlt), r.scriptAlt.slice(r.scriptAlt.indexOf('서약문'), r.scriptAlt.indexOf('서약문') + 80));
   ok('[VOW_PRACT_1018 131-2] 글로 한눈에 보기 — 괄호 줄 바로 뒤 «함께: 저희 두 사람은 …»', r.script.indexOf('하객 쪽으로 돌아서서 함께 읽어요)\n함께: ' + BOTH) > -1);

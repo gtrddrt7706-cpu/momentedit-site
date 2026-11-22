@@ -109,7 +109,7 @@ function forCombos(fn) {
   const C = require(path.join(ROOT, 'assets/ritual-cue.js'));
   const PICK = ['prevideo', 'candle', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'song', 'letter', 'tribute', 'cake', 'toast', 'table'];
   const dims = { entry: ['A', 'B', 'C', 'D', 'E', 'F'], candleWho: ['mothers', 'fathers', 'others'], letter: ['each', 'parent'], tributeSay: ['long', 'none'],
-    freeWhat: ['speech', 'video', 'gift', 'etc'], vowFirst: ['g', 'b'], vowKind: ['vow', 'thanks'], guestEx: [0, 1, 2, 3], pvEx: [0, 1, 2, 3], photoShare: [0, 1, 'up', 'link'], digital: [0, 1], meal: [0, 1] };
+    freeWhat: ['speech', 'video', 'gift', 'etc'], vowFirst: ['g', 'b'], welcomeKind: ['greet', 'thanks'] /* [THANKS_SWAP_1122] 옛 vowKind 축 */, guestEx: [0, 1, 2, 3], pvEx: [0, 1, 2, 3], photoShare: [0, 1, 'up', 'link'], digital: [0, 1], meal: [0, 1] };
   const run = (S) => { const r = C.build(C.norm ? C.norm(S) : S, { mode: 'console' }); fn(Array.isArray(r) ? r : (r.cues || [])); };
   const base = (on) => { const S = O.sampleS(); if (on) { S.on = {}; on.forEach((k) => { S.on[k] = 1; }); } return S; };
   for (const [k, vals] of Object.entries(dims)) for (const v of vals) { const S = base(); S[k] = v; run(S); }
@@ -152,7 +152,7 @@ function bridgePairs() {
   const TB = Function('return ' + m[1])();
   /* ★[BRIDGE_NEXT_1015 라운드 4] 이음말 바로 뒤 줄(같은 순간의 다음 큐 · 첫 두 문장)과도 잰다 — 라운드 4: 부모님께 인사 이음말 «… 부모님께 직접 마음을 전하는 …» 뒤 145 «그 마음을 담아, … 양가 부모님께 인사!» ·
      판마다(식전 영상 소개 넷 · 준비한 순서 영상 · 선물 · 기타 · 말로 인사 둘) — 라운드 3 정리에서 식전 영상 이음말이 빠진 까닭이 이 목록이었다 */
-  const V = [['welcome', {}], ['vow', {}], ['vow.thanks', { vowKind: 'thanks' }], ['declare', {}], ['bless', {}], ['free.speech', { freeWhat: 'speech' }], ['free', { freeWhat: 'video' }], ['free', { freeWhat: 'gift' }], ['free', { freeWhat: 'etc' }],
+  const V = [['welcome', {}], ['vow', {}], ['welcome.thanks', { welcomeKind: 'thanks' }] /* [THANKS_SWAP_1122] 옛 vow.thanks */, ['declare', {}], ['bless', {}], ['free.speech', { freeWhat: 'speech' }], ['free', { freeWhat: 'video' }], ['free', { freeWhat: 'gift' }], ['free', { freeWhat: 'etc' }],
     ['song', {}], ['letter', { letter: 'each' }], ['letter.parent', { letter: 'parent' }], ['toast', {}], ['tribute', { tributeSay: 'long' }], ['tribute', { tributeSay: 'short' }],
     ['prevideo', { pvEx: 0 }], ['prevideo', { pvEx: 1 }], ['prevideo', { pvEx: 2 }], ['prevideo', { pvEx: 3 }]];
   const out = [];

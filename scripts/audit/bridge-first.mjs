@@ -92,7 +92,7 @@ try {
   for (const W of [390, 1280]) {
     const { ctx, pg, f, errs } = await open(W, true);
     /* 이음말이 들어가는 조합 — 화촉 멘트 «뭉클»(narEx.candle 1 · 순서를 알리며 열지 않는다) · 축가 바로 뒤 부모님께 인사(편지 빼기 · narEx.tribute 0) · open-course · bgm-form 과 같은 조건 */
-    await f.evaluate((mu) => { S.mu = mu; S.narEx = Object.assign({}, S.narEx || {}, { candle: 1, tribute: 0 }); S.on.letter = 0; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, MU('r5'));
+    await f.evaluate((mu) => { S.mu = mu; S.narEx = Object.assign({}, S.narEx || {}, { candle: 3, tribute: 0 } /* ★[NARR_GO_1122 ⑤] 91 은 영상 뒤 B14 가 빠진다 — 이음말이 서는 예시 4 */); S.on.letter = 0; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, MU('r5'));
     /* a 감사 인사 그 순간만 */
     /* ★[SEAM_WORD_1107 J06 · 1층 · CI 5개 1층 조건 맞춤 11/10] 감사 인사 첫 줄 = 350(narr-welcome-in · «신랑 신부는 하객을 향해 서주시기 바랍니다» 가 들어 있어 244 b8 이음말이 붙지 않는다) — 이음말 없는 순간(d)과 같게 첫 줄 앞에서 뜸 */
     { await go(f, 'welcome'); const r = await trace(f, ['welcome'], 4000, false), q0 = r.q[0] || {}, ld0 = r.o.filter((x) => x.i === 0 && x.lead);
@@ -111,13 +111,13 @@ try {
     for (const [a, b] of [['song', 'tribute'], ['prevideo', 'candle']]) { await go(f, b); const r = await trace(f, [a, b], a === 'song' ? 28000 : 20000, true), q = r.q, i0 = q.findIndex((x) => x.k === b);   /* [DETAIL_R2_1101 ⑤] 축가 뒤 박수 줄 3초가 더해졌다 · [TIME_GAP_1102] 이벤트 줄 사이 쉼 2.5초 */
       const bEnd = (r.o.find((x) => x.i > i0) || {}).t, fa = (r.o.filter((x) => x.k === a && x.src).pop() || {}).f, nf = r.o.find((x) => x.src && x.k === b && x.f !== fa);   /* ★[BGM_TIMING2_1101] 축가가 M4 를 틀게 되어 이음말 동안 앞 곡(M4)이 말 아래로 이어진다 — «새 곡» = 앞 순간 곡이 아닌 곡 */
       ok(`${W} c 이어 듣기 ${a} → ${b} — 이음말(${(q[i0] || {}).slug}) 뒤에 새 곡 · 뜸은 그 다음 줄`, i0 > -1 && PRE.test(q[i0].slug) && !!nf && bEnd != null && nf.t >= bEnd - 50 && q[i0 + 1] && q[i0 + 1].lh, { i0, q: q.slice(Math.max(0, i0 - 1), i0 + 2), nf: nf && Math.round(nf.t), bEnd }); }
-    /* a · b 감사 인사형 서약(vowKind thanks · 감사 인사 뺌) — b8 이 서약 첫 줄에 온다(BGM 섹션 전수조사 · 화면 top@1 · 콘솔 M4@b8 이던 갈래) */
-    { await f.evaluate(() => { S.on.welcome = 0; S.vowKind = 'thanks'; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); });
-      await go(f, 'vow'); solo(W, 'vow', await trace(f, ['vow'], 11000, false));
-      await go(f, 'matjeol'); const r = await trace(f, ['matjeol', 'vow'], 34000, true), q = r.q, i0 = q.findIndex((x) => x.k === 'vow');
+    /* a · b 감사문 판(감사 인사 자리 · welcomeKind thanks · [THANKS_SWAP_1122] 옛 «감사 인사형 서약» vowKind thanks) — b8 이 감사문 첫 줄에 온다(BGM 섹션 전수조사 · 화면 top@1 · 콘솔 M4@b8 이던 갈래) */
+    { await f.evaluate(() => { S.on.welcome = 1; RitualOpen.thanksSet(S, true); try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); });
+      await go(f, 'welcome'); solo(W, 'welcome', await trace(f, ['welcome'], 11000, false));
+      await go(f, 'matjeol'); const r = await trace(f, ['matjeol', 'welcome'], 34000, true), q = r.q, i0 = q.findIndex((x) => x.k === 'welcome');
       const onB = r.o.filter((x) => x.i === i0 && !x.lead), bEnd = (r.o.find((x) => x.i > i0) || {}).t, nf = r.o.find((x) => x.src && x.f && x.f !== '@ENT'), late = onB.slice(Math.floor(onB.length / 2));
-      ok(`${W} b 이어 듣기 맞절 → 감사 인사형 서약 — 이음말(${(q[i0] || {}).slug}) 동안 입장 곡 ≤ −15 · 피아노는 이음말 뒤`, i0 > 0 && PRE.test(q[i0].slug) && late.length > 1 && late.every((x) => x.src && x.f === '@ENT' && x.want <= -15) && !!nf && bEnd != null && nf.t >= bEnd - 50, { i0, q: q[i0], late: late.slice(0, 2), nf: nf && Math.round(nf.t), bEnd });
-      await f.evaluate(() => { S.on.welcome = 1; delete S.vowKind; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }); }
+      ok(`${W} b 이어 듣기 맞절 → 감사문(감사 인사 자리) — 이음말(${(q[i0] || {}).slug}) 동안 입장 곡 ≤ −15 · 피아노는 이음말 뒤`, i0 > 0 && PRE.test(q[i0].slug) && late.length > 1 && late.every((x) => x.src && x.f === '@ENT' && x.want <= -15) && !!nf && bEnd != null && nf.t >= bEnd - 50, { i0, q: q[i0], late: late.slice(0, 2), nf: nf && Math.round(nf.t), bEnd });
+      await f.evaluate(() => { S.on.welcome = 1; RitualOpen.thanksSet(S, false); try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }); }
     /* f 코스 · 조합마다 화면 음악 줄 자리 == 미리 듣기 뜸 자리 */
     { const bad = [], seen = []; const COMBO = [{}, { welcome: 0 }, { prevideo: 0 }, { song: 0 }, { candle: 0 }];
       for (const c of COMBO) { await f.evaluate((c) => { Object.keys(c).forEach((k) => { S.on[k] = c[k]; }); try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, c);

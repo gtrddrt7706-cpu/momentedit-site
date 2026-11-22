@@ -1,4 +1,4 @@
-// 좌석·음료 편집기 실동작 점검 — [SEAT_ONE_CARD] 한 창(이름+음료) · [ALC_ONE] 알콜 1종 규칙.
+// 좌석·음료 편집기 실동작 점검 — [SEAT_ONE_CARD] 한 창(이름+음료) · [DRINK_TWO 2026-11-22] 음료 둘(샴페인 · 논알코올) + 자리 준비 둘(유아용 의자 · 휠체어) · [SEAT_PLAN_9] 확정 배치.
 //   눈으로 볼 스크린샷(390/1280)과 함께, 실제 탭·타이핑으로 모델이 어떻게 바뀌는지를 검사한다.
 //   사용: node scripts/audit/seat-onecard.mjs      (스크린샷 → scripts/audit/_shots/seat-*.png)
 import fs from 'node:fs';
@@ -56,7 +56,7 @@ try {
   ok(one.canvasEdit === 0, '캔버스 자리 알약 안 입력칸(rs-edit)은 더 이상 없다', String(one.canvasEdit));
   ok(one.focused === 'sdb-nm', '창을 열면 이름칸에 바로 커서가 간다', String(one.focused));
   ok(one.selRing === 1, '열어 둔 자리에 표시(.rs.sel)가 남는다', String(one.selRing));
-  ok(one.chips.length === 5, '알콜을 아직 안 골랐으면 다섯(샴페인·레드와인·논알콜·유아·어린이)', one.chips.join(' / '));
+  ok(one.chips.join('/') === '샴페인/논알코올 스파클링/유아용 의자/휠체어', '창 = 음료 둘(샴페인 · 논알코올) + 자리 준비 둘(유아용 의자 · 휠체어) [DRINK_TWO]', one.chips.join(' / '));
   ok(one.next.trim() === '확인', "단추는 '확인' 하나 · 다음 자리로 끌고 가지 않는다 [SEAT_NO_CHAIN]", one.next);
   await page.screenshot({ path: path.join(OUT, 'seat-1-한창-390.png'), fullPage: false });
 
@@ -85,65 +85,45 @@ try {
   const opened = await page.evaluate(() => ({ sel: JSON.stringify(SEATFLOW.sel), val: (document.querySelector('.sdb-nm') || {}).value }));
   ok(opened.sel === '{"ti":0,"si":1}' && opened.val === '', '다음 자리는 눌렀을 때만 열린다(빈 칸으로)', opened.sel + ' val=' + opened.val);
 
-  console.log('\n[알콜 1종 규칙]');
+  console.log('\n[음료 둘 · 레드와인 없음]');
   await page.fill('.sdb-nm', '이미쿠');
-  await tap(page, '.dk-chip[data-drink="C"]');   // 샴페인(위치가 아니라 값으로 — 칩이 늘어도 안 어긋난다)
+  await tap(page, '.dk-chip[data-drink="C"]');
   const afterC = await page.evaluate(() => ({
     chips: [...document.querySelectorAll('.dk-chip')].map((b) => b.textContent.trim()),
-    n4: !!document.querySelector('.sdb-opts.n4'),
-    d: SEATFLOW.tables[0].drinks[1],
-    note: (document.querySelector('.sdb-note') || {}).textContent || '',
-    alcLine: (document.querySelector('.ss-alc') || {}).textContent || '',
+    d: SEATFLOW.tables[0].drinks[1], alcLine: document.querySelectorAll('.ss-alc').length,
   }));
   ok(afterC.d === 'C', '고른 음료가 그 자리에 저장된다', String(afterC.d));
-  ok(afterC.chips.length === 4 && afterC.n4, '알콜이 정해지면 선택지는 넷(그 알콜·논알콜·유아·어린이)', afterC.chips.join(' / '));
-  ok(/레드와인/.test(afterC.chips.join('')) === false, '다른 알콜(레드와인)은 자리 창에 뜨지 않는다', afterC.chips.join(' / '));
-  ok(/샴페인/.test(afterC.alcLine), '요약 카드가 행사 알콜을 알려 준다', afterC.alcLine.replace(/\s+/g, ' ').slice(0, 60));
-  await page.screenshot({ path: path.join(OUT, 'seat-1b-알콜정해짐-390.png'), fullPage: false });
-
-  // 논알콜은 언제나 고를 수 있다(고정) — 자리를 눌러서 연다
+  ok(!/레드와인/.test(afterC.chips.join('')), '레드와인은 고를 수 없다(샴페인 하나 · 2026-11-22 사장님 «샴페인만»)', afterC.chips.join(' / '));
+  ok(afterC.alcLine === 0, '요약 카드에 «알코올은 무엇으로» 줄 · 바꾸기 단추가 없다(고를 것이 없다)', String(afterC.alcLine));
   await tap(page, '[data-seat-edit][data-ti="0"][data-si="2"]');
   await page.fill('.sdb-nm', '아이');
-  await tap(page, '.dk-chip[data-drink="N"]');   // 논알콜
-  const afterN = await page.evaluate(() => ({ d: SEATFLOW.tables[0].drinks[2], counts: (document.querySelector('.ss-drinks') || {}).textContent || '' }));
-  ok(afterN.d === 'N', '논알콜 스파클링은 알콜과 무관하게 자리별로 고를 수 있다', String(afterN.d));
+  await tap(page, '.dk-chip[data-drink="N"]');
+  ok(await page.evaluate(() => SEATFLOW.tables[0].drinks[2]) === 'N', '논알코올 스파클링은 자리별로 고를 수 있다');
 
-  /* ★[KID_SEAT] 아이 자리 — 음료 한 칸으로 물과 유아용 의자를 함께 정한다.
-     코드 K 는 mypage·guide·admin·80_production 네 곳이 한 벌이라, 화면에서 골라지는지만 봐서는 부족하다.
-     저장 왕복은 data-roundtrip ①-a 가, 하객·관리자 표시는 아래 라벨 대조가 맡는다. */
-  console.log('\n[유아 자리]');
+  /* ★[DRINK_TWO] 자리 준비 — 음료와 따로 고른다(유아용 의자 · 휠체어 · 다시 누르면 풀림).
+     t.chair 는 mypage · admin · 80_production(저장 화이트리스트) 세 곳이 한 벌이라 저장 때 조용히 지워지지 않는지가 핵심이다. */
+  console.log('\n[자리 준비]');
   await tap(page, '[data-seat-edit][data-ti="1"][data-si="0"]');
   await page.click('.sdb-nm');
   await page.keyboard.type('아기', { delay: 30 });
   await new Promise((r) => setTimeout(r, 120));
-  const kidChips = await page.evaluate(() => [...document.querySelectorAll('.dk-chip')].map((b) => b.textContent.trim()));
-  ok(kidChips.some((t) => /유아/.test(t)), '자리 창에 유아 칸이 있다', kidChips.join(' / '));
-  await tap(page, '.dk-chip[data-drink="K"]');
-  const kid = await page.evaluate(() => ({
-    d: SEATFLOW.tables[1].drinks[0],
-    alc: _seatAlc(),
-    pills: (document.querySelector('.ss-drinks') || {}).textContent || '',
-    dot: !!document.querySelector('.rs-dk.dk-K'),
-    chipSub: (document.querySelector('.dk-chip[data-drink="K"] .dk-sub') || {}).textContent || '',
-    kidOn: !!document.querySelector('.dk-chip[data-drink="K"].on'),
-    youngOn: !!document.querySelector('.dk-chip[data-drink="Y"].on'),
-  }));
-  ok(kid.d === 'K', '유아를 고르면 그 자리에 K 가 남는다', String(kid.d));
-  ok(kid.alc === 'C', '유아는 알콜로 세지 않는다(행사 알콜은 그대로)', kid.alc);
-  ok(/유아/.test(kid.pills), '요약 집계에 유아가 뜬다(하이체어 수량)', kid.pills.replace(/\s+/g, ' '));
-  ok(kid.dot, '캔버스 색점도 유아 색으로 찍힌다');
-  ok(/유아용 의자/.test(kid.chipSub), '유아 칸이 유아용 의자를 준비한다고 말한다', kid.chipSub);
-  ok(kid.kidOn && !kid.youngOn, '유아를 고르면 유아만 켜진다(어린이와 섞이지 않는다) [KID_CHAIR]', kid.kidOn + '/' + kid.youngOn);
-  await tap(page, '[data-seat-edit][data-ti="1"][data-si="1"]');
-  await page.click('.sdb-nm');
-  await page.keyboard.type('큰애', { delay: 30 });
-  await new Promise((r) => setTimeout(r, 120));
-  await tap(page, '.dk-chip[data-drink="Y"]');
-  const yng = await page.evaluate(() => ({ d: SEATFLOW.tables[1].drinks[1], c: seatDrinkCounts(SEATFLOW.tables), pills: (document.querySelector('.ss-drinks') || {}).textContent || '' }));
-  ok(yng.d === 'Y', '어린이도 자리별로 고를 수 있다 [KID_CHAIR]', String(yng.d));
-  ok(yng.c.K === 1 && yng.c.Y === 1, '유아용 의자 수량은 유아만 센다(어린이는 안 센다)', 'K=' + yng.c.K + ' Y=' + yng.c.Y);
-  ok(/어린이/.test(yng.pills), '요약에 어린이도 따로 뜬다', yng.pills.replace(/\s+/g, ' '));
-  await page.screenshot({ path: path.join(OUT, 'seat-6-유아-390.png'), fullPage: false });
+  await tap(page, '.dk-chair[data-chair="B"]');
+  const ch1 = await page.evaluate(() => ({ c: (SEATFLOW.tables[1].chair || [])[0], d: SEATFLOW.tables[1].drinks[0], on: [...document.querySelectorAll('.dk-chip.on')].map((b) => b.textContent.trim()).join(','),
+    pills: (document.querySelector('.ss-drinks') || {}).textContent || '', mark: !!document.querySelector('.rs-ch') }));
+  ok(ch1.c === 'B', '유아용 의자를 누르면 그 자리에 B 가 남는다', String(ch1.c));
+  ok(ch1.d === 'C', '자리 준비를 골라도 음료는 그대로다(섞이지 않는다)', String(ch1.d));
+  ok(/샴페인/.test(ch1.on) && /유아용 의자/.test(ch1.on), '음료 하나 · 자리 준비 하나가 함께 켜진다', ch1.on);
+  ok(/유아용 의자 1/.test(ch1.pills), '요약 집계에 유아용 의자 수가 뜬다', ch1.pills.replace(/\s+/g, ' '));
+  ok(ch1.mark, '캔버스 알약에 자리 준비 표시가 붙는다');
+  await tap(page, '.dk-chair[data-chair="W"]');
+  ok(await page.evaluate(() => (SEATFLOW.tables[1].chair || [])[0]) === 'W', '휠체어로 바꾸면 하나만 남는다(둘 다 켜지지 않는다)');
+  await tap(page, '.dk-chair[data-chair="W"]');
+  ok(await page.evaluate(() => (SEATFLOW.tables[1].chair || [])[0]) === '', '한 번 더 누르면 풀린다(보통 의자)');
+  await tap(page, '.dk-chair[data-chair="B"]');
+  const sent = await page.evaluate(async () => { const out = []; const orig = window.apiTrackSave; window.apiTrackSave = (p) => { out.push(JSON.parse(JSON.stringify(p))); return Promise.resolve({ ok: true }); };
+    try { await saveSeat(false); } catch (e) {} window.apiTrackSave = orig; const sp = out.filter((p) => p.track === 'seat').pop(); return sp ? sp.draft.tables.map((t) => t.chair || null) : null; });
+  ok(!!(sent && sent[1] && sent[1][0] === 'B' && sent[0] === null), '저장에 자리 준비가 실리고 · 하나도 없는 테이블엔 chair 키가 없다', JSON.stringify(sent && sent.slice(0, 2)));
+  await page.screenshot({ path: path.join(OUT, 'seat-6-자리준비-390.png'), fullPage: false });
 
   /* ★[SEAT_NOTE] 「미리 알려주실 것」 — 칩으로 못 적는 것(거동 불편·아기 나이)을 받는 칸.
      ★[ALLERGY_ASK_OFF 2026-08-16] 화면에서 알레르기는 **묻지 않는다**(사용자 지시). 아래 입력값에 그 단어가
@@ -157,7 +137,7 @@ try {
     window.apiTrackSave = (p) => { sent.push(p); return Promise.resolve({ ok: true }); };
     const ta = document.querySelector('[data-seat-note]');
     if (!ta) { window.apiTrackSave = orig; return { no: true }; }
-    ta.value = '3번 테이블 아기 8개월 · 땅콩 알레르기 한 분';
+    ta.value = '5번 테이블 아기 8개월 · 땅콩 알레르기 한 분';
     ta.dispatchEvent(new Event('input', { bubbles: true }));
     ta.dispatchEvent(new Event('blur', { bubbles: true }));
     await new Promise((r) => setTimeout(r, 200));
@@ -196,11 +176,11 @@ try {
   console.log('\n[확인서에 실리는가]');
   const cf = await page.evaluate(() => {
     const p = { tracks: { seat: '완료', final: '완료' },
-      seatDraft: { tables: [{ name: '테이블 1', side: 'L', seats: ['김희준', '이미쿠', '아기', '큰애'], drinks: ['C', 'N', 'K', 'Y'] }] },
+      seatDraft: { tables: [{ name: '테이블 1', side: 'L', seats: ['김희준', '이미쿠', '아기', '큰애'], drinks: ['C', 'N', 'N', 'N'], chair: ['', 'W', 'B', ''] }] },
       finalDraft: { headcount: '4', allergy: '8개월 아기 · 새우 알레르기 한 분' }, guideinfoDraft: { seatMode: 'all' } };
     let h = ''; try { h = String(prodConfirmHtml(p, {}) || ''); } catch (e) { h = 'ERR ' + e.message; }
     const plain = h.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
-    return { drink: /유아 1\(유아용 의자\)/.test(plain) && /어린이 1/.test(plain),
+    return { drink: /유아용 의자 1/.test(plain) && /휠체어 1/.test(plain) && /논알코올 3/.test(plain),
       /* ★[CF_DRINK_ONE 2026-08-16] 집계는 **한 번만** 실려야 한다. 병렬 세션 둘이 같은 날 각각 넣어
          「좌석 · 음료」와 「좌석 배치」 두 줄에 서로 다른 말로 겹쳐 있었다(사용자가 화면에서 발견).
          자리를 옮겨도 이 수는 1이어야 한다 — 두 곳에 두는 순간 다시 2가 되어 붉어진다. */
@@ -208,7 +188,7 @@ try {
       note: /새우 알레르기 한 분/.test(plain),
       falseWarn: /미리 알려주실 것 미완료/.test(plain) };
   });
-  ok(cf.drink, '확인서에 음료 집계(유아·어린이 포함)가 실린다 [CF_SEAT_DRINK]');
+  ok(cf.drink, '확인서에 음료 집계와 자리 준비(유아용 의자 · 휠체어)가 실린다 [CF_SEAT_DRINK] · [DRINK_TWO]');
   ok(cf.drinkOnce === 1, '음료 집계는 확인서에 한 번만 실린다 [CF_DRINK_ONE]', '샴페인 집계 ' + cf.drinkOnce + '회');
   ok(cf.note, '확인서에 「미리 알려주실 것」이 실린다 [SEAT_NOTE]');
   const cf2 = await page.evaluate(() => {
@@ -218,23 +198,12 @@ try {
   });
   ok(!cf2, "안 적었으면 그 줄 자체가 없다(빈 값을 '미완료'로 겁주지 않는다)", String(cf2));
 
-  console.log('\n[알콜 종류 통째로 바꾸기]');
-  await page.evaluate(() => { SEATFLOW.sel = null; SEATFLOW.edit = null; renderSeat(document.getElementById('mp_production')); });
-  await tap(page, '[data-alc-all="R"]');
-  await new Promise((r) => setTimeout(r, 200));
-  const confirmTxt = await page.evaluate(() => (document.querySelector('.mp-modal') || {}).innerText || '');
-  ok(/레드와인/.test(confirmTxt) && /\d+곳/.test(confirmTxt) && !/미정/.test(confirmTxt), '무엇이 몇 곳 바뀌는지 먼저 묻는다(미정 언급 없이)', confirmTxt.replace(/\s+/g, ' ').slice(0, 80));
-  await page.evaluate(() => { const b = [...document.querySelectorAll('.mp-modal button')].find((x) => /바꾸기/.test(x.textContent)); if (b) b.click(); });
-  await new Promise((r) => setTimeout(r, 250));
-  const afterSwap = await page.evaluate(() => ({ d: SEATFLOW.tables[0].drinks.slice(0, 3).join(',') }));
-  ok(afterSwap.d === 'R,R,N', '알콜만 통째로 바뀌고 논알콜은 그대로다', afterSwap.d);
-
   /* [SEAT_NO_UNDEC] '미정'이라는 상태를 만들지 않는다 — 이름이 붙는 순간 음료가 하나 붙는다.
      되돌리는 길(창의 '미정으로' 단추)도, 미정을 세는 자리(요약 알약)도 없어야 한다. */
   console.log('\n[미정이 생기지 않는다]');
   await page.evaluate(() => {
     SEATFLOW.tables[0].seats = ['가', '나', '다', '라'];
-    SEATFLOW.tables[0].drinks = ['', 'R', 'N', ''];   // 옛 데이터 모양(이름은 있는데 음료가 빈 자리)
+    SEATFLOW.tables[0].drinks = ['', 'C', 'N', ''];   // 옛 데이터 모양(이름은 있는데 음료가 빈 자리)
     SEATFLOW.sel = null; SEATFLOW.edit = null;
     renderSeat(document.getElementById('mp_production'));
   });
@@ -244,43 +213,37 @@ try {
     rings: document.querySelectorAll('.rs-dk-none').length,
     fill: document.querySelectorAll('[data-alc-fill]').length,
   }));
-  ok(noUndec.d === 'R,R,N,R', '이름 있는데 빈 자리는 열자마자 기본값(행사 알콜)으로 채워진다', noUndec.d);
+  ok(noUndec.d.startsWith('C,C,N,C'), '이름 있는데 빈 자리는 열자마자 기본값(샴페인)으로 채워진다', noUndec.d);
   ok(!/미정/.test(noUndec.pills), '요약 집계에 미정 알약이 없다', noUndec.pills.replace(/\s+/g, ' '));
   ok(noUndec.rings === 0, '캔버스에 미정 빈 링이 없다', String(noUndec.rings));
   ok(noUndec.fill === 0, "'미정 일괄 채우기' 단추가 없다", String(noUndec.fill));
 
   // 새 이름을 적으면 그 자리도 곧바로 음료가 붙는다 + 창에 '미정으로' 되돌리는 길이 없다
-  await tap(page, '[data-seat-edit][data-ti="1"][data-si="3"]');   // 앞 절에서 손대지 않은 빈 자리(유아 절이 si 0 을 K 로 만들어 둔다)
+  await tap(page, '[data-seat-edit][data-ti="3"][data-si="4"]');   // 앞 절에서 손대지 않은 빈 자리(4번 테이블 · 5자리 · [SEAT_PLAN_9])
   await page.click('.sdb-nm');
   await page.keyboard.type('새하객', { delay: 30 });
   await new Promise((r) => setTimeout(r, 120));
   const fresh = await page.evaluate(() => {
     renderSeat(document.getElementById('mp_production'));
-    return { d: SEATFLOW.tables[1].drinks[3], clear: document.querySelectorAll('.sdb-clear').length, on: [...document.querySelectorAll('.dk-chip.on')].map((b) => b.textContent.trim()).join(',') };
+    return { d: SEATFLOW.tables[3].drinks[4], clear: document.querySelectorAll('.sdb-clear').length, on: [...document.querySelectorAll('.dk-chip.on')].map((b) => b.textContent.trim()).join(',') };
   });
-  ok(fresh.d === 'R', '이름을 적으면 그 자리에 음료가 곧바로 붙는다', String(fresh.d));
+  ok(fresh.d === 'C', '이름을 적으면 그 자리에 음료가 곧바로 붙는다', String(fresh.d));
   ok(fresh.clear === 0, "창에 '미정으로 되돌리기' 단추가 없다", String(fresh.clear));
-  ok(/레드와인/.test(fresh.on), '붙은 음료가 창에서 선택된 상태로 보인다', fresh.on);
+  ok(/샴페인/.test(fresh.on), '붙은 음료가 창에서 선택된 상태로 보인다', fresh.on);
   await page.screenshot({ path: path.join(OUT, 'seat-2-요약-390.png'), fullPage: false });
 
-  console.log('\n[섞인 옛 데이터]');
+  console.log('\n[옛 데이터 옮기기]');
   await openSeat(page, [
-    { name: '테이블 1', side: 'L', seats: ['가', '나', '다', '라'], drinks: ['C', 'R', 'N', ''] },   // '' 는 기본값으로 메워지고, C·R 섞임만 남는다
+    { name: '테이블 1', side: 'L', seats: ['가', '나', '다', '라'], drinks: ['C', 'R', 'K', 'Y'] },
     { name: '테이블 2', side: 'R', seats: ['', '', '', ''], drinks: ['', '', '', ''] },
   ]);
-  await tap(page, '[data-seat-edit][data-ti="0"][data-si="0"]');
-  const mixed = await page.evaluate(() => ({
-    chips: [...document.querySelectorAll('.dk-chip')].map((b) => b.textContent.trim()).length,
-    warn: (document.querySelector('.ss-alc-mix') || {}).textContent || '',
-    note: (document.querySelector('.sdb-note') || {}).textContent || '',
-  }));
-  ok(mixed.chips === 5, '섞여 있을 땐 알콜 둘을 다 보여 준다(무엇으로 되어 있는지 보여야 고친다)', String(mixed.chips));
-  ok(/섞여/.test(mixed.warn), '요약 카드가 섞인 상태를 알려 준다', mixed.warn.replace(/\s+/g, ' ').slice(0, 60));
-  ok(/섞여/.test(mixed.note), '자리 창도 같은 사실을 말한다', mixed.note);
+  const mig = await page.evaluate(() => ({ n: SEATFLOW.tables.length, seats: SEATFLOW.tables.reduce((a, t) => a + t.seats.length, 0), d: SEATFLOW.tables[0].drinks.slice(0, 4).join(','), c: (SEATFLOW.tables[0].chair || []).slice(0, 4).join(','), warn: document.querySelectorAll('.ss-alc-mix').length }));
+  ok(mig.n === 9 && mig.seats === 35, '옛 좌석표는 확정 배치(9테이블 · 35석)로 옮겨진다 [SEAT_PLAN_9]', mig.n + '테이블 ' + mig.seats + '석');
+  ok(mig.d === 'C,C,N,N' && mig.c === ',,B,', '레드와인 → 샴페인 · 유아 · 물 → 논알코올 + 유아용 의자 · 어린이 · 물 → 논알코올 [DRINK_TWO]', mig.d + ' / ' + mig.c);
+  ok(mig.warn === 0, '«섞여 있어요» 안내가 없다(레드와인이 없어져 섞일 일이 없다)', String(mig.warn));
 
-  /* ★[SEAT_FIT] 이름이 세 글자만 넘어가도 자리 알약이 카드 밖으로 30px 넘게 나가던 것(390px 실측).
-     지그재그 배율(_seatZig 1.9→1.15)과 --zig(26→20)로 잡았다 — 숫자를 도로 키우면 여기서 붉게 진다. */
-  console.log('\n[긴 이름이 카드 밖으로 안 나간다]');
+  /* ★[SEAT_PLAN_9] 배치도 = 오프라인 시안 — 테이블 9개를 맞붙인 두 묶음 · 확정 자리 · 혼주석 · 폰은 옆으로 밀어 본다(배치도 상자 안에서만) */
+  console.log('\n[확정 배치 · 긴 이름]');
   await openSeat(page, [
     { name: '양가 부모님', side: 'L', seats: ['김희준', '이미쿠', '아버님', '어머님'], drinks: ['C', 'C', 'C', 'C'] },
     { name: '', side: 'R', seats: ['고모', '이모', '삼촌', '사촌형'], drinks: ['C', 'N', 'C', 'C'] },
@@ -288,27 +251,24 @@ try {
     { name: '회사', side: 'R', seats: ['회사동료', '선배', '후배', '최고참'], drinks: ['C', 'C', 'C', 'C'] },
   ]);
   const fit = await page.evaluate(() => {
-    const card = document.getElementById('mp_production').querySelector('.seat-card').getBoundingClientRect();
-    let worst = 0, who = '', clash = 0;
-    document.querySelectorAll('#mp_production .rs').forEach((b) => {
-      const r = b.getBoundingClientRect();
-      const o = Math.max(Math.round(card.left - r.left), Math.round(r.right - card.right));
-      if (o > worst) { worst = o; who = (b.textContent || '').trim(); }
-    });
-    document.querySelectorAll('#mp_production .rt-wrap').forEach((w) => {
-      const cap = w.querySelector('.rt-cap'); if (!cap) return;
-      const c = cap.getBoundingClientRect();
-      w.querySelectorAll('.rs').forEach((b) => {
-        const r = b.getBoundingClientRect();
-        if (Math.min(c.right, r.right) - Math.max(c.left, r.left) > 0 && Math.min(c.bottom, r.bottom) - Math.max(c.top, r.top) > 0) clash++;
-      });
-    });
-    return { worst, who, clash, caps: document.querySelectorAll('#mp_production .rt-cap').length };
+    const P = [...document.querySelectorAll('#mp_production .smap-s .rs')].map((b) => ({ t: b.textContent.trim(), r: b.getBoundingClientRect() }));
+    const T = [...document.querySelectorAll('#mp_production .smap-t')].map((b) => b.getBoundingClientRect());
+    const ov = (a, b) => { const x = Math.min(a.right, b.right) - Math.max(a.left, b.left), y = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top); return (x > 0 && y > 0) ? Math.round(Math.min(x, y)) : 0; };
+    let clash = 0, who = ''; for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) if (ov(P[i].r, P[j].r) > 0) { clash++; who = P[i].t + '×' + P[j].t; }
+    let onT = 0; for (const p of P) for (const t of T) { const cx = t.left + t.width / 2, cy = t.top + t.height / 2, px = p.r.left + p.r.width / 2, py = p.r.top + p.r.height / 2; if (Math.hypot(cx - px, cy - py) < t.width / 2 - 4) onT++; }
+    let touch = 0; for (let i = 0; i < T.length - 1; i++) { const a = T[i], b = T[i + 1]; const d = Math.hypot((a.left + a.width / 2) - (b.left + b.width / 2), (a.top + a.height / 2) - (b.top + b.height / 2)); if (Math.abs(d - a.width) <= 3) touch++; }
+    return { n: T.length, seats: P.length, clash, who, onT, touch, fam: document.querySelectorAll('#mp_production .rs.fam').length, caps: document.querySelectorAll('#mp_production .rt-cn').length, rename: document.querySelectorAll('#mp_production [data-si="name"], #mp_production .rt-cbtn').length,
+      ctl: document.querySelectorAll('#mp_production .rt-mini,#mp_production .seat-addtbl').length };
   });
-  ok(fit.worst <= 2, '390px에서 자리 알약이 카드 테두리를 넘지 않는다 [SEAT_FIT]', fit.worst + 'px ' + fit.who);
-  ok(fit.caps === 3, '테이블 이름은 원 아래 한 줄로 나온다', String(fit.caps));
-  ok(fit.clash === 0, '테이블 이름이 자리 알약과 겹치지 않는다 [SEAT_FIT]', String(fit.clash));
-  await page.screenshot({ path: path.join(OUT, 'seat-5-긴이름-390.png'), fullPage: false });
+  ok(fit.n === 9 && fit.seats === 35, '테이블 9 · 자리 35 [SEAT_PLAN_9]', fit.n + ' · ' + fit.seats);
+  ok(fit.touch >= 6, '같은 묶음의 이웃 테이블이 맞닿아 이어진다(시안 그대로)', String(fit.touch));
+  ok(fit.clash === 0, '자리 알약끼리 겹치지 않는다', fit.clash + ' ' + fit.who);
+  ok(fit.onT === 0, '자리 알약이 테이블 원 안에 들어가지 않는다', String(fit.onT));
+  ok(fit.fam >= 2, '빈 혼주석은 «혼주»로 보인다(맨 앞 테이블 통로 쪽)', String(fit.fam));
+  // ★[SEAT_NO_RENAME 2026-11-22] 옛 기대 «부부가 붙인 테이블 이름은 원 안에 작게» 은퇴 — 원은 번호만 · 눌러서 이름 바꾸기 없음
+  ok(fit.caps === 0 && fit.rename === 0, '테이블 원은 번호만 — 이름 칸 · 이름 바꾸기 단추 없음 [SEAT_NO_RENAME]', JSON.stringify({ caps: fit.caps, rename: fit.rename }));
+  ok(fit.ctl === 0, '테이블 ＋ － ✕ · «+ 테이블» 단추가 없다(배치 고정)', String(fit.ctl));
+  await page.screenshot({ path: path.join(OUT, 'seat-5-확정배치-390.png'), fullPage: false });
 
   console.log('\n[문구 · 넘침]');
   const txt = await page.evaluate(() => document.getElementById('mp_production').innerText || '');

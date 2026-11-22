@@ -31,7 +31,7 @@ const G = (t) => String(t).replace(/[«»]/g, '');   /* 화면은 «» 를 글�
 
 /* 명세 표 — 순간마다 흐름 줄 하나 · 자리 [BGM_R1_1023] */
 const CONT = '감사 인사부터 피아노가 조용히 이어져요';   /* [BGM_R2_1023] */
-const ONE = { guest: '하객이 앉는 동안 잔잔한 연주가 흘러요', candle: '화촉을 밝히는 동안 밝고 우아한 곡이 흘러요', matjeol: '두 분이 앞에 서시면 음악이 잦아들고, 맞절은 조용히 · 하객을 향해 서시면 본식 피아노가 잔잔하게 깔려요' /* [PIANO_WORD_1106] 옛 «감사 인사 곡이 시작돼요» */ /* ★[MEANING_R2_1102] */,
+const ONE = { guest: '하객이 앉는 동안 잔잔한 연주가 흘러요', candle: '화촉을 밝히는 동안 밝고 우아한 곡이 흘러요', matjeol: '두 분이 앞에 서시면 음악이 잦아들고, 맞절은 조용히 · 본식 피아노는 감사 인사부터 잔잔하게 깔려요' /* [PIANO_WORD_1106] 옛 «감사 인사 곡이 시작돼요» */ /* ★[MEANING_R2_1102] */,
   welcome: '이 순간부터 피아노가 아주 작게 흘러요', vow: CONT, ring: CONT, declare: '선언문을 읽는 동안은 음악 없이, 축하 박수와 함께 새 곡이 시작돼요' /* ★[MEANING_R1_1102 5] · [MEANING_R2_1102 DECLARE_LIFT] */, bless: CONT,
   song: '여는 말과 박수 때는 피아노가 작게 이어지고, 노래하는 동안은 보내 주신 MR 만 흘러요' /* ★[SCREEN_SOUND_1102] 소리가 나면 화면에 쓴다 */,
   tribute: '인사드리는 동안 밝고 따뜻한 곡이 흘러요', _close: '박수와 함께 힘 있는 곡이 시작돼요', toast: '«위하여!»에 맞춰 신나는 곡이 시작돼요', table: '테이블 인사 동안 재즈가 흘러요' /* ★[MEANING_R1_1102 11] */ };
@@ -319,7 +319,7 @@ try {
     const C9 = await pg.evaluate(() => { const R = RitualOpen, S0 = JSON.parse(JSON.stringify(S)), out = { n: 0, by: {}, miss: [], head: [], key: [], courses: 0 };
       /* ★[SPEECH_SONG_1115] «전부»를 축사 쪽 · 축가 쪽 둘로(축사 · 축가는 함께 담지 못한다 · 둘 다 식중 영상 담음) · 옛 «영상» 갈래 대신 식중 영상 빼기 판 */
       const base = [{ nm: '전부 · 축사', on: R.PICKABLE.filter((k) => k !== 'song'), set: {} }, { nm: '전부 · 축가', on: R.PICKABLE.filter((k) => k !== 'free'), set: {} }].concat((R.EXAMPLES || []).map((x) => ({ nm: x.nm, on: x.on, set: x.set || {} })));
-      const vars = [{}, { vowKind: 'thanks' }, { candleWho: 'fathers' }, { candleWho: 'others' }, { _off: ['welcome'] }, { _off: ['letter'] }, { _off: ['welcome', 'letter'] }, { _off: ['candle'] }, { _off: ['toast'] }, { _off: ['table'] }, { _off: ['tribute'] },
+      const vars = [{}, { welcomeKind: 'thanks' } /* [THANKS_SWAP_1122] 감사문 = 감사 인사 자리의 판(옛 vowKind) */, { candleWho: 'fathers' }, { candleWho: 'others' }, { _off: ['welcome'] }, { _off: ['letter'] }, { _off: ['welcome', 'letter'] }, { _off: ['candle'] }, { _off: ['toast'] }, { _off: ['table'] }, { _off: ['tribute'] },
         { guestVoice: 'couple' }, { entryVoice: 'couple' }, { _chip: ['tribute', 'none'] }, { _chip: ['letter', 'parent'] }, { _chip: ['toast', 'toast'] }, { _chip: ['toast', 'cake'] }, { _off: ['midvid'] }, { _on: ['song'], _off: ['letter'] }];
       Object.keys(R.NAR_EX || {}).forEach((k) => { const n = ((R.NAR_EX[k] || {}).lines || []).length; for (let i = 1; i <= n; i++) vars.push({ _ex: [k, i] }); });
       const ks = ['guest', 'candle', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'midvid', 'letter', 'tribute', '_close', 'toast', 'table', 'prevideo'];   /* [SPEECH_SONG_1115] + 식중 영상 */

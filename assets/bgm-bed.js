@@ -55,7 +55,7 @@
   /* 그 구간의 첫 담긴 순간 — 고르기 줄이 서는 쪽(본식 차례 · 없으면 목록 차례) */
   function chooser(sg){ var on=sg.ks.filter(onOf); if(on.length<2) return on[0]||null; var q=seq();
     on.sort(function(a,b){ var i=q.indexOf(a), j=q.indexOf(b); return (i<0?99+sg.ks.indexOf(a):i)-(j<0?99+sg.ks.indexOf(b):j); }); return on[0]; }
-  function nameOf(k){ if(k==='vow'&&St().vowKind==='thanks') return '감사문'; var R=RO(); try{ return R?String(R.nameOf(k,St())||''):''; }catch(x){ return ''; } }   /* ★[B2_NA_24 2026-11-06 BATCH2 나24] 감사문을 고른 날 음악 고르기 제목 · 한눈에 보기 구간 이름 = «감사문» · 서약 날은 «혼인 서약» 그대로 · 구간 · 곡 · 차례는 그대로 */
+  function nameOf(k){ if(k==='welcome'&&St().welcomeKind==='thanks') return '감사문';   /* [THANKS_SWAP_1122] 감사문 = 감사 인사 자리의 판 */ var R=RO(); try{ return R?String(R.nameOf(k,St())||''):''; }catch(x){ return ''; } }   /* ★[B2_NA_24 2026-11-06 BATCH2 나24] 감사문을 고른 날 음악 고르기 제목 · 한눈에 보기 구간 이름 = «감사문» · 서약 날은 «혼인 서약» 그대로 · 구간 · 곡 · 차례는 그대로 */
   function labelOf(sg){ var d=P.seg(sg); if(!d) return ''; if(d.slot) return (d.slot==='S5'?'축사':'편지'); var k=chooser(d); if(k==='free'||k==='letter') return '본식'; var n=nameOf(k); return (n&&n!==k)?n:d.nm; }   /* [BGM_FIX_1030] 엔진 이름표가 없는 순간(guest · _close)은 열쇠가 그대로 돌아온다 — 구간 이름(하객 맞이 · 닫는 인사)으로 */   /* 감사 인사 ~ 덕담을 다 뺀 날 첫 순간이 축사 · 편지면 그 칩 줄 이름(«축사 음악»)과 겹친다 */
   /* 고른 곡 번호 · 실제로 쓸 곡(안 골랐으면 1순위) */
   function picked(sg){ return P.custK(St(),sg); }
@@ -159,7 +159,7 @@
        종전: 곡 처음(0초)에서 구호와 함께 시작 — 강조가 구호 말끝 14초 전에 지나갔다. 입장 장면(entry-scene LATE_MUSIC «목소리가 먼저 · 음악은 뒤에»)과 당일 콘솔(같은 ES.plan)이 이미 이렇게 한다.
        그대로: 강조 자리가 넉넉한 곡(추천 곡 · 뒤 소절 hooks) · 화촉 곡 내림 + 정적 1초 · 늦게 들어올 때도 1.5초 올림 · 검사 scripts/audit/pv-r3-1115.mjs 13 */
   function entHushAt(st0,el){ var o=BUF[ENT_F], x=o&&o.ext; if(!x) return 0; var c0=callOf(st0,x); return Math.min(x.H-c0.hd-c0.v-0.3+(el||0),x.end-1)-x.o; }
-  function atOf(f,st,lead){ if(BED.cur.f===f&&BED.cur.src) return 0; if(f===ENT_F) return entAt(st&&st.k,lead?st:null);   /* [ENTRY_LEAD_CALL_1115] lead = 순간 첫 줄 뜸(lpLead) — 입장이면 그 줄이 구호 */ if(LPB.keep[f]!=null) return LPB.keep[f]; try{ if(st&&!entMulti()&&dayAt(st.k)===f&&ordOf('M4').filter(has)[0]!==f) return hookOf(f); }catch(x){} return 0; }   /* ★[SCREEN_SOUND_1102 2] 순간 하나 = 당일 시간표 그 자리 곡 · 목록 둘째 곡부터는 강조 자리에서(당일 목록이 넘길 때와 같다) · 첫 곡은 처음(0초) */
+  function atOf(f,st,lead){ if(BED.cur.f===f&&BED.cur.src) return 0; if(f===ENT_F) return entAt(st&&st.k,lead?st:null);   /* [ENTRY_LEAD_CALL_1115] lead = 순간 첫 줄 뜸(lpLead) — 입장이면 그 줄이 구호 */ if(LPB.keep[f]!=null) return LPB.keep[f]; try{ if(st&&!entMulti()&&dayAt(st.k)===f&&ordOf('M4').filter(has)[0]!==f) return hookOf(f); }catch(x){} try{ var _s1=P.byF(f); if(_s1&&_s1.startFirst&&_s1.start!=null) return Math.max(0,+_s1.start); }catch(x){} return 0; }   /* ★[PONYO_FIRST_1122] 첫 곡이라도 startFirst 곡(하객 맞이 포뇨)은 강조 자리(주제 18.2초)부터 — 당일 콘솔 첫 곡과 같다 */   /* ★[SCREEN_SOUND_1102 2] 순간 하나 = 당일 시간표 그 자리 곡 · 목록 둘째 곡부터는 강조 자리에서(당일 목록이 넘길 때와 같다) · 첫 곡은 처음(0초) */
 
   /* ── 있는 곡(드라이브 목록) · 곡 받기 — 마이페이지 안에서만 ── */
   var AV={ st:'', set:{}, t:null, cb:[] };   /* [DETAIL_R1_1101 ②] cb = 목록을 기다리는 듣기 */
@@ -648,7 +648,7 @@
     var cr=!cur&&carried(sg); if(folded(sg)&&(cs||cr)) return foldHtml(sg,k,cs||P.byF(cr.f));   /* [MUSIC_FOLD_1031 · MUSIC_FOLD_PICK_1031] 고른 곡이 있으면 접힌 한 줄 · «바꾸기»로 편 방문만 목록 */
     var h='<ul class="mu-list" role="radiogroup" aria-label="'+e(gl)+'">';
     L.forEach(function(p,i){ var on=cur===p.f, pl=CARD.f===p.f&&CARD.sg===sg, miss=AV.st==='ok'&&!AV.set[p.f];
-      h+='<li class="mu-row'+(on?' on':'')+'">'
+      h+='<li class="mu-row'+(on?' on':'')+'" role="none">'   /* [MU_LI_NONE_R3 2026-11-19 NIGHT20 R3 #15] radiogroup 안 li 는 표시 역할 없음(role=none) · 화면 읽기가 «목록 밖 항목»으로 헤매지 않게 · 모양 · 동작 그대로 */
         +(emb()?plBtn(sg,k,p,pl,miss):'')
         +'<button type="button" class="mu-pick" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!cur&&i===0))?0:-1)+'" data-fk="bed:'+sg+':'+p.f+'" onclick="bedAct(\'pick\',\''+p.f+'\',\''+e(k)+'\',\''+sg+'\')"><span class="mu-t">'+e(p.t)+'</span><span class="mu-a">'+e(p.a||'')+'</span></button>'+rowLd(sg,p.f)+'</li>'; });   /* ★[SONG_ROW_PLAIN_1101 사장님 «제목 가수만 나오면 될 거 같아»] 곡 줄은 제목 · 가수(연주자)만 — «노래» · 판(src) · 분위기 한 줄(why)은 화면에서 뺐다(데이터는 bgm-picks.js 그대로 · 콘솔 설정 화면 그대로) · 가사 있는 곡 안내는 고른 뒤 아래 한 줄이 맡는다 */
     var none=emb()&&AV.st==='ok'&&!Object.keys(AV.set).length;   /* ★[BED_EMPTY_RELIST_1031 식순 걷기 3라운드 3] 들어 볼 곡이 하나도 없다고 받았으면 한 줄 + 다시 불러오기(입장 추천 곡과 같게) */

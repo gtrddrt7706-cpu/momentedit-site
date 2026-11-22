@@ -35,7 +35,7 @@ function run(mut) {
   const BO = /^(다음은|다음으로|자 그럼 이제|이제|먼저|이어서|이번에는|그럼)(\s|,|$)/, CL = /박수[^.!?]*(부탁|바랍니다|주시면|주십시오|주세요|맞아)/;
   let n = 0, nm = 0; const bad = {}; const add = (k, ex) => { bad[k] = bad[k] || { n: 0, ex }; bad[k].n++; };
   for (const ex of O.EXAMPLES) for (const mood of moods) for (const who of whos) for (const songBy of ['friend', 'self']) for (const vk of ['vow', 'thanks']) for (const letter of ['none', 'each', 'parent']) for (const a2 of extras) {
-    const S = { course: 'open' }; O.applyExample(S, ex.k); S.candleWho = who; S.songBy = songBy; S.vowKind = vk;
+    const S = { course: 'open' }; O.applyExample(S, ex.k); S.candleWho = who; S.songBy = songBy; if (vk === 'thanks') { S.on.welcome = 1; S.welcomeKind = 'thanks'; }   /* [THANKS_SWAP_1122] 감사문 = 감사 인사 자리의 판(옛 vowKind) */
     if (letter === 'none') delete S.on.letter; else { S.on.letter = 1; S.letter = letter; }
     a2.forEach((k) => { S.on[k] = 1; if (k === 'free') S.freeWhat = 'speech'; });
     const before = JSON.stringify(S);
@@ -53,7 +53,7 @@ function run(mut) {
       if (a.slug === 'bridge-b12-tribute-calm' && BO.test(b.text)) add('③ B12 뒤 이음말', tag);
       if (a.slug === 'bridge-b10-speech-clap' && CL.test(b.text)) add('③ B10 뒤 박수 청', tag);
       if (a.slug === 'narr-toast-out' && b.slug === 'narr-close' && !a.live) add('③ 축배 맺는 말 → 사진 안내(잔 내려놓기 없음)', tag);
-      if (/^bridge-/.test(a.slug) && /^bridge-/.test(b.slug) && a.slug !== 'bridge-b3-clap-thanks') add('③ 이음말 뒤 이음말', tag); }
+      if (/^bridge-/.test(a.slug) && /^bridge-/.test(b.slug) && a.slug !== 'bridge-b3-clap-thanks' && !(/^bridge-b9-declare-seat/.test(a.slug) && b.slug === 'bridge-b3-clap-thanks') /* ★[NARR_GO_1122 ④] 선언 박수 뒤 255 → 111 은 한 짝 */) add('③ 이음말 뒤 이음말', tag); }
     /* ★[REVIEW22_1018 검토 130] 멀리 떨어진 되풀이 — 다정 · 뭉클에 «위해(위한) … 준비» 두 줄 이상(덕담 받는 말 · 축사 · 축가 여는 말) ·
        선언 박수 → «박수, 고맙습니다» → «선언해 주신 분께서는, …» → 다시 박수 청(14초) */
     if ((mood === 'warm' || mood === 'moving') && cs.filter((c) => /위(해|한)[^.]*준비/.test(c.text || '')).length > 1) add('⑥ «위해 … 준비» 되풀이', tag);

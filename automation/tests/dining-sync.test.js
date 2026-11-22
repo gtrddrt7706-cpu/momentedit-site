@@ -7,7 +7,7 @@ const ROOT = path.join(__dirname, '..', '..');
 let pass = 0, fail = 0; const fails = [];
 function check(n, ok, d) { if (ok) { pass++; } else { fail++; fails.push(n + (d ? " → " + d : "")); console.log("  FAIL " + n + (d ? " → " + d : "")); } }
 
-// ① AI enum 추출 (애프터 웨딩 컨시어지는 after-concierge.js 단일 출처 · 2026-06-16 dining-match·GAS handleDiningMatch 폐기)
+// ① AI enum 추출 (예식 후 식사 컨시어지는 after-concierge.js 단일 출처 · 2026-06-16 dining-match·GAS handleDiningMatch 폐기)
 const srcs = [
   ['after-concierge.js', 'api/after-concierge.js', /FOODS\s*=\s*\[([^\]]*)\]/],
 ];

@@ -140,7 +140,7 @@
        하객은 «그래서 어디로 가나»를 모른 채 문을 나선다.
        ★코워크 표에는 87 로 적혀 왔다 — 저장소 87 은 이미 narr-toast-none 이다. **맨 끝(88)에 붙인다.**
        ★모일 곳을 고른 날만 나간다(S.meal). 조건은 하객 안내 페이지가 「여기로 모여요」를 띄우는 조건과 같다
-         (애프터 웨딩에서 실제 식당을 골랐나 · 위저드 자리표시 문구는 식당이 아니다). */
+         (예식 후 식사에서 실제 식당을 골랐나 · 위저드 자리표시 문구는 식당이 아니다). */
     'guide-meal',
     /* ★★[OPEN_COURSE 2026-09-25 설계 명세 1 · 7장] 새 코스의 새 줄 11개 — 번호 89~99. **맨 끝에 붙였다.**
        중간에 끼우면 앞 88개가 전부 개명된다(2026-08-11 에 실제로 당했다).
@@ -188,7 +188,7 @@
     /* ★★[MATJEOL_1011 2026-10-11 사장님 «입장 끝에 늘 넣기»] 132 — 입장 끝 맞절 한 줄. **맨 끝에 붙였다**(위 경고 그대로).
        원천 문안 assets/ritual-data.js NARR.entryBow · 녹음 전이라 텍스트 카드로 흐른다(녹음은 3단계) */
     'narr-entry-bow-ex2',   /* ★[BASE_SWAP_1023 검토 156] 132 = 이제 «잔잔하게» 칩(-ex2 · 153 의 EE A-2 글) · 기본 «격식 있게»는 160 */
-    /* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] 133 — 서약 대신 감사문을 고르면 여는 말. **맨 끝에 붙였다**(위 경고 그대로).
+    /* ★★[THANKS_IN_VOW 2026-10-11 → THANKS_SWAP_1122 2026-11-22] 133 — 감사문 여는 말(이제 감사 인사 자리의 감사문 판 · S.welcomeKind 'thanks'). **맨 끝에 붙였다**(위 경고 그대로).
        원천 문안 assets/ritual-data.js NARR.thanksIn · 녹음 전이라 텍스트 카드로 흐른다(녹음은 3단계) */
     'narr-thanks-in',
     /* ★★[DECLARE_BY_PERSON 2026-10-12 사장님 «성혼 선언은 나레이션이 하지 않을 거야 · 아버지나 친구 지인분이 하게만»] 134 · 135 · 136 — 누가 선언하는지 알리는 여는 말.
@@ -257,10 +257,10 @@
     'narr-declare-in-friend-ex3-gdad', 'narr-declare-in-friend-ex3-bdad', 'narr-declare-in-friend-ex3-gmom', 'narr-declare-in-friend-ex3-bmom', 'narr-declare-in-friend-ex4-gdad', 'narr-declare-in-friend-ex4-bdad', 'narr-declare-in-friend-ex4-gmom', 'narr-declare-in-friend-ex4-bmom',
     'bridge-b9-declare-seat-end-gdad', 'bridge-b9-declare-seat-end-bdad', 'bridge-b9-declare-seat-end-gmom', 'bridge-b9-declare-seat-end-bmom',
     /* ★★[CLOSING_LINE_1031 검토 178 사장님 19:41 «사진은 작가님 몫»] 287 ~ 291 — 닫는 인사 뒤 «마무리 멘트»(새 녹음 0 · 이미 녹음된 문장만 이어 붙임 · 원천 CLOSING_PARTS) ·
-       287 애프터 웨딩 없음 · 288 + 하객 안내 · 289 식사 · 카페는 있지만 조건이 빈 날 · 290 + 하객 안내 · 291 식사 있음(식사 자리 + 예약 시각 + 하객 안내) */
+       287 예식 후 식사 없음 · 288 + 하객 안내 · 289 식사 · 카페는 있지만 조건이 빈 날 · 290 + 하객 안내 · 291 식사 있음(식사 자리 + 예약 시각 + 하객 안내) */
     'narr-closing', 'narr-closing-guide', 'narr-closing-soft', 'narr-closing-soft-guide', 'narr-closing-meal',
     /* ★★[CLOSING_SRC_1031 검토 179 사장님 21:09] 292 ~ 296 — 닫는 멘트 칩 186 · 187(«진심으로 감사») 을 고른 날의 마무리 멘트 · 47#0 «… 다시 한 번 진심으로 감사드립니다»를 빼고 시작(감사 두 번 겹침) ·
-       287 ~ 291 과 같은 순서(애프터 웨딩 없음 · + 하객 안내 · 조건 빔 · + 하객 안내 · 식사 있음) · 새 녹음 0 */
+       287 ~ 291 과 같은 순서(예식 후 식사 없음 · + 하객 안내 · 조건 빔 · + 하객 안내 · 식사 있음) · 새 녹음 0 */
     'narr-closing-nt', 'narr-closing-guide-nt', 'narr-closing-soft-nt', 'narr-closing-soft-guide-nt', 'narr-closing-meal-nt',
     /* ★★[GUEST_WELCOME_191 검토 191 · 사장님 14:50 «하객 맞이를 좀 더 친절하게 — 식사 · 하객 안내로 사진 올리는 법 · 식순»] 297 ~ 316 — 새 코스 · 나레이션 판 하객 맞이(진희) ·
        문장 창고 방식(GUEST_PARTS · 한 문장 한 번 녹음 · 판마다 이어 붙임) · 297 · 298 입장 때(± 하객 안내) · 299 ~ 313 10분 전(본식 십 · 십오 · 이십 분 × 식사 경로 다섯) ·
@@ -293,7 +293,11 @@
     /* ★[NARR_ROLE_1115 2026-11-15 대본 · 릴스 방 교통정리 2차 확정 21문장] 358 ~ 378 — «누가» 줄(덕담 한 분 · 첫 분 · 축사 · 축가 · 두 분 직접) · 진행 우성 · 음성 방이 11/16 녹음해 넣는다(소리 오기 전엔 글로) */
     'bless-one-gf', 'bless-one-bf', 'bless-one-gm', 'bless-one-bm', 'bless-first-gf', 'bless-first-bf', 'bless-first-gm', 'bless-first-bm', 'speech-gfr', 'speech-bfr', 'speech-gfa', 'speech-bfa', 'speech-cfr', 'song-who-gfr', 'song-who-bfr', 'song-who-gfa', 'song-who-bfa', 'song-who-cfr', 'song-self-g', 'song-self-b', 'song-self-c',
     /* ★[ROLE_SHIP_1117 2026-11-17 대표님 «골랐어» · 대본 · 음성 방] 379 ~ 383 — 축사 · 축가를 안 고른 날 한 줄(5c · 11c) + 뒤 붙임 박수 한 줄 셋(A1 · B1 · C1 · 1.25초 사슬) · 366 ~ 378 은 새 멘트 글로 바뀜(옛 글은 소리 없이 쉬던 판) */
-    'speech-none', 'song-none', 'clap-speech', 'clap-song', 'clap-self'
+    'speech-none', 'song-none', 'clap-speech', 'clap-song', 'clap-self',
+    /* ★★[NARR_GO_1122 대표님 11/22 10:02 «나레이션 추천대로» · 대본 NARR_GO_1122] 384 · 385 — 새 소리 둘(받은 소리 그대로 · 높이 · 빠르기 손대지 않음)
+         384 = 13 에서 둘째 문장(«신랑 신부는 서로 마주 보고 서주시기 바랍니다.»)만 뺀 판(13#0 · #2 · #3 · 새 녹음 0 · 350 과 같은 길) — 맞절이 이미 «마주 보고 서 주십시오»(252)라고 한 날
+         385 = 온라인 날 개식(우성 · 첫 문장만 새 녹음 ONLINE_GREET_1119 후보 a · 둘째 · 셋째는 137 소리 그대로 · 첫 문장 뒤 쉼 137 과 같은 1.17초) */
+    'narr-vow-in-face', 'narr-open-online'
   ];
   var SLUG = {};
   for (var _i = 0; _i < FILES.length; _i++) SLUG[FILES[_i]] = _i + 1;
@@ -367,6 +371,9 @@
     /* ★[REVIEW30_1023 검토 154] 47 = U1 마지막 인사 + DD ⑦ 그대로 */
     'end-2-goodbye': '끝까지 함께해 주신 하객 여러분께 다시 한 번 진심으로 감사드립니다. 남은 하루 행복하게 보내세요.',
     'online-3-welcome': '화면으로 함께해 주신 여러분, 반갑고 고맙습니다.',   /* ★[FINAL_APPLY_1115 대표님 FINAL2 11/14 · 안내 = 문정] 48 = RX3_1114 m48a_t2 · 옛 글 «화면으로 함께해 주시는 여러분, 반갑습니다.» */   // ★[LISTEN_FIX_1031 검토 176 사장님 실청] «보고 계신 분들» → «함께해 주시는 여러분»
+    /* ★[NARR_GO_1122] 385 · 384 글 — 385 는 137 첫 문장만 «현장에 자리해 주신 하객분들과, 온라인으로 함께해 주시는 분들께»(ONLINE_GREET_1119 대표님 11/19 21:58 «추천대로» · 11/22 반영 승인) · 384 는 13 의 둘째 문장을 뺀 글(소리는 13 그대로 잘라 씀) */
+    'narr-open-online': '오늘 두 사람을 축복해 주시기 위하여 현장에 자리해 주신 하객분들과, 온라인으로 함께해 주시는 분들께 양가를 대표하여 감사의 말씀을 드립니다. 오늘 예식은 하객 여러분께서 증인이 되어 주시는, 주례 없는 결혼식으로 진행됩니다. 지금부터 신랑과 신부의 예식을 여러분의 박수로 시작하겠습니다!',
+    'narr-vow-in-face': '다음은 혼인 서약의 순서가 있겠습니다. 두 사람의 사랑의 서약을 함께 듣겠습니다. 신랑님, 혼인 서약을 읽어 주세요.',
     'bridge-4-wait-emotion': '잠시 이대로 두겠습니다. 이 시간도, 예식의 한 부분입니다.',
     'bridge-5-wait-setup': '다음 순서를 준비하고 있습니다. 끝나는 대로 이어 가겠습니다.',
     'bridge-6-resume': '기다려 주셔서 감사합니다. 이어서 진행하겠습니다.',
@@ -444,7 +451,7 @@
     'clap-song': "큰 박수로 모시겠습니다.",
     'clap-self': "뜨거운 응원의 박수 부탁드립니다.",
     'midvideo-out-story': "영상을 준비한 두 사람에게 따뜻한 박수 부탁드립니다.",   // [MID17_CLIPS_1107] ★[FINAL_APPLY_1115 대표님 FINAL2 11/14 · MIDV_1114/RX2_1114 새 녹음] 355 = v355n · 옛 글 «두 사람이 얼마나 정성스럽게 오늘을 준비했는지 알 수 있었던 시간이었습니다. 따뜻한 박수 부탁드립니다.»
-    'narr-thanks-in': D.NARR.thanksIn,   // [THANKS_IN_VOW]
+    'narr-thanks-in': D.NARR.thanksIn,   // [THANKS_SWAP_1122] 감사 인사 자리의 감사문 판
     'narr-declare-in-friend': D.NARR.declareIn   // [DECLARE_BY_PERSON] · [DECLARE_ANYONE] 여는 말은 하나(이름은 옛 판 그대로 · 134 · 135 는 RETIRED)
   };
   /* ★★[EX_MANY_1017] 나레이션 멘트 예시 2 ~ 4 의 글 — 원천은 ritual-open NAR_EX 하나(손으로 옮겨 적지 않는다 · narExClips 가 같은 글을 한 번만 낸다) ·
@@ -574,8 +581,27 @@
   Object.keys(GUEST_PARTS).forEach(function (k) { EXTRA[k] = GUEST_PARTS[k].map(function (x) { return x[1]; }).join(' '); });
   /* 본식 길이(5분 단위 · 녹음 판 십 · 십오 · 이십) — 테이블 인사 · 축배까지(닫는 인사 앞에 선다) · 넉넉 합의 가운데 · 6천 조합 실측 10 ~ 20(검토 191) */
   /* ★[K3_SHORT_1106] 예상 본식(넉넉 합 가운데 · guestMinOf 와 같은 자)이 10분 미만인가 — 그날은 «약 십 분간»(299 · 345)을 말하지 않는다 · 길이를 모르면(옛 판) 아니다 */
-  function guestShort(S) { var b = null; try { b = O.bodySec(S); } catch (e) { b = null; } return !!b && (b[0] + b[1]) / 2 < 600; }
-  function guestMinOf(S) { var b = null; try { b = O.bodySec(S); } catch (e) { b = null; } if (!b) return 15; var n = Math.round(((b[0] + b[1]) / 120) / 5) * 5; return Math.max(10, Math.min(20, n)); }
+  /* ★★[NARR_GO_1122 ② · 릴스 방 NARR_종합_1119 #2 · 대표님 11/22 «나레이션 추천대로»] 10분 전 «약 N 분»은 녹음 길이로 잰다 —
+       글로 잰 예상(bodySec · 음절 ÷ 300)은 실제 녹음보다 짧다(정석 23줄 합 약 25초) · 정석은 개식 ~ 폐식 동작 15분 + 나레이션 약 3분 = 약 19분인데 «약 십오 분»이라 했다.
+       이 식순의 실제 줄(build) 그대로 · 개식(narr-open) ~ 닫는 인사(narr-close-bow · 목례 박수까지) · 줄마다 녹음 길이(REC_SEC · 없으면 글로 잰 값) + 사람 순간(live.est) + 쉼(gapMs) ·
+       10분 미만 판(K3_SHORT_1106)도 같은 자로 · 새 코스가 아니거나(개식 없음) 셈이 안 되면 종전 bodySec 가운데 · 화면 시간(띠 · 계약 범위 RANGE)은 그대로 bodySec(이 셈은 10분 전 판 고르기에만) */
+  /* [REC_SEC_TABLE] 나레이션 파일 길이(초 · 소수 한 자리) — node scripts/rec-sec.mjs --write 가 쓴다 · scripts/audit/rec-sec.mjs 가 파일과 대조(손으로 고치지 않는다) */
+  var REC_SEC = {"01_guest-1-arrival":16,"02_guest-2-10min":9.9,"03_guest-3-5min":2.5,"04_guest-4-1min":10.2,"05_entry-A":19.8,"06_entry-B":39.5,"07_entry-C":25.1,"08_entry-D":35.4,"09_entry-E":35.4,"10_entry-F":18.1,"11_narr-welcome-in":4.9,"12_narr-welcome-out":3.4,"13_narr-vow-in":16.2,"14_narr-vow-out":4.2,"15_narr-ring-in":15.9,"16_narr-ring-out":4,"17_narr-valley-wine":7.9,"18_narr-valley-cake":6.4,"19_narr-song":3.8,"20_narr-letter-end":2.1,"21_narr-declare-family-intro":6.7,"22_narr-bless-open":8.4,"23_narr-bless-mid":6.5,"24_narr-bless-end":4.1,"25_narr-bless-end-long":5.4,"26_narr-close":10.8,"27_letter-parent":8.7,"28_letter-each":8.3,"29_letter-both":9.2,"30_declare-1-solemn":13.7,"31_declare-2-warm":11.5,"32_declare-family":9.4,"33_declare-ask-a":6.2,"34_declare-ask-b":16.5,"35_declare-ask-c":5.7,"36_ringwarm-family":16.7,"37_ringwarm-all":16.9,"38_tribute-in":4.4,"39_tribute-out":11.8,"40_toast-toast":10.7,"43_parents-letter":237.3,"44_end-0-photo":3.8,"45_end-1a-farewell":20.7,"46_end-1b-farewell-online":13.5,"47_end-2-goodbye":9,"48_online-3-welcome":3.8,"49_bridge-4-wait-emotion":5.1,"50_bridge-5-wait-setup":5.3,"51_bridge-6-resume":5.6,"52_narr-entry-out":5.8,"54_narr-valley-out":3.5,"55_narr-song-out":5.7,"56_narr-toast-out":2.4,"57_narr-declare-family-out":3.2,"58_narr-free-in":5.4,"59_narr-free-out":6.9,"60_narr-photo-split":2.2,"61_narr-round-open":12.1,"62_narr-online-in":8.5,"63_narr-final-warn":4.4,"64_narr-final-call":2.4,"65_narr-photo-out":5.1,"66_call-family-all":7,"67_call-parents":7,"68_fx-seatrow":4.1,"69_fx-vshape":3.9,"70_fx-clink":3,"71_fx-wave":4.2,"72_fx-surround":3.7,"73_fx-lean":3,"74_fx-clap":2.6,"75_fx-selfie":3.4,"78_fx-count":4.3,"79_narr-entry-out-B":4.6,"80_narr-entry-out-C":6.3,"81_narr-entry-out-D":8,"82_narr-entry-out-E":7.4,"83_narr-entry-out-F":6.7,"84_narr-photo-ask":8.7,"85_narr-photo-send":8.8,"86_narr-round-mid":10.7,"87_narr-toast-none":8,"88_guide-meal":8.7,"89_guest-4-1min-pre":10.2,"90_narr-prevideo-in":3.6,"91_narr-candle-in-mothers-ex2":35.3,"92_narr-candle-in-parents":16.9,"93_narr-candle-in-fathers":15.7,"94_narr-candle-in-others":12.8,"95_narr-candle-out":4.5,"96_declare-clap-a":9,"97_declare-clap-b":7.6,"98_toast-pour-mix":7.1,"99_toast-pour-family":4.8,"100_narr-free-in-video":2.9,"101_narr-free-in-stage":5.4,"102_narr-free-in-gift":3,"103_narr-free-in-speech":10.1,"104_narr-free-out-clap":2.7,"105_narr-free-fail":6.2,"106_tribute-bow-groom":6.1,"108_narr-close-bow":10.7,"109_fx-free":5,"110_end-1c-thanks-nomeal":19.3,"111_bridge-b3-clap-thanks":2.1,"112_bridge-b4-breath":3.8,"113_bridge-b5-video-out":2.3,"114_bridge-b6-lighter":3.5,"115_guest-ex2-1-arrival":14.6,"116_guest-ex2-2-10min":10.9,"117_guest-ex2-3-5min":2.9,"118_guest-ex2-4-1min":10,"119_guest-ex3-1-arrival":14.4,"120_guest-ex3-2-10min":9.1,"121_guest-ex3-3-5min":3.1,"122_guest-ex3-4-1min":7.2,"123_guest-ex4-1-arrival":13.9,"124_guest-ex4-2-10min":11.7,"125_guest-ex4-3-5min":2.5,"126_guest-ex4-4-1min":12,"127_narr-vow-in-b":16.2,"128_narr-prevideo-in-ex2":5.8,"129_narr-prevideo-in-ex3":7.6,"130_narr-prevideo-in-ex4":4.3,"131_narr-table-in":7.2,"132_narr-entry-bow-ex2":24,"133_narr-thanks-in":3.3,"136_narr-declare-in-friend":5.7,"137_narr-open":20.7,"138_narr-candle-bow":16,"139_narr-candle-bow-four":11.9,"140_narr-candle-out-formal":4.5,"141_narr-tribute-name":8,"142_narr-tribute-pair":7,"143_tribute-call":2.7,"144_narr-entry-arrive":6.6,"145_tribute-call-say":3.8,"146_narr-candle-bow-fathers":15.9,"147_narr-candle-bow-others":15.4,"148_narr-open-ex2":23.2,"149_narr-open-ex3":25.3,"150_narr-open-ex4":25.5,"151_narr-candle-in-mothers":15,"152_narr-candle-in-mothers-ex3":19.6,"153_narr-candle-in-mothers-ex4":38.7,"154_narr-candle-in-fathers-ex2":14.7,"155_narr-candle-in-fathers-ex3":19.4,"156_narr-candle-in-parents-ex2":12.6,"157_narr-candle-in-parents-ex3":14.8,"158_narr-candle-in-parents-ex4":25.5,"159_narr-candle-in-others-ex3":19.9,"160_narr-entry-bow":12.8,"161_narr-entry-bow-ex3":27.6,"162_narr-entry-bow-ex4":27.6,"163_narr-vow-in-ex2":15.5,"164_narr-vow-in-ex3":16.7,"165_narr-vow-in-ex4":16.9,"166_narr-vow-in-b-ex2":15.5,"167_narr-vow-in-b-ex3":16.7,"168_narr-vow-in-b-ex4":16.8,"169_narr-ring-in-ex2":17.9,"170_narr-ring-in-ex3":19.8,"171_narr-declare-family-out-ex2":7,"172_narr-bless-mid-ex2":7.7,"173_narr-bless-mid-ex3":14.3,"174_narr-free-in-speech-ex2":3.3,"175_narr-free-in-speech-ex3":4.1,"176_letter-each-ex2":10.2,"177_letter-each-ex3":10.8,"178_narr-letter-end-ex2":7.3,"179_narr-tribute-name-ex2":4.6,"180_narr-tribute-name-ex3":7.8,"181_narr-tribute-name-ex4":4.2,"182_tribute-in-ex3":4,"183_tribute-call-ex3":4.3,"184_tribute-out-ex4":12,"185_narr-close-bow-ex2":13.9,"186_narr-close-bow-ex3":21.4,"187_narr-close-bow-ex4":16.5,"188_toast-toast-ex2":9.9,"189_toast-toast-ex3":8.9,"190_narr-table-in-ex2":16.7,"191_narr-candle-in-fathers-ex4":22.5,"192_narr-candle-in-others-ex2":12.3,"193_narr-ring-in-ex4":21.6,"194_narr-bless-mid-ex4":4,"195_narr-bless-end-ex4":4.2,"196_narr-free-in-speech-ex4":5.1,"197_narr-declare-family-out-ex3":6.6,"198_narr-declare-family-out-ex4":8.4,"199_letter-each-ex4":14,"200_narr-letter-end-ex4":6.5,"202_narr-song-ex2":9,"203_narr-table-in-ex3":13.4,"204_narr-song-ex3":9.9,"205_narr-song-ex4":6.7,"206_narr-bless-end-ex3":6.3,"207_toast-toast-ex4":8.2,"208_narr-welcome-in-ex2":6.8,"209_narr-song-ex5":27.3,"210_narr-song-end":4.1,"211_narr-candle-out-ex2":4.4,"212_narr-candle-out-ex3":7.3,"213_narr-candle-out-ex4":2.5,"214_narr-welcome-in-ex3":28.8,"215_narr-welcome-in-ex4":8.7,"216_narr-ring-out-ex2":10.2,"217_narr-ring-out-ex3":11.8,"218_narr-declare-in-friend-ex2":10.6,"219_narr-close-ex2":10.4,"220_narr-close-ex3":13.5,"221_narr-close-ex4":11.2,"222_narr-table-in-ex4":12.3,"223_narr-table-in-ex5":10.5,"224_narr-candle-in-others-ex4":15,"225_narr-vow-out-ex2":3,"226_narr-vow-out-ex3":10.7,"227_narr-vow-out-ex4":5.7,"228_narr-thanks-in-ex2":20.4,"229_narr-thanks-in-ex3":8.9,"230_narr-declare-in-friend-ex3":11.1,"231_narr-declare-in-friend-ex4":8.8,"232_narr-bless-end-ex2":3.1,"233_letter-parent-ex2":8.6,"234_letter-parent-ex3":13.4,"235_letter-parent-ex4":3.4,"236_tribute-in-ex2":4.6,"237_tribute-in-ex4":4.1,"238_tribute-call-ex2":3.5,"239_tribute-call-ex4":11.4,"240_tribute-call-say-ex2":7.2,"241_tribute-call-say-ex3":8.2,"242_tribute-call-say-ex4":7.3,"243_bridge-b7-entry-ready":4.2,"244_bridge-b8-face-guests":4.5,"245_bridge-b9-declare-seat":5.1,"246_bridge-b10-speech-clap":3.2,"248_bridge-b12-tribute-calm":5.5,"249_bridge-b13-toast-stay":3.5,"250_narr-song-end-friend":3.6,"251_narr-open-ex5":24,"252_narr-entry-bow-ex5":13.7,"253_narr-ring-out-ex9":8.6,"254_narr-tribute-name-ex5":7.6,"255_bridge-b9-declare-seat-end":4.3,"256_tribute-hug":4.3,"257_narr-open-ex6":36.1,"258_narr-entry-bow-ex6":19.2,"259_narr-tribute-name-ex6":6.6,"260_narr-thanks-in-ex4":21.4,"261_narr-prevideo-out":4.3,"262_narr-photo-free":6.3,"263_bridge-b14-candle-name":6.3,"264_narr-photo-upload":6.9,"265_narr-photo-pre":18.6,"266_narr-photo-pre-meal":30.1,"267_narr-declare-in-friend-gdad":4.9,"268_narr-declare-in-friend-bdad":4.8,"269_narr-declare-in-friend-gmom":4.7,"270_narr-declare-in-friend-bmom":4.8,"271_narr-declare-in-friend-ex2-gdad":9.7,"272_narr-declare-in-friend-ex2-bdad":9.8,"273_narr-declare-in-friend-ex2-gmom":9.7,"274_narr-declare-in-friend-ex2-bmom":9.7,"275_narr-declare-in-friend-ex3-gdad":10.6,"276_narr-declare-in-friend-ex3-bdad":10.4,"277_narr-declare-in-friend-ex3-gmom":10.3,"278_narr-declare-in-friend-ex3-bmom":10.5,"279_narr-declare-in-friend-ex4-gdad":8,"280_narr-declare-in-friend-ex4-bdad":8.1,"281_narr-declare-in-friend-ex4-gmom":8,"282_narr-declare-in-friend-ex4-bmom":8,"283_bridge-b9-declare-seat-end-gdad":4.2,"284_bridge-b9-declare-seat-end-bdad":4.2,"285_bridge-b9-declare-seat-end-gmom":4.3,"286_bridge-b9-declare-seat-end-bmom":4.2,"287_narr-closing":14.6,"288_narr-closing-guide":21.1,"289_narr-closing-soft":13.8,"290_narr-closing-soft-guide":21,"291_narr-closing-meal":29.7,"292_narr-closing-nt":8.9,"293_narr-closing-guide-nt":15.5,"294_narr-closing-soft-nt":8.2,"295_narr-closing-soft-guide-nt":15.5,"296_narr-closing-meal-nt":24.2,"297_guest-w-arrival":12.2,"298_guest-w-arrival-guide":20.1,"299_guest-w-10m-n10":8.2,"300_guest-w-10m-n10-mgr":16.1,"301_guest-w-10m-n10-mg":15.5,"302_guest-w-10m-n10-mr":15.3,"303_guest-w-10m-n10-m":15,"304_guest-w-10m-n15":8.7,"305_guest-w-10m-n15-mgr":16.4,"306_guest-w-10m-n15-mg":15.8,"307_guest-w-10m-n15-mr":15.6,"308_guest-w-10m-n15-m":15.3,"309_guest-w-10m-n20":12.4,"310_guest-w-10m-n20-mgr":16.4,"311_guest-w-10m-n20-mg":15.8,"312_guest-w-10m-n20-mr":15.6,"313_guest-w-10m-n20-m":15.3,"314_guest-w-5m-online":8.3,"315_guest-w-1m":6.6,"316_guest-w-1m-online":7.4,"317_after-photo":21.1,"318_after-photo-guide":18.1,"319_after-photo-cafe":21.5,"320_after-photo-cafe-guide":15.7,"321_after-photo-resv-guide":20.8,"322_after-photo-resv":19.2,"323_after-photo-meal-guide":19.6,"324_after-photo-meal":23.7,"325_narr-closing-nt-nc":3.5,"326_narr-closing-guide-nt-nc":10.3,"327_narr-closing-soft-guide-nt-nc":10.3,"328_narr-closing-meal-nt-nc":19,"329_guest-w-5m-mgr":12.1,"330_guest-w-5m-mg":11.5,"331_guest-w-5m-mr":12.3,"332_guest-w-5m-m":12,"333_guest-w-5m-g":7.8,"334_guest-w-5m-mgr-online":17.1,"335_guest-w-5m-mg-online":16.5,"336_guest-w-5m-mr-online":17.3,"337_guest-w-5m-m-online":17,"338_guest-w-5m-g-online":12.8,"339_narr-closing-mealnr":18.2,"340_narr-closing-mealnr-nt":13.7,"341_narr-closing-mealnr-nt-nc":8.3,"342_narr-closing-mealr":22.9,"343_narr-closing-mealr-nt":17.2,"344_narr-closing-mealr-nt-nc":11.8,"345_guest-w-10m-n10-meal":12.6,"346_guest-w-10m-n15-meal":12.6,"347_guest-w-10m-n20-meal":16.4,"348_guest-w-10m-n10-short":7.3,"349_guest-w-10m-n10-short-meal":10.9,"350_narr-welcome-in-face":7.3,"351_midvideo-in-thanks":4.7,"352_midvideo-in-story":5.6,"353_midvideo-in-plain":4.1,"354_midvideo-out-thanks":6.7,"355_midvideo-out-story":4.6,"356_guest-w5-meal":9.1,"357_guest-w5-meal-online":15,"358_bless-one-gf":5.7,"359_bless-one-bf":6.1,"360_bless-one-gm":6.1,"361_bless-one-bm":5.8,"362_bless-first-gf":4.1,"363_bless-first-bf":4.2,"364_bless-first-gm":4,"365_bless-first-bm":4.4,"366_speech-gfr":4.7,"367_speech-bfr":4.4,"368_speech-gfa":4.8,"369_speech-bfa":4.6,"370_speech-cfr":4.8,"371_song-who-gfr":5.5,"372_song-who-bfr":5.2,"373_song-who-gfa":5.4,"374_song-who-bfa":5.4,"375_song-who-cfr":5.8,"376_song-self-g":3.9,"377_song-self-b":3.7,"378_song-self-c":3.3,"379_speech-none":5.3,"380_song-none":3.3,"381_clap-speech":3.3,"382_clap-song":2.4,"383_clap-self":2.9,"384_narr-vow-in-face":11.6,"385_narr-open-online":21.5};   // [REC_SEC_DATA]
+  var _recPass = 0, _recMemo = {}, _recN = 0;
+  function bodyRecSec(S) {
+    if (_recPass || !S || !(D.COURSES[S.course] && D.COURSES[S.course].open)) return null;
+    var key; try { key = JSON.stringify(S); } catch (e) { return null; }
+    if (Object.prototype.hasOwnProperty.call(_recMemo, key)) return _recMemo[key];
+    var r = null; _recPass = 1;
+    try { var cs = build(S, { mode: 'console' }).cues, i0 = -1, i1 = -1, t = 0;
+      for (var i = 0; i < cs.length; i++) { if (i0 < 0 && /^narr-open(-|$)/.test(cs[i].slug || '')) i0 = i; if (cs[i].slug === 'narr-close-bow') i1 = i; }
+      if (i0 > -1 && i1 >= i0) { for (var j = i0; j <= i1; j++) { var c = cs[j], f = String(c.file || '').replace(/\.mp3$/, ''); t += (REC_SEC[f] != null ? REC_SEC[f] : (c.est || 0)) + ((c.live && c.live.est) || 0) + (c.gapMs || 0) / 1000; } r = t; }
+    } catch (e) { r = null; } finally { _recPass = 0; }
+    if (++_recN > 64) { _recMemo = {}; _recN = 1; }
+    _recMemo[key] = r; return r; }
+  function _bodyMid(S) { var b = null; try { b = O.bodySec(S); } catch (e) { b = null; } return b ? (b[0] + b[1]) / 2 : null; }
+  function guestShort(S) { var r = bodyRecSec(S); if (r == null) r = _bodyMid(S); return r != null && r < 600; }
+  function guestMinOf(S) { var r = bodyRecSec(S); if (r == null) r = _bodyMid(S); if (r == null) return 15; var n = Math.round((r / 60) / 5) * 5; return Math.max(10, Math.min(20, n)); }
   /* 판 고르기 — i = 0 입장 때 · 1 10분 전 · 2 5분 전 · 3 1분 전 */
   function guestPick(S, i) { S = S || {}; var mF = !!(S.meal && S.mealFull);
     if (i === 0) return 'guest-w-arrival-guide';   /* [PHOTO_ALWAYS_NI02] 입장 때 사진 방법은 늘(298) — 297 은 새 코스에서 안 쓴다(소리는 남김) */
@@ -590,7 +616,7 @@
     if (S.meal) return 'after-photo-cafe';
     return 'after-photo'; }
 
-  /* 어느 판인가 — 식사 있음(266 이 서던 조건 그대로) · 식사 · 카페만(26 이 서던 자리) · 애프터 웨딩 없음(265 자리) · 하객 안내가 열린 날은 264 를 «여기서부터는 …» 앞에 */
+  /* 어느 판인가 — 식사 있음(266 이 서던 조건 그대로) · 식사 · 카페만(26 이 서던 자리) · 예식 후 식사 없음(265 자리) · 하객 안내가 열린 날은 264 를 «여기서부터는 …» 앞에 */
   /* ★[CLOSING_SRC_1031 검토 179] 닫는 멘트 칩 186 · 187(«진심으로 감사»)을 고른 날은 «-nt»(47#0 없이) — 108 · 185 를 고른 날은 그대로 */
   var CLOSE_THANKS_EX = { 'narr-close-bow-ex3': 1, 'narr-close-bow-ex4': 1 };
   function closingOf(S) { S = S || {}; var b = 'narr-closing';   /* ★[NARR_FIX_1115_1 대표님 11/15 12:09 «추천대로» · 12:24 «줄인 판으로(추천)» · EARLY_EAT_OWNER_1115 · CAFE_OPEN_OWNER_1115 · MEAL_SHORT_OWNER_1115 · 결정 기록 docs 저장소 runbook/결정기록_식사안내_1115.md] 식사 날도 식사 없는 판(287 · 292 · 325) — 식사 · 인사는 촬영 후 안내(324) 한 곳 · 옛 «식사 날 × 예약 시각» 판(339 ~ 344 · INFO_SPLIT_200 · FINAL_APPLY_1115 마무리 식사 줄)은 쉰다(글 · 소리 그대로) */   /* ★[INFO_SPLIT_200] 식사 날(식사 자리) × 예약 시각 · 하객 안내 갈래 없음 · 카페 · 다과만은 식사 없는 판 */
@@ -669,6 +695,8 @@
     var _dt0 = (S.declTitle || S.declareWho) && O.declTitleOf ? O.declTitleOf(S) : ''; if (_dt0) s.declTitle = _dt0; else delete s.declTitle;
     if (S.declBless === 'yes' || S.declBless === 'no') { s.declBless = S.declBless; s.declBlessKey = String(S.declBlessKey || ''); } else { delete s.declBless; delete s.declBlessKey; }
     if (S.tribHug === 'off') s.tribHug = 'off'; else delete s.tribHug;
+    if (O.thanksMigrate) O.thanksMigrate(s); else { delete s.vowKind; }   /* ★★[THANKS_SWAP_1122 2026-11-22 사장님 «추천대로»] 서약 카드 «무엇을 읽나요»(vowKind)는 걷었다 — 옛 초안의 감사문(vowKind 'thanks' · 서약 담음)은 감사 인사 자리의 감사문 판(welcomeKind 'thanks')으로 옮긴다(원천 ritual-open thanksMigrate · on · tx 는 새 사본) */
+    delete s.vowFirst;   /* ★★[VOW_GROOM_FIRST_1122 2026-11-22 사장님 «먼저 읽는 분은 신랑으로 고정»] 서약 · 감사문은 늘 신랑부터 — 옛 저장분 «신부부터»('b')도 여기서 지운다 · 'b' 갈래(127 · 166 ~ 168)는 이제 안 난다 */
     s.declareWho = O.declBy(s);   // ★[DECLARE_ANYONE 2026-10-12] 두 분이 적은 글(다듬어 30자) · 옛 gdad · bdad = 그 이름 · 옛 friend · narr · family · ask · chorus · clap = «아직 안 정함»('')
     if (!D.LETTER[s.letter]) s.letter = cd.letter;
     if (!s.extra) s.extra = {};
@@ -1198,6 +1226,23 @@
     },
 
     welcome: function (S) {
+      /* ★★[THANKS_SWAP_1122 2026-11-22 사장님 «추천대로»] 감사 인사 ↔ 감사문 둘 중 하나 — S.welcomeKind 'thanks' = 감사문(옛 서약 카드 감사문 큐를 이 자리로 옮겼다 · 옛 THANKS_IN_VOW).
+         여는 말 133 → 두 분이 하객 쪽을 본 채 신랑 먼저, 신부 다음으로 읽고([VOW_GROOM_FIRST_1122] · 번갈아 판 없음) 마지막 한 문장(THANKSBOTH)은 함께 · 맺는 말 없음.
+         맞절 바로 뒤라 옛 «감사 인사를 끈 날의 감사문»과 같은 이음(맞절 → 244 하객 쪽으로 → 133 · 디렉터 GO).
+         ★live.t 는 ritual-story.js 의 LIVE 키다(한 글자만 달라도 장면 안내가 끊긴다 · 같은 커밋에서 함께) */
+      if (S.welcomeKind === 'thanks') {
+        var tKey = '하객 쪽을 보고 신랑 먼저, 신부 다음으로 감사문 낭독 · 마지막 한 문장은 함께';
+        return [cue({
+          k: 'welcome', blockN: '감사문', slug: 'narr-thanks-in', name: '감사문 시작', text: D.NARR.thanksIn,
+          live: {
+            t: tKey, est: txSec(S, 'welcome', 70), self: true, doing: 'say', peak: true, duck: PARAM.duckRead,   // [BGM_FIX_1030] M4 사람 구간 −20
+            first: 'g', tv: tKey,
+            both: D.THANKSBOTH, hintNext: '마지막 한 문장을 함께 읽고 나면',   // 맺는 말이 없어 다음 순간이 디렉터 GO 로 연다
+            waitClipAt: PARAM.read.waitClipAt, handoffAt: PARAM.read.partnerHandoffAt,
+            fallback: '멈추면 소리 없이 기다린다 · 30초 넘으면 감사문을 배우자에게 건네 이어 읽기 · 마지막 한 문장이 어긋나면 신부가 반 박자 먼저'   // ★[VOW_FB_WORDS_R7_1016 라운드 7] «마지막 합창» → «마지막 한 문장»
+          }
+        })];
+      }
       var n = D.NARR.welcome;
       var _wf = function (a) { var c = a[0]; if (c && c.slug === 'narr-welcome-in') { c.ex = 'narr-welcome-in-face'; c.no = noOf(c.ex); c.file = fileOf(c.ex); } return a; };   // [SEAM_WORD_1107 J06] 기본 소리 = 350(예시 칩을 고르면 build 끝의 narExCue 가 덮는다)
       return _wf([
@@ -1224,25 +1269,7 @@
          norm() 이 s.vow='off' 로 만들어 주는데, 여기서 안 보면 그 결정이 조용히 무시된다.
          (ring 은 원래부터 S.ring 을 본다 — 같은 규칙을 vow 에도 둔다) */
       if (S.vow !== 'ok') return [];
-      /* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] S.vowKind — 'vow'(기본 · 서약) | 'thanks'(감사문).
-         감사문이면 여는 말 133 → 두 분이 하객 쪽을 본 채 읽고(읽는 방식 · 먼저 읽는 분은 서약과 같은 칩) 마지막 한 문장(THANKSBOTH)은 함께.
-         맺는 말(«약속은 말로 끝나지 않습니다»)은 서약의 말이라 싣지 않는다 — 두 분의 «감사합니다»가 맺고, 다음 순간은 종전대로 이어진다.
-         ★live.t 는 ritual-story.js 의 LIVE 키다(한 글자만 달라도 장면 안내가 끊긴다 · 같은 커밋에서 함께). 모르는 값은 서약 */
-      if (S.vowKind === 'thanks') {
-        var tEach = S.vowHow === 'each', tB = S.vowFirst === 'b';
-        var tKey = tEach ? '하객 쪽을 보고 신랑 먼저, 신부 다음으로 감사문 낭독 · 마지막 한 문장은 함께' : '하객 쪽을 보고 두 분이 한 줄씩 번갈아 감사문 낭독 · 마지막 한 문장은 함께';
-        return [cue({
-          k: 'vow', blockN: '감사문', slug: 'narr-thanks-in', name: '감사문 시작', text: D.NARR.thanksIn,
-          live: {
-            t: tKey, est: txSec(S, 'vow', 70), self: true, doing: 'say', peak: true, duck: PARAM.duckRead,   // [BGM_FIX_1030] M4 사람 구간 −20
-            first: tB ? 'b' : 'g',
-            tv: tEach ? (tB ? '하객 쪽을 보고 신부 먼저, 신랑 다음으로 감사문 낭독 · 마지막 한 문장은 함께' : tKey) : (tB ? '하객 쪽을 보고 두 분이 한 줄씩 번갈아 감사문 낭독(신부부터) · 마지막 한 문장은 함께' : tKey),
-            both: D.THANKSBOTH, hintNext: '마지막 한 문장을 함께 읽고 나면',   // 맺는 말이 없어 다음 순간이 디렉터 GO 로 연다
-            waitClipAt: PARAM.read.waitClipAt, handoffAt: PARAM.read.partnerHandoffAt,
-            fallback: '멈추면 소리 없이 기다린다 · 30초 넘으면 감사문을 배우자에게 건네 이어 읽기 · 마지막 한 문장이 어긋나면 신부가 반 박자 먼저'   // ★[VOW_FB_WORDS_R7_1016 라운드 7] «마지막 합창» → «마지막 한 문장»(같은 화면 제목 · 감사문 판과 같은 말)
-          }
-        })];
-      }
+      /* ★«서약 카드 안 감사문»(S.vowKind 'thanks' 갈래) 금지 — 2026-11-22 사용자 지시로 삭제 [THANKS_SWAP_1122] · 서약 카드는 늘 서약 · 감사문은 감사 인사 자리(welcome · S.welcomeKind 'thanks')로 옮겼다 */
       var n = D.NARR.vow;
       return [
         cue({
@@ -1620,6 +1647,12 @@
         out.unshift(cue({ k: 'tribute', blockN: '부모님 헌정', slug: pairT ? 'narr-tribute-pair' : 'narr-tribute-name', name: '부모님께 인사 시작',
           text: EXTRA[pairT ? 'narr-tribute-pair' : 'narr-tribute-name'], pick: out[0].pick }));
         out[1].pick = '';
+        /* ★★[TRIBUTE_GO_1122 대표님 11/22 15:50 «E가 좋은 거 같은데» · 대본 TRIBUTE_GO_1122] 부모님께 인사 장면 «규칙 판» —
+             ② 걸어가는 말 기본 소리 38(«… 이동하겠습니다.») → 236(«… 이동해 주시기 바랍니다.» · 자료 WW1 · 예시 «담백하게»와 같은 소리) — 두 분께 청하는 말이 맞다 ·
+             예시 칩을 고르면 build 끝의 narExCue 가 덮는다(칩 3 · 4 는 그 칩 글 · 칩 5 · 6 은 걸어가는 말이 없어 이 기본) · 옛 코스는 38 그대로 ·
+             ③ 쉼 — 이름 줄(141 · 짝 줄 142 · 칩 판도 같은 자리) 뒤 1.0 → 1.7초(말끝 → 말머리 · 시범 판 pilot_1122 n141e) · 248 뒤 1.2초는 아래 B12 자리 */
+        out[1].ex = 'tribute-in-ex2'; out[1].no = noOf('tribute-in-ex2'); out[1].file = fileOf('tribute-in-ex2'); if (out[1].est === sylSec(out[1].text)) out[1].est = sylSec(EXTRA['tribute-in-ex2']); out[1].text = EXTRA['tribute-in-ex2'];
+        out[1].gapMs = 1700;
         out.splice(2, 0, cue({ k: 'tribute', blockN: '부모님 헌정', slug: sayT ? 'tribute-call-say' : 'tribute-call', name: '인사 구호', text: EXTRA[sayT ? 'tribute-call-say' : 'tribute-call'], duck: -12,   // ★[TRIB_CALL_SAY_1014] 말로 인사 날은 «그 마음을 담아,»로 두 분 말을 받아 구호(145)
           hint: sayT ? '인사말이 끝나면' : '두 분이 부모님 앞에 서면', live: act }));
         /* ★[TRIB_HUG_CALL_1018 검토 124] 구호 뒤 포옹을 소리로 청한다 — 그 전엔 콘솔만 «포옹이 끝나면»을 기다리고 아무도 포옹을 청하지 않아, 두 분은 서 있고 부모님은 앉아 계신 몇 초가 생겼다.
@@ -1743,11 +1776,14 @@
       if (k === 'prevideo' && seq.indexOf('guest') > -1) return;
       var got = BUILD[k](S, seq) || [];   // [OPEN_COURSE] guest 가 seq 를 본다(04 판)
       for (var i = 0; i < got.length; i++) cues.push(got[i]);
+      /* ★[STREAM_AT_5_N20_19 2026-11-19 · 대표님 승인 11/19 17:18 «추천대로» · #19 보고 1(가)] 온라인 날 5분 전 안내(314 · 357)부터 온라인 하객에게 하는 말이 나온다(1분 전 316 · 환영 48 도 예식 전) —
+           디렉터 카드에 «송출을 먼저 켠다» 한 줄 · 소리 · 글 · 시각은 그대로 · 하객 화면 글(live.html «예식 5분 전부터»)과 운영 기획안 H-5 를 같은 PR 에서 맞춘다 */
+      if (k === 'guest' && S.digital) for (var si = 0; si < got.length; si++) { if (/^guest-w(-5m|5-meal)-online$/.test(got[si].slug || '') && !got[si].hint) got[si].hint = '온라인 날 · 이 안내 전에 송출 켜기'; }
       // 하객 맞이 뒤에는 식전 고정 클립 2개가 붙는다(코스와 무관)
       if (k === 'guest') {
         if (S.digital) cues.push(cue({
           k: 'guest', blockN: '식전 안내', slug: 'online-3-welcome', name: '온라인 참석자 환영',
-          text: EXTRA['online-3-welcome'], note: 'Couples 시트 digitalAttendance = Y인 날만'
+          text: EXTRA['online-3-welcome'], note: 'Couples 시트 digitalAttendance = Y인 날만'   /* ★[NARR_GO_48GAP_1122] 316 → 48 쉼은 콘솔 기본 2초(말끝 → 말머리 · 라이브 실측 11/19 0.88 + 앞뒤 무음 = 약 2.0초) 그대로 — gapMs 0 은 «0초»가 아니라 «기본 2초»다 · NARR_종합 #1 «0초로 붙음»은 이 값을 0초로 읽은 것(11/22 라이브에서 1초로 줄인 것을 되돌림) · 기본 개식 온라인 날은 385 가 인사해 이 줄이 빠진다 */
         }));
         if (askOn) cues.push(askCue());
         /* ★★[OPEN_DECL_1014] 개식 선언(137) — 새 코스에 늘 · 예식 시작 시각(청첩장 시각)에 · 하객 맞이 끝(1분 전 · 사진 부탁 · 식전 안내 클립 뒤) → 식전 영상 · 화촉 · 입장 앞(원고 7장 8).
@@ -1805,18 +1841,19 @@
         /* ★[B2_FIX_NA_35 2026-11-06 재검증 재수정] 축사 → 축가는 축가 여는 말이 박수를 청해도(«따뜻하게» · «다정하게») 246 «축사해 주신 분께 박수 부탁드립니다.» + 박수를 먼저 —
              여는 말의 박수는 축가 몫이라 축사하신 분 박수가 빠졌다 · 기존 녹음 246 · 그 밖의 다음 순간은 ⑤ 그대로(바로 뒤 줄이 박수를 청하면 뺀다) */
         if (bc.k === 'free' && O.FREE_KIND[S.freeWhat] === 'speech' && (bn.k === 'song' || !CLAP_ASK.test(_nxT))) _more.push('bridge-b10-speech-clap');
-        if (bc.k === 'matjeol' && (bn.k === 'welcome' || (bn.k === 'vow' && S.vowKind === 'thanks')) && _nxT.indexOf('향해 서') < 0 && !(bn.k === 'welcome' && O.narExCue && O.narExCue(S, bn.slug) === 'narr-welcome-in-ex2')) _more.push('bridge-b8-face-guests');   /* ★[SEAM_WORD_1107 b 대본 11/07] 감사 인사 예시 208(«이제 신랑 신부가 … 하객 여러분께») 앞에도 244 를 붙이지 않는다 — «이제 신랑 신부 · 하객 여러분»이 연달아 겹친다 · 돌아서기는 디렉터 힌트 «맞절을 마치면» · 214 는 그대로 */   // ★[REVIEW26_1023 검토 150-2 8)] ① 은 «글 안에 ‹향해 서›가 있을 때만» 뺀다(«이제»로 열어도 돌아서라는 말이 없으면 선다) · 맞절 → 감사문(감사 인사 끈 날)에도
+        if (bc.k === 'matjeol' && bn.k === 'welcome' && _nxT.indexOf('향해 서') < 0 && !(bn.k === 'welcome' && O.narExCue && O.narExCue(S, bn.slug) === 'narr-welcome-in-ex2')) _more.push('bridge-b8-face-guests');   /* ★[SEAM_WORD_1107 b 대본 11/07] 감사 인사 예시 208(«이제 신랑 신부가 … 하객 여러분께») 앞에도 244 를 붙이지 않는다 — «이제 신랑 신부 · 하객 여러분»이 연달아 겹친다 · 돌아서기는 디렉터 힌트 «맞절을 마치면» · 214 는 그대로 */   // ★[REVIEW26_1023 검토 150-2 8)] ① 은 «글 안에 ‹향해 서›가 있을 때만» 뺀다(«이제»로 열어도 돌아서라는 말이 없으면 선다) · 맞절 → 감사문(감사 인사 끈 날)에도
         if (bc.k === 'song' && bn.k === 'tribute' && !BRIDGE_OPEN.test(_nxT) && !(O.narExCue && bn.slug && O.narExCue(S, bn.slug) === 'narr-tribute-name-ex6')) _more.push('bridge-b12-tribute-calm');   // ★[REVIEW26_1023 검토 150-2 4)] 인사 «밝게»(259 «… 눈물보다는 기쁨으로 …»)는 B12 «… 경건한 시간»과 부딪친다
         if (bn.k === 'entry' && ['E', 'F'].indexOf(String(S.entry || 'A').toUpperCase()) < 0) _more.push('bridge-b7-entry-ready');   /* ★[SEAM_WORD_1107 c 대본 18:40] 입장 F(«드디어 오늘 결혼식의 주인공이 …»)도 243(«오늘의 주인공들을 …») 겹침 — E 와 같이 뺀다 · A ~ D 그대로 */
         /* ★★[CANDLE_NAME_1019 검토 139-1 · 사장님 10/19 17:28 «영상이 끝나고 바로 화촉 멘트가 나오면 어색하다»] B14 화촉 앞 «이어서, 화촉 점화가 있겠습니다.» —
              하객은 무슨 순서가 시작되는지 모른 채 긴 헌사를 들었다 · 순서 이름을 한 번(자료 G1 52 · G3 43 «명시적 식순명을 고지» · T2 40~56 · NN 54~70 · WW6 · WW11) ·
              서는 분과 상관없이 한 소리(누가 서는지는 바로 뒤 여는 말이 말한다) · 영상이 없는 날(개식 → 화촉)도 같은 자리 ·
              고른 화촉 멘트가 순서를 알리며 열면(«이제 …» · «먼저 …» · «그럼 먼저, …») BRIDGE_SKIP_1018 대로 안 끼운다 */
-        if (bn.k === 'candle' && bc.k !== 'candle' && !BRIDGE_OPEN.test(_nxT) && !/촛불|화촉/.test(String(_nxT).split(/[.!?]/)[0])) _more.push('bridge-b14-candle-name');   /* ★[B14_SKIP_CANDLE_1023 검토 152 엔진 2)] 고른 화촉 여는 말 첫 문장이 «촛불 · 화촉»을 이미 말하면 B14 를 끼우지 않는다(5초 안 «촛불» 두 번 · «밝히» 세 번) */
-        _bl.push(bc);
-        if (slugB) _bl.push(cue({ k: bc.k, blockN: bc.blockN, slug: slugB, name: '이음말 · ' + ({ 'bridge-b3-clap-thanks': '박수 뒤', 'bridge-b4-breath': '숨 고르기', 'bridge-b5-video-out': '영상 끝', 'bridge-b6-lighter': '가벼운 순서로' })[slugB],
-          text: EXTRA[slugB], duck: slugB === 'bridge-b3-clap-thanks' ? PARAM.duckSpeech : PARAM.duckMusic, note: '이음말 · 다음 순간이 무엇이든 맞는 한 줄(BRIDGE_LINK)' }));   /* ★[MEANING_R1_1102 5] 선언 박수 뒤 나레이션 −16(박수 −8 → 0.8초 미리 낮춤) */
-        _more.forEach(function (sm) {
+        /* ★[NARR_GO_1122 ⑤ · 릴스 방 NARR_종합_1119 #5 · 대표님 11/22 «나레이션 추천대로»] 식전 영상 바로 뒤에는 263 «먼저 …»을 끼우지 않는다 — 이미 순서가 지났는데 «먼저» ·
+             고른 화촉 여는 말이 글 안에서 «화촉 · 촛불»을 스스로 말할 때만(가족 91 «양가 어머님께서 화촉에 불을 밝히실 때») · 영상 받는 말 뒤 3초는 여는 말이 진다 · 개식 바로 뒤(영상 없는 날)는 종전대로 263 */
+        var _b14Self = bc.k === 'prevideo' && /촛불|화촉/.test(String(_nxT));
+        if (bn.k === 'candle' && bc.k !== 'candle' && _b14Self && !bn.gapMs) bn.gapMs = 3000;
+        if (bn.k === 'candle' && bc.k !== 'candle' && !_b14Self && !BRIDGE_OPEN.test(_nxT) && !/촛불|화촉/.test(String(_nxT).split(/[.!?]/)[0])) _more.push('bridge-b14-candle-name');   /* ★[B14_SKIP_CANDLE_1023 검토 152 엔진 2)] 고른 화촉 여는 말 첫 문장이 «촛불 · 화촉»을 이미 말하면 B14 를 끼우지 않는다(5초 안 «촛불» 두 번 · «밝히» 세 번) */
+        var pushMore = function (sm) {
           var _pre = sm === 'bridge-b8-face-guests' || sm === 'bridge-b12-tribute-calm' || sm === 'bridge-b14-candle-name', _at = _pre ? bn : bc;   // 다음 순간 앞에 서는 줄은 그 순간 몫(순간 쪽 · 미리 듣기 자르기가 그 순간에서 들린다) · B7 은 앞 순간 몫 — 입장 첫 줄은 디렉터가 손으로 낸다(CUE_FIRE_RULE · 신부 준비 완료 뒤)
           _bl.push(cue({ k: _at.k, blockN: _at.blockN, slug: sm, name: '이음말 · ' + ({ 'bridge-b7-entry-ready': '입장 앞', 'bridge-b8-face-guests': '하객 쪽으로', 'bridge-b9-declare-seat': '읽은 분 자리로', 'bridge-b9-declare-seat-end': '읽은 분 자리로',
               'bridge-b10-speech-clap': '축사 박수', 'bridge-b12-tribute-calm': '경건하게', 'bridge-b14-candle-name': '화촉 순서 알림' })[sm],
@@ -1824,7 +1861,15 @@
             fire: sm === 'bridge-b7-entry-ready' ? 'manual' : '', hint: sm === 'bridge-b7-entry-ready' ? '신부 준비 완료 · 문 앞 대기 확인 후(이 줄 뒤 입장 멘트는 문이 열릴 때 한 번 더 GO)' : '',   // ★[CUE_FIRE_RULE] 입장 앞은 엔진이 손으로 내는 자리 — 입장 멘트와 같은 대기
             gapMs: (sm === 'bridge-b14-candle-name' && bc.k === 'prevideo') ? 3000 : undefined,   /* [CANDLE_NAME_1019] 영상 받는 말(261) 뒤 3초(화제가 바뀌는 자리 · G2 5-2 · 영상 끝 조명이 오르는 사이 RR 115) · 개식 바로 뒤면 아래 OPEN_GAP 이 정한다 · 이음말 → 여는 말은 사슬 그대로 */
             live: sm === 'bridge-b10-speech-clap' ? clapUp(applause('하객 박수 · 축사해 주신 분께', PARAM.declare.applauseMs / 1000)) : null }));   // ★[CLAP_GO] 박수를 청하니 다음 줄은 디렉터 GO
-        });
+        };
+        _bl.push(bc);
+        /* ★[NARR_GO_1122 ④ · 릴스 방 NARR_종합_1119 #4 · 대표님 11/22 «나레이션 추천대로»] 성혼 선언 박수 뒤 — 255 «선언해 주신 분께서는 자리로 …»를 먼저, 111 «정말 고맙습니다»를 뒤에(순서만 · 소리 그대로) ·
+             «정말 고맙습니다»가 먼저 나오면 누구에게 고맙다는지 첫 귀에 모른다 · 자리로 안내 → 그분께 감사 · 호칭 판(283 ~ 286)도 같은 자리 · 디렉터 GO(자리로 돌아가면)는 그대로 다음 순간이 진다 */
+        var _seatFirst = slugB === 'bridge-b3-clap-thanks' && _more[0] === 'bridge-b9-declare-seat-end';
+        if (_seatFirst) { _more.shift(); pushMore('bridge-b9-declare-seat-end'); }
+        if (slugB) _bl.push(cue({ k: bc.k, blockN: bc.blockN, slug: slugB, name: '이음말 · ' + ({ 'bridge-b3-clap-thanks': '박수 뒤', 'bridge-b4-breath': '숨 고르기', 'bridge-b5-video-out': '영상 끝', 'bridge-b6-lighter': '가벼운 순서로' })[slugB],
+          text: EXTRA[slugB], duck: slugB === 'bridge-b3-clap-thanks' ? PARAM.duckSpeech : PARAM.duckMusic, note: '이음말 · 다음 순간이 무엇이든 맞는 한 줄(BRIDGE_LINK)' }));   /* ★[MEANING_R1_1102 5] 선언 박수 뒤 나레이션 −16(박수 −8 → 0.8초 미리 낮춤) */
+        _more.forEach(pushMore);
       }
       cues = _bl;
     }
@@ -1844,7 +1889,7 @@
       if (_cLast.k === 'free' && O.FREE_KIND[S.freeWhat] === 'speech') _cSeam = 'bridge-b10-speech-clap';
       else if (_cLast.k === 'declare' && _cLast.live && _cLast.live.applause) _cSeam = 'bridge-b9-declare-seat-end';   // [REVIEW13_1018 검토 112] 닫는 판(남은 순서 없음)
       /* ★[REVIEW26_1023 검토 150-1 5)] 마지막 순간이 서약(감사문 아님) · 편지(서로에게) · 반지인 날 — 두 분이 마주 본 채 108 «… 하객 여러분께 인사!»가 사슬로 2 ~ 4.5초 만에 나갔다 → B8 244 «… 하객 여러분을 향해 서시겠습니다.» 뒤 108 은 디렉터 GO */
-      else if (((_cLast.k === 'vow' && S.vowKind !== 'thanks') || (_cLast.k === 'letter' && S.letter === 'each') || _cLast.k === 'ring') && !O.onOf(S, 'table')) _cSeam = 'bridge-b8-face-guests';   /* ★[SEAM_WORD_1107 c 대본 18:40] 테이블 인사가 다음이면 244 를 빼다(곧 테이블로 걸어간다 · ex3 «하객 여러분을 직접 찾아뵙고»와 겹침) · 닫는 인사 · 축배 앞 244 는 그대로 */
+      else if ((_cLast.k === 'vow' || (_cLast.k === 'letter' && S.letter === 'each') || _cLast.k === 'ring') && !O.onOf(S, 'table')) _cSeam = 'bridge-b8-face-guests';   /* ★[SEAM_WORD_1107 c 대본 18:40] 테이블 인사가 다음이면 244 를 빼다(곧 테이블로 걸어간다 · ex3 «하객 여러분을 직접 찾아뵙고»와 겹침) · 닫는 인사 · 축배 앞 244 는 그대로 */
       if (_cSeam) cues.push(cue({ k: _cLast.k, blockN: _cLast.blockN, slug: _cSeam, name: '이음말 · ' + (_cSeam === 'bridge-b9-declare-seat-end' ? '읽은 분 자리로' : _cSeam === 'bridge-b8-face-guests' ? '하객 쪽으로' : '축사 박수'),
         text: EXTRA[_cSeam], duck: _cSeam === 'bridge-b10-speech-clap' ? (bgmBed(S, 'S5') ? PARAM.duckSpeech : PARAM.duckOff) : PARAM.duckSpeech, note: '이음말 · 마지막 순간 → 닫는 인사(CLOSE_SEAM_1018)',   /* ★[MEANING_R1_1102 4 · 5 · 7] 나레이션 −16 · 축사 «음악 없이»면 부탁 문장 정적 · 박수부터 −8 */
         live: _cSeam === 'bridge-b10-speech-clap' ? applause('하객 박수 · 축사해 주신 분께', PARAM.declare.applauseMs / 1000) : null }));   // ★[CLAP_GO] 박수를 청하니 다음 줄은 디렉터 GO
@@ -1885,13 +1930,13 @@
       note: '★[MIC_ROUTE] 두 분 마이크를 라이브로만 (현장 스피커 내림) · 끝나면 라이브 종료 + 마이크 off · 이후는 현장만',
       live: { t: '온라인 인사 2분 → 라이브 종료 · 마이크 off', est: 120, self: true, doing: 'say', duck: -20 }
     }));
-    /* ★★[END_FLOW_1030 검토 167] 사진 전 안내(새 녹음 · 한 클립 두 판) — 식사 있음(애프터 웨딩 식사 · 하객 안내가 있는 날) · 식사 없음(그 밖 · 카페만 포함).
+    /* ★★[END_FLOW_1030 검토 167] 사진 전 안내(새 녹음 · 한 클립 두 판) — 식사 있음(예식 후 식사 · 하객 안내가 있는 날) · 식사 없음(그 밖 · 카페만 포함).
          새 코스에서 26(narr-close)을 대신한다 · [PAUSE_PREF_1030] 10/30 녹음으로 소리 클립 · 사람 구간(모임 + 전체 하객 · 꼭 담고 싶은 사진)은 26 이 하던 그대로 */
     /* 식사는 있는데 하객 안내가 없는 날은 «모바일 청첩장의 하객 안내»도 «편히 귀가»도 틀린 말이라 26(옛 사진 안내 · 녹음 있음)으로 지난다 */
     /* ★[PHOTO_PRE_PICK_1030 PAUSE_PREF_1030 · 대본 섹션 10/30 14:22] 266 은 «식사는 안내된 예약 시간에»라고 말한다 — 식사 자리(카페 · 다과만 아님 · mealFull) + 예약 시각(resv) + 하객 안내(guide) 셋 다일 때만.
-         다이닝은 있는데 하나라도 비면 26(중립) · 애프터 웨딩을 안 고른 날 265 · 값은 RitualPreviewLink(mealFullOf · resvOf) 한 곳 · 콘솔 · 미리 듣기 · 연습하기가 같은 값을 넘긴다(console-inject) */
+         다이닝은 있는데 하나라도 비면 26(중립) · 예식 후 식사를 안 고른 날 265 · 값은 RitualPreviewLink(mealFullOf · resvOf) 한 곳 · 콘솔 · 미리 듣기 · 연습하기가 같은 값을 넘긴다(console-inject) */
     /* ★★[CLOSING_LINE_1031 검토 178 사장님 19:41 «사진은 작가님 몫»] 사진 전 안내(265 · 266 · 26)를 «마무리 멘트»로 바꿨다 — 사진 «모여 달라 · 앞을 봐 달라»는 나레이션이 말하지 않는다(작가님이 이끈다).
-         닫는 인사 «… 인사!» · 박수 → (디지털 날 온라인 인사 2분) → 마무리 → 작가님 촬영 · 판은 closingOf 하나(식사 있음 · 식사 · 카페만 · 애프터 웨딩 없음 × 하객 안내) ·
+         닫는 인사 «… 인사!» · 박수 → (디지털 날 온라인 인사 2분) → 마무리 → 작가님 촬영 · 판은 closingOf 하나(식사 있음 · 식사 · 카페만 · 예식 후 식사 없음 × 하객 안내) ·
          새 녹음 0 — 이미 녹음된 문장(47 · 266 · 264 · 44)을 이어 붙인다(CLOSING_PARTS) · 콘솔 간격: 박수 뒤 GO 에 바로 · 디지털 날은 온라인 인사 끝 2초 뒤 · 마무리 끝 → 사진(작가님 · 소리 없음) */
     var _ppre = closingOf(S);
     if (_openC && _ppre) cues.push(cue({   /* [CLOSING_NO_CREW_1031] 문장이 없는 판('')은 큐 없음 */
@@ -2118,7 +2163,7 @@
       var bwc = cues[bw], bwn = cues[bw + 1];
       if (!(bwc.k === 'matjeol' && bwc.live && bwn.fire === 'manual' && bwn.hint === bwc.live.hintNext)) continue;
       if (bwn.slug === 'bridge-b8-face-guests' || bwn.ex === 'narr-welcome-in-face' || /향해 서/.test(bwn.text || '')) bwn.hint = '맞절을 마치면';   // [SEAM_WORD_1107 J06] 하객 쪽으로 서는 안내가 감사 인사 첫머리(350 · 예시 215)에 들어왔다 — 244 와 같은 힌트
-      else if ((bwn.k === 'vow' && S.vowKind !== 'thanks') || bwn.k === 'ring' || (bwn.k === 'letter' && O.chipOf('letter', S) === 'each')) bwn.hint = '맞절을 마치고 서로 마주 선 자세를 바로 하면';
+      else if (bwn.k === 'vow' || bwn.k === 'ring' || (bwn.k === 'letter' && O.chipOf('letter', S) === 'each')) bwn.hint = '맞절을 마치고 서로 마주 선 자세를 바로 하면';
     }
     cues.forEach(function (c) { if (!/^letter-(each|parent)$/.test(c.slug || '') || /마주|바라보/.test(c.hint || '')) return; var _lfh = letterFaceHint(S); if (_lfh) c.hint = c.hint ? c.hint + ' · ' + _lfh : _lfh; });   // [B2_NA_14] 맞절 뒤 방향 힌트(BOW_NEXT_NI01)가 이미 말하면 그대로
 
@@ -2154,7 +2199,7 @@
       if (_ms === 'bridge-b8-face-guests') _mc.duck = PARAM.duckSpeech;
       if (_ms === 'bridge-b3-clap-thanks' || /^bridge-b9-declare-seat-end/.test(_ms)) { _mc.duck = PARAM.duckSpeech; _mc.fadeMs = 800; }
       if (_ms === 'bridge-b12-tribute-calm') { _mc.duck = PARAM.duckSpeech; _mc.post = [{ music: 'to', v: PARAM.duckOff, ms: 1500 }];
-        var _mn = cues[mr + 1]; if (_mn && _mn.k === 'tribute') { _mn.goLeadMs = Math.max(_mn.goLeadMs || 0, 6000); _mn.leadDb = PARAM.duckMusic; _mn.gapMs = Math.max(_mn.gapMs || 0, 1000); } }
+        var _mn = cues[mr + 1]; if (_mn && _mn.k === 'tribute') { _mn.goLeadMs = Math.max(_mn.goLeadMs || 0, 6000); _mn.leadDb = PARAM.duckMusic; _mn.gapMs = Math.max(_mn.gapMs || 0, 1200); } }   // ★[TRIBUTE_GO_1122 ③] 248 → 이름 줄 1.0 → 1.2초(시범 판 pilot_1122 n141e · 말끝 → 말머리)
     }
     /* ★★[MEANING_R2_1102 원칙 · 사장님 «도착에서 잦아듦으로 고쳐» · «이런 포인트들을 식순 전체에 녹여»] (위 MEANING_R1 원칙에 더한다)
          행진 · 이동은 음악이 끌어올린다 / 두 분이 멈춰 서서 하는 의식(맞절 등)은 음악을 빼서 «조용한 고점»(박수가 빈자리를 채운다) ·
@@ -2172,7 +2217,7 @@
       if (_rs === 'bridge-b8-face-guests' && _rp && _rp.k === 'matjeol') { _rc.duck = PARAM.duckOff;   /* 맞절 바로 뒤만 — 편지 끝 이음말(b8 · 편지 «음악과 함께» 곡 아래)은 그대로 */ var _rn = cues[r2 + 1]; if (_rn && _rn.k === _rc.k) { _rn.goLeadMs = Math.max(_rn.goLeadMs || 0, 6000); _rn.leadDb = PARAM.duckMusic; _rn.gapMs = Math.max(_rn.gapMs || 0, 1000); } }
       /* ★[SEAM_WORD_1107 J06 · FACE_LEAD_1107] 350(«…향해 서주시기 바랍니다» 가 첫머리)이 맞절 바로 뒤 — b8 이 하던 «무음에서 감사 인사 곡을 뜸(6초 앞서 −8 · 정적 1초)»을 350 이 받는다 */
       /* ★[LAYER7_FACE_LEAD_1110] 7층과 하나로 — 6초 앞 −8(leadDb) 은 그대로 · 말 크기로 내리는 끝은 콘솔 · 미리 듣기 모두 «내림 1.6초 + 다 낮아진 뒤 0.4초»(_ldL · lpLead)라 첫 말 0.4초 앞에 −15 · 입장 받는 말 144 → 맞절 사슬 2초(LAYER7_DUCK_1108) */
-      if (_rc.k === 'welcome' && _rp && _rp.k === 'matjeol' && /향해 서/.test(_rc.text || '')) { _rc.goLeadMs = Math.max(_rc.goLeadMs || 0, 6000); _rc.leadDb = PARAM.duckMusic; _rc.gapMs = Math.max(_rc.gapMs || 0, 1000); }
+      if (_rc.k === 'welcome' && _rs !== 'bridge-b8-face-guests' && _rp && _rp.k === 'matjeol' && /향해 서/.test(_rc.text || '')) {   /* ★[THANKS_LEAD_FIX_1122] 감사문 날 이음말 244(k welcome · «향해 서»)는 이 규칙 밖 — 걸리면 피아노가 4초 켜졌다 6초 꺼지고 133 앞에서 다시 켜졌다(콘솔 실측) · 뜸은 위 b8 규칙이 133 에 싣는다 */ _rc.goLeadMs = Math.max(_rc.goLeadMs || 0, 6000); _rc.leadDb = PARAM.duckMusic; _rc.gapMs = Math.max(_rc.gapMs || 0, 1000); }
       /* [DECLARE_LIFT] 성혼 선언 뒤 축하 박수 = 새 곡 — 덕담(다음 순간) 곡 · 없으면 목록 다음 곡을 강조 자리에서 −8 로 0.6초에(엄숙 → 기쁨 · 앞 곡을 멈춘 자리부터 되살리지 않는다) */
       if (_rs === 'narr-declare-family-out' && _rc.live) { _rc.live.newSong = true; _rc.live.upMs = 600; }
       /* [TRIBUTE_WALK] 부모님께 걸어가는 동작 −12(이동은 음악이 받침) → 두 분이 말하는 차례 −20 그대로 */
@@ -2317,6 +2362,21 @@
         if (!s4 || !SLUG[s4] || !EXTRA[s4]) return;
         var e4 = sylSec(c.text); c.ex = s4; c.no = noOf(s4); c.file = fileOf(s4); if (c.est === e4) c.est = sylSec(EXTRA[s4]); c.text = EXTRA[s4]; }); }
 
+    /* ★★[NARR_GO_1122 대표님 11/22 10:02 «나레이션 추천대로» · 대본 NARR_GO_1122] 고른 말투 · 호칭 · 역할 «뒤»에 — 슬러그(큐 열쇠)는 그대로 · 소리 파일 · 글만(받은 소리 그대로 · 높이 손대지 않음)
+         ⑥ 화촉 맺는 말이 여는 말과 «밝히»를 겹치면(가족 91 «불을 밝히실 때» → 211 «촛불을 밝혔습니다») 맺는 말은 기본 95 «두 가정의 따뜻한 마음이 하나의 불꽃이 되었습니다»(같은 순간 자료 줄 · NARR_종합 #6)
+         ⑧ 맞절이 이미 «마주 보고 서»라고 한 날(252 «서로 마주 보고 서 주십시오») 바로 뒤 서약 여는 말 13 은 둘째 문장 «서로 마주 보고 서주시기 바랍니다»를 뺀 384(NARR_종합 #8 · 같은 지시 두 번)
+         ① 온라인 날 개식(기본 137 일 때만) = 385(«현장에 자리해 주신 하객분들과, 온라인으로 함께해 주시는 분들께» · ONLINE_GREET_1119) · 그날은 48 «화면으로 함께해 주신 여러분 …»을 뺀다(개식이 온라인 하객에게 인사한다) ·
+           다른 개식 예시를 고른 온라인 날은 48 그대로(1분 전 316 뒤 콘솔 기본 2초 · NARR_GO_48GAP_1122) */
+    (function () { var _txt = function (c) { return String((c && c.text) || ''); };
+      for (var ni = 0; ni < cues.length; ni++) { var nc = cues[ni], np = null, nsw = '';
+        for (var pj = ni - 1; pj >= 0; pj--) { if (cues[pj].slug) { np = cues[pj]; break; } }
+        if (nc.slug === 'narr-candle-out' && nc.ex && /밝히|밝혔/.test(_txt(nc)) && np && np.k === 'candle' && /밝히/.test(_txt(np))) nsw = 'narr-candle-out';
+        else if (nc.slug === 'narr-vow-in' && !nc.ex && np && np.k === 'matjeol' && /마주 보고 서/.test(_txt(np))) nsw = 'narr-vow-in-face';
+        else if (nc.slug === 'narr-open' && !nc.ex && S.digital && D.COURSES[S.course] && D.COURSES[S.course].open) nsw = 'narr-open-online';
+        if (!nsw || !SLUG[nsw] || !EXTRA[nsw]) continue;
+        var e5 = sylSec(nc.text); if (nsw === nc.slug) delete nc.ex; else nc.ex = nsw; nc.no = noOf(nsw); nc.file = fileOf(nsw); if (nc.est === e5) nc.est = sylSec(EXTRA[nsw]); nc.text = EXTRA[nsw]; }
+      if (cues.some(function (c) { return c.ex === 'narr-open-online'; })) cues = cues.filter(function (c) { return c.slug !== 'online-3-welcome'; }); })();
+
     /* [PREVIEW_UPTO] 자른 사실을 **결과에 실어** 보낸다 — 화면이 「이 뒤는 아직」이라고 말할 근거다.
        ★소리로는 아무 말도 만들지 않는다(새 음원 없음). 화면 글로만 닫는다. */
     var M = meta(cues, S, mode, seq);
@@ -2379,7 +2439,7 @@
       if (b.slug === 'bridge-b3-clap-thanks' && cs[i + 2] && gap(b)) { via = true; b = cs[i + 2];
         /* ★[REVIEW22_1018 검토 130-4] 선언 박수 → «박수, 고맙습니다» → «선언해 주신 분께서는, …» → 다음 여는 말 — 사이 자리 줄이 하나 더 끼어도 박수 두 번은 같다(14초) */
         if (/^bridge-b9-declare-seat/.test(b.slug) && cs[i + 3]) b = cs[i + 3]; }
-      else if (/^bridge-b9-declare-seat/.test(b.slug) && cs[i + 2] && gap(b)) { via = true; b = cs[i + 2]; }   // ★[REVIEW26_1023 검토 150-2 5)] 선언이 마지막인 날 57 → 255 → 108 — B3 없이 B9 만 끼어도 박수 두 번은 같다(15초)
+      else if (/^bridge-b9-declare-seat/.test(b.slug) && cs[i + 2] && gap(b)) { via = true; b = cs[i + 2]; if (b.slug === 'bridge-b3-clap-thanks' && cs[i + 3]) b = cs[i + 3]; }   /* ★[NARR_GO_1122 ④] 255 → 111 차례가 된 뒤에도 사이 두 줄을 건너 다음 여는 말을 본다 */   // ★[REVIEW26_1023 검토 150-2 5)] 선언이 마지막인 날 57 → 255 → 108 — B3 없이 B9 만 끼어도 박수 두 번은 같다(15초)
       var k = O.narExKey ? O.narExKey(b.slug) : '';
       if (!k || (a.k === b.k && !/^bridge-/.test(a.slug))) continue;
       if (only && k !== only) continue;
@@ -2428,6 +2488,6 @@
   return {
     moodFit: moodFit, moodClash: moodClash, seamFit: seamFit, MOOD_SHIFT: MOOD_SHIFT,
     build: build, norm: norm, seqOf: seqOf, PARAM: PARAM, dbRamp: dbRamp, FILES: FILES, EXTRA: EXTRA,
-    COURSE_DEF: COURSE_DEF, sylSec: sylSec, fileOf: fileOf, noOf: noOf, RETIRED: RETIRED, CLOSING_PARTS: CLOSING_PARTS, closingOf: closingOf, GUEST_PARTS: GUEST_PARTS, guestPick: guestPick, guestMinOf: guestMinOf, guestShort: guestShort, afterPhotoOf: afterPhotoOf, version: 'cue-v1'
+    COURSE_DEF: COURSE_DEF, sylSec: sylSec, fileOf: fileOf, noOf: noOf, RETIRED: RETIRED, CLOSING_PARTS: CLOSING_PARTS, closingOf: closingOf, GUEST_PARTS: GUEST_PARTS, guestPick: guestPick, guestMinOf: guestMinOf, guestShort: guestShort, bodyRecSec: bodyRecSec, REC_SEC: REC_SEC, afterPhotoOf: afterPhotoOf, version: 'cue-v1'
   };
 });

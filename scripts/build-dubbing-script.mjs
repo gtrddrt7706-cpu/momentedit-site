@@ -68,6 +68,9 @@ const G = [
     ['G3-NR24', '축사 뒤 붙임 박수 (ROLE_SHIP_1117)', 'clap-speech', RC.EXTRA['clap-speech']],
     ['G3-NR25', '축가 뒤 붙임 박수 · 가족 · 친구 (ROLE_SHIP_1117)', 'clap-song', RC.EXTRA['clap-song']],
     ['G3-NR26', '축가 뒤 붙임 박수 · 두 분 직접 (ROLE_SHIP_1117)', 'clap-self', RC.EXTRA['clap-self']],
+    /* ★[NARR_GO_1122] 384 · 385 — 받은 소리를 잘라 붙인 판(새 녹음 = 385 첫 문장 하나 · ONLINE_GREET_1119 우성 후보 a) · 조립은 scripts/splice-narr-go-1122.py(43 처럼 전용) */
+    ['G3-NG1', '혼인 서약 시작 · 맞절이 «마주 보고 서»라고 한 날 (13 둘째 문장 뺌 · NARR_GO_1122)', 'narr-vow-in-face', RC.EXTRA['narr-vow-in-face']],
+    ['G3-NG2', '개식 선언 · 온라인 날 (137 첫 문장만 새 녹음 · NARR_GO_1122)', 'narr-open-online', RC.EXTRA['narr-open-online']],
     ['G3-2', '환영 마무리', 'narr-welcome-out', D.NARR.welcome.end],
     ['G3-3', '혼인 서약 시작', 'narr-vow-in', D.NARR.vow.nar],
     ['G3-4', '혼인 서약 마무리', 'narr-vow-out', D.NARR.vow.end],
@@ -308,7 +311,7 @@ const G = [
     ['G13-6', '마지막 닫는 말', 'narr-photo-out', D.NARR.photoOut],
     ['G13-7', '자유 사진 여는 말(65 뒤 · PHOTO_FREE_OPEN_1019 검토 133-3)', 'narr-photo-free', D.NARR.photoFree],
     ['G13-8', '사진 전 안내 · 식사 없음(닫는 인사 뒤 · END_FLOW_1030 검토 167)', 'narr-photo-pre', RC.EXTRA['narr-photo-pre']],
-    ['G13-9', '사진 전 안내 · 식사 있음(애프터 웨딩 식사 · 하객 안내가 있는 날 · END_FLOW_1030 검토 167)', 'narr-photo-pre-meal', RC.EXTRA['narr-photo-pre-meal']],
+    ['G13-9', '사진 전 안내 · 식사 있음(예식 후 식사 · 하객 안내가 있는 날 · END_FLOW_1030 검토 167)', 'narr-photo-pre-meal', RC.EXTRA['narr-photo-pre-meal']],
   ], note: 'G13-4와 G13-5는 **한 클립으로 합치지 말 것** — 예고와 신호는 시간이 벌어져 있어야 사람이 모인다.\nG13-3은 디지털 참석이 있는 날만 나간다.' },
 
   { n: 14, t: '촬영 안내 · 골라 트는 판', tone: '짧고 분명하게 · 하객에게 배역을 시키지 않는다', items:
@@ -330,7 +333,7 @@ const G = [
   /* ★★[CLOSING_LINE_1031 검토 178 사장님 «사진은 작가님 몫»] 287 ~ 291 — 닫는 인사 뒤 마무리 멘트 · 새 녹음 0(이미 녹음된 문장을 빌려 이어 붙인다) ·
      줄마다 화자(안내 = 진희 · 진행 = 우성 · 빌려 오는 자리의 목소리 그대로) · 원천 RC.CLOSING_PARTS */
   { n: 17, t: '마무리 멘트 (닫는 인사 뒤 · 이미 녹음된 문장 이어 붙임)', tone: '받은 녹음 그대로 — 새로 받지 않는다', items:
-    Object.keys(RC.CLOSING_PARTS || {}).map((sl) => [`M-${sl}`, `마무리 멘트 · ${({ 'narr-closing': '애프터 웨딩 없음', 'narr-closing-guide': '애프터 웨딩 없음 · 하객 안내', 'narr-closing-soft': '식사 · 카페(조건 빔)', 'narr-closing-soft-guide': '식사 · 카페(조건 빔) · 하객 안내', 'narr-closing-meal': '식사 있음' })[sl.replace(/-nt(-nc)?$/, '')] || sl}${/-nt-nc$/.test(sl) ? ' · 감사 · 응원 없이(닫는 멘트 186 «다정하게» 고른 날 · CLOSING_CHEER_195)' : /-nt$/.test(sl) ? ' · 감사 없이(닫는 멘트 187 «격식 있게» 고른 날 · CLOSING_SRC_1031)' : ''}`, sl,
+    Object.keys(RC.CLOSING_PARTS || {}).map((sl) => [`M-${sl}`, `마무리 멘트 · ${({ 'narr-closing': '예식 후 식사 없음', 'narr-closing-guide': '예식 후 식사 없음 · 하객 안내', 'narr-closing-soft': '식사 · 카페(조건 빔)', 'narr-closing-soft-guide': '식사 · 카페(조건 빔) · 하객 안내', 'narr-closing-meal': '식사 있음' })[sl.replace(/-nt(-nc)?$/, '')] || sl}${/-nt-nc$/.test(sl) ? ' · 감사 · 응원 없이(닫는 멘트 186 «다정하게» 고른 날 · CLOSING_CHEER_195)' : /-nt$/.test(sl) ? ' · 감사 없이(닫는 멘트 187 «격식 있게» 고른 날 · CLOSING_SRC_1031)' : ''}`, sl,
       (new Set(RC.CLOSING_PARTS[sl].map((x) => x[0])).size > 1 ? RC.CLOSING_PARTS[sl].map((x) => `${x[0]}: ${x[1]}`).join('\n') : RC.CLOSING_PARTS[sl].map((x) => x[1]).join(' '))]),   // [CLOSING_SRC_1031] 한 사람만 읽는 판은 화자 없이
     note: '닫는 인사 박수 뒤(디지털 날은 온라인 인사 뒤) 한 번 · 사진 구간은 작가님이 이끈다(나레이션 없음).' },
   /* ★★[GUEST_WELCOME_191 · AFTER_PHOTO_191 검토 191] 297 ~ 324 — 새 코스 하객 맞이(입장 때 · 10분 전 · 5분 전 온라인 · 1분 전) · 촬영 후 안내 ·

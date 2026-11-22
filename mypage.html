@@ -20,7 +20,7 @@
 <title>마이페이지 · Moment Edit</title>
 <meta property="og:title" content="MOMENT EDIT · My Page">
 <meta property="og:description" content="예약부터 결과물까지, 두 분의 여정을 한곳에서 살펴보세요.">
-<meta property="og:image" content="https://momentedit.kr/assets/og/og-espresso.png?v=5">
+<meta property="og:image" content="https://www.momentedit.kr/assets/og/og-espresso.png?v=5">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 
@@ -368,7 +368,7 @@ details.acc>.consult-card{margin-top:10px}
 .foot-actions a,.foot-actions button{display:inline-block;padding:13px 12px;margin:-13px -12px;border-bottom:none}   /* MPD_B11 로그아웃 44px — 밑줄은 내부 span으로 */
 .foot-actions a span,.foot-actions button span{border-bottom:1px solid var(--card-border)}
 .foot-actions button{background:none;border:0;border-radius:0;-webkit-appearance:none;appearance:none;font-weight:inherit;letter-spacing:inherit;line-height:inherit}   /* [LOGOUT_KEY 2026-09-26 통합 점검 L6] 로그아웃을 <button> 으로 — 모양은 종전 <a> 그대로 */
-/* [LOGOUT_FS_GUARD 2026-09-26 통합 점검 2라운드 R3] 전체화면 편집(청첩장 · 애프터 웨딩 · 좌석 = .mp-fs) 동안은 로그아웃을 Tab 순서 · 낭독기에서 뺀다 —
+/* [LOGOUT_FS_GUARD 2026-09-26 통합 점검 2라운드 R3] 전체화면 편집(청첩장 · 예식 후 식사 · 좌석 = .mp-fs) 동안은 로그아웃을 Tab 순서 · 낭독기에서 뺀다 —
    [LOGOUT_KEY] 로 <button> 이 되자 「다음」 다음 Tab 한 번이 오버레이 뒤(안 보이는 자리 · 초점 링도 안 보임)의 로그아웃에 닿았고, Enter 한 번에 로그인 화면이 떴다(390 · 1280 실측).
    원래 오버레이에 덮여 안 보이던 자리라 화면은 바뀌지 않는다. 보통 화면의 키보드 로그아웃([LOGOUT_KEY])은 그대로다 · 스냅 · 가족·친구 스냅 겹화면은 처리기 가드(아래 mp_logout)가 막는다. */
 body.mp-fs-on .foot-actions{visibility:hidden}
@@ -736,7 +736,7 @@ footer .f-footer-logo{width:min(180px,42vw);height:auto;display:block;margin:0 a
    크기 11·12·13·14·16 · 굵기 400~600 · 모서리 4·6·8·999 · 색은 변수만([TYPO_SCALE7]·[WEIGHT_RAMP4]·[SCALE_RADIUS6]·[BRAND_VAR]).
    고른 표시는 버건디 테두리 + 번호 원 — 색만으로 말하지 않는다(번호·aria-pressed 가 함께 말한다). 누름 칸은 전부 44px 이상. */
 /* ★[SNAP_STEP_DOT → WZ_STEPS 2026-09-27 사장님 «2번 식순 형태의 진행바로 다른 곳들도 통일하자»] 다섯 걸음 동그라미(.snp-steps · .snp-step)는
-   걷어냈다 — 스냅 기획도 청첩장 · 애프터 웨딩과 같은 진행 표시(.wz-steps · 식순 .op-steps 모양)를 쓴다. 규칙은 [WZ_STEPS] 한 곳(마지막 스타일 묶음). 동그라미로 되돌리지 말 것. */
+   걷어냈다 — 스냅 기획도 청첩장 · 예식 후 식사와 같은 진행 표시(.wz-steps · 식순 .op-steps 모양)를 쓴다. 규칙은 [WZ_STEPS] 한 곳(마지막 스타일 묶음). 동그라미로 되돌리지 말 것. */
 /* ★[SNAP_TONE 2026-09-26 사장님 «진사색상은 포인트로만 사용하고 마이페이지 톤에 맞게 색상 사용»] 진사는 넓은 면 · 테두리가 아니라 «점»으로만.
    ★★같은 날 밤 사장님 «진사 색상 포인트 좀 주자 · 좀 칙칙한 느낌이야» — 다 걷어내니 화면이 칙칙했다. 점을 다섯으로 되돌린다:
      ①지금 걸음 진행 표시의 윗선(진사 2px — [WZ_STEPS] · 9/27 전엔 진사 동그라미였다) ②고른 순서 번호(.snp-no)
@@ -1185,9 +1185,9 @@ details.res-fold[open] .res-fold-p{display:none}   /* 펼치면 아래 안내가
 .wiz-save.bad{border-color:var(--seal);color:var(--seal);font-weight:600}
 .wiz-save:disabled{color:var(--light);cursor:default}   /* [WIZ_SAVE_AA 2026-08-15] opacity:.5 는 2.31:1 이었다 — '저장됨'은 상태 표시라 읽혀야 한다. --light 4.74:1(AA 하한) */
 .wiz-save:disabled:hover{color:var(--light);border-color:var(--border);background:var(--card-white)}
-.inv-step-n{font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);letter-spacing:.08em;min-width:0}   /* [STEP_N_KO] 2026-09-26 · 한글 머리(애프터 웨딩 · 좌석 · 음료 · 가족 · 친구 스냅 · 청첩장)에 라틴 서체 규칙(Cormorant · 11px · 0.12em)이 걸려 폴백 글꼴로 벌어져 보였다([LABEL_KO_TRACK] 처방 = serif-ko · 12px · 0.08em). nowrap 은 넣지 않는다 — 320 에서 저장·나가기가 카드 밖으로 밀렸다(검증 실측). 번호 안쪽은 조립하는 곳에서 &nbsp; 로 묶는다 */
+.inv-step-n{font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);letter-spacing:.08em;min-width:0}   /* [STEP_N_KO] 2026-09-26 · 한글 머리(예식 후 식사 · 좌석 · 음료 · 가족 · 친구 스냅 · 청첩장)에 라틴 서체 규칙(Cormorant · 11px · 0.12em)이 걸려 폴백 글꼴로 벌어져 보였다([LABEL_KO_TRACK] 처방 = serif-ko · 12px · 0.08em). nowrap 은 넣지 않는다 — 320 에서 저장·나가기가 카드 밖으로 밀렸다(검증 실측). 번호 안쪽은 조립하는 곳에서 &nbsp; 로 묶는다 */
 .inv-q:focus{outline:none}   /* [WZ_STEPS_FOCUS] 초점을 옮겨 두는 자리(프로그램 초점) — 테를 그리지 않는다(.snp-h 와 같다) */
-.inv-q{font-family:var(--serif-ko);font-size:16px;font-weight:500;letter-spacing:-.02em;line-height:1.5;word-break:keep-all;color:var(--accent);margin:6px 0 10px}   /* ★[WZ_TITLE 2026-09-27 사장님 «마이페이지 전체 일관성»] 입력 화면 제목 한 벌 = 스냅 기획 .snp-h(16 · 500) — 청첩장 · 애프터 웨딩 제목만 300 으로 옅어 같은 자리가 다른 무게였다 */
+.inv-q{font-family:var(--serif-ko);font-size:16px;font-weight:500;letter-spacing:-.02em;line-height:1.5;word-break:keep-all;color:var(--accent);margin:6px 0 10px}   /* ★[WZ_TITLE 2026-09-27 사장님 «마이페이지 전체 일관성»] 입력 화면 제목 한 벌 = 스냅 기획 .snp-h(16 · 500) — 청첩장 · 예식 후 식사 제목만 300 으로 옅어 같은 자리가 다른 무게였다 */
 .inv-opt{display:block;border:1px solid var(--border);border-radius:8px;padding:13px 14px;margin:8px 0;cursor:pointer;font-family:var(--serif-ko);font-size:14px;color:var(--accent)}
 /* [찜] 별표·모아보기 — 다이닝 후보 저장(draft._favs · 계정 저장이라 부부 공용) */
 .inv-opt.dn-saved{position:relative;padding-right:58px}   /* 담은 카드 — 우상단 '담음' 표시 자리 확보 */
@@ -1235,7 +1235,7 @@ button.dn-showtgl.on{border:0;background:none;font-weight:500;color:var(--accent
 .inv-opt[data-m]:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px}   /* [INV_OPT_KB] 청첩장 1/4 초대 방식 카드 — 키보드 초점 링(스냅 .snp-* 와 같은 링) · 마우스로 고를 땐 안 생긴다 */
 .inv-sub{margin:2px 0 8px 0;font-family:var(--serif-ko);font-size:13px;color:var(--sub)}   /* [STEP_N_KO] 2026-09-26 · 왼쪽 6px 들여쓰기를 뺐다 — 질문·본문·카드의 왼쪽 선(37px)에서 이 줄만 43px 로 어긋났다 */
 .inv-gate{margin:14px 0}
-.inv-gate-q{font-family:var(--serif-ko);font-size:14px;font-weight:600;color:var(--accent);margin-bottom:6px}   /* ★[SUBHEAD_ONE 2026-09-27 사장님 «일관성»] 입력 화면 소제목 = 14 · 600(스냅 기획 .snp-sub · 가족·친구 스냅 .ph-sec 와 같은 값) — 청첩장 · 애프터 웨딩 · 좌석만 300 으로 옅어 같은 자리가 다른 무게였다 */
+.inv-gate-q{font-family:var(--serif-ko);font-size:14px;font-weight:600;color:var(--accent);margin-bottom:6px}   /* ★[SUBHEAD_ONE 2026-09-27 사장님 «일관성»] 입력 화면 소제목 = 14 · 600(스냅 기획 .snp-sub · 가족·친구 스냅 .ph-sec 와 같은 값) — 청첩장 · 예식 후 식사 · 좌석만 300 으로 옅어 같은 자리가 다른 무게였다 */
 .inv-yn{display:inline-flex;gap:8px}
 .inv-yn button{border:1px solid var(--border);background:#fff;border-radius:6px;padding:0 18px;min-height:44px;font-family:var(--serif-ko);font-size:13px;cursor:pointer;color:var(--sub)}   /* [INV_TAP44] 2026-09-26 고객 점검 inv-11 — «네» 47×33 · «아니요» 73×33 가 6px 간격으로 붙어 있어 «아니요»를 누르려다 «네»가 눌렸다. 44px 높이 · 8px 간격([MP_TAP44] 과 같은 기준) */
 /* .inv-yn button.on → [SEL_ONE] */
@@ -1342,12 +1342,12 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .dn-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 11px}
 .dn-head-t{font-family:var(--serif-ko);font-size:14px;font-weight:600;letter-spacing:.02em;color:var(--accent);white-space:nowrap;flex-shrink:0}   /* [SUBHEAD_ONE] */
 .dn-head-c{font-family:var(--serif-ko);font-size:11px;color:var(--label-soft);white-space:nowrap}
-/* 애프터 웨딩 입구 게이트 — '만들기 vs 안 함' 큰 두 카드(2026-07-21 사용자 지시: '선택' 태그 대신 안 함도 당당한 결정으로) · marker: DN_GATE */
+/* 예식 후 식사 입구 게이트 — '만들기 vs 안 함' 큰 두 카드(2026-07-21 사용자 지시: '선택' 태그 대신 안 함도 당당한 결정으로) · marker: DN_GATE */
 .dn-gate{display:flex;flex-direction:column;gap:11px;margin:8px 0 2px}
 .dn-gate-card{display:block;width:100%;text-align:left;border:1px solid var(--border);border-radius:13px;background:#fff;padding:16px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color .15s,box-shadow .15s,background .15s}
 .dn-gate-card:active{background:var(--bg2)}
 .dn-gate-card:hover{border-color:var(--gold-deep)}
-/* ★[DN_NO_EMOJI_1102 사장님 «애프터 웨딩 이모지 같은 거 전부 없애고»] 고르기 카드의 그림 글자(접시 · 잎) 삭제 — 되살리지 말 것(merge-guard nochk) · 카드는 제목 · 설명 두 줄 */
+/* ★[DN_NO_EMOJI_1102 사장님 «예식 후 식사 이모지 같은 거 전부 없애고»] 고르기 카드의 그림 글자(접시 · 잎) 삭제 — 되살리지 말 것(merge-guard nochk) · 카드는 제목 · 설명 두 줄 */
 .dn-gate-card .dgc-t{display:block;font-family:var(--serif-ko);font-size:15px;color:var(--accent);font-weight:600}
 .dn-gate-card .dgc-d{display:block;font-size:12px;color:var(--sub);margin-top:3px;line-height:1.5;word-break:keep-all}
 .dn-gate-card.dn-gate-skip{background:var(--bg2,#F5F3EF)}
@@ -1393,20 +1393,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .dn-preset{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 14px}
 /* [DN_CHIP_ONE_1102] 상황 칩의 옅은 금빛 알약은 뺐다 — .dn-fpill 한 모양 */
 @media (hover:hover){.dn-fpill:hover{border-color:var(--gold)}}
-.dn-attr{margin:0;border-top:1px solid var(--border);padding-top:0}   /* [DN_FOLD_ONE_1102] */
-.dn-attr-h{display:flex;align-items:center;justify-content:space-between;min-height:44px;padding:0 2px!important;cursor:pointer;user-select:none}
-button.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left;-webkit-appearance:none;appearance:none}   /* [DN_ATTR_KB] div → button 겉모양 그대로(단추 기본 테두리 · 배경 · 글꼴을 걷는다) */
-.dn-attr-h:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px;border-radius:4px}   /* [DN_ATTR_KB] 키보드 초점 링(사진 접힘 · 스냅 타일과 같은 색) */
-.dn-attr-h .t{font-family:var(--serif-ko);font-size:14px;color:var(--accent)}
-.dn-attr-h .c{font-family:var(--serif-ko);font-size:11px;color:var(--gold-deep,#7A5F37)}
-.dn-attr-list{margin-top:10px}
-.dn-attr-item{display:block;border:1px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:7px;text-decoration:none;background:#fff}
-.dn-attr-item .n{font-family:var(--serif-ko);font-size:14px;color:var(--accent)}
-.dn-attr-item .n span{font-size:11px;color:var(--label-soft);margin-left:6px}
-.dn-attr-item .d{font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:3px;line-height:1.55}
-.dn-attrcard{position:relative;cursor:pointer;padding-right:58px}   /* 눌러서 담기 카드 */
-.dn-attrcard.saved{border-color:var(--gold,#B89A75);background:var(--gold-bg,#faf6ef)}
-.dn-attr-map{display:inline-block;margin-top:7px;font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep,#7A5F37);text-decoration:none}
+/* ★[DN_ATTR_OFF_1122 2026-11-22 사장님 «예식 후 가볼 만한 곳 빼는 게 좋겠지 · 별로 결정적인 것도 없고» → «빼고»] 되살리기 금지 — 2026-11-22 사용자 지시로 삭제 · .dn-attr* 모양 */
 .dn-aggspots{margin-top:14px;border:1px solid var(--border);border-radius:12px;background:#fff;padding:13px 13px 11px}
 .dn-aggspots .fh{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:9px}
 .dn-aggspots .fh .t{font-family:var(--serif-ko);font-size:13px;font-weight:600;color:var(--accent)}
@@ -1681,6 +1668,21 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     .cpn-note{font-family:var(--serif-ko);font-size:12px;color:var(--sub);margin-top:8px;opacity:.85}
     /* 좌석 배치도 편집 — 원형 테이블 · 탭해서 이름 입력 · 좌우 지그재그 */
     .seat-stage{text-align:center;font-size:11px;letter-spacing:.1em;color:var(--light);border:1px dashed var(--border);border-radius:20px;padding:7px;margin:14px 0 6px}
+    /* ★★[SEAT_PLAN_9 2026-11-22] 배치도 = 오프라인 시안(assets/seat-plan.js · --m = 1m 의 px).
+       폰은 이름 알약이 읽히는 크기(1m = 58px)를 지키고 옆으로 밀어 본다 · 넓은 화면은 카드 폭에 맞춰 80px 까지 · 옛 열(.seat-room · .seat-col · --zig) 그림은 쓰지 않는다 */
+    .seat-plan{--m:max(66px, calc((100vw - 56px) / 9.3));margin:2px -14px 0;padding:0 14px 4px}
+    @media(min-width:760px){ .seat-plan{--m:max(66px, min(80px, calc((min(92vw, 880px) - 72px) / 9.3)))} }
+    .seat-sides{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.06em;color:var(--gold-deep);margin:10px 2px 2px}
+    .seat-sides i{font-style:normal;color:var(--light);margin:0 2px}
+    .seat-entry{text-align:center;font-size:11px;letter-spacing:.3em;color:var(--light);margin-top:4px}
+    .seat-swipe{text-align:center;font-size:11px;color:var(--label-soft);margin-top:4px}
+    .seat-plan .smap-t .rt-c{position:static;transform:none;display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;height:100%;justify-content:center;border-radius:50%}
+    .seat-plan .rt-num{font-family:var(--serif-ko);font-size:calc(.42 * var(--m));font-weight:500;line-height:1;color:#6B2A24}
+    .seat-plan .rt-cn{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:calc(1.12 * var(--m));font-size:10px;line-height:1.25;color:var(--gold-deep);text-align:center;word-break:keep-all}
+    .seat-plan .rt-cin{position:static;transform:none;width:calc(1.2 * var(--m))}
+    .seat-plan .rs{max-width:calc(.82 * var(--m));padding:3px 6px;font-size:11px}
+    .seat-plan .rs>.rs-nm{max-width:calc(.82 * var(--m) - 12px)}
+    .seat-plan .rs.empty{min-width:calc(.5 * var(--m));text-align:center;padding:3px 6px}
     .seat-room{display:flex;gap:2px;align-items:stretch;--zig:22px}   /* --zig=테이블 좌우 지그재그 폭. 좌우 대칭(우측은 부호 반전으로 미러) · 모바일 22px(360px폭 넘침 방지)·PC 80px */
     .seat-aisle{position:relative;width:16px;flex-shrink:0;margin-top:22px;border-radius:9px;background:linear-gradient(180deg,rgba(184,154,117,.13),rgba(184,154,117,.04));border-left:1px dashed var(--border);border-right:1px dashed var(--border)}
     .seat-aisle span{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);writing-mode:vertical-rl;font-size:10px;letter-spacing:.2em;color:var(--gold-deep);opacity:.65;white-space:nowrap}
@@ -1728,7 +1730,16 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     /* .sp-opt.on → [SEL_ONE] */
     .sp-opt .sp-t{display:block;font-size:13px;color:var(--accent);font-weight:600}
     .sp-opt .sp-tag{font-size:10px;color:var(--label-soft);border:1px solid var(--border);border-radius:7px;padding:1px 6px;font-weight:500;vertical-align:1px;margin-left:3px}
-    .sp-opt .sp-d{display:block;font-size:11px;color:var(--sub);margin-top:3px;line-height:1.5;word-break:keep-all}
+    .sp-opt .sp-d{display:block;font-size:11px;color:var(--sub);margin-top:3px;line-height:1.5;word-break:keep-all;text-wrap:pretty}   /* 마지막 줄에 «보여요» 한 낱말만 떨어지지 않게 */
+    .sp-opt .sp-ex{display:block;margin-top:9px}   /* [SEAT_EX_SHOT] 하객 화면 예시 — 두 칸이 같은 크기 · 같은 자리 */
+    .sp-opt .sp-ex-c{display:block;font-size:10px;letter-spacing:.04em;color:var(--label-soft);margin-bottom:4px}
+    /* ★[SEAT_EX_POLISH 2026-11-22 사장님 «디자이너 입장에서 한번 더»] ① PC 는 두 칸을 나란히(같은 높이 · 같은 크기 그림 — 한 자리를 두 방식으로 견주는 그림이다)
+       ② 그림은 칸 폭을 채우고 위에서부터 같은 높이로 · 아래는 칼로 자르지 않고 흐리게 닫는다 ③ 오른쪽 버진로드 띠는 찍을 때 뺐다(정체 모를 점선 덩어리로 읽혔다) */
+    .sp-opt .sp-ex-f{display:block;max-width:250px;border:1px solid var(--border);border-radius:10px;background:#fff;overflow:hidden}
+    .sp-opt .sp-ex img{display:block;width:100%;height:auto;aspect-ratio:301/340;-webkit-mask-image:linear-gradient(#000 78%,transparent),linear-gradient(to right,#000 93%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(#000 78%,transparent),linear-gradient(to right,#000 93%,transparent);mask-composite:intersect}   /* 위를 잘라 높이를 맞추면 «내 자리만» 그림에서 정작 내 자리 알약이 잘렸다 → 원래 비율 그대로 · 폭만 250 · 아래 · 오른쪽 잘린 가장자리는 흐리게(더 넓은 화면의 한 부분으로 읽히게) */
+    .seat-privacy .sp-opts{display:grid;gap:8px;margin-bottom:8px}
+    .seat-privacy .sp-opts .sp-opt{margin-bottom:0}
+    @media(min-width:640px){ .seat-privacy .sp-opts{grid-template-columns:1fr 1fr} }
     .seat-privacy .sp-note{text-align:center;font-size:11px;color:var(--label-soft);margin-top:2px}
     /* 단체사진·스냅 칩 CSS는 전용화면 블록(.ph-list 근처)으로 단일화 — 구 f83da9b .ph-chip 규칙 제거(중복·구 스타일이 새 디자인을 덮던 문제 2026-07-19 병합) */
     /* 자리 편집 중 음료 선택 바 — '지금 이 자리를 편집 중' 신호로 골드 톤(중립 베이지 요약 카드와 위계 구분 · 2026-07-19 디자이너 개편) */
@@ -1786,6 +1797,14 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     .sdb-nm{display:block;width:100%;box-sizing:border-box;margin-bottom:10px;padding:11px 12px;border:1px solid var(--field-line);border-radius:10px;background:#fff;font-family:var(--serif-ko);font-size:16px;color:var(--accent);text-align:center}
     .sdb-nm:focus{outline:none;border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}
     .sdb-nm::placeholder{color:var(--light);font-size:14px}
+    .sdb-opts.n2{grid-template-columns:repeat(2,1fr)}   /* [DRINK_TWO] 음료 2 · 자리 준비 2 */
+    .sdb-gl{font-family:var(--serif-ko);font-size:11px;letter-spacing:.04em;color:var(--gold-deep);margin:2px 0 6px}
+    .sdb-gl span{color:var(--label-soft);margin-left:4px;letter-spacing:0}
+    .sdb-opts+.sdb-gl{margin-top:12px}
+    .dk-chip.dk-chair{min-height:42px}
+    .rs.fam.empty{border-color:#C9A39C;background:#F7EEEC;color:var(--seal)}   /* [SEAT_PLAN_9] 빈 혼주석 — 진사 옅은 톤 */
+    .rs-fam{font-size:10px;letter-spacing:.02em}
+    .rs-ch{position:absolute;bottom:-5px;left:-5px;min-width:13px;height:13px;border-radius:7px;background:var(--accent);color:#fff;font-style:normal;font-size:8px;line-height:13px;text-align:center;padding:0 2px;border:1.5px solid var(--bg);pointer-events:none}   /* [DRINK_TWO] 유아용 의자 · 휠체어 표시 */
     .sdb-opts.n4,.sdb-opts.n5{grid-template-columns:repeat(2,1fr)}   /* [ALC_ONE]·[KID_CHAIR] 알콜이 정해지면 넷(그 알콜·논알콜·유아·어린이) · 아직이면 다섯 */
     .sdb-opts.n5 .dk-chip:nth-child(5){grid-column:1/-1}   /* 홀수로 남는 마지막 칸은 한 줄 통째로 — 빈 칸을 남기지 않는다 */
     .dk-chip .dk-sub{display:block;font-size:10px;color:var(--label-soft);font-weight:500;margin-top:2px;letter-spacing:0}
@@ -2079,7 +2098,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .cc-btn-ghost{position:relative}
 .cc-btn-ghost::after{content:'';position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px}
 /* ★★[WZ_BAR 2026-09-26 사장님 «이런 식으로 다른 식순만들기 폼을 조금 통일하는 게 어때 · 아래 하단이랑 위에 나가기»]
-   입력 화면(청첩장 · 애프터 웨딩/최종 · 좌석 · 가족·친구 스냅 · 스냅 기획)의 아래 단추 줄 = 식순 빌더(order-preview.html .nav)와 같은 막대.
+   입력 화면(청첩장 · 예식 후 식사/최종 · 좌석 · 가족·친구 스냅 · 스냅 기획)의 아래 단추 줄 = 식순 빌더(order-preview.html .nav)와 같은 막대.
    ①화면 아래에 붙는다 — 긴 화면에서도 «다음»이 늘 보인다(식순 [ORD_STICKYNAV]과 같은 이유).
    ②위 15px 는 흐려지며 끝난다 — 불투명한 띠로 자르면 글이 끝난 줄 알고 스크롤을 멈춘다.
    ③되돌아가는 쪽(이전 · 수정하기)은 좁은 회색 · 앞으로 가는 단추는 넓은 먹빛(.cc-btn #4E3F31 = 식순 .btn-next).
@@ -2103,7 +2122,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .wz-bar .wz-err{flex:1 0 100%;margin:0;font-family:var(--serif-ko);font-size:12px;line-height:1.6;color:var(--seal);text-align:center;word-break:keep-all}
 .wz-bar .wz-err:empty{display:none}
 /* ★★[WZ_STEPS 2026-09-27 사장님 «1번(스냅 기획 동그라미)과 2번(식순 진행바) · 이런 형태가 전부 일관성 있게 같다면 좀 더 깔끔할 거 같은데 · 2번 식순 형태로 통일하자»]
-   입력 화면의 진행 표시 = 식순 빌더(order-preview.html .op-steps)와 같은 모양 한 벌 — 청첩장 · 애프터 웨딩 · 스냅 기획.
+   입력 화면의 진행 표시 = 식순 빌더(order-preview.html .op-steps)와 같은 모양 한 벌 — 청첩장 · 예식 후 식사 · 스냅 기획.
    ①칸마다 윗선 2px + «① 이름» — 숫자와 이름이 함께 있어 «몇 걸음째 · 무엇을 하는 걸음»을 한눈에(옛 «청첩장 · 1 / 4»는 숫자만 · 동그라미는 이름이 없었다).
    ②지금 걸음 = 윗선 진사(진사 «점» — [SNAP_TONE]) + 먹빛 굵게 · 지나온 걸음 = 윗선 짙은 금빛(비텍스트 3:1 · [WZ_STEPS_AA]) · 남은 걸음 = 옅은 선.
    ③지나온 걸음을 눌러 돌아갈 수 있는 곳(스냅 기획)만 밑줄 단추(44px) — 식순과 같다. 남은 걸음은 누를 수 없다.
@@ -2117,7 +2136,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .wz-stepb{display:flex;align-items:flex-start;justify-content:center;width:100%;min-height:44px;padding:6px 0 0;border:0;background:none;font:inherit;line-height:inherit;color:inherit;cursor:pointer;text-underline-offset:3px;-webkit-tap-highlight-color:transparent}
 .wz-steps li.done .wz-stepb{text-decoration:underline}   /* 밑줄은 글자색 그대로(식순 .op-stepb 와 같다) */
 /* ★[WZ_STEPS_STILL 2026-10-23 코워크 검토 1 «시착 준비» · [COURSE_WIDE]] 지나온 걸음 단추(누름 칸 44px)가 줄 높이를 키워, 첫 걸음 → 둘째 걸음에서
-   진행 표시 아래 제목이 20px 내려앉았다(청첩장 · 애프터 웨딩 · 기록 한 벌 모두). 단추 아래를 글줄 높이(윗여백 6px + 글 1줄 = 6px + 1.5em)만큼만 자리로 잡고
+   진행 표시 아래 제목이 20px 내려앉았다(청첩장 · 예식 후 식사 · 기록 한 벌 모두). 단추 아래를 글줄 높이(윗여백 6px + 글 1줄 = 6px + 1.5em)만큼만 자리로 잡고
    누름 칸 44px 는 그대로 아래 여백으로 뻗는다 — 걸음마다 제목이 같은 자리에 선다(dress.html 과 같은 값). */
 .wz-steps li.nav .wz-stepb{margin-bottom:calc(6px + 1.5em - 44px)}
 /* [WZ_STEPS_AA] 다섯 걸음 · 좁은 폭(≤360) — «③ 화이트존»(11px ≈ 57px)이 한 칸(320 에서 46px)을 넘어 옆 칸에 닿았다. 번호를 윗줄로 올려 다섯 칸 모두 두 줄로 같게 선다. */
@@ -2132,7 +2151,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 @media (hover:hover){.wz-stepb:hover{color:var(--accent);text-decoration:underline;text-decoration-color:currentColor}}
 .wz-stepb:focus-visible{outline:2px solid var(--gold-deep);outline-offset:2px;border-radius:4px}
 /* ★★[SEL_ONE 2026-09-27 사장님 «비슷한 기능인데 다른 형태 · 섹션마다 다른 느낌 · 더 나은 쪽으로 일관성 있게»] «골랐다»는 표시 한 벌.
-   같은 뜻이 네 가지 색으로 말하고 있었다 — 금빛 테 + 옅은 바탕(청첩장 칸 · 네/아니요 · 디자인) · 진사로 칠함(애프터 웨딩 거르기 알약 · 붙은 칩)
+   같은 뜻이 네 가지 색으로 말하고 있었다 — 금빛 테 + 옅은 바탕(청첩장 칸 · 네/아니요 · 디자인) · 진사로 칠함(예식 후 식사 거르기 알약 · 붙은 칩)
    · 진사 테(좌석 공개 방식 · 샘플 사진 · 예약할 곳) · 먹빛으로 칠함(후기 문항). 한 화면을 넘길 때마다 «고름»의 모양이 바뀌었다.
    ★정한 것 = 식순 빌더(.seg-b.on · .op-card.on)와 음료 칩(.dk-chip.on)이 이미 쓰는 말: 금빛 테 두 겹(테 1px + 안쪽 1px) → ★2026-10-11 [SEL_THIN] 사장님 «버튼 테두리 골드색 얇게» · 시안 A «추천대로» = 테 한 겹(바깥 1px) + 옅은 금빛 바탕 + 먹빛 글자.
      칩(짧은 글 한 줄)은 굵게(600) · 카드(안에 글이 여러 줄)는 굵기를 그대로 둔다(카드 안 위계를 지키려고) · 사진 칸은 테만.
@@ -2148,7 +2167,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 .gal-it.on{border-color:var(--gold-deep)} /* [SEL_THIN] */   /* 사진 칸은 테만 · 고른 표시 ✓ 원(진사 점)은 그대로 */
 /* ★★[NOTE_DOT 2026-09-27 사장님 «마이페이지 전체 일관성»] 안내 한 줄 한 벌 = «점 + 글» — 칠한 상자를 걷는다([NO_SIDE_STRIPE] «배경색 칠한 안내 상자도 금지»).
    같은 «알려 드려요»가 상자 다섯 가지로 섰다: 진사 옅은 칠(청첩장 완성 «오타 확인») · 팔레트 밖 분홍 + 진사 테(확인서 경고 #FBF3F1) · 회색 칠(확인서 알림 · 받기 기한)
-   · 금빛 칠(애프터 웨딩 «눌러서 담아 두세요»). 스냅 기획 · 가족·친구 스냅은 이미 점 한 줄(.snp-err · .ph-capln)로 말한다 — 그쪽을 택한다.
+   · 금빛 칠(예식 후 식사 «눌러서 담아 두세요»). 스냅 기획 · 가족·친구 스냅은 이미 점 한 줄(.snp-err · .ph-capln)로 말한다 — 그쪽을 택한다.
    ①알아 두시면 되는 것 = 금빛 점 + 보조 글(.mp-dotln) ②손이 필요한 것 = 진사 점 + 먹빛 글(.mp-dotln.need — 진사는 점에만 · 글까지 진사로 칠하면 화면에서 가장 센 줄이 된다).
    단추 · 입력이 함께 든 묶음(잔금 게이트 · 좌석 공개 방식 · 동의)은 «상자»가 아니라 «묶음»이라 그대로 둔다. */
 .mp-dotln{position:relative;margin:10px 0 0;padding:0 0 0 13px;background:none;border:0;border-radius:0;font-family:var(--serif-ko);font-size:13px;line-height:1.65;color:var(--sub);text-align:left;word-break:keep-all}
@@ -2317,6 +2336,7 @@ button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .pvc-now-k{font-family:var(--serif-ko);font-size:11px;letter-spacing:.06em;color:var(--gold-deep)}
 .pvc-now b{font-family:var(--serif-ko);font-size:14px;font-weight:500;line-height:1.5;color:var(--accent);word-break:keep-all}
 .pvc-now-d{font-weight:400;color:var(--sub);white-space:nowrap}
+.pvc-now-dt{white-space:nowrap}   /* ★[PVC_DUE_NOWRAP_1120] 폰 360 폭 이하에서 «12월 22일 / (화) · D-33» 으로 날짜가 쪼개지던 것 — 날짜와 점을 한 덩이로(꺾이면 «12월 22일(화) · / D-33») · NIGHT20 R3X2 #17 */
 .pvc-feel.pvc-3{margin:0 0 4px}
 .pvc-feel.pvc-3 li{padding-bottom:14px}
 .pvc-feel.pvc-3 .pvc-feel-lk{display:inline-flex;align-items:center;min-height:44px;padding:0;color:var(--gold-deep);text-decoration-color:currentColor}
@@ -2407,8 +2427,9 @@ button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
      그래서 **캐시 첫 페인트에는 버튼이 없고, 서버 갱신이 끝나 다시 그릴 때 나타났다.**
      망이 느리면 몇 초 동안 없고, 갱신이 실패하면 끝내 안 나온다 — '어쩔 땐'의 정체다.
      ★인라인 스크립트보다 **앞**에 둔다. 뒤로 옮기지 말 것. (head 로도 올리지 말 것 — MPD_E1) -->
+<script src="/assets/seat-plan.js?v=1122a"></script><!-- [SEAT_PLAN_9] 캔들존 확정 배치(9테이블 · 35석) 단일 원천 — 좌석 편집기 · seat · guide · admin 공용 -->
 <script src="/assets/dining-data.js?v=1105a"></script><!-- [DINE_DATA_NI16] 식당 · 카페 목록 단일 원천(관리자 «당일 콘솔»도 읽는다) -->
-<script src="/assets/ritual-preview-link.js?v=1117m"></script>
+<script src="/assets/ritual-preview-link.js?v=1122t1"></script>
 <script src="/assets/snap-refs.js"></script><!-- [SNAP_REFS] 스냅 기획 레퍼런스 목록(단 하나의 원천) — 인라인 스크립트보다 앞 -->
 <script src="/assets/dress-refs.js"></script><!-- [DRESS_REFS] 시착 드레스 목록(단 하나의 원천) · 스위치 live 가 꺼져 있으면 카드가 그려지지 않는다 -->
 <script src="/assets/photo-refs.js"></script><!-- [PHOTO_EX_VIEW] 가족 · 친구 스냅 예시 사진 목록(단 하나의 원천) -->
@@ -2447,9 +2468,10 @@ function contractSrc(product, docVersion){
   if(v==='v1.12') return '/contract/archive/v1-12.html';   // [CONTRACT_V113] v1.12 서명자는 3조 ①-2 «라이브 노래·연주는 진행하지 않는다» · 축가 조항 없는 보존본으로
   if(v==='v1.13') return '/contract/archive/v1-13.html';   // [CONTRACT_V114] v1.13 서명자는 3조 ⑥ 별도 비용에 «케이크 · '을' 준비» 줄이 있는 보존본으로
   if(v==='v1.14') return '/contract/archive/v1-14.html';   // [CONTRACT_V115] v1.14 서명자는 3조 ⑥ 별도 비용에 «부모님께 드릴 꽃 · '을' 준비» 줄이 있는 보존본으로
+  if(v==='v1.16') return '/contract/archive/v1-16.html';   // [CONTRACT_V117] v1.16 서명자는 하객 «최대 30명»이 적힌 보존본을 연다(v1.17 은 35명)
   if(v==='v1.15') return '/contract/archive/v1-15.html';   // [CONTRACT_V116] v1.15 서명자는 제5조① 식순 «예식 종료까지 자유 수정» · Farewell «배웅» · 식전 영상 «사진으로 3분 영상» · 식당 «파트너사 예약 조율» 이 적힌 보존본으로
   if(v==='v1.9') return '/contract/archive/v1-9.html';   // [CONTRACT_V110] v1.9 서명자는 그 판 보존본으로
-  return '/contract/v1-1.html';   // 현행(v1.16) — ★인상 때 이 주석도 같이 고칠 것. 낡은 채로 두면 다음 사람이 보존본 분기를 잘못 읽는다
+  return '/contract/v1-1.html';   // 현행(v1.17) — ★인상 때 이 주석도 같이 고칠 것. 낡은 채로 두면 다음 사람이 보존본 분기를 잘못 읽는다
 }
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
@@ -2701,7 +2723,7 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
   /* ★[HIST_DEPTH 2026-10-09 A~Z 점검 1라운드 A-5] 빌더가 쌓은 칸(_depth)까지 한 번에 되감는다 — 한 칸만 되감으면 남은 빌더 칸이 «아무 일 없는 뒤로가기»가 되고, 되감기 표시(_bkClosing)가 남아 다음 뒤로가기 하나를 삼켰다 */
   function _bkDoneDeep(id,n){ if(!n){ bkDone(id); return; } if(_bkFromPop||!_bkStack.length) return; var top=_bkStack[_bkStack.length-1]; if(top.id!==id){ bkDone(id); return; } _bkStack.pop(); _bkClosing=true; try{ history.go(-(n+1)); }catch(e){ _bkClosing=false; } }
   function done(){ if(_closed) return; _closed=true; clearTimeout(_backT); try{ if(_pmo) _pmo.disconnect(); }catch(e){} _bkDoneDeep(_bkId,_depth); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock();
-    /* ★[MEAL_GO_1102] 식순의 «식사 안내 멘트 › 애프터 웨딩» 을 눌러 나갔으면 닫힌 뒤 그 칸을 연다(저장했으면 새로 불러온 뒤) */
+    /* ★[MEAL_GO_1102] 식순의 «식사 안내 멘트 › 예식 후 식사» 을 눌러 나갔으면 닫힌 뒤 그 칸을 연다(저장했으면 새로 불러온 뒤) */
     var _gn=_goNext; _goNext=''; var _goDn=function(){ if(_gn!=='dining') return; var b=$('mp_diningStart'); if(b) b.click(); };
     if(saved){ if(_gn){ _flowBusy(true,'불러오는 중…'); loadMyState({ silent:true, done:function(){ _flowBusy(false); setTimeout(_goDn,0); } }); } else _mpRefresh(); } else if(_gn) setTimeout(_goDn,0); }
   function onKey(e){ if(e.key==='Escape'){ try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReq'},location.origin); }catch(err){ done(); } } }
@@ -2743,7 +2765,7 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
       var _gOn=false; try{ _gOn=!!(window.RitualPreviewLink && RitualPreviewLink.guideOf(p&&p.guideToken, _guideLinkClosed(p&&p.base))); }catch(e7){}   // [GUIDE_ON_1019] 하객 안내 «열림»만(열쇠 아님)
       var _vo=(p&&p.voice)||((p&&p.production&&p.production.voice))||null;   // ★[VOICE_UP_FROM 2026-09-28] 두 분 목소리 날짜 문 · AI 스위치(켜짐 여부만)
       /* ★[TABLE_GREET_1008 2026-10-08 사장님] 테이블 인사 시간 = 테이블 수 × 1분 30초 — 좌석 배치도의 테이블 수(없으면 확정 인원 ÷ 5 · SEAT_PER5) 한 숫자만 실어 준다 */
-      var _tbl=0; try{ var _sd=(p&&p.seatDraft)||{}; _tbl=(_sd.tables&&_sd.tables.length)||0; if(!_tbl){ var _hc=+(((p&&p.finalDraft)||{}).headcount)||0; if(_hc>0) _tbl=Math.ceil(_hc/5); } }catch(e6){}
+      var _tbl=0; try{ var _sd=(p&&p.seatDraft)||{}; _tbl=(_sd.tables||[]).filter(function(t){ return ((t&&t.seats)||[]).some(function(x){ return String(x||'').trim(); }); }).length||0;   /* [SEAT_PLAN_9] 확정 배치는 늘 9테이블이라 «하객이 앉은 테이블» 수를 센다(테이블 인사 시간) */ if(!_tbl){ var _hc=+(((p&&p.finalDraft)||{}).headcount)||0; if(_hc>0) _tbl=Math.ceil(_hc/5); } }catch(e6){}
       var _acct=''; try{ _acct=String(_mpAcct()||''); }catch(e8){} if(!_acctOk(_acct) || (p&&p.code&&String(p.code)!==_acct)) _acct='';   /* ★[ACCT_KEYS 2026-10-30] 이 창이 그린 계정(로그인 상태) — 식순 화면은 이 코드를 받기 전에는 이 기기 초안을 읽지도 쓰지도 않는다(me_order_<코드>) · 모르면 '' (서버 판만) */
       fr.contentWindow.postMessage({type:'momentedit:orderFill', acct:_acct, draft:rd, reload:!!_rdOv, done:_rdn, cust:_cu, digital:_dig, photoShare:_pho, meal:_meal, mealFull:_mealF, resv:_resv, dining:_dst, guide:_gOn, voice:_vo, tables:_tbl, at:(opt&&opt.at)||''}, location.origin);   // ORDERFILL_DONE · [PHOTO_ASK] 사진 링크 «유무»만(주소 아님)
       setTimeout(function(){ fr.style.opacity='1'; },70);
@@ -3733,7 +3755,9 @@ function _errCode(x, L){ return _errInfo(x, L).c; }
    ★★[ERR_CODE_DOT · P2] 코드 앞 끝 마침표는 걷는다 — «…주세요. (코드 B8)» → «…주세요 (코드 B8)». 서버가 이미 붙여 온 글도 같은 꼴로(_errTidy). */
 function _errTidy(t){ return String(t==null?'':t).replace(/([^\s.。])[\s.。]*(\(코드 [A-Z]\d[^)]*\))\s*$/, '$1 $2'); }
 function _errLine(x, L, base, todo){
-  var i=_errInfo(x, L); if(i.has) return _errTidy(i.t);
+  var i=_errInfo(x, L);
+  if(i.n===1 && ERR_BUSY_OLD.test(String(i.t||'').replace(/\s*\(코드 [^)]*\)\s*$/,''))) i={n:1, c:i.c, t:'요청이 몰렸어요 · 다시 해 주세요'};   /* [ERR_BUSY_WORD_R3 안 B · 대기] 옛 서버 잠금 대기 글은 하객 · 예약 화면(_ecSrv)과 같은 말로 — «요청이 몰렸어요 · 다시 해 주세요 (코드 S1)» */
+  if(i.has) return _errTidy(i.t);
   if(i.t && !i.n) return i.t;   // [ERR_SRV_REASON] 서버 까닭 글 그대로 · 코드 없음
   var d=(todo&&typeof todo==='object')?todo[i.n]:todo;
   var w=i.t || (i.n===8 ? ERR_W[8]+' · '+ERR_DO[8] : (ERR_W[i.n] ? ERR_W[i.n]+' · '+(d||ERR_DO[i.n]) : (base||'처리하지 못했어요 · 다시 눌러 주세요')));
@@ -4433,7 +4457,7 @@ function renderMyPage(d){
          서버 문구 «제작 정보를 입력해 주세요 · 이어서 진행하시면 돼요»(00_platform-config.gs nextActionFor)는 화면에 없는 칸을
          가리켰다(기초정보 입력 단계는 없어졌고 아래에는 «예식 준비» 목록뿐 · «이어서»가 무엇인지도 말하지 않았다).
          필수가 덜 끝났으면 클라이언트가 덮는다 — 입금완료 「예식 준비를 시작해요」 · 제작중 「예식 준비를 이어가요」 +
-         목록 순서([PREP_ORDER_0926] 청첩장 › 좌석 · 음료 › 애프터 웨딩 › 식순 › 가족 · 친구 스냅)에서 가장 먼저 남은 필수 행.
+         목록 순서([PREP_ORDER_0926] 청첩장 › 좌석 · 음료 › 예식 후 식사 › 식순 › 가족 · 친구 스냅)에서 가장 먼저 남은 필수 행.
          알림톡(T18 · GAS) 문구는 이번에 바꾸지 않는다(사장님 결정).
        ★[NOW_PAY_DUE 2026-09-26 · 사장님 결정 ⑧ · pay-3] 준비가 덜 끝났어도 기한이 닥친 결제가 있고 신고 전이면 NOW 는 결제다.
          종전엔 묶음결제(payPlan.hold)가 입금완료 단계 전용이라, 제작중 D-8 에 297만 원이 기한을 넘겨도 NOW 가
@@ -4504,7 +4528,7 @@ function renderMyPage(d){
         sub  = (_needM && _needBv) ? '이제 남은 결제(중도금·잔금)만 진행하시면 돼요.'
              : (_needM ? '이제 중도금만 입금하시면 돼요.'
              : (_needBv ? '이제 잔금만 입금하시면 끝이에요.'
-             : ((_pp.midSig || _pp.balSig) ? '입금 확인 중이에요. 확인되는 대로 알려드릴게요.' : '예식날 정성껏 준비해서 뵐게요.')));
+             : ((_pp.midSig || _pp.balSig) ? '입금 확인 중이에요. 확인되는 대로 알려드릴게요.' : '예식 날 정성껏 준비해서 뵐게요.')));
       } else if (_mDue || _bDue) {
         var _dueNm = (_mDue && _bDue) ? '중도금·잔금' : (_bDue ? '잔금' : '중도금');
         head = _dueNm + '을 입금해 주세요';   // [NOW_PAY_DUE] 묶음은 입금완료 hold 갈래와 같은 문장
@@ -6244,7 +6268,7 @@ function renderContractReqForm(ctx){
     if(td.indexOf(sel)!==-1){ sel=''; if(hid) hid.value=''; }
     row.innerHTML=_wedAvail.slots.map(function(t){ var lab=(_wedAvail.labels&&_wedAvail.labels[t])||''; var tk=td.indexOf(t)!==-1;
       return '<button type="button" class="wed-slot'+(tk?' taken':'')+(sel===t?' sel':'')+'" aria-pressed="'+(sel===t)+'" data-t="'+escapeHtml(t)+'"'+(tk?' disabled':'')+'>'+(lab?'<span class="ws-lab">'+escapeHtml(lab)+'</span>':'')+'<span class="ws-t">'+escapeHtml(SLOT_CLOCK[t]||t)+'</span>'+(tk?'<span class="ws-x">마감</span>':'')+'</button>'; }).join('');
-    if(note) note.textContent=(td.length>=_wedAvail.slots.length)?'이 날은 예약이 모두 마감됐어요. 다른 날짜를 선택해 주세요.':'';
+    if(note) note.textContent=(td.length>=_wedAvail.slots.length)?'이날은 예약이 모두 마감됐어요. 다른 날짜를 선택해 주세요.':'';
     row.querySelectorAll('.wed-slot:not(.taken)').forEach(function(b){ b.addEventListener('click',function(){ var h=$('mp_ciWedTime'); if(h) h.value=b.getAttribute('data-t'); row.querySelectorAll('.wed-slot').forEach(function(x){x.classList.remove('sel'); x.setAttribute('aria-pressed','false');}); b.classList.add('sel'); b.setAttribute('aria-pressed','true'); }); });   // [SEL_ONE] 고름은 눈과 귀에 같이
   }
   initDatePicker({wrap:'mpcw_wrap',trigger:'mpcw_trigger',text:'mpcw_text',panel:'mpcw_panel',grid:'mpcw_grid',title:'mpcw_title',prev:'mpcw_prev',next:'mpcw_next',hidden:'mp_ciWed',onPick:_renderSlots});
@@ -6660,7 +6684,7 @@ function renderChangeWizard(ctx, host){
     if(td.indexOf(sel)!==-1){ sel=''; if(hid) hid.value=''; }
     row.innerHTML=_av.slots.map(function(t){ var lab=(_av.labels&&_av.labels[t])||''; var tk=td.indexOf(t)!==-1;
       return '<button type="button" class="wed-slot'+(tk?' taken':'')+(sel===t?' sel':'')+'" aria-pressed="'+(sel===t)+'" data-t="'+escapeHtml(t)+'"'+(tk?' disabled':'')+'>'+(lab?'<span class="ws-lab">'+escapeHtml(lab)+'</span>':'')+'<span class="ws-t">'+escapeHtml(SLOT_CLOCK[t]||t)+'</span>'+(tk?'<span class="ws-x">마감</span>':'')+'</button>'; }).join('');
-    if(note) note.textContent=(td.length>=_av.slots.length)?'이 날은 예약이 모두 마감됐어요. 다른 날짜를 선택해 주세요.':'';
+    if(note) note.textContent=(td.length>=_av.slots.length)?'이날은 예약이 모두 마감됐어요. 다른 날짜를 선택해 주세요.':'';
     row.querySelectorAll('.wed-slot:not(.taken)').forEach(function(b){ b.addEventListener('click',function(){ var h=$('mp_chgTime'); if(h) h.value=b.getAttribute('data-t'); row.querySelectorAll('.wed-slot').forEach(function(x){x.classList.remove('sel'); x.setAttribute('aria-pressed','false');}); b.classList.add('sel'); b.setAttribute('aria-pressed','true'); _fetchQuote(); }); });   // [SEL_ONE]
     _resetQuote(); _fetchQuote();   // 날짜만 다시 고른 경우 — 기존 슬롯 유지면 즉시 재견적
   }
@@ -6874,7 +6898,7 @@ function _finalGateHtml(hard){
   }
   // 소프트(폴백) — 확정 흐름 없을 때: 지금처럼 결제 허용(갇힘 방지)
   return '<div style="margin:12px 0 2px;padding:12px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:left">'
-    +'<div class="cc-sub" style="text-align:left;margin:0">하객은 30명까지 추가 요금 없이 모십니다.<br><b>좌석·음료를 먼저 마치면</b> 당일 준비가 그대로 이어져요.</div>'
+    +'<div class="cc-sub" style="text-align:left;margin:0">하객은 35명까지 추가 요금 없이 모십니다.<br><b>좌석·음료를 먼저 마치면</b> 당일 준비가 그대로 이어져요.</div>'
     +(hasProd?'<button type="button" class="cc-btn-ghost" data-bal-final style="margin-top:9px">좌석·음료 먼저 하기</button>':'')
     +'<div class="cc-note" style="text-align:left;margin:7px 0 0;color:var(--light)">지금 결제하셔도 돼요. 인원이 늘어도 추가 요금은 없어요.</div></div>';
 }
@@ -7385,7 +7409,10 @@ function _prodFsSync(){
   var on = INVFLOW.active || (typeof TRKFLOW!=='undefined' && TRKFLOW.active) || SEATFLOW.active;   // 단체사진(PHOTOFLOW)은 전용 오버레이(mp_photoOverlay) 사용이라 제외
   var has = box.classList.contains('mp-fs');
   if(on && !has){ box.classList.add('mp-fs'); document.body.classList.add('mp-fs-on'); _mpLock(); }   // [FAB_OVER_FS] body 표식 — FAB 스택을 오버레이 위로 올리는 스위치
-  else if(!on && has){ box.classList.remove('mp-fs'); document.body.classList.remove('mp-fs-on'); _mpUnlock(); }
+  else if(!on && has){ _layerInertOff(box); box.classList.remove('mp-fs'); document.body.classList.remove('mp-fs-on'); _mpUnlock(); }   // [PROD_FS_INERT] 풀고 나서 연 단추로 초점을 돌린다
+  if(on) _layerInertOn(box);   /* ★[PROD_FS_INERT 2026-11-19 R3X #14] 청첩장 · 좌석 · 음료 · 예식 후 식사 전체화면도 다른 겹화면([C2_LAYER_INERT])과 같은 약속 — 떠 있는 동안 뒤 페이지 inert.
+     종전엔 이 셋만 빠져 PC 에서 Tab 이 가려진 뒤 페이지(새로고침 · 계좌번호 복사 · «입금했어요» · 로그아웃)로 13 ~ 19번 나갔다 — 보이지 않는 단추를 Enter 로 누를 수 있었다.
+     위에 뜨는 판(확인 판 · 주소 창 · 알림 · 오른쪽 레일)은 z 가 더 커서 막지 않는다(_layerInertOn 의 keep 규칙) · 두 번 불러도 한 번만 건다 */
 }
 // [MPD4_H4] 전달완료 후 '내 완성물' 읽기전용 요약(§9-5-⑥) — 끝난 예식의 편집 대시보드 잔존 제거. 링크만 열람.
 function _myWorksHtml(p, inv){
@@ -7394,11 +7421,11 @@ function _myWorksHtml(p, inv){
   function line(k, right){ return '<div class="trk"><span class="trk-nm">'+escapeHtml(k)+'</span>'+(right||'<span class="trk-st"><span class="trk-ok">\u2713</span> 완료</span>')+'</div>'; }
   function view(url,label){ return url?('<a class="cc-btn-ghost trk-act" href="'+escapeHtml(safeUrl(url))+'" target="_blank" rel="noopener">'+label+'</a>'):null; }   // TRK_ACT_RAIL — 인라인 치수 대신 공용 레일(104px) · safeUrl 유지(SAFE_URL 가드)
   var rows=[];
-  /* ★[MYWORKS_ORDER 2026-09-27 사장님 «일관성»] 예식 뒤 «내 완성물»도 예식 준비 카드와 같은 이름 · 같은 순서([PREP_ORDER_0926] 청첩장 → 좌석 · 음료 → 애프터 웨딩 → 식순)
+  /* ★[MYWORKS_ORDER 2026-09-27 사장님 «일관성»] 예식 뒤 «내 완성물»도 예식 준비 카드와 같은 이름 · 같은 순서([PREP_ORDER_0926] 청첩장 → 좌석 · 음료 → 예식 후 식사 → 식순)
        · 확인 · 전달(하객 안내)은 맨 뒤 · 여는 단추는 «보기» 하나. 종전엔 «좌석 배치» · 하객 안내가 둘째 · «보기»/«열기»가 섞여 같은 목록이 두 모양이었다. */
   if(u.family||u.online||inv.status==='완료') rows.push(line('청첩장', view(u.family||u.online,'보기')));
   if((t.seat||'')==='완료') rows.push(line('좌석 · 음료'));
-  if((t.dining||'')==='완료' && _dnHas(p.diningDraft)) rows.push(line('애프터 웨딩'));   // [DN_ROW_TRUTH]
+  if((t.dining||'')==='완료' && _dnHas(p.diningDraft)) rows.push(line('예식 후 식사'));   // [DN_ROW_TRUTH]
   if((t.ritual||'')==='완료') rows.push(line('식순'));
   if(p.guideToken) rows.push(line('하객 안내', view(guideUrl(p.guideToken),'보기')));
   if(!rows.length) return '';
@@ -7565,7 +7592,7 @@ function _surveySchema(isSnap){
     {k:'result',q:'결과물(스냅·예식 영상·청첩장)은요?',o:[['above','기대 이상'],['expected','기대만큼'],['below','기대보다 아쉬워요']]},
     {k:'ceremony',q:'설계하신 식순 + AI 성우 나레이션은요?',o:[['free','우리답게 자유로워서 좋았어요'],['ok','무난했어요'],['needGuide','가이드가 더 필요했어요']]},
     {k:'space',q:'두 공간(캔들존·화이트존)은요?',o:[['both','두 무드 다 좋았어요'],['one','한쪽이 특히 좋았어요'],['transition','전환이 아쉬웠어요']]},
-    {k:'dining',q:'애프터 웨딩(식사·카페 안내)은요?',o:[['good','추천이 도움됐어요'],['ok','보통'],['poor','아쉬웠어요'],['na','이용 안 함']]},
+    {k:'dining',q:'예식 후 식사(식사·카페 안내)는요?',o:[['good','추천이 도움됐어요'],['ok','보통'],['poor','아쉬웠어요'],['na','이용 안 함']]},
     {k:'source',q:'저희를 어떻게 처음 알게 되셨어요?',o:[['insta','인스타그램'],['friend','지인 소개'],['search','검색(네이버·구글)'],['sns','유튜브·블로그'],['etc','기타']]},
     {k:'reason',q:'결정에 가장 큰 이유는 무엇이었나요?',o:[['mood','감성·분위기'],['allinone','올인원의 편안함'],['price','가격·투명성'],['review','후기·평판'],['etc','기타']]},
     {k:'gap',q:'저희가 놓친 부분은 없었을까요? 안내·마이페이지·진행 무엇이든',o:[['none','없었어요 · 편안했어요'],['minor','사소하게 있었어요'],['some','있었어요 · 알려드릴게요']]}
@@ -8423,7 +8450,7 @@ function updateCover(){
 var _cfOpenNext=false;   // 확인 저장 직후 재렌더에서 확인서 패널을 열어 '확인하셨어요' 배너가 보이게(1회 소비)
 /* ★[PREP_LIST 2026-09-25 코워크 P8 · 사장님 «만듭니다»] 식순 행 아래 접힌 «두 분 준비 · 도와주실 분».
    원천은 빌더와 같은 prepOf · helpersOf — 빌더가 저장할 때 summary.prep · summary.helpers 로 싣는다(이 파일은 ritual-open 을 안 싣는다).
-   마감 = 예식일 − due(7일 · 사흘). 옛 초안(prep 없음)은 아무것도 그리지 않는다. 식사 자리 안내 분은 애프터 웨딩을 고른 날만 더한다. */
+   마감 = 예식일 − due(7일 · 사흘). 옛 초안(prep 없음)은 아무것도 그리지 않는다. 식사 자리 안내 분은 예식 후 식사를 고른 날만 더한다. */
 /* ★[BOUQUET_FLORIST 2026-09-25 사장님 둘째 결정 · 코워크 2-2] 부케 = 협력 플로리스트 «소개». 주문 · 결제는 두 분과 플로리스트 사이.
    저희가 안내하는 것은 받는 시각(두 분 도착 10분 전)과 장소뿐이다. ★목록은 사장님이 주시면 여기 넣는다 —
    비어 있는 동안 이 칸은 **그리지 않는다**(칸만 만들고 숨김). 항목: {n:'이름', url:'https://…', note:'한 줄'} */
@@ -8457,7 +8484,9 @@ function _ritPrepFold(rd, base, dd, asLink){
   /* ★[GOODS_STUDIO 2026-10-06 사장님] 케이크 · 꽃 · 부케는 늘 저희가 준비 — 옛 초안이 «챙길 것»에 남긴 케이크 · 꽃 줄은 건너뛰고 «저희가 준비해요»로 옮긴다 */
   var _oldGoods=/^(케이크|부모님께 드릴 꽃) · 크기 · 도착 시각/;
   (sm.prep||[]).filter(function(q){ return !_oldGoods.test(String((q&&q.what)||'')); }).forEach(function(q){ var w=String(q.what||'').replace(/\s*·\s*(사흘 전까지|예식 3일 전까지)(?=$|\()/,''); var dt=dueTxt(q), li='<li>'+escapeHtml(w)+(dt?' <span class="due">· '+escapeHtml(dt)+'</span>':'')+'</li>'; (q.who==='parents'?par:two).push(li); });
-  var hp=(sm.helpers||[]).slice(); if(dd&&dd.dining_on==='Y') hp.push(['식사 자리로 안내할 분','애프터 웨딩을 고른 날']);
+  /* ★[MEAL_GUIDE_WORD_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정] 식사가 확인된 날(mealFull)만 «식사 자리» · 카페 · 미확인 날은 «예식 후 자리로 안내할 분» — 촬영 후 안내(319 · 카페 판)가 «식사»를 쓰지 않는 것과 같은 기준(meal 있음 · mealFull 아님) */
+  var _mgFull=true; try{ _mgFull=!!RitualPreviewLink.mealFullOf(dd, DN_PLACEHOLDER); }catch(e){}
+  var hp=(sm.helpers||[]).slice(); if(dd&&dd.dining_on==='Y') hp.push([_mgFull?'식사 자리로 안내할 분':'예식 후 자리로 안내할 분','예식 후 식사를 고른 날']);
   /* [GOODS_CHOICE 2026-09-25 사장님 · 코워크 회신4 5-1] 맡긴 케이크 · 꽃 — 직접 준비분은 이미 prep(챙길 것)에 있다 */
   var stu=(Array.isArray(sm.goods)?sm.goods:[]).filter(function(g){ return g&&g.what&&!/^(부모님께 드릴 꽃|케이크)/.test(String(g.what)); })   /* [CAKE_OLD_OFF_1017] 옛 초안의 케이크도 «저희가 준비해요»에 안 싣는다 */.map(function(g){ return String(g.what||''); });   /* ★[FLOWER_OFF_OLD_1013] 10/13 전에 저장한 식순의 «부모님께 드릴 꽃»은 보이지 않는다(꽃 전달 폐지 · 계약서 v1.15 · 식순 화면 ③ 과 같게) */   // [GOODS_STUDIO] 옛 «직접 준비»도 이제 저희가
   var _bq=Array.isArray(sm.prep);   // [GOODS_STUDIO] 기본 조화 부케 줄 — 준비 목록이 있는 초안에만(옛 초안은 아무것도 안 그린다)
@@ -8527,7 +8556,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     opt=opt||{};
     var done = (st==='완료');
     // TRK_NO_SUB(2026-07-25 사용자 지시 "제목 밑 설명이 2개는 있고 2개는 없어 · 전부 없는 식으로 · 필요한 설명은 클릭해 안쪽에서"):
-    //   ★'예식 준비' 5행(청첩장·식순·애프터 웨딩·최종 확정·좌석·단체 사진)은 이름+상태+버튼만 — sub를 넘기지 않는다(복원 금지).
+    //   ★'예식 준비' 5행(청첩장·식순·예식 후 식사·최종 확정·좌석·단체 사진)은 이름+상태+버튼만 — sub를 넘기지 않는다(복원 금지).
     //     설명은 각 행을 눌러 들어간 화면이 담당: 최종 확정·좌석 -> renderSeat 상단(_seatLeadNote 기한·좌석 링크) / 단체 사진 -> renderPhoto 상단.
     //     기한 임박한 '최종 확정'만 opt.tag(제목 옆)로 D-n을 남긴다(놓치면 잔금·진행에 영향).
     //   예외(2026-07-25 추가 지시 "하객안내랑 예식확인서는 밑에 설명있어도 괜찮아"): 구분선 아래 '확인·전달' 그룹 2행은 설명을 유지한다
@@ -8546,7 +8575,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     if(_ivN){ var _ivT=_invTotalSteps(inv.draft), _ivI=(_ivT===2?(_ivN>1?2:1):_ivN)-1; _ivStepTag=_invStepNames(inv.draft)[_ivI]+' 단계'; } }   /* [WZ_STEP_NONUM 2026-09-28] 진행 표시에서 번호를 뺐으니 꼬리표도 «② 부모님» → «부모님 단계»(이름 한 낱말만으로는 무슨 뜻인지 흐리다) */   // ★[WZ_STEPS_TAG 2026-09-27] «2/4» → «② 부모님» — 누르면 열리는 진행 표시와 같은 말(같은 걸음을 두 화면이 다르게 부르지 않게 · [INV_TAG_TOTAL] 과 같은 뜻)
   var _fdStepTag=null; if((t.final||'')==='진행중'){ var _fdN=Number((fd||{})._step); if(!isNaN(_fdN)&&_fdN>=0) _fdStepTag=Math.min(_fdN+1,3)+'/3'; }
   var ist = inv.status || '시작전';
-  /* ★[INV_SKIP_ROW 2026-09-26 고객 점검 prod-5] 「청첩장 없이」를 고른 줄이 ✓ + 「다시 만들기」였다 — 바로 아래 애프터 웨딩은
+  /* ★[INV_SKIP_ROW 2026-09-26 고객 점검 prod-5] 「청첩장 없이」를 고른 줄이 ✓ + 「다시 만들기」였다 — 바로 아래 예식 후 식사는
      같은 «안 하기로 한 것»을 회색 「안 함」 + 「다시 정하기」로 보여 준다(2026-07-21 지시 · 안 했는데 완료로 보이던 오해 제거).
      만든 적이 없는 분께 「다시 만들기」는 처음부터 다시 하라는 말로 읽히고, 버튼이 실제로 하는 일은 고른 것을 다시 여는 것이다.
      → 청첩장 없이 = ✓ 대신 「안 함」 배지 · 「다시 정하기」. 발행 없이 마친 나머지(개인 제작 · QR 아니요)도 버튼은 「다시 정하기」(✓ 는 그대로).
@@ -8554,7 +8583,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   var _iSkip = (ist==='완료' && _invMethodEff(inv.draft)==='none' && !_invLiveUrls(inv.draft));   // [INV_SKIP_ROW] 검토 — 초안에 살아 있는 링크가 있으면(발행 뒤 「수정하기」로 청첩장 없이를 고르고 저장만 함) 아직 「안 함」이 아니다
   var ilabel = ist==='완료' ? ((inv.published && !_iSkip && _invLinkAlive(inv)) ? '발행됨 · 수정' : '다시 정하기') : (ist==='진행중' ? '이어하기' : '시작하기');   // [INV_LINK_LIVE] 은퇴한 링크(발행 뒤 개인 제작 · QR 아니요로 마침)는 「다시 정하기」 — 버튼이 여는 곳(1 / 2)과 같은 말
   var _dDone=(t.dining||'')==='완료' && _dnHas(dd);   // [DN_ROW_TRUTH] 딱지만 «완료»이고 정한 것이 없으면 「정하기」
-  // [애프터 웨딩 3-상태 · 2026-07-21 사용자 지시] '선택(안해도 그만)' 태그 폐지 → 미정 / 만들기 완료 / 안 함.
+  // [예식 후 식사 3-상태 · 2026-07-21 사용자 지시] '선택(안해도 그만)' 태그 폐지 → 미정 / 만들기 완료 / 안 함.
   //   안 함(안내 없이 진행)은 초록 완료✓ 대신 회색 '안 함' 배지로(안 했는데 완료로 보이던 오해 제거). ★'선택' 태그 복원 금지.
   var _dd=dd||{};
   var _dSkip=(_dDone && _dd.dining_on==='N');   // 안 하기로 함(안내 없이 진행)
@@ -8631,10 +8660,10 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     _mvRow={ done:_vuM.done, html:'' };
   } }catch(e){}
   var _prepRows=[
-    /* ★★[PREP_ORDER_0926 2026-09-26 사장님 지시 «위에서부터 청첩장, 좌석·음료, 애프터웨딩, 식순, 단체사진 순으로 하자»]
-       종전 순서는 청첩장 · 식순 · 애프터 웨딩 · 좌석·음료 · 단체 사진이었다. 식순 아래 접힘 두 줄(준비 목록 · 부케)은 식순에 딸린 것이라 식순과 함께 옮긴다.
+    /* ★★[PREP_ORDER_0926 2026-09-26 사장님 지시 «위에서부터 청첩장, 좌석·음료, 예식 후 식사, 식순, 단체사진 순으로 하자»]
+       종전 순서는 청첩장 · 식순 · 예식 후 식사 · 좌석·음료 · 단체 사진이었다. 식순 아래 접힘 두 줄(준비 목록 · 부케)은 식순에 딸린 것이라 식순과 함께 옮긴다.
        ★순서를 되돌리지 말 것 — scripts/audit/prep-order.mjs 가 이 배열의 행 순서를 잰다. */
-    { done: ist==='완료', html: row('청첩장', _iSkip?'':ist, 'mp_invStart', ilabel, null, {tag:_iSkip?'안 함':_ivStepTag}) },   // [INV_SKIP_ROW] 청첩장 없이 = 애프터 웨딩 「안 함」과 같은 모양
+    { done: ist==='완료', html: row('청첩장', _iSkip?'':ist, 'mp_invStart', ilabel, null, {tag:_iSkip?'안 함':_ivStepTag}) },   // [INV_SKIP_ROW] 청첩장 없이 = 예식 후 식사 「안 함」과 같은 모양
     // [통합 행 · 2026-07-19 사용자 지시] 최종 확정+좌석 배치 = 입구 하나: 버튼이 상태로 라우팅(확정 전=확정 위저드 / 확정 후=좌석 캔버스 직행 · 허브 층 없이 탭 수 유지).
     //   확정 저장 직후엔 자동으로 자리 배치로 이어지고(_seatNext), 좌석 화면 상단 요약 스트립에서 인원·음료 재수정. ✓는 둘 다 완료일 때만(좌석=필수 · ★'선택' 태그 금지).
     /* ★★[SEAT_DRINK_LABEL 2026-08-09 사용자 지시] 「최종 확정 · 좌석」 → 「좌석 · 음료」.
@@ -8656,7 +8685,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     { done: _seatDone, html: row('좌석 · 음료', _seatDone?'완료':'', 'mp_finalStart',
           (_seatDone?'완료 · 수정':(((t.seat||'')==='진행중')?'이어하기':'시작하기')),
           null, {tag:(!_seatDone?(_fUrgTag||_fdStepTag):null)}) },   // TRK_NO_SUB: 기한·좌석 안내 문구는 renderSeat 상단으로 이관 · 임박(D-30 이내)만 제목 옆 D-n 태그로 남김
-    { done: _dDone, html: row('애프터 웨딩', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag}) },
+    { done: _dDone, html: row('예식 후 식사', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag}) },
     { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, _migOfferSub(), {pre:_ritPre, pre2:_ritPre2}) },   /* [OLD_DRAFT_OFFER] 되찾을 예전 고침이 있을 때만 줄 아래 한 줄(설명이 아니라 알림 · TRK_NO_SUB 의 예외) */
     { done: true, html: '' },   /* [PR_PREP_ONE] 준비 목록은 «연습 · 준비 ›»가 여는 연습 화면으로 옮겼다 */   // [PREP_LINK] 요약 줄은 끈 채 «준비할 것» 단추가 여는 목록   // ★[PREP_FOLD_OFF 2026-10-05 사장님 «준비할 것 N가지 · 도와주실 분 N — 일단 여기서는 안 보이게»] 식순 줄 아래 접힘을 잠시 끈다 · 함수 · 자리는 남겨 둔다(다시 켜려면 PREP_FOLD_OFF=false) · 목록은 식순 화면 «한눈에 보기»가 맡는다
     { done: true, html: _bouquetFold(base) },
@@ -8749,7 +8778,7 @@ function exitInvFlow(){ _mpHoldScroll();   // #8 나가기도 저장 — 성공 
     if(!bkAlive(INVFLOW._bk)) INVFLOW._bk=bkOpen(function(){ exitInvFlow(); });   // 뒤로가기로 나가다 실패한 경우 — 소비된 가드 재무장(다음 뒤로가기가 페이지 이탈이 되지 않게)
     /* [SAVEFAIL_STAY] 2026-09-26 통합 점검 2R(R4) · 저장 실패 판 «저장이 안 됐어요»도 바깥 누름 · Esc 를 «아니오»와 가른다.
        dismissNull 이 없어 판 바깥(가림막)을 누르거나 Esc 를 누르면 false 로 풀려 «저장 없이 나가기»가 됐다 —
-       안내 없이 편집 화면이 닫히고 방금 적은 것이 사라졌다(청첩장 · 좌석 · 스냅 기획 · 애프터 웨딩 네 곳 실측 · 막대 아래 흐린 «저장하고 마치기» 자리를 한 번 더 눌러도 같다).
+       안내 없이 편집 화면이 닫히고 방금 적은 것이 사라졌다(청첩장 · 좌석 · 스냅 기획 · 예식 후 식사 네 곳 실측 · 막대 아래 흐린 «저장하고 마치기» 자리를 한 번 더 눌러도 같다).
        → null(닫기)은 판만 닫고 이 화면에 머문다. 입력과 뒤로가기 층은 바로 위에서 이미 되살렸으니 더 할 일이 없다.
          명시적으로 «저장 없이 나가기»를 누른 false 만 버린다. 나가기 판(_wizExit)의 v===null 갈래와 같은 규칙. */
     if(r&&r.sess){ _saveSessAsk(r); return; }   // [ERR_CODE_MYPAGE F5] 로그인이 풀린 실패는 «다시 저장»을 되풀이시키지 않는다
@@ -8982,8 +9011,8 @@ document.addEventListener('click', function(e){
 });
 /* ★[WZ_BAR_DEBOUNCE 2026-09-26 통합 점검 2라운드 R3] 붙는 막대([WZ_BAR])는 화면보다 긴 단계마다 같은 자리에 선다 — 단계 전환은 곧바로 다시 그려서(renderInvFlow 등),
    「다음」을 빠르게 두 번 누르면 두 번째 누름이 방금 그린 다음 단계의 단추에 떨어졌다. 청첩장 1/4 → 3/4(2/4 혼주 · 계좌를 한 번도 안 보고 기본값으로 저장) ·
-   수정하기 2/4 → 4/4 · 애프터 웨딩 「담은 N곳 정리하기」 두 번 → 「저장하고 닫기」까지 눌려 위저드가 닫혔다(390 · 320 · 1280 · 마우스 120~400ms · 더블클릭 · 터치 실측).
-   막대 단추를 누른 뒤 450ms 안에 온 막대 누름은 버린다 — 캡처 단계 한 곳이라 청첩장 · 애프터 웨딩 · 좌석 · 가족·친구 스냅 · 스냅 기획 막대를 함께 덮는다.
+   수정하기 2/4 → 4/4 · 예식 후 식사 「담은 N곳 정리하기」 두 번 → 「저장하고 닫기」까지 눌려 위저드가 닫혔다(390 · 320 · 1280 · 마우스 120~400ms · 더블클릭 · 터치 실측).
+   막대 단추를 누른 뒤 450ms 안에 온 막대 누름은 버린다 — 캡처 단계 한 곳이라 청첩장 · 예식 후 식사 · 좌석 · 가족·친구 스냅 · 스냅 기획 막대를 함께 덮는다.
    ★막대의 모양 · 자리 · 순서 · 문구는 그대로다(WZ_BAR 는 사장님 결정 · 이 줄은 «더하는» 막이다). 버린 누름은 시각을 갱신하지 않는다(450ms 뒤 한 번 누름은 그대로 간다).
    ★사람이 누른 것(isTrusted · 마우스 · 터치 · 키보드 Enter/Space)만 센다 — 코드의 el.click() 은 거르지도 세지도 않는다(점검 스크립트가 단계를 빠르게 넘기는 길 · check-wiz-exit 실측). */
 document.addEventListener('click', function(e){
@@ -9198,7 +9227,7 @@ function _invLinkChange(d){
 function _invTotalSteps(d){ var m=d&&d.method; return (m==='self'||m==='none')?2:4; }
 /* [WZ_STEPS] 청첩장 진행 표시 — 지나온 걸음은 눌러 돌아간다(식순과 같다 · 밑줄). 앞 걸음은 못 누른다 — «다음»이 걸음마다 빈 칸을 확인하고 저장한다(건너뛰면 그 확인을 빠진다).
    돌아가기 전에 이 걸음에서 적은 것을 먼저 담는다 — «이전» 단추와 같은 순서(_invJumpBind 의 pre). */
-/* ★[WZ_ERR_INV 2026-09-27 사장님 «일관성»] 청첩장 걸음 확인 = 막대 안 한 줄(.wz-err) — 확인 걸음 · 애프터 웨딩 · 좌석과 같은 자리 · 같은 모양.
+/* ★[WZ_ERR_INV 2026-09-27 사장님 «일관성»] 청첩장 걸음 확인 = 막대 안 한 줄(.wz-err) — 확인 걸음 · 예식 후 식사 · 좌석과 같은 자리 · 같은 모양.
      종전 1~3 걸음만 창(mpAlert)을 띄워 «한 번 더 누르는» 수고가 들었고, 같은 «빠졌어요»가 화면마다 다른 모양이었다. 막대가 없으면 종전대로 창. */
 function _invErr(msg){ var e=$('iv_err'); if(e){ _errSet(e, msg); return; } mpAlert(msg); }   // [ERR_CODE_NOWRAP]
 function _invStepKeys(d){ return _invTotalSteps(d)===2 ? ['method','confirm'] : ['method','parents','design','confirm']; }
@@ -9739,9 +9768,9 @@ function invStepDone(box, r){
          온라인만 고른 부부에게는 통째로 틀린 말이었다. 둘째 줄(«두 곳이 채워져요»)은 그대로. */
       /* [DOT_SPLIT_0926] 2026-09-26 통합 점검 · 두 줄 다 « · »로 절을 이어 390 «…이 QR을 넣으세요 ·»가 줄 끝에 걸렸다 — 글은 그대로, 점만 마침표로 · 한 덩어리씩(.ln-bal) · 목록 «·» 양옆 U+2060 */
       +'<div class="done-fold-b" style="text-align:center"><div class="done-qr-sub" style="margin-bottom:4px"><span class="ln-bal">종이 청첩장을 직접 만드실 때 이 QR을 넣으세요.</span><span class="ln-bal">'+(u.family?'위 오프라인 청첩장에는 이미 들어 있어요.':'하객분께 이 링크나 QR을 따로 전해 주세요.')+'</span></div>'
-      /* [FOLD_JOSA_GLUE] 2026-09-26 G4 검토 · 이 줄을 한 덩어리(.ln-bal · balance)로 감싸자 320~345 에서 «…애프터 웨딩(식사) / 을 완료하면…»으로
+      /* [FOLD_JOSA_GLUE] 2026-09-26 G4 검토 · 이 줄을 한 덩어리(.ln-bal · balance)로 감싸자 320~345 에서 «…예식 후 식사(식사) / 을 완료하면…»으로
          조사 «을»이 줄 머리로 떨어졌다(닫는 괄호 뒤 한글은 줄바꿈 자리다 · BASE 는 balance 가 없어 이 모양이 없었다). 같은 폭에서 «자리 / 찾기»도 갈렸다.
-         «웨딩(식사)을»을 U+2060 으로 한 낱말 · «애프터 웨딩» · «자리 찾기» · «식사 안내»는 NBSP — 320~430 · 768 · 1280 조사 머리 · 괄호 머리 · 매달린 점 0 */
+         «웨딩(식사)을»을 U+2060 으로 한 낱말 · «예식 후 식사» · «자리 찾기» · «식사 안내»는 NBSP — 320~430 · 768 · 1280 조사 머리 · 괄호 머리 · 매달린 점 0 */
       +'<div class="done-qr-sub" style="font-size:11px;margin-top:0"><span class="ln-bal">좌석 배치&#8288;·&#8288;애프터&nbsp;웨딩&#8288;(식사)&#8288;을 완료하면 이&nbsp;안내에 <b>자리&nbsp;찾기&#8288;·&#8288;식사&nbsp;안내</b> 두 곳이 채워져요.</span><span class="ln-bal">준비된 것부터 보여요.</span></div>'
       +'<div style="text-align:center;margin:10px 0 2px"><div class="done-qr-frame"><div id="iv_gqr" style="display:flex;justify-content:center;min-height:40px"></div></div></div>'
       +'<a class="done-url" style="margin-top:10px" href="'+escapeHtml(_gUrl)+'" target="_blank" rel="noopener">'+escapeHtml(_gUrl)+'</a>'
@@ -9893,17 +9922,25 @@ function seatUrl(token){ var o=''; try{ o=window.location.origin; }catch(e){} re
 // ★[SEAT_PER5 2026-09-14 대표 확인 「5명이 맞다」] 종전 기본값은 4명이었다. 6×4=24명이라
 //   30명 예식은 부부가 자리를 여섯 번 더 눌러야 채워졌다. 실제 세팅이 5명이니 처음부터 5명으로 둔다.
 function autoSeatTables(headcount){
-  var cnt=6, per=5, lc=Math.floor(cnt/2);   // [SEAT_PER5] 6테이블 · 5석 기본 · 좌측 3 = 30명
-  var out=[]; for(var i=0;i<cnt;i++){ var seats=[],drinks=[]; for(var k=0;k<per;k++){ seats.push(''); drinks.push(''); } out.push({ name:'테이블 '+(i+1), side:(i<lc)?'L':'R', seats:seats, drinks:drinks }); }
-  return out;
+  /* ★[SEAT_PLAN_9 2026-11-22 사장님 «추천대로 적용»] 기본 배치 = 캔들존 확정 배치(좌 4 · 우 5 · 35석 · assets/seat-plan.js).
+     종전 «6테이블 × 5석»([SEAT_PER5])은 공간 설계가 정해지기 전의 임시 모양이었다 — 되돌리지 말 것. */
+  return ME_SEAT_PLAN.fresh();
 }
 // 음료 배열을 좌석 배열과 항상 같은 길이로 정규화(값은 '' 미정 · 'C'샴페인 · 'R'레드와인 · 'N'논알코올 스파클링). 구 데이터(A알코올·J주스·없음)는 ''로 — 대표음료 마이그레이션(startSeatFlow)이 먼저 채움.
 function _seatNormDrinks(t){
   if(!t) return;
   if(Object.prototype.toString.call(t.seats)!=='[object Array]') t.seats=[];
   var d=(Object.prototype.toString.call(t.drinks)==='[object Array]')?t.drinks:[];
-  var out=[]; for(var i=0;i<t.seats.length;i++){ var v=String(d[i]||''); out.push((v==='C'||v==='R'||v==='N'||v==='K'||v==='Y')?v:''); }   // [KID_SEAT] K=유아 · 물
-  t.drinks=out;
+  /* ★★[DRINK_TWO 2026-11-22 사장님 «샴페인만» · «물도 빼고 논알콜 스파클링» · «의자관련된거랑 음료관련된거를 섞으면 복잡»]
+     음료는 둘(C 샴페인 · N 논알코올 스파클링) · 의자는 따로(t.chair: '' 보통 · 'B' 유아용 의자 · 'W' 휠체어).
+     옛 값은 여기서 옮긴다 — R(레드와인) → C · K(유아 · 물) → N + 유아용 의자 · Y(어린이 · 물) → N.
+     ★음료 칩에 의자를 다시 섞지 말 것(유아 · 물 칩 [KID_SEAT] · [KID_CHAIR] 은 이 결정으로 걷었다) · 물은 현장에서 청하면 드린다. */
+  var c=(Object.prototype.toString.call(t.chair)==='[object Array]')?t.chair:[];
+  var out=[], ch=[]; for(var i=0;i<t.seats.length;i++){ var v=String(d[i]||''), cv=String(c[i]||'');
+    if(cv!=='B'&&cv!=='W') cv='';
+    if(v==='R') v='C'; else if(v==='K'){ v='N'; if(!cv) cv='B'; } else if(v==='Y') v='N';
+    out.push((v==='C'||v==='N')?v:''); ch.push(cv); }
+  t.drinks=out; t.chair=ch;
 }
 // [자리별 3음료 · 2026-07-19 사용자 지시] 상단 대표음료 입력 폐지 → 자리마다 샴페인/레드와인/논알콜 스파클링 직접 선택.
 var SEAT_DRINKS=[{c:'C',t:'샴페인'},{c:'R',t:'레드와인'},{c:'N',t:'논알코올 스파클링'},{c:'K',t:'유아 · 물'},{c:'Y',t:'어린이 · 물'}];
@@ -9912,7 +9949,8 @@ var SEAT_DRINKS=[{c:'C',t:'샴페인'},{c:'R',t:'레드와인'},{c:'N',t:'논알
    ①그 아이 음료(물)와 ②스태프의 하이체어 준비 수량이 **한 번에** 정해진다. 항목을 둘로 나누면 두 번 묻게 된다.
    ★알콜 1종 규칙(ALC_ONE)과 무관하다 — 유아는 알콜이 아니므로 _seatAlc 가 세지 않는다.
    ★코드 K 는 mypage·guide·admin·80_production 네 곳이 한 벌 — 하나만 고치면 저장 때 조용히 지워진다(SEAT_DRINK_SAVE 사고와 같은 모양). */
-var SEAT_DRINK_LABEL={C:'샴페인',R:'레드와인',N:'논알코올 스파클링',K:'유아 · 물',Y:'어린이 · 물'};
+var SEAT_DRINK_LABEL={C:'샴페인',R:'레드와인',N:'논알코올 스파클링',K:'유아 · 물',Y:'어린이 · 물'};   // R · K · Y 는 옛 데이터 이름표로만 남는다([DRINK_TWO] · 새 입력은 C · N 둘)
+var SEAT_CHAIR_LABEL={B:'유아용 의자',W:'휠체어'};   // [DRINK_TWO] 자리 준비 — 음료와 따로
 /* ★[KID_CHAIR 2026-08-16 사용자 지시 "추천대로"] 아이를 **둘로 나눈다** — 유아(K)와 어린이(Y).
    첫 판은 아이를 한 칸으로 묶어 K 를 고르면 곧바로 유아용 의자 1개로 셌다. 그러면 여섯 살·초등학생도
    의자가 따라붙어 스태프가 쓰지 않을 의자를 꺼내 놓게 된다. 물은 둘 다 같고 **의자만 다르다.**
@@ -9928,6 +9966,7 @@ function _seatAlc(){   // 행사 전체에 이미 정해진 알콜 1종('C'|'R'|
   return code;
 }
 function _seatAlcMixed(){   // 옛 데이터 방어 — 샴페인·레드와인이 함께 있는 상태(신규 입력으론 만들어지지 않음)
+  return false;   // [DRINK_TWO] 레드와인이 없어져(불러올 때 R → C) 섞일 일이 없다
   var hasC=false, hasR=false;
   ((SEATFLOW&&SEATFLOW.tables)||[]).forEach(function(t){ ((t&&t.drinks)||[]).forEach(function(v){ if(v==='C')hasC=true; else if(v==='R')hasR=true; }); });
   return hasC&&hasR;
@@ -9981,6 +10020,7 @@ function startSeatFlow(seatDraft, finalDraft, token, gi){
     if(_repCode && t.seats){ for(var i=0;i<t.seats.length;i++){ if(String(t.seats[i]||'').trim()){ var dv=String((t.drinks&&t.drinks[i])||''); if(dv===''||dv==='A'||dv==='J'){ t.drinks=t.drinks||[]; t.drinks[i]=(dv==='N'?'N':_repCode); } } } }
     _seatNormDrinks(t);
   });   // 음료 배열 보정(구 데이터 호환) + 대표음료 자리별 이관
+  tbls=ME_SEAT_PLAN.migrate(tbls); tbls.forEach(_seatNormDrinks);   // [SEAT_PLAN_9] 옛 좌석표(6테이블 등)는 확정 배치로 옮긴다 — 이름 · 음료 · 의자 · 테이블 이름은 번호 순서대로 따라온다
   SEATFLOW={ active:true, tables:tbls, token:token||'', gi:(gi||{}), fd:(finalDraft||{}) };   // gi = 공유 패널의 공개 설정(자리 찾기·범위) 기준값 · fd = 상단 확정 요약 스트립용(통합 2026-07-19)
   SEATFLOW._bk=bkOpen(function(){ _wizExit(); });   // [WIZ_EXIT_ONE] 뒤로가기도 같은 규칙
   renderSeat($('mp_production')); _prodFsSync();   // 전체화면 오버레이로 집중(2026-07-19)
@@ -10214,6 +10254,7 @@ function saveSeat(done){
   // 고아 음료(이름 없는 자리) 정리는 '배치 완료'(done) 페이로드에만 — 임시저장은 그대로 둬 이어하기에서 음료 먼저 흐름이 살아남게. 표시·집계·하객 화면은 어차피 이름 있는 자리만 노출.
   var _tbls; try{ _tbls=JSON.parse(JSON.stringify(SEATFLOW.tables)); }catch(e){ _tbls=SEATFLOW.tables; }
   if(done) _tbls.forEach(function(t){ (t.seats||[]).forEach(function(nm,i){ if(!String(nm||'').trim() && t.drinks && t.drinks[i]) t.drinks[i]=''; }); });
+  _tbls.forEach(function(t){ var c=t.chair; if(!c || !c.some(function(v){ return !!v; })) delete t.chair; });   // [DRINK_TWO] 자리 준비가 하나도 없으면 키를 싣지 않는다(빈 배열을 보내 서버 에코 «일부 미저장» 경고를 부르지 않게)
   _tbls.forEach(function(t){ var dv=_seatDrinkDefault(); (t.seats||[]).forEach(function(nm,i){ if(String(nm||'').trim() && !((t.drinks&&t.drinks[i])||'')){ t.drinks=t.drinks||[]; t.drinks[i]=dv; } }); });   // [SEAT_NO_UNDEC] 보내는 값에도 미정이 없게 — 화면을 안 거치고 저장되는 길(자동저장·나가기)까지 덮는다
   /* [SEAT_FIN_SEQ] 좌석 → (성공하면) 최종 인원 파생 저장 **순서대로**. 겹쳐 보내면 GAS 락에서 한쪽이 떨어진다.
      ★반환값은 종전대로 **좌석 저장 결과**다 — 나가기·실패 재시도 흐름이 이 값을 읽는다(파생 저장 실패로 되돌리지 않는다).
@@ -10288,15 +10329,15 @@ function guideClosedHtml(){
 // 부분 노출 현황 칩 — 하객 페이지(guide.html) 섹션 순서 그대로, 무엇이 열려 있고 무엇이 비었는지(2026-07-16 사용자 제안).
 //   판정은 하객 실노출 규칙(handleGuideView)과 동일: 다이닝 센티널 문구 제외 · 자리는 좌석토큰(배치 완료)+이름+토글 ON · 라이브는 켰고 청첩장 발행(eventId)까지 된 경우만 ✓.
 var DN_PLACEHOLDER=['직접 섭외할게요','상담 때 함께 정할게요','장소 미정','다이닝 없이 진행할게요'];   // venuePick 센티널(장소 아님) — 칩·확인서가 공용(중복 리터럴 드리프트 방지)
-/* ★[DN_ROW_TRUTH 2026-09-26 통합 점검 L7] 애프터 웨딩의 «완료»는 트랙 딱지(t.dining)만 믿지 않는다 — 정한 것이 있어야 완료다.
-   「예식만으로 조용히 마무리」(완료 저장) → 「역시 애프터 웨딩 만들래요」([DN_AGAIN_DIRECT])로 목록에 갔다가 아무것도 안 담고 나가면
+/* ★[DN_ROW_TRUTH 2026-09-26 통합 점검 L7] 예식 후 식사의 «완료»는 트랙 딱지(t.dining)만 믿지 않는다 — 정한 것이 있어야 완료다.
+   「예식만으로 조용히 마무리」(완료 저장) → 「역시 예식 후 식사 만들래요」([DN_AGAIN_DIRECT])로 목록에 갔다가 아무것도 안 담고 나가면
    서버는 이미 «완료»인 트랙을 비지 않은 초안(_step 숫자)이라며 그대로 둔다(80_production.gs _emptyDraft) — 담은 곳도 «안 함»도 없는데
    행은 「✓ 완료 · 수정」, 확인서는 «장소 미정 · 상담에서 디렉터와 함께 정해요»(아무도 한 적 없는 약속)였고, 누르면 입구 게이트가 열렸다.
    정한 것 = 안 함(N) · 담은 곳 · 고른 곳 · 옛 자리표시(직접 섭외 · 상담 때). 행 · 확인서 · 내 완성물이 이 한 판정을 쓴다([SEAT_ROW_TRUTH] 와 같은 뜻 · 서버 수정 없이). */
 function _dnHas(dd){ dd=dd||{}; if(String(dd.dining_on||'')==='N') return true; if((dd._favs||[]).length) return true; if(String(dd.venuePick||dd.venue||'').trim()) return true; var pt=String(dd.partner||''); return pt==='직접 섭외할게요'||pt==='상담 때 함께 정할게요'; }
 /* ★[GUIDE_NOTE_TRUE 2026-09-26 고객 점검 prod-6 · inv-9] 칩 판정을 한 곳에서 내고, 아래 안내문도 그 판정을 따른다.
-   ①애프터 웨딩을 끝냈는데(행 ✓) 보여 줄 식당이 없는 판(자리표시 「상담 때 함께 정할게요」 류 · 담은 곳을 다 뺌) — 칩은 「장소 미정」,
-     안내는 «애프터 웨딩에서 식당을 고르면 열려요». 종전 고정문 «애프터 웨딩을 완료하면 열려요»는 바로 위 ✓ 와 부딪혀 저장이 안 된 줄 알게 했다.
+   ①예식 후 식사를 끝냈는데(행 ✓) 보여 줄 식당이 없는 판(자리표시 「상담 때 함께 정할게요」 류 · 담은 곳을 다 뺌) — 칩은 「장소 미정」,
+     안내는 «예식 후 식사에서 식당을 고르면 열려요». 종전 고정문 «예식 후 식사를 완료하면 열려요»는 바로 위 ✓ 와 부딪혀 저장이 안 된 줄 알게 했다.
      ★«정해지면 열려요»처럼 저절로 열린다고 읽히는 말은 쓰지 않는다 — 목록의 식당을 골라야 열린다.
    ②좌석도 같다 — 「배치 완료」(행 ✓)인데 자리에 이름이 없으면 «자리에 이름을 넣으면 열려요».
    ③둘 다 켜졌으면 안내문을 내지 않는다(다 채운 분께 «완료하면 열려요»는 덜 끝난 게 있냐는 물음만 남긴다).
@@ -10319,13 +10360,13 @@ function _guideSections(p){
   return { seat:seat, dining:dining,
     dnPend: (t.dining||'')==='완료' && String(dd.dining_on||'')!=='N' && !dining,   // ①
     seatPend: (t.seat||'')==='완료' && !seatNames,                                   // ②
-    dnOff: (t.dining||'')==='완료' && String(dd.dining_on||'')==='N',                // 애프터 웨딩 「안 함」 — 식사 칸은 비어 있는 것이 맞다(열라고 권하지 않는다)
+    dnOff: (t.dining||'')==='완료' && String(dd.dining_on||'')==='N',                // 예식 후 식사 「안 함」 — 식사 칸은 비어 있는 것이 맞다(열라고 권하지 않는다)
     dnHidden: dnHidden };   // [B2_MA_14] 담았지만 공개한 곳이 없다
 }
 function _guideSectionChips(p, inv){
   var g=_guideSections(p);
-  /* [B2_MA_14 · d-18] 식사 칩 = «식사 · 애프터 웨딩»(줄임 «애프터» 금지) · 공개 있음 ✓ / 사용 안 함 / 공개한 곳 없음 / 준비 전 */
-  var items=[['내 자리 찾기',g.seat],['식사 · 애프터 웨딩',g.dining,g.dnOff?'사용 안 함':g.dnHidden?'공개한 곳 없음':g.dnPend?'장소 미정':'준비 전']];   // 오시는 길·드레스코드 섹션 폐지(2026-07-17) — 칩도 함께 제거
+  /* [B2_MA_14 · d-18] 식사 칩 = «식사 · 예식 후 식사»(줄임 «애프터» 금지) · 공개 있음 ✓ / 사용 안 함 / 공개한 곳 없음 / 준비 전 */
+  var items=[['내 자리 찾기',g.seat],['예식 후 식사',g.dining,g.dnOff?'사용 안 함':g.dnHidden?'공개한 곳 없음':g.dnPend?'장소 미정':'준비 전']];   // 오시는 길·드레스코드 섹션 폐지(2026-07-17) — 칩도 함께 제거
   // ★'라이브 중계' 칩 재추가 금지 — 2026-07-18 사용자 지시로 제거(라이브는 온라인 청첩장·모바일 참석 QR 경로 전담 · 하객 안내는 식사·자리 전용. 페이지 쪽 라이브 섹션은 07-17에 이미 제거됨)
   return '<div class="gd-chips">'+items.map(function(it){ return '<span class="gd-chip'+(it[1]?' on':'')+'">'+(it[1]?'✓ ':'')+it[0]+(it[1]?'':' · '+(it[2]||'비어 있음'))+'</span>'; }).join('')+'</div>';
 }
@@ -10383,10 +10424,10 @@ function guideHubHtml(p, inv){
 // ★[B2_FIX_MA_02 2026-11-06 재검증 재수정] 하객 안내 생성 조건 상수(GUIDE_MAKE_COND · «…중 하나라도 내용을 채워 완료하면»)는 걷었다 — 서버가 제작 단계의 모든 예식에 링크를 발급한다(_guideTokenEnsure_).
 //   완성 화면 힌트(guideHint)와 패널(guideHubHtml)은 같은 글(«하객 안내에서 사진을 올릴 수 있어요. 식사와 좌석은 준비한 내용만 보여요.»). 옛 조건 문구를 되살리지 말 것.
 //   (아래 [COND_PAREN_GLUE] · [DOT_SPLIT_0926] 은 그 상수의 줄바꿈 기록)
-/* [COND_PAREN_GLUE] 2026-09-26 G4 검토 · 점을 붙이자 덩어리가 커져 줄이 괄호 앞에서 갈렸다 — 하객 안내 패널(링크 없음) 320~330 «안내 링크는 애프터 웨딩 / (식사)·좌석 배치…»로
-   풀이 «(식사)»가 앞말과 떨어져 줄 머리에 섰다(한글 뒤 여는 괄호는 줄바꿈 자리다). «웨딩»과 «(» 사이도 U+2060 · «애프터 웨딩»은 한 낱말(NBSP · _guideNoteHtml 과 같은 규칙).
+/* [COND_PAREN_GLUE] 2026-09-26 G4 검토 · 점을 붙이자 덩어리가 커져 줄이 괄호 앞에서 갈렸다 — 하객 안내 패널(링크 없음) 320~330 «안내 링크는 예식 후 식사 / (식사)·좌석 배치…»로
+   풀이 «(식사)»가 앞말과 떨어져 줄 머리에 섰다(한글 뒤 여는 괄호는 줄바꿈 자리다). «웨딩»과 «(» 사이도 U+2060 · «예식 후 식사»는 한 낱말(NBSP · _guideNoteHtml 과 같은 규칙).
    320~430 · 768 · 1280 두 자리(패널 · 완성 화면 힌트) 괄호 머리 · 매달린 점 · «애프터 / 웨딩» 0 */
-// 각 섹션에 흩어진 하객 안내 컨트롤(예약 정보=애프터 웨딩 행 · 자리 찾기=좌석 행) 공용 저장 — DOM에 없는 값은 저장본(gi) 유지
+// 각 섹션에 흩어진 하객 안내 컨트롤(예약 정보=예식 후 식사 행 · 자리 찾기=좌석 행) 공용 저장 — DOM에 없는 값은 저장본(gi) 유지
 // ── 단체 사진 = 좌석 편집기처럼 전용 화면(PHOTOFLOW) · 구도 순번 + 연출/이벤트(photoFx) · 사진작가 전달용(2026-07-19) ──
 /* ★[PHOTO_LIST_V2 2026-08-08] 구도 목록 재작성 — 5차 리서치 + 사용자 결정.
    ★순서에 의미가 있다: 큰 그룹에서 사람만 빼가며 작은 그룹으로 간다(subtractive).
@@ -10896,7 +10937,7 @@ function renderPhoto(box){
      관리자 화면과 콘솔 «촬영 안내 골라 틀기» 판이 이 값을 읽는다. */
   var _pc=PHOTOFLOW.caller=(PHOTOFLOW.caller||{groom:'',bride:''});
   h+='<div class="ph-sec ph-sec-in">불러 모아 주실 분 <span class="opt-tag">· 선택</span></div>';
-  h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px"><span class="ln-bal">가족사진 때 친척분들을 모아 주실 분이에요.</span><span class="ln-bal">구도마다 사진작가가 이 분께 먼저 말씀드려요 · 가족분들을 모아 주시면 빨라요.</span></div>';   /* ★[PHOTO_CALLER_WORD 2026-09-27] 옛 «디렉터가 이 분께» — [PHOTO_FREE] 로 부르는 것은 사진작가다(나레이션 «작가님이 순서대로 불러 드립니다»와 같은 사람) */
+  h+='<div class="cc-note" style="text-align:left;margin:2px 0 8px"><span class="ln-bal">가족사진 때 친척분들을 모아 주실 분이에요.</span><span class="ln-bal">구도마다 사진작가가 이분께 먼저 말씀드려요 · 가족분들을 모아 주시면 빨라요.</span></div>';   /* ★[PHOTO_CALLER_WORD 2026-09-27] 옛 «디렉터가 이 분께» — [PHOTO_FREE] 로 부르는 것은 사진작가다(나레이션 «작가님이 순서대로 불러 드립니다»와 같은 사람) */
   /* [PC_LABEL] 칸마다 보이는 이름표 — 자리표시(placeholder)만 두면 적는 순간 «신랑 쪽»이 사라져 어느 칸인지 모른다(390 실렌더에서 봤다) */
   h+='<label for="mp_pcGroom" style="display:block;font-size:12px;color:var(--sub);margin:0 0 4px">신랑 쪽</label>';
   h+='<input id="mp_pcGroom" class="cc-input" data-pc="groom" maxlength="40" autocomplete="off" placeholder="예: 큰아버지 김○○" value="'+escapeHtml(_pc.groom||'')+'" style="margin:0 0 10px">';
@@ -11541,7 +11582,7 @@ function _spWhen(D, R, due){
     +'</ul>';
   /* [SNAP_DESIGN_0926] 마감 줄 — 배경 칠한 안내 상자 → 작은 라벨 + 한 줄([NO_SIDE_STRIPE] «배경색 칠한 안내 상자도 금지» · 디자인 점검) */
   var _had=_snapFilledD(((SNAPFLOW.p||{}).snapDraft)||{});   // [SNAP_WORD_SCENE] 늦은 날 — 아직 안 낸 사람에게는 «고르셔도»(카드와 같은 말) · 낸 사람에게는 «고치셔도»
-  if(due) h+='<div class="snp-due"><span class="snp-due-k">마감</span>'+(due.today?(_had?'오늘이 마감이에요. 고치셔도 디렉터에게 바로 전해져요.':'오늘까지 골라 주세요. 디렉터가 확인해 사진작가에게 전해요.'):due.late?('예식 14일 전이 지났어요. 지금 '+(_had?'고치셔도':'고르셔도')+' 디렉터에게 바로 전해져요.'):('예식 14일 전 <b>'+due.due+'('+due.dueDow+')</b>까지 남겨 주세요. 디렉터가 확인해 사진작가에게 전해요.'))+'</div>';
+  if(due) h+='<div class="snp-due"><span class="snp-due-k">마감</span>'+(due.today?(_had?'오늘이 마감이에요. 고치셔도 디렉터에게 바로 전해져요.':'오늘까지 골라 주세요. 디렉터가 확인해 사진작가에게 전해요.'):due.late?(due.edit+'\u2060('+due.editDow+')\u2060까지 '+(_had?'고치시면':'고르시면')+' 디렉터에게 바로 전해져요.'):   /* [SNAP_LATE_DATE_R3 안 B] */ ('예식 14일 전 <b>'+due.due+'('+due.dueDow+')</b>까지 남겨 주세요. 디렉터가 확인해 사진작가에게 전해요.'))+'</div>';
   return h;
 }
 function _spHasImg(R, z){ return z.base.concat(z.pick).some(function(s){ return !!R.img(s) || (s.ex||[]).some(function(e){ return !!R.exImg(e); }); }); }   // [SNAP_PHOTO_FIRST] 예시 사진이 한 장이라도 오면 그 공간은 사진 칸   // [SNAP_NOIMG_LIST] 사진이 한 장이라도 들어온 공간 = 칸 · 없으면 목록
@@ -12151,7 +12192,7 @@ function _pvcNow(){   // [VIDEO_UMBRELLA_1115] 날짜는 준비 목록 머리 �
     var ca=(F.conf&&F.conf.at)?_pvcMd(F.conf.at):''; F._doneAt=!!ca;
     return '<div class="pvc-now"><p><span class="pvc-now-k">확정</span><b>'+(ca?escapeHtml(ca)+' 확정했어요':'확정했어요')+'</b></p>'+(t&&!(l!=null&&l<0)?'<p><span class="pvc-now-k">바꿀 수 있는 때</span><b>'+escapeHtml(t.replace(' 23:59',''))+'까지</b></p>':'')+'</div>'; }
   return '<div class="pvc-now"><p><span class="pvc-now-k">지금 하실 일</span><b>'+escapeHtml(d)+'</b></p>'
-    +(t?'<p><span class="pvc-now-k">확정 기한</span><b>'+escapeHtml(t.replace(' 23:59',''))+(l!=null?('<span class="pvc-now-d"> · '+(l<0?'지남':(l===0?'오늘':'D-'+l))+'</span>'):'')+'</b></p>':'')+'</div>'; }
+    +(t?'<p><span class="pvc-now-k">확정 기한</span><b><span class="pvc-now-dt">'+escapeHtml(t.replace(' 23:59',''))+(l!=null?' ·':'')+'</span>'+(l!=null?(' <span class="pvc-now-d">'+(l<0?'지남':(l===0?'오늘':'D-'+l))+'</span>'):'')+'</b></p>':'')+'</div>'; }
 function _pvcThree(){ var mid=PVCFLOW.kind==='mid';
   return '<ol class="pvc-feel pvc-3">'
     +'<li><b>영상 준비</b><span>'+(mid?('식순에 정한 길이는 '+(+PVCFLOW.len||3)+'분이에요. '):'')+(PVC_FEEL_ON?'두 가지 중 편한 길로 준비해 주세요.':'')+'</span>'+_pvcWays()+'</li>'   /* ★[TWO_WAY_1116 2026-11-16 대표님 17:34 «② 다른 곳에 맡기기 · ③ 직접 만든 영상 — 우리 입장에서 같은 거잖아»] 길 둘(① 협력사 필메이커 · ② 직접 준비하기) · 필메이커 길을 거두면 고를 것이 없어 이 문장도 없다 · 옛 «세 가지 중» 되살리지 말 것 · ★[FM_COUPON_1116] 옛 고를 길 셋(협력사 필메이커 · 다른 곳 · 직접) — 옛 한 문장 «필메이커 템플릿(쿠폰으로 무료) · 업체 제작 · 직접 만든 영상 중 하나로» · ★[VU_COUPON_ONCE_1115] 쿠폰 · 비용 말은 이 걸음 안 한 곳(①)에만 */
@@ -12585,7 +12626,7 @@ function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞
       + '<div class="cc-title">스냅 기획</div>'
       + '<div class="cc-sub">'+(lock?'사진작가가 장면을 골라 담아요.':'고르신 장면을 사진작가에게 전해요.')+'</div>'   // 잠긴 뒤엔 «고르신 장면을 전해요»가 아래 «고를 수 없어요»와 어긋난다(390 실측) · [CC_SUB_FIT] 19자 — 390px 한 줄(21자 한도 · 고아 줄 방지) · «그대로 찍어요»는 약속 과잉이라 뺐다(시간이 줄면 앞 번호부터 · 책임질 수 없는 안심 금지)
       + (lock?'<div class="cc-note" style="text-align:center">예식&nbsp;3일&nbsp;전부터는 여기서 고를 수 없어요.</div>'
-             :((due?('<div class="cc-note" style="text-align:center">'+(due.today?'오늘까지 골라 주세요':due.late?'마감이 지났지만 지금 고르셔도 디렉터에게 바로 전해져요.':(due.due+'('+due.dueDow+')까지 골라 주세요'))+'</div>'):'')   // [SNAP_WORD_SCENE] 마감 줄에 할 일을 넣는다
+             :((due?('<div class="cc-note" style="text-align:center">'+(due.today?'오늘까지 골라 주세요':due.late?(due.edit+'\u2060('+due.editDow+')\u2060까지 고르시면 디렉터에게 바로 전해져요.'):   /* [SNAP_LATE_DATE_R3 안 B · 대기] 마감은 한 날만 — NOW «…까지 고르실 수 있어요»와 같은 날 · «지났지만»은 뺐다 */ (due.due+'('+due.dueDow+')까지 골라 주세요'))+'</div>'):'')   // [SNAP_WORD_SCENE] 마감 줄에 할 일을 넣는다
                /* [SNAP_BTN_GHOST 2026-09-26 사장님 결정 ⑥ · 고객 점검 prod-4 · x-4] 채움(cc-btn) → 테두리(cc-btn-ghost) — 개요 화면의 유일한 채움 버튼이
                   «선택이에요»라고 밝힌 스냅 기획이라, 필수 준비(예식 준비 행은 전부 테두리 · TRK_BTN_SAME)보다 «지금 할 일»로 먼저 읽혔다.
                   카드 자리(예식 준비 앞)·문구·크기는 그대로 — 무게만 내린다. 채움으로 되돌리지 말 것. */
@@ -12600,8 +12641,12 @@ function renderSnap(p){   // 스냅 기획 진입 카드 — '예식 준비' 앞
   var v=$('mp_snapView'); if(v) v.addEventListener('click', function(){ startSnapFlow(p.snapDraft||{}, p, false, {step:SNAP_STEPS.length-1, ro:true}); });   // [SNAP_CARD_AFTER] 잠긴 뒤 «낸 내용 보기»   // [SNAP_AGREE_LAST] 동의가 아직이면 편집 화면이 마지막 걸음에서 묻는다(그 전엔 서버로 아무것도 안 보낸다)
 }
 function seatDrinkCounts(tables){   // 음료 칩 집계 — '이름 있는 자리만' 규칙의 단일 출처(좌석 편집기 요약 공용). C샴페인·R레드와인·N논알콜 스파클링·K유아(물)·U미정(옛 데이터에서만)
-  var c={C:0,R:0,N:0,K:0,Y:0,U:0};
-  (tables||[]).forEach(function(t){ ((t&&t.seats)||[]).forEach(function(nm,si){ if(!String(nm||'').trim()) return; var dv=(t.drinks&&t.drinks[si])||''; if(dv==='C')c.C++; else if(dv==='R')c.R++; else if(dv==='N')c.N++; else if(dv==='K')c.K++; else if(dv==='Y')c.Y++; else c.U++; }); });
+  /* [DRINK_TWO 2026-11-22] 음료(C · N)와 자리 준비(B 유아용 의자 · W 휠체어)를 따로 센다 — 옛 K(유아 · 물)는 논알코올 + 유아용 의자 · Y(어린이 · 물)는 논알코올로 센다(K · Y 칸은 늘 0) */
+  var c={C:0,R:0,N:0,K:0,Y:0,U:0,B:0,W:0};
+  (tables||[]).forEach(function(t){ ((t&&t.seats)||[]).forEach(function(nm,si){ if(!String(nm||'').trim()) return; var dv=(t.drinks&&t.drinks[si])||'', ch=(t.chair&&t.chair[si])||'';
+    if(dv==='K'){ dv='N'; if(!ch) ch='B'; } else if(dv==='Y') dv='N';
+    if(dv==='C')c.C++; else if(dv==='R')c.R++; else if(dv==='N')c.N++; else c.U++;
+    if(ch==='B')c.B++; else if(ch==='W')c.W++; }); });
   return c;
 }
 /* ★[CF_SEAL] 'yyyy-MM-dd HH:mm'(KST 저장값) → '2026년 8월 16일 (일) 오후 3시 20분'.
@@ -12639,7 +12684,7 @@ function prodConfirmHtml(p, inv){
   var t=p.tracks||{}, dd=p.diningDraft||{}, fd=p.finalDraft||{}, rd=p.ritualDraft||{}, sd=p.seatDraft||{}, gi=p.guideinfoDraft||{};
   var _rDone=(t.ritual||'')==='완료', _fDone=(t.final||'')==='완료', _dDone=(t.dining||'')==='완료'&&_dnHas(dd), _sDone=(t.seat||'')==='완료';   // [DN_ROW_TRUTH] 정한 것 없는 «완료»는 「아직 정하지 않음」
   var _cfOk=!!(p.confirm&&p.confirm.at);   // 확인됨 판정 단일화 — 배너·배지가 같은 기준을 쓰게(엇갈린 UI 방지)
-  /* ★[CF_EMPTY_WORD 2026-09-26 사장님 결정 ⑭ · 고객 점검 inv-10] 빈 줄이 전부 「미완료」라, 확정에 필요 없는 줄(청첩장 · 애프터 웨딩 · 좌석 배치 · 하객 안내)까지
+  /* ★[CF_EMPTY_WORD 2026-09-26 사장님 결정 ⑭ · 고객 점검 inv-10] 빈 줄이 전부 「미완료」라, 확정에 필요 없는 줄(청첩장 · 예식 후 식사 · 좌석 배치 · 하객 안내)까지
      끝내야 하는 일처럼 읽혔다 — 바로 아래 «아직 남은 것»은 둘뿐인데. 「미완료」는 확정 게이트(_need)와 같은 둘(식순 · 좌석 · 음료)만 쓴다(need=true),
      나머지는 「아직 정하지 않음」, 하객 안내는 저절로 생기는 것이라 그 사실을 적는다(need=문장).
      ★빈 값의 기본은 「아직 정하지 않음」 — 새 줄을 더해도 거짓 경고(미완료)가 나지 않게. 게이트(_need)를 바꾸면 need=true 자리도 같이. */
@@ -12684,10 +12729,10 @@ function prodConfirmHtml(p, inv){
     /* ★[B2_MA_88 2026-11-06 2차 B2-마88] 식순 빌더가 전체 대본으로 정한 «대본에 담긴 글»(summary.texts)이 있으면 그것만 — 뺀 순간 · 현장에서 바로 하기 · 안 함의 보관 글은 목록에서 뺀다(저장 내용은 그대로).
        없으면(옛 저장) 종전 «작성됨» 줄 그대로 · 담긴 글이 없으면 줄을 내지 않는다 */
     if(Object.prototype.toString.call(rd.summary.texts)==='[object Array]'){ if(rd.summary.texts.length) _mi.push('대본에 담긴 글: '+rd.summary.texts.map(function(x){ return escapeHtml(String(x)); }).join(' · ')); }
-    else if(rd.S){ var _wo=[]; if(rd.S.vowText)_wo.push(rd.S.vowKind==='thanks'?'감사문':'서약문');   /* [THANKS_IN_VOW] 서약 카드에서 감사문을 골랐으면 */ if(rd.S.letterText)_wo.push('편지'); if(rd.S.welcomeText)_wo.push('감사 인사'); if(rd.S.tributeText)_wo.push('부모님께 드릴 말'); var _tx=rd.S.tx||{}; if(String(_tx['toast.g']||'').trim()||String(_tx['toast.b']||'').trim())_wo.push('축배 한마디'); /* [TOAST_SAY 2026-10-07] 옛 한 칸 없이 S.tx 두 칸 */ if(_wo.length) _mi.push(_wo.join(' · ')+' 작성됨'); }
+    else if(rd.S){ var _wo=[]; if(rd.S.vowText)_wo.push('서약문');   /* [THANKS_SWAP_1122] 서약 카드는 늘 서약 · 감사문은 감사 인사 자리의 판 */ if(rd.S.letterText)_wo.push('편지'); if(rd.S.welcomeText)_wo.push(rd.S.welcomeKind==='thanks'?'감사문':'감사 인사'); if(rd.S.tributeText)_wo.push('부모님께 드릴 말'); var _tx=rd.S.tx||{}; if(String(_tx['toast.g']||'').trim()||String(_tx['toast.b']||'').trim())_wo.push('축배 한마디'); /* [TOAST_SAY 2026-10-07] 옛 한 칸 없이 S.tx 두 칸 */ if(_wo.length) _mi.push(_wo.join(' · ')+' 작성됨'); }
     if(_mi.length) rv+='<br><span class="cc-mini">'+_mi.join('<br>')+'</span>'; }
   else if(_rDone && rd._v===3 && rd.summary){ rv=escapeHtml(String(rd.summary.course||''))+' 코스 · '+escapeHtml(String(rd.summary.count||''))+'개 순서 · '+escapeHtml(String(rd.summary.min||''));
-    if(rd.S){ var _w=[]; if(rd.S.vowText)_w.push(rd.S.vowKind==='thanks'?'감사문':'서약문');   /* [THANKS_IN_VOW] */ if(rd.S.letterText)_w.push('편지'); if(rd.S.welcomeText)_w.push('감사 인사');   /* [THANKS_GREET_1013 · CHIP_NAME_1014] 옛 판 요약도 같은 이름 */ if(rd.S.tributeText)_w.push('부모님께 드릴 말'); if(_w.length) rv+=' · '+_w.join('·')+' 작성됨'; } }
+    if(rd.S){ var _w=[]; if(rd.S.vowText)_w.push('서약문');   /* [THANKS_SWAP_1122] */ if(rd.S.letterText)_w.push('편지'); if(rd.S.welcomeText)_w.push(rd.S.welcomeKind==='thanks'?'감사문':'감사 인사');   /* [THANKS_GREET_1013 · CHIP_NAME_1014] 옛 판 요약도 같은 이름 */ if(rd.S.tributeText)_w.push('부모님께 드릴 말'); if(_w.length) rv+=' · '+_w.join('·')+' 작성됨'; } }
   else if(_rDone){ rv='완료'; }
   // 식순 줄은 아래 [CF_ORDER_0926] 자리에서 붙인다(값만 여기서 만든다)
   var dv='';
@@ -12713,7 +12758,7 @@ function prodConfirmHtml(p, inv){
       else dv='장소 미정';
     }
   }
-  // 애프터 웨딩 줄도 아래 [CF_ORDER_0926] 자리에서 붙인다
+  // 예식 후 식사 줄도 아래 [CF_ORDER_0926] 자리에서 붙인다
   /* ★★[SEAT_TRUTH_ONE 2026-08-16 사용자 제보 "좌석 배치완료했는데도 불구하고 좌석 완료하라고 되어있네"]
      같은 화면이 한 항목을 두 가지로 말하고 있었다 — 행은 「좌석 · 음료 ✓ 완료」인데
      확인서 줄은 「미완료」였다. 근거가 다르기 때문이다:
@@ -12749,7 +12794,7 @@ function prodConfirmHtml(p, inv){
        ★유아 수 = 당일 유아용 의자 수량이라 그 괄호를 남긴다(아랫줄 주석의 근거 그대로). */
     var _dc=(_named&&typeof seatDrinkCounts==='function')?seatDrinkCounts(sd.tables):null, _dl=[];
     if(_dc){ if(_dc.C)_dl.push('샴페인 '+_dc.C); if(_dc.R)_dl.push('레드와인 '+_dc.R); if(_dc.N)_dl.push('논알코올 '+_dc.N);
-      if(_dc.K)_dl.push('유아 '+_dc.K+'(유아용 의자)'); if(_dc.Y)_dl.push('어린이 '+_dc.Y); }
+      if(_dc.B)_dl.push('유아용 의자 '+_dc.B); if(_dc.W)_dl.push('휠체어 '+_dc.W); }   // [DRINK_TWO] 자리 준비는 음료와 따로 센다
     /* 한 항목이 줄바꿈에서 갈리지 않게 묶는다 — 「유아 1(유아용 / 의자)」처럼 쪼개지면 수량이 어디 걸린 것인지 안 읽힌다 */
     if(_dl.length) fv+='<br><span class="cc-mini">'+_dl.map(function(x){ return '<span style="white-space:nowrap">'+escapeHtml(x)+'</span>'; }).join('<br>')+'</span>';   // [CF_DOT_BREAK] 음료 한 가지씩 한 줄(«샴페인 4 · 논알코올 1 ·» 줄 끝 점)
     else if(fd.drink) fv+='<br>'+escapeHtml(fd.drink)+((Number(fd.softCount)||0)>0?('<br>논알코올 '+fd.softCount+'잔'):'');   // 자리별 음료 이전 세대의 저장분 · [CF_DOT_BREAK]
@@ -12773,10 +12818,10 @@ function prodConfirmHtml(p, inv){
   /* [SEAT_NOTE] 두 분이 적은 「미리 알려주실 것」도 확인서에 — 적어 두고 잊는 것을 막고,
      확인서를 함께 보는 디렉터·다이닝 팀이 같은 화면에서 본다. 비어 있으면 줄을 만들지 않는다. */
   if(String(fd.allergy||'').trim()) L+=line('미리 알려주실 것', escapeHtml(String(fd.allergy)));   // ★적은 것이 있을 때만 줄을 만든다 — line() 은 빈 값을 «아직 정하지 않음»(need 칸만 '미완료')으로 그린다 — 이 칸은 안 적어도 되는 것이라 빈 줄 자체가 군더더기다 [CF_EMPTY_WORD]
-  /* [CF_ORDER_0926 2026-09-26 사장님 지시 «청첩장, 좌석·음료, 애프터웨딩, 식순, 단체사진 순»] 확인서도 «예식 준비» 카드와 같은 순서로 읽힌다.
+  /* [CF_ORDER_0926 2026-09-26 사장님 지시 «청첩장, 좌석·음료, 예식 후 식사, 식순, 단체사진 순»] 확인서도 «예식 준비» 카드와 같은 순서로 읽힌다.
      카드만 바꾸면 채울 때와 훑어볼 때 순서가 달라진다. 값(rv · dv)은 위에서 만든 그대로이고 줄을 붙이는 자리만 옮겼다.
      확정 기록(snap)도 이 순서로 남는다 — 서버는 {항목, 내용}을 기록만 하고 순서는 보지 않는다. */
-  L+=line('애프터 웨딩', dv);
+  L+=line('예식 후 식사', dv);
   L+=line('식순', rv, true);   // [CF_EMPTY_WORD] 확정에 필요 — 「미완료」
   // 단체 사진 — 본식 뒤 단체 기록 구도(전체 하객 외 추가분이 있을 때만 표기 · 2026-07-19)
   var _phL=(gi.photo&&gi.photo.length)?gi.photo:null, _phFx=(gi.photoFx&&gi.photoFx.length)?gi.photoFx:null;
@@ -13021,7 +13066,7 @@ function _seatWriteEdit(box){   // 입력값을 모델에 기록(편집 상태�
      ★'저장됐어요'는 서버가 ok 를 준 뒤에만. 실패하면 그렇게 적고 토스트로 알린다(seatMode 라디오와 같은 규칙). */
 var _seatNoteT=null;
 function _seatNoteSave(st){
-  var p=_seatFinSave(); if(!p||!p.then){ if(st) st.textContent='적으시면 바로 저장돼요'; return; }
+  var p=_seatFinSave(); if(!p||!p.then){ if(st) st.textContent='없으면 비워 두셔도 돼요 · 적으시면 바로 저장돼요'; return; }
   if(st) st.textContent='저장 중이에요';
   p.then(function(r){
     if(r&&r.ok&&r.skip){ if(st) st.textContent='자리에 이름을 한 분 이상 적으면 함께 저장돼요'; return; }   // [SEAT_FIN_SKIP] 아직 보낼 수 없다 — 실패가 아니다(코드 없음 · 알림 없음)
@@ -13165,71 +13210,43 @@ function renderSeat(box){
   var sel=s.sel||null;
   if(sel && (sel.si==='name' || !s.tables[sel.ti] || sel.si>=((s.tables[sel.ti].seats)||[]).length)){ sel=null; s.sel=null; }
   _seatFillDefaults();   // [SEAT_NO_UNDEC] 그리기 전에 한 번 — 이름 있는 자리에 음료가 비어 있는 상태를 화면에 내보내지 않는다(옛 데이터 포함)
-  function tableEl(t, ti, row, dispNo){
-    var n=t.seats.length, seats='';
-    for(var si=0; si<n; si++){
-      var u=_seatPos(n, si, 1), nm=t.seats[si]||'';   // 단위벡터 × --seatR(반응형) → 테이블 크기에 자리 위치도 함께 스케일
-      var pos='left:calc(50% + '+u.x.toFixed(4)+' * var(--seatR,54px));top:calc(50% + '+u.y.toFixed(4)+' * var(--seatR,54px))';
-      /* ★★[SEAT_ONE_CARD 2026-08-16 사용자 지시 "이름부분을 클릭하면 음료랑 이름적는게 동시에"]
-         자리 알약 안의 작은 입력칸(rs-edit)을 없앴다. 이름은 이제 **음료와 같은 창 안**에서 적는다.
-         옛 방식의 실제 문제 — 한 번 탭하면 ①캔버스 위 70px 입력칸(키보드가 아래에서 올라옴)과
-         ②화면 가운데 음료 창(뒤가 어두워짐)이 **동시에** 켜졌다. 눈이 갈 곳이 둘이고,
-         키보드를 내리기 전엔 음료 창의 아래쪽이 가려졌다. 한 자리에 할 일이 둘이면 창도 하나여야 한다.
-         ★자리 알약 안 입력칸(rs-edit)으로 되돌리지 말 것 — 테이블 이름 편집(rt-cin)만 캔버스에 남는다. */
-      { var f=String(nm).trim(); var dk=f?((t.drinks&&t.drinks[si])||''):''; var _hasDk=(dk==='C'||dk==='R'||dk==='N'||dk==='K'||dk==='Y');   // [KID_SEAT] 유아 색점도 캔버스에 찍힌다
-        var dot=_hasDk?'<i class="rs-dk dk-'+dk+'"></i>':'';   // 색점=자리별 음료 · [SEAT_NO_UNDEC] 이름이 있으면 음료가 반드시 있으니 '미정 빈 링'은 그릴 일이 없다(빈자리는 표시 없음)
-        var _selNow=!!(sel && sel.ti===ti && sel.si===si);   // [SEAT_ONE_CARD] 지금 창을 열어 둔 자리 — 창이 캔버스를 덮어도 어디를 고쳤는지 남게
-        seats+='<div class="rs-slot" style="'+pos+'"><button type="button" class="rs'+(f?'':' empty')+(_selNow?' sel':'')+'"'+(f?'':' aria-label="이 자리에 이름 추가"')+' data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'+(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':'<span class="rs-add" aria-hidden="true">＋</span>')+dot+'</button></div>'; }   /* ★[SEAT_ADD_PLUS 2026-08-11 사용자 지시 "이름은 빼고 플러스만 나오게 하자 너무 지져분하다"]
-        빈 자리 알약에서 '이름' 글자를 뺐다. 6테이블×5자리면 그 두 글자가 화면에 서른 번 반복되고,
-        정작 읽어야 할 것(이미 넣은 손님 이름)이 그 반복에 묻힌다.
-      ★소리로 읽는 사람에게는 그대로 남는다 — 버튼의 aria-label='이 자리에 이름 추가' 가 뜻을 진다.
-        보이는 ＋ 는 aria-hidden 이라 '더하기 이 자리에 이름 추가'로 두 번 읽히지 않는다.
-      ★테이블 컨트롤의 자리 추가(＋)와는 위치·크기·테두리가 달라 섞이지 않는다(2026-07-22 구분 이유). */
-    }
-    // 중앙 = 행 순서 번호 + (커스텀 이름 있으면 아래 작은 글씨) · 탭하면 테이블 이름 편집(구 커스텀 이름을 보고 고칠 수 있게 — seat.html·관리자에 그 이름이 노출되므로)
-    var _cn=String(t.name||'').trim(), _hasCn=!!(_cn && !/^테이블\s*\d+$/.test(_cn));
-    /* ★[SEAT_FIT 2026-08-16] 커스텀 이름을 원 **안**에서 원 **아래 한 줄**로 내렸다.
-       원 안에 두면 '양가 부모님'처럼 서너 글자만 넘어가도 좌우 자리 알약과 가로로 29px 겹쳐 글자끼리 붙어 보였다(390px 실측).
-       번호를 누르면 이름을 고치는 길은 그대로다 — 아래 줄도 같은 편집을 연다. */
-    var center = isEd(ti,'name')
-      ? '<input class="rt-cin" data-ed data-edk="'+ti+':name" value="'+escapeHtml(t.name||'')+'" maxlength="24" autocomplete="off" placeholder="테이블 이름">'
-      : '<button type="button" class="rt-c rt-cbtn" data-seat-edit data-ti="'+ti+'" data-si="name" title="테이블 이름 정하기">'+(dispNo||(ti+1))+'</button>';
-    var capHtml = (_hasCn && !isEd(ti,'name')) ? '<button type="button" class="rt-cap" data-seat-edit data-ti="'+ti+'" data-si="name">'+escapeHtml(_cn)+'</button>' : '';
-    var tx='--tx:calc(var(--zig,26px) * '+_seatZig(row,t.side)+')';   // 테이블·컨트롤을 같은 값으로 이동 → 컨트롤이 테이블 바로 아래 따라감
-    return '<div class="rt-wrap" style="'+tx+'">'
-      +'<div class="rt" style="transform:translateX(var(--tx,0))">'+seats+center+'</div>'
-      + (capHtml?'<div class="rt-capwrap" style="transform:translateX(var(--tx,0))">'+capHtml+'</div>':'')
-      +'<div class="rt-ctl" style="transform:translateX(var(--tx,0))">'
-        /* [SEAT_ADD_CAP] 2026-09-26 · 한 테이블 5자리(SEAT_PER5)가 차면 ＋ 를 흐리게 하고 누르면 이유를 말한다.
-           기본 여섯 테이블이 전부 5자리로 시작해 첫 화면의 ＋ 는 눌러도 아무 일이 없었다(«고장났나?»).
-           ★disabled 속성은 쓰지 않는다 — 폰에서는 title 이 안 떠서, 막힌 까닭을 들을 길이 누름뿐이다. */
-        +'<button type="button" class="rt-mini" data-seat-add="'+ti+'"'+(n>=5?' aria-disabled="true" title="한 테이블은 5자리까지예요"':' title="자리 추가"')+'>＋</button>'
-        +'<button type="button" class="rt-mini" data-seat-less="'+ti+'" title="자리 줄이기">－</button>'
-        // ★좌우 이동(→/←) 버튼 금지 — 2026-07-12 사용자 지시로 삭제(번호·이름 뒤섞임 + 좁은 폰에서 컨트롤 과밀). 2026-07-14 리뷰가 '기능 복원'으로 되살렸다가 2026-07-16 재삭제됨. 리뷰·복구에서 다시 추가하지 말 것
-        +'<button type="button" class="rt-mini rt-del" data-seat-del="'+ti+'" title="테이블 삭제">✕</button>'
-      +'</div></div>';
+  /* ★★[SEAT_PLAN_9 2026-11-22 사장님 «우리가 그린 그림이랑 다르잖아» · «디테일 챙겨»] 배치도 = 오프라인 시안 그대로(assets/seat-plan.js mapHtml).
+     테이블 9개를 맞붙인 두 묶음 · 자리는 확정 의자 위치 · 혼주석 · 가운데 버진로드 띠. 종전 «좌우 두 열에 띄엄띄엄 쌓고 지그재그»(--zig · .rt-wrap) 그림은 폐지.
+     ★알약 안 입력칸(rs-edit)으로 되돌리지 말 것([SEAT_ONE_CARD] · 이름은 자리 창에서) · 빈 자리 알약은 ＋ 만([SEAT_ADD_PLUS]) · 빈 혼주석만 «혼주». */
+  function seatEl(t, ti, si, fam){
+    var nm=t.seats[si]||'', f=String(nm).trim(), dk=f?((t.drinks&&t.drinks[si])||''):'';
+    var dot=(dk==='C'||dk==='R'||dk==='N'||dk==='K'||dk==='Y')?'<i class="rs-dk dk-'+dk+'"></i>':'';   // 색점=자리별 음료(이름 있는 자리만 · [SEAT_NO_UNDEC])
+    var _chv=(t.chair&&t.chair[si])||''; if(f&&(_chv==='B'||_chv==='W')) dot+='<i class="rs-ch" aria-hidden="true">'+(_chv==='W'?'휠':'유')+'</i>';   // [DRINK_TWO] 자리 준비 — 음료 점과 다른 모서리
+    var _selNow=!!(sel && sel.ti===ti && sel.si===si);   // [SEAT_ONE_CARD] 창을 열어 둔 자리
+    var lab=f?(escapeHtml(f)+' 자리 고치기'):(fam?'혼주 자리에 이름 추가':'이 자리에 이름 추가');
+    return '<button type="button" class="rs'+(f?'':' empty')+(fam?' fam':'')+(_selNow?' sel':'')+'" aria-label="'+lab+'" data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'
+      +(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':(fam?'<span class="rs-fam" aria-hidden="true">혼주</span>':'<span class="rs-add" aria-hidden="true">＋</span>'))+dot+'</button>';
   }
-  // 화면 위→아래 행 순서로 번호 매김(각 행 좌→우): 맨 위 두 테이블=1·2, 다음 행=3·4 …
-  var Ls=[], Rs=[]; s.tables.forEach(function(t,i){ (t.side==='R'?Rs:Ls).push(i); });
-  var num={}, nn=1, mr=Math.max(Ls.length, Rs.length);
-  for(var rr=0; rr<mr; rr++){ if(rr<Ls.length) num[Ls[rr]]=nn++; if(rr<Rs.length) num[Rs[rr]]=nn++; }
-  var L='', R='', li=0, ri=0;
-  s.tables.forEach(function(t,i){ if(t.side==='R') R+=tableEl(t,i,ri++,num[i]); else L+=tableEl(t,i,li++,num[i]); });
+  function tableIn(t, ti, no){
+    /* ★테이블 이름 정하기(번호를 누르면 «테이블 1» 입력칸) 금지 — 2026-11-22 사용자 지시로 삭제([SEAT_NO_RENAME] 사장님 «테이블번호를 굳이 수정할 필요는 없을 것 같아»).
+       번호(좌 1 ~ 4 · 우 5 ~ 9)는 확정 배치의 이름이다 — 하객 좌석표 · 하객 안내 · 스태프 A4 가 같은 번호로 부른다. 원은 번호만 보이고 눌리지 않는다. */
+    return '<span class="rt-c" aria-hidden="true"><span class="rt-num">'+no+'</span></span>';
+  }
+  /* ★테이블 아래 ＋ － ✕(자리 추가 · 줄이기 · 테이블 삭제) · «+ 테이블» 금지 — 2026-11-22 사용자 지시로 삭제([SEAT_PLAN_9]).
+     테이블 9개 · 35석은 공간 설계로 정해진 배치라 부부가 바꾸면 실제 홀과 어긋난다 · 빈 자리는 비워 두면 된다.
+     ★좌우 이동(→/←) 버튼도 계속 금지(2026-07-12 · 07-16 재삭제). 리뷰 · 복구에서 되살리지 말 것. */
+  var num=ME_SEAT_PLAN.numbers(s.tables);   // [SEAT_PLAN_9] 좌측 위부터 1 ~ 4 · 우측 5 ~ 9(확정 기록 · seat · guide · admin · 서버 검색과 한 벌)
+  var mapHtml=ME_SEAT_PLAN.mapHtml(s.tables, { sides:['좌측 <i>·</i> 16석','우측 <i>·</i> 19석'], table:function(t,i,no){ return tableIn(t,i,no); }, seat:function(t,i,si,fam){ return seatEl(t,i,si,fam); } });
   // [자리별 3음료 · 2026-07-19 사용자 지시: "자리 클릭하면 3가지 음료(샴페인/레드와인/논알콜 스파클링)가 나오게"] 상단 대표음료 입력 폐지 → 자리마다 직접 선택 · 색점·명단으로 스탭 A4 프린트가 소비(admin.html · 재삭제 금지).
   var _named=_seatNamedCount();   // 최종 인원=이름 있는 자리 수(별도 입력 폐지)
   var _dc=seatDrinkCounts(s.tables);   // 이름 있는 자리만 · C샴페인/R레드와인/N논알콜 스파클링/U미정
   var _lp=[]; var _dkPill=function(cls,label,n){ return '<span class="ss-dk"><i class="s-dot '+cls+'"></i>'+label+' '+n+'</span>'; };
-  if(_dc.C)_lp.push(_dkPill('dk-C','샴페인',_dc.C)); if(_dc.R)_lp.push(_dkPill('dk-R','레드와인',_dc.R)); if(_dc.N)_lp.push(_dkPill('dk-N','논알코올 스파클링',_dc.N)); if(_dc.K)_lp.push(_dkPill('dk-K','유아 · 물',_dc.K)); if(_dc.Y)_lp.push(_dkPill('dk-Y','어린이 · 물',_dc.Y));   // [SEAT_NO_UNDEC] 미정 알약 없음 · [KID_SEAT] 유아는 하이체어 준비 수량이기도 하다
+  if(_dc.C)_lp.push(_dkPill('dk-C','샴페인',_dc.C)); if(_dc.R)_lp.push(_dkPill('dk-R','레드와인',_dc.R)); if(_dc.N)_lp.push(_dkPill('dk-N','논알코올 스파클링',_dc.N)); if(_dc.B)_lp.push('<span class="ss-dk">유아용 의자 '+_dc.B+'</span>'); if(_dc.W)_lp.push('<span class="ss-dk">휠체어 '+_dc.W+'</span>');   // [DRINK_TWO] 자리 준비 — 색점 없이 이름과 수만   // [SEAT_NO_UNDEC] 미정 알약 없음 · [KID_SEAT] 유아는 하이체어 준비 수량이기도 하다
   var drinksInner=_lp.length ? '<div class="ss-drinks">'+_lp.join('')+'</div>' : '';   // 음료 집계 — 요약 카드 하단 줄(인원·요금과 한 카드로 · 2026-07-19 디자이너 개편)
   // [디자이너 개편 2026-07-19 사용자 지시: "아래 인원수와 음료 표시가 따로 놀지 않게 조화롭게"] 인원·요금 + 음료 집계를 한 요약 카드로 묶어 공개 방식 카드와 같은 폭으로 정렬.
   /* [ALC_ONE] 요약 카드에 '알코올은 무엇으로 정해져 있는지'를 한 줄로 세운다.
      자리 창은 한 자리만 말한다 — 행사 전체의 약속은 전체를 보여 주는 카드에 있어야 바꾸기도 쉽다. */
   var _alc=_seatAlc(), _mix=_seatAlcMixed(), alcLine='';
-  if(_mix){
+  if(false){   // [DRINK_TWO] 알코올은 샴페인 하나 — «무엇으로 정해져 있나» 줄 · 바꾸기 단추가 가리킬 것이 없다
     alcLine='<div class="ss-alc ss-alc-mix"><span>알코올은 한 종류만 준비해 드려요 · 지금 두 종류가 섞여 있어요</span>'
       +'<span class="ss-alc-btns"><button type="button" class="ss-alc-b" data-alc-all="C">샴페인으로 통일</button>'
       +'<button type="button" class="ss-alc-b" data-alc-all="R">레드와인으로 통일</button></span></div>';
-  } else if(_alc){
+  } else if(false){
     var _oth=(_alc==='C')?'R':'C';
     alcLine='<div class="ss-alc"><span>알코올은 <b>'+SEAT_DRINK_LABEL[_alc]+'</b>으로 준비해요 · 한 종류만 가능해요</span>'
       +'<span class="ss-alc-btns">'
@@ -13254,29 +13271,31 @@ function renderSeat(box){
     var _tNm=String((et&&et.name)||'').trim(); var _tShow=(_tNm && !/^테이블\s*\d+$/.test(_tNm))?_tNm:(edNo+'번 테이블');
     /* [ALC_ONE] 고를 수 있는 것 — 알콜은 이미 정해진 한 종류 + 논알콜. 아직 아무도 알콜을 안 골랐으면 그때만 둘 다 보여 준다.
        섞인 옛 데이터일 때는 셋을 다 보여 준다(무엇으로 되어 있는지 보이지 않으면 고칠 수도 없다). */
-    var _alcPick=_alc||((cur==='C'||cur==='R')?cur:'');
-    var opts, alcNote='';
-    /* [KID_SEAT]·[KID_CHAIR] 아이 자리는 둘 — 물은 같고 유아용 의자만 다르다.
-       라벨을 길게 늘이는 대신 작은 줄(dk-sub)로 차이를 적는다. 라벨은 요약·관리자·하객 화면이 함께 쓰는 값이라 짧아야 한다. */
-    var _kid=chip('K','유아 · 물','dk-K','유아용 의자')+chip('Y','어린이 · 물','dk-Y','의자 없이');
-    var _nOpt=0;   // 칩 개수로 격자를 정한다(넷=2열 2줄 · 다섯=마지막 칸이 한 줄)
-    if(_mix){ opts=chip('C','샴페인','dk-C')+chip('R','레드와인','dk-R')+chip('N','논알코올 스파클링','dk-N')+_kid; _nOpt=5; alcNote='알코올이 두 종류로 섞여 있어요 · 아래에서 맞춰 주세요'; }
-    else if(_alcPick){ opts=chip(_alcPick,SEAT_DRINK_LABEL[_alcPick],'dk-'+_alcPick)+chip('N','논알코올 스파클링','dk-N')+_kid; _nOpt=4; alcNote='알코올은 '+SEAT_DRINK_LABEL[_alcPick]+' 한 종류로 준비돼요 · 아이 자리엔 물을 드려요'; }
-    else { opts=chip('C','샴페인','dk-C')+chip('R','레드와인','dk-R')+chip('N','논알코올 스파클링','dk-N')+_kid; _nOpt=5; alcNote='알코올은 한 종류만 준비돼요 · 처음 고른 쪽으로 맞춰져요'; }
+    /* ★★[DRINK_TWO 2026-11-22 사장님] 창 = 이름 · 음료 두 칸 · 자리 준비 두 칸(필요할 때만).
+       음료: 샴페인 · 논알코올 스파클링(아이도 논알코올) · 자리 준비: 유아용 의자 · 휠체어(안 누르면 보통 의자 · 다시 누르면 풀림).
+       ★음료와 의자를 한 줄에 섞지 않는다(«섞으면 복잡») · 레드와인 · 「유아 · 물」「어린이 · 물」 칩을 되살리지 말 것. */
+    var _chNow=(et&&et.chair&&et.chair[sel.si])||'';
+    var cchip=function(v,label){ var on=(_chNow===v); return '<button type="button" class="dk-chip dk-chair'+(on?' on':'')+'" data-chair="'+v+'" aria-pressed="'+(on?'true':'false')+'">'+label+'</button>'; };
+    var opts='<div class="sdb-gl">음료</div><div class="sdb-opts n2">'+chip('C','샴페인','dk-C')+chip('N','논알코올 스파클링','dk-N')+'</div>'
+      +'<div class="sdb-gl">자리 준비 <span>필요할 때만</span></div><div class="sdb-opts n2">'+cchip('B','유아용 의자')+cchip('W','휠체어')+'</div>';
+    var alcNote='아이도 논알코올 스파클링 · 물은 현장에서 말씀해 주세요';   // 한 줄에 들어가게(390 에서 «주세요»만 다음 줄로 떨어지던 것)
     barHtml='<div class="seat-drinkbar" role="dialog" aria-modal="false" aria-label="'+escapeHtml(_tShow)+' '+(sel.si+1)+'번 자리 이름과 음료">'
       +'<div class="sdb-h"><span class="sdb-label">'+escapeHtml(_tShow)+' · '+(sel.si+1)+'번 자리</span>'
         +'<button type="button" class="sdb-x" data-seat-selclose aria-label="닫기">✕</button></div>'   // [X_ONE 2026-09-27] × → ✕ — 다른 닫기 · 빼기 단추(미리보기 · 사진 빼기 · 담은 곳 빼기)와 같은 글리프
       +'<input class="sdb-nm" data-ed data-edk="'+sel.ti+':'+sel.si+'" value="'+escapeHtml(_edNm)+'" maxlength="24" autocomplete="off" placeholder="하객 성함" aria-label="하객 성함">'
-      +'<div class="sdb-opts n'+_nOpt+'">'+opts+'</div>'
+      +opts
       +(alcNote?'<div class="sdb-note">'+alcNote+'</div>':'')
       +'<button type="button" class="sdb-ok" data-seat-selclose>확인</button>'   // [SEAT_NO_CHAIN] 이 자리만 마치고 닫는다 — 다음 자리로 끌고 가지 않는다
       +'</div>';   // 자리별 음료(★복원 금지: 상단 대표음료·자리별 알콜 혼용으로 되돌리지 말 것)
   }
   // 공개 방식(전체 공개 / 내 자리만 검색) — 캔버스 아래 별도 카드(2026-07-19 사용자 선택). 상단 크램프 체크박스 폐지. ★상단 복원 금지.
   var _mine=(s.gi&&s.gi.seatMode==='mine'), _giDis=(s.gi&&s.gi._saving)?' style="opacity:.5;pointer-events:none"':'';
-  var privacyHtml='<div class="seat-privacy"'+_giDis+'><div class="sp-q">하객분들께 어떻게 보여드릴까요?</div>'
-    +'<label class="sp-opt'+(_mine?'':' on')+'"><input type="radio" name="seatmode" value="all"'+(_mine?'':' checked')+'><span class="sp-t">전체 공개 <span class="sp-tag">좌석표</span></span><span class="sp-d">성함이 보이는 좌석표 · 하객이 검색 없이 자기 자리를 바로 봐요</span></label>'
-    +'<label class="sp-opt'+(_mine?' on':'')+'"><input type="radio" name="seatmode" value="mine"'+(_mine?' checked':'')+'><span class="sp-t">내 자리만 검색</span><span class="sp-d">각자 이름을 검색해 자기 자리만 · 다른 분 성함은 안 보여요</span></label>'
+  /* ★[SEAT_EX_SHOT 2026-11-22 사장님 «하객 입장에서 보여주는 게 이해가 더 쉬울 것 같아»] 두 칸마다 하객 화면 예시 그림 하나(seat.html 실화면 · 예시 성함 «성 + ○○»)
+     그림은 scripts/seat-example-shots.mjs 가 찍는다(배치도를 바꾸면 다시 찍는다) · 그림을 눌러도 그 칸이 골라진다(label 안) · 설명은 위 글이 하니 그림은 화면낭독기에서 덮는다 */
+  function _spEx(k){ return '<span class="sp-ex" aria-hidden="true"><span class="sp-ex-c">하객 화면 예시</span><span class="sp-ex-f"><img src="/assets/seat/ex-'+k+'.webp?v=1122b" alt="" width="301" height="340" loading="lazy" decoding="async"></span></span>'; }
+  var privacyHtml='<div class="seat-privacy"'+_giDis+'><div class="sp-q">하객분들께 어떻게 보여드릴까요?</div><div class="sp-opts">'
+    +'<label class="sp-opt'+(_mine?'':' on')+'"><input type="radio" name="seatmode" value="all"'+(_mine?'':' checked')+'><span class="sp-t">전체 공개 <span class="sp-tag">좌석표</span></span><span class="sp-d">성함이 보이는 좌석표 · 하객이 검색 없이 자기 자리를 바로 봐요</span>'+_spEx('all')+'</label>'
+    +'<label class="sp-opt'+(_mine?' on':'')+'"><input type="radio" name="seatmode" value="mine"'+(_mine?' checked':'')+'><span class="sp-t">내 자리만 검색</span><span class="sp-d">각자 이름을 검색해 자기 자리만 · 다른 분 성함은 안 보여요</span>'+_spEx('mine')+'</label></div>'
     +'<div class="sp-note">고르면 바로 저장돼요</div></div>'
     /* ★★[SEAT_NOTE 2026-08-16 사용자 지시 "추천대로"] 「미리 알려주실 것」 — 되살린 것이 아니라 **끊긴 것을 이은 것**이다.
        2026-07-19 에 최종확정 위저드를 좌석 화면으로 합치면서 인원·음료는 옮겨졌는데 이 칸만 따라오지 못했다.
@@ -13295,10 +13314,13 @@ function renderSeat(box){
     + '<div class="seat-privacy seat-note-card"'+_giDis+'><div class="sp-q">미리 알려주실 것이 있나요?</div>'
     /* 가운데 정렬 세 줄에서 마지막 줄에 「봐요.」 두 글자만 남는 고아 줄이 났다(390px 실측) —
        뜻을 줄이지 않고 글자만 줄여 두 줄로. '자리'는 바로 위 제목·화면이 이미 말한다. */
-    +   '<div class="seat-note-d">거동이 불편한 분, 유아 나이처럼 <b>당일 준비가 달라지는 것</b>을 적어 주세요 · 디렉터와 다이닝 팀이 함께 봐요</div>'
-    +   '<textarea class="seat-note-ta" data-seat-note maxlength="300" rows="3" placeholder="예) 3번 테이블 아기 8개월 · 어머님 휠체어"'
+    /* ★[SEAT_NOTE_SLIM 2026-11-22 사장님 «이것도 개선»] 휠체어 · 유아용 의자는 이제 자리 창에서 고른다([DRINK_TWO]) —
+       같은 것을 이 칸에서 또 받으면 두 곳에 적고 어긋난다. 이 칸은 «자리에서 못 고르는 것»만 받는다(예시도 그쪽으로). */
+    +   '<div class="seat-note-d">휠체어 · 유아용 의자는 자리를 눌러 골라 주세요 · 그 밖에 <b>당일 준비가 달라지는 것</b>만 적어 주세요</div>'
+    +   '<textarea class="seat-note-ta" data-seat-note maxlength="300" rows="3" placeholder="예) 5번 테이블 아기 8개월 · 유모차를 가져와요"'
     +     ' aria-label="미리 알려주실 것">'+escapeHtml(String((SEATFLOW.fd&&SEATFLOW.fd.allergy)||''))+'</textarea>'
-    +   '<div class="sp-note" data-seat-note-st>적으시면 바로 저장돼요</div></div>';
+    +   '<div class="sp-note" data-seat-note-st>없으면 비워 두셔도 돼요 · 적으시면 바로 저장돼요</div></div>';
+  var _spOld=box.querySelector('[data-seat-scroll]'), _spX=_spOld?_spOld.scrollLeft:-1;   // [SEAT_PLAN_9] 자리를 누를 때마다 다시 그린다 — 옆으로 밀어 둔 자리(우측 테이블)를 그대로 둔다
   SEATFLOW._rendering=true;   // innerHTML 교체 중 옛 입력창의 제거 blur가 동기 발사됨(연결된 채로) → blur 핸들러가 이 창을 무시하게(유령 커밋으로 편집 상태·방금 고른 음료가 어긋나던 실버그)
   box.innerHTML='<div class="consult-card seat-card" style="text-align:left">'
     +'<div class="inv-head"><span class="inv-step-n">좌석 · 음료</span>'+wizActs()+'</div>'   // [SEAT_HEAD_ONE] 2026-09-26 · «· 3 / 3» 을 뺐다 — 2026-07-19 한 화면 통합으로 인원·음료 1·2단계가 이 화면에 합쳐져, 처음 들어온 첫 화면이자 유일한 화면인데 «3 / 3»이라 앞 단계를 찾게 했다(가족 · 친구 스냅 머리와 같은 꼴 · TRK_META.final.steps 는 renderFinal 경로가 써서 그대로)
@@ -13308,12 +13330,10 @@ function renderSeat(box){
     // TRK_NO_SUB(2026-07-25 사용자 지시): 목록 행 아래에 있던 기한·좌석 안내 링크 설명을 이 화면 안으로 이관(행은 이름·버튼만)
     +'<div class="cc-note" style="text-align:left;margin:0 0 12px">'+_seatLeadNote()+'</div>'   // [WZ_TITLE] 제목 · 설명과 같은 왼쪽 선
     + barHtml
-    +'<div class="seat-stage">◈ 단상 · 신랑 신부</div>'
-    +'<div class="seat-room">'
-      +'<div class="seat-col"><div class="seat-colh">좌측</div>'+L+(s.tables.length<6?'<button type="button" class="seat-addtbl" data-seat-newtbl="L">+ 테이블</button>':'')+'</div>'
-      +'<div class="seat-aisle" aria-hidden="true"><span>버진로드</span></div>'
-      +'<div class="seat-col seat-col-r"><div class="seat-colh">우측</div>'+R+(s.tables.length<6?'<button type="button" class="seat-addtbl" data-seat-newtbl="R">+ 테이블</button>':'')+'</div>'
-    +'</div>'
+    +'<div class="seat-stage">◈ 앞 · 신랑 신부</div>'   // [SEAT_PLAN_9] 단상은 두지 않는다(오프라인 확정 · 2026-11-07)
+    +'<div class="seat-plan smap-scroll" data-seat-scroll>'+mapHtml+'</div>'
+    +'<div class="seat-entry" aria-hidden="true">입장</div>'
+    +'<div class="seat-swipe" aria-hidden="true">옆으로 밀면 우측 테이블이 보여요</div>'
     + summaryHtml  // 인원·요금 + 음료 집계 — 한 요약 카드(공개 방식 카드와 같은 폭 · 2026-07-19 디자이너 개편)
     + privacyHtml  // 공개 방식 — 캔버스 아래 별도 카드
     +'<div class="cc-note" style="text-align:center;margin:12px 0 0;color:var(--label-soft)">지금 안 끝내도 돼요. 우측 위 \'저장\'을 누르면 언제든 이어서 할 수 있어요.</div>'   // [AFTER_BAR] 막대 뒤 → 앞
@@ -13322,6 +13342,8 @@ function renderSeat(box){
     // ★좌석 편집기 안 공유 링크·QR 패널(seatSharePanelHtml) 복원 금지 — 2026-07-19 사용자 지시로 삭제. 링크·QR은 '하객 안내' 접점에서 제공(중복 제거). 완료는 위 '배치 완료 · 저장 후 나가기'로 마무리.
     +'</div>'; _wzPin(box);
   SEATFLOW._rendering=false;
+  (function(){ var sp=box.querySelector('[data-seat-scroll]'); if(!sp) return; if(_spX>=0) sp.scrollLeft=_spX;   // [SEAT_PLAN_9]
+    var sw=box.querySelector('.seat-swipe'); if(sw) sw.hidden=!(sp.scrollWidth>sp.clientWidth+2); })();   // 다 들어오는 폭이면 «옆으로 밀면» 줄을 숨긴다
   box.style.display='block';
   bindSeat(box);
   // wireSeatShare 호출 제거 — 좌석 편집기 안 공유 패널 폐지(2026-07-19 사용자 지시 · 링크·QR은 하객 안내 접점)
@@ -13354,7 +13376,7 @@ function bindSeat(box){
   if(box._seatBound) return; box._seatBound=true;   // 위임 1회(재렌더에도 유지)
   box.addEventListener('click', function(e){
     if(!SEATFLOW.active) return;
-    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-done],[data-drink],[data-seat-selclose],[data-alc-all]'):null;   // data-drink=자리별 음료 칩(2026-07-19) · 상단 대표음료 칩(data-fedrink) 폐지 · [ALC_ONE] data-alc-*=행사 전체 알콜 1종 조작
+    var el=e.target&&e.target.closest?e.target.closest('[data-seat-edit],[data-seat-add],[data-seat-less],[data-seat-del],[data-seat-newtbl],[data-seat-done],[data-drink],[data-chair],[data-seat-selclose],[data-alc-all]'):null;   // data-drink=자리별 음료 칩(2026-07-19) · 상단 대표음료 칩(data-fedrink) 폐지 · [ALC_ONE] data-alc-*=행사 전체 알콜 1종 조작
     // 배경(입력창·창 안·액션 버튼이 아닌 곳) 클릭 → 이름 확정 + 열려 있던 자리 창 닫기 [SEAT_ONE_CARD]
     if((SEATFLOW.edit||SEATFLOW.sel) && !el && !(e.target&&e.target.closest&&e.target.closest('[data-ed],.seat-drinkbar'))){ commitSeatEdit(box); SEATFLOW.sel=null; renderSeat(box); return; }
     if(!el) return;
@@ -13386,7 +13408,9 @@ function bindSeat(box){
         .then(function(ok){ if(ok){ _seatAlcSetAll(_ac); renderSeat(box); } });
       return; }
     // ★[SEAT_NO_UNDEC] '미정 일괄 채우기'(data-alc-fill) 폐지 — 2026-08-16 사용자 지시로 미정 상태 자체가 없어졌다. 복원 금지.
-    if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.sel||SEATFLOW.edit||SEATFLOW._edLast; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv!=='C'&&dv!=='R'&&dv!=='N'&&dv!=='K'&&dv!=='Y') return;   // [SEAT_NO_UNDEC] 빈 값('미정')으로 되돌리는 경로 없음 · [KID_SEAT] K(유아)까지 넷만 받는다
+    if(el.hasAttribute('data-chair')){ var edc=SEATFLOW.sel||SEATFLOW.edit||SEATFLOW._edLast; if(edc&&edc.si!=='name'){ _seatWriteEdit(box); var cvv=el.getAttribute('data-chair'); if(cvv!=='B'&&cvv!=='W') return;   // [DRINK_TWO] 자리 준비 — 누르면 켜고 · 다시 누르면 보통 의자
+        var tc=SEATFLOW.tables[edc.ti]; if(tc){ tc.chair=tc.chair||[]; while(tc.chair.length<tc.seats.length) tc.chair.push(''); tc.chair[edc.si]=(tc.chair[edc.si]===cvv)?'':cvv; } SEATFLOW._dkRe=!!SEATFLOW.edit; renderSeat(box); } return; }
+    if(el.hasAttribute('data-drink')){ var edd=SEATFLOW.sel||SEATFLOW.edit||SEATFLOW._edLast; if(edd&&edd.si!=='name'){ _seatWriteEdit(box); var dv=el.getAttribute('data-drink'); if(dv!=='C'&&dv!=='N') return;   // [DRINK_TWO] 샴페인 · 논알코올 둘만 · [SEAT_NO_UNDEC] 빈 값('미정')으로 되돌리는 경로 없음 · [KID_SEAT] K(유아)까지 넷만 받는다
         /* [ALC_ONE] 이미 정해진 알콜과 다른 알콜을 고르면 — 이 자리만 예외로 두지 않는다.
            한 종류만 준비되므로 '전부 바꿀지'를 묻고, 아니라면 아무것도 바꾸지 않는다. */
         var _al=_seatAlc();
@@ -13423,8 +13447,8 @@ function bindSeat(box){
 
 // ── 다이닝·식순 입력 위저드 (03) — 청첩장과 같은 UX·같은 저장(제작임시저장.{track}Draft) ──
 var TRKFLOW = { active:false, track:'', step:0, draft:{}, base:{}, steps:1 };
-var TRK_META = { dining:{ label:'애프터 웨딩', steps:2, names:['고르기','확인'] }, final:{ label:'좌석 · 음료', steps:3, names:['인원','음료','좌석'] } };   // names = 진행 표시 이름([WZ_STEPS])   // ★ritual 항목 복원 금지 — 식순은 전용 빌더(order-preview iframe) 단일 경로(2026-07-25 Wave 4 PR-A) · final 3단계=①인원 ②음료(확정 저장) ③좌석 캔버스(확정 저장 후 자동 진입 · 2026-07-19 스탭바이스탭 통합)
-var MP_FINAL_POLICY = { seats:30, max:30, unit:0 };   // [SEATED30] 서른 분 전원 착석(2026-09-13 검토38) — seats 를 25 로 되돌리지 말 것   // 표시용 기본값 — 서버(finalPolicy)가 오면 덮어씀(단일 기준은 GAS FINAL_CONFIRM)
+var TRK_META = { dining:{ label:'예식 후 식사', steps:2, names:['고르기','확인'] }, final:{ label:'좌석 · 음료', steps:3, names:['인원','음료','좌석'] } };   // names = 진행 표시 이름([WZ_STEPS])   // ★ritual 항목 복원 금지 — 식순은 전용 빌더(order-preview iframe) 단일 경로(2026-07-25 Wave 4 PR-A) · final 3단계=①인원 ②음료(확정 저장) ③좌석 캔버스(확정 저장 후 자동 진입 · 2026-07-19 스탭바이스탭 통합)
+var MP_FINAL_POLICY = { seats:35, max:35, unit:0 };   // [CAP_35 2026-11-22 사장님 «35석으로 올리기»] 확정 배치 35석 · 서버 FINAL_CONFIRM 과 한 벌   // [SEATED30] 서른 분 전원 착석(2026-09-13 검토38) — seats 를 25 로 되돌리지 말 것   // 표시용 기본값 — 서버(finalPolicy)가 오면 덮어씀(단일 기준은 GAS FINAL_CONFIRM)
 function startTrkFlow(track, draft, base){
   if(!TRK_META[track]) return;
   try{ if(TRKFLOW&&TRKFLOW._dac) TRKFLOW._dac.abort(); }catch(e){}   // [B2_HOME_07] 앞 편집이 보낸 AI 추천 요청은 끊는다(늦은 답이 새 편집에 그려지지 않게)
@@ -13471,15 +13495,15 @@ function _trkOpt(val, cur, key, label, sub){
   return '<label class="inv-opt'+((cur||'')===val?' sel':'')+'" data-trkopt="'+escapeHtml(key)+'" data-v="'+escapeHtml(val)+'">'+escapeHtml(label)+(sub?'<small>'+escapeHtml(sub)+'</small>':'')+'</label>';
 }
 /* [DN_NONE_RESULT] 2026-09-26 · 일곱째 인자 result=true 면 «걸음»이 아니라 «결과» 화면이다 — 번호 없는 머리(입구 게이트 DN_STEP_LABEL 과 같은 꼴) · «이전» 없음.
-   애프터 웨딩 «안 함» 화면이 «2 / 2»로 떠서, 1 을 본 적 없는 부부가 «이전»을 누르면 처음 보는 식당 목록(1 / 2)이 열렸다.
-   되돌리는 길은 그 화면의 「역시 애프터 웨딩 만들래요」(DN_AGAIN_DIRECT) 하나다. */
+   예식 후 식사 «안 함» 화면이 «2 / 2»로 떠서, 1 을 본 적 없는 부부가 «이전»을 누르면 처음 보는 식당 목록(1 / 2)이 열렸다.
+   되돌리는 길은 그 화면의 「역시 예식 후 식사 만들래요」(DN_AGAIN_DIRECT) 하나다. */
 function trkShell(stepNo, q, sub, body, last, lastLabel, result){
   var m=TRK_META[TRKFLOW.track];
   var navLeft = (TRKFLOW.step>0 && !result)
     ? '<button type="button" class="cc-btn-ghost" id="trk_back">이전</button>'
     : '';
   return '<div class="consult-card inv-wrap">'
-    /* [WZ_STEPS] 머리는 이름만 · 몇 걸음째는 아래 진행 표시가 말한다(식순과 같은 모양 — 옛 «애프터 웨딩 · 1 / 2» 숫자 글을 대신한다).
+    /* [WZ_STEPS] 머리는 이름만 · 몇 걸음째는 아래 진행 표시가 말한다(식순과 같은 모양 — 옛 «예식 후 식사 · 1 / 2» 숫자 글을 대신한다).
        결과 화면(result · «안내 없이 진행해요»)은 걸음이 아니라 표시를 두지 않는다([DN_NONE_RESULT]). */
     /* ★[WZ_HEAD_ALL 2026-09-27 사장님 «마이페이지 전체 일관성»] 마지막 걸음에도 저장 · 나가기 — 청첩장 · 스냅 기획 · 식순은 마지막 걸음에도 있는데 여기만 없었다
          (8/14 전 손잡이가 «저장 후 나가기» 하나라 아래 «저장하고 닫기»와 겹쳐 뺐던 흔적). 결과 화면(«안내 없이 진행해요»)은 저장할 것이 없어 뺀다. */
@@ -13491,7 +13515,7 @@ function trkShell(stepNo, q, sub, body, last, lastLabel, result){
     + '<div class="inv-nav wz-bar"><div id="trk_err" class="wz-err" role="alert"></div>'+navLeft+'<button type="button" class="cc-btn" id="trk_next">'+(lastLabel||(last?'완료':'다음'))+'</button></div>'   // [WZ_BAR] 오류 줄은 막대 안
     + '</div>';
 }
-/* [ERR_CODE_MYPAGE F10] 애프터 웨딩 AI 추천 실패 한 줄 — 서버(api/after-concierge.js)의 영문 기술어 · HTTP 상태 · 브라우저 실패를 A 코드로.
+/* [ERR_CODE_MYPAGE F10] 예식 후 식사 AI 추천 실패 한 줄 — 서버(api/after-concierge.js)의 영문 기술어 · HTTP 상태 · 브라우저 실패를 A 코드로.
    할 일은 늘 «아래에서 직접 골라 주세요»(아래 목록은 AI 없이도 쓸 수 있다) */
 var DNC_DO='아래에서 직접 골라 주세요';
 function _dncErr(x, ac, http){
@@ -13508,12 +13532,12 @@ function _dncErr(x, ac, http){
   if(/[가-힣]/.test(e)) return e.replace(/[.\s]+$/,'')+' · '+DNC_DO;   // [ERR_SRV_REASON] 서버가 한글 까닭(0)을 주면 글이 곧 까닭 — 코드 없이(마이페이지 _errLine 과 같은 판단)
   return 'AI가 질문을 받지 못했어요 · '+DNC_DO+' (코드 A0)';
 }
-// [애프터웨딩 수요 로깅] 고객이 누른 니즈·인원·필터를 개인정보 없이 적재(GAS '애프터수요로그' · 90일 자동정리). 어디부터 검증·보강할지 데이터 근거.
+// [예식 후 식사 수요 로깅] 고객이 누른 니즈·인원·필터를 개인정보 없이 적재(GAS '애프터수요로그' · 90일 자동정리). 어디부터 검증·보강할지 데이터 근거.
 function logAwDemand(p){ try{ api(Object.assign({action:'awDemandLog', token:getToken()}, p||{})); }catch(e){} }   // fire-and-forget(실패 무시)
 function bindTrk(box, render, collect, opt){
   opt=opt||{};
   TRKFLOW._collect=collect;   // 당겨서 새로고침이 현재 스텝 입력을 초안으로 수집할 때 사용(입력 유실 방지)
-  if(TRKFLOW._shownStep!=null && TRKFLOW._shownStep!==TRKFLOW.step) _wzFocusHead(box);   // [INV_STEP_TOP] 애프터 웨딩 · 최종 확정도 걸음이 바뀌면 맨 위 + 제목 초점(청첩장과 같은 규칙)
+  if(TRKFLOW._shownStep!=null && TRKFLOW._shownStep!==TRKFLOW.step) _wzFocusHead(box);   // [INV_STEP_TOP] 예식 후 식사 · 최종 확정도 걸음이 바뀌면 맨 위 + 제목 초점(청첩장과 같은 규칙)
   TRKFLOW._shownStep=TRKFLOW.step;
   Array.prototype.forEach.call(box.querySelectorAll('[data-trkopt]'),function(el){ el.addEventListener('click',function(){ collect(); var _ok=el.getAttribute('data-trkopt'); TRKFLOW.draft[_ok]=el.getAttribute('data-v'); if(_ok==='venuePick') TRKFLOW.draft.venuePickPid=el.getAttribute('data-vpid')||''; /* [B2_FIX_MA_38] 예약할 곳도 지도 장소 ID 로(같은 이름의 다른 지점) */ render(box); }); });
   Array.prototype.forEach.call(box.querySelectorAll('[data-gate]'),function(el){ el.addEventListener('click',function(){ collect(); TRKFLOW.draft[el.getAttribute('data-gate')]=el.getAttribute('data-gv'); render(box); }); });
@@ -13542,7 +13566,7 @@ function bindTrk(box, render, collect, opt){
   var _dnStarBind=function(el,fn){ el.addEventListener('click',fn); el.addEventListener('keydown',function(e){ if(e.repeat) return; if(e.key==='Enter'||e.key===' '){ fn(e); } }); };   // e.repeat 가드 — 키 꾹 누름 자동반복이 토글·POST·재렌더를 연사하지 않게
   Array.prototype.forEach.call(box.querySelectorAll('[data-favcard]'),function(el){ _dnStarBind(el,function(e){ if(e&&e.preventDefault)e.preventDefault(); collect(); var _n=el.getAttribute('data-favcard'), _S=_dnSnap(), _R1=_dnFind(_n); if(_dnFavToggle(TRKFLOW.draft,{n:_n,m:el.getAttribute('data-favm')||'',src:'db',tel:(_R1&&_R1.tel)||''})){ _dnFavSaved(function(){ _dnRestore(_S); }); }   /* [B2_MA_13] 추천 장소의 전화번호도 담는다(하객 안내 전화 단추) · [B2_MA_16] 실패하면 바꾸기 전 전체로 */ _dnRerenderKeep(function(){ return _dnFindByAttr('data-favcard',_n); }); }); });   // 카드 전체 = 담기 토글
   // 가볼 곳(볼거리) 카드도 눌러서 담기 — 단, 카드 안 '지도' 링크 클릭은 담기로 안 먹게(링크 우선)
-  Array.prototype.forEach.call(box.querySelectorAll('[data-favattr]'),function(el){ _dnStarBind(el,function(e){ if(e&&e.target&&e.target.closest&&e.target.closest('a')) return; if(e&&e.preventDefault)e.preventDefault(); collect(); var _n=el.getAttribute('data-favattr'); var _SA=_dnSnap(); if(_dnFavToggle(TRKFLOW.draft,{n:_n,m:el.getAttribute('data-favm')||'',url:el.getAttribute('data-favurl')||'',src:'attr'})){ _dnFavSaved(function(){ _dnRestore(_SA); }); }   /* ★[B2_FIX_MA_16 2026-11-06 재검증 재수정] 가볼 곳도 실패하면 바꾸기 전 전체(순서 · 공개 · 대표 · 예약)로 — 종전 «같은 토글 한 번 더»는 이름 · 메모만 다시 담았다 */ _dnRerenderKeep(function(){ return _dnFindByAttr('data-favattr',_n); }); }); });
+  /* ★[DN_ATTR_OFF_1122 2026-11-22 사장님 «예식 후 가볼 만한 곳 빼는 게 좋겠지 · 별로 결정적인 것도 없고» → «빼고»] 되살리기 금지 — 2026-11-22 사용자 지시로 삭제 · 가볼 곳 카드 담기 연결 */
   Array.prototype.forEach.call(box.querySelectorAll('[data-favp]'),function(el){ _dnStarBind(el,function(e){ if(e&&e.target&&e.target.closest&&e.target.closest('a')) return; e.preventDefault(); e.stopPropagation(); collect(); var d3=TRKFLOW.draft, _pi=el.getAttribute('data-favp'), p=(d3._places||[])[+_pi]; if(!p) return; var km=(p.dist!=null)?((p.dist/1000).toFixed(1)+'km'):''; /* ★[B2_MA_37 2026-11-06 2차 B2-마37] AI 가 «볼거리»(attraction)로 찾은 공원 · 박물관은 가볼 곳(src:'attr')으로 담는다 — 종전엔 src:'kakao' 만 남아 식당(식사 예약처)으로 분류됐다.
      출처는 from 에 따로 남긴다 · [B2_MA_38] 지도 장소 ID(pid)를 담아 같은 이름의 다른 장소를 갈라 담는다 */
   var _isAttr=(d3._placesCat==='attraction'), _u2={n:p.name,m:[p.cat,km,p.addr].filter(Boolean).join(' · ').slice(0,90),tel:_isAttr?'':(p.phone||''),url:(p.url&&/^https?:\/\//i.test(p.url))?p.url:'',src:_isAttr?'attr':'kakao',from:'kakao',pid:String(p.id||'')};
@@ -13567,9 +13591,9 @@ function bindTrk(box, render, collect, opt){
   var _ddet=$('dn_det'); if(_ddet){ _ddet.addEventListener('click',function(){ collect(); var opn=(DN_UI.det===null)?false:DN_UI.det; DN_UI.det=!opn; render(box); _dnRefocus(function(){ return $('dn_det'); }); }); }   // 조건 더 좁히기 펼침/접기(기본 접힘과 동일 기준)
   var _dpre=$('dn_pre'); if(_dpre){ _dpre.addEventListener('click',function(){ collect(); var opn=(DN_UI.pre===null||typeof DN_UI.pre==='undefined')?false:DN_UI.pre; DN_UI.pre=!opn; render(box); _dnRefocus(function(){ return $('dn_pre'); }); }); }   // '이런 자리를 찾고 있어요' 프리셋 펼침/접기(기본 접힘)
   var _dmore=$('dn_more'); if(_dmore){ _dmore.addEventListener('click',function(){ collect(); DN_UI.all=true; DN_UI.less=false; render(box); }); }   // 리스트 전체 보기
-  var _dless=$('dn_less'); if(_dless){ _dless.addEventListener('click',function(){ collect(); DN_UI.all=false; DN_UI.less=true; render(box); _dnRefocus(function(){ return $('dn_more')||$('dn_attr_h'); }); }); }   // [DN_LIST_LESS_1102]
+  var _dless=$('dn_less'); if(_dless){ _dless.addEventListener('click',function(){ collect(); DN_UI.all=false; DN_UI.less=true; render(box); _dnRefocus(function(){ return $('dn_more')||$('dn_pre'); });   /* [DN_ATTR_OFF_1122] 가볼 곳 단추가 빠져 «이런 자리를 찾고 있어요»로 */ }); }   // [DN_LIST_LESS_1102]
   Array.prototype.forEach.call(box.querySelectorAll('[data-preset]'),function(el){ el.addEventListener('click',function(){ collect(); var p=DN_PRESETS[+el.getAttribute('data-preset')]; if(p){ var _cur=Object.assign({},TRKFLOW.draft._filters||{}); delete _cur.noCafe; TRKFLOW.draft._filters=Object.assign(_cur,p.set);   /* ★[DN_PRESET_MERGE_1102 사장님 «추천대로»] 상황 칩은 그 칩의 조건만 바꾼다 — 정해 둔 인원 · 예산을 지우지 않는다 */ TRKFLOW.draft._aiSummary=''; DN_UI.all=false; DN_UI.det=null; logAwDemand({source:'preset', label:p.label, head:(p.set&&p.set.headN)||''}); render(box); } }); });   // 원탭 프리셋 — 필터 교체
-  var _dattr=$('dn_attr_h'); if(_dattr){ _dattr.addEventListener('click',function(){ collect(); DN_UI.attr=!DN_UI.attr; render(box); _dnRefocus(function(){ return $('dn_attr_h'); }); }); }   // 가볼 만한 곳 펼침/접기 · [DN_ATTR_KB] 다시 그린 뒤 같은 단추로(새 aria-expanded 가 들리게)
+  /* ★[DN_ATTR_OFF_1122 2026-11-22 사장님 «예식 후 가볼 만한 곳 빼는 게 좋겠지 · 별로 결정적인 것도 없고» → «빼고»] 되살리기 금지 — 2026-11-22 사용자 지시로 삭제 · 가볼 곳 펼침 단추(dn_attr_h) */
   var _dncF=$('dncForm'); if(_dncF){
     var _dncGo=function(text){
       var d2=TRKFLOW.draft;
@@ -13612,7 +13636,7 @@ function bindTrk(box, render, collect, opt){
             logAwDemand({source:'ai', category:r.category||'', theme:(r.filters&&r.filters.theme)||'', food:(r.filters&&r.filters.food)||'', head:(d2._filters&&d2._filters.headN)||''});   // 수요 로깅(개인정보 없음)
             if(r.source==='kakao' && r.places && r.places.length){ d2._places=r.places.slice(0,7); d2._placesCat=String(r.category||''); }   // [B2_MA_37] 무엇을 찾은 결과인지(볼거리 attraction 등)
             else if(r.source==='kakao'){ d2._places=[]; d2._aiNoRes=true; d2._chat=d2._chat.concat([{role:'assistant',content:'지도에서 딱 맞는 곳을 찾지 못했어요. 장소 종류를 넣어 말씀해 주시면 잘 찾아져요. (예: 아이랑 갈 실내 놀이방 · 고기 굽는 단체 뒤풀이 집) 아래 버튼을 눌러 바로 다시 찾아보셔도 돼요.'}]).slice(-10); }
-            /* ★[ERR_CODE_MYPAGE F10] 지도 조회가 실패한 것 — 종전 «이 부분은 상담 때 디렉터가 함께 안내드릴게요»는 상담을 마친 두 분에게 틀린 말이었다(식순 · 애프터 웨딩은 상담 뒤).
+            /* ★[ERR_CODE_MYPAGE F10] 지도 조회가 실패한 것 — 종전 «이 부분은 상담 때 디렉터가 함께 안내드릴게요»는 상담을 마친 두 분에게 틀린 말이었다(식순 · 예식 후 식사는 상담 뒤).
                대화 기록(AI 에게 다시 가는 글)에 넣지 않고 입력 칸 아래 한 줄로 — 단계와 상관없는 말 + 코드 */
             else if(r.mapDown){ _md=true; d2._places=[]; }   // [B2_HOME_09] 새 장소 요청의 지도 조회가 실패했다 — 앞 검색 카드를 새 결과처럼 남기지 않는다(«담음»으로 저장한 곳은 _favs 에 그대로)
             else { d2._places=[]; }
@@ -13696,15 +13720,7 @@ var DN_PRESETS=[
   {label:'정갈한 한정식', set:{food:'한정식'}},                 // 격식 있는 코스 정찬
   {label:'푸짐한 족발·보쌈', set:{food:'족발·보쌈'}}            // 캐주얼 회식·부담 없는 단체
 ];
-// 예식 후 가볼 만한 곳 — 향동 기준 디렉터 큐레이션(지도 검색이 빈약한 동네라 고정 추천). 거리·설명은 디렉터가 다듬을 수 있음.
-var DN_ATTRACTIONS=[
-  {n:'서오릉', t:'사적·솔숲 산책', d:'차로 10분', desc:'조선왕릉 솔숲길. 예복 차림 산책과 가족 사진에 좋아요.'},
-  {n:'북한산 둘레길 구름정원길', t:'숲길 · 전망', d:'차로 10~15분', desc:'전체 5.2km로, 약 2시간 걸리는 중급 숲길이에요. 잠깐 걷는다면 짧은 구간을 먼저 확인해 주세요.'},   // [B2_MA_33 2026-11-06 2차 B2-마33] 전체를 «가벼운 데크길»로 소개하던 것 · 유모차 · 휠체어 이용을 말하지 않는다 · 특정 짧은 구간 추천은 B2-K33 결정 대기
-  {n:'하늘공원·노을공원', t:'한강뷰·억새', d:'차로 15분', desc:'한강과 도심을 내려다보는 억새 언덕. 노을 사진 명소예요.'},
-  {n:'행주산성 역사공원', t:'강변 · 산책', d:'차로 15분', desc:'한강변에 조성된 공원이에요. 강변 산책과 전망을 함께 즐길 수 있어요.'},   // [B2_MA_77 2026-11-06 2차 B2-마77] 강변 공원인데 산성길 설명으로 읽히던 것
-  {n:'향동 카페거리', t:'도보·카페', d:'도보', desc:'스튜디오 인근 신축 상가의 카페 밀집 거리. 식사 후 가볍게 차 한잔.'},
-  {n:'평화의공원 (상암)', t:'공원·산책', d:'차로 10분', desc:'넓은 잔디·호수 산책로. 아이 동반 하객과 여유롭게 걷기 좋아요.'}
-];
+/* ★[DN_ATTR_OFF_1122 2026-11-22 사장님 «예식 후 가볼 만한 곳 빼는 게 좋겠지 · 별로 결정적인 것도 없고» → «빼고»] 되살리기 금지 — 2026-11-22 사용자 지시로 삭제 · 향동 기준 가볼 곳 여섯(서오릉 · 북한산 둘레길 · 하늘공원 · 행주산성 · 향동 카페거리 · 평화의공원) 목록 */
 function _dnFind(nm){ for(var i=0;i<DINE_DB.length;i++){ if(DINE_DB[i].n===nm) return DINE_DB[i]; } return null; }
 /* [DN_RO_JOSA 2026-09-26 · 점검 L5 · L7] 가게 이름 뒤 (으)로 — 받침이 없거나 ㄹ 받침이면 «로», 그 밖의 받침이면 «으로».
      종전엔 «로»를 박아 «잔치연로» · «유평리백숙집 향동점로» · «카페516로»가 나왔다(목록 80곳 중 64곳이 «으로» 자리).
@@ -13875,7 +13891,7 @@ function dineFilterUI(d, wt){
   }
   var hasChat=chat.length>0;
   var aiBox='<div class="dn-ai'+(hasChat?'':' dn-ai-slim')+'">'
-    + '<div class="dn-ai-eyebrow">After Wedding Concierge</div>'
+    + '<div class="dn-ai-eyebrow">Dining Concierge</div>'
     + (hasChat
         ? '<div class="dn-ai-rule"></div><div class="dnc-msgs" id="dncMsgs"><div class="dnc-m dnc-b">예식 끝난 뒤 어디로 모실지 함께 챙겨드릴게요. \'조용한 룸\', \'아이랑 놀 곳\'처럼 적어 주시면 어울리는 자리를 찾아드려요.</div>'
           + msgs
@@ -13900,21 +13916,7 @@ function dineFilterUI(d, wt){
      ★고객에게도 필요한 정보다 — 기준점을 모르면 「차8분」은 아무 뜻이 없다. */
   var fine='';   /* [DN_ONE_CAUTION_1102] 목록 아래 변동 안내는 뺐다 — 기준점(향동 스튜디오)은 리드 줄([DINE_ORIGIN])에 · 예약 전 확인은 정리 전 확인 창 한 곳 */   // [DN_DOT_SPLIT] 나열의 가운뎃점 양옆 U+2060(320 «영업시간· / 단체석은»)
   var aiHint = (d._chat&&d._chat.length && !d._pendingTyping && d._aiApplied && JSON.stringify(d._filters||{})===d._aiFil) ? '<div class="cc-note" style="margin:0 0 7px;color:var(--label-soft)">대화에 맞춰 조건을 맞췄어요. 아래에서 바꿀 수 있어요.</div>' : '';   // [B2_HOME_28] 조건을 실제로 적용한 답이고 목록 조건이 그 답 그대로일 때만(대기 · 추가 질문 · 범위 밖 · 두 분이 바꾼 뒤엔 숨김)
-  // 예식 후 가볼 만한 곳 — 접이식 큐레이션. 각 항목도 눌러서 담기(식당과 함께 다음 취합 페이지에서 봄). '지도' 링크는 담기와 분리.
-  var attrItems=DN_ATTRACTIONS.map(function(a){
-    var _af=_dnFavHas(d,a.n), _aUrl='https://map.naver.com/p/search/'+encodeURIComponent(a.n);
-    return '<div class="dn-attr-item dn-attrcard'+(_af?' saved':'')+'" data-favattr="'+escapeHtml(a.n)+'" data-favm="'+escapeHtml(a.t+' · 예상 '+a.d)+'" data-favurl="'+escapeHtml(_aUrl)+'" role="button" tabindex="0" aria-pressed="'+_af+'" aria-label="'+escapeHtml(a.n)+' '+(_af?'담기 취소':'담기')+'">'
-      +(_af?'<span class="dn-savedtag">담음</span>':'')
-      +'<div class="n">'+escapeHtml(a.n)+'<span>'+escapeHtml(a.t+' · 예상 '+a.d)+'</span></div>'
-      +'<div class="d">'+escapeHtml(a.desc)+(a.n==='서오릉'&&arr==='18:10'?' 예식 뒤에는 입장이 마감될 수 있어요. 방문 날짜와 시간을 먼저 확인해 주세요.':'')+'</div>'   // [B2_MA_78 2026-11-06 2차 B2-마78] 저녁 예식(식사 도착 18:10)은 서오릉 입장 마감보다 늦다 · 담기 · 다른 날 방문은 막지 않는다
-      +'<a class="dn-attr-map" href="'+_aUrl+'" target="_blank" rel="noopener">지도</a></div>';
-  }).join('');
-  /* [DN_ATTR_KB] 2026-09-26 통합 점검 2R(R4) · «예식 후 가볼 만한 곳 펼치기 ▾»를 div → button. click 만 걸린 div 라 Tab 이 한 바퀴를 돌아도 닿지 않았고
-     (tabIndex -1 · focus() 도 안 받음) 화면 읽기에는 글자로만 읽혔다 — 키보드로는 가볼 곳 6곳을 열 수도 담을 수도 없었다.
-     같은 화면 «조건 더 좁히기» · «이런 자리를 찾고 있어요»와 같은 틀: aria-expanded + (펼쳤을 때만 있는 목록이라) 펼쳤을 때만 aria-controls ·
-     다시 그린 뒤 이 단추로 초점을 돌린다(bindTrk 쪽). 겉모양은 .dn-attr-h 의 단추 초기화로 그대로(316×25 · 픽셀 같음 실측). */
-  var attr='<div class="dn-attr"><button type="button" class="dn-attr-h" id="dn_attr_h" aria-expanded="'+(DN_UI.attr?'true':'false')+'"'+(DN_UI.attr?' aria-controls="dn_attrBody"':'')+'><span class="t">예식 후 가볼 만한 곳</span><span class="pt-ar" aria-hidden="true"></span></button>'
-    +(DN_UI.attr?'<div class="dn-attr-list" id="dn_attrBody"><div class="dn-fine" style="margin:0 0 8px">눌러서 담아 두면 다음 화면에서 식당과 함께 볼 수 있어요. 산책·사진 코스예요.</div>'+attrItems+'<div class="dn-fine" style="margin-top:2px">거리는 예상이고, 운영시간·입장은 방문 전 확인해 주세요.</div></div>':'')+'</div>';
+  var attr='';   /* ★[DN_ATTR_OFF_1122 2026-11-22 사장님 «예식 후 가볼 만한 곳 빼는 게 좋겠지 · 별로 결정적인 것도 없고» → «빼고»] 되살리기 금지 — 2026-11-22 사용자 지시로 삭제 · 식당 고르는 화면과 결이 다르고(산책 · 사진 코스) 예식 뒤 하객과 갈 일이 드물다 · 이미 담긴 가볼 곳(src:'attr')을 보여 주는 정리 · 하객 안내 코드는 옛 기록 호환으로 둔다 */
   // (2026-07-12) 통합 흐름: AI 입력(aiBox) → 컨셉 칩(presetRow, 식사+시나리오 한 줄) → 지도 결과(placeCards) → 커브레이션 리스트(head·chips·cards). '또는 직접 골라보기' 칸막이·step0 찜박스 제거.
   // 카드=버튼(눌러서 찜)이라 별표를 없앤 대신, 처음 오는 분도 알 수 있게 한 줄 안내(결과 있을 때만)
   var tapHint=list.length?'<div class="dn-taphint">마음에 드는 곳을 <b>눌러서 담아</b> 두세요. 담으면 바로 저장돼요.</div>':'';
@@ -13984,10 +13986,10 @@ function renderDining(box){
     if(f.length && vp && DN_PLACEHOLDER.indexOf(vp)===-1 && !f.some(function(v){ return v && String(v.n||'').trim()===vp; })){
       var R0=_dnFind(vp); f.unshift({n:vp, m:'', src:R0?'db':'manual', tel:(R0&&R0.tel)||''}); d._favs=f; }
   })();
-  /* ★★[DN_SKIP_VS_FAVS 2026-09-22 사장님 지적 「담은곳보기 누르면 애프터웨딩없이 진행해요 라는 페이지가나오는데」]
+  /* ★★[DN_SKIP_VS_FAVS 2026-09-22 사장님 지적 「담은곳보기 누르면 예식 후 식사없이 진행해요 라는 페이지가나오는데」]
      담은 곳이 있는데 venuePick 이 「다이닝 없이 진행할게요」인 저장값이 들어오면, 정리 자리(step 1)가
      그 분기를 먼저 타서 **담아 둔 곳이 통째로 안 보인다.** 브라우저로 재현했다 —
-     담은곳 2곳 · venuePick=「다이닝 없이」 → 2/2 화면이 「애프터 웨딩 안내 없이 진행해요」.
+     담은곳 2곳 · venuePick=「다이닝 없이」 → 2/2 화면이 「예식 후 식사 안내 없이 진행해요」.
      두 분은 분명히 두 곳을 담았는데 «안 하기로 한» 화면을 본다. 담은 것이 사라진 줄 안다.
      ★둘은 원래 양립하지 않는다 — 「이번엔 괜찮아요」·「조용히 마무리」 버튼은 담은 곳이 0일 때만
        그려진다. 그러니 «담은 곳이 있다»가 나중이자 더 구체적인 신호다. 옛 결정 쪽을 접는다.
@@ -14006,9 +14008,9 @@ function renderDining(box){
        ★한 번만 돈다 — 지우고 나면 위 조건이 거짓이 되어 다시 들어오지 않는다. */
     try{ saveTrkDraft(false); }catch(_e){}
   }
-  /* ★[B2_MA_25 2026-11-06 2차 B2-마25] «안 함»으로 저장된 결정을 다시 열면 «애프터 웨딩 안내 없이 진행해요» 결과 화면으로 연다 —
+  /* ★[B2_MA_25 2026-11-06 2차 B2-마25] «안 함»으로 저장된 결정을 다시 열면 «예식 후 식사 안내 없이 진행해요» 결과 화면으로 연다 —
      변경 없는 뒤로 나가기는 다시 저장하지 않아, 다시 열면 안 함 값을 가진 식당 목록(step 0)이 떴다. 목록에서 안 함을 고른 경로(dn_skip)도 같은 화면으로.
-     «역시 애프터 웨딩 만들래요»(_dnPick)를 누를 때만 고르기로 간다. 위 수선(DN_SKIP_VS_FAVS)이 먼저 돈다 */
+     «역시 예식 후 식사 만들래요»(_dnPick)를 누를 때만 고르기로 간다. 위 수선(DN_SKIP_VS_FAVS)이 먼저 돈다 */
   if(TRKFLOW.step===0 && d.venuePick==='다이닝 없이 진행할게요' && !TRKFLOW._dnPick) TRKFLOW.step=1;
   function syncVenue(){
     if(d.venuePick && d.venuePick!=='직접 섭외할게요' && d.venuePick!=='상담 때 함께 정할게요' && d.venuePick!=='다이닝 없이 진행할게요'){ d.venue=d.venuePick; d.partner='모먼트에디트 연계'; }
@@ -14046,8 +14048,8 @@ function renderDining(box){
       +'<div class="inv-q">예식 뒤의 시간, 어떻게 할까요?</div>'
       +'<div class="inv-sub">예식 후 식사 · 카페 자리를 하객분들께 안내할지 정해요. 꼭 하지 않으셔도 괜찮아요.</div>'
       +'<div class="dn-gate">'
-        +'<button type="button" class="dn-gate-card" id="dn_make"><span class="dgc-t">식사 · 카페 안내 만들기</span><span class="dgc-d">하객께 식당 · 카페 · 가볼 곳을 안내해요</span></button>'
-        +'<button type="button" class="dn-gate-card dn-gate-skip" id="dn_none"><span class="dgc-t">예식만으로 조용히 마무리</span><span class="dgc-d">애프터 웨딩 안내는 안 만들래요</span></button>'
+        +'<button type="button" class="dn-gate-card" id="dn_make"><span class="dgc-t">식사 · 카페 안내 만들기</span><span class="dgc-d">하객께 식당 · 카페를 안내해요</span></button>'   /* [DN_ATTR_OFF_1122] 가볼 곳 칸을 빼 «· 가볼 곳» 도 뺐다 */
+        +'<button type="button" class="dn-gate-card dn-gate-skip" id="dn_none"><span class="dgc-t">예식만으로 조용히 마무리</span><span class="dgc-d">예식 후 식사 안내는 안 만들래요</span></button>'
       +'</div></div>';
     /* [DN_MAKE_BASE] 2026-09-26 · 만들기 → 같은 step0 식당 화면으로. 그린 «뒤에» 기준선을 다시 잡는다([WIZ_BASE_AFTER] 와 같은 규칙).
        목록 화면이 처음 붙이는 collect() 가 dining_on:'Y' 를 계산해 넣어, 아무것도 안 고른 부부가 «나가기»에서 «저장하지 않은 변경이 있어요»를 받았다.
@@ -14091,7 +14093,7 @@ function renderDining(box){
     var _nextLbl=_favN0?('담은 '+_favN0+'곳 정리하기'):'다음';
     // '꼭 정하지 않으셔도 괜찮아요' 약속 이행 — 아무것도 안 담은 부부가 트랙을 완료할 출구('다이닝 없이' 옵션은 2026-06-13에 카드 목록에서 빠졌지만 완료 경로는 있어야 함)
     if(!_favN0 && !String(d.venuePick||'').trim()){
-      body+='<div style="text-align:center;margin-top:16px"><button type="button" class="cc-btn-ghost" id="dn_skip" style="width:auto;padding:9px 18px;font-size:12px">애프터 웨딩 안내 없이 진행할게요</button></div>';   // [B2_MA_65 2026-11-06 2차 B2-마65] 결과는 애프터 웨딩 안내 전체를 끈다 — «다이닝 없이»(식사만)로 읽히던 단추 글 · 저장값 · 키는 그대로
+      body+='<div style="text-align:center;margin-top:16px"><button type="button" class="cc-btn-ghost" id="dn_skip" style="width:auto;padding:9px 18px;font-size:12px">예식 후 식사 안내 없이 진행할게요</button></div>';   // [B2_MA_65 2026-11-06 2차 B2-마65] 결과는 예식 후 식사 안내 전체를 끈다 — «다이닝 없이»(식사만)로 읽히던 단추 글 · 저장값 · 키는 그대로
     }
     box.innerHTML=trkShell(1,'예식 후의 시간, 안내해 드릴게요','마음에 드는 곳을 담아 두 분이 비교해 보세요. 꼭 정하지 않으셔도 괜찮아요.',body,false,_nextLbl);   /* ★[DN_INTRO_SHORT_1102 사장님 «추천대로»] 폰 첫 화면에 추천 카드가 보이게 위 안내를 줄였다 */ _wzPin(box);   // [DN_DOT_SPLIT 2026-09-26] 나열의 가운뎃점 양옆 U+2060 — 350~400 에서 «식사·카페· / 아이 동반»·«식사·카페 / ·아이 동반»으로 점이 줄 끝·머리에 섰다(기준판 그대로였다)
     // 식당을 골라 '다음'을 누르면, 전화번호·지도가 나오기 직전에 정보 면책 팝업 1회(예약 전 직접 확인 안내 · 2026-06-16 사용자 지시)
@@ -14117,10 +14119,10 @@ function renderDining(box){
     var _dnsk=$('dn_skip'); if(_dnsk){ _dnsk.addEventListener('click',function(){ collect(); d.venuePick='다이닝 없이 진행할게요'; syncVenue(); d.dining_on='N'; saveTrkDraft(false); TRKFLOW.step=1; renderDining(box); }); }   // 안내 없이 진행 → step1 '없이 진행' 완료 화면으로
   } else {
     if(d.venuePick==='다이닝 없이 진행할게요'){
-      box.innerHTML=trkShell(2,'애프터 웨딩 안내 없이 진행해요','예식만으로 조용히 마무리하는 것도 좋은 선택이에요. 마음이 바뀌면 언제든 다시 안내를 받아보실 수 있어요.',
-        '<div style="text-align:center;margin-top:2px"><button type="button" class="cc-btn-ghost" id="dn_again" style="width:auto;padding:9px 18px;font-size:12px">역시 애프터 웨딩 만들래요</button></div>',true,'닫기',true); _wzPin(box);   // [DN_NONE_RESULT] 2026-09-26 · 결과 화면(번호·이전 없음) · 결정은 입구에서 이미 저장됐다(saveTrkDraft(true)) — «저장하고 닫기»는 아직 저장 전인 줄 알게 했다. 누르면 같은 값을 한 번 더 적고 닫는다(동작은 그대로)
+      box.innerHTML=trkShell(2,'예식 후 식사 안내 없이 진행해요','예식만으로 조용히 마무리하는 것도 좋은 선택이에요. 마음이 바뀌면 언제든 다시 안내를 받아보실 수 있어요.',
+        '<div style="text-align:center;margin-top:2px"><button type="button" class="cc-btn-ghost" id="dn_again" style="width:auto;padding:9px 18px;font-size:12px">역시 예식 후 식사 안내 만들래요</button></div>',true,'닫기',true); _wzPin(box);   // [DN_NONE_RESULT] 2026-09-26 · 결과 화면(번호·이전 없음) · 결정은 입구에서 이미 저장됐다(saveTrkDraft(true)) — «저장하고 닫기»는 아직 저장 전인 줄 알게 했다. 누르면 같은 값을 한 번 더 적고 닫는다(동작은 그대로)
       bindTrk(box,renderDining,collect,{ last:true });
-      /* ★★[DN_AGAIN_DIRECT 2026-09-22 사장님 지적] 「역시 애프터 웨딩 만들래요」는 **이미 결정을 말한 버튼**이다.
+      /* ★★[DN_AGAIN_DIRECT 2026-09-22 사장님 지적] 「역시 예식 후 식사 만들래요」는 **이미 결정을 말한 버튼**이다.
          종전엔 _dnPick=false 로 두어 입구 게이트(만들기 vs 안 함)로 되돌아갔다 — 방금 «만들래요»라고
          한 사람에게 «만들까요?»를 다시 묻는 꼴이라, 한 결정에 두 번 눌러야 했다(실측: ③에서 식당 0곳).
          → 게이트를 건너뛰고 식당 목록으로 바로 간다. 되돌릴 길은 그 화면의 「이번엔 괜찮아요」에 있다. */

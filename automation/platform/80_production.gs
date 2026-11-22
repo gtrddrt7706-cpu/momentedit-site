@@ -99,11 +99,13 @@ function _ensureProductionBase(cust, prodDraft, invDraft) { _gsr_();
   return prodDraft.base;
 }
 
-// [03-F] 최종 확정 인원 정책 = 계약서 단일 기준(서른 분 전원 착석 · 최대 30명 · ★추가금 없음)
+// [03-F] 최종 확정 인원 정책 = 계약서 단일 기준(전원 착석 · 최대 35명 · ★추가금 없음)
 // ★단일 출처는 여기(실청구·검증). 값 변경 시 아래 5곳의 문구·상수도 반드시 함께 동기화(놓치면 계약서·안내와 청구액이 충돌):
 //   ① mypage.html MP_FINAL_POLICY(표시 기본값 · 서버 finalPolicy가 덮음) ② contract/v1-1.html 8조 법문구(고객이 서명하는 문서)
-//   ③ inquiry.html 안내문+인원 검증(30명) ④ api/_kb.js AI 챗봇 KB ⑤ assets/advisor-kb.js
-var FINAL_CONFIRM = { 착석: 30, 최대: 30, 초과단가: 0 };
+//   ③ inquiry.html 안내문+인원 검증(35명) ④ api/_kb.js AI 챗봇 KB ⑤ assets/advisor-kb.js
+var FINAL_CONFIRM = { 착석: 35, 최대: 35, 초과단가: 0 };
+//   ★[CAP_35 2026-11-22 사장님 «35석으로 올리기»] 30 → 35 — 캔들존 확정 배치(원형 9테이블 · 35석 · 혼주 4석 포함 · assets/seat-plan.js)가 35석을 그린다.
+//     계약서 v1.17 · 홈페이지 · 상담 신청 · AI 안내가 같은 수를 말한다(guest-cap-truth 가 잰다).
 //   ★[SEATED30] 착석 25 → 30 · 스탠딩 폐지 (2026-09-13 대표 지시 검토38 "서른 분까지 앉아서 식을 볼 수 있게 할 거야").
 //     되살리지 말 것 — 근거가 셋이다:
 //       ①우리 좌석 편집기가 이미 30석을 그린다(mypage.html autoSeatTables `[SEAT_PER5]` 6테이블×5석 =30,
@@ -243,7 +245,7 @@ function _prodPack(d, opts) { _gsr_();
     if (withPrev && val.length > capP && !migrating) {
       try { val = _prodTrackPack(d[t + 'Draft'], undefined); withPrev = false; } catch (e4) {}
     }
-    err = put(PROD_TRACK_COL[t], val, withPrev ? capP : cap, t === 'ritual' ? '' : (TRACK_LABEL_KO[t] || t));   // [B2_GEUL_16] 식순은 어느 원고가 긴지 모른다 — 이름을 고정하지 않는다
+    err = put(PROD_TRACK_COL[t], val, withPrev ? capP : cap, t === 'ritual' ? '' : (TRACK_LABEL_KO[t] || t));   // [B2_GEUL_16] 식순은 어느 원고가 긴지 모른다 — 이름을 고정하지 않는다   /* [MEAL_NAME_1122] 이름표 dining «애프터 웨딩» → «예식 후 식사» */
     if (err) return { cols: {}, err: err };
   }
   // [B-6] 합산 상한은 '행 전체'를 묶어야 의미가 있다 — 이번에 쓰지 않는 컬럼의 현재 길이도 더한다.
@@ -255,7 +257,7 @@ function _prodPack(d, opts) { _gsr_();
   if (total > totalCap) return { cols: {}, err: _prodTooLong_('긴') };   // [PROD_CAP_WORDS] 행 전체 합산 — 숫자 없이
   return { cols: cols, err: '' };
 }
-var TRACK_LABEL_KO = { ritual: '식순', dining: '애프터 웨딩', seat: '좌석 배치', guideinfo: '하객 안내', snap: '스냅 기획', final: '최종 확정', invitation: '청첩장' };
+var TRACK_LABEL_KO = { ritual: '식순', dining: '예식 후 식사', seat: '좌석 배치', guideinfo: '하객 안내', snap: '스냅 기획', final: '최종 확정', invitation: '청첩장' };   // 이름표 바꾼 표식은 이 이름표를 쓰는 _prodPack 본문 안([MEAL_NAME_1122])
 /* ★[PROD_CAP_WORDS 2026-10-09 A~Z 점검 2라운드 A2-15] 길이 상한 거절 글 한 곳 — «글이 너무 길어요 · ○○ 글을 조금 줄여 주세요 (코드 S0)».
    종전 «현재 약 12947자 · 최대 12,000자»는 저장 꼴(JSON) 길이라 화면 칸 글자 수와 비교가 안 됐다 · 코드 글자는 부른 동작의 자리(저장 S · 올리기 U …) · 0 = 글이 곧 까닭 */
 function _prodTooLong_(label) {
@@ -507,6 +509,7 @@ function handleSaveProductionTrack(body) { _gsr_();
     var _h = parseInt(String(fdr.headcount || '').replace(/[^0-9]/g, ''), 10) || 0;
     if (body && body.done) {
       if (_h < 1) return { ok: false, error: '총 하객 수를 입력해 주세요.' };
+      // [CAP_35] 상한은 FINAL_CONFIRM.최대(35 · 2026-11-22) — 이 파일이 옛것이면 31 ~ 35명 확정이 «최대 30명»으로 거절된다
       if (_h > FINAL_CONFIRM.최대) return { ok: false, error: '하객은 최대 ' + FINAL_CONFIRM.최대 + '명까지 모실 수 있어요. 조정이 어려우시면 디렉터에게 문의해 주세요.' };
       if (!String(fdr.drink || '').trim()) return { ok: false, error: '건배·웰컴 음료를 골라 주세요.' };
     }
@@ -526,7 +529,8 @@ function handleSaveProductionTrack(body) { _gsr_();
       var _t = _tbls[ti] || {};
       var _seats = (Object.prototype.toString.call(_t.seats) === '[object Array]') ? _t.seats : [];
       var _drk = (Object.prototype.toString.call(_t.drinks) === '[object Array]') ? _t.drinks : [];
-      var _os = [], _od = [];
+      var _chr = (Object.prototype.toString.call(_t.chair) === '[object Array]') ? _t.chair : [];
+      var _os = [], _od = [], _oc = [], _anyC = false;
       for (var si = 0; si < _seats.length && _os.length < 12; si++) {
         _os.push(String(_seats[si] || '').slice(0, 24));
         /* ★★[SEAT_DRINK_SAVE 2026-08-16] 화이트리스트가 옛 코드(N·A·J)에 멈춰 있어 **샴페인(C)·레드와인(R)이 저장 때마다 통째로 지워졌다.**
@@ -536,14 +540,18 @@ function handleSaveProductionTrack(body) { _gsr_();
            A(구 알콜)·J(구 주스)는 프런트 _seatNormDrinks 가 이미 빈 값으로 정리해 보내므로 여기서 되살리지 않는다.
            ★이 목록은 mypage.html SEAT_DRINK_LABEL 과 한 벌 — 음료 코드를 늘리면 두 곳을 함께 고칠 것. */
         var _dv = String(_drk[si] || '');   // 자리별 음료: '' 미정 · C 샴페인 · R 레드와인 · N 논알콜 스파클링 · K 유아(물+의자) · Y 어린이(물)
-        _od.push((_dv === 'C' || _dv === 'R' || _dv === 'N' || _dv === 'K' || _dv === 'Y') ? _dv : '');   // [KID_SEAT][KID_CHAIR 2026-08-16] K·Y 추가 — 빠뜨리면 아이 표시가 저장 때마다 조용히 지워진다(SEAT_DRINK_SAVE와 같은 사고)
+        _od.push((_dv === 'C' || _dv === 'R' || _dv === 'N' || _dv === 'K' || _dv === 'Y') ? _dv : '');
+        var _cv = String(_chr[si] || '');   // ★[DRINK_TWO 2026-11-22] 자리 준비(의자) — '' 보통 · B 유아용 의자 · W 휠체어 · mypage _seatNormDrinks 와 한 벌(빠뜨리면 저장 때 조용히 지워진다 · SEAT_DRINK_SAVE 사고)
+        _oc.push((_cv === 'B' || _cv === 'W') ? _cv : ''); if (_oc[_oc.length - 1]) _anyC = true;   // [KID_SEAT][KID_CHAIR 2026-08-16] K·Y 추가 — 빠뜨리면 아이 표시가 저장 때마다 조용히 지워진다(SEAT_DRINK_SAVE와 같은 사고)
       }
-      outT.push({
+      var _ot = {
         name: String(_t.name || '').slice(0, 24),
         side: (String(_t.side || 'L') === 'R') ? 'R' : 'L',
         seats: _os,
         drinks: _od
-      });
+      };
+      if (_anyC) _ot.chair = _oc;   // [DRINK_TWO] 하나도 없으면 키를 두지 않는다(화면도 그렇게 보낸다 · 에코 비교가 같은 모양)
+      outT.push(_ot);
     }
     body.draft = { tables: outT, note: String(sdr.note || '').slice(0, 200), _step: sdr._step || 0 };
   }
@@ -971,8 +979,10 @@ function _seatNorm(s) { _gsr_(); s = String(s || ''); try { s = s.normalize('NFC
 function _seatRowNum(tables) { _gsr_();   // 행순서 번호 = seat.html·guide.html·좌석표 프린트와 동일(위→아래 · 좌 1·3·5 / 우 2·4·6)
   var Ls = [], Rs = [];
   tables.forEach(function (t, i) { (String((t || {}).side || 'L') === 'R' ? Rs : Ls).push(i); });
-  var num = {}, nn = 1, mr = Math.max(Ls.length, Rs.length);
-  for (var rr = 0; rr < mr; rr++) { if (rr < Ls.length) num[Ls[rr]] = nn++; if (rr < Rs.length) num[Rs[rr]] = nn++; }
+  // ★[SEAT_PLAN_9 2026-11-22 사장님 «추천대로 적용»] 번호 = 좌측 위부터 1 ~ 4, 이어서 우측 5 ~ 9(assets/seat-plan.js numbers 와 한 벌 · 종전 행 번갈아 매기기는 폐지)
+  var num = {}, nn = 1;
+  for (var a = 0; a < Ls.length; a++) num[Ls[a]] = nn++;
+  for (var b = 0; b < Rs.length; b++) num[Rs[b]] = nn++;
   return num;
 }
 function _seatFindSlim(t) { _gsr_();   // 검색에 필요한 최소만 — 이 객체는 서버 안에서만 돈다(응답엔 hits/room만 나감)

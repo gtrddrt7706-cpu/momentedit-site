@@ -219,6 +219,7 @@ body.guest #setup{display:none !important}
 body.guest #bPos, body.guest #bClock, body.guest #bSheet, body.guest #bExit,
 body.guest .sub3, body.guest .vol, body.guest .now .no{display:none !important}
 body.guest .ctl .inner{display:grid;grid-template-columns:auto auto 1fr;gap:10px;align-items:stretch}   /* [GUEST_PREV] 왼쪽 '이전' + [GUEST_PAUSE] '멈춤' + 오른쪽 '다음으로' */
+body.guest .ctl .inner>div{grid-column:1/-1}   /* ★[CTL_ROW_N20_04X_1119 R3X #04] 단추 셋 아래 칸(빨간 «곡 파일을 열지 못했어요.» 등)은 한 줄 전체 — 첫 칸에 끼면 그 글 폭(133px)만큼 «이전» 칸이 넓어져 320 에서 «다음 순서로»가 79px 로 줄고 두 줄로 꺾였다 · PC 는 «이전» 133 · «멈춤» 96 으로 [GUEST_PC_BAL] 한 자가 깨졌다 */
 body.guest .main{background:var(--bg3);color:var(--text);font-size:17px;font-weight:600;padding:20px 16px}
 body.guest .main small{opacity:.72;font-weight:400}
 body.guest .now h2{font-size:clamp(21px,5.4vw,30px)}
@@ -1254,7 +1255,7 @@ function segPlan(id, cur){ var s = segSel(id, cur, 1), d0 = segDef(id);   /* [TA
   if (s && !Array.isArray(s) && BP && BP.order) { var o = BP.order(S, id, cur), i = o.indexOf(s), c = i < 0 ? o : o.slice(i + 1).concat(o.slice(0, i)); for (var j = 0; j < c.length; j++) { if (SEGF[c[j]]) return [c[j]]; } }
   return null; }
 /* ★[REPEAT_RULE_1107 ②③] 같은 곡을 다시 이을 자리 — 이 예식에서 적은 강조 시작(SEGST.start) > 곡 성질 강조 자리(SONGS.start) > 곡 길이 40%(전주부터 다시 들리지 않게 · 미리 듣기 reHook 과 같은 BgmPicks.hookAt) · 앞 무음(head)보다 앞으로 가지 않는다 */
-function reHookC(id){ var m = SEGST.meta[id] || {}, st = segStartOf(id); if (st != null) return Math.max(+st, m.head || 0); var d = +m.end || +m.dur || 0, h = (BP && BP.hookAt) ? BP.hookAt(id, d) : 0; return Math.max(h || 0, m.head || 0); }
+function reHookC(id){ var m = SEGST.meta[id] || {}, st = segStartOf(id), _d0 = +m.end || +m.dur || 0; if (st != null && _d0 > 0 && +st > _d0 - 20) return m.head || 0;   /* [PONYO_FIT_1122] 넣은 파일이 정한 자리 + 20초보다 짧으면 처음부터(끝 너머로 감지 않는다) */ if (st != null) return Math.max(+st, m.head || 0); var d = +m.end || +m.dur || 0, h = (BP && BP.hookAt) ? BP.hookAt(id, d) : 0; return Math.max(h || 0, m.head || 0); }
 function segStartOf(sid){ var v = SEGST.start[sid]; if (v != null && v !== '' && isFinite(+v)) return +v; var p = null; if (BP) BP.SEGS.some(function(s){ var q = BP.list(s.id).filter(function(x){ return x.id === sid; })[0]; if (q) { p = q; return true; } return false; }); return p && p.start != null ? p.start : null; }
 
 /* ── 이 기기 보관(IndexedDB) — 못 쓰는 브라우저면 이 탭에서만(종전과 같다) ── */
@@ -1409,6 +1410,7 @@ function segGo(id){ if (!id || ((MODE === 'preview' || GUEST) && !pvsOn())) retu
        (같은 구간이라 다음 큐에서도 다시 시도하지 않았다 · 하객 맞이 20분 무음 · 설정 화면엔 깨진 파일도 ✓).
        앞 곡이 흐르는 중이면(안 들리게 낮춰 둔 정적 자리 포함) 종전 그대로 — DETAIL_R3_1101 ② «앞 곡 그대로 · 빨간 한 줄» · 꺼 둔 앞 곡 되돌림(NO_RELIFT_XF_1114 bedUnhush)도 그대로 */
   var _pe0 = BED.el[BED.on], _h4 = !!BED.m4h; if (_h4 || !(_pe0 && !_pe0.paused && _pe0.getAttribute('src'))) BED.onFail = function(){ segFirstFail(id, _h4); };   /* [M4_HANDOFF_NEXT_1115] 짧은 입장 곡 인계(esdEnd)는 앞 곡(꺼 둔 화촉 곡)이 있어도 다음 곡을 연다 */
+  if (rat == null && BP && BP.firstAt) { var _fa = BP.firstAt(L[li]), _fm = SEGST.meta[L[li]] || {}, _fd = +_fm.end || +_fm.dur || 0; if (_fa > 0 && (!_fd || _fd > _fa + 20)) rat = _fa; }   /* ★[PONYO_FIRST_1122] 구간 첫 곡이 startFirst 곡(하객 맞이 포뇨)이면 강조 자리(주제 18.2초)부터 · 미리 듣기 첫 곡과 같다 */   /* [PONYO_FIT_1122] 넣은 파일이 그 자리 + 20초보다 짧으면(다른 판 · 잘린 파일) 처음부터 — 끝 너머로 감아 «못 연 곡»이 되지 않게 */
   var _r0 = bedPlay(L[li], SEG_XF, rat); BED.onFail = null;   /* 미뤄진 요청(BED.later)으로 새지 않게 */ return _r0; }
 /* [SEG_FIRST_FAIL_1114] 구간 첫 곡이 안 열렸고 흐르는 앞 곡도 없다 — 목록의 다음 곡(파일이 있고 못 연 적 없는 곡)을 한 번씩 · 다 안 되면 꺼 둔 재생기를 되돌리고(bedUnhush) 종전 한 줄 */
 function segFirstFail(id, h4){ if (BED.seg !== id) return; var L = BED.list || [], bad = BED.bad || {};
@@ -2792,6 +2794,7 @@ var _goKbAt = 0, _goPuAt = 0;
 function _goOther(t){ if (!t || t === document.body || t === document.documentElement || t === mBtn) return false; var g = String(t.tagName || ''); return g === 'INPUT' || g === 'SELECT' || g === 'TEXTAREA' || g === 'BUTTON' || g === 'A' || !!t.isContentEditable || (t.getAttribute && /^(slider|button|textbox|spinbutton)$/.test(t.getAttribute('role') || '')); }
 mBtn.addEventListener('click', function(){ var n = Date.now(); if (n - _goPuAt < 700 || n - _goKbAt < 700) return; mainTap(); });   /* 화면 읽기 프로그램 등 포인터 없는 클릭 */
 document.addEventListener('keydown', function(e){
+  if (GUEST && e.key === 'Escape' && !e.repeat && window.parent !== window) { try { window.parent.document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', bubbles: true })); } catch (_) {} return; }   /* ★[RP_ESC_IN_N20_04X_1119 R3X #04] 미리듣기 창 안(듣기 시작 · 다음 순서로를 누른 뒤)에 손이 있으면 Esc 가 바깥 창에 닿지 않아 닫히지 않고 소리도 계속 났다 — 바깥 창(식순 화면 · 마이페이지)의 Esc 길로 그대로 넘긴다(✕ · 뒤로와 같은 닫기) */
   if (!$('#run').classList.contains('on')) return;
   if (_goOther(e.target) && e.code !== 'Escape') return;   /* [B2_NA_13] */
   if (e.repeat && (e.code === 'Space' || e.code === 'PageDown' || e.code === 'ArrowRight' || e.code === 'Enter' || e.code === 'NumpadEnter')) { e.preventDefault(); return; }

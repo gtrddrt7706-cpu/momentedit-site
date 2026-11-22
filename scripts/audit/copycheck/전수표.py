@@ -271,6 +271,10 @@ for _no, _sl, *_r in rows:
 for _no, _sl, *_r in rows:
     if _no.isdigit() and 379 <= int(_no) <= 383 and re.match(r'^(speech-none|song-none|clap-(speech|song|self))$', _sl):
         SKIP.setdefault((_no, _sl), '2026-11-17 신설 — «누가» 안 고른 날 · 뒤 붙임 박수 [ROLE_SHIP_1117 · 대표님 «골랐어» · 릴스 방 ROLE_FOLLOW_1117] · 녹음 = 우성 테이크 그대로 ×1.0')
+# ★[NARR_GO_1122 2026-11-22 대표님 «나레이션 추천대로»] 384 · 385 — 받은 소리를 잘라 붙인 판(384 = 13 둘째 문장 뺌 · 385 = 137 첫 문장만 ONLINE_GREET_1119 새 녹음) · 글은 13 · 137 과 그 새 문장(대표님 11/19 듣고 고름) · 문체 회차에 올리지 않는다
+for _no, _sl, *_r in rows:
+    if _no.isdigit() and 384 <= int(_no) <= 385 and re.match(r'^(narr-vow-in-face|narr-open-online)$', _sl):
+        SKIP.setdefault((_no, _sl), '2026-11-22 신설 — 잘라 붙인 판 [NARR_GO_1122 · 대표님 «나레이션 추천대로» · ONLINE_GREET_1119] · 소리 = 13 · 137 그대로 + 385 첫 문장 우성 후보 a ×1.0')
 LETTERS = {('10','letter-parent'),('11','letter-each'),('12','bless-father'),
            ('13','bless-mother'),('14','tribute'),('27','tribute-reply'),('43','parents-letter')}
 

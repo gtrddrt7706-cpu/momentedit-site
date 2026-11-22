@@ -5,6 +5,9 @@
 //   320 에서 버진로드 건너 옆 테이블 알약 밑에 깔려 «이영»만 보였고, 390~430 도 같은 테이블 윗줄 짝이 8~14px 겹쳤다.
 //   [SEAT_FIT](seat-onecard.mjs)은 4자리 · 카드 넘침만 재서 이 겹침을 못 봤다 — 그래서 «5자리 · 테이블 이름 있음» 표본으로 따로 잰다.
 // ★재는 것(폭마다): 알약×알약 0 · 알약×＋－✕ 0 · 알약×테이블 이름(rt-cap) 0 · 알약×번호 ≤1px · 알약이 카드 밖 ≤2px · 가로 넘침 0
+// ★[SEAT_PLAN_9 2026-11-22] 배치가 확정 배치(9테이블 · 35석 · 맞닿은 원)로 바뀌었다 — 표본도 그 모양 · 폰은 배치도 상자 안에서 옆으로 민다.
+//   그래서 «카드 밖»은 «배치도 상자(스크롤 내용) 밖»으로 잰다 · 알약이 테이블 원을 지름 10% 넘게 가리면 빨강 · 테이블 이름은 원 안(rt-cn)
+//   · 네 글자 이름이 말줄임(…)으로 잘리면 빨강(폰 --m 66px 하한의 근거 · 58px 에선 «사촌…»으로 잘렸다).
 // ★종료코드 [CANT_LOOK] — 0 통과 · 1 재서 틀림 · 2 재지 못함(브라우저 없음 · 편집기가 안 뜸)
 //   사용: node scripts/audit/seat-name-fit.mjs
 import path from 'node:path';
@@ -17,10 +20,9 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SITE = path.resolve(HERE, '../..');
 const PORT = await freePort();   // [FREE_PORT] 박아 두면 나란히 돌 때 부딪힌다
 const WIDTHS = [320, 360, 375, 390, 414, 430, 480, 600];
-const NAMES = [['김철수', '이영희', '박민준', '정하늘', '최지우'], ['사촌동생', '작은삼촌', '큰이모', '고모부', '외숙모'],
-  ['김민지', '이서연', '박지훈', '최수빈', '한유진'], ['회사동료', '팀장님', '선배', '후배', '동기'],
-  ['아버님', '어머님', '할머니', '할아버지', '외삼촌'], ['친구A', '친구B', '친구C', '친구D', '친구E']];
-const CAPS = ['양가 부모님', '신랑 친척', '신부 친구', '회사', '가족', '친구'];
+const POOL = '김철수 이영희 박민준 정하늘 최지우 사촌동생 작은삼촌 큰이모 고모부 외숙모 김민지 이서연 박지훈 최수빈 한유진 회사동료 팀장님 선배 후배 동기 아버님 어머님 할머니 할아버지 외삼촌 친구A 친구B 친구C 친구D 친구E 김도윤 이하은 박서준 정민서 최유나'.split(' ');
+const PLAN = [['L', 5], ['L', 3], ['L', 3], ['L', 5], ['R', 4], ['R', 4], ['R', 3], ['R', 3], ['R', 5]];
+const CAPS = ['양가 부모님', '신랑 친척', '신부 대학 동기', '회사', '가족', '친구', '신랑 회사 팀', '동네 친구', '어머님 친구분들'];
 
 const eng = await launchBrowser();
 if (!eng) { console.log('━━ seat-name-fit — playwright·puppeteer 가 없어 재지 못했습니다'); process.exit(2); }
@@ -35,7 +37,7 @@ try {
       const { page } = await eng.newPage({ port: PORT, viewport: { width: w, height: 900 } });
       await page.goto(`http://localhost:${PORT}/mypage.html`, { waitUntil: 'load' });
       await new Promise((r) => setTimeout(r, 900));
-      const tables = NAMES.map((s, i) => ({ name: withCap ? CAPS[i] : '테이블 ' + (i + 1), side: i < 3 ? 'L' : 'R', seats: s, drinks: s.map(() => 'C') }));
+      let k = 0; const tables = PLAN.map(([side, n], i) => { const s = Array.from({ length: n }, () => POOL[k++]); return { name: withCap ? CAPS[i] : '테이블 ' + (i + 1), side, seats: s, drinks: s.map(() => 'C') }; });
       /* ★show() 의 등장 애니메이션(.view · transform) 이 도는 동안은 position:fixed 오버레이가 화면이 아니라 그 view 상자에 갇힌다 —
          카드가 좌우 22px 씩 좁아져 실제 화면(목록에서 누르고 들어온 화면)보다 가혹한 판을 재게 된다(2026-09-26 실측 314 vs 358px).
          그래서 view 를 먼저 띄우고 애니메이션이 끝난 뒤에 편집기를 연다 — 고객이 실제로 보는 판이다. */
@@ -45,7 +47,7 @@ try {
       await new Promise((r) => setTimeout(r, 400));
       const m = await page.evaluate(() => {
         const R = (sel) => [...document.querySelectorAll('#mp_production ' + sel)].map((e) => ({ t: e.textContent.trim(), r: e.getBoundingClientRect() }));
-        const pills = R('.rs'), nos = R('.rt-c'), ctl = R('.rt-mini'), caps = R('.rt-cap');
+        const pills = R('.rs'), nos = R('.rt-num'), ctl = R('.rt-mini'), caps = R('.rt-cap'), discs = R('.smap-t');
         if (!pills.length) return null;
         const ov = (a, b) => { const x = Math.min(a.right, b.right) - Math.max(a.left, b.left), y = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top); return (x > 0 && y > 0) ? Math.round(Math.min(x, y)) : 0; };
         const out = [];
@@ -53,10 +55,13 @@ try {
         for (const p of pills) { for (const c of ctl) { const o = ov(p.r, c.r); if (o > 0) out.push(`알약 ${p.t}×단추 ${c.t} ${o}px`); }
           for (const c of caps) { const o = ov(p.r, c.r); if (o > 0) out.push(`알약 ${p.t}×테이블 이름 ${c.t} ${o}px`); }
           for (const n of nos) { const o = ov(p.r, n.r); if (o > 1) out.push(`알약 ${p.t}×번호 ${n.t} ${o}px`); } }
-        const card = document.querySelector('#mp_production .seat-card'); const cr = card ? card.getBoundingClientRect() : null;
-        if (cr) for (const p of pills) { const o = Math.max(cr.left - p.r.left, p.r.right - cr.right); if (o > 2) out.push(`알약 ${p.t} 카드 밖 ${Math.round(o)}px`); }
+        for (const p of pills) for (const d of discs) { const cx = d.r.left + d.r.width / 2, cy = d.r.top + d.r.height / 2; const nx = Math.max(p.r.left, Math.min(cx, p.r.right)), ny = Math.max(p.r.top, Math.min(cy, p.r.bottom)); const inn = d.r.width / 2 - Math.hypot(cx - nx, cy - ny); if (inn > d.r.width * .1) out.push(`알약 ${p.t}×테이블 원 ${Math.round(inn)}px`); }   // 테두리에 살짝 걸치는 것(원 지름의 10% 안)은 이름표 모양 · 그보다 깊으면 원을 가린다
+        for (const e of document.querySelectorAll('#mp_production .rs-nm')) if (e.scrollWidth > e.clientWidth + 1) out.push(`이름 잘림 ${e.textContent.trim()}`);   // 네 글자 이름(사촌동생 · 작은삼촌)까지 말줄임 없이
+        for (const p of pills) for (const c of R('.rt-cn')) { const o = ov(p.r, c.r); if (o > 0) out.push(`알약 ${p.t}×테이블 이름 ${c.t} ${o}px`); }
+        const sp = document.querySelector('#mp_production .seat-plan'), map = document.querySelector('#mp_production .smap'); const cr = map ? map.getBoundingClientRect() : null;
+        if (cr) for (const p of pills) { const o = Math.max(cr.left - p.r.left, p.r.right - cr.right); if (o > 2) out.push(`알약 ${p.t} 배치도 밖 ${Math.round(o)}px`); }
         if (document.documentElement.scrollWidth > innerWidth) out.push(`가로 넘침 ${document.documentElement.scrollWidth - innerWidth}px`);
-        return { out, n: pills.length, caps: caps.length, cardW: cr ? Math.round(cr.width) : 0 };
+        return { out, n: pills.length, caps: document.querySelectorAll('#mp_production .rt-cn').length, cardW: sp ? Math.round(sp.clientWidth) : 0 };
       });
       await page.close();
       if (!m) { console.log(`  ?  ${w}px${withCap ? ' · 테이블 이름' : ''} — 편집기가 안 떴다`); continue; }
@@ -71,6 +76,6 @@ try {
   server.kill();
 }
 if (!looked) { console.log('━━ seat-name-fit — 한 폭도 재지 못했습니다'); process.exit(2); }
-if (fail) { console.log(`━━ seat-name-fit — 빨강 ${fail}건(${bad.join(' / ')}) · mypage.html [SEAT_NAME_FIT] 블록(≤480 반지름 ×.44 · 이름 칸 38px · ≤380 지그재그 4px)을 확인할 것`); process.exit(1); }
-console.log(`━━ seat-name-fit OK — ${looked}판(${WIDTHS.join('·')}px × 테이블 이름 없음/있음) · 실제 같은 이름 5자리 · 겹침 0`);
+if (fail) { console.log(`━━ seat-name-fit — 빨강 ${fail}건(${bad.join(' / ')}) · mypage.html [SEAT_PLAN_9] .seat-plan 블록(--m · 알약 폭 .82m)과 assets/seat-plan.js 좌표를 확인할 것`); process.exit(1); }
+console.log(`━━ seat-name-fit OK — ${looked}판(${WIDTHS.join('·')}px × 테이블 이름 없음/있음) · 확정 배치 35자리 · 겹침 0`);
 process.exit(0);
