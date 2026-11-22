@@ -24400,3 +24400,6 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/tribute-go-1122.mjs 
 # ★[EX_ROLE_HIDE_1122 2026-11-22 사장님 «축가 멘트 눌러도 변경이 없는데?»] «누가»를 고른 축가 · 축사는 멘트 예시 칩을 숨긴다
 chk 'EX_ROLE_HIDE_1122' assets/ritual-open.js 1
 chk 'if (exRoleWins(S, k)) return false;' assets/ritual-open.js 1
+
+# ★[HEAD_GAP_1122 2026-11-22 사장님 «맨 위 간격이 좁다»] 머리 줄이 붙으면 맨 위에서 10px 띄움(옛 −15px = 딱 붙음)
+chk 'body.mkd .prog{position:sticky;top:-5px;' order-preview.html 1
