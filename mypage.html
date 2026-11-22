@@ -8717,7 +8717,7 @@ function _prhUpload(id, f){
   var t=$('prh_t_'+id), w=$('prh_w_'+id), meta={t:t?String(t.value||'').trim().slice(0,40):'', w:w?String(w.value||'').trim().slice(0,40):''};
   F.busy=id; _prhRender();
   var rdr=new FileReader();
-  rdr.onerror=function(){ F.busy=''; if(F.open) _prhRender(); _miniToast('파일을 읽지 못했어요 · 다시 골라 주세요'); };   // 기기에서 읽기 실패 — 서버에 가기 전이라 코드 없음(입력 확인과 같다)
+  rdr.onerror=function(){ F.busy=''; if(F.open) _prhRender(); _miniToast('파일을 못 읽었어요 · 다시 골라요'); };   // 기기에서 읽기 실패 — 서버에 가기 전이라 코드 없음(입력 확인과 같다)
   rdr.onload=function(){
     _post({action:'ritualFile', token:getToken(), key:r.key, name:String(f.name||'파일').slice(0,80), mime:_prhMime(f), data:String(rdr.result||''), t:meta.t, w:meta.w}, 180000)
       .then(function(x){ F.busy='';
