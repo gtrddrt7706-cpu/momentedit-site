@@ -257,18 +257,42 @@ try {
     let clash = 0, who = ''; for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) if (ov(P[i].r, P[j].r) > 0) { clash++; who = P[i].t + '×' + P[j].t; }
     let onT = 0; for (const p of P) for (const t of T) { const cx = t.left + t.width / 2, cy = t.top + t.height / 2, px = p.r.left + p.r.width / 2, py = p.r.top + p.r.height / 2; if (Math.hypot(cx - px, cy - py) < t.width / 2 - 4) onT++; }
     let touch = 0; for (let i = 0; i < T.length - 1; i++) { const a = T[i], b = T[i + 1]; const d = Math.hypot((a.left + a.width / 2) - (b.left + b.width / 2), (a.top + a.height / 2) - (b.top + b.height / 2)); if (Math.abs(d - a.width) <= 3) touch++; }
-    return { n: T.length, seats: P.length, clash, who, onT, touch, fam: document.querySelectorAll('#mp_production .rs.fam').length, caps: document.querySelectorAll('#mp_production .rt-cn').length, rename: document.querySelectorAll('#mp_production [data-si="name"], #mp_production .rt-cbtn').length,
+    return { n: T.length, seats: P.length, clash, who, onT, touch, fam: document.querySelectorAll('#mp_production .rs.fam').length, famTxt: document.querySelectorAll('#mp_production .rs-fam').length + [...document.querySelectorAll('#mp_production .rs.empty')].filter((b) => b.textContent.indexOf('혼주') >= 0).length, caps: document.querySelectorAll('#mp_production .rt-cn').length, rename: document.querySelectorAll('#mp_production [data-si="name"], #mp_production .rt-cbtn').length,
       ctl: document.querySelectorAll('#mp_production .rt-mini,#mp_production .seat-addtbl').length };
   });
   ok(fit.n === 9 && fit.seats === 35, '테이블 9 · 자리 35 [SEAT_PLAN_9]', fit.n + ' · ' + fit.seats);
   ok(fit.touch >= 6, '같은 묶음의 이웃 테이블이 맞닿아 이어진다(시안 그대로)', String(fit.touch));
   ok(fit.clash === 0, '자리 알약끼리 겹치지 않는다', fit.clash + ' ' + fit.who);
   ok(fit.onT === 0, '자리 알약이 테이블 원 안에 들어가지 않는다', String(fit.onT));
-  ok(fit.fam >= 2, '빈 혼주석은 «혼주»로 보인다(맨 앞 테이블 통로 쪽)', String(fit.fam));
+  // ★[SEAT_FAM_FREE 2026-11-22] 옛 기대 «빈 혼주석은 «혼주»로 보인다» 은퇴 — 추천 자리도 ＋ · 추천은 창의 메모 한 줄
+  ok(fit.fam >= 2 && fit.famTxt === 0, '혼주석 추천 자리는 다른 빈자리처럼 ＋ («혼주» 글자 없음) [SEAT_FAM_FREE]', JSON.stringify({ fam: fit.fam, famTxt: fit.famTxt }));
+  const rec = await page.evaluate(async () => {
+    const one = async (b) => { b.click(); await new Promise((r) => setTimeout(r, 250)); const n = document.querySelectorAll('#mp_production .sdb-rec').length; const x = document.querySelector('#mp_production .sdb-x'); if (x) x.click(); await new Promise((r) => setTimeout(r, 200)); return n; };
+    const fam = document.querySelector('#mp_production .rs.fam.empty'); const plain = document.querySelector('#mp_production .rs.empty:not(.fam)');
+    return { fam: fam ? await one(fam) : -1, plain: plain ? await one(document.querySelector('#mp_production .rs.empty:not(.fam)')) : -1 };
+  });
+  ok(rec.fam === 1 && rec.plain === 0, '추천 자리를 누르면 창에 혼주석 추천 메모 한 줄 · 다른 자리는 없음 [SEAT_FAM_FREE]', JSON.stringify(rec));
   // ★[SEAT_NO_RENAME 2026-11-22] 옛 기대 «부부가 붙인 테이블 이름은 원 안에 작게» 은퇴 — 원은 번호만 · 눌러서 이름 바꾸기 없음
   ok(fit.caps === 0 && fit.rename === 0, '테이블 원은 번호만 — 이름 칸 · 이름 바꾸기 단추 없음 [SEAT_NO_RENAME]', JSON.stringify({ caps: fit.caps, rename: fit.rename }));
   ok(fit.ctl === 0, '테이블 ＋ － ✕ · «+ 테이블» 단추가 없다(배치 고정)', String(fit.ctl));
   await page.screenshot({ path: path.join(OUT, 'seat-5-확정배치-390.png'), fullPage: false });
+
+  /* ★[SEAT_OVERVIEW 2026-11-22 사장님 «처음엔 전체 배치도 · 누르면 확대»] 폰 첫 화면 = 전체 그림(점) · 누르면 그 자리로 확대 · «전체 보기»로 돌아간다 */
+  console.log('\n[전체 보기 · 확대]');
+  await page.evaluate(() => { ME_SEAT_PLAN._zoomed = {}; renderSeat(document.getElementById('mp_production')); });
+  await new Promise((r) => setTimeout(r, 300));
+  const ov = await page.evaluate(() => { const sc = document.querySelector('#mp_production [data-seat-scroll]'); const m = sc.querySelector('.smap').getBoundingClientRect(); const r = sc.getBoundingClientRect();
+    return { ov: sc.classList.contains('smap-ov'), fits: m.width <= r.width + 1, t: sc.querySelectorAll('.smap-t').length, names: [...sc.querySelectorAll('.rs-nm')].filter((e) => e.offsetWidth > 0).length, hint: !document.querySelector('#mp_production .smap-hint').hidden }; });
+  ok(ov.ov && ov.fits && ov.t === 9 && ov.names === 0 && ov.hint, '폰 첫 화면은 테이블 9개 전체가 한 화면 · 자리는 점 · «테이블을 누르면 크게 보여요» [SEAT_OVERVIEW]', JSON.stringify(ov));
+  await page.screenshot({ path: path.join(OUT, 'seat-6-전체보기-390.png'), fullPage: false });
+  { const b = await page.evaluate(() => { const r = document.querySelectorAll('#mp_production .smap-t')[6].getBoundingClientRect(); return { x: r.left, y: r.top, width: r.width, height: r.height }; });   /* 7번 테이블(우측) */ await page.mouse.click(b.x + b.width / 2, b.y + b.height / 2); await new Promise((r) => setTimeout(r, 450)); }
+  const zm = await page.evaluate(() => { const sc = document.querySelector('#mp_production [data-seat-scroll]'); return { ov: sc.classList.contains('smap-ov'), sl: Math.round(sc.scrollLeft), back: !document.querySelector('#mp_production .smap-cue.b').hidden, win: document.querySelectorAll('.seat-drinkbar').length }; });
+  ok(!zm.ov && zm.sl > 100 && zm.back && zm.win === 0, '우측 테이블을 누르면 그쪽으로 확대 · 창은 안 열림 · «전체 보기» 알약 [SEAT_OVERVIEW]', JSON.stringify(zm));
+  await page.screenshot({ path: path.join(OUT, 'seat-7-확대-390.png'), fullPage: false });
+  await tap(page, '#mp_production .smap-cue.b');
+  const bk = await page.evaluate(() => document.querySelector('#mp_production [data-seat-scroll]').classList.contains('smap-ov'));
+  ok(bk, '«전체 보기»를 누르면 다시 전체 그림 [SEAT_OVERVIEW]', String(bk));
+  await page.evaluate(() => { ME_SEAT_PLAN._zoomed = { ed: true, all: true }; });
 
   console.log('\n[문구 · 넘침]');
   const txt = await page.evaluate(() => document.getElementById('mp_production').innerText || '');

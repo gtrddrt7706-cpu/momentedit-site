@@ -567,7 +567,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 <!-- ★DECL_ADMIN_MIRROR — 식순 문안·선택지 원천. 선언 주체 라벨을 하드코딩하지 않고 여기서 읽는다.
      async/defer 금지(파일 헤더 4행) · 인라인 스크립트보다 먼저 로드돼야 DECLBY(선언문 원천)를 참조할 수 있다. -->
 <script src="/assets/ritual-data.js"></script><script src="/assets/dining-data.js?v=1105a"></script><script src="/assets/ritual-preview-link.js?v=1122t1"></script><!-- [CONSOLE_INJECT_1019] 당일 콘솔 주소의 식사 · 사진 · 하객 안내 유무 -->
-<script src="/assets/seat-plan.js?v=1122b"></script><!-- [SEAT_PLAN_9] 좌석표 프린트 번호 · 의자 방향 --><script src="/assets/rec-process.js"></script><!-- [RF_STUDIO_UP] 스튜디오 대신 올리기 — 두 분 화면과 같은 다듬기(한 원천) -->
+<script src="/assets/seat-plan.js?v=1122d"></script><!-- [SEAT_PLAN_9] 좌석표 프린트 번호 · 의자 방향 --><script src="/assets/rec-process.js"></script><!-- [RF_STUDIO_UP] 스튜디오 대신 올리기 — 두 분 화면과 같은 다듬기(한 원천) -->
 <script src="/assets/snap-refs.js"></script><script src="/assets/dress-refs.js"></script><!-- [DRESS_ADMIN_ROWS] 시착 드레스 이름 · 사진 원천(고객 화면과 같은 파일) --><script src="/assets/err-codes.js"></script><!-- [ERR_CODES] 고객 화면 «(코드 S6)»의 뜻 — 검색창 «코드 찾기» · 고객 상세 «최근 실패» --><!-- [SNAP_REFS] 스냅 기획 장면 이름·준비물 원천(부부 화면·브리프와 같은 파일) -->
 <script>
 // ★DECL_ADMIN_MIRROR — 선언 «읽는 분» 행은 두 분이 적은 글을 그대로 보인다([DECLARE_ANYONE] · 종전엔 DECLWHO 갈래 이름을 읽었다).
@@ -997,12 +997,12 @@ function _seatChartDoc(d){
   function _dk(t,i){ var v=((t&&t.drinks)||[])[i]||''; return ({R:'C',K:'N',Y:'N'})[v]||v; }   // [DRINK_TWO] 옛 레드와인 · 유아 · 어린이 값도 지금 준비하는 둘(샴페인 · 논알콜)로 센다 — 편집기가 옮기는 것과 같은 규칙 · 스태프가 와인 · 물을 따로 챙기지 않게
   tables.forEach(function(t){ ((t&&t.seats)||[]).forEach(function(v,i){ if(!String(v||'').trim())return; cT++; var dv=_dk(t,i); if(dv==='C')cC++; else if(dv==='R')cR++; else if(dv==='N')cN++; else if(dv==='K')cK++; else if(dv==='Y')cY++; else cU++; var c=_ch(t,i); if(c==='B')cB++; else if(c==='W')cW++; }); });
   /* ★[SEAT_PLAN_9 2026-11-22] 당일 세팅용 인쇄물도 같은 그림(오프라인 시안 · assets/seat-plan.js) — 테이블 9개를 맞붙인 두 묶음 · 확정 의자 위치 ·
-     빈 혼주석은 «혼주» · 음료 색점 · 유아용 의자(유) · 휠체어(휠). 종전 두 열 지그재그(zigX · .proom · .ptbl)는 폐지. A4 한 장에 들어가게 1m = 72px. */
+     빈 자리는 모두 «·»(★빈 혼주석 «혼주» 표기 금지 — 2026-11-22 사용자 지시로 삭제 [SEAT_FAM_FREE] · 혼주석은 두 분이 정한다) · 음료 색점 · 유아용 의자(유) · 휠체어(휠). 종전 두 열 지그재그(zigX · .proom · .ptbl)는 폐지. A4 한 장에 들어가게 1m = 72px. */
   var mapH=ME_SEAT_PLAN.mapHtml(tables,{
     sides:['좌측','우측'],
     table:function(t,i,no){ var _cn=String((t&&t.name)||'').trim(), c=(_cn && !/^테이블\s*\d+$/.test(_cn))?esc(_cn):''; return '<span class="ptno">'+no+'</span>'+(c?'<span class="ptcap">'+c+'</span>':''); },
     seat:function(t,i,si,fam){ var nm=String(((t&&t.seats)||[])[si]||'').trim(); var dk=nm?_dk(t,si):''; var dot=DL[dk]?'<i class="pd pd-'+dk+'"></i>':''; var c=nm?_ch(t,si):'';
-      return '<span class="pseat'+(nm?'':' e')+((!nm&&fam)?' f':'')+'">'+(nm?('<span class="pnm">'+esc(nm)+'</span>'):(fam?'혼주':'·'))+dot+(c?'<b class="pch">'+(c==='W'?'휠':'유')+'</b>':'')+'</span>'; }
+      return '<span class="pseat'+(nm?'':' e')+'">'+(nm?('<span class="pnm">'+esc(nm)+'</span>'):'·')+dot+(c?'<b class="pch">'+(c==='W'?'휠':'유')+'</b>':'')+'</span>'; }
   });
   var roster=''; var ordered=[]; tables.forEach(function(t,i){ ordered.push({t:t,no:num[i]||(i+1)}); }); ordered.sort(function(a,b){ return a.no-b.no; });
   ordered.forEach(function(o){ var parts=[]; ((o.t&&o.t.seats)||[]).forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm)return; var dk=_dk(o.t,i); var _c=_ch(o.t,i); parts.push(esc(nm)+' · '+esc(DL[dk]||'미정')+(_c?(' · '+CL[_c]):'')); }); var _cn=String((o.t&&o.t.name)||'').trim(); var _cnl=(_cn && !/^테이블\s*\d+$/.test(_cn))?(' · '+esc(_cn)):'';   // 자리마다 음료 명시(자리별 선택 · 미정 표기) · 커스텀 테이블명도 표기
@@ -1027,7 +1027,7 @@ function _seatChartDoc(d){
     +'.ptbl::before{content:"";position:absolute;left:50%;top:50%;width:66px;height:66px;transform:translate(-50%,-50%);border-radius:50%;background:#fcfbf9;border:1.5px solid #b89a75}'
     +'.ptno{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:22px;font-weight:600;color:#6B2A24}'
     +'.pseat{position:absolute;transform:translate(-50%,-50%);max-width:78px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid #ddd8d1;background:#fff;border-radius:11px;font-size:11px;padding:3px 8px}'
-    +'.pseat.e{color:#b3ad9f;border-style:dashed;background:#f7f5f0}.pseat.f{color:#6B2A24;border-color:#c9a39c;background:#f7eeec}'
+    +'.pseat.e{color:#b3ad9f;border-style:dashed;background:#f7f5f0}'
     +'.pch{display:inline-block;margin-left:4px;font-size:9px;font-weight:600;color:#fff;background:#3a2d22;border-radius:6px;padding:0 3px;line-height:13px;vertical-align:middle}'
     +'.pd{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:4px;vertical-align:middle}'
     +'.pd-N,.dN{background:#5F9E86}.pd-C,.dC{background:#C9A227}.pd-R,.dR{background:#9B4A57}.pd-K,.dK{background:#8FA9BF}.pd-Y,.dY{background:#B9CBD8}.pd-A,.dA{background:#9B4A57}.pd-J,.dJ{background:#E0912F}'
@@ -4129,7 +4129,8 @@ function contractPath(product, docVersion){
   if(v==='v1.16') return '/contract/archive/v1-16.html';   // [CONTRACT_V117] v1.16 서명자는 하객 «최대 30명»이 적힌 보존본을 연다(v1.17 은 35명)
   if(v==='v1.15') return '/contract/archive/v1-15.html';   // [CONTRACT_V116] v1.15 서명자는 제5조① 식순 «예식 종료까지 자유 수정» · Farewell «배웅» · 식전 영상 «사진으로 3분 영상» · 식당 «파트너사 예약 조율» 이 적힌 보존본으로
   if(v==='v1.9') return '/contract/archive/v1-9.html';   // [CONTRACT_V110] v1.9 서명자는 «성우 나레이션» · 케이크 · 꽃 줄 없는 보존본으로
-  return '/contract/v1-1.html';   // 현행(v1.17) · 서명 시점 docVersion 문서를 열람(관리자=고객 동일 뷰)
+  if(v==='v1.17') return '/contract/archive/v1-17.html';   // [CONTRACT_V118] v1.17 서명자는 결제 «계좌이체만»이 적힌 보존본을 연다(v1.18 은 카드 또는 계좌이체)
+  return '/contract/v1-1.html';   // 현행(v1.18) · 서명 시점 docVersion 문서를 열람(관리자=고객 동일 뷰)
 }
 function contractFullUrl(product){ return 'https://momentedit.kr'+contractPath(product); }
 // [계약] 관리자 계약서 미리보기 — 고객이 보는 '채워진' 계약서(상품별)를 같은 방식(iframe+postMessage)으로. 서명 이미지는 관리자 클라 미보유 → '서명 완료'로 표시.

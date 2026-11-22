@@ -71,6 +71,11 @@ const G = [
     /* ★[NARR_GO_1122] 384 · 385 — 받은 소리를 잘라 붙인 판(새 녹음 = 385 첫 문장 하나 · ONLINE_GREET_1119 우성 후보 a) · 조립은 scripts/splice-narr-go-1122.py(43 처럼 전용) */
     ['G3-NG1', '혼인 서약 시작 · 맞절이 «마주 보고 서»라고 한 날 (13 둘째 문장 뺌 · NARR_GO_1122)', 'narr-vow-in-face', RC.EXTRA['narr-vow-in-face']],
     ['G3-NG2', '개식 선언 · 온라인 날 (137 첫 문장만 새 녹음 · NARR_GO_1122)', 'narr-open-online', RC.EXTRA['narr-open-online']],
+    /* ★[CLOSE_C_GO_1122] 386 ~ 389 — 온라인 날 폐식 인사 · 판마다 구령 앞에 감사 한 줄(새 녹음 = 그 한 줄 · CLOSE_C_TUNE r1) · 조립 scripts/splice-close-c-1122.py */
+    ['G3-CC1', '닫는 인사 · 온라인 날 (108 구령 앞 감사 한 줄 · CLOSE_C_GO_1122)', 'narr-close-bow-online', RC.EXTRA['narr-close-bow-online']],
+    ['G3-CC2', '닫는 인사 예시 2 · 온라인 날 (185 · CLOSE_C_GO_1122)', 'narr-close-bow-ex2-online', RC.EXTRA['narr-close-bow-ex2-online']],
+    ['G3-CC3', '닫는 인사 예시 3 · 온라인 날 (186 · CLOSE_C_GO_1122)', 'narr-close-bow-ex3-online', RC.EXTRA['narr-close-bow-ex3-online']],
+    ['G3-CC4', '닫는 인사 예시 4 · 온라인 날 (187 · CLOSE_C_GO_1122)', 'narr-close-bow-ex4-online', RC.EXTRA['narr-close-bow-ex4-online']],
     ['G3-2', '환영 마무리', 'narr-welcome-out', D.NARR.welcome.end],
     ['G3-3', '혼인 서약 시작', 'narr-vow-in', D.NARR.vow.nar],
     ['G3-4', '혼인 서약 마무리', 'narr-vow-out', D.NARR.vow.end],
