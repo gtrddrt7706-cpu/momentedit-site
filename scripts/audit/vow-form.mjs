@@ -27,7 +27,7 @@ try {
     await wait(400); await pg.evaluate(() => mkGo('vow')); await wait(600);
     const a = await pg.evaluate(() => { const rg = [...document.querySelectorAll('[role=radiogroup]')].filter((r) => /읽는 방식|먼저 읽는 분/.test(r.getAttribute('aria-label')));
       return { n: rg.length, pressed: rg.map((r) => r.querySelectorAll('[aria-checked=true]').length), note: (document.querySelector('.mk-vpask1') || {}).textContent }; });
-    ok(`${w} ① 칩 하나(읽는 방식 · 먼저 읽는 분 칩 없음 VOW_GROOM_FIRST_1122) · 처음엔 안 눌림 · 안 고른 한 줄`, a.n === 1 && a.pressed.join() === '0' && /한 줄씩 번갈아 진행돼요/.test(a.note || '') && !/신부부터/.test(a.note || ''), JSON.stringify(a));
+    ok(`${w} ① 칩 하나(읽는 방식 · 먼저 읽는 분 칩 없음 VOW_GROOM_FIRST_1122) · 처음엔 안 눌림 · 안 고른 한 줄`, a.n === 1 && a.pressed.join() === '0' && /고르지 않으시면 한 줄씩 번갈아 읽어요/.test(a.note || '') /* [THANKS_SWAP_1122] «무엇을 읽나요» 칩이 빠져 한 줄은 읽는 방식만(옛 «서약 · 한 줄씩 번갈아 진행돼요») */ && !/신부부터/.test(a.note || ''), JSON.stringify(a));
     await shot(pg, '.mk-say', `alt-empty-${w}`);
     await pg.click('[data-fk^="mkrc:vow:0"]').catch(() => {}); await wait(400);
     const b = await pg.evaluate(() => { const rows = [...document.querySelectorAll('.mk-vwl .mk-vwr')].map((r) => r.querySelector('.mk-vwn').textContent); const both = [...document.querySelectorAll('.mk-vwboth .mk-vwfix')].map((r) => r.textContent); const bl = (document.querySelector('.mk-vwboth .mk-vwn') || {}).textContent;

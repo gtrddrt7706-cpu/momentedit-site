@@ -67,7 +67,8 @@
     /* ★[VOW_HOW 2026-10-02] 서약 읽는 방식 — 값은 'alt'|'each' 판 이름뿐(글 아님) · order-preview 의 «읽는 방식» 칩이 같은 커밋에서 만든다 */
     'vowHow',
     'vowFirst',                                // ★[VOW_FIRST 2026-10-06] 먼저 읽는 분 'g'|'b' — 여는 말 소리가 갈린다(127)
-    'vowKind',                                 // ★[THANKS_IN_VOW 2026-10-11] 무엇을 읽나요 'vow'|'thanks' — 감사문이면 여는 말이 133 · 맺는 말이 없다(값은 판 이름뿐 · 글 아님)
+    /* ★'vowKind'(옛 «무엇을 읽나요» · THANKS_IN_VOW 10-11) 금지 — 2026-11-22 사용자 지시로 삭제 [THANKS_SWAP_1122] · 엔진이 읽지 않는 죽은 키(STORY_COVER) · 감사문은 welcomeKind */
+    'welcomeKind',                             // ★[THANKS_SWAP_1122 2026-11-22] 감사 인사 ↔ 감사문 — 'thanks' = 감사문(여는 말 133 · 맺는 말 없음 · 값은 판 이름뿐 · 글 아님)
     /* ★[DECLARE_ANYONE 2026-10-12] declareWho 는 뺐다 — 이제 두 분이 칸에 적은 «읽는 분» 글(사람 이름일 수 있다)이라 공개 주소에 싣지 않는다(PREVIEW_KEYS 규칙).
        엔진은 빈칸이어도 같은 소리를 낸다(여는 말은 누가 읽든 하나 · 136). */
     'valley', 'toast', 'tribute',              // 사이 순서 · 축배 · 부모님 헌정 · ★[NO_INSTRUMENT_1116] 'song'(옛 코스 축가 종류 family · live)은 죽은 키 — 엔진이 «어쿠스틱 라이브»를 걷어 안 읽는다(STORY_COVER [PREVIEW_KEYS])
@@ -155,7 +156,7 @@
       var k = KEYS[i];
       if (k === 'bgm') { var bg = bgmOf(S.bgm); if (bg) o.bgm = bg; continue; }   /* [BGM_INFO_1023] 'bed' 만 · 옛 곡 이름 · 다른 값은 버린다 */
       if (k === 'declTitle') { var dt = declPick(S); if (dt) o.declTitle = dt; continue; }   /* [B2_NA_01] 호칭 코드만 */
-      if (S[k] !== undefined && S[k] !== null) o[k] = (k === 'vowHow') ? (S[k] === 'each' ? 'each' : 'alt') : (k === 'vowFirst') ? (S[k] === 'b' ? 'b' : 'g') : (k === 'vowKind') ? (S[k] === 'thanks' ? 'thanks' : 'vow') : S[k];   /* [VOW_HOW] 판 이름 둘뿐 · 모르는 값은 'alt' */
+      if (S[k] !== undefined && S[k] !== null) o[k] = (k === 'vowHow') ? (S[k] === 'each' ? 'each' : 'alt') : (k === 'vowFirst') ? (S[k] === 'b' ? 'b' : 'g') : (k === 'welcomeKind') ? (S[k] === 'thanks' ? 'thanks' : 'greet') : S[k];   /* [THANKS_SWAP_1122] 모르는 값은 감사 인사 */   /* [VOW_HOW] 판 이름 둘뿐 · 모르는 값은 'alt' */
     }
     return o;
   }
