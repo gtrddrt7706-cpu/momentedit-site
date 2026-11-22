@@ -19461,6 +19461,14 @@ chk 'SEAT_EX_SHOT' mypage.html 2
 chk "_spEx('all')" mypage.html 1
 chk "_spEx('mine')" mypage.html 1
 chk 'SEAT_EX_SHOT' scripts/seat-example-shots.mjs 1
+# ★[SEAT_EX_POLISH 2026-11-22] PC 두 칸 나란히 · 그림 원래 비율 · 아래 · 오른쪽 흐리게 닫기 · 버진로드 띠는 찍을 때 뺀다
+chk 'SEAT_EX_POLISH' mypage.html 1
+chk 'SEAT_EX_POLISH' scripts/seat-example-shots.mjs 1
+chk 'class="sp-opts"' mypage.html 1
+# ★[SEAT_NO_RENAME 2026-11-22 사장님 «테이블번호를 굳이 수정할 필요는 없을 것 같아»] 원은 번호만 · 눌러서 테이블 이름 바꾸기 없음
+chk 'SEAT_NO_RENAME' mypage.html 1
+nochk 'data-si="name"' mypage.html
+nochk '번 테이블 이름 정하기' mypage.html
 if [ -s assets/seat/ex-all.webp ] && [ -s assets/seat/ex-mine.webp ]; then echo 'ok assets/seat: ex-all.webp · ex-mine.webp'; else echo 'REVERT? assets/seat: 하객 화면 예시 그림(ex-all · ex-mine .webp)이 없다 [SEAT_EX_SHOT]'; fail=1; fi
 chk 'IME_QUIET' guide.html 3
 chk 'function bindNameInput(' seat.html 1
