@@ -210,7 +210,7 @@ try {
     for (const [tag, i] of [['br', cdl.br], ['nb', cdl.nb]]) { if (i == null) continue; await pg.evaluate((i) => { S.narEx = Object.assign({}, S.narEx || {}); S.narEx.candle = i; try { buildSteps(); } catch (e) {} _persist(); }, i); await go(pg, 'welcome'); await go(pg, 'candle'); CDL[tag] = await look(pg); }
     await pg.evaluate(() => { if (S.narEx) delete S.narEx.candle; try { buildSteps(); } catch (e) {} _persist(); });
     ok(`${W} 1 [BGM_AUDIT_CANDLE_1023] 화촉 음악 줄 — 첫 줄이 이음말이면 그 바로 뒤(fi 1) · 아니면 맨 앞(fi 0) · 두 판 다 잼(예시 ${cdl.br} · ${cdl.nb})`,
-      cdl.br != null && cdl.nb != null && CDL.br && CDL.br.fi === 1 && /넘어가며/.test(CDL.br.prev) && /넘어가며/.test(CDL.br.first) && CDL.nb && CDL.nb.fi === 0 && !/넘어가며/.test(CDL.nb.first) && CDL.br.ftxt === G(ONE.candle) && CDL.nb.ftxt === G(ONE.candle),
+      cdl.br != null && cdl.nb != null && CDL.br && CDL.br.fi === 0 && /넘어가며/.test(CDL.br.next) /* ★[PREVIDEO_SONG_1122] 식전 영상이 있는 날 91 은 곡 위 첫 줄 — 음악 줄이 맨 앞 · 91 은 그 바로 뒤(영상 없는 날 정적 위 91 은 종전 fi 1 · bgm-slots head) */ && CDL.nb && CDL.nb.fi === 0 && !/넘어가며/.test(CDL.nb.first) && CDL.br.ftxt === G(ONE.candle) && CDL.nb.ftxt === G(ONE.candle),
       { cdl, br: CDL.br && [CDL.br.fi, CDL.br.first, CDL.br.prev], nb: CDL.nb && [CDL.nb.fi, CDL.nb.first, CDL.nb.next] });
     /* [BGM_R2_1023] 축가 바로 뒤 부모님께 인사(편지를 빼면) — 첫 줄이 «경건하게» 이음말 → 음악 줄은 그 바로 뒤 */
     await PAIR(pg, 'song'); await pg.evaluate(() => { delete S.on.letter; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); }); await go(pg, 'tribute'); const t12 = await look(pg);

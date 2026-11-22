@@ -98,7 +98,9 @@ try {
     { await go(f, 'welcome'); const r = await trace(f, ['welcome'], 4000, false), q0 = r.q[0] || {}, ld0 = r.o.filter((x) => x.i === 0 && x.lead);
       ok(`${W} a 감사 인사 첫 줄 = 350(narr-welcome-in · 이음말 b8 없음) · 첫 줄 앞에서 뜸`, q0.k === 'welcome' && q0.slug === 'narr-welcome-in' && !r.q.some((x) => /b8-face-guests/.test(x.slug) || x.pre || x.lh) && ld0.length > 5, { q0, ld: ld0.length }); }
     /* c 화촉 · 부모님께 인사 그 순간만 */
-    await go(f, 'candle'); solo(W, 'candle', await trace(f, ['candle'], 11000, false));
+    /* ★[PREVIDEO_SONG_1122] 식전 영상이 있는 날 화촉 91(b14)은 곡 위 말 아래 — 화촉 장면 첫 줄 · 뜸(6초 앞 −8)도 91 앞 · 91 동안 화촉 곡이 들린다 */
+    { await go(f, 'candle'); const r = await trace(f, ['candle'], 11000, false), q = r.q, o = r.o, i0 = q.findIndex((x) => x.k === 'candle'), ld = o.filter((x) => x.i === i0 && x.lead), ldMs = ld.length ? ld[ld.length - 1].t - ld[0].t : 0, on = o.filter((x) => x.i === i0 && !x.lead);
+      ok(`${W} candle 그 순간만 듣기 — 첫 줄 = 91(${(q[i0] || {}).slug}) · 이음말이 아니라 첫 줄 · 뜸 약 6초가 91 앞 · 91 동안 화촉 곡 [PREVIDEO_SONG_1122]`, i0 > -1 && /^bridge-b14/.test(q[i0].slug) && !q[i0].pre && !(q[i0 + 1] || {}).lh && ldMs > 5200 && ldMs < 6800 && on.length > 2 && on.slice(-3).every((x) => x.src), { q: q.slice(0, 3), ldMs: Math.round(ldMs), on: on.slice(-2) }); }
     await go(f, 'tribute'); solo(W, 'tribute', await trace(f, ['tribute'], 11000, false));
     /* d 이음말 없는 순간(혼인 서약) — 맨 앞 뜸 그대로 */
     { await go(f, 'vow'); const r = await trace(f, ['vow'], 4000, false), q0 = r.q[0] || {}, ld0 = r.o.filter((x) => x.i === 0 && x.lead);
@@ -110,7 +112,8 @@ try {
     /* c 이어 듣기 축가 → 부모님께 인사 · 식전 영상 → 화촉 — 새 곡은 이음말 뒤 */
     for (const [a, b] of [['song', 'tribute'], ['prevideo', 'candle']]) { await go(f, b); const r = await trace(f, [a, b], a === 'song' ? 28000 : 20000, true), q = r.q, i0 = q.findIndex((x) => x.k === b);   /* [DETAIL_R2_1101 ⑤] 축가 뒤 박수 줄 3초가 더해졌다 · [TIME_GAP_1102] 이벤트 줄 사이 쉼 2.5초 */
       const bEnd = (r.o.find((x) => x.i > i0) || {}).t, fa = (r.o.filter((x) => x.k === a && x.src).pop() || {}).f, nf = r.o.find((x) => x.src && x.k === b && x.f !== fa);   /* ★[BGM_TIMING2_1101] 축가가 M4 를 틀게 되어 이음말 동안 앞 곡(M4)이 말 아래로 이어진다 — «새 곡» = 앞 순간 곡이 아닌 곡 */
-      ok(`${W} c 이어 듣기 ${a} → ${b} — 이음말(${(q[i0] || {}).slug}) 뒤에 새 곡 · 뜸은 그 다음 줄`, i0 > -1 && PRE.test(q[i0].slug) && !!nf && bEnd != null && nf.t >= bEnd - 50 && q[i0 + 1] && q[i0 + 1].lh, { i0, q: q.slice(Math.max(0, i0 - 1), i0 + 2), nf: nf && Math.round(nf.t), bEnd }); }
+      if (b === 'candle') ok(`${W} c 이어 듣기 ${a} → ${b} — 영상 뒤 91(${(q[i0] || {}).slug})부터 화촉 곡(91 말보다 먼저 · 뜸은 91 앞) [PREVIDEO_SONG_1122]`, i0 > -1 && /^bridge-b14/.test(q[i0].slug) && !q[i0].pre && !!nf && nf.i === i0 && bEnd != null && nf.t < bEnd && !(q[i0 + 1] || {}).lh, { i0, q: q.slice(Math.max(0, i0 - 1), i0 + 2), nf: nf && { t: Math.round(nf.t), i: nf.i }, bEnd });
+      else ok(`${W} c 이어 듣기 ${a} → ${b} — 이음말(${(q[i0] || {}).slug}) 뒤에 새 곡 · 뜸은 그 다음 줄`, i0 > -1 && PRE.test(q[i0].slug) && !!nf && bEnd != null && nf.t >= bEnd - 50 && q[i0 + 1] && q[i0 + 1].lh, { i0, q: q.slice(Math.max(0, i0 - 1), i0 + 2), nf: nf && Math.round(nf.t), bEnd }); }
     /* a · b 감사 인사형 서약(vowKind thanks · 감사 인사 뺌) — b8 이 서약 첫 줄에 온다(BGM 섹션 전수조사 · 화면 top@1 · 콘솔 M4@b8 이던 갈래) */
     { await f.evaluate(() => { S.on.welcome = 0; S.vowKind = 'thanks'; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); });
       await go(f, 'vow'); solo(W, 'vow', await trace(f, ['vow'], 11000, false));
@@ -135,8 +138,8 @@ try {
   { const html = fs.readFileSync(CON || path.join(ROOT, 'console.html'), 'utf8'), m = html.match(/function segOfCue\(c\)\{[\s\S]*?\n  return ''; \}/);
     if (!m) ok('e 콘솔 segOfCue 를 찾았다', false); else {
       const fn = new Function('BP', 'S', 'segPlan', 'BED', m[0] + '; return segOfCue;')({}, { bgm: {} }, () => true, { seg: '' });
-      const R = { b8: fn({ k: 'welcome', slug: 'bridge-b8-face-guests' }), w: fn({ k: 'welcome', slug: 'narr-welcome-a' }), b12: fn({ k: 'tribute', slug: 'bridge-b12-tribute-calm' }), t: fn({ k: 'tribute', slug: 'tribute-in' }), b14: fn({ k: 'candle', slug: 'bridge-b14-candle-name' }), c: fn({ k: 'candle', slug: 'narr-candle-in-a' }), vb8: fn({ k: 'vow', slug: 'bridge-b8-face-guests' }), v: fn({ k: 'vow', slug: 'narr-vow-in' }) };
-      ok('e 콘솔 — b8(감사 인사 · 감사 인사형 서약) · b12 · b14 큐는 구간을 바꾸지 않는다(\'\' · 앞 곡이 잇는다) · 바로 다음 큐 = M4 · M5 · M2', R.b8 === '' && R.b12 === '' && R.b14 === '' && R.w === 'M4' && R.t === 'M5' && R.c === 'M2' && R.vb8 === '' && R.v === 'M4', R); } }
+      const R = { b8: fn({ k: 'welcome', slug: 'bridge-b8-face-guests' }), w: fn({ k: 'welcome', slug: 'narr-welcome-a' }), b12: fn({ k: 'tribute', slug: 'bridge-b12-tribute-calm' }), t: fn({ k: 'tribute', slug: 'tribute-in' }), b14: fn({ k: 'candle', slug: 'bridge-b14-candle-name' }), c: fn({ k: 'candle', slug: 'narr-candle-in-a' }), b14L: fn({ k: 'candle', slug: 'bridge-b14-candle-name', leadDb: -8 }), vb8: fn({ k: 'vow', slug: 'bridge-b8-face-guests' }), v: fn({ k: 'vow', slug: 'narr-vow-in' }) };
+      ok('e 콘솔 — b8(감사 인사 · 감사 인사형 서약) · b12 · b14 큐는 구간을 바꾸지 않는다(\'\' · 앞 곡이 잇는다) · 바로 다음 큐 = M4 · M5 · M2', R.b8 === '' && R.b12 === '' && R.b14 === '' && R.b14L === 'M2' /* [PREVIDEO_SONG_1122] 영상 뒤 91(leadDb)은 화촉 장면 첫 줄 */ && R.w === 'M4' && R.t === 'M5' && R.c === 'M2' && R.vb8 === '' && R.v === 'M4', R); } }
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 500)); }
 await br.close(); srv.close();
 console.log(fail ? `BRIDGE FIRST FAIL ${fail}` : 'BRIDGE FIRST OK');

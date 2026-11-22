@@ -176,7 +176,7 @@
      x.skip = 영상 상영 줄 · x.talk = 차례 줄 · x.quiet = 행동 줄 · x.slug 'bridge-…' = 넘어가는 이음말
      ★[BGM_R2_1023] head = 쪽의 첫 줄이 이음말이면 1(그 바로 뒤) · 아니면 0 — top 과 못 찾은 자리(영상 · 목례 · 위하여 줄이 없을 때)가 다 이것을 쓴다.
        ★음악 줄을 이음말 앞(쪽의 맨 위)에 다시 두지 말 것 — 2026-10-23 사용자 지시 [BGM_R2_1023] */
-  function head(st) { return (st && st[0] && /^bridge-/.test(String(st[0].slug || ''))) ? 1 : 0; }
+  function head(st) { var x = st && st[0]; if (!x || !/^bridge-/.test(String(x.slug || ''))) return 0; if (/^bridge-b14-candle-name$/.test(String(x.slug)) && x.dk != null && +x.dk > -60) return 0; return 1; }   /* ★[PREVIDEO_SONG_1122] 영상 뒤 91(곡 위 말 아래 −15)은 앞 장면을 닫는 이음말이 아니라 화촉 장면 첫 줄 — 음악 줄 · 뜸이 91 앞(정적 위 b14 −90 은 종전대로 닫는 말) */
   /* ★[BGM_R3_1023] 자리를 찾는 열쇠 = 줄이 나온 큐(빌더 _lSteps 의 of · 엔진 slug) — 글자(«목례» · «위하여»)로 찾지 않는다
      bow = 끝 선언 큐(narr-close-bow)에서 나온 말 없는 줄 바로 뒤 · cheers = 잔 드는 축배 큐(toast-…)에서 나온 «위하여» 차례 줄 바로 뒤 · video = 영상 상영 줄(skip) 바로 앞 */
   var AT_OF = { bow: { quiet: true, of: /^narr-close-bow/, after: 1 }, cheers: { talk: true, of: /^toast-/, after: 1 }, video: { skip: true, after: 0 },
