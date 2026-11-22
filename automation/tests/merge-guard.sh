@@ -24364,3 +24364,11 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/narr-go-1122.mjs >/d
 if command -v node >/dev/null 2>&1; then node scripts/audit/rec-sec.mjs >/dev/null 2>&1; _rs=$?; if [ "$_rs" != 0 ]; then echo 'FAIL rec-sec: 나레이션 파일 길이표(REC_SEC)가 mp3 와 다르거나 10분 전 판이 어긋났습니다 — node scripts/rec-sec.mjs --write 뒤 node scripts/audit/rec-sec.mjs'; fail=1; else echo 'ok rec-sec'; fi; fi   # [NARR_GO_1122] ffprobe 없이 mp3 머리로 잰다
 nochk 'gapMs: 1000   /\* ★\[NARR_GO_1122 · NARR_종합 #1\]' assets/ritual-cue.js 0   # ★[NARR_GO_48GAP_1122] 316 → 48 은 콘솔 기본 2초 — 1초로 줄이지 않는다
 chk 'NARR_GO_48GAP_1122' assets/ritual-cue.js 2
+# ★★[TRIBUTE_GO_1122 대표님 11/22 15:50 «E가 좋은 거 같은데» · 대본 TRIBUTE_GO_1122] 부모님께 인사 — 새 141(테이크 5 통째) · 걷는 말 236 · 쉼 1.2 / 1.7 — 상세 docs/rules/나레이션.md
+chk "ex = 'tribute-in-ex2'; out" assets/ritual-cue.js 1
+chk 'gapMs = 1700;' assets/ritual-cue.js 1
+chk '_mn.gapMs || 0, 1200)' assets/ritual-cue.js 1
+chk '뭉클하실 부모님께, 신랑 신부가' assets/ritual-open.js 1
+chk 'TRIBUTE_GO_1122' scripts/rec141-1122.py 1
+chk 'TRIBUTE_GO_1122' docs/rules/나레이션.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/tribute-go-1122.mjs >/dev/null 2>&1; _tg=$?; if [ "$_tg" != 0 ]; then echo 'FAIL tribute-go-1122: 부모님께 인사 장면(141 새 판 · 걷는 말 236 · 쉼 1.2 / 1.7)이 대표님 11/22 승인과 다릅니다 — node scripts/audit/tribute-go-1122.mjs'; fail=1; else echo 'ok tribute-go-1122'; fi; fi
