@@ -1614,7 +1614,8 @@ chk 'SEAT_CROWD' seat.html 3                   # 자리 8명 이상이면 원 �
 # (옛 줄 · ★임계 7 · 2026-10-09 글꼴 들어온 판 실측 — 7명 이름표 두 쌍이 겹쳤다 · 아래 R6_PUBLIC 묶음 crowd=(n>=7)) crowd=(n>=8)
 chk 'tbl-list' seat.html 2                     # 목록형 표 본체(CSS 1 + 조립 1). max-width는 통로 침범 때문에 126px — 넓히지 말 것
 chk 'SEAT_ORIENT' seat.html 2                  # '좌측/우측'이 무엇 기준인지 화면에 없던 것 — 단상을 바라볼 때 기준임을 한 줄로(주석 1 + CSS 1)
-chk '단상을 바라볼 때의 좌·우예요' seat.html 1     # 위 한 줄 — 지우면 하객이 좌우를 반대로 읽을 수 있다
+# (옛 줄 · [SEAT_PLAN_9 2026-11-22] 단상이 없어졌다 — 기준을 «신랑 신부 쪽»으로) chk '단상을 바라볼 때의 좌·우예요' seat.html 1
+chk '신랑 신부 쪽을 바라볼 때의 좌·우예요' seat.html 1     # 위 한 줄 — 지우면 하객이 좌우를 반대로 읽을 수 있다
 # ── 2026-07-27 parents.html 1라운드(사이트에서 독자 나이가 가장 많은 화면)
 chk 'PAR_CONTRAST' parents.html 1              # 장식 골드(2.54:1)가 一二三四 장 번호·아이브로우 글자에 쓰이던 것 → --gold-text
 chk 'gold-text' parents.html 3                 # 토큰 1 + 적용 2. 노안 독자에게 장 번호는 '어디까지 읽었는지' 짚는 표시다
@@ -5786,7 +5787,10 @@ chk 'KID_SEAT' mypage.html 6
 #   하이체어 수량은 K 만 센다. Y 를 더하면 스태프가 쓰지 않을 의자를 꺼낸다.
 chk 'KID_CHAIR' mypage.html 4
 chk 'KID_CHAIR' admin.html 1
-chk 'KID_CHAIR' guide.html 1
+# (옛 줄 · [DRINK_TWO 2026-11-22] 하객 음료 표는 둘(샴페인 · 논알콜 스파클링) · 옛 K · Y 도 논알콜로 읽는다) chk 'KID_CHAIR' guide.html 1
+chk 'DRINK_TWO' guide.html 1
+chk "K:'논알콜 스파클링',Y:'논알콜 스파클링'" guide.html 1
+nochk "R:'레드와인'" guide.html
 chk "Y:'어린이 · 물'" mypage.html 1
 chk "_dv === 'Y'" automation/platform/80_production.gs 1
 chk 'cK+' admin.html 1                              # 의자 개수는 유아만(어린이 cY 를 더하지 말 것)
@@ -13977,8 +13981,8 @@ nochk '.inv-sub{margin:2px 0 8px 6px' mypage.html
 chk 'SEAT_HEAD_ONE' mypage.html 1
 nochk 'inv-step-n">좌석 · 음료 · 3 / 3' mypage.html
 # [SEAT_ADD_CAP] trk-6 · 5자리가 찬 테이블의 ＋ — aria-disabled 로 흐리게 + 누르면 까닭을 토스트로(disabled 속성은 쓰지 않는다 · 폰은 title 이 안 뜬다)
-chk 'SEAT_ADD_CAP' mypage.html 3
-chk "(n>=5?' aria-disabled=\"true\" title=\"한 테이블은 5자리까지예요\"'" mypage.html 1
+# (옛 줄 · [SEAT_PLAN_9 2026-11-22] 확정 배치는 테이블마다 자리 수가 정해져 있어 ＋ · － · ✕ 단추를 걷었다 — 아래 세 줄은 남은 헬퍼를 지킨다) chk 'SEAT_ADD_CAP' mypage.html 3
+# (옛 줄 · [SEAT_PLAN_9] ＋ 단추를 걷어 이 조립 줄이 없다) chk "(n>=5?' aria-disabled=\"true\" title=\"한 테이블은 5자리까지예요\"'" mypage.html 1
 chk "_miniToast('한 테이블은 5자리까지예요'" mypage.html 1
 chk 'rt-mini\[aria-disabled="true"\]' mypage.html 1
 # [SEAT_NAME_FIT] trk-2 · ≤480 자리 반지름 ×.44 · 이름 칸 38px · 컨트롤·테이블 이름 줄 9px 아래 · ≤380 지그재그 4px — 실제 이름(3~4자) 겹침 0(320~480 · rt-cap 표본 포함)
@@ -19230,12 +19234,13 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r2-server.mjs >/d
 # ★★[R6_PUBLIC 2026-10-09 고객 여정 A~Z 점검 1라운드 · 공개 화면] D-2 좌석 배치도 폰 맞춤 · D-4 상담 흐름 문구 · D-5~D-7 신청서 · D-8 · D-9 · D-17 상담 일정 · D-10 · D-18 취소 · D-11 단색 상단 바 · D-12 청첩장 06 대비 · D-13 인사말 방향 낱말 · D-14 지도 · D-15 카톡 답변 시간 · D-16 라이브 · D-20 표본 날짜 · D-21 — 되돌리지 말 것
 chk 'function zig(row,side){ return (row%2===0)?1:-1; }' seat.html 1   # [SEAT_ZIG] 평행 이동 본체 — 방향(±1)만
 chk "' \* var(--zig)))'" seat.html 1                                    # [SEAT_FIT] 폭은 CSS var(--zig)
-chk 'crowd=(n>=7)' seat.html 1                                           # [SEAT_FIT] 임계 7(글꼴 들어온 판 실측) · 종전 8
+# (옛 줄 · [SEAT_PLAN_9 2026-11-22] 확정 배치는 한 테이블 5자리까지라 7명 목록형 분기가 없다) chk 'crowd=(n>=7)' seat.html 1
 nochk 'crowd=(n>=8)' seat.html
 nochk ')\*30' seat.html                                                  # 30px 고정 지그재그로 되돌리면 폰에서 잘린다
 chk 'SEAT_FIT' seat.html 10
 chk 'SEAT_LEAD_KEEP' seat.html 1
-chk 'GUIDE_SEAT_FIT' guide.html 4
+# (옛 줄 · [SEAT_PLAN_9 2026-11-22] 두 열 지그재그 그림을 확정 배치 그림으로 바꿔 그 처방 자리가 줄었다) chk 'GUIDE_SEAT_FIT' guide.html 4
+chk 'GUIDE_SEAT_FIT' guide.html 2
 chk 'var(--gz,22px)' guide.html 1
 chk '.mtb-wrap .mtb-wrap{margin-left:0;margin-right:0}' guide.html 1
 chk 'SAMPLE_DATE_2027' guide.html 2
@@ -19401,11 +19406,27 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/mypage-r2.mjs >/dev/
 #   D2-11 예약 취소 셋 · D2-12 견본 날짜는 화면 디자인이라 하지 않았다(가지에서 걷음). 아래는 남긴 버그 고침만 지킨다.
 # D2-1 ~ D2-3 좌석 배치도(seat) · 하객 안내 배치도(guide) — 표 이름 · 번호 · 이름표가 서로 덮지 않게: 표 이름은 원 아래 한 줄(글자 모양은 그대로 · 번호는 원 가운데) ·
 #   이름표는 제 칸 안(가운데 줄 · 이웃 칸 · 화면 밖으로 안 나간다) · 내 자리 지도도 같다 · 한글 조합 중에는 찾지 않고 조합이 끝나면 한 번(폰 조합 멈춤은 0.8초 뒤)
-chk 'SEAT_NAME_BELOW' seat.html 6
-chk 'SEAT_LABEL_CLAMP' seat.html 5
+# ★[SEAT_PLAN_9 2026-11-22 사장님 «추천대로 적용» · «우리가 그린 그림이랑 다르잖아»] 배치도를 확정 배치(맞붙인 원형 9개 · 35석 · assets/seat-plan.js 한 파일)로 바꿨다 —
+#   표 이름은 원 안 번호 아래 두 줄 · 이름표는 그림 상자 안(폰은 그림만 옆으로 민다) · 네 글자 이름 말줄임 없이(66px/m). 옛 SEAT_NAME_BELOW · SEAT_LABEL_CLAMP 는 은퇴(줄 수만 남은 자리를 지키지 않는다).
+#   실측은 scripts/audit/seat-label-fit.mjs · seat-name-fit.mjs · seat-onecard.mjs 가 한다.
+# (옛 줄) chk 'SEAT_NAME_BELOW' seat.html 6 · chk 'SEAT_LABEL_CLAMP' seat.html 5 · chk 'SEAT_NAME_BELOW' guide.html 2 · chk 'SEAT_LABEL_CLAMP' guide.html 5
+chk 'SEAT_PLAN_9' seat.html 10
+chk 'SEAT_PLAN_9' guide.html 8
+chk 'SEAT_PLAN_9' mypage.html 9
+chk 'SEAT_PLAN_9' admin.html 4
+chk 'SEAT_PLAN_9' automation/platform/80_production.gs 1
+chk 'ME_SEAT_PLAN.mapHtml' seat.html 2
+chk 'ME_SEAT_PLAN.mapHtml' guide.html 1
+chk 'ME_SEAT_PLAN.mapHtml' mypage.html 1
+chk 'ME_SEAT_PLAN.mapHtml' admin.html 1
+chk "return a === 'L5,L3,L3,L5,R4,R4,R3,R3,R5';" assets/seat-plan.js 1   # 확정 배치 자리 수(좌 5 · 3 · 3 · 5 · 우 4 · 4 · 3 · 3 · 5 = 35)
 chk 'IME_QUIET' seat.html 5
-chk 'SEAT_NAME_BELOW' guide.html 2
-chk 'SEAT_LABEL_CLAMP' guide.html 5
+# ★[SEAT_EX_SHOT 2026-11-22 사장님 «하객 입장에서 보여주는 게 이해가 더 쉬울 것 같아»] 공개 방식 두 칸마다 하객 화면 예시 그림(scripts/seat-example-shots.mjs 가 찍는다)
+chk 'SEAT_EX_SHOT' mypage.html 2
+chk "_spEx('all')" mypage.html 1
+chk "_spEx('mine')" mypage.html 1
+chk 'SEAT_EX_SHOT' scripts/seat-example-shots.mjs 1
+if [ -s assets/seat/ex-all.webp ] && [ -s assets/seat/ex-mine.webp ]; then echo 'ok assets/seat: ex-all.webp · ex-mine.webp'; else echo 'REVERT? assets/seat: 하객 화면 예시 그림(ex-all · ex-mine .webp)이 없다 [SEAT_EX_SHOT]'; fail=1; fi
 chk 'IME_QUIET' guide.html 3
 chk 'function bindNameInput(' seat.html 1
 chk 'function bindNameInput(' guide.html 1
