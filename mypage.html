@@ -2471,7 +2471,8 @@ function contractSrc(product, docVersion){
   if(v==='v1.16') return '/contract/archive/v1-16.html';   // [CONTRACT_V117] v1.16 서명자는 하객 «최대 30명»이 적힌 보존본을 연다(v1.17 은 35명)
   if(v==='v1.15') return '/contract/archive/v1-15.html';   // [CONTRACT_V116] v1.15 서명자는 제5조① 식순 «예식 종료까지 자유 수정» · Farewell «배웅» · 식전 영상 «사진으로 3분 영상» · 식당 «파트너사 예약 조율» 이 적힌 보존본으로
   if(v==='v1.9') return '/contract/archive/v1-9.html';   // [CONTRACT_V110] v1.9 서명자는 그 판 보존본으로
-  return '/contract/v1-1.html';   // 현행(v1.17) — ★인상 때 이 주석도 같이 고칠 것. 낡은 채로 두면 다음 사람이 보존본 분기를 잘못 읽는다
+  if(v==='v1.17') return '/contract/archive/v1-17.html';   // [CONTRACT_V118] v1.17 서명자는 결제 «계좌이체만»이 적힌 보존본을 연다(v1.18 은 카드 또는 계좌이체)
+  return '/contract/v1-1.html';   // 현행(v1.18) — ★인상 때 이 주석도 같이 고칠 것. 낡은 채로 두면 다음 사람이 보존본 분기를 잘못 읽는다
 }
 
 // [02-3 Phase2] 본계약서 인뷰어 — 인증된 마이페이지 안에서 v1-1 계약서를 고객 정보로 채워 전체화면으로 띄운다.
