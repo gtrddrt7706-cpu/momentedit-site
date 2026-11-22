@@ -34,7 +34,7 @@ const near = (S) => { const cs = cuesOf(S), i = cs.findIndex((c) => c.k === 'ble
   ok('«아버지 친구»(그 밖의 분) — 글자 추측 없이 자리로(255) → GO', r.seat[0] === '선언해 주신 분께서는 자리로 돌아가셔도 좋습니다.' && r.bless.fire === 'manual', JSON.stringify(r.seat)); }
 { const r = near(mk('family', {})); ok('안 고름 — 추정하지 않음(자리로 255 + GO)', r.seat.length === 1 && r.bless.fire === 'manual'); }
 { const S = mk('standard', { declTitle: 'gmom' }); S.on = Object.assign({}, S.on, { declare: 1 }); delete S.on.bless; const cs = cuesOf(S), i = cs.findIndex((c) => c.slug === 'bridge-b9-declare-seat-end');
-  ok('다음이 덕담 아님 — 자리로(호칭) → 귀석까지 디렉터 GO', i > -1 && cs[i].text === '신랑 어머님께서는 자리로 돌아가셔도 좋습니다.' && cs[i + 1] && cs[i + 1].fire === 'manual', JSON.stringify(cs.slice(i, i + 2).map((c) => [c.slug, c.fire, c.hint]))); }
+  ok('다음이 덕담 아님 — 자리로(호칭) → 귀석까지 디렉터 GO', i > -1 && cs[i].text === '신랑 어머님께서는 자리로 돌아가셔도 좋습니다.' && (cs[i + 1] && cs[i + 1].slug === 'bridge-b3-clap-thanks' ? cs[i + 1].fire === 'chain' && cs[i + 2] && cs[i + 2].fire === 'manual' : cs[i + 1] && cs[i + 1].fire === 'manual') /* ★[NARR_GO_1122 ④] 자리로 → 정말 고맙습니다(이어서) → 귀석까지 GO */, JSON.stringify(cs.slice(i, i + 3).map((c) => [c.slug, c.fire, c.hint]))); }
 { const S = mk('brief', { declTitle: 'bdad' }); S.on = { declare: 1 }; const cs = cuesOf(S), seat = cs.filter((c) => c.slug === 'bridge-b9-declare-seat-end');
   ok('선언이 마지막인 날 — 닫는 인사 앞 자리로도 호칭(«신부 아버님께서는 …»)', seat.length === 1 && seat[0].text === '신부 아버님께서는 자리로 돌아가셔도 좋습니다.', JSON.stringify(seat.map((c) => c.text))); }
 // ── 3. 다시 확인 · 옛 데이터

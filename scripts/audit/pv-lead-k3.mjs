@@ -66,7 +66,7 @@ function combos() { const out = []; for (let m = 0; m < 1 << 7; m++) { const on 
 function k3Check(C, label) {
   const bad = []; let nS = 0, nL = 0;
   for (const S0 of combos()) for (const meal of [0, 1]) {
-    const S = Object.assign({}, S0, meal ? { meal: 1, mealFull: 1 } : {}), b = O.bodySec(S), avg = (b[0] + b[1]) / 2, short = avg < 600;
+    const S = Object.assign({}, S0, meal ? { meal: 1, mealFull: 1 } : {}), b = O.bodySec(S), rs = C.bodyRecSec ? C.bodyRecSec(S) : null, avg = rs != null ? rs : (b[0] + b[1]) / 2, short = avg < 600;   /* ★[NARR_GO_1122 ②] 자 = 실제 줄 + 녹음 길이(엔진 bodyRecSec · 같은 입력) · 셈이 안 되는 판만 종전 bodySec 가운데 */
     const want = short ? 'guest-w-10m-n10-short' + (meal ? '-meal' : '') : 'guest-w-10m-n' + Math.max(10, Math.min(20, Math.round((avg / 60) / 5) * 5)) + (meal ? '-meal' : '');
     const pick = C.guestPick(S, 1), cue = C.build(S, { mode: 'console' }).cues.find((c) => /^guest-w-10m-/.test(c.slug || '')) || {};
     if (short) nS++; else nL++;
@@ -82,7 +82,7 @@ ok('② [K3_SHORT_1106] 글 = 결정 문안 그대로(299s · 345s) · 소리 �
   [C2.EXTRA['guest-w-10m-n10-short'], C2.EXTRA['guest-w-10m-n10-short-meal']]);
 k3Check(C2, '② 10분 전 판 고르기 — 예상 본식 10분 미만 = short(± 식사) · 10분 이상 = 종전 n10 · n15 · n20(± 식사) · 큐 · 화면 글 같음');
 { const bS = O.applyExample({ course: 'open' }, 'brief'); bS.course = 'open'; const pv = C2.build(bS, { mode: 'preview' }).cues.find((c) => /^guest-w-10m-/.test(c.slug || '')) || {};
-  ok('② 예시 «간결»(본식 약 9분) — 미리 듣기 큐도 299s 글', pv.slug === 'guest-w-10m-n10-short' && pv.text === TEXT_299S, [pv.slug, pv.text]); }
+  ok('② 예시 «간결»(녹음 길이로 본식 약 11분 · NARR_GO_1122 ②) — 미리 듣기 큐도 «약 십 분간»(299)', pv.slug === 'guest-w-10m-n10' && pv.text === C2.EXTRA['guest-w-10m-n10'], [pv.slug, pv.text]); }
 { const m3 = CUE_SRC.replace("(guestShort(S) ? 'guest-w-10m-n10-short' : 'guest-w-10m-n' + guestMinOf(S))", "('guest-w-10m-n' + guestMinOf(S))");
   ok('② 깨 보기 — 짧은 판 고르기를 지운 판(옛 299 · 345)은 빨강', m3 !== CUE_SRC && k3Check(loadCue(m3)) > 0); }
 { const red = fs.readFileSync(P('docs/plans/식순연구/타입캐스트/재더빙_리드보강.txt'), 'utf8'), all = fs.readFileSync(P('docs/plans/식순연구/타입캐스트/다시받기/0_전체_화자표기.txt'), 'utf8').split('\n');
@@ -138,8 +138,8 @@ if (!FAST) {
       pvG.every((g) => g != null && g <= 3000 && g === pvG[0]) && !/goLeadMs/.test(fs.readFileSync(P('order-preview.html'), 'utf8')) && !/goLeadMs/.test(fs.readFileSync(P('assets/bgm-bed.js'), 'utf8')), pvG);
     const scr = await pg.evaluate((ex) => { const bS = RitualOpen.applyExample({ course: 'open' }, 'brief'); bS.course = 'open'; Object.keys(S).forEach((k) => { delete S[k]; }); Object.assign(S, bS);
       const f = (typeof _fixSteps === 'function' ? _fixSteps('pre') : [])[1] || {}; let all = ''; try { all = scriptTextOpen(); } catch (e) { all = 'ERR ' + e.message; }
-      return { ten: f.tx || '', all: all.indexOf(ex) > -1, old: /약 십 분간/.test(all) }; }, TEXT_299S);
-    ok('② 식순 화면 — 하객 맞이 «10분 전» 줄 · 전체 대본 = 299s 글(«약 십 분간» 없음)', scr.ten === TEXT_299S && scr.all && !scr.old, { scr, errs });
+      return { ten: f.tx || '', all: all.indexOf(ex) > -1 }; }, C.EXTRA['guest-w-10m-n10']);
+    ok('② 식순 화면 — 간결 하객 맞이 «10분 전» 줄 · 전체 대본 = 엔진이 고른 «약 십 분간»(299 · NARR_GO_1122 ② 녹음 길이 약 11분)', scr.ten === C.EXTRA['guest-w-10m-n10'] && scr.all, { scr, errs });
     await pg.close();
   } finally { await br.close(); srv.close(); }
 }
