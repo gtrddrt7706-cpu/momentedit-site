@@ -529,7 +529,8 @@ function handleSaveProductionTrack(body) { _gsr_();
       var _t = _tbls[ti] || {};
       var _seats = (Object.prototype.toString.call(_t.seats) === '[object Array]') ? _t.seats : [];
       var _drk = (Object.prototype.toString.call(_t.drinks) === '[object Array]') ? _t.drinks : [];
-      var _os = [], _od = [];
+      var _chr = (Object.prototype.toString.call(_t.chair) === '[object Array]') ? _t.chair : [];
+      var _os = [], _od = [], _oc = [], _anyC = false;
       for (var si = 0; si < _seats.length && _os.length < 12; si++) {
         _os.push(String(_seats[si] || '').slice(0, 24));
         /* ★★[SEAT_DRINK_SAVE 2026-08-16] 화이트리스트가 옛 코드(N·A·J)에 멈춰 있어 **샴페인(C)·레드와인(R)이 저장 때마다 통째로 지워졌다.**
@@ -539,14 +540,18 @@ function handleSaveProductionTrack(body) { _gsr_();
            A(구 알콜)·J(구 주스)는 프런트 _seatNormDrinks 가 이미 빈 값으로 정리해 보내므로 여기서 되살리지 않는다.
            ★이 목록은 mypage.html SEAT_DRINK_LABEL 과 한 벌 — 음료 코드를 늘리면 두 곳을 함께 고칠 것. */
         var _dv = String(_drk[si] || '');   // 자리별 음료: '' 미정 · C 샴페인 · R 레드와인 · N 논알콜 스파클링 · K 유아(물+의자) · Y 어린이(물)
-        _od.push((_dv === 'C' || _dv === 'R' || _dv === 'N' || _dv === 'K' || _dv === 'Y') ? _dv : '');   // [KID_SEAT][KID_CHAIR 2026-08-16] K·Y 추가 — 빠뜨리면 아이 표시가 저장 때마다 조용히 지워진다(SEAT_DRINK_SAVE와 같은 사고)
+        _od.push((_dv === 'C' || _dv === 'R' || _dv === 'N' || _dv === 'K' || _dv === 'Y') ? _dv : '');
+        var _cv = String(_chr[si] || '');   // ★[DRINK_TWO 2026-11-22] 자리 준비(의자) — '' 보통 · B 유아용 의자 · W 휠체어 · mypage _seatNormDrinks 와 한 벌(빠뜨리면 저장 때 조용히 지워진다 · SEAT_DRINK_SAVE 사고)
+        _oc.push((_cv === 'B' || _cv === 'W') ? _cv : ''); if (_oc[_oc.length - 1]) _anyC = true;   // [KID_SEAT][KID_CHAIR 2026-08-16] K·Y 추가 — 빠뜨리면 아이 표시가 저장 때마다 조용히 지워진다(SEAT_DRINK_SAVE와 같은 사고)
       }
-      outT.push({
+      var _ot = {
         name: String(_t.name || '').slice(0, 24),
         side: (String(_t.side || 'L') === 'R') ? 'R' : 'L',
         seats: _os,
         drinks: _od
-      });
+      };
+      if (_anyC) _ot.chair = _oc;   // [DRINK_TWO] 하나도 없으면 키를 두지 않는다(화면도 그렇게 보낸다 · 에코 비교가 같은 모양)
+      outT.push(_ot);
     }
     body.draft = { tables: outT, note: String(sdr.note || '').slice(0, 200), _step: sdr._step || 0 };
   }
@@ -974,8 +979,10 @@ function _seatNorm(s) { _gsr_(); s = String(s || ''); try { s = s.normalize('NFC
 function _seatRowNum(tables) { _gsr_();   // 행순서 번호 = seat.html·guide.html·좌석표 프린트와 동일(위→아래 · 좌 1·3·5 / 우 2·4·6)
   var Ls = [], Rs = [];
   tables.forEach(function (t, i) { (String((t || {}).side || 'L') === 'R' ? Rs : Ls).push(i); });
-  var num = {}, nn = 1, mr = Math.max(Ls.length, Rs.length);
-  for (var rr = 0; rr < mr; rr++) { if (rr < Ls.length) num[Ls[rr]] = nn++; if (rr < Rs.length) num[Rs[rr]] = nn++; }
+  // ★[SEAT_PLAN_9 2026-11-22 사장님 «추천대로 적용»] 번호 = 좌측 위부터 1 ~ 4, 이어서 우측 5 ~ 9(assets/seat-plan.js numbers 와 한 벌 · 종전 행 번갈아 매기기는 폐지)
+  var num = {}, nn = 1;
+  for (var a = 0; a < Ls.length; a++) num[Ls[a]] = nn++;
+  for (var b = 0; b < Rs.length; b++) num[Rs[b]] = nn++;
   return num;
 }
 function _seatFindSlim(t) { _gsr_();   // 검색에 필요한 최소만 — 이 객체는 서버 안에서만 돈다(응답엔 hits/room만 나감)
