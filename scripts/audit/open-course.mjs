@@ -339,25 +339,24 @@ ok('[TOAST_40_OPEN_1013 · CAKE_OLD_OFF_1017] 옛 초안(케이크 + 축배) →
   return s.indexOf('toast-toast') > -1 && s.indexOf('narr-toast-out') < 0 && st.indexOf('narr-toast-out') < 0 /* [END_FLOW_1030] 축배 뒤는 늘 닫는 인사 — 56 없음 */ && s.indexOf('toast-both-b') < 0 && s.indexOf('toast-both-pour-b') < 0
     && s.indexOf('toast-both') < 0 && s.indexOf('toast-toast') < s.indexOf('narr-close-bow') && o.indexOf('toast-toast') > -1 && o.indexOf('toast-both-b') < 0 && o.indexOf('toast-both') < 0 && !o.some((x) => /cake/.test(x)); })());
 /* ★★[REVIEW26_1023 검토 150] 하객 귀로 다시 듣기 — 간결 화촉 · 감사문 칩 · 닫는 멘트 220 · 56 · 마지막 순간 뒤 B8 · B9 255 · B12 · 예시 칩 · 알림 · 5분 전 */
-ok('[REVIEW26_1023 검토 150] 간결 화촉 151 · 정석 축사 174 · 가족 덕담 232 · 기록 닫는 187 · 감사 인사 담은 날 감사문 칩 2 없음 · 220 없음 · 5분 전 칸 없음(GUEST_5MIN_OFF_1023 · 159 에서 걷음)', (() => {
+ok('[REVIEW26_1023 검토 150] 간결 화촉 151 · 정석 축사 174 · 가족 덕담 232 · 기록 닫는 187 · 감사문 칩 2 는 감사문 판에만([THANKS_SWAP_1122] 옛 «감사 인사 담은 날 없음») · 220 없음 · 5분 전 칸 없음(GUEST_5MIN_OFF_1023 · 159 에서 걷음)', (() => {
   const ex = (k, base) => { const S = O.applyExample({ course: 'open' }, k); S.course = 'open'; return O.narExCue(S, base); };   // 큐는 기본 이름 · 고른 예시는 narExCue 가 바꿔 끼운다
   const b = ex('brief', 'narr-candle-in-mothers'), st = ex('standard', 'narr-free-in-speech'), fa = ex('family', 'narr-bless-end'), re = ex('record', 'narr-close-bow');
-  const thx = (w) => O.narExOk({ course: 'open', on: { vow: 1, welcome: w ? 1 : 0 }, vowKind: 'thanks' }, 'thanks', 1);
+  const thx = (wk) => O.narExOk({ course: 'open', on: { welcome: 1 }, welcomeKind: wk }, 'thanks', 1);   /* ★[THANKS_SWAP_1122] 감사 인사 ↔ 감사문 둘 중 하나 — 감사문 판에만 감사문 멘트 */
   const g = { slug: C.build({ course: 'open', on: {}, guide: 0 }, { mode: 'console' }).cues.some((c) => c.slug === 'guest-3-5min') ? 'guest-3-5min' : '' };   /* [PHOTO_ALWAYS_NI02] 03 은 새 코스 5분 전에 안 쓴다(하객 안내를 끈 날도 사진 판 333) */
   return b === '' /* [BASE_SWAP_1023] 간결 화촉 151 «담백하게»는 이제 기본 */ && ex('family', 'narr-candle-in-mothers') === 'narr-candle-in-mothers-ex2' /* 가족 = 뭉클 칩(91) */ && st === 'narr-free-in-speech-ex2' && fa === 'narr-bless-end-ex2' && re === 'narr-close-bow-ex4'
-    && thx(false) && !thx(true) && !O.NAR_EX.close.lines['narr-close'] /* [CLOSING_LINE_1031] 단체 사진 안내 예시 줄은 걷었다 */ && C.RETIRED['narr-close-ex2'] && C.RETIRED['narr-close-ex3'] && g.slug === 'guest-3-5min' /* ★[W5M_FIX_1107 대본 22:25] 식사 없는 날 5분 전 = 03 «시작 오 분 전입니다.»만(사진 줄은 본식 전이라 뺐다 · PHOTO_ALWAYS_NI02 의 333 걷음) */ && !C.RETIRED['guest-3-5min'] /* ★[GUEST_WELCOME_191 검토 191 보충 3] 03 소리는 남는다(창고 «시작 오 분 전입니다.»가 빌려 쓴다) · [PHOTO_ALWAYS_NI02] 새 코스 5분 전 판은 늘 사진 판 */; })());
-ok('[REVIEW26_1023 검토 150] 마지막 순간이 서약 · 반지 · 편지(서로에게)면 B8 → 108 디렉터 GO · 감사문이면 B8 없음 · B9 는 늘 255 · 인사 «밝게»면 B12 없음', (() => {
+    && thx('thanks') && !thx(undefined) && !O.NAR_EX.close.lines['narr-close'] /* [CLOSING_LINE_1031] 단체 사진 안내 예시 줄은 걷었다 */ && C.RETIRED['narr-close-ex2'] && C.RETIRED['narr-close-ex3'] && g.slug === 'guest-3-5min' /* ★[W5M_FIX_1107 대본 22:25] 식사 없는 날 5분 전 = 03 «시작 오 분 전입니다.»만(사진 줄은 본식 전이라 뺐다 · PHOTO_ALWAYS_NI02 의 333 걷음) */ && !C.RETIRED['guest-3-5min'] /* ★[GUEST_WELCOME_191 검토 191 보충 3] 03 소리는 남는다(창고 «시작 오 분 전입니다.»가 빌려 쓴다) · [PHOTO_ALWAYS_NI02] 새 코스 5분 전 판은 늘 사진 판 */; })());
+ok('[REVIEW26_1023 검토 150] 마지막 순간이 서약 · 반지 · 편지(서로에게)면 B8 → 108 디렉터 GO · 감사문(감사 인사 자리 · THANKS_SWAP_1122)이면 B8 없음 · B9 는 늘 255 · 인사 «밝게»면 B12 없음', (() => {
   const end = (S) => { const cs = C.build(Object.assign({ course: 'open' }, S), { mode: 'console' }).cues, i = cs.findIndex((c) => c.slug === 'narr-close-bow'); return [cs[i - 1] && cs[i - 1].slug, cs[i] && cs[i].fire]; };
-  const v = end({ on: { vow: 1 } }), r = end({ on: { ring: 1 } }), l = end({ on: { letter: 1 }, letter: 'each' }), t = end({ on: { vow: 1 }, vowKind: 'thanks' });
+  const v = end({ on: { vow: 1 } }), r = end({ on: { ring: 1 } }), l = end({ on: { letter: 1 }, letter: 'each' }), t = end({ on: { welcome: 1 }, welcomeKind: 'thanks' });
   const d = C.build({ course: 'open', on: { declare: 1, tribute: 1 } }, { mode: 'console' }).cues.map((c) => c.slug);
   const sg = (n) => C.build({ course: 'open', on: { song: 1, tribute: 1, declare: 1 }, narEx: { tribute: n } }, { mode: 'console' }).cues.map((c) => c.slug).indexOf('bridge-b12-tribute-calm');
   return v[0] === 'bridge-b8-face-guests' && v[1] === 'manual' && r[0] === 'bridge-b8-face-guests' && l[0] === 'bridge-b8-face-guests' && t[0] !== 'bridge-b8-face-guests'
     && d.indexOf('bridge-b9-declare-seat') < 0 && d.indexOf('bridge-b9-declare-seat-end') > -1 && sg(0) > -1 && sg(5) < 0; })());
-ok('[REVIEW26_1023 검토 150-1 7)] 감사문 + 감사 인사를 담은 날만 알림(빼는 단추 · 닫기)', (() => {
-  const a = O.noticeList({ course: 'open', on: { vow: 1, welcome: 1 }, vowKind: 'thanks' }), b = O.noticeList({ course: 'open', on: { vow: 1 }, vowKind: 'thanks' }), c = O.noticeList({ course: 'open', on: { vow: 1, welcome: 1 } });
-  const n = O.noticeFull({ course: 'open', on: { vow: 1, welcome: 1 }, vowKind: 'thanks' });
-  return a.some((m) => /감사 인사는 빼도 돼요/.test(m)) && !b.some((m) => /감사 인사는 빼도/.test(m)) && !c.some((m) => /감사 인사는 빼도/.test(m)) && !!n && n.key === 'thanks2' && n.close && n.acts.length === 1; })());
-ok('[THANKS_SHOT_1013] 감사문을 고른 날 남는 장면은 감사문 장면 · 서약은 그대로', O.shotOf('vow', { vowKind: 'thanks' }) === O.PSCENE['vow:thanks'].rep && O.shotOf('vow', {}) === O.PSCENE.vow.rep);   // ★[PHOTO_SCENE_1031] 남는 장면 = 대표 장면(원천 PSCENE)
+/* ★[REVIEW26_1023 검토 150-1 7)] «감사문 + 감사 인사» 겹침 알림 검사 은퇴 → 새 기대 [THANKS_SWAP_1122] 둘 중 하나라 알림이 없다(thanksTwice 걷음) */
+ok('[THANKS_SWAP_1122] 감사문 판 · 서약을 함께 담아도 «감사 인사는 빼도 돼요» 알림 없음 · NOTICE.thanksTwice 걷음', !O.noticeList({ course: 'open', on: { vow: 1, welcome: 1 }, welcomeKind: 'thanks' }).some((m) => /감사 인사는 빼도/.test(m))
+  && !O.noticeList({ course: 'open', on: { vow: 1, welcome: 1 }, vowKind: 'thanks' }).some((m) => /감사 인사는 빼도/.test(m)) && !('thanksTwice' in O.NOTICE));
+ok('[THANKS_SHOT_1013 · THANKS_SWAP_1122] 감사문 판(감사 인사 자리)의 남는 장면은 감사문 장면 · 서약은 늘 서약 장면', O.shotOf('welcome', { welcomeKind: 'thanks' }) === O.PSCENE['vow:thanks'].rep && O.shotOf('vow', { vowKind: 'thanks' }) === O.PSCENE.vow.rep && O.shotOf('vow', {}) === O.PSCENE.vow.rep && O.shotOf('welcome', {}) === O.PSCENE.welcome.rep);   // ★[PHOTO_SCENE_1031] 남는 장면 = 대표 장면(원천 PSCENE)
 ok('[TOAST_40_OPEN_1013] ① 대표 줄도 40 · 화면 글은 엔진 글과 같다(따옴표만 다르다)', (() => { const sm = O.sampleOf('toast', {}); const t = (C.build(O.sampleS({}), { mode: 'console' }).cues.find((c) => c.slug === 'toast-toast') || {}).text || '';
   return sm.slug === 'toast-toast' && t.length > 0 && sm.screen.replace(/[«»'"]/g, '').replace(/\s+/g, '').replace(/,/g, '') === t.replace(/[«»'"]/g, '').replace(/\s+/g, '').replace(/,/g, '')   /* [SOURCE_FIRST_1016] 엔진 글은 자료 AA 따옴표 «'위하여'» · 화면은 «위하여» */; })());
 ok('[WINE_POUR_OFF] 옛 초안의 «양가 한 병씩» 값이 와도 붓기 없음', slugs({ course: 'open', on: { toast: 1 }, toast: 'toast', wine: 'family' }).every((x) => x.indexOf('toast-pour') < 0));
@@ -407,7 +406,7 @@ const NEW = ['guest-4-1min-pre', 'narr-prevideo-in', 'narr-candle-in-mothers-ex2
   'narr-prevideo-in-ex2', 'narr-prevideo-in-ex3', 'narr-prevideo-in-ex4',
   'narr-table-in',   /* ★[TABLE_GREET_1008 2026-10-08] 131 · 테이블 인사 여는 말 */
   'narr-entry-bow-ex2' /* [BASE_SWAP_1023] 132 = 잔잔 칩 */,   /* ★[MATJEOL_1011 2026-10-11] 132 · 입장 끝 맞절 */   /* ★[PV_EX_NAR 2026-10-07] 128~130 · 식전 영상 소개 나레이션 예시 2~4 */
-  'narr-thanks-in',   /* ★[THANKS_IN_VOW 2026-10-11] 133 · 감사문 여는 말 */
+  'narr-thanks-in',   /* ★[THANKS_IN_VOW 2026-10-11 · THANKS_SWAP_1122] 133 · 감사문 여는 말(감사 인사 자리의 감사문 판) */
   'narr-declare-in-gdad', 'narr-declare-in-bdad', 'narr-declare-in-friend',   /* ★[DECLARE_BY_PERSON 2026-10-12] 134~136 · 성혼 선언 여는 말 · [DECLARE_ANYONE] 134 · 135 는 RETIRED(번호 보존) */
   'narr-open', 'narr-candle-bow', 'narr-candle-bow-four', 'narr-candle-out-formal', 'narr-tribute-name', 'narr-tribute-pair', 'tribute-call', 'narr-entry-arrive', 'tribute-call-say',
   'narr-candle-bow-fathers', 'narr-candle-bow-others',
@@ -427,30 +426,55 @@ const NEW = ['guest-4-1min-pre', 'narr-prevideo-in', 'narr-candle-in-mothers-ex2
   'narr-closing-mealnr', 'narr-closing-mealnr-nt', 'narr-closing-mealnr-nt-nc', 'narr-closing-mealr', 'narr-closing-mealr-nt', 'narr-closing-mealr-nt-nc', 'guest-w-10m-n10-meal', 'guest-w-10m-n15-meal', 'guest-w-10m-n20-meal' /* ★[INFO_SPLIT_200] 329 ~ 347 */, 'guest-w-10m-n10-short', 'guest-w-10m-n10-short-meal', 'narr-welcome-in-face' /* ★[K3_SHORT_1106] 348 · 349 */, 'midvideo-in-thanks', 'midvideo-in-story', 'midvideo-in-plain', 'midvideo-out-thanks', 'midvideo-out-story' /* ★[MID17_CLIPS_1107] 351 ~ 355 */, 'guest-w5-meal', 'guest-w5-meal-online' /* ★[W5M_FIX_1107] 356 · 357 */, 'bless-one-gf', 'bless-one-bf', 'bless-one-gm', 'bless-one-bm', 'bless-first-gf', 'bless-first-bf', 'bless-first-gm', 'bless-first-bm', 'speech-gfr', 'speech-bfr', 'speech-gfa', 'speech-bfa', 'speech-cfr', 'song-who-gfr', 'song-who-bfr', 'song-who-gfa', 'song-who-bfa', 'song-who-cfr', 'song-self-g', 'song-self-b', 'song-self-c' /* ★[NARR_ROLE_1115] 358 ~ 378 «누가» 줄(덕담 한 분 · 첫 분 · 축사 · 축가 · 두 분 직접) */, 'speech-none', 'song-none', 'clap-speech', 'clap-song', 'clap-self', 'narr-vow-in-face', 'narr-open-online' /* ★[NARR_GO_1122] 384 · 385 */ /* ★[ROLE_SHIP_1117] 379 ~ 383 안 고른 날 둘 · 뒤 붙임 박수 셋 */];   /* ★[REVIEW24_1019 검토 132 덧 2] 257 ~ 261 */   /* ★[REVIEW5_1018 인스타 섹션 검토 5판] 224 ~ 244 */   /* ★[REVIEW4_1018 인스타 섹션 검토 4판] 211 ~ 223 */   /* ★[REVIEW23_1018 인스타 섹션 검토 2 · 3판] 209 · 210 */   /* ★[REVIEW1_1018 인스타 섹션 검토] 207 · 208 */   /* ★[R10_SRC_1018 라운드 10] 204 ~ 206 */   /* ★[NARR_R9_1018 라운드 9] 201 ~ 203 */   /* ★[NARR_LOOP_1018 첫 판] 197 ~ 200 */   /* ★[T3_OK_1017] 191 ~ 196 자료 T3 예시 여섯 */   /* ★[EX_MANY_1017] 148 ~ 190 나레이션 멘트 예시 2 ~ 4(43) */   /* ★[CANDLE_CALL_SRC_1016] 146 · 147 */   /* ★[TRIB_CALL_SAY_1014] 145 */   /* ★[OPEN_DECL_1014 · CANDLE_CALL_1014 · CANDLE_TONE_1014 · TRIB_NAME_1014 · ENTRY_ARRIVE_1014] 137~144 */
 ok('FILES 맨 끝 89~385 이 새 줄 297개(384 · 385 = 잘라 붙인 판 · NARR_GO_1122 · 379 ~ 383 = «누가» 안 고른 날 · 뒤 붙임 박수 · ROLE_SHIP_1117 · 358 ~ 378 = «누가» 줄 · NARR_ROLE_1115 · 356 · 357 = 5분 전 식사 판 · W5M_FIX_1107 · 351 ~ 355 = 식중 영상 · MID17_CLIPS_1107 · 350 = 맞절 → 감사 인사 기본 첫머리 · SEAM_WORD_1107 · 348 · 349 = 10분 미만 본식의 10분 전 판 · K3_SHORT_1106 · 329 ~ 347 = 5분 전 경로 · 사진 판 · 마무리 식사 판 · 10분 전 식사 판 · INFO_SPLIT_200 · 325 ~ 328 = 마무리 멘트 «다정하게» 날 · CLOSING_CHEER_195 · 297 ~ 324 = 하객 맞이 · 촬영 후 안내 · GUEST_WELCOME_191 · AFTER_PHOTO_191 · 292 ~ 296 = 마무리 멘트 감사 없이 · CLOSING_SRC_1031 · 287 ~ 291 = 마무리 멘트 · CLOSING_LINE_1031 · 267 ~ 286 = 성혼 선언 호칭 판 · DECL_TITLE_1031 · 265 · 266 = 사진 전 안내 · END_FLOW_1030 · 148 ~ 190 = 나레이션 멘트 예시 · EX_MANY_1017 · 191 ~ 196 = 자료 T3 예시 · T3_OK_1017 · 197 ~ 200 = 자료 루프 첫 판 · NARR_LOOP_1018 · 201 ~ 203 = 라운드 9 · NARR_R9_1018 · 204 ~ 206 = 라운드 10 · R10_SRC_1018 · 207 · 208 = 인스타 섹션 검토 · REVIEW1_1018 · 209 · 210 = 인스타 섹션 검토 2 · 3판 · REVIEW23_1018 · 211 ~ 223 = 인스타 섹션 검토 4판 · REVIEW4_1018 · 224 ~ 244 = 인스타 섹션 검토 5판 · REVIEW5_1018 · 251 ~ 254 = 검토 7판 · REVIEW7_1018 · 255 · 256 = 검토 112 · 124 · REC_NEXT_APPLIED_1018)', JSON.stringify(C.FILES.slice(88)) === JSON.stringify(NEW));
 
-/* ★★[THANKS_IN_VOW 2026-10-11 사장님 «서약 카드 안에서 고르기»(추천대로)] 서약 카드 «무엇을 읽나요» — 감사문을 고르면
-   여는 말 133 → 두 분이 하객 쪽을 본 채 읽고 마지막 한 문장(THANKSBOTH)은 함께 · 맺는 말(서약의 «약속은 말로 끝나지 않습니다») 없음 · 다음 순간은 디렉터 GO.
-   고르지 않으면(모르는 값 포함) 종전 서약 그대로. 시간은 맺는 말 몫(14초)만 짧다 */
+/* ★★[THANKS_SWAP_1122 2026-11-22 사장님 «추천대로»] 감사 인사 ↔ 감사문 둘 중 하나 — 옛 [THANKS_IN_VOW 10-11] «서약 카드 안 감사문» 검사 은퇴(새 기대로 바꿈).
+   서약 카드는 늘 서약(vowKind 는 읽지 않는다 · 옛 초안의 «서약 + 감사문»만 감사문 판으로 옮긴다) · 감사문 = welcome 자리 · 여는 말 133 → 신랑 먼저, 신부 다음으로 → 마지막 한 문장(THANKSBOTH) 함께 · 맺는 말 없음 · 다음 순간 디렉터 GO */
 {
   const on = {}; O.PICKABLE.forEach((k) => { on[k] = 1; });
   const D = require(P('assets/ritual-data.js'));
-  const vc = (S, mode) => { const r = C.build({ course: 'open', on, ...S }, { mode: mode || 'console' }); const i = r.cues.findIndex((x) => x.k === 'vow'); return { v: r.cues.filter((x) => x.k === 'vow'), next: r.cues[r.cues.findIndex((x, j) => j > i && x.k !== 'vow')] }; };
-  ok('[THANKS_IN_VOW] 감사문 = 여는 말 133 하나 · 맺는 말 없음 · 블록 «감사문» · 함께 읽는 한 문장 = THANKSBOTH([SOURCE_FIRST_1016] 감사문 자료는 «감사합니다»로 맺는다) · 다음 순간 디렉터 GO «마지막 한 문장을 함께 읽고 나면»', (() => {
-    const a = vc({ vowKind: 'thanks' }); const c = a.v[0];
-    return a.v.length === 1 && c.file === '133_narr-thanks-in' && c.text === D.NARR.thanksIn && c.blockN === '감사문' && c.live && c.live.peak === true
-      && JSON.stringify(c.live.both) === JSON.stringify(D.THANKSBOTH) && D.THANKSBOTH.length === 1 && /하객 쪽을 보고/.test(c.live.t) && /감사문/.test(c.live.fallback)
-      && a.next && a.next.fire === 'manual' && a.next.hint === '마지막 한 문장을 함께 읽고 나면'; })());
-  /* ★[VOW_GROOM_FIRST_1122 2026-11-22 사장님 «먼저 읽는 분은 신랑으로 고정»] 옛 «신부부터» 기대 은퇴 → 옛 저장분 vowFirst 'b' 도 신랑부터(감사문 · 서약 모두 · 127 안 남) */
-  ok('[VOW_GROOM_FIRST_1122] 옛 저장분 신부부터(b)도 신랑부터 — 감사문 각자 · 번갈아 · 서약 여는 말 13(127 아님)', (() => {
-    const e = vc({ vowKind: 'thanks', vowHow: 'each', vowFirst: 'b' }).v[0].live, al = vc({ vowKind: 'thanks', vowFirst: 'b' }).v[0].live, v = vc({ vowFirst: 'b' }).v[0];
-    return /신랑 먼저, 신부 다음으로 감사문/.test(e.tv) && e.first === 'g' && !/신부부터/.test(al.tv) && al.first === 'g' && v.file === '13_narr-vow-in' && v.live.first === 'g'; })());
-  ok('[THANKS_IN_VOW] 고르지 않으면 · 모르는 값이면 서약 그대로(여는 말 13 · 맺는 말 14 · VOWBOTH)', ['vow', undefined, 'x'].every((k) => {
-    const a = vc(k === undefined ? {} : { vowKind: k }); return a.v.length === 2 && a.v[0].file === '13_narr-vow-in' && a.v[1].file === '14_narr-vow-out' && JSON.stringify(a.v[0].live.both) === JSON.stringify(D.VOWBOTH); }));
-  ok('[THANKS_IN_VOW] 시간 = 서약보다 17초 짧다(맺는 말 몫 · [REVIEW29_1023] 서약 여는 말 고은천 글로 다시 잼 · 옛 15 · 14) · 할 일 «감사문 · 한 분 300자쯤» · 설명 · 말하는 자리 글', (() => {
-    const p0 = O.partsOf('vow', { on: { vow: 1 } }), p1 = O.partsOf('vow', { on: { vow: 1 }, vowKind: 'thanks' });
-    return p0[0] - p1[0] === 17 && p0.slice(1).join() === p1.slice(1).join() && /^감사문 · 한 분 300자쯤/.test(O.prepOf('vow', { vowKind: 'thanks' })[0][1]) && /^서약문 · /.test(O.prepOf('vow', {})[0][1])
-      && /감사문/.test(O.oneOf('vow', { vowKind: 'thanks' })) && O.oneOf('vow', {}) === O.CARDS.vow.one && /하객께 감사문/.test(O.talkOf('vow', { vowKind: 'thanks' })); })());
-  ok('[THANKS_IN_VOW] 미리듣기 주소가 판 이름을 옮긴다(thanks · 모르는 값은 vow)', (() => { const w = {}; new Function('window', fs.readFileSync(P('assets/ritual-preview-link.js'), 'utf8'))(w); const pk = w.RitualPreviewLink.pick;
-    return w.RitualPreviewLink.KEYS.indexOf('vowKind') > -1 && pk({ vowKind: 'thanks' }).vowKind === 'thanks' && pk({ vowKind: 'zz' }).vowKind === 'vow'; })());
+  const ST = require(P('assets/ritual-story.js'));
+  const by = (k) => (S, mode) => { const r = C.build({ course: 'open', on, ...S }, { mode: mode || 'console' }); const i = r.cues.findIndex((x) => x.k === k); let j = i; while (j > -1 && j + 1 < r.cues.length && r.cues[j + 1].k === k) j++; return { v: r.cues.filter((x) => x.k === k && !/^bridge-/.test(x.slug || '')), next: i < 0 ? null : r.cues[j + 1], all: r.cues }; };   // 이음말(B8 · 앞 순간 k 를 진다)은 뺀 순간 큐
+  const vc = by('vow'), wc = by('welcome');
+  const LIVE_EACH = '하객 쪽을 보고 신랑 먼저, 신부 다음으로 감사문 낭독 · 마지막 한 문장은 함께';
+  ok('[THANKS_SWAP_1122] 감사문 판 = 감사 인사 자리(welcome) 큐 하나 · 133 · 블록 «감사문» · 신랑 먼저(first g · 장면 열쇠 = ritual-story LIVE) · 함께 읽는 한 문장 = THANKSBOTH · 맺는 말 없음 · 다음 순간 디렉터 GO «마지막 한 문장을 함께 읽고 나면»', (() => {
+    const a = wc({ welcomeKind: 'thanks' }), c = a.v[0];
+    return a.v.length === 1 && c.k === 'welcome' && c.file === '133_narr-thanks-in' && c.text === D.NARR.thanksIn && c.blockN === '감사문' && c.live && c.live.peak === true
+      && c.live.t === LIVE_EACH && c.live.tv === LIVE_EACH && c.live.first === 'g' && !!(ST.LIVE || {})[LIVE_EACH]
+      && JSON.stringify(c.live.both) === JSON.stringify(D.THANKSBOTH) && D.THANKSBOTH.length === 1 && /감사문/.test(c.live.fallback)
+      && a.next && a.next.fire === 'manual' && a.next.hint === '마지막 한 문장을 함께 읽고 나면' && !a.all.some((x) => x.slug === 'narr-welcome-in'); })(), '(ritual-story LIVE 키 확인 포함)');
+  ok('[THANKS_SWAP_1122] 감사문 판과 서약은 함께 — 서약은 그대로 13 · 14 · VOWBOTH · 감사문(133)은 서약보다 앞(맞절 바로 뒤) · 맞절 → B8 하객 쪽으로(디렉터 GO «맞절을 마치면») → 133', (() => {
+    const a = wc({ welcomeKind: 'thanks' }), v = vc({ welcomeKind: 'thanks' }), sl = a.all.map((x) => x.slug), im = a.all.findIndex((x) => x.k === 'matjeol');
+    return v.v.length === 2 && v.v[0].file === '13_narr-vow-in' && v.v[1].file === '14_narr-vow-out' && JSON.stringify(v.v[0].live.both) === JSON.stringify(D.VOWBOTH)
+      && sl.indexOf('narr-thanks-in') > -1 && sl.indexOf('narr-thanks-in') < sl.indexOf('narr-vow-in') && a.all[im + 1] && a.all[im + 1].slug === 'bridge-b8-face-guests' && a.all[im + 1].hint === '맞절을 마치면' && a.all[im + 2] && a.all[im + 2].slug === 'narr-thanks-in'; })());
+  ok('[THANKS_SWAP_1122] 서약 카드 vowKind 는 읽지 않는다 — 서약을 담지 않은 초안 · 모르는 값 · «vow»는 서약 그대로(13 · 14) · 감사 인사(11 계열)도 그대로', ['vow', undefined, 'x'].every((k) => {
+    const a = vc(k === undefined ? {} : { vowKind: k }), w = wc(k === undefined ? {} : { vowKind: k }); return a.v.length === 2 && a.v[0].file === '13_narr-vow-in' && a.v[1].file === '14_narr-vow-out' && w.v.length === 1 && w.v[0].blockN === '감사 인사'; }));
+  ok('[THANKS_SWAP_1122] 옛 초안(서약 카드에서 감사문 · vowKind thanks + 서약 담음) → 감사문 판으로 옮긴다(서약 빠짐 · 133 · 서약 글 = 감사문 글 · 있던 감사 인사 글은 보관 칸) · 엔진 norm 은 넘긴 S 를 바꾸지 않는다', (() => {
+    const S0 = { course: 'open', on: { vow: 1, welcome: 1, ring: 1 }, vowKind: 'thanks', tx: { 'vow.g': '감사합니다 신랑', 'vow.b': '감사합니다 신부', 'welcome.g': '인사 신랑' }, vowText: '옛 감사문' };
+    const keep = JSON.stringify(S0), cs = C.build(S0, { mode: 'console' }).cues, n = C.norm(JSON.parse(keep));
+    const m = O.thanksMigrate(JSON.parse(keep));
+    return JSON.stringify(S0) === keep && cs.some((x) => x.slug === 'narr-thanks-in' && x.k === 'welcome') && !cs.some((x) => x.k === 'vow') && n.welcomeKind === 'thanks' && !('vowKind' in n)
+      && !m.on.vow && m.on.welcome === 1 && m.on.ring === 1 && m.welcomeKind === 'thanks' && !('vowKind' in m) && m.tx['welcome.g'] === '감사합니다 신랑' && m.tx['welcome.b'] === '감사합니다 신부' && m.tx['welcomeAlt.g'] === '인사 신랑' && !m.tx['vow.g'] && m.welcomeText === '옛 감사문' && !m.vowText; })());
+  ok('[THANKS_SWAP_1122 · VOW_GROOM_FIRST_1122] 옛 저장분 신부부터(b)도 신랑부터 — 감사문(감사 인사 자리) · 서약 여는 말 13(127 아님)', (() => {
+    const e = wc({ welcomeKind: 'thanks', vowHow: 'each', vowFirst: 'b' }).v[0].live, al = wc({ welcomeKind: 'thanks', vowHow: 'alt', vowFirst: 'b' }).v[0].live, v = vc({ vowFirst: 'b' }).v[0];
+    return e.t === LIVE_EACH && e.first === 'g' && al.t === LIVE_EACH && al.first === 'g' && v.file === '13_narr-vow-in' && v.live.first === 'g'; })());
+  ok('[THANKS_SWAP_1122] 시간 · 할 일 · 이름 · 설명 · 말하는 자리 글 — 감사문 판 = 감사문 몫(THANKS_TIME) · 서약은 늘 서약', (() => {
+    const T = { course: 'open', on: { welcome: 1, vow: 1 }, welcomeKind: 'thanks' }, G = { course: 'open', on: { welcome: 1, vow: 1 } };
+    return JSON.stringify(O.partsOf('welcome', T)) === JSON.stringify(O.THANKS_TIME) && JSON.stringify(O.partsOf('welcome', G)) === JSON.stringify(O.TIME.welcome)
+      && JSON.stringify(O.partsOf('vow', T)) === JSON.stringify(O.partsOf('vow', G))
+      && /^감사문 · 한 분 300자쯤/.test(O.prepOf('welcome', T)[0][1]) && /^감사 인사 /.test(O.prepOf('welcome', G)[0][1]) && /^서약문 · /.test(O.prepOf('vow', { vowKind: 'thanks' })[0][1])
+      && O.nameOf('welcome', T) === '감사문' && O.nameOf('welcome', G) === '감사 인사' && O.nameOf('vow', { vowKind: 'thanks' }) === '혼인 서약'
+      && /감사문/.test(O.oneOf('welcome', T)) && O.oneOf('welcome', G) === O.CARDS.welcome.one && O.oneOf('vow', { vowKind: 'thanks' }) === O.CARDS.vow.one
+      && /하객께 감사문/.test(O.talkOf('welcome', T)) && /감사 인사를 해요/.test(O.talkOf('welcome', G)) && /서약을 읽어요/.test(O.talkOf('vow', { vowKind: 'thanks' }))
+      && /감사문/.test(O.tileOf('welcome', T)) && O.sampleOf('welcome', T).slug === 'narr-thanks-in' && O.sampleOf('welcome', G).slug === 'narr-welcome-in' && !O.CARDS.vow.oneT; })());
+  ok('[THANKS_SWAP_1122] 멘트 예시 — 감사문 멘트는 감사 인사 자리(at welcome) · 감사문 판에만 · 감사 인사 멘트는 감사문 판에 없다 · 서약 멘트는 늘', (() => {
+    const T = { course: 'open', on: { welcome: 1, vow: 1 }, welcomeKind: 'thanks' }, G = { course: 'open', on: { welcome: 1, vow: 1 }, vowKind: 'thanks' };
+    return O.NAR_EX.thanks.at === 'welcome' && [1, 2, 3].every((n) => O.narExOk(T, 'thanks', n) && !O.narExOk(G, 'thanks', n) && !O.narExOk(T, 'welcome', n) && O.narExOk(G, 'welcome', n) && O.narExOk(T, 'vow', n) && O.narExOk(G, 'vow', n)); })());
+  ok('[THANKS_SWAP_1122] 판 바꾸기(thanksSet) — 다른 판 글은 welcomeAlt 칸에 보관했다 되돌린다(글 · 현장 체크 · 끝 신호) · 같은 판이면 그대로', (() => {
+    const S = { tx: { 'welcome.g': '인사 신랑', 'welcome.b': '인사 신부' }, mkc: { 'welcome.b': 1 }, cueSig: { 'welcome.b': '끝' } };
+    O.thanksSet(S, true); const a = JSON.stringify([S.welcomeKind, S.tx['welcome.g'], S.tx['welcomeAlt.g'], S.tx['welcomeAlt.b'], S.mkc['welcome.b'], S.mkc['welcomeAlt.b'], S.cueSig['welcomeAlt.b']]);
+    S.tx['welcome.g'] = '감사문 신랑'; O.thanksSet(S, true); O.thanksSet(S, false);
+    return a === JSON.stringify(['thanks', '', '인사 신랑', '인사 신부', 0, 1, '끝']) && !S.welcomeKind && S.tx['welcome.g'] === '인사 신랑' && S.tx['welcome.b'] === '인사 신부' && S.tx['welcomeAlt.g'] === '감사문 신랑' && S.mkc['welcome.b'] === 1 && S.cueSig['welcome.b'] === '끝'; })());
+  ok('[THANKS_SWAP_1122] 미리듣기 주소가 판 이름을 옮긴다(welcomeKind thanks · 모르는 값은 greet)', (() => { const w = {}; new Function('window', fs.readFileSync(P('assets/ritual-preview-link.js'), 'utf8'))(w); const pk = w.RitualPreviewLink.pick;
+    return w.RitualPreviewLink.KEYS.indexOf('welcomeKind') > -1 && pk({ welcomeKind: 'thanks' }).welcomeKind === 'thanks' && pk({ welcomeKind: 'zz' }).welcomeKind === 'greet'; })());
 }
 /* [PV_EX_NAR 2026-10-07] 식전 영상 소개 — 나레이션 판만 예시를 따른다 · 두 분 목소리 판은 90 슬러그 그대로(두 분 소리를 물린다) · 모르는 값은 0 */
 ok('[PV_EX_NAR] 식전 영상 소개 나레이션 예시 2~4 → 128~130 · 두 분 목소리 판은 90 · 모르는 값은 90', (() => {
