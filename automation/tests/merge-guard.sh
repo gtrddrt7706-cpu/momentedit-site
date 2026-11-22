@@ -17391,7 +17391,7 @@ chk 'REF_ROW4' scripts/audit/listen-page.mjs 2   # [REF_BEST4_ONLY 2026-10-09] �
 #   «상담 때 안내» 금지 — 식순은 상담을 다 마친 뒤 짓는다
 chk 'TRIB_ONE_SAY' assets/ritual-open.js 1
 chk "tribute: \[\['long', '말로 인사'\], \['none', '말없이'\]\]" assets/ritual-open.js 1
-chk '신랑분은 원하시면 큰절을 올리셔도 돼요' order-preview.html 1
+nochk '신랑분은 원하시면 큰절을 올리셔도 돼요' order-preview.html 0   # [TRIBUTE_NOTES_OFF_1122] 은퇴(옛 chk 1)
 chk 'GROOM_BOW_TIP' assets/ritual-cue.js 1
 nochk "\['bowGroom', '신랑 큰절'\]" assets/ritual-open.js
 chk 'FREE_ETC' assets/ritual-open.js 2
@@ -22961,8 +22961,8 @@ chk '마이크를 디렉터에게 돌려주세요. 앞으로 나오셨다면 자
 chk "if(S.tribHug!=='off') L.push('· 안내 음성이 청하면 저희를 안아 주세요" order-preview.html 1   # B2_GEUL_10
 nochk "due+'까지'" order-preview.html 0   # B2_GEUL_21 «까지까지»
 nochk '신부의 첫 문장이 앞말을 이어받고 있어요' order-preview.html 0   # B2_GEUL_07 은퇴 — [VOW_GROOM_FIRST_1122] 신부부터가 없어져 이 알림도 없다
-chk '고르지 않으시면 말없이 인사해요' order-preview.html 1   # B2_GEUL_27
-chk '고르지 않으시면 말로 인사해요' order-preview.html 1
+# [TRIBUTE_NOTES_OFF_1122] 은퇴 — 옛 chk '고르지 않으시면 말없이…' 1 (B2_GEUL_27) · 아래 nochk 로
+nochk '고르지 않으시면 말로 인사해요' order-preview.html 0   # [TRIBUTE_NOTES_OFF_1122] 은퇴(옛 chk 1)
 chk 'g.tipToo&&g.tip' order-preview.html 1
 chk '그리고 내가 제일 좋아하는 우리 매제, 오늘' assets/ritual-ref.js 1   # B2_GEUL_08
 nochk '우리 이 서방' assets/ritual-ref.js 0
@@ -24431,3 +24431,6 @@ chk "p.due?'잔금 결제 안내'" mypage.html 1
 nochk "' 입금 부탁드려요'" mypage.html
 chk "화면에 결제 안내가 열려요." mypage.html 2
 chk "서명하시면 계약금 결제 안내가 이어져요." mypage.html 1
+# ★[TRIBUTE_NOTES_OFF_1122 2026-11-22 사장님 «고르지 않으시면 말로 인사해요 · 신랑분은 원하시면 큰절을 … 굳이 없어도 될 것 같아»] 부모님께 인사 인사말 칩 아래 두 줄을 걷었다 · 돌아오면 빨강
+chk 'TRIBUTE_NOTES_OFF_1122' order-preview.html 2
+nochk '고르지 않으시면 말없이 인사해요' order-preview.html 0
