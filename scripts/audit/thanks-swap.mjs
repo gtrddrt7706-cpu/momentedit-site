@@ -69,7 +69,7 @@ try {
     ok(`${w} ② 참고 예시 = 감사문 예시(${e.refs}벌) · 감사문 멘트 칩(감사 인사 멘트 칩 없음) · 흐름 «하객께 감사문» · «마지막 한 문장은 두 분이 함께»`, e.refs >= 1 && e.exT >= 2 && e.exW === 0
       && e.steps.some((t) => /하객께 감사문을 읽어요/.test(t)) && e.steps.some((t) => t === '마지막 한 문장은 두 분이 함께 읽어요'), JSON.stringify({ refs: e.refs, exT: e.exT, exW: e.exW, steps: e.steps }));
     await shot(pg, '#mkHead', `mk-thanks-${w}`);
-    await shot(pg, '.mk-say', `mk-thanks-form-${w}`);
+    await shot(pg, '.mk-flow li.mk-sayli', `mk-thanks-form-${w}`);   // [SAY_INLINE_1123] 글칸은 흐름 차례 줄 아래
     await pg.click('[data-fk^="mkrc:welcome:0"]').catch(() => {}); await wait(500);
     const f = await pg.evaluate(() => ({ g: String((S.tx || {})['welcome.g'] || ''), b: String((S.tx || {})['welcome.b'] || ''), script: scriptTextOpen(), link: (function () { try { return RitualPreviewLink.pick(S).welcomeKind; } catch (e) { return 'ERR ' + e.message; } })(), text: S.welcomeText || '' }));
     ok(`${w} ② 예시 카드 → 두 분 글칸에 감사문 예시 · 대본 내보내기 «감사문» · 미리듣기 주소 welcomeKind=thanks · 옛 한 칸(welcomeText)도 감사문 글`, /부모님|와 ?주신|감사/.test(f.g + f.b) && /감사문/.test(f.script) && f.link === 'thanks' && f.text.length > 0,

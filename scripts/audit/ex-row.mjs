@@ -4,7 +4,7 @@
 //     «아직 고르지 않았어요 · 지금 글은 … 예시예요» 덧줄 없음 · 고쳐 써서 어느 예시와도 다르면 아무것도 안 눌림 · 여섯 자리(AI 하객 맞이 · 입장 · 식전 영상 / 스튜디오 안내 · 입장 · 소개 멘트)
 //   ② 칩을 누르면 그 칩이 눌리고 아래 글이 바뀐다 · 안내는 칩 줄 아래가 아니라 아래 알림 «예시를 넣었어요 · 고쳐 써도 돼요»(NOTE_TOAST)
 //   ③ 스튜디오 입장 = «어떻게 준비할까요»가 먼저 · «입장 멘트»가 아래 / 스튜디오 하객 맞이 = «안내 멘트» 줄(예시라는 말 · 덧말 없음)
-//   ④ 서약 = «두 분이 할 말» 바로 위 «참고 예시» 칩 줄 · 처음엔 안 눌림 · 누르면 칸에 들어가고 눌린 모양
+//   ④ 서약 = 두 분 글칸(흐름 차례 줄 · [SAY_INLINE_1123]) 위 «참고 예시» 칩 줄 · 처음엔 안 눌림 · 누르면 칸에 들어가고 눌린 모양
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -43,8 +43,8 @@ try {
     const narWant = await pg.evaluate(() => GUEST_EX[+S.guestEx || 0][0]);
     ok(`${w} ③ 스튜디오 하객 맞이 — «안내 멘트» 칩 줄 · «참고 예시» 없음 · 덧말 없음 · 고른 멘트(«${narWant}»)가 눌린 모양(입장 멘트와 같게 · EX_CHIP_ON)`, nar && nar.c.length === 4 && !d.some((r) => r.l === '참고 예시') && !/아직 고르지 않았어요/.test(nar.n) && nar.on.join() === narWant, JSON.stringify(d));
     await pg.evaluate(() => { S.tx = {}; mkGo('vow'); }); await wait(400);
-    const e = await pg.evaluate(() => { const g = document.querySelector('.mk-ref [role=radiogroup][aria-label="참고 예시"]'), say = [...document.querySelectorAll('.mk-sec h4')].find((h) => h.textContent === '두 분이 할 말'); return { has: !!g, chips: g ? g.querySelectorAll('.op-chip').length : 0, on: g ? g.querySelectorAll('.op-chip[aria-checked="true"]').length : -1, below: !!(g && say && (g.compareDocumentPosition(say) & 4)) }; });
-    ok(`${w} ④ 서약 — «두 분이 할 말» 위 «참고 예시» 칩 줄 넷 · 처음엔 안 눌림`, e.has && e.chips === 4 && e.on === 0 && e.below, JSON.stringify(e));
+    const e = await pg.evaluate(() => { const g = document.querySelector('.mk-ref [role=radiogroup][aria-label="참고 예시"]'), say = document.querySelector('.mk-flowsec .mk-flow li.mk-sayli');   /* ★[SAY_INLINE_1123 2026-11-23] 옛 «두 분이 할 말» 머리(h4) → 흐름 차례 줄(li.mk-sayli) · 칩 줄은 그 위(흐름 위) */ return { has: !!g, chips: g ? g.querySelectorAll('.op-chip').length : 0, on: g ? g.querySelectorAll('.op-chip[aria-checked="true"]').length : -1, below: !!(g && say && (g.compareDocumentPosition(say) & 4)) }; });
+    ok(`${w} ④ 서약 — 두 분 글칸(흐름 차례 줄) 위 «참고 예시» 칩 줄 넷 · 처음엔 안 눌림`, e.has && e.chips === 4 && e.on === 0 && e.below, JSON.stringify(e));
     await pg.click('[data-fk="mkrc:vow:1"]'); await wait(400);
     const f = await pg.evaluate(() => ({ on: (document.querySelector('.mk-ref .op-chip[aria-checked="true"]') || {}).dataset?.fk || '', g: String((S.tx || {})['vow.g'] || '').length }));
     ok(`${w} ④ 서약 칩 → 칸에 들어가고 그 칩이 눌린 모양`, f.on === 'mkrc:vow:1' && f.g > 10, JSON.stringify(f));

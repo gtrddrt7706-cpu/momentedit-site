@@ -4,7 +4,8 @@
 //   ③신부부터 → 첫 줄 신부 · 흐름 줄 «두 분 번갈아 · 신부부터» · 엔진 여는 말 127(신랑부터 없는 판)
 //   ★[VOW_GROOM_FIRST_1122 2026-11-22 사장님 «먼저 읽는 분은 신랑으로 고정»] ① ③ ④ 은퇴 → 새 기대: 칩은 읽는 방식 하나 · 옛 저장분 신부부터('b')도 신랑부터 · 여는 말은 신랑부터 판(127 안 남)
 //   ④각자 차례로 = 두 칸 · 먼저 분 칸이 위 ⑤서약 현장 체크 = 끝 신호 칸 없음 · 다 됨 ⑥첫인사 = 끝 신호는 신부만
-//   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
+//   ★[SAY_INLINE_1123 2026-11-23 사장님 «추천대로 · 전부 적용»] «두 분이 할 말» 상자(.mk-say · 흰 카드 .mk-vwc .mk-txr)가 걷혀 글칸은 흐름 차례 줄 아래 —
+//     자리만 새 기대로(.mk-flowsec · li.mk-sayli · 머리 «신랑 차례») · «두 분 함께» 끝 문장은 흐름 «마지막 한 문장은 …» 줄 아래라 따로 이름표(«두 분 함께»)가 없다(검사 은퇴 길)
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -28,12 +29,12 @@ try {
     const a = await pg.evaluate(() => { const rg = [...document.querySelectorAll('[role=radiogroup]')].filter((r) => /읽는 방식|먼저 읽는 분/.test(r.getAttribute('aria-label')));
       return { n: rg.length, pressed: rg.map((r) => r.querySelectorAll('[aria-checked=true]').length), note: (document.querySelector('.mk-vpask1') || {}).textContent }; });
     ok(`${w} ① 칩 하나(읽는 방식 · 먼저 읽는 분 칩 없음 VOW_GROOM_FIRST_1122) · 처음엔 안 눌림 · 안 고른 한 줄`, a.n === 1 && a.pressed.join() === '0' && /고르지 않으시면 한 줄씩 번갈아 읽어요/.test(a.note || '') /* [THANKS_SWAP_1122] «무엇을 읽나요» 칩이 빠져 한 줄은 읽는 방식만(옛 «서약 · 한 줄씩 번갈아 진행돼요») */ && !/신부부터/.test(a.note || ''), JSON.stringify(a));
-    await shot(pg, '.mk-say', `alt-empty-${w}`);
+    await shot(pg, '.mk-flowsec', `alt-empty-${w}`);
     await pg.click('[data-fk^="mkrc:vow:0"]').catch(() => {}); await wait(400);
-    const b = await pg.evaluate(() => { const rows = [...document.querySelectorAll('.mk-vwl .mk-vwr')].map((r) => r.querySelector('.mk-vwn').textContent); const both = [...document.querySelectorAll('.mk-vwboth .mk-vwfix')].map((r) => r.textContent); const bl = (document.querySelector('.mk-vwboth .mk-vwn') || {}).textContent;
-      return { rows, both, vb: VOWBOTH.slice(), bl, add: !!document.querySelector('[data-fk="mkvwadd"]'), cue: document.querySelectorAll('.mk-say .mk-cue').length, hint: !!document.querySelector('.mk-say>.prep-hint'), alt: !!document.querySelector('.mk-txalt') }; });
-    ok(`${w} ② 번갈아 · 예시 → 신랑 · 신부 번갈아 · ＋ 줄 더하기 · 맨 아래 두 분 함께(원천 VOWBOTH 그대로) · 위 안내 줄 · 아래 안내 줄 없음`, b.rows.length >= 4 && b.rows[0] === '신랑' && b.rows[1] === '신부' && b.rows[2] === '신랑' && b.both.length >= 1 && b.both.join('|') === b.vb.join('|') /* [SOURCE_FIRST_1016] 함께 읽는 끝 문장은 자료 그대로 한 문장 — 줄 수 · 낱말을 박지 않고 원천과 같은지 본다 */ && b.bl === '두 분 함께' && b.add && !b.hint && !b.alt, JSON.stringify(b));
-    await shot(pg, '.mk-say', `alt-${w}`);
+    const b = await pg.evaluate(() => { const rows = [...document.querySelectorAll('.mk-vwl .mk-vwr')].map((r) => r.querySelector('.mk-vwn').textContent); const both = [...document.querySelectorAll('.mk-vwboth .mk-vwfix')].map((r) => r.textContent); const bl = (document.querySelector('.mk-sayq .mk-vwboth') || { closest: () => null }).closest('li.mk-sayq') ? (document.querySelector('li.mk-sayq .qa') || {}).textContent : '';
+      return { rows, both, vb: VOWBOTH.slice(), bl, add: !!document.querySelector('[data-fk="mkvwadd"]'), cue: document.querySelectorAll('.mk-flowsec .mk-cue').length, hint: !!document.querySelector('.mk-flowsec .prep-hint'), alt: !!document.querySelector('.mk-txalt') }; });
+    ok(`${w} ② 번갈아 · 예시 → 신랑 · 신부 번갈아 · ＋ 줄 더하기 · 맨 아래 두 분 함께(원천 VOWBOTH 그대로) · 위 안내 줄 · 아래 안내 줄 없음`, b.rows.length >= 4 && b.rows[0] === '신랑' && b.rows[1] === '신부' && b.rows[2] === '신랑' && b.both.length >= 1 && b.both.join('|') === b.vb.join('|') /* [SOURCE_FIRST_1016] 함께 읽는 끝 문장은 자료 그대로 한 문장 — 줄 수 · 낱말을 박지 않고 원천과 같은지 본다 */ && /^마지막 한 문장은 두 분이/.test(b.bl || '') /* [SAY_INLINE_1123] 옛 이름표 «두 분 함께» → 흐름 «마지막 한 문장은 …» 줄 아래 */ && b.add && !b.hint && !b.alt, JSON.stringify(b));
+    await shot(pg, '.mk-flowsec', `alt-${w}`);
     const noChip = await pg.evaluate(() => !document.querySelector('[data-fk^="lsc:vowFirst"]'));
     await pg.evaluate(() => { S.vowFirst = 'b'; render(); }); await wait(600);   // [VOW_GROOM_FIRST_1122] 옛 저장분 'b' 를 흉내
     const c = await pg.evaluate(() => { const rows = [...document.querySelectorAll('.mk-vwl .mk-vwr')].map((r) => r.querySelector('.mk-vwn').textContent); const flow = [...document.querySelectorAll('.mk-flowsec li.t b')].map((x) => x.textContent);
@@ -42,18 +43,18 @@ try {
     await pg.evaluate(() => { const t = document.querySelector('[data-fk="mkvw:b:0"]'); t.value = '고친 첫 줄입니다.'; t.dispatchEvent(new Event('input', { bubbles: true })); });
     ok(`${w} ② 줄을 고치면 그 분 글에 줄로 담긴다`, await pg.evaluate(() => String(S.tx['vow.b']).split('\n')[0] === '고친 첫 줄입니다.' && S.txLn['vow.b'] === 1));
     await pg.click('[data-fk="lsc:vowHow:each"]'); await wait(500);
-    const d = await pg.evaluate(() => [...document.querySelectorAll('.mk-vwc .mk-txr .mk-who')].map((x) => x.textContent));
+    const d = await pg.evaluate(() => [...document.querySelectorAll('.mk-flowsec li.mk-sayli .mk-sayh b')].map((x) => x.textContent));   // [SAY_INLINE_1123] 옛 .mk-vwc .mk-txr .mk-who(«신랑 · 먼저»)
     ok(`${w} ④ 각자 차례로 = 두 칸 · 신랑 칸이 위(VOW_GROOM_FIRST_1122)`, d.length === 2 && /^신랑/.test(d[0]) && /^신부/.test(d[1]), JSON.stringify(d));
-    await shot(pg, '.mk-say', `each-${w}`);
+    await shot(pg, '.mk-flowsec', `each-${w}`);
     await pg.click('[data-fk="mkchk:vow.b"]'); await wait(400);
-    const e = await pg.evaluate(() => ({ cue: document.querySelectorAll('.mk-say .mk-cue').length, done: _txSiteDone('vow', _mkChk(), 'vow.b') }));
+    const e = await pg.evaluate(() => ({ cue: document.querySelectorAll('.mk-flowsec .mk-cue').length, done: _txSiteDone('vow', _mkChk(), 'vow.b') }));
     ok(`${w} ⑤ 서약 현장 체크 = 끝 신호 칸 없음 · 다 됨`, e.cue === 0 && e.done, JSON.stringify(e));
     await pg.evaluate(() => { S.vowHow = 'alt'; S.mkc = {}; render(); }); await wait(300);
     await pg.click('[data-fk="mkvwsite"]'); await wait(300);
     ok(`${w} ⑤ 번갈아 현장 체크 하나 = 두 분 모두`, await pg.evaluate(() => S.mkc['vow.g'] === 1 && S.mkc['vow.b'] === 1 && !document.querySelector('.mk-vwl') && !!document.querySelector('.mk-vwboth')));
     await pg.evaluate(() => mkGo('welcome')); await wait(500);
     await pg.click('[data-fk="mkchk:welcome.g"]').catch(() => {}); await wait(300); await pg.click('[data-fk="mkchk:welcome.b"]').catch(() => {}); await wait(300);
-    const f = await pg.evaluate(() => ({ cueIds: [...document.querySelectorAll('.mk-say .mk-cue-in')].map((x) => x.id), gDone: _txSiteDone('welcome', _mkChk(), 'welcome.g'), bDone: _txSiteDone('welcome', _mkChk(), 'welcome.b') }));
+    const f = await pg.evaluate(() => ({ cueIds: [...document.querySelectorAll('.mk-flowsec .mk-cue-in')].map((x) => x.id), gDone: _txSiteDone('welcome', _mkChk(), 'welcome.g'), bDone: _txSiteDone('welcome', _mkChk(), 'welcome.b') }));
     ok(`${w} ⑥ 첫인사 = 끝 신호는 신부만 · 신랑은 체크만으로 다 됨`, f.cueIds.length === 1 && /welcome_b/.test(f.cueIds[0]) && f.gDone && !f.bDone, JSON.stringify(f));
     ok(`${w} pageerror 0`, errs.length === 0, errs.slice(0, 2).join(' | '));
     await pg.close();
