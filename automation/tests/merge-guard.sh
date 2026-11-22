@@ -21949,7 +21949,11 @@ nochk "그대로 써도 좋고, '+(st.refDay" order-preview.html
 nochk "어느 쪽부터 갈지는 리허설 때 디렉터와 정해요" order-preview.html
 nochk "FG_LAB={wait:'대기 자리',walk:'입장',front:'앞'" order-preview.html
 # [BALL_BOW_1101 검토 186-1] 맞절 = 무도회 맞절(빌더 줄 · 콘솔 live · 이야기 장면 · AI 상담) · «3초 숙이고 · 3초 멈추고 · 3초 일어나기» 걷음
-chk '신랑은 한 손을 가슴에 얹고 가볍게 숙여요 · 신부는 치맛자락을 살짝 잡고 무릎을 굽혔다 일어나요 · 마지막에 서로 눈을 맞춰요' order-preview.html 1
+# [BOW_TIP_1122] 맞절 동작 줄 = 지시가 아니라 팁(평소 인사도 괜찮다) · 옛 지시 말투가 돌아오면 빨강
+chk '팁 · 사진에 예쁘게 남는 인사예요. 신랑은 한 손을 가슴에 얹고 가볍게 숙이고, 신부는 치맛자락을 살짝 잡고 무릎을 굽혀요. 마지막에 서로 눈을 맞추면 좋아요. 평소처럼 인사하셔도 괜찮아요.' order-preview.html 1
+nochk '신랑은 한 손을 가슴에 얹고 가볍게 숙여요 · 신부는 치맛자락을 살짝 잡고 무릎을 굽혔다 일어나요 · 마지막에 서로 눈을 맞춰요' order-preview.html 0
+chk 'BOW_TIP_1122' assets/ritual-story.js 1
+chk 'HEAD_EDGE_FADE_1122' order-preview.html 1
 chk '두 분이 마주 보고 무도회 맞절 (신랑은 가슴에 손 얹고 숙이고 · 신부는 치맛자락 잡고 무릎 굽혀 · 서로 눈맞춤)' assets/ritual-cue.js 1
 chk '두 분이 마주 보고 무도회 맞절 (신랑은 가슴에 손 얹고 숙이고 · 신부는 치맛자락 잡고 무릎 굽혀 · 서로 눈맞춤)' assets/ritual-story.js 1
 nochk "return '두 분이 마주 보고 맞절해요 · 3초 숙이고" order-preview.html
