@@ -27,7 +27,7 @@ if (process.argv.includes('--selftest')) {
     ['1 걸음 절반을 되돌림(WALK_K 1)', { LR_OPEN: put('open.js', swap(rd('assets/ritual-open.js'), 'var WALK_K = 0.5,', 'var WALK_K = 1,', '1')) }, '1'],
     ['1 장면 after 를 옛 60 으로', { LR_ES: put('es.js', swap(rd('assets/entry-scene.js'), 'after:(_W&&_W.scene>0?_W.scene:30)', 'after:60', '1b')) }, '1'],
     ['1 축배 60초를 되돌림(TOAST_SEC 30)', { LR_OPEN: put('open2.js', swap(rd('assets/ritual-open.js'), 'var TOAST_SEC = 60;', 'var TOAST_SEC = 30;', '1c')) }, '1'],
-    ['2 «감사 인사 곡» 글을 되돌림', { LR_SLOTS: put('slots.js', swap(rd('assets/bgm-slots.js'), '본식 피아노는 감사 인사부터 잔잔하게 깔려요', '하객을 향해 서시면 감사 인사 곡이 시작돼요', '2')) }, '2'],
+    ['2 «감사 인사 곡» 글을 되돌림', { LR_SLOTS: put('slots.js', swap(rd('assets/bgm-slots.js'), '본식 피아노는 {at}부터 잔잔하게 깔려요', '하객을 향해 서시면 감사 인사 곡이 시작돼요', '2')) }, '2'],
     ['3 이어 듣기 = 남은 뜸부터(옛 길)', { LR_OP: put('op3.html', swap(rd('order-preview.html'), 'if(!LP.paused&&LP.played&&_rst&&LP.leadLeftSt===_rst&&LP.leadSt===_rst){', 'if(false){', '3')) }, '3'],
     ['3 장면 이어 듣기 = 멈춘 자리(옛 길)', { LR_EM: put('em.js', swap(rd('assets/entry-music.js'), 'if(PAUSE&&R&&R.PL&&R.V0&&R.V0.pieces&&R.V0.pieces.length&&x<R.PL.tv) x=R.PL.tv;', '', '3b')) }, '3'],
     ['4 로딩 표시를 끔', { LR_OP: put('op4.html', swap(rd('order-preview.html'), 'var on=el>=LD_SHOW?1:0,', 'var on=0,', '4')) }, '4'],
@@ -82,7 +82,7 @@ if (want(2)) {
   const ssrc = fs.readFileSync(F.slots || path.join(ROOT, 'assets', 'bgm-slots.js'), 'utf8');
   const sb = { window: {}, module: undefined }; vm.createContext(sb); vm.runInContext(ssrc, sb); const BS = sb.window.BgmSlots || sb.BgmSlots;
   const v = BS && BS.flowAt ? null : null; void v;
-  ok('2 [PIANO_WORD_1106] 맞절 음악 줄 = «두 분이 앞에 서시면 음악이 잦아들고, 맞절은 조용히 · 본식 피아노는 감사 인사부터 잔잔하게 깔려요»', !!BS && BS.LINE.matjeol === '두 분이 앞에 서시면 음악이 잦아들고, 맞절은 조용히 · 본식 피아노는 감사 인사부터 잔잔하게 깔려요', BS && BS.LINE.matjeol);
+  ok('2 [PIANO_WORD_1106] 맞절 음악 줄 = «두 분이 앞에 서시면 음악이 잦아들고, 맞절은 조용히 · 본식 피아노는 감사 인사부터 잔잔하게 깔려요»', !!BS && BS.LINE.matjeol === '두 분이 앞에 서시면 음악이 잦아들고, 맞절은 조용히 · 본식 피아노는 {at}부터 잔잔하게 깔려요', BS && BS.LINE.matjeol);
   /* 고객 글(따옴표 안) — 주석을 걷고 «감사 인사 곡»을 찾는다 */
   const noCmt = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"\\])\/\/[^\n]*/g, '$1');
   const hits = [];

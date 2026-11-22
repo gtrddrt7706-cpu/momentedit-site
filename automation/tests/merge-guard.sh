@@ -21239,6 +21239,7 @@ chk '+st > _d0 - 20) return m.head' console.html 1   # [PONYO_FIT_1122] 다시 �
 nochk "M1: \['B01', 'B24', 'B13'\]" assets/bgm-picks.js   # 옛 1순위 되살리지 말 것
 chk 'MATJEOL_WORD_1122' assets/bgm-slots.js 1
 nochk '하객을 향해 서시면 본식 피아노가 잔잔하게 깔려요' assets/bgm-slots.js   # [MATJEOL_WORD_1122] 맞절 듣기에서 안 나는 소리 약속 금지
+chk 'MATJEOL_AT_1122' assets/bgm-slots.js 1   # 맞절 줄 {at} = 본식 피아노가 처음 깔리는 순간 이름(감사 인사 · 감사문 · …) · «감사 인사» 박지 않기 [THANKS_SWAP_BGM_1122]
 chk "M8L: \['B32', 'B11', 'B27'\]" assets/bgm-picks.js 1
 chk 'PICKS_THREE_1101' scripts/audit/picks-three.mjs 1
 nochk "'부터 이어서 틀어요'" assets/bgm-bed.js   # [SONG_ROW_LINES_1101] 곡 칸 아래 «… 이어서 틀어요 · 준비해요» 줄은 걷었다

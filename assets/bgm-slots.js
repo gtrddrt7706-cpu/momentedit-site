@@ -110,7 +110,7 @@
   var TALK = { none: '말씀하시는 동안은 음악 없이 목소리만 들려요', bed: '말씀하시는 동안 잔잔한 연주곡이 아주 작게 흘러요' };   /* ★[REVIEW_166_1030 검토 166 C9] 축사 · 편지 칸(S5 · S6)과 같은 말로 */
   var LINE = {
     prevideo: '영상에 입힌 소리로 흘러요',
-    matjeol: '두 분이 앞에 서시면 음악이 잦아들고, 맞절은 조용히 · 본식 피아노는 감사 인사부터 잔잔하게 깔려요',   /* ★[MATJEOL_WORD_1122 2026-11-22 사장님 «맞절 음악이 안 들리는데 잘못된 거야?» · 대본 OK] 맞절 듣기 안에서 안 나는 소리를 약속하지 않게 — 피아노는 감사 인사 첫 줄부터(소리는 그대로 · MATJEOL_PILL_R2) */   /* ★[PIANO_WORD_1106 2026-11-06 사장님 «감사인사곡? 그런 거 없이 하는 거지»] 따로 «감사 인사 곡»은 없다 — 본식 피아노(S4)가 이어지는 것 · 소리는 그대로 · 옛 «감사 인사 곡이 시작돼요» 되살리지 말 것 */   /* ★[MEANING_R2_1102 ENTRY_SETTLE] 입장 곡은 도착에서 잦아듦 · 맞절 정적 · b8 끝에서 감사 인사 곡(종전 «입장 곡이 이어져요» · ENTRY_UNDER 맞절 끝까지) */
+    matjeol: '두 분이 앞에 서시면 음악이 잦아들고, 맞절은 조용히 · 본식 피아노는 {at}부터 잔잔하게 깔려요',   /* ★[MATJEOL_WORD_1122 2026-11-22 사장님 «맞절 음악이 안 들리는데 잘못된 거야?» · 대본 OK] 맞절 듣기 안에서 안 나는 소리를 약속하지 않게 — 피아노는 감사 인사 첫 줄부터(소리는 그대로 · MATJEOL_PILL_R2) */   /* ★[PIANO_WORD_1106 2026-11-06 사장님 «감사인사곡? 그런 거 없이 하는 거지»] 따로 «감사 인사 곡»은 없다 — 본식 피아노(S4)가 이어지는 것 · 소리는 그대로 · 옛 «감사 인사 곡이 시작돼요» 되살리지 말 것 */   /* ★[MEANING_R2_1102 ENTRY_SETTLE] 입장 곡은 도착에서 잦아듦 · 맞절 정적 · b8 끝에서 감사 인사 곡(종전 «입장 곡이 이어져요» · ENTRY_UNDER 맞절 끝까지) */
     declare: '선언문을 읽는 동안은 음악 없이, 축하 박수와 함께 새 곡이 시작돼요',   /* ★[MEANING_R2_1102 DECLARE_LIFT] 박수 = 새 곡(앞 곡을 멈춘 자리부터 되살리지 않는다) */   /* ★[MEANING_R1_1102 5] 성혼 선언 낭독은 정적 · 박수(−8)부터 음악 — «피아노가 이어져요»는 소리와 달랐다 */
     song: '여는 말과 박수 때는 피아노가 작게 이어지고, 노래하는 동안은 보내 주신 MR 만 흘러요',   /* ★[SCREEN_SOUND_1102] 축가 — 칸이 없어도 소리가 나면 한 줄(MEANING_R1 8 소리와 같이) */
     last: '촬영 후 안내부터 마지막 곡 ‹{f}›{j} 흐르고, 추가 촬영이 끝날 때까지 이어져요',   /* ★[POST_FLOW_200 보충 BGM] 대본 200 보충 문구 · {j} = 이/가(곡 이름 끝 받침) */   /* ★[AFTER_PHOTO_LOOP_1102] 추가 촬영 동안 이어 튼다(M8L 목록) */   /* [SCREEN_SOUND_1102] 닫는 인사 둘째 줄 */
@@ -157,7 +157,7 @@
     if (k === 'midvid') return { kind: 'flow', t: LINE.prevideo, at: 'video' };   /* ★[SPEECH_SONG_1115] 식중 영상(따로 넣고 빼는 순간) — 옛 free 영상 갈래와 같은 줄 · BGM 방 확인 대기 */
     if (k === 'free' && o.freeKind === 'video') return { kind: 'flow', t: LINE.prevideo, at: 'video' };   /* 옛 초안 «영상» 갈래(FREE_KIND video) */
     if (k === 'free' && o.freeKind && o.freeKind !== 'speech') return null;                  /* 옛 초안 선물 · 기타 — 엔진도 그대로 무음 */
-    if (k === 'matjeol') return { kind: 'flow', t: LINE.matjeol, at: 'top' };
+    if (k === 'matjeol') { var _m1 = chooser(BY.S4, o), _mn = ''; try { _mn = (_m1 && typeof o.nameOf === 'function') ? String(o.nameOf(_m1) || '') : ''; } catch (e) {} return { kind: 'flow', t: LINE.matjeol.replace('{at}', _mn || '다음 순서'), at: 'top' }; }   /* ★[MATJEOL_AT_1122 2026-11-22 THANKS_SWAP_BGM_1122] {at} = 본식 피아노(S4)가 처음 깔리는 순간 이름(감사 인사 · 그 자리를 감사문으로 고른 날은 감사문 · 감사 인사를 뺀 날은 혼인 서약 …) · 글을 «감사 인사»로 박지 않는다 */
     if (k === 'entry') return { kind: 'entry' };
     if (k === 'song') return { kind: 'flow', t: LINE.song, at: 'top' };   /* [SCREEN_SOUND_1102] */
     var s = slotOfKey(k); if (!s || s.entry) return null;   /* 축가(MR 흐름) · 케이크(은퇴) 등은 없다 */

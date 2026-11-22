@@ -135,7 +135,12 @@ try {
     console.log(`note R 연습 걷기 크기 = ${fe.join(' ')} (엔진 0 dB · _prWaitLv 고침 뒤 0 이어야 한다)`);
     /* S 화면 글 */
     const SLx = await f.evaluate(() => ({ m: BgmSlots && BgmSlots.LINE ? BgmSlots.LINE.matjeol : '', d: BgmSlots && BgmSlots.LINE ? BgmSlots.LINE.declare : '' }));
-    ok('S 화면 글 — 맞절 · 선언', SLx.m === '두 분이 앞에 서시면 음악이 잦아들고, 맞절은 조용히 · 본식 피아노는 감사 인사부터 잔잔하게 깔려요' /* [PIANO_WORD_1106] 옛 «감사 인사 곡이 시작돼요» */ && SLx.d === '선언문을 읽는 동안은 음악 없이, 축하 박수와 함께 새 곡이 시작돼요', SLx);
+    /* ★[MATJEOL_AT_1122 THANKS_SWAP_BGM_1122] 맞절 줄 {at} = 본식 피아노(S4)가 처음 깔리는 순간 이름 — 감사 인사 · 감사문(그 자리를 감사문으로) · 감사 인사를 뺀 날은 다음 S4 순간 · S4 가 하나도 없으면 «다음 순서» */
+    const MAT = await f.evaluate(() => { const V = (on, nm) => BgmSlots.viewOf('matjeol', { onOf: (k) => on.indexOf(k) > -1, seq: ['matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless'], nameOf: nm || ((k) => ({ welcome: '감사 인사', vow: '혼인 서약', ring: '반지 교환' })[k] || '') }).t;
+      return { a: V(['welcome', 'vow']), b: V(['welcome', 'vow'], (k) => (k === 'welcome' ? '감사문' : '혼인 서약')), c: V(['vow', 'ring']), d: V([]) }; });
+    const MJ = (x) => '두 분이 앞에 서시면 음악이 잦아들고, 맞절은 조용히 · 본식 피아노는 ' + x + '부터 잔잔하게 깔려요';
+    ok('S 맞절 줄 {at} — 감사 인사 · 감사문 · 감사 인사 뺀 날(혼인 서약) · S4 없음(다음 순서) [MATJEOL_AT_1122]', MAT.a === MJ('감사 인사') && MAT.b === MJ('감사문') && MAT.c === MJ('혼인 서약') && MAT.d === MJ('다음 순서'), MAT);
+    ok('S 화면 글 — 맞절 · 선언', SLx.m === '두 분이 앞에 서시면 음악이 잦아들고, 맞절은 조용히 · 본식 피아노는 {at}부터 잔잔하게 깔려요' /* [MATJEOL_AT_1122] */ /* [PIANO_WORD_1106] 옛 «감사 인사 곡이 시작돼요» */ && SLx.d === '선언문을 읽는 동안은 음악 없이, 축하 박수와 함께 새 곡이 시작돼요', SLx);
 
     ok('쪽 오류 0(부모님께 · 연습)', !errs.length, errs.slice(0, 3)); await ctx.close(); };
   await Promise.all([A(), Bq()]);
