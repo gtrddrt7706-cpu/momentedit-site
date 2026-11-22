@@ -106,7 +106,8 @@ const K4 = ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter', 'son
   const sg = by(B2({ on: { welcome: 1, bless: 1, free: 0, song: 1 } }), 'narr-song')   /* 덕담 곡이 흐르다(MEANING_R2 뒤로 맞절이 정적이라 맞절 바로 뒤 축가는 정적 그대로) */, sgp = ((oe(B2({ on: { welcome: 1, bless: 1, free: 0, song: 1 } }), 'narr-song').post) || [])[0] || {}   /* ★[ROLE_SHIP_1117] 여는 말 뒤 사슬 박수(382 · 383)가 붙은 날은 줄 끝 정적(post)이 그 박수 줄로 간다 — 여는 말 한 덩이의 끝을 잰다 */, sgq = by(B2({ on: { free: 1, song: 1 }, freeWhat: 'speech' }), 'narr-song');
   ok('8 축가 여는 말 −15 · 줄 끝 1.5초에 정적 · 앞(축사 «음악 없이»)이 정적이면 정적 그대로(NO_RELIFT_1102)', sg.duck === -15 && sgp.v === -90 && sgp.ms === 1500 && sgq.duck === -90, { duck: sg.duck, post: sg.post, afterQuiet: sgq.duck });
   const T = B2({ on: { song: 1, tribute: 1 }, song: 'family', songBy: 'friend' }), b12 = by(T, 'bridge-b12-tribute-calm'), t1 = T[bi(T, 'bridge-b12-tribute-calm') + 1] || {};
-  ok('9 축가 → 부모님께 인사 이음말 −15 → 정적 · 정적 1초 뒤 M5 무음에서 6초 앞서', b12.duck === -15 && ((b12.post || [])[0] || {}).v === -90 && t1.k === 'tribute' && t1.goLeadMs >= 6000 && t1.leadDb === -8 && t1.gapMs >= 1000, { b12: [b12.duck, b12.post], next: [t1.k, t1.goLeadMs, t1.leadDb, t1.gapMs] });
+  /* ★[TRIBUTE_GAP_1122] 옛 기대 «정적 1초 뒤 M5 무음에서 6초 앞서»(MEANING_R1 9) 은퇴 — 대표님이 고른 시범 판 소리: 248 말끝 → 1.2초 → 이름 줄 · 곡은 이름 줄 아래에서 3초에 걸쳐 오른다 */
+  ok('9 축가 → 부모님께 인사 이음말 −15 → 정적 · 1.2초 뒤 이름 줄 · M5 는 이름 줄 아래에서 3초에 오름(뜸 없음 · TRIBUTE_GAP_1122)', b12.duck === -15 && ((b12.post || [])[0] || {}).v === -90 && t1.k === 'tribute' && !t1.goLeadMs && t1.leadDb == null && t1.gapMs === 1200 && t1.fadeMs === 3000 && t1.duck === -15, { b12: [b12.duck, b12.post], next: [t1.k, t1.goLeadMs, t1.leadDb, t1.gapMs, t1.fadeMs] });
   const ti = by(A, 'narr-table-in');
   ok('11 테이블 인사 여는 말 −15 · 이동 −12', ti.duck === -15 && ti.live && ti.live.duck === -12, { duck: ti.duck, live: ti.live && ti.live.duck });
   const b13 = by(A, 'bridge-b13-toast-stay');

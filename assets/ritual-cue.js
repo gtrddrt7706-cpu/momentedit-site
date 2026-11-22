@@ -2198,8 +2198,8 @@
           if (_mo.k === 'candle') { _mo.goLeadMs = Math.max(_mo.goLeadMs || 0, 6000); _mo.leadDb = PARAM.duckMusic; _mo.gapMs = Math.max(_mo.gapMs || 0, 1000); break; } } }
       if (_ms === 'bridge-b8-face-guests') _mc.duck = PARAM.duckSpeech;
       if (_ms === 'bridge-b3-clap-thanks' || /^bridge-b9-declare-seat-end/.test(_ms)) { _mc.duck = PARAM.duckSpeech; _mc.fadeMs = 800; }
-      if (_ms === 'bridge-b12-tribute-calm') { _mc.duck = PARAM.duckSpeech; _mc.post = [{ music: 'to', v: PARAM.duckOff, ms: 1500 }];
-        var _mn = cues[mr + 1]; if (_mn && _mn.k === 'tribute') { _mn.goLeadMs = Math.max(_mn.goLeadMs || 0, 6000); _mn.leadDb = PARAM.duckMusic; _mn.gapMs = Math.max(_mn.gapMs || 0, 1200); } }   // ★[TRIBUTE_GO_1122 ③] 248 → 이름 줄 1.0 → 1.2초(시범 판 pilot_1122 n141e · 말끝 → 말머리)
+      if (_ms === 'bridge-b12-tribute-calm') { _mc.duck = PARAM.duckSpeech; _mc.post = [{ music: 'to', v: PARAM.duckOff, ms: 1500, free: (cues[mr + 1] || {}).k === 'tribute' }];   /* ★[TRIBUTE_GAP_1122] 이름 줄로 이어지는 날 — 1.5초 내림은 걸어 두고 사슬 쉼(1.2초)을 바로 센다(기다리면 말 사이 2.7초였다) */
+        var _mn = cues[mr + 1]; if (_mn && _mn.k === 'tribute') { _mn.gapMs = Math.max(_mn.gapMs || 0, 1200); _mn.fadeMs = 3000; } }   /* ★★[TRIBUTE_GAP_1122 대본 · 대표님이 고른 시범 판 소리] 248 말끝 → 1.2초 → 이름 줄 — 옛 «음악만 6초 먼저(−8 · goLeadMs 6000 · leadDb)»는 걷었다(라이브 실측 말 사이 8.7초였다) · 곡은 이름 줄 아래에서 함께 3초에 걸쳐 오른다(fadeMs · 크기는 이름 줄 duck) · 크기 · 오르는 길이는 BGM 방과 맞춘다 */   // ★[TRIBUTE_GO_1122 ③] 248 → 이름 줄 1.0 → 1.2초(시범 판 pilot_1122 n141e · 말끝 → 말머리)
     }
     /* ★★[MEANING_R2_1102 원칙 · 사장님 «도착에서 잦아듦으로 고쳐» · «이런 포인트들을 식순 전체에 녹여»] (위 MEANING_R1 원칙에 더한다)
          행진 · 이동은 음악이 끌어올린다 / 두 분이 멈춰 서서 하는 의식(맞절 등)은 음악을 빼서 «조용한 고점»(박수가 빈자리를 채운다) ·
