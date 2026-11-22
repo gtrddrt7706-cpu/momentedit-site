@@ -24543,3 +24543,4 @@ chk 'SONG_PICK_RING_1123' scripts/audit/detail-r1.mjs 2
 # ★[SUB_JOSA_1123] «‹곡›이 대신» → «‹곡› 곡이 대신»(‹Summer›이 처럼 곡 이름 따라 조사가 틀림) — 줄 아래 · 미리 듣기 알림 둘 다
 nochk '›이 대신 흘러요' assets/bgm-bed.js 0
 chk '› 곡이 대신 흘러요' assets/bgm-bed.js 2
+chk 'DUCK20_1122' scripts/audit/entry-nofile-1115.mjs 3   # [DUCK20_1122] lane g — 입장 멘트 아래 말 아래 표준 −20
