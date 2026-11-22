@@ -24550,6 +24550,10 @@ nochk '온라인 인사 약 2분' api/_kb.js 0
 # ★[DUCK20_1122] lane f 기대도 −20 — console-r2 B ①② 옛 «−15 → −20 내림» 은퇴 · one-flow T05 · T06 축가 여는 말 −20
 chk 'DUCK20_1122' scripts/audit/console-r2-1115.mjs 2
 chk 'DUCK20_1122' scripts/audit/one-flow.mjs 1
+# ★★[GAP_SWEEP_GO_1122 대표님 11/22 23:15 «①③ 승인 · 엔진 반영»] «음악만 먼저»가 승인한 쉼을 덮던 두 자리 — 244 → 다음 줄 1.2초 · 개식 → 사슬 화촉 여는 말 3.0초 · 뜸 없음 — 상세 docs/rules/나레이션.md
+chk 'GAP_SWEEP_GO_1122' assets/ritual-cue.js 2
+chk 'GAP_SWEEP_GO_1122' docs/rules/나레이션.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/gap-sweep-go-1122.mjs >/dev/null 2>&1; _gs=$?; if [ "$_gs" != 0 ]; then echo 'FAIL gap-sweep-go-1122: 244 → 다음 줄 1.2초 · 개식 → 화촉 여는 말 3.0초(음악 뜸 없음)가 대표님 11/22 승인과 다릅니다 — node scripts/audit/gap-sweep-go-1122.mjs'; fail=1; else echo 'ok gap-sweep-go-1122'; fi; fi
 # ★[SONG_PICK_RING_1123 2026-11-23 사장님 «이거 선택하라는건지 잘모르겠어 개선해보자»] 곡 줄마다 빈 동그라미 · 고른 곡은 채운 동그라미 + 흰 ✓ (화촉 · 테이블 · 축사 · 편지 곡 칸 · 입장 곡 목록 같은 모양) — 실행 검사 detail-r1 ①b
 chk 'SONG_PICK_RING_1123' order-preview.html 1
 chk 'SONG_PICK_RING_1123' scripts/audit/detail-r1.mjs 2
