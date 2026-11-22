@@ -73,7 +73,7 @@ const go = async (f, k) => { await f.evaluate((k) => mkGo(k), k); await wait(f, 
 /* ★[GHIBLI_ADD_1101] 지브리 4곡을 넣은 판(화촉 · 부모님께 인사 · 닫는 인사 · 마지막 곡) — 뺀 곡 10(PICKS_THREE 7 + B20 · B26 · B30) */
 const WANT = { M1: ['B36', 'B01', 'B24'], M2: ['B05', 'B31', 'B07'], M4: ['B09', 'B10', 'B11'], M5: ['B15', 'B31', 'B16'], M6: ['B17', 'B34', 'B19'], M7: ['B28', 'B29', 'B22'], M8: ['B24', 'B23', 'B16'], M8L: ['B32', 'B11', 'B27'] };
 const GONE = ['B02', 'B03', 'B04', 'B06', 'B18', 'B20', 'B21', 'B25', 'B30'];   /* [REPEAT_RULE_1107 ①] B26 «Bluebird»는 마지막 곡 배경 곡으로 다시 쓴다(BGM 섹션 11/07) */
-const FILLW = { M1: ['B33', 'B35', 'B36', 'B37'], M8: ['B38', 'B39', 'B12', 'B14', 'B13'], M6: ['B07', 'B16'], M4: ['B12', 'B14'], M8L: ['B26', 'B33'] };   /* [DAYLONG_1101] 닫는 인사도 배경 곡 · [REPEAT_RULE_1107 ①] 본식 · 마지막 곡도 */   /* [DAYLONG_1101] 닫는 인사도 배경 곡 */
+const FILLW = { M1: ['B13', 'B33', 'B35', 'B37'], M8: ['B38', 'B39', 'B12', 'B14', 'B13'], M6: ['B07', 'B16'], M4: ['B12', 'B14'], M8L: ['B26', 'B33'] };   /* [DAYLONG_1101] 닫는 인사도 배경 곡 · [REPEAT_RULE_1107 ①] 본식 · 마지막 곡도 */   /* [DAYLONG_1101] 닫는 인사도 배경 곡 */
 const P = require(PICKSF || path.join(ROOT, 'assets/bgm-picks.js'));
 try {
   /* a · b 데이터 */
