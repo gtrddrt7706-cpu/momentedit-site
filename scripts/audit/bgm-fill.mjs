@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ★[BGM_FILL_1101 · GHIBLI_ADD_1101 2026-11-01 사장님 «하객 맞이 음악은 계속 흐르는 건가? 한 곡만으로는 힘들지 않아?» · «그걸 고객 화면에 잘 표현하고 이해시켜야지» · «지브리 음악은 좀 더 추가했으면 좋겠어»]
-   a 차례(BgmPicks.order) — M1 · M8 = 고른 곡(없으면 1순위) → 나머지 → fill(B33 · B35 · B36 · B37 / B38 · B39 · B12 · B14 · B13 · SONGS_5_1115) · 7곡 · 중복 없음 · fill 이 다른 구간에서 고른 곡이면 건너뜀 · 지브리 4곡 데이터
+   a 차례(BgmPicks.order) — M1 · M8 = 고른 곡(없으면 1순위) → 나머지 → fill(B13 · B33 · B35 · B37 · PONYO_FIRST_1122 / B38 · B39 · B12 · B14 · B13 · SONGS_5_1115) · 7곡 · 중복 없음 · fill 이 다른 구간에서 고른 곡이면 건너뜀 · 지브리 4곡 데이터
    b 같은 곡 두 구간 — dupSeg(뒤 구간 → 앞 구간)
    c 고객 화면(390 · 1280) — M1 · M8 곡 칸 아래 두 줄(«고른 곡부터 약 30분 동안 차례로 이어 흘러요» · 차례 = order · 고른 곡 굵게 · 곡 이름 단위 nowrap) · 고르면 다시 그려짐 · 다른 구간 0 · 곡 줄은 3줄 그대로
        같은 곡을 화촉 · 부모님께 인사에서 고르면 부모님께 인사 칸에 «화촉에서도 고른 곡이에요» · fill 건너뛰기가 순서 줄에 보인다
@@ -84,8 +84,8 @@ const look = (f, sg) => f.evaluate((sg) => { const b = document.querySelector('.
 try {
   /* a · b 데이터 */
   { const o0 = P.order({}, 'M1'), o1 = P.order({ bgm: { M1: { k: 'B13' } } }, 'M1'), o2 = P.order({ bgm: { M5: { k: 'B16' } } }, 'M1'), o3 = P.order({}, 'M8'), o4 = P.order({ bgm: { S5: { m: 'bed', k: 'B13' } } }, 'M8');
-    ok('a M1 차례 = 1순위 → 나머지 → fill(B33 · B35 · B36 · B37) · 7곡 · 중복 없음 [SONGS_5_1115]', o0.join() === 'B01,B24,B13,B33,B35,B36,B37', o0);
-    ok('a [LIST_NO_PICK_1101] 옛 저장값 S.bgm.M1.k 는 무시 — 차례는 1순위부터 그대로 · clean 에서 빠진다', o1.join() === 'B01,B24,B13,B33,B35,B36,B37' && P.custK({ bgm: { M1: { k: 'B13' }, M8: { k: 'B23' } } }, 'M8') === '' && JSON.stringify(SL.clean({ M1: { k: 'B13' }, M8: { k: 'B23' }, M2: { k: 'B07' } })) === '{"M2":{"k":"B07"}}', o1);
+    ok('a M1 차례 = 1순위(포뇨 B36) → 나머지 → fill(B13 · B33 · B35 · B37) [PONYO_FIRST_1122] · 7곡 · 중복 없음 [SONGS_5_1115]', o0.join() === 'B36,B01,B24,B13,B33,B35,B37', o0);
+    ok('a [LIST_NO_PICK_1101] 옛 저장값 S.bgm.M1.k 는 무시 — 차례는 1순위부터 그대로 · clean 에서 빠진다', o1.join() === 'B36,B01,B24,B13,B33,B35,B37' && P.custK({ bgm: { M1: { k: 'B13' }, M8: { k: 'B23' } } }, 'M8') === '' && JSON.stringify(SL.clean({ M1: { k: 'B13' }, M8: { k: 'B23' }, M2: { k: 'B07' } })) === '{"M2":{"k":"B07"}}', o1);
     ok('a fill 이 다른 구간에서 고른 곡이면 건너뜀(화촉 B07 → 닫는 인사 fill 에서 B07 빠짐) · 부모님께 인사 B16 을 골라도 하객 맞이는 7곡 그대로(B16 은 하객 맞이 fill 이 아니다 · SONGS_5_1115)', o2.join() === o0.join() && !P.order({ bgm: { M2: { k: 'B07' } } }, 'M6').includes('B07') && P.order({}, 'M6').includes('B07'), o2);
     ok('a M8 = B24 · B23 · B16 · B38 · B39 · B12 · B14 · B13 [SONGS_5_1115] · 옛 축사 «음악과 함께» 저장값 B13 은 읽지 않는다', o3.join() === 'B24,B23,B16,B38,B39,B12,B14,B13' && o4.join() === o3.join(), { o3, o4 });   /* [ONE_FLOW_1106] 축사 «음악과 함께» 곡 칸이 없다 — 옛 저장값 S5.k(B13)는 읽지 않아 테이블 배경 곡에서 빠지지 않는다(건너뛰기 규칙은 위 o2 · M1 이 지킨다) */
     ok('a 한 곡 구간 차례 = 목록(화촉 B05 · B31 · B07) · fill 없음', P.order({}, 'M2').join() === 'B05,B31,B07' && !P.FILL.M2);
@@ -100,7 +100,7 @@ try {
     await setS(f, { M1: { k: 'B13' }, M8: { k: 'B23' } });   /* 옛 저장값 — 무시돼야 한다 */
     await go(f, 'guest'); let r = await look(f, 'M1');
     const WANT1 = P.order({}, 'M1'), T1 = WANT1.map((x) => [P.SONGS[x].t, P.SONGS[x].a]);
-    ok(`${W} c 하객 맞이 — 안내 한 줄(12.5px) · 곡 줄 7 = 재생 차례(1순위부터 · 옛 저장값 무시) · ▶ 7 · 제목 · 가수 [SONGS_5_1115]`, r && r.info === '들어와 앉는 동안 차례로 흘러요 · 약 20분' && r.fs === '12.5px' && r.list.join() === 'B01,B24,B13,B33,B35,B36,B37' && r.list.join() === WANT1.join() && r.pl === 7 && JSON.stringify(r.tA) === JSON.stringify(T1), r);
+    ok(`${W} c 하객 맞이 — 안내 한 줄(12.5px) · 곡 줄 7 = 재생 차례(1순위부터 · 옛 저장값 무시) · ▶ 7 · 제목 · 가수 [SONGS_5_1115]`, r && r.info === '들어와 앉는 동안 차례로 흘러요 · 약 20분' && r.fs === '12.5px' && r.list.join() === 'B36,B01,B24,B13,B33,B35,B37' && r.list.join() === WANT1.join() && r.pl === 7 && JSON.stringify(r.tA) === JSON.stringify(T1), r);
     ok(`${W} c 하객 맞이 — 고르기 단추 · «바꾸기» · 선택 표시 · 접힌 줄 · 순서 화살표 두 줄 0`, r && r.rows === 0 && r.chg === 0 && r.on === 0 && !r.fold && r.ord === 0, r);
     await go(f, 'table'); r = await look(f, 'M8');
     { const pl = await f.evaluate(() => (BgmBed._t.plan(false).M8 || {}).list || []);   /* ★[REPEAT_RULE_1107] 곡 줄 = 계획(제 곡 B23 → 앞 배경 칸의 가장 오래전 곡 · 바로 앞 칸 뒤로) · 30분을 채운다 — 종전 «겹치는 셋은 맨 뒤로»(DETAIL_R3_1101 ⑦ 보탬)는 걷었다 */
@@ -114,7 +114,7 @@ try {
     ok(`${W} c 같은 곡을 화촉 · 부모님께 인사에서 고르면 뒤 칸에만 «화촉에서도 고른 곡이에요»(막지 않는다)`, c2 && c2.dup === '' && c5 && c5.fold && c5.dup === '화촉에서도 고른 곡이에요', { c2: c2 && c2.dup, c5 });
     await f.evaluate(() => { const b = document.querySelector('.ls-bed[data-seg="M5"] .mu-chg'); if (b) b.click(); }); await wait(f, 300); await f.click('[data-fk="bed:M5:B16"]'); await wait(f, 400);
     await go(f, 'guest'); r = await look(f, 'M1');
-    ok(`${W} c 부모님께 인사에서 The Rose(B16)를 고르면 하객 맞이 곡 줄에 없다(의미 곡 하루 한 번 · REPEAT_RULE_1107 ⓐ · 종전 «맨 뒤로»)`, r && r.list.join() === 'B01,B24,B13,B33,B35,B36,B37' && !r.tA.some((x) => x && x[0] === 'The Rose'), r);   /* [SONGS_5_1115] B16 은 하객 맞이 fill 에서 빠졌다 — 골라도 안 골라도 7곡 */
+    ok(`${W} c 부모님께 인사에서 The Rose(B16)를 고르면 하객 맞이 곡 줄에 없다(의미 곡 하루 한 번 · REPEAT_RULE_1107 ⓐ · 종전 «맨 뒤로»)`, r && r.list.join() === 'B36,B01,B24,B13,B33,B35,B37' && !r.tA.some((x) => x && x[0] === 'The Rose'), r);   /* [SONGS_5_1115] B16 은 하객 맞이 fill 에서 빠졌다 — 골라도 안 골라도 7곡 */
     await shot(f, W, 'guest-flow', '.ls-bed[data-seg="M1"]');
     /* ★[ROW_FILL_PLAY_1101 사장님 아이폰 «하객 맞이 곡 ▶ 아무리 눌러도 안 나와»] 목록 칸(하객 맞이 · 테이블 인사) 곡 줄 ▶ 다섯 — 누를 때마다 그 곡이 재생(배경 곡 B16 · B33 · B13 · B14 포함) · 고르기로 배경 곡이 저장되지 않는다 */
     { await setS(f, {}); await pg.evaluate(() => { ['B14', 'B23', 'B33'].forEach((x) => { if (H.have.indexOf(x) < 0) { H.have.push(x); H.songs[x] = H.songs.B01; H.__rfp = (H.__rfp || []).concat(x); } }); });
@@ -183,7 +183,7 @@ try {
     const c = await pg.evaluate(() => ({ m1: window.__segSel('M1'), m8: window.__segSel('M8'),
       fillRows: [...document.querySelectorAll('.sg[data-seg="M1"] .sg-song')].map((x) => x.textContent.replace(/\s+/g, ' ').trim()).filter((t) => /배경으로만 이어 틀어요/.test(t)).length }));
     c.o1 = P.order(S0, 'M1'); c.o8 = P.order(S0, 'M8');   /* 식순 화면(빌더)이 쓰는 같은 함수 · 같은 초안 */
-    ok('e 콘솔 M1 재생 목록 = 1순위부터 고정(옛 저장값 B13 무시) → fill 넷 · 식순 화면 곡 줄과 같은 함수 [SONGS_5_1115]', c.m1.join() === 'B01,B24,B13,B33,B35,B36,B37' && c.m1.join() === c.o1.join(), c);
+    ok('e 콘솔 M1 재생 목록 = 1순위부터 고정(옛 저장값 B13 무시) → fill 넷 · 식순 화면 곡 줄과 같은 함수 [SONGS_5_1115]', c.m1.join() === 'B36,B01,B24,B13,B33,B35,B37' && c.m1.join() === c.o1.join(), c);
     ok('e 콘솔 M8 재생 목록 = B24 · B23 · B16 · B38 · B39 · B12 · B14 · B13(하객 맞이 옛 저장값은 «고른 곡»이 아니다) · 하객 맞이 배경 곡 줄 넷에 «배경으로만 이어 틀어요»(파일을 넣는 자리) [SONGS_5_1115]', c.m8.join() === 'B24,B23,B16,B38,B39,B12,B14,B13' && c.m8.join() === c.o8.join() && c.fillRows === 4, c);
     const fw = (n) => ({ name: n + '.wav', mimeType: 'audio/wav', buffer: wav(3, 300) });
     await pg.setInputFiles('.sg[data-seg="M2"] .sg-song:nth-of-type(3) [data-seg-file]', fw('b07')); await pg.waitForTimeout(400);

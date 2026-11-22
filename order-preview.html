@@ -2514,7 +2514,7 @@ html.tap-mode .mk-pl:focus-visible::before{outline:none!important}
   <!-- [RIT_RESTART_LOW] ④ 의 «처음부터 다시 만들기» — 아래 단추 줄보다 아래(화면 맨 끝) -->
   <div class="op-reset op-reset-low" id="opResetLow" hidden><button type="button" class="prog-reset" data-fk="opresetlow" onclick="resetAll()">처음부터 다시 만들기</button></div>
 </div>
-<script src="/assets/ritual-open.js?v=1122t1"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1115e5"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1120b6"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1117rs"></script><script src="/assets/bgm-picks.js?v=1116H"></script><script src="/assets/narration-pad.js?v=1122ng"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1122t1"></script><script src="/assets/bgm-form.js?v=1122t1"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
+<script src="/assets/ritual-open.js?v=1122t1"></script><script src="/assets/rec-process.js?v=1030a"></script><script src="/assets/entry-scene.js?v=1115e5"></script><!-- [ENTRY_SCENE_ENGINE] 입장 «음악과 함께» 계산 한 곳(당일 콘솔과 같은 식) --><script src="/assets/entry-music.js?v=1120b6"></script><!-- [ENTRY_MUSIC_1012] 입장 음악(두 분이 고른 곡 · 크게 올라오는 자리) --><script src="/assets/bgm-slots.js?v=1122ma"></script><script src="/assets/bgm-picks.js?v=1122pf"></script><script src="/assets/narration-pad.js?v=1122ng"></script><!-- [KNOBS_1031] 나레이션 앞뒤 무음 표 --><script src="/assets/bgm-bed.js?v=1122t2"></script><script src="/assets/bgm-form.js?v=1122t1"></script><!-- [BGM_FORM_1023] 순간마다 «음악» 칸(슬롯 10 · 폼만 · 곡은 나중) --><!-- [REC_SHARED] 두 분 목소리 다듬기 한 원천 --><script src="/assets/ritual-ref.js"></script><!-- [REF_TABLE] 참고 예시 표(자동 생성) --><!-- [OPEN_COURSE] 새 코스의 순간·판·시간·알림 단일 원천(엔진·AI 상담과 같은 파일) -->
 <script>
 var S={course:'open',exv:2,on:{},wine:'none',tributeSay:'long',candleWho:'mothers',freeWhat:'speech',freeLen:'3',entryScene:'look',off:{},entry:'A',welcome:'self',vow:'ok',ring:'off',declare:'1',valley:'none',letter:'each',bless:'off',
        ringwarm:'family',tribute:'flower',toast:'toast',song:'family',flash:false,   /* [CAKE_OLD_OFF_1017] 기본 판 «축배»(종전 both = 케이크와 축배) */
@@ -4766,6 +4766,7 @@ function _lDefCurs(k){ var keep=S, o={}; _lInDef=true;
 /* [GOODS_CHOICE 코워크 회신4 5-1] 케이크 · 꽃 준비 — 그 순간에 케이크 · 꽃이 들어갈 때만 · 소리와 무관(q) */
 function _lGoods(){}   /* ★«케이크 준비 · 꽃 준비» 칩(직접 준비 · 맡기기) 금지 — 2026-10-06 사용자 지시로 삭제 [GOODS_STUDIO] · 늘 저희가 준비 · 안내는 순간 설명 줄과 ③ «저희가 준비해요»가 한다 */   /* [R1-30] «당일 가져오기»는 아래 «당일 챙길 것» 묶음 제목이 이미 말한다 */
 function _lSet(key,v){ var _c0=RitualOpen.crossTribute(S), _lt0=key==='letter'?RitualOpen.chipOf('letter',S):''; var r=_lSet0(key,v); _crossWatch(_c0); if(key==='letter'&&_lt0!==RitualOpen.chipOf('letter',S)&&String((S.tx||{})['letter.g']||(S.tx||{})['letter.b']||S.letterText||'').trim()) setTimeout(function(){ _noteToast('편지 받는 분이 바뀌었어요'); },60);   /* [CROSS_ALL_1031] 적어 둔 편지가 있을 때만 · 글은 그대로 */ return r; }   /* ★[COMBO_171_1030 C01] 받는 분이 바뀌면 한 줄 */
+var _vpFollowing=false;   /* [VP_FOLLOW_1122] */
 function _lSet0(key,v){
   var R=RitualOpen; if(_capNo(function(t){ R.setChip(t,key,v); },false,({freeLen:'free',blessN:'bless'})[key]||key)) return;   /* [BODY_CAP_1030] 길이 칩(축사 길이 · 인사 길이 …) · [EVENT_COUNT_CAP] 그 순간 이름 */
   S.touched=S.touched||{}; S.touched[key]=1;   // [CHIP_UNPICKED]
@@ -4773,6 +4774,10 @@ function _lSet0(key,v){
   /* ★칩을 처음 누를 때 저절로 «나레이션 자세히» 창 열기 금지 — 2026-10-04 사용자 지시로 삭제 [VS_CHIP_OFF] (사장님 «이제는 처음 눌렀을 때 따로 안 나와도 될 것 같다» · 목소리 쪽 «두 분 목소리 만들기»가 그 일을 한다) · 창은 «나레이션 자세히»를 눌렀을 때만 */
   /* ★[VT_KEEP_SWITCH 2026-10-03 사장님] 목소리를 스튜디오로 바꿔도 두 분이 적은 글(S.vtext · S.pvText)과 만든 AI 소리(S.up)는 지우지 않는다 — 스튜디오 판이 안 쓸 뿐 · 다시 AI 로 오면 그대로 보인다(글은 칸마다 oninput 에 바로 담긴다) */
   if(key==='guestVoice'||key==='entryVoice'||key==='pvVoice'){ var _mk=key==='guestVoice'?'guest':key==='pvVoice'?'prevideo':'entry'; S.vfill=S.vfill||{};   /* [PV_INTRO] 식전 영상 소개도 같은 꼴(ai = couple + vfill) */ if(v==='ai'){ S[key]='couple'; S.vfill[_mk]='ai'; if(key==='pvVoice') _pvFill(); }   /* [PV_FILL] */ else { S[key]=v; delete S.vfill[_mk]; } }   // [VP_AI_0928] ai = 두 분 목소리 + 빈 줄을 AI 로 채우는 기본
+    /* ★★[VP_FOLLOW_1122 2026-11-22 사장님 «처음 스튜디오 나레이션 / AI 두 분 목소리 둘 중 하나를 골랐으면 고르는 곳은 기존 것을 따라가게 기본 셋팅»]
+       한 순간에서 AI 두 분 목소리 · 스튜디오 나레이션을 고르면 아직 안 고른 다른 안내 목소리 자리(하객 맞이 · 입장 · 식전 영상 소개)도 같은 것으로 골라 둔다 — 고객이 직접 고른 것을 잇는 것이라 «미리 눌러 두지 않는다»에 어긋나지 않는다.
+       이미 손댄 자리(touched)는 그대로 · 두 분 목소리 녹음(couple)은 잇지 않는다 · 코드가 바꿀 때(_vpFollowing)는 다시 잇지 않는다 */
+    if((v==='ai'||v==='nar')&&!_vpFollowing){ _vpFollowing=true; try{ [['guestVoice','guest'],['entryVoice','entry'],['pvVoice','prevideo']].forEach(function(p){ if(p[0]===key||S.touched[p[0]]) return; if(p[0]==='pvVoice'&&!(_upLive()&&_vcOn())) return; if(v==='ai'&&!_vcOn()) return; _lSet0(p[0],v); }); } finally { _vpFollowing=false; } }
   else if(key==='candleWho'){ var _cwOf=function(){ return R.CANDLE_WHO.some(function(c){ return c[0]===S.candleWho; })?S.candleWho:R.DEF.candleWho; }, _cw0=_cwOf(); S.candleWho=v; if(_cw0!==_cwOf()) _askReset('candle'); }   /* [ASK_RESET_1031] 화면 칩과 같은 셈(안 골랐으면 기본) */
   else if(key==='entry') S.entry=v;
   else if(key==='entryOut') S.entryOut=v;

@@ -149,8 +149,8 @@ try {
       await go(f, 'guest'); r = await row(f, 'M1');
       const voc = await f.evaluate(() => [...document.querySelectorAll('.ls-bed[data-seg="M1"] .mu-row')].map((x) => [x.getAttribute('data-f'), !!x.querySelector('.mu-voc'), ((x.querySelector('.mu-voc') || {}).textContent || '').trim()]));
       const e3 = await f.evaluate(() => [...document.querySelectorAll('.ls-bed[data-seg="M1"] .mu-t')].map((x) => { const c = x.cloneNode(true); const v = c.querySelector('.mu-voc'); if (v) v.remove(); const lh = parseFloat(getComputedStyle(x).lineHeight) || 20; return { t: c.textContent.trim(), lines: Math.round(x.getBoundingClientRect().height / lh) }; }));
-      ok(`${W} E3 곡 이름이 한 줄 — 하객 맞이 «바다가 보이는 마을»(괄호 영문 꼬리 없음)`, e3[0] && e3[0].t === '바다가 보이는 마을' && e3.every((x) => x.lines === 1), e3);
-      ok(`${W} E4 하객 맞이 1순위 아랫줄 = 연주자만 «히사이시 조 · 런던 심포니 오케스트라»(★[SONG_ROW_PLAIN_1101] 판 · 분위기 한 줄 뺌)`, (await f.evaluate(() => document.querySelector('.ls-bed[data-seg="M1"] .mu-a').textContent)) === '히사이시 조 · 런던 심포니 오케스트라');
+      ok(`${W} E3 곡 이름이 한 줄 — 하객 맞이 «벼랑 위의 포뇨»(괄호 영문 꼬리 없음 · PONYO_FIRST_1122)`, e3[0] && e3[0].t === '벼랑 위의 포뇨' && e3.every((x) => x.lines === 1), e3);
+      ok(`${W} E4 하객 맞이 1순위 아랫줄 = 연주자만 «Kazumi Tateishi Trio»(PONYO_FIRST_1122 · ★[SONG_ROW_PLAIN_1101] 판 · 분위기 한 줄 뺌)`, (await f.evaluate(() => document.querySelector('.ls-bed[data-seg="M1"] .mu-a').textContent)) === 'Kazumi Tateishi Trio');
       ok(`${W} E5 여러 곡을 이어 트는 구간도 «부터 이어서 틀어요» 줄 없음 [SONG_ROW_LINES_1101]`, r && r.note === '' && !(await f.evaluate(() => /이어서 틀어요/.test(document.querySelector('.ls-bed[data-seg="M1"]').textContent))), r && r.note);
       ok(`${W} D3 하객 맞이 — 이름표 «하객 맞이 음악» · 곡 줄 7 · «노래» 없음(★[SONG_ROW_PLAIN_1101] 가사 있는 곡 안내는 고른 뒤 한 줄 · [SONGS_5_1115] 3곡 + 배경 곡 넷)`, r && r.gl === '하객 맞이 음악' && r.n === 7 && !voc.some((v) => v[1]), voc);   /* ★[LIST_NO_PICK_1101] 고르기 없는 목록 칸 — 곡 줄 5(3곡 + 배경 곡) */
       ok(`${W} D3 고르기 전엔 보컬 한 줄 없음`, !(await f.evaluate(() => !!document.querySelector('.ls-bed[data-seg="M1"] .bed-voc'))));
@@ -220,8 +220,8 @@ try {
       const b64 = Buffer.from(JSON.stringify(Sx), 'utf8').toString('base64');
       await cp.goto(`http://127.0.0.1:${port}/console.html?S=${encodeURIComponent(b64)}`, { waitUntil: 'load' }); await cp.waitForTimeout(800);
       const cs = await cp.evaluate(() => { const L = (id) => BgmPicks.list(id), sel = window.__segSel; if (!sel) return { none: 1 }; const b = document.querySelector('[data-seg="M2"]');
-        return { m2: sel('M2'), want: 'B07', s6: sel('M4S6'), want6: 'B12', m1: sel('M1')[0], want1: 'B01', m4: sel('M4'), want4: L('M4')[0].id, tag: b ? b.textContent.indexOf('두 분이 고른 곡') > -1 : null }; });
-      ok('9 당일 콘솔 — 고객이 고른 곡이 구간 기본(화촉 B07 · 옛 편지 칸 이름은 본식 M4 로(ONE_FLOW_1106) · 하객 맞이는 고르지 않아 1순위 B01 맨 앞 · LIST_NO_PICK_1101) · 안 고른 구간은 1순위 · «두 분이 고른 곡» 표시', cs.m2 === cs.want && cs.s6 === cs.m4 && cs.m1 === cs.want1 && cs.m4 === cs.want4 && cs.tag === true, cs);
+        return { m2: sel('M2'), want: 'B07', s6: sel('M4S6'), want6: 'B12', m1: sel('M1')[0], want1: 'B36', m4: sel('M4'), want4: L('M4')[0].id, tag: b ? b.textContent.indexOf('두 분이 고른 곡') > -1 : null }; });
+      ok('9 당일 콘솔 — 고객이 고른 곡이 구간 기본(화촉 B07 · 옛 편지 칸 이름은 본식 M4 로(ONE_FLOW_1106) · 하객 맞이는 고르지 않아 1순위 B36(PONYO_FIRST_1122) 맨 앞 · LIST_NO_PICK_1101) · 안 고른 구간은 1순위 · «두 분이 고른 곡» 표시', cs.m2 === cs.want && cs.s6 === cs.m4 && cs.m1 === cs.want1 && cs.m4 === cs.want4 && cs.tag === true, cs);
       await cp.close();
     }
     await ctx.close();
