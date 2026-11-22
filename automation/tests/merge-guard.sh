@@ -22952,7 +22952,7 @@ chk '마이크를 디렉터에게 돌려주세요. 앞으로 나오셨다면 자
 chk "if(S.tribHug!=='off') L.push('· 안내 음성이 청하면 저희를 안아 주세요" order-preview.html 1   # B2_GEUL_10
 nochk "due+'까지'" order-preview.html 0   # B2_GEUL_21 «까지까지»
 nochk '신부의 첫 문장이 앞말을 이어받고 있어요' order-preview.html 0   # B2_GEUL_07 은퇴 — [VOW_GROOM_FIRST_1122] 신부부터가 없어져 이 알림도 없다
-chk '고르지 않으시면 말없이 인사해요' order-preview.html 1   # B2_GEUL_27
+# [TRIBUTE_NOTES_OFF_1122] 은퇴 — 옛 chk '고르지 않으시면 말없이…' 1 (B2_GEUL_27) · 아래 nochk 로
 nochk '고르지 않으시면 말로 인사해요' order-preview.html 0   # [TRIBUTE_NOTES_OFF_1122] 은퇴(옛 chk 1)
 chk 'g.tipToo&&g.tip' order-preview.html 1
 chk '그리고 내가 제일 좋아하는 우리 매제, 오늘' assets/ritual-ref.js 1   # B2_GEUL_08
