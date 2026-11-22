@@ -99,11 +99,13 @@ function _ensureProductionBase(cust, prodDraft, invDraft) { _gsr_();
   return prodDraft.base;
 }
 
-// [03-F] 최종 확정 인원 정책 = 계약서 단일 기준(서른 분 전원 착석 · 최대 30명 · ★추가금 없음)
+// [03-F] 최종 확정 인원 정책 = 계약서 단일 기준(전원 착석 · 최대 35명 · ★추가금 없음)
 // ★단일 출처는 여기(실청구·검증). 값 변경 시 아래 5곳의 문구·상수도 반드시 함께 동기화(놓치면 계약서·안내와 청구액이 충돌):
 //   ① mypage.html MP_FINAL_POLICY(표시 기본값 · 서버 finalPolicy가 덮음) ② contract/v1-1.html 8조 법문구(고객이 서명하는 문서)
-//   ③ inquiry.html 안내문+인원 검증(30명) ④ api/_kb.js AI 챗봇 KB ⑤ assets/advisor-kb.js
-var FINAL_CONFIRM = { 착석: 30, 최대: 30, 초과단가: 0 };
+//   ③ inquiry.html 안내문+인원 검증(35명) ④ api/_kb.js AI 챗봇 KB ⑤ assets/advisor-kb.js
+var FINAL_CONFIRM = { 착석: 35, 최대: 35, 초과단가: 0 };
+//   ★[CAP_35 2026-11-22 사장님 «35석으로 올리기»] 30 → 35 — 캔들존 확정 배치(원형 9테이블 · 35석 · 혼주 4석 포함 · assets/seat-plan.js)가 35석을 그린다.
+//     계약서 v1.17 · 홈페이지 · 상담 신청 · AI 안내가 같은 수를 말한다(guest-cap-truth 가 잰다).
 //   ★[SEATED30] 착석 25 → 30 · 스탠딩 폐지 (2026-09-13 대표 지시 검토38 "서른 분까지 앉아서 식을 볼 수 있게 할 거야").
 //     되살리지 말 것 — 근거가 셋이다:
 //       ①우리 좌석 편집기가 이미 30석을 그린다(mypage.html autoSeatTables `[SEAT_PER5]` 6테이블×5석 =30,
@@ -507,6 +509,7 @@ function handleSaveProductionTrack(body) { _gsr_();
     var _h = parseInt(String(fdr.headcount || '').replace(/[^0-9]/g, ''), 10) || 0;
     if (body && body.done) {
       if (_h < 1) return { ok: false, error: '총 하객 수를 입력해 주세요.' };
+      // [CAP_35] 상한은 FINAL_CONFIRM.최대(35 · 2026-11-22) — 이 파일이 옛것이면 31 ~ 35명 확정이 «최대 30명»으로 거절된다
       if (_h > FINAL_CONFIRM.최대) return { ok: false, error: '하객은 최대 ' + FINAL_CONFIRM.최대 + '명까지 모실 수 있어요. 조정이 어려우시면 디렉터에게 문의해 주세요.' };
       if (!String(fdr.drink || '').trim()) return { ok: false, error: '건배·웰컴 음료를 골라 주세요.' };
     }

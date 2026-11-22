@@ -219,6 +219,12 @@
   {
    "file": "70_journey",
    "fn": "handleSignContract",
+   "mark": "CONTRACT_V117",
+   "why": "계약서 v1.17(하객 최대 35명) — 이 파일이 옛것이면 새 문서 서명자가 v1.16 으로 찍혀 옛 보존본(30명)을 본다"
+  },
+  {
+   "file": "70_journey",
+   "fn": "handleSignContract",
    "mark": "CONTRACT_V116",
    "why": "계약서 v1.16(5조① 식순 수정 마감 순서 14일 · 글 7일 전 · 3조① Farewell 정리 · 3조② 식전 영상 협력 제작사 · 식당 안내만) — 이 파일이 옛것이면 새 문서 서명자가 v1.15 로 찍혀 옛 보존본을 본다"
   },
@@ -634,7 +640,7 @@
    "file": "80_production",
    "fn": "handleSaveProductionTrack",
    "mark": "GUEST30_NOFEE",
-   "why": "하객 30명까지 추가금 없음 — FINAL_CONFIRM.초과단가 0(2026-09-19 대표 지시). 옛 판이 배포돼 있으면 1인 5만 원이 계속 청구된다"
+   "why": "하객 35명까지 추가금 없음 — FINAL_CONFIRM.초과단가 0(2026-09-19 대표 지시). 옛 판이 배포돼 있으면 1인 5만 원이 계속 청구된다"
   },
   {
    "file": "95_notify",
@@ -647,6 +653,18 @@
    "fn": "_balanceExtraInfo",
    "mark": "STALE_EXTRA_FEE",
    "why": "저장된 extraFee 를 현행 단가로 상한 — 정책 변경 전에 확정한 고객이 잔금에서 15만 원을 더 내던 것을 막는다(하객 28명 실측 1,200,000→1,050,000). 옛 판이 배포돼 있으면 그 청구가 계속된다"
+  },
+  {
+   "file": "99_contractCheck",
+   "fn": "contractCheck",
+   "mark": "FALLBACK_SEAT35",
+   "why": "폴백 착석 · 최대 기대값 35(CAP_35) — 이 파일이 옛 판이면 점검이 30 을 정답이라 믿는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleSaveProductionTrack",
+   "mark": "CAP_35",
+   "why": "하객 상한 35(FINAL_CONFIRM 착석 · 최대) — 이 파일이 옛것이면 31 ~ 35명 확정이 «최대 30명» 으로 거절된다"
   },
   {
    "file": "99_contractCheck",
@@ -4963,11 +4981,12 @@
    "file": "ScreenA_apply",
    "marks": [
     "BUSY_ONE",
+    "CAP_35",
     "SEATED30",
     "LOADING_ONE",
     "PHONE_AUTOFILL_82"
    ],
-   "bytes": 143047
+   "bytes": 143076
   },
   {
    "file": "ScreenB_schedule",
@@ -4987,7 +5006,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-11-22 13:27 · eebdf8b",
+ "_생성": "2026-11-22 15:37 · ea653ad",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -5519,21 +5538,21 @@
    "kind": "gas",
    "expr": "FINAL_CONFIRM.초과단가",
    "eq": 0,
-   "why": "하객 30명까지 추가금 없음(2026-09-19 대표 지시). 50000 이면 28명 계약자에게 15만 원이 청구된다",
+   "why": "하객 35명까지 추가금 없음(2026-09-19 대표 지시). 50000 이면 33명 계약자에게 15만 원이 청구된다",
    "file": "80_production"
   },
   {
    "kind": "gas",
    "expr": "FINAL_CONFIRM.최대",
-   "eq": 30,
-   "why": "하객 상한 30명 — 계약서 제1조·제8조와 같은 값이어야 한다",
+   "eq": 35,
+   "why": "하객 상한 35명 — 계약서 v1.17 제3조①·제8조③과 같은 값이어야 한다(2026-11-22 CAP_35 · 종전 30)",
    "file": "80_production"
   },
   {
    "kind": "gas",
    "expr": "FINAL_CONFIRM.착석",
-   "eq": 30,
-   "why": "서른 분 전원 착석 — 2026-09-13 대표 지시(검토38). 25 로 되돌아가면 계약서·신청서·좌석 편집기(6테이블×5석=30)와 모두 어긋난다",
+   "eq": 35,
+   "why": "전원 착석 35석 — 캔들존 확정 배치(원형 9테이블 · 35석 · assets/seat-plan.js). 줄면 계약서 · 신청서 · 좌석 편집기와 어긋난다(CAP_35 · 종전 30)",
    "file": "80_production"
   },
   {
@@ -5551,7 +5570,7 @@
   {
    "kind": "web",
    "path": "/",
-   "present": "하객 30명까지 추가금 없음",
+   "present": "하객 35명까지 추가금 없음",
    "why": "가격 블록의 공개 약속 — 이 문장이 사라지면 계약서 쪽과 갈린다"
   },
   {
@@ -5561,5 +5580,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "47c97c86c319"
+ "_표식서명": "f0a73c6bf3b5"
 }
