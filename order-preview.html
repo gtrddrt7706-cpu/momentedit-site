@@ -598,7 +598,7 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 /* ★[MK_HEAD_D 1101] 폰(560 이하) 머리 알약 사이 4 · 나가기 48(문구 · 44 높이 · 바로 보임은 그대로) — 360 에서 상태 단추가 한 줄 두 층(140px)에 든다.
    ① · ③ · ④ 도 같은 폭이라 걸음을 옮겨도 «⋯ · 저장 · 나가기»가 한 픽셀도 안 움직인다(HEAD_PILLS 의 나가기 약 61 → 48 은 이것으로 대체) */
 @media (max-width:560px){ body.op4 #obExitSlot{gap:4px} body.op4 #obExit{min-width:48px;padding:0 4px} }
-body.mkd .prog{position:sticky;top:-15px;z-index:4;background:transparent;pointer-events:none}   /* [MK_HEAD_D] ② 순간 쪽은 머리 줄(상태 · 도구)이 붙는다 · 위 15px 만 스크롤된다 · 네 칸 선은 자연스럽게 스크롤 */
+body.mkd .prog{position:sticky;top:-5px;z-index:4;background:transparent;pointer-events:none}   /* [MK_HEAD_D] ② 순간 쪽은 머리 줄(상태 · 도구)이 붙는다 · 위 5px 만 스크롤된다(붙으면 맨 위에서 10px 띄움 · ★[HEAD_GAP_1122 2026-11-22 사장님 «맨 위 간격이 좁다»] 옛 −15px = 딱 붙음) · 네 칸 선은 자연스럽게 스크롤 */
 body.mkd .prog-top,body.mkd #obExitSlot{pointer-events:none}body.mkd .prog button,body.mkd .prog a,body.mkd .prog .ob-menu{pointer-events:auto}body.mkd .prog-top .mk-status,body.mkd #obExitSlot>button,body.mkd #obExitSlot .ob-exit{box-shadow:0 2px 10px rgba(58,44,36,.14)}   /* ★★[HEAD_FLOAT_1122 2026-11-22 사장님 «배경을 없애고 버튼만 남기기» → 시안 B «추천대로»] 머리 줄 띠 배경을 걷고 단추만 띄운다 — 단추는 불투명(var(--card)) + 옅은 그림자 · 빈틈은 눌림이 아래 본문으로 지나간다(pointer-events) · 투명도(시안 C)는 글씨가 흐려지고 글래스모피즘 금지에 걸려 쓰지 않는다 · 옛 띠 아래 번짐(HEAD_EDGE_FADE_1122)은 은퇴 · 띠 배경 되살리기 금지 */
 body.mkd .prog-top{justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:0}
 body.mkd #obExitSlot{margin-left:auto}
