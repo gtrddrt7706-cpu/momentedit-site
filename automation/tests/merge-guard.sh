@@ -22226,7 +22226,7 @@ chk 'LISTEN_LOOK_LEVEL_1101' console.html 3
 chk 'LISTEN_LOOK_LEVEL_1101' scripts/audit/listen-pace.mjs 2
 chk 'LISTEN_LOOK_LEVEL_1101' scripts/audit/bgm-preview.mjs 1
 chk 'LISTEN_LOOK_LEVEL_1101' scripts/audit/bgm-seg8.mjs 1
-chk '    songGain: 7,' assets/ritual-cue.js 1
+chk '    songGain: 10,' assets/ritual-cue.js 1   # [DUCK20_1122] 7 → 10
 chk 'return db<=-80?0.00003:Math.pow(10,(db+p.trim+p.song)/20);' assets/bgm-bed.js 1
 chk 'v.g.connect(bus(a));' assets/bgm-bed.js 1
 chk 'function lpFin()' assets/bgm-bed.js 1
@@ -23832,7 +23832,7 @@ chk '_tblWatch(_tb0); };' order-preview.html 1
 chk 'RA5_TABLE_NOTE' scripts/audit/toast-min.mjs 1
 chk 'RA5_RULES' scripts/audit/ra5-rules.mjs 1
 # ★[LAYER7_DUCK_1108] 7층 음악 낮추기 — 말 아래 −15 · 내림 1.6초 · 올림 2.0초 dB 코사인 · 첫 말 0.4초 뒤 · 콘솔 · 미리 듣기 한 원천(RitualCue.dbRamp)
-chk "    duckSpeech: -15,       // 말이 주인공" assets/ritual-cue.js 1
+chk "    duckSpeech: -20,       // 말이 주인공" assets/ritual-cue.js 1   # [DUCK20_1122] −15 → −20
 chk "    vocalExtra: -6," assets/ritual-cue.js 1   # 보컬 곡 말 아래 = −15 − 6 = −21(대본 확정)
 chk "  function dbRamp(prm, ac, to, sec) {" assets/ritual-cue.js 1
 chk "PARAM: PARAM, dbRamp: dbRamp," assets/ritual-cue.js 1
