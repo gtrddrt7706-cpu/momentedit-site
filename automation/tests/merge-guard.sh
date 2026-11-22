@@ -22051,7 +22051,7 @@ nochk "어느 쪽부터 갈지는 리허설 때 디렉터와 정해요" order-pr
 nochk "FG_LAB={wait:'대기 자리',walk:'입장',front:'앞'" order-preview.html
 # [BALL_BOW_1101 검토 186-1] 맞절 = 무도회 맞절(빌더 줄 · 콘솔 live · 이야기 장면 · AI 상담) · «3초 숙이고 · 3초 멈추고 · 3초 일어나기» 걷음
 # [BOW_TIP_1122] 맞절 동작 줄 = 지시가 아니라 팁(평소 인사도 괜찮다) · 옛 지시 말투가 돌아오면 빨강
-chk '팁 · 사진에 예쁘게 남는 인사예요. 신랑은 한 손을 가슴에 얹고 가볍게 숙이고, 신부는 치맛자락을 살짝 잡고 무릎을 굽혀요. 마지막에 서로 눈을 맞추면 좋아요. 평소처럼 인사하셔도 괜찮아요.' order-preview.html 1
+chk '두 분이 마주 보고 서로에게 인사해요. 평소처럼 인사하셔도 되고, 무도회 맞절도 좋아요. 무도회 맞절은 신랑은 한 손을 가슴에 얹고 가볍게 숙이고, 신부는 치맛자락을 살짝 잡고 무릎을 굽혀요. 마지막에 서로 눈을 맞추면 좋아요.' order-preview.html 1   # [BOW_LINE_PLAIN_1123] 팁 머리 걷음
 nochk '신랑은 한 손을 가슴에 얹고 가볍게 숙여요 · 신부는 치맛자락을 살짝 잡고 무릎을 굽혔다 일어나요 · 마지막에 서로 눈을 맞춰요' order-preview.html 0
 chk 'BOW_TIP_1122' assets/ritual-story.js 1
 chk 'HEAD_FLOAT_1122' order-preview.html 1   # [HEAD_EDGE_FADE_1122] 은퇴 → 시안 B(띠 배경 없음 · 단추만)
@@ -24490,6 +24490,9 @@ chk 'body.mkd .prog{position:sticky;top:-5px;' order-preview.html 1
 # ★[PV_BED_QUIET_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 A] 음악까지 미리듣기 — 예시 음악(@PV) 파일이 없으면 빨간 고장 줄 없이 조용히(PREVIEW_BED 머리말 그대로)
 chk 'PV_BED_QUIET_N06' console.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/pv-bed-quiet.mjs >/dev/null 2>&1; _pb=$?; node scripts/audit/pv-bed-quiet.mjs --selftest >/dev/null 2>&1; _pbs=$?; if [ "$_pb" != 0 ] || [ "$_pbs" != 0 ]; then echo "REVERT? pv-bed-quiet: 미리듣기 예시 음악이 없을 때 빨간 줄이 다시 선다 ($_pb/$_pbs) — node scripts/audit/pv-bed-quiet.mjs"; fail=1; else echo 'ok pv-bed-quiet'; fi; fi
+# ★[BOW_LINE_PLAIN_1123 2026-11-23 사장님 «자세 보기가 있으니 팁은 빼고 일반적으로 문구만»] 맞절 줄 머리 «팁 · 사진에 예쁘게 남는 인사예요» 걷음 · 짧은 판 «두 분이 마주 보고 서로에게 인사해요. 자세 보기»
+chk 'BOW_LINE_PLAIN_1123' order-preview.html 1
+nochk '팁 · 사진에 예쁘게 남는 인사' order-preview.html 0
 # ★★[TRIBUTE_GAP_1122] 248 → 141 음악 뜸 없음 · 말끝 → 1.2초 → 141 · 곡 내림 free — 상세 docs/rules/나레이션.md
 chk '_mn.fadeMs = 3000; } }' assets/ritual-cue.js 1
 chk 'st.free ? 0 : (st.ms || 0)' console.html 1
@@ -24509,3 +24512,9 @@ nochk '온라인 인사 약 2분' api/_kb.js 0
 # ★[DUCK20_1122] lane f 기대도 −20 — console-r2 B ①② 옛 «−15 → −20 내림» 은퇴 · one-flow T05 · T06 축가 여는 말 −20
 chk 'DUCK20_1122' scripts/audit/console-r2-1115.mjs 2
 chk 'DUCK20_1122' scripts/audit/one-flow.mjs 1
+# ★[SONG_PICK_RING_1123 2026-11-23 사장님 «이거 선택하라는건지 잘모르겠어 개선해보자»] 곡 줄마다 빈 동그라미 · 고른 곡은 채운 동그라미 + 흰 ✓ (화촉 · 테이블 · 축사 · 편지 곡 칸 · 입장 곡 목록 같은 모양) — 실행 검사 detail-r1 ①b
+chk 'SONG_PICK_RING_1123' order-preview.html 1
+chk 'SONG_PICK_RING_1123' scripts/audit/detail-r1.mjs 2
+# ★[SUB_JOSA_1123] «‹곡›이 대신» → «‹곡› 곡이 대신»(‹Summer›이 처럼 곡 이름 따라 조사가 틀림) — 줄 아래 · 미리 듣기 알림 둘 다
+nochk '›이 대신 흘러요' assets/bgm-bed.js 0
+chk '› 곡이 대신 흘러요' assets/bgm-bed.js 2
