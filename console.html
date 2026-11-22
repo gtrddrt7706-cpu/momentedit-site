@@ -1467,6 +1467,7 @@ function listProbe(){ var j = listNext(BED.li); if (j < 0) return; var sid = BED
 var PRE_HOLD = -1;
 var ARRIVE_LEAD_MS = 1000;   // [EAR_D_1106 ②] 도착 GO → 멘트 앞 쉼   // [BRIDGE_FIRST_1101] 꺼진 채 내보낸 이음말 큐 번호
 function segOfCue(c){ if (!c || !BP) return ''; var k = c.k, sl = String(c.slug || ''), bed = function(id){ return !!(S && S.bgm && S.bgm[id] && S.bgm[id].m === 'bed'); };
+  if (sl === 'bridge-b14-candle-name' && c.leadDb != null) return 'M2';   /* ★[PREVIDEO_SONG_1122] 영상 뒤 91 = 화촉 장면 첫 줄 — 화촉 곡을 무음에서(6초 앞 −8 · 엔진 leadDb) · 정적 위 91(개식 뒤)은 아래 종전대로 */
   if (/^bridge-(b8-face-guests|b12-tribute-calm|b14-candle-name)$/.test(sl)) return '';   /* ★[BRIDGE_FIRST_1101] 다음 순간 몫 이음말은 앞 장면을 닫는 말 — 앞 곡이 잇는다(덕킹은 그대로) · 구간 곡은 그다음 큐에서(화면 «이 순간부터» 줄 자리 · 미리 듣기와 같게) */
   if (k === 'guest') return 'M1';
   if (k === 'candle') return 'M2';
@@ -2045,7 +2046,7 @@ function fire(i, opt){
   if (ESD.run && (!esdIn(c) || esdMain(c))) esdStop(esdMain(c) ? 0.3 : (ES ? ES.OUTF : 4));
   else if (ESD.run && i !== ESD.run.i) esdVoiceCut(ESD.run);   /* ★[ENTRY_VOICE_CUT_1115] 입장 묶음 안의 다음 큐(도착 · 맞절)로 넘기면 장면 목소리(입장 멘트 · 구호)는 0.15초에 멈춘다 — 곡은 그대로(입장 장면 규칙) */   // [ENTRY_SCENE_DAY] 입장 묶음을 떠나면 곡은 4초에 걸쳐 잦아든다(배경음은 아래 duckTo 로 돌아온다)
   if (!esdMain(c)) doorMark(null);   // [DOOR_LEAD] 입장 장면이 아니면 걷는다
-  PRE_HOLD = (/^bridge-(b12-tribute-calm|b14-candle-name)$/.test(String(c.slug || '')) && !ESD.run && duckWant != null && duckWant <= -60) ? i : -1;   /* ★[BRIDGE_FIRST_1101] 배경음이 꺼져 있던 자리(축가 · 영상 뒤)의 이음말은 꺼진 채로 — 앞의 앞 곡이 이음말 아래로 되살아나지 않게(미리 듣기와 같다) · 구간 곡은 다음 큐에서 */
+  PRE_HOLD = (/^bridge-(b12-tribute-calm|b14-candle-name)$/.test(String(c.slug || '')) && c.leadDb == null && !ESD.run && duckWant != null && duckWant <= -60) ? i : -1;   /* [PREVIDEO_SONG_1122] 새 곡을 뜨는 91(leadDb)은 꺼 두지 않는다 */   /* ★[BRIDGE_FIRST_1101] 배경음이 꺼져 있던 자리(축가 · 영상 뒤)의 이음말은 꺼진 채로 — 앞의 앞 곡이 이음말 아래로 되살아나지 않게(미리 듣기와 같다) · 구간 곡은 다음 큐에서 */
   var _bk = { i: i, seg: BED.seg, list: BED.list.slice(), li: BED.li, cut: BED.cut, res: BED.res, id: BED.id, tk: BED.tk || 0, later: BED.later };   /* [BACK_DROP_OPEN_1115] 이 큐가 곡을 바꾸기 전 자리 — «뒤로»가 아직 안 열린 요청을 거둘 때 */
   BED.fin = 0;   // [FINISH_NO_NEXT_1115] 큐가 다시 나가면(끝낸 뒤 뒤로 → GO) 목록 감시를 다시 켠다
   BED.bkNow = _bk; segGo(segOfCue(c)); BED.bkNow = null;   // [BACK_DROP_ORIGIN_1115] 이 큐가 연 요청에 자리를 붙인다   // [BGM_SEG8_1023] 구간의 첫 큐가 나가는 순간 3초에 걸쳐 그 구간 곡으로(곡이 없으면 앞 곡이 잇는다 · 새 GO 없음)
