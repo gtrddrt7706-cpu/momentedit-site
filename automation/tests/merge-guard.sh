@@ -24514,3 +24514,9 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/close-c-go-1122.mjs 
 chk 'online: 0 };' assets/ritual-open.js 1
 nochk '온라인 인사까지' order-preview.html 0
 nochk '온라인 인사 약 2분' api/_kb.js 0
+# ★[SONG_PICK_RING_1123 2026-11-23 사장님 «이거 선택하라는건지 잘모르겠어 개선해보자»] 곡 줄마다 빈 동그라미 · 고른 곡은 채운 동그라미 + 흰 ✓ (화촉 · 테이블 · 축사 · 편지 곡 칸 · 입장 곡 목록 같은 모양) — 실행 검사 detail-r1 ①b
+chk 'SONG_PICK_RING_1123' order-preview.html 1
+chk 'SONG_PICK_RING_1123' scripts/audit/detail-r1.mjs 2
+# ★[SUB_JOSA_1123] «‹곡›이 대신» → «‹곡› 곡이 대신»(‹Summer›이 처럼 곡 이름 따라 조사가 틀림) — 줄 아래 · 미리 듣기 알림 둘 다
+nochk '›이 대신 흘러요' assets/bgm-bed.js 0
+chk '› 곡이 대신 흘러요' assets/bgm-bed.js 2
