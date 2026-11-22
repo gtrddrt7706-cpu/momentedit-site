@@ -1296,7 +1296,7 @@ body.pvopen{overflow:hidden}   /* [PV_ACT_STICKY] 창이 열린 동안 뒤 쪽�
 .ls-off{margin-top:10px;border:1px solid var(--border);border-radius:10px;background:var(--card);padding:0 10px}
 .ls-off summary{cursor:pointer;font-size:12.5px;line-height:20px;padding:12px 0;display:block;color:var(--ink2);min-height:44px;box-sizing:border-box;word-break:keep-all}   /* [SUMMARY_INLINE] flex 면 글 · 숫자가 따로 놀아 «₆가지»처럼 흩어진다(390 스크린샷으로 잡음) */
 .ls-off .ls-row{border-bottom-color:var(--bg2)}
-.pr-prepf{margin-top:14px}.pr-prepf h5{margin:12px 0 4px;font-size:12.5px;font-weight:600;color:var(--accent)}.pr-prepf .mk-list{margin:0 0 6px}.pr-prepf .ls-note{margin:6px 0 12px}   /* [PR_PREP_FOLD] */
+/* ★[PRACTICE_ONLY_1123] .pr-prepf(옛 PR_PREP_FOLD 접이) 모양 걷음 */
 .ls-mini{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(484px,calc(100% - 32px));display:none;align-items:center;gap:8px;padding:6px 6px 6px 14px;border-radius:12px;background:var(--accent);color:#FAFAF8;z-index:80}
 html.lsmini .ls::after,html.lsmini .mk::after,html.lsmini .pr::after{content:'';display:block;height:72px}   /* [MINI_ROOM] 맨 아래 «준비할 것»이 작은 플레이어(높이 56 · 띄움 88) 위로 올라온다 */
 .ls-mini .lm-t{flex:1;min-width:0;border:0;background:none;color:inherit;text-align:left;font:inherit;cursor:pointer;display:flex;flex-direction:column;min-height:40px;justify-content:center}
@@ -8033,17 +8033,7 @@ function _mkSum(){ var R=RitualOpen, ps=_mkPages(), sp=R.span(S), wed=(CUST&&CUS
 /* ★★[PR_PREP_FOLD 2026-10-07 사장님 «연습하기 · 준비할 것을 하나로 통합» → «추천대로»] 마이페이지 식순 줄의 «연습하기 · 준비할 것» 두 단추를 «연습 · 준비 ›» 하나로 합쳤다 —
    누르면 이 연습 화면이 열리고, 마이페이지 줄 아래 펼치던 «준비할 것» 목록(두 분이 · 부모님께 · 저희가 · 도와주실 분)은 여기 장면 카드 아래로 옮겼다.
    마이페이지에서 들어오면 펼친 채(PR_FROM_MP) · 할 일 하나씩 확인은 ④ 한눈에 보기 */
-function _prPrepFold(){ var R=RitualOpen, wed=(CUST&&CUST.weddingDate)||'', pl=R.prepList(S)||[], two=pl.filter(function(q){ return q.who!=='parents'; }), par=pl.filter(function(q){ return q.who==='parents'; }),
-    hp=R.helpersOf(S,{mealGuide:(typeof CUSTMEAL!=='undefined'&&!!CUSTMEAL), mealFull:(typeof CUSTMEALF!=='undefined'&&!!CUSTMEALF)})||[], np=pl.filter(function(q){ return !R.prepOpt(q); }).length,
-    hpLi=function(a,b){ return '<li class="mk-hp"><span>'+esc(_ndd(a))+'</span>'+(b?'<span class="wr-due">'+esc(_ndd(b))+'</span>':'')+'</li>'; },   /* 네 묶음 모두 «이름 / 아래 한 줄» — 마감이 « · »로 홀로 떨어지지 않게(390 실렌더) */
-    li=function(q){ return hpLi(q.what,(q.cat==='bring'&&q.due===0)?'당일 가져오기':R.dueWord(q,wed)); }, stu=_studioList(),
-    sum=[(np?'준비할 것 '+np+'가지':'준비할 것'),(hp.length?'도움이 필요한 역할 '+hp.length+'가지':'')].filter(Boolean).join(' · ')   /* [PR_PREP_FOLD] 두 분 · 부모님 몫이 없으면 «0가지»라 하지 않는다 */, open=LS.prPrep!=null?LS.prPrep:!!PR_FROM_MP;
-  return '<details class="ls-off pr-prepf"'+(open?' open':'')+' ontoggle="LS.prPrep=this.open"><summary>'+esc(sum)+'</summary>'
-    +(two.length?'<h5>두 분이 준비할 것</h5><ul class="mk-list">'+two.map(li).join('')+'</ul>':'')
-    +(par.length?'<h5>부모님께 부탁드릴 것</h5><ul class="mk-list">'+par.map(li).join('')+'</ul>':'')
-    +'<h5>저희가 준비해요</h5><ul class="mk-list">'+(stu.length?hpLi(stu.join(' · '),R.GOODS_COST):'')+hpLi(R.BOUQUET[0],R.BOUQUET[1])+'</ul>'
-    +(hp.length?'<h5>도움이 필요한 역할 · 필요한 것만 · 한 분이 함께 맡아도 돼요</h5><ul class="mk-list">'+hp.map(function(x){ return hpLi(x[0],x[1]); }).join('')+'</ul>':'')
-    +'<p class="ls-note">할 일을 하나씩 확인하려면 한눈에 보기에서요</p></details>'; }
+/* ★[PRACTICE_ONLY_1123] _prPrepFold(연습 화면 «준비할 것» 접이) 삭제 — 2026-11-23 사용자 지시 «진짜 연습만» · 되살리지 말 것 */
 /* ★★[FLOW_GRASP_1101 검토 186 덧붙임 · 사장님 12:39 «흐름을 잘 파악할 수 있게 되어 있는지»] ③ 연습하기 — «지금 어디쯤 · 다음은 뭐 · 우리는 어디 있나»를 한눈에.
    순간마다 두 분 위치 표 하나(FG_POS)에서 ① 시작 화면 흐름 한 줄 ② 순간 끝 «다음은 ○○ · 두 분은 ○○» ③ 위치가 바뀌는 순간 첫 카드의 «지금 두 분 · ○○» ④ 입장 첫 카드 «여기부터 두 분 차례예요» ⑤ «골라서 연습하기» 목록의 «약 n분»을 읽는다. 화면만 · 녹음 없음 */
 /* ★★[PRACTICE_WALK_R2 검토 188 · 1 · 2 · 3] 위치(어디 서 있나)와 방향(누구를 보나)을 나눈다 — «앞 → 하객 쪽 → 앞»이 왕복처럼 읽혔다(감사 인사는 그 자리에서 하객을 바라볼 뿐).
@@ -8124,7 +8114,7 @@ function renderPractice(){ var R=RitualOpen;
     +'<button type="button" class="pr-try" data-fk="prtry" onclick="prStart(\'try\')"><b>직접 해보기로 시작</b><span>두 분 차례에서 멈춰 기다려요 · 걸리는 시간은 두 분이 직접 하는 시간에 따라 달라요</span></button>'   /* ★[PR_WAY_198 ①] B «직접 해보기» */
     +'<button type="button" class="pr-sv" data-fk="prsv" onclick="prScript()">글로 한눈에 보기</button>'
     +(!_prMuOk()?'':'<button type="button" class="pr-sv" data-fk="prmu" aria-pressed="'+(_prMusic()?'false':'true')+'" onclick="prMusicTgl()">'+(_prMusic()?'음악 끄기':'음악 켜기')+'</button>')   /* [PR_WAY_198 ⑧] 음악이 날 수 없으면 토글을 그리지 않는다 · ★[PR_BGM_197 8] 작은 토글 · «글로 한눈에 보기»와 같은 모양 */   /* ★[SCRIPT_VIEW_1018 검토 74] ④ «대본 복사 · 파일»과 같은 글(scriptTextOpen)을 읽기만 · 새 쪽은 없다 */
-    +_prPrepFold()   /* [PR_PREP_FOLD] 장면 카드 아래 */
+    /* ★[PRACTICE_ONLY_1123 사장님 «연습 준비 이것을 좀 덜어내자 · 진짜 연습만»] 장면 카드 아래 «준비할 것» 접이(옛 PR_PREP_FOLD · _prPrepFold)를 걷었다 — 준비 목록은 마이페이지 예식 준비 «준비할 것» 줄(PREP_HUB_1123) 한 곳 · 되살리지 말 것 */
     +(function(){ var rl=ENG?_prRoles():[]; if(!rl.length) return ''; return '<section class="pr-roles" aria-labelledby="prRoleH"><h4 id="prRoleH">역할 전달하기</h4><p class="mk-note">맡아 주실 분께 그분 순서만 보내요</p><ul>'
       +rl.map(function(r){ return '<li><span>'+esc(r.nm)+'</span><button type="button" class="rowbtn" data-fk="prrole:'+r.id+'" onclick="prRole(\''+r.id+'\')">이 역할 전달하기</button></li>'; }).join('')+'</ul></section>'; })()   /* ★[PR_WAY_198 ⑫] */   // [MK_TODO_DOT] → [TODO_NODOT] 미완료 셈은 남긴다(말만 짧게)
     +'</div>';
@@ -8142,7 +8132,7 @@ function renderPractice(){ var R=RitualOpen;
     +'</ol></section></div>';
   /* ★[PR_MODE 2026-10-05 사장님] AI 로 듣기는 연습 시작 전 «연습 방법» 고르기로 돌아왔다(맨 위 pr-mode · 아래 체크박스 모양은 여전히 금지) */
   /* ★«내 목소리로 연습»(내 차례 녹음 prrec · 두 분 차례도 AI 로 듣기 ptts · _prSec) 금지 — 2026-10-05 사용자 지시로 삭제 [PR_VOICE_OFF] (사장님 «녹음하는 기능 우리 삭제했잖아» → «추천대로») · 두 분 차례는 글을 보며 따라 읽는다 */
-  if(!PR_FROM_MP) h+='<p class="mk-note pr-later">나중에 마이페이지 식순의 «연습 · 준비»에서 연습해요</p>'   /* ★[B2_GEUL_20] 마이페이지 단추 이름은 «연습 · 준비»(PR_PREP_ONE) — 옛 이름 «연습하기»로 부르지 않는다 */;   // [PR_ORDER] 마이페이지 «연습하기»로 들어온 판에는 «나중에 마이페이지에서»가 맞지 않는다   // [MK_MIN] · [PR_FROM_MYPAGE] 마이페이지 식순 줄의 «연습하기»가 이 화면으로 연다
+  if(!PR_FROM_MP) h+='<p class="mk-note pr-later">나중에 마이페이지 식순의 «연습»에서 다시 해 볼 수 있어요</p>'   /* ★[B2_GEUL_20] 마이페이지 단추 이름 그대로 · ★[PRACTICE_ONLY_1123] «연습 · 준비» → «연습» */;   // [PR_ORDER] 마이페이지 «연습하기»로 들어온 판에는 «나중에 마이페이지에서»가 맞지 않는다   // [MK_MIN] · [PR_FROM_MYPAGE] 마이페이지 식순 줄의 «연습하기»가 이 화면으로 연다
   return h+'</div>'; }
 /* ★prAct(한 부분만 보기) · prFast(빠르게 훑기) 금지 — 2026-10-05 사용자 지시로 삭제 [PR_SEC_OFF · PR_FAST_OFF] */
 var PR_FROM_MP=false;   // [PR_ORDER] 마이페이지 «연습하기»로 열었나
@@ -12178,7 +12168,8 @@ if(EMBED){
       }   // 서버 초안이 이 기기 저장보다 우선(다른 기기에서 이어서)
       /* [PR_FROM_MYPAGE 2026-10-05] 마이페이지 식순 줄 «연습하기»로 열었으면 ③ 연습하기에서 시작한다(담은 순간이 있을 때만 · 없으면 그 자리) */
       if(ev.data.at==='practice'&&courseStarted&&RitualOpen.picked(S).length){ PR_FROM_MP=true; try{ opGoStep('practice'); }catch(e){} }
-      if(ev.data.at==='midvideo'&&isOpen()){ try{ _midAt(); }catch(e){} }   /* ★[MID17_AT 2026-11-07 재검증 재수정] 마이페이지 «식중 영상»(넣기 · 빼기)이 연 창 — 새로고침(reload)은 위에서 먼저 돌아가 저장된 자리 그대로([RELOAD_KEEP_AT]) */
+      if(ev.data.at==='midvideo'&&isOpen()){ try{ _midAt(); }catch(e){} }
+      if(typeof ev.data.at==='string'&&ev.data.at.indexOf('mk:')===0&&courseStarted){ var _gk=ev.data.at.slice(3); try{ if(_mkPages().indexOf(_gk)>-1) _mkGoNow(_gk); }catch(e){} }   /* ★[PREP_GO_MK_1123] 마이페이지 «준비할 것»의 출처 줄(«식순 · 축가를 담으셔서» 등)로 열면 그 순간 쪽에서 시작 · 없는 순간이면 그 자리 */   /* ★[MID17_AT 2026-11-07 재검증 재수정] 마이페이지 «식중 영상»(넣기 · 빼기)이 연 창 — 새로고침(reload)은 위에서 먼저 돌아가 저장된 자리 그대로([RELOAD_KEEP_AT]) */
     }
   });
   try{ parent.postMessage({type:'momentedit:orderReady'},window.location.origin); }catch(e){}
