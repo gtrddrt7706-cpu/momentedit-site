@@ -1911,7 +1911,7 @@ chk 'AI 음성으로 미리 제작되며' mypage.html 1                  # 판�
 chk 'AI 음성으로 미리 제작되며' contract/v1-1.html 1
 chk 'CONTRACT_V16' mypage.html 2                              # v1.5→보존본 매핑 + 넷째 줄 주석
 chk "archive/v1-5" mypage.html 1                              # 옛 서명자 열람 경로
-chk "docVersion: 'v1.16'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
+chk "docVersion: 'v1.17'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
 chk '정성껏 고른 목소리로 진행됩니다' assets/ritual-data.js 2   # ★[REVIEW31_1023 검토 157-1] 01 · 02 = G4 표 2 «다정» 판 · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «미리 준비한 안내 음성으로 진행…» · 옛 주석 ①하객 맞이 음성(완곡)
 chk 'AI 음성 안내로 진행합니다' admin.html 1                   # ②식순지 인쇄물(명시)
 nochk '식순지엔 AI 음성 안내로 적혀요' order-preview.html      # 빌더 화면에서는 뺀 줄
@@ -2605,7 +2605,7 @@ chk 'archive/v1-4.html' mypage.html 1
 # [CONTRACT_V16 2026-08-13] 계약서 v1.6(AI 음성 안내 확인 줄) · v1.5 서명자는 보존본으로 열람
 chk 'archive/v1-5.html' admin.html 1
 chk 'archive/v1-5.html' mypage.html 1
-chk "docVersion: 'v1.16'" automation/platform/70_journey.gs 1
+chk "docVersion: 'v1.17'" automation/platform/70_journey.gs 1
 
 # [FILE_NO_SOURCE] mp3 번호는 엔진(RitualCue.fileOf = FILES 인덱스+1)에서만 온다.
 #   ★대본 생성기가 1부터 세어 붙이던 시절, 폐지 클립(53 narr-ringwarm-out)이 FILES 에 자리로
@@ -4159,8 +4159,8 @@ fi
 #     240만(8/15 인상 전) · 280/210만(8/14 인상 전). 8/14~8/15 창이 이틀뿐이라 지우기 쉽다.
 chk "'시그니처': { 평일: 2500000, 주말: 3300000 }" automation/platform/70_journey.gs 1
 chk 'value="2400000">평일 · 240만 (8/15 인상 전)' admin.html 1
-chk 'v1\.16' contract/v1-1.html 6   # [CONTRACT_V116 · 머리 주석 포함] [CONTRACT_V115] [CONTRACT_V114] [CONTRACT_V113] [CONTRACT_V111] [CONTRACT_V110] [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
-chk "docVersion: 'v1.16'" automation/platform/70_journey.gs 1
+chk 'v1\.17' contract/v1-1.html 6   # [CONTRACT_V117 2026-11-22 하객 35명 · 메타 · hero · 예시 · 서명 줄 · 꼬리 · 머리 주석] [CONTRACT_V116 · 머리 주석 포함] [CONTRACT_V115] [CONTRACT_V114] [CONTRACT_V113] [CONTRACT_V111] [CONTRACT_V110] [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
+chk "docVersion: 'v1.17'" automation/platform/70_journey.gs 1
 chk "v1-6.html" mypage.html 1
 chk "v1-7.html" mypage.html 1
 # 평일 240만이 적힌 보존본 — 8/14~8/15 이틀 창의 서명자가 여는 문서다
@@ -5346,7 +5346,7 @@ chk 'id="faq-140"' index.html 1
 chk 'data-faq-open' index.html 3
 # ★[SEATED30 2026-09-19] 「스물다섯 분까지 착석」 → 「서른 분까지 전원 착석」(2026-09-13 검토38).
 #   기능을 정당히 폐지해 마커가 사라졌으므로 같은 커밋에서 가드 목록을 갱신한다(병렬 세션 규칙).
-chk '서른 분까지 전원 착석으로 모십니다' index.html 1
+chk '서른다섯 분까지 전원 착석으로 모십니다' index.html 1   # [CAP_35 2026-11-22] 종전 «서른 분»
 nochk '스물다섯 분까지 착석' index.html                  # 되살리지 말 것 — 좌석 편집기가 30석을 그린다
 chk '저희도 줄여 드리지 못합니다' index.html 1
 # ★낭독 대본(docs/plans/저널낭독/*.txt)과 화면 글이 갈라지지 않는지 기계가 맞댄다 [JOURNAL_SCRIPT_TRUTH]
@@ -5728,7 +5728,7 @@ nochk '본식영상 데이터 + 수정본' index.html               # 계약서 
 nochk '25명 초과 스탠딩' index.html                       # ★2026-09-13 대표 결정으로 스탠딩 추가요금 폐지 — 되살리지 말 것(제거 지시 보존). 30명 상한 고지는 아래 줄이 지킨다
 # ★[SEATED30] 「25명을 넘으면 스탠딩을 더해 총 30명」 문장이 폐지되어 이 마커도 바뀐다.
 #   지키려던 것은 «30명 상한을 화면이 고지하는가»이므로 새 문장으로 같은 것을 지킨다.
-chk '공간·안전상 30명이 상한입니다' index.html 2
+chk '공간·안전상 35명이 상한입니다' index.html 2   # [CAP_35]
 nochk '스탠딩 좌석을 최대 5명까지' index.html            # 폐지된 개념(검토38)
 chk '드레스를 시착하신 경우에만' index.html 1              # 제4조⑧ — '전액 환불' 단서 없던 자리
 # 제7조② — 23스크린 접힘 안에만 있던 사실을 가격 카드로 끌어올린 것이 이 가드의 뜻이다.
@@ -13344,7 +13344,17 @@ if command -v node >/dev/null 2>&1; then
 fi
 chk 'CONTRACT_VER_ONE' scripts/audit/contract-version.mjs 1
 chk 'CONTRACT_VER_ONE' automation/tests/merge-guard.sh 3
-chk 'Version v1.16' contract/v1-1.html 1   # [CONTRACT_V116]
+chk 'Version v1.17' contract/v1-1.html 1   # [CONTRACT_V117]
+chk 'Version v1.16' contract/archive/v1-16.html 1   # [CONTRACT_V117] v1.16 보존본(하객 최대 30명)
+chk 'CONTRACT_V117' contract/v1-1.html 1
+chk 'CONTRACT_V117' automation/platform/70_journey.gs 2
+chk "if(v==='v1.16') return '/contract/archive/v1-16.html';" mypage.html 1
+chk "if(v==='v1.16') return '/contract/archive/v1-16.html';" admin.html 1
+# ★[CAP_35 2026-11-22 사장님 «35석으로 올리기»] 하객 정원 30 → 35 — 서버 · 계약서 v1.17 · 홈페이지 · 상담 신청 · AI 안내가 같은 수(guest-cap-truth 가 잰다)
+chk 'var FINAL_CONFIRM = { 착석: 35, 최대: 35, 초과단가: 0 };' automation/platform/80_production.gs 1
+chk 'var MP_FINAL_POLICY = { seats:35, max:35, unit:0 };' mypage.html 1
+chk 'min="1" max="35" required' inquiry.html 1
+chk '하객 35명까지 추가금 없음' index.html 1
 chk 'Version v1.15' contract/archive/v1-15.html 1   # [CONTRACT_V116] v1.15 보존본
 chk 'Version v1.14' contract/archive/v1-14.html 1   # [CONTRACT_V115] v1.14 보존본
 chk 'Version v1.13' contract/archive/v1-13.html 1   # [CONTRACT_V114] v1.13 보존본
@@ -23626,7 +23636,7 @@ nochk '계좌이체만 가능' api/_kb.js
 chk '계약서의 시기별 기준을 따르고, 정확한 금액은 상담에서 확인해 드려요' api/_kb.js 1   # [H4_REFUND] 금액 · 요율 직접 말하지 않음
 chk '계약서의 시기별 기준을 따르고, 정확한 금액은 상담에서 확인해 드려요' assets/advisor-kb.js 1
 chk '상세 주소와 주차는 상담 때 안내해 드려요' assets/advisor-kb.js 1              # [H4_ADDR]
-chk '아이도 자리를 쓰면 30명에 포함돼요' assets/advisor-kb.js 1                    # [H4_KIDS]
+chk '아이도 자리를 쓰면 35명에 포함돼요' assets/advisor-kb.js 1                    # [H4_KIDS]
 chk '시착하시면 상담 예약금은 시착 비용으로 전환돼요' assets/advisor-kb.js 1      # [H4_FIT]
 chk '종교 의식도, 주례자를 모시는 것도 가능해요' assets/advisor-kb.js 1           # [H4_RELIGION]
 chk '조건은 상담 때 안내해 드려요' api/_kb.js 1                                    # [H4_HONOR] 오픈 혜택 조건
@@ -24254,7 +24264,7 @@ chk 'R4_1115' .github/workflows/merge-guard.yml 1
 chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115 rec-sec' }" .github/workflows/merge-guard.yml 1
 # ★[WEEKDAY_OLD_OWNER_1116 2026-11-16 대표님 «수정 전이 더 좋은데»] 홈 «A Quiet Choice» 칸은 H4_18(11/06) 전 글 — 다시 바꾸자고 제안하지 않는다
 chk '>왜 평일이 더 자연스러운가</h3>' index.html 1
-chk '30명이 모이는 자리라면 굳이 주말일 이유가 없습니다. 평일은 일정을 맞추기 수월하고, 원하는 날짜를 넉넉히 고를 수 있습니다.</p>' index.html 1
+chk '35명이 모이는 자리라면 굳이 주말일 이유가 없습니다. 평일은 일정을 맞추기 수월하고, 원하는 날짜를 넉넉히 고를 수 있습니다.</p>' index.html 1
 chk '그렇게 생긴 하루의 여유는, 신혼여행과 부모님을 위한 다이닝으로 자연스럽게 이어집니다.</p>' index.html 1
 nochk '평일 예식은 주말·공휴일보다 80만&nbsp;원 낮습니다.' index.html
 # ★[U62_KEEP_1116 2026-11-16 23:13 대표님] 우성 62(온라인 입장 안내)는 라이브 판 그대로 — 가운데 새 문장 넣지 않음 · 다시 넣자고 제안하지 않음
@@ -24364,3 +24374,11 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/narr-go-1122.mjs >/d
 if command -v node >/dev/null 2>&1; then node scripts/audit/rec-sec.mjs >/dev/null 2>&1; _rs=$?; if [ "$_rs" != 0 ]; then echo 'FAIL rec-sec: 나레이션 파일 길이표(REC_SEC)가 mp3 와 다르거나 10분 전 판이 어긋났습니다 — node scripts/rec-sec.mjs --write 뒤 node scripts/audit/rec-sec.mjs'; fail=1; else echo 'ok rec-sec'; fi; fi   # [NARR_GO_1122] ffprobe 없이 mp3 머리로 잰다
 nochk 'gapMs: 1000   /\* ★\[NARR_GO_1122 · NARR_종합 #1\]' assets/ritual-cue.js 0   # ★[NARR_GO_48GAP_1122] 316 → 48 은 콘솔 기본 2초 — 1초로 줄이지 않는다
 chk 'NARR_GO_48GAP_1122' assets/ritual-cue.js 2
+# ★★[TRIBUTE_GO_1122 대표님 11/22 15:50 «E가 좋은 거 같은데» · 대본 TRIBUTE_GO_1122] 부모님께 인사 — 새 141(테이크 5 통째) · 걷는 말 236 · 쉼 1.2 / 1.7 — 상세 docs/rules/나레이션.md
+chk "ex = 'tribute-in-ex2'; out" assets/ritual-cue.js 1
+chk 'gapMs = 1700;' assets/ritual-cue.js 1
+chk '_mn.gapMs || 0, 1200)' assets/ritual-cue.js 1
+chk '뭉클하실 부모님께, 신랑 신부가' assets/ritual-open.js 1
+chk 'TRIBUTE_GO_1122' scripts/rec141-1122.py 1
+chk 'TRIBUTE_GO_1122' docs/rules/나레이션.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/tribute-go-1122.mjs >/dev/null 2>&1; _tg=$?; if [ "$_tg" != 0 ]; then echo 'FAIL tribute-go-1122: 부모님께 인사 장면(141 새 판 · 걷는 말 236 · 쉼 1.2 / 1.7)이 대표님 11/22 승인과 다릅니다 — node scripts/audit/tribute-go-1122.mjs'; fail=1; else echo 'ok tribute-go-1122'; fi; fi
