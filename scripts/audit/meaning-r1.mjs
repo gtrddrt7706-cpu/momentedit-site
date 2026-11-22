@@ -92,6 +92,14 @@ const K4 = ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter', 'son
   const c1 = O1[bi(O1, 'narr-open') + 1] || {};
   ok('1 개식사 — 하객 맞이 곡 2초 내림 + 정적 1초 · 멘트 · 박수는 음악 없이', o1.duck === -90 && o1.fadeMs === 2000 && o1.goLeadMs >= 3000 && (!o1.live || o1.live.duck === -90), { duck: o1.duck, fade: o1.fadeMs, lead: o1.goLeadMs, live: o1.live && o1.live.duck });
   ok('1 영상 없는 날 — 화촉 첫 큐는 정적 1초 뒤 무음에서 M2 를 6초 앞서(−8)', c1.k === 'candle' && c1.goLeadMs >= 6000 && c1.leadDb === -8 && c1.gapMs >= 1000, { k: c1.k, lead: c1.goLeadMs, ldb: c1.leadDb, gap: c1.gapMs });
+  /* ★[PREVIDEO_SONG_1122 사장님 11/22] 영상 있는 날 — 영상이 끝나면(GO) 화촉 곡이 바로 무음에서: 영상 뒤 첫 화촉 줄(91 이음말 · 없으면 여는 말)에 6초 앞 −8 · 91 은 곡 위 말 아래(−15) · 받는 말(261)이 남은 판이면 그 줄은 정적 · 화촉 없는 날은 b7 정적 그대로 */
+  { const PV = []; ['mothers', 'parents', 'fathers', 'others'].forEach((who) => [0, 1, 2, 3].forEach((nx) => { const cs = B2({ on: { prevideo: 1, candle: 1 }, candleWho: who, narEx: { candle: nx } }), iv = cs.findIndex((c) => c.k === 'prevideo' && c.live);
+      let j = iv + 1; const out = cs[j] && cs[j].slug === 'narr-prevideo-out' ? cs[j] : null; if (out) j++; const f = cs[j] || {};
+      PV.push({ who, nx, out: out ? out.duck : null, f: f.slug, k: f.k, lead: f.goLeadMs, ldb: f.leadDb, duck: f.duck, b14: /^bridge-b14/.test(f.slug || '') }); }));
+    const bad = PV.filter((x) => !(x.k === 'candle' && x.lead >= 6000 && x.ldb === -8 && (!x.b14 || x.duck === -15) && (x.out == null || x.out === -90)));
+    ok('PREVIDEO_SONG_1122 영상 뒤 첫 화촉 줄 — 6초 앞 −8 로 곡이 먼저 · 91 이음말은 곡 위 −15 · 받는 말 261 은 정적(서는 분 넷 × 예시 넷)', PV.length === 16 && !bad.length && PV.some((x) => x.b14), bad.slice(0, 3));
+    const N = B2({ on: { prevideo: 1, candle: 0 } }), nb7 = by(N, 'bridge-b7-entry-ready');
+    ok('PREVIDEO_SONG_1122 화촉 없는 날 — 영상 뒤 입장 앞 이음말(b7)은 정적 · 입장 곡은 입장 GO 에서(미리 틀지 않는다)', nb7.duck === -90 && !(nb7.goLeadMs > 0 && nb7.leadDb != null), { b7: [nb7.duck, nb7.goLeadMs, nb7.leadDb] }); }
   const b7 = by(O2, 'bridge-b7-entry-ready');
   ok('17 영상 · 화촉 없는 날 — 입장 앞 이음말(b7)은 정적 위(하객 맞이 곡이 돌아오지 않는다)', b7.duck === -90, { b7: b7.duck });
   ok('20 영상 없는 날도 박수를 청하는 개식사면 박수 live(사람이 GO)', !!(o2.live && o2.live.applause) || !/박수/.test(o2.text || ''), { live: !!o2.live, text: String(o2.text || '').slice(0, 30) });

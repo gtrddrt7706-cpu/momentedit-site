@@ -2226,9 +2226,14 @@
            당일 콘솔에서 사슬 3초 + 뜸 3초가 겹쳐 약 6초 정적이었다(미리 듣기는 3초) · 박수를 청하는 개식(GO) · 그 밖 자리는 그대로(하객 맞이 곡 2초 내림 + 정적 1초) */
       var _pp = cues[pa - 1] || null, _pvNoClap = !!_pp && _pp.slug === 'narr-open' && _pc.fire === 'chain' && !(_pp.live && _pp.live.applause) && _pp.duck <= -60;   /* 박수 판은 여기서 아직 GO(manual) · live.applause — 미리 듣기 사슬 4.5초 전환은 이 뒤 */
       if (/^narr-prevideo-in/.test(_pc.slug || '')) { _pc.duck = PARAM.duckOff; _pc.fadeMs = 2000; if (!_pvNoClap) _pc.goLeadMs = Math.max(_pc.goLeadMs || 0, 3000); }
-      if (_pc.slug === 'narr-prevideo-out') { _pc.duck = PARAM.duckOff;
-        for (var pb = pa + 1; pb < cues.length; pb++) { var _pn = cues[pb]; if (_pn.k !== 'candle') break;
-          if (/^bridge-/.test(_pn.slug || '')) { _pn.duck = PARAM.duckOff; continue; }
+      if (_pc.slug === 'narr-prevideo-out') _pc.duck = PARAM.duckOff;
+      /* ★★[PREVIDEO_SONG_1122 2026-11-22 사장님 «식전 영상 이후 여기서 고른 BGM 이 나오는 구간을 식전 영상 이후로 옮기고, 그 후 먼저 오늘의 멘트(91)가 나오게»]
+           영상이 끝나면(디렉터 GO) 다음 순간(화촉)의 곡이 바로 무음에서 뜬다 — 그 순간 첫 줄(화촉 순서 알림 91 · 없으면 화촉 여는 말)에 «6초 앞 −8»(2초에 올라 · 잠깐 머물고 · 1.6초에 말 아래로 · 0.4초 뒤 첫 말) ·
+           91 은 이제 곡 위에서 말 아래(−15 · 종전 정적) · 받는 말(261)이 남아 있는 판이면 그 줄은 정적 그대로 · 감사 인사 · 부모님께 인사의 «새 장면 새 곡 6초 앞»과 같은 값 ·
+           다음 순간이 입장이면 그대로(입장 곡은 입장 GO 에서 · b7 은 정적 위 SEAM_BG01) · 옛 «화촉 이음말(b14)도 음악 없이»(PREVIDEO_AFTER_1101) 대신 */
+      if (_pc.live && /^narr-prevideo-in/.test(_pc.slug || '')) {
+        for (var pb = pa + 1; pb < cues.length; pb++) { var _pn = cues[pb]; if (_pn.slug === 'narr-prevideo-out') continue; if (_pn.k !== 'candle') break;
+          if (/^bridge-/.test(_pn.slug || '')) _pn.duck = PARAM.duckSpeech;
           _pn.goLeadMs = Math.max(_pn.goLeadMs || 0, 6000); _pn.leadDb = PARAM.duckMusic; break; } }
     }
     /* ★[SEAM_BG01 이음매 명세 · MEANING_R2_1102 ENTRY_HUSH] 입장 앞 이음말(b7) — 식전 영상 · 개식사 정리가 끝난 «뒤»에 정한다(앞 큐 크기가 확정된 뒤) ·
