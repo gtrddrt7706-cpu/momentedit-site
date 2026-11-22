@@ -24496,6 +24496,11 @@ chk 'body.mkd .prog{position:sticky;top:-5px;' order-preview.html 1
 # ★[PV_BED_QUIET_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 A] 음악까지 미리듣기 — 예시 음악(@PV) 파일이 없으면 빨간 고장 줄 없이 조용히(PREVIEW_BED 머리말 그대로)
 chk 'PV_BED_QUIET_N06' console.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/pv-bed-quiet.mjs >/dev/null 2>&1; _pb=$?; node scripts/audit/pv-bed-quiet.mjs --selftest >/dev/null 2>&1; _pbs=$?; if [ "$_pb" != 0 ] || [ "$_pbs" != 0 ]; then echo "REVERT? pv-bed-quiet: 미리듣기 예시 음악이 없을 때 빨간 줄이 다시 선다 ($_pb/$_pbs) — node scripts/audit/pv-bed-quiet.mjs"; fail=1; else echo 'ok pv-bed-quiet'; fi; fi
+# ★[PREVIEW_LOGIN_1122 2026-11-22 대표님 «로그인해야 확인할 수 있게 · 신랑 신부는 아이디 공유»] 예식 미리 듣기는 로그인한 두 분(또는 관리자)만 · 없으면 마이페이지 로그인 → 돌아오기
+chk 'PREVIEW_LOGIN_1122' console.html 1
+chk 'PREVIEW_LOGIN_1122' mypage.html 5
+chk 'var _NEXT_RE=/' mypage.html 1   # 돌아갈 곳은 미리 듣기 주소 꼴만(열린 리다이렉트 금지 · 실행 검사 ⑥)
+if command -v node >/dev/null 2>&1; then node scripts/audit/preview-login.mjs >/dev/null 2>&1; _pvl=$?; if [ "$_pvl" = 1 ]; then echo 'FAIL [PREVIEW_LOGIN_1122] 미리 듣기 로그인 관문이 깨졌다 — node scripts/audit/preview-login.mjs'; fail=1; else echo "ok [PREVIEW_LOGIN_1122] preview-login (종료 $_pvl)"; fi; fi
 # ★★[PV_OUT_OFF_1122 대표님 11/22 17:16 · 17:33] 식전 영상 끝 261 없음 · 곡 먼저 → 263 → 여는 말 — 상세 docs/rules/나레이션.md
 chk "'narr-prevideo-out': 1 /\* ★\[PV_OUT_OFF_1122\]" assets/ritual-cue.js 1
 chk 'var _b14Pv = bc.k ===' assets/ritual-cue.js 1
