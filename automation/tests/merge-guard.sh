@@ -24431,6 +24431,9 @@ chk 'NARR_GO_48GAP_1122' assets/ritual-cue.js 2
 chk "ex = 'tribute-in-ex2'; out" assets/ritual-cue.js 1
 chk 'gapMs = 1700;' assets/ritual-cue.js 1
 chk '_mn.gapMs || 0, 1200)' assets/ritual-cue.js 1
+nochk "if (_mn && _mn.k === 'tribute') { _mn.goLeadMs = Math.max(_mn.goLeadMs || 0, 6000)" assets/ritual-cue.js   # [TRIBUTE_GAP_BGM_1122] 옛 6초 뜸 되살리지 말 것
+chk 'TRIBUTE_GAP_BGM_1122' order-preview.html 2   # [TRIBUTE_GAP_BGM_1122 · GAP_SWEEP_GO_1122 ①③] 미리 듣기 — 엔진이 곡을 그 줄 아래에서 올리는 자리(fm 3000 · gl 0)는 뜸 없음(_noLead)
+chk 'if(_rise(q\[i+h\])) q\[i+h\]._noLead=1;' order-preview.html 1
 chk '뭉클하실 부모님께, 신랑 신부가' assets/ritual-open.js 1
 chk 'TRIBUTE_GO_1122' scripts/rec141-1122.py 1
 chk 'TRIBUTE_GO_1122' docs/rules/나레이션.md 1
