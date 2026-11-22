@@ -1502,6 +1502,11 @@ chk 'HOME_CTA_KO' index.html 1                 # 주 버튼 한글 주·영문 �
 chk 'cta-eyebrow' index.html 4                 # 영문 아이브로우 3곳 + CSS 1. ★영문을 버튼 '안'에 2줄로 넣는 안(cta-btn-ko/en)은 2026-07-26 재검토로 폐기 — 되살리지 말 것(버튼 73px·영문 불투명 66%로 안 읽힘)
 chk 'BTN_TIER' index.html 4                    # 버튼 2단 체계(채움=전환 3곳 / 외곽=보조 이동 1곳). journal-guide-link를 채움 마룬으로 되돌리면 화면에 전환 버튼이 4개가 된다 — 복원 금지
 chk 'MAP_BREATH' index.html 1                  # 지도 블록 상하 여백 80/88 — margin-top만 두고 아래를 0으로 되돌리면 다시 푸터에 끼인다
+chk 'HERO_KO_LINE' index.html 2               # [HERO_KO_GO_1122 대표님 11/22] 첫 화면 한글 캡션 한 줄 «작은 결혼식 · 2027년 4월 고양에서»
+chk '<p class="hero-logo-ko" id="heroKo">작은 결혼식 · 2027년 4월 고양에서</p>' index.html 1   # [HERO_KO_GO_1122]
+chk 'HERO_KO_OPEN' index.html 2               # 오픈(2027-04-29 KST)부터 날짜만 빠짐 — hero-ko-open.mjs 가 날짜 전/후 둘 다 잰다
+chk 'HERO_KO_OPEN' scripts/audit/hero-ko-open.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/hero-ko-open.mjs >/dev/null 2>&1; _hk=$?; if [ "$_hk" = 1 ]; then echo 'FAIL hero-ko-open: 첫 화면 한글 한 줄이 날짜(오픈 2027-04-29 KST) 전 · 후에 결정과 다릅니다 — node scripts/audit/hero-ko-open.mjs'; fail=1; else echo 'ok hero-ko-open: 오픈 전 «2027년 4월 고양에서» · 오픈 날부터 «고양에서»'; fi; fi
 chk 'PILL_FOCUS_ROUND_1119' order-preview.html 1  # [2026-11-19 NIGHT20 #13 R3X2] 알약 단추는 키보드 초점에서도 둥글게(전역 4px 에 지지 않게)
 chk 'NEXT_SEG_1119' order-preview.html 2          # [2026-11-19 NIGHT20 #13 R3X2] ② 다음 단추 글은 «·» 마디째로만 줄바꿈(320 «하객 / 맞이 안내» 끊김)
 chk 'DEPOSIT_WORD_1119' index.html 2             # [2026-11-19 대표님 «추천대로» · DEC3] 예약금은 «입금» 한 낱말(FAQ · 예약 및 환불)
