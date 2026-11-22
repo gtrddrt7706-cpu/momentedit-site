@@ -13905,7 +13905,7 @@ chk 'RB_SAVED_LINE' mypage.html 3
 chk 'function _rbSavedHtml' mypage.html 1
 # [SIGN_DEP_TRUE] [PAY_DUE_WORD] 2026-09-26 B2 검토 — 서명 전 임박 계약 «계약금·중도금·잔금» 가운뎃점 양옆 낱말 잇기(320 «…중도금· / 잔금» 매달림) · 계약금 카드 «이&nbsp;화면에»(320 «…가까워지면 이 / 화면에» 지시어 떨어짐)
 chk "서명하시면 계약금&#8288;·&#8288;" mypage.html 1
-chk '이&nbsp;화면에 입금 안내가 열려요' mypage.html 1
+chk '이&nbsp;화면에 결제 안내가 열려요' mypage.html 1
 # ── 묶음 C
 # [INV_SKIP_ROW·INV_BANK_PICK·INV_PUB_SAVE·INV_FIELD_LABEL·INV_PUB_LABEL·INV_TAP44·GUIDE_NOTE_TRUE·GUIDE_SHARE_GRID·TRK_SEP_LABEL·TRK_END_LINE·TRK_SUB_BALANCE·TRK_ACT_PAD12·SNAP_BTN_GHOST·GUIDE_BTN_HOWTO·CF_EMPTY_WORD·EG_DASH_NOTE·GUIDE_QR_BY_KIND] 2026-09-26 마이페이지 고객 점검 묶음 C — 예식 준비 카드 · 청첩장 위저드 · 하객 안내 패널 · 예식 확인서
 # [INV_SKIP_ROW] 청첩장 없이 = ✓ 대신 「안 함」 + 「다시 정하기」(예식 후 식사와 같은 모양) · 확인서 「청첩장 없이 진행」 · 링크 없이 마친 판 재진입은 1단계부터 · 배지 nowrap · 개인 제작 보정(none+selfQR:false)은 invitationUrls 가 null(청첩장 없이로 마침)이면 하지 않는다 · 초안에 살아 있는 링크가 있으면(발행 뒤 청첩장 없이를 저장만 함) 「안 함」이 아니다(검토)
@@ -14544,15 +14544,15 @@ chk '(_dueMid?.<span style="display:block;text-wrap:balance">중도금 .+fmtWon(
 chk '_pb2.indexOf(.중도금.)===-1&&!p.midConfirmed' mypage.html 1
 # [SNAP_BAL_LATE] 2026-09-26 통합 점검 G1b(L3 · L8) — 스냅 잔금 기한(촬영 7일 전)이 한국 날짜로 오늘이거나 지났으면 계약금 카드 둘째 줄 «촬영이 가까워, 계약금이 확인되면 바로 이 화면에 입금 안내가 열려요.»(«기한이 가까워지면» 약속 금지 · 서버 묶음 여부는 사장님 결정 대기 · NEXT 줄은 G1)
 chk 'SNAP_BAL_LATE' mypage.html 2
-chk '촬영이 가까워, 계약금이 확인되면 바로 이&nbsp;화면에 입금 안내가 열려요' mypage.html 1
+chk '촬영이 가까워, 계약금이 확인되면 바로 이&nbsp;화면에 결제 안내가 열려요' mypage.html 1
 chk 'if(!isSnap||!_dueBal) return false;' mypage.html 1
 chk '_payDays().bal)<=_snapKstToday()' mypage.html 1
 # [MID_PAST_WORD] 2026-09-26 통합 점검 G1b(L3) — 계약 뒤 기한을 넘긴 중도금(단순 연체)은 날짜를 남기고 «(날짜) 기한이 지났어요.» / «지금 바로 입금 부탁드려요»(지난 날짜에 «…까지 입금 부탁드려요» 금지) · 두 덩어리
 chk 'MID_PAST_WORD' mypage.html 1
-chk ': _mPast?(.<span class="ln-bal"><b>.+escapeHtml(midDateTxt)+.</b> 기한이 지났어요.</span><span class="ln-bal">지금 바로 입금 부탁드려요</span>.)' mypage.html 1
+chk ': _mPast?(.<span class="ln-bal"><b>.+escapeHtml(midDateTxt)+.</b> 기한이 지났어요.</span><span class="ln-bal">지금 바로 결제 부탁드려요</span>.)' mypage.html 1
 # [COMBO_NOTE_SPLIT] 2026-09-26 통합 점검 G1b(L5 B9 ①) — 중도금·잔금 묶음 카드 «예식이 가까워 함께 받아요.» / «(기한) 입금 부탁드려요» 두 덩어리(«받아요 · / 지금 바로» 가운뎃점 줄 끝 매달림) · 날짜 꼬리 «·&nbsp;예식&nbsp;N일&nbsp;전»
 chk 'COMBO_NOTE_SPLIT' mypage.html 1
-chk 'forceCombo?(.<span class="ln-bal">예식이 가까워 함께 받아요.</span><span class="ln-bal">.+comboDue+. 입금 부탁드려요.+comboTag+.</span>.)' mypage.html 1
+chk 'forceCombo?(.<span class="ln-bal">예식이 가까워 함께 받아요.</span><span class="ln-bal">.+comboDue+. 결제 부탁드려요.+comboTag+.</span>.)' mypage.html 1
 chk 'cc-mini">·&nbsp;예식&nbsp;' mypage.html 1
 nochk 'forceCombo?(.예식이 가까워 함께 받아요 · .' mypage.html 0
 # [KST_TODAY] 2026-09-26 통합 점검 G1b(L8-tz) — 잔금 카드 _bPast · 묶음 카드 _balPast · 중도금 연체 _mPast · 스냅 계약금 카드 _balLate · 서명 창 «오늘(날짜)»는 한국 날짜(_snapKstToday) — 기기 자정 셈으로 되돌리면 LA 기기는 하루 전, 오클랜드 기기는 하루 뒤를 «오늘»로 센다(머리·NOW·NEXT·보관 쪽 [KST_TODAY] 는 G1)
@@ -14798,13 +14798,13 @@ chk "else if (_rx.status === '결제대기' && _rs === '전달완료' && _svDone
 chk 'var _shPast = _kstDdayOf(' mypage.html 1
 chk "sub = (_shPast != null && _shPast < 0) ? '아래에서 잔금을 보내 주세요.' : " mypage.html 1
 chk 'var _hdPast = _kstDdayOf(' mypage.html 1
-chk "sub  = _hdPast ? '' : '입금이 확인되면 예식 준비(청첩장·식순)가 열려요.';" mypage.html 1
+chk "sub  = _hdPast ? '' : '결제가 확인되면 예식 준비(청첩장·식순)가 열려요.';" mypage.html 1
 # (옛 줄 · 2026-10-09 A~Z 점검 1라운드 마이페이지 고침으로 아래 [R6_MYPAGE] 묶음에서 새 꼴로 바꿈) "sub  = _hdPast ? '보통 영업일 1~2일 안에 확인하고 알려드려요.' : " mypage.html 1
 chk "|| (r\\[0]==='예식 준비' && r\\[2]==='제작중')); });" mypage.html 1
 # [MID_WITH_WORD] 2026-09-26 통합 점검 2라운드 R1 — 임박 계약 중도금(날짜 없음 · 서버 dueLabel «계약 시 함께 납부»)은 «지금 바로 입금 부탁드려요»(«계약 시 함께 납부까지 입금 부탁드려요» 금지 · 꼬리 «· 계약 시 함께 납부» 없음 — 320 에서 가운뎃점이 줄 머리에 선다 · 잔금 카드 _bPast 와 같은 말)
 chk 'MID_WITH_WORD' mypage.html 2
 chk "var _mWith=!midDateTxt && String(p.dueLabel||'')==='계약 시 함께 납부';" mypage.html 1
-chk "_mWith?'<b>지금 바로</b> 입금 부탁드려요'" mypage.html 1
+chk "_mWith?'<b>지금 바로</b> 결제 부탁드려요'" mypage.html 1
 # [SIG_TITLE_WJ] 2026-09-26 통합 점검 2라운드 R1 — 묶음 입금 신고 뒤 계약 카드 제목 «계약금·중도금·잔금 입금 확인 중»은 가운뎃점 양옆 낱말 잇기(U+2060) — 풀면 320 에서 «계약금·중도금· / 잔금»으로 점이 줄 끝에 매달린다([CHECKS_NO_DANGLE] · [SIGN_DEP_TRUE] 선례)
 chk 'SIG_TITLE_WJ' mypage.html 1
 chk 'escapeHtml(_sb.length?(.계약금\\u2060·\\u2060.+_sb.join(.\\u2060·\\u2060.)):.계약금.)' mypage.html 1
