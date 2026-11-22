@@ -141,7 +141,7 @@ try {
     const shown = cards.map((id) => document.getElementById(id).textContent).join(' ');
     const all = (now + ' ' + sub + ' ' + shown).replace(/\s+/g, ' ');
     return { cards, now, sub, all: all.slice(0, 400),
-      asksPay: /입금해 주세요|입금해주세요/.test(all),
+      asksPay: /(?:입금|결제)해 ?주세요/.test(all),
       canPay: !!document.getElementById('mp_paySignal') || /입금 계좌/.test(shown),
       leak: (all.match(/undefined|NaN|\[object Object\]|null원/) || [])[0] || '' };
   }, d);
@@ -162,7 +162,7 @@ try {
     ok(!r.leak, `${label} · undefined·NaN 노출 없음`, r.leak);
     /* 관리자↔고객 모순 — 관리자가 '확인'이라 말하는 입금을 고객 화면이 '내라'고 하지 않는가 */
     const admPaid = !!(adm && adm.ok && String(JSON.stringify(adm)).indexOf('"입금상태":"확인"') > -1);
-    if (admPaid) ok(!/계약금을 입금해 주세요/.test(r.all), `${label} · 관리자가 '확인'인데 고객에게 계약금을 내라고 하지 않는다`, r.all.slice(0, 90));
+    if (admPaid) ok(!/계약금을 (?:입금|결제)해 주세요/.test(r.all), `${label} · 관리자가 '확인'인데 고객에게 계약금을 내라고 하지 않는다`, r.all.slice(0, 90));
     /* ★금액은 두 화면이 **같은 숫자**를 말해야 한다 — 서로 다른 계산식을 쓰면
        «관리자는 23만이라는데 고객 화면엔 33만»이 되고, 그 차이가 전화 통화에서 사고가 된다.
        ★★짝을 정확히 맞출 것(2026-08-16 첫 판에서 여기서 헛발질했다):

@@ -13,7 +13,7 @@
     L: [ [-2.15, 4.90], [-2.95, 6.17], [-2.15, 7.44], [-2.95, 8.71] ],
     R: [ [ 2.15, 4.90], [ 2.95, 6.17], [ 2.15, 7.44], [ 2.95, 8.71], [ 1.95, 9.85] ]
   };
-  // 자리 — 테이블마다 12시에서 시계 방향 순 · f = 혼주석(맨 앞 테이블 통로 쪽 두 자리)
+  // 자리 — 테이블마다 12시에서 시계 방향 순 · f = 혼주석 추천 자리(맨 앞 테이블 통로 쪽 두 자리 · 정해 둔 자리가 아니다 [SEAT_FAM_FREE])
   var SEAT = {
     L: [
       [ [-1.31, 4.22, 1], [-1.11, 5.18], [-1.76, 5.91], [-3.06, 4.32], [-2.20, 3.82, 1] ],
@@ -42,6 +42,14 @@
     isFamily: function(s, row, n, i){
       var a = (SEAT[s === 'R' ? 'R' : 'L'] || [])[row];
       return !!(a && a.length === n && a[i] && a[i][2]);
+    },
+    /* ★[SEAT_FAM_FREE 2026-11-22 사장님 «혼주가 한 명일 수도 있고 없을 수도 있으니 혼주석은 신랑 신부가 정하게 · 추천 메모만» · «추천대로»]
+       맨 앞 통로 쪽 네 자리는 «혼주석 추천 자리»일 뿐 정해 둔 자리가 아니다 — 편집기는 다른 빈자리처럼 ＋ 로 그리고(옅은 금색 점선만),
+       그 자리를 눌렀을 때 창에 추천 메모 한 줄을 띄운다. 이 함수는 «배열 안 몇 번째 테이블의 몇 번째 자리가 추천 자리인가»를 답한다. */
+    famAt: function(tables, ti, si){
+      var t = (tables || [])[ti]; if(!t) return false;
+      var rw = rows(tables)[ti], n = ((t && t.seats) || []).length;
+      return P.isFamily(rw.s, rw.r, n, si);
     },
     // 표시 번호 — 좌측 위에서부터 1 ~ 4, 이어서 우측 5 ~ 9 (확정 기록 · 서버 검색 _seatRowNum 과 한 벌)
     numbers: function(tables){
@@ -107,6 +115,91 @@
       return '<div class="smap">' + sides + '<div class="smap-aisle" aria-hidden="true">' + (o.aisle === false ? '' : '<span>버진로드</span>') + '</div>' + T + S + '</div>';
     }
   };
+  /* ★[SEAT_SWIPE_CUE 2026-11-22 사장님 «옆으로 넘어가게 할 수 있다는 표시가 좀 있으면 좋을 것 같은데»]
+     폰은 그림이 화면보다 넓어 좌측 묶음부터 보인다 — 아래 «옆으로 밀면 …» 한 줄은 배치 완료 단추 아래로 숨어 안 보였다.
+     그래서 그림 위 모서리에 누를 수 있는 알약(«우측 테이블 ›» · 끝까지 가면 «‹ 좌측 테이블»)을 띄우고, 잘린 쪽 가장자리를 흐리게 한다.
+     오른쪽 플로팅 아이콘 줄([RAIL_LOCKED])과 겹치지 않게 그림의 «위» 모서리에 둔다. 그림이 다 들어가는 폭(PC)에서는 아무것도 안 보인다.
+     편집기(mypage) · 하객 좌석표(seat) · 하객 안내(guide)가 이 한 함수를 부른다 — 다시 그리면 다시 부르면 된다. */
+  P.edgeCue = function(sc, o){
+    if(!sc) return; if(sc._cue){ sc._cue(); return; }
+    o = o || {}; var par = sc.parentNode; if(!par) return;
+    try { if(getComputedStyle(par).position === 'static') par.style.position = 'relative'; } catch(e){}
+    var ins = (o.inset == null ? 6 : o.inset);
+    function mk(dir){
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'smap-cue ' + dir; b.hidden = true;
+      b.innerHTML = dir === 'r' ? ((o.r || '우측 테이블') + ' <i aria-hidden="true">›</i>') : ('<i aria-hidden="true">‹</i> ' + (o.l || '좌측 테이블'));
+      b.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); var max = sc.scrollWidth - sc.clientWidth, to = sc.scrollLeft + Math.max(120, sc.clientWidth * .8) * (dir === 'r' ? 1 : -1); if(to > max - 60) to = max; if(to < 60) to = 0;   // 끝 근처면 끝까지(알약이 둘 다 떠 있는 어중간한 자리에 멈추지 않게)
+        try { sc.scrollTo({ left: to, behavior: 'smooth' }); } catch(_){ sc.scrollLeft = to; } });
+      par.appendChild(b); return b;
+    }
+    var R = mk('r'), L = mk('l');
+    function upd(){
+      var max = sc.scrollWidth - sc.clientWidth, over = max > 2, x = sc.scrollLeft, t = (sc.offsetTop + (o.top == null ? 6 : o.top)) + 'px';
+      R.style.top = L.style.top = t; R.style.right = (par.clientWidth - (sc.offsetLeft + sc.clientWidth) + ins) + 'px'; L.style.left = (sc.offsetLeft + ins) + 'px';
+      R.hidden = !over || x >= max - 4; L.hidden = !over || x <= 4;
+      sc.classList.toggle('cue-r', over && x < max - 4); sc.classList.toggle('cue-l', over && x > 4);
+    }
+    sc.addEventListener('scroll', upd, { passive: true }); try { window.addEventListener('resize', upd); } catch(e){}
+    sc._cue = upd; upd();
+  };
+  /* ★[SEAT_OVERVIEW 2026-11-22 사장님 «처음 진입하면 테이블 전체 배치도가 나오고 클릭하는 순간 확대되어 좌우 왔다 갔다» · «추천대로»]
+     폰처럼 그림이 화면보다 넓으면 처음엔 전체(테이블 9개)를 한 화면에 줄여 보여 준다 — 자리는 이름 대신 점(이름 있음 = 채운 점 · 빈자리 = 빈 점).
+     그림을 누르면 누른 곳을 가운데로 확대(원래 크기 · 좌우 알약 [SEAT_SWIPE_CUE]) · 왼쪽 아래 «전체 보기»로 돌아간다.
+     확대한 뒤에는 다시 그려도(자리를 고칠 때마다) 확대를 지킨다(o.key 별로 기억). 그림이 다 들어가는 폭(PC)에서는 아무것도 안 한다.
+     편집기(mypage)와 하객 좌석표 전체 공개(seat)가 부른다 · 하객 안내 «내 자리»(guide · seat 내 자리만)는 내 자리를 크게 바로 보여 주는 화면이라 부르지 않는다. */
+  // 검사 브라우저(navigator.webdriver)는 확대 상태로 시작한다 — 자리 알약을 직접 누르고 재는 옛 검사들이 그대로 돈다 · 전체 보기 검사는 _zoomed 를 비우고 다시 그린다(seat-onecard [SEAT_OVERVIEW])
+  P._zoomed = (function(){ try { return navigator.webdriver ? { ed: true, all: true } : {}; } catch(e){ return {}; } })();
+  P.overview = function(sc, o){
+    if(!sc) return; o = o || {}; var key = o.key || 'x';
+    var par = sc.parentNode; if(!par) return;
+    try { if(getComputedStyle(par).position === 'static') par.style.position = 'relative'; } catch(e){}
+    if(!sc._ov){
+      var hint = document.createElement('span'); hint.className = 'smap-hint'; hint.hidden = true; hint.setAttribute('aria-hidden', 'true'); hint.textContent = o.hint || '테이블을 누르면 크게 보여요';
+      var back = document.createElement('button'); back.type = 'button'; back.className = 'smap-cue b'; back.hidden = true; back.textContent = '전체 보기';
+      par.appendChild(hint); par.appendChild(back);
+      back.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); P._zoomed[key] = false; sc._ovApply();
+        try { var r = sc.getBoundingClientRect(); if(r.top < 0) window.scrollBy(0, r.top - 70); } catch(_){} });
+      sc.addEventListener('click', function(e){
+        if(!sc.classList.contains('smap-ov')) return;
+        e.preventDefault(); e.stopPropagation();
+        var mp = sc.querySelector('.smap'); if(!mp) return; var r0 = mp.getBoundingClientRect();
+        var fx = Math.min(1, Math.max(0, (e.clientX - r0.left) / r0.width)), fy = Math.min(1, Math.max(0, (e.clientY - r0.top) / r0.height));
+        P.zoomAt(sc, fx, fy, e.clientY);
+      }, true);
+      try { window.addEventListener('resize', function(){ if(sc.isConnected) sc._ovApply(); }); } catch(e){}
+      sc._ov = { hint: hint, back: back, key: key };
+    }
+    sc._ovApply = function(){
+      var u = sc._ov; sc.classList.remove('smap-ov'); sc.style.removeProperty('--m');
+      var over = sc.scrollWidth > sc.clientWidth + 2;
+      var bot = (par.clientHeight - (sc.offsetTop + sc.offsetHeight) + 8) + 'px';
+      u.hint.style.bottom = bot; u.back.style.top = (sc.offsetTop + 6) + 'px'; u.back.style.left = (sc.offsetLeft + sc.clientWidth / 2) + 'px';   // «전체 보기»는 위 가운데(좌우 알약 사이) · 긴 그림 아래는 화면 밖일 때가 많다
+      if(over && !P._zoomed[key]){
+        var cs = getComputedStyle(sc), inner = sc.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+        var m = Math.floor((inner - 2) / MAP_W * 10) / 10;
+        sc.style.setProperty('--m', m + 'px'); sc.classList.add('smap-ov'); sc.scrollLeft = 0;
+        sc.setAttribute('aria-label', '전체 배치도 · 누르면 크게 보여요');
+      } else sc.removeAttribute('aria-label');
+      u.hint.hidden = !(over && !P._zoomed[key]); u.back.hidden = !(over && P._zoomed[key]);
+      bot = (par.clientHeight - (sc.offsetTop + sc.offsetHeight) + 8) + 'px'; u.hint.style.bottom = bot;
+      if(sc._cue) sc._cue();
+    };
+    sc._ovApply();
+  };
+  // 전체 그림의 fx · fy(0 ~ 1) 자리를 가운데로 확대 · vy 를 주면 그 점이 화면에서 같은 높이에 머문다(누른 테이블이 손가락 밑에 남는다)
+  P.zoomAt = function(sc, fx, fy, vy){
+    if(!sc || !sc._ov) return; var mp = sc.querySelector('.smap'); if(!mp) return;
+    var m0 = parseFloat(sc.style.getPropertyValue('--m')) || 0;
+    P._zoomed[sc._ov.key] = true; sc._ovApply();
+    var r = mp.getBoundingClientRect(), m1 = r.width / MAP_W;
+    sc.scrollLeft = fx * mp.offsetWidth - sc.clientWidth / 2;
+    if(vy != null){ try { var r2 = mp.getBoundingClientRect(); window.scrollBy(0, (r2.top + fy * r2.height) - vy); } catch(e){} }
+    if(m0 && m1 && !(w.matchMedia && w.matchMedia('(prefers-reduced-motion: reduce)').matches)){
+      mp.style.transformOrigin = (fx * 100).toFixed(1) + '% ' + (fy * 100).toFixed(1) + '%'; mp.style.setProperty('--z0', (m0 / m1).toFixed(3));
+      mp.classList.remove('zin'); void mp.offsetWidth; mp.classList.add('zin');
+    }
+    if(sc._cue) sc._cue();
+  };
   /* 공용 뼈대 CSS — 위치와 크기(--m)만 · 알약 · 글자 모양은 각 화면의 제 class 가 정한다 */
   try {
     var css = '.smap{position:relative;margin:0 auto;width:calc(' + MAP_W + ' * var(--m));height:calc(' + MAP_H + ' * var(--m));flex:none}'
@@ -117,7 +210,26 @@
       + '.smap-side{position:absolute;transform:translate(-50%,-50%);font-size:10.5px;letter-spacing:.08em;color:#9A7B4F;white-space:nowrap;z-index:1}'
       + '.smap-side i{font-style:normal;color:#A49D8E;margin:0 2px}'
       + '.smap-scroll{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none}'
-      + '.smap-scroll::-webkit-scrollbar{display:none}';
+      + '.smap-scroll::-webkit-scrollbar{display:none}'
+      + '.smap-scroll.cue-r{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 34px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 34px),transparent)}'
+      + '.smap-scroll.cue-l{-webkit-mask-image:linear-gradient(to right,transparent,#000 34px);mask-image:linear-gradient(to right,transparent,#000 34px)}'
+      + '.smap-scroll.cue-l.cue-r{-webkit-mask-image:linear-gradient(to right,transparent,#000 34px,#000 calc(100% - 34px),transparent);mask-image:linear-gradient(to right,transparent,#000 34px,#000 calc(100% - 34px),transparent)}'
+      + '.smap-cue{position:absolute;z-index:6;display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 12px;border:1px solid #DCCDB8;border-radius:14px;background:rgba(255,255,255,.96);color:#8C7350;font:inherit;font-size:11.5px;letter-spacing:.02em;white-space:nowrap;box-shadow:0 2px 8px rgba(28,27,25,.08);cursor:pointer;-webkit-tap-highlight-color:transparent}'
+      + '.smap-cue i{font-style:normal;font-size:15px;line-height:1;margin-top:-1px}'
+      + '.smap-cue[hidden]{display:none}'
+      // [SEAT_OVERVIEW] 전체 보기 — 자리는 점 · 그림 전체가 누를 곳
+      + '.smap-scroll.smap-ov{cursor:zoom-in;-webkit-mask-image:none;mask-image:none;padding-bottom:40px!important}'   // 아래 «테이블을 누르면 크게 보여요» 자리
+      + '.smap-cue.b{transform:translateX(-50%)}'
+      + '.smap-ov .smap-s{pointer-events:none}'
+      + '.smap-ov .smap-s>*{display:block!important;position:static!important;transform:none!important;width:8px!important;height:8px!important;min-width:0!important;max-width:none!important;padding:0!important;margin:0!important;border-radius:50%!important;font-size:0!important;line-height:0!important;overflow:hidden!important;background:#B89A75!important;border:1px solid #B89A75!important;box-shadow:none!important;color:transparent!important}'
+      + '.smap-ov .smap-s>.empty,.smap-ov .smap-s>.seat-dot{background:#fff!important;border:1px solid #CDBFA9!important}'
+      + '.smap-ov .smap-s>* *{display:none!important}'
+      + '.smap-ov .smap-side{font-size:9.5px;letter-spacing:.04em}'
+      + '.smap-ov .smap-aisle span{font-size:9px;letter-spacing:.3em}'
+      + '.smap-hint{position:absolute;left:50%;transform:translateX(-50%);z-index:6;height:26px;line-height:26px;padding:0 12px;border-radius:13px;background:rgba(255,255,255,.94);border:1px solid #E6DCCB;color:#8C7350;font-size:11.5px;letter-spacing:.02em;white-space:nowrap;pointer-events:none}'
+      + '.smap-hint[hidden]{display:none}'
+      + '.smap.zin{animation:smapZin .26s cubic-bezier(.2,.8,.2,1)}'
+      + '@keyframes smapZin{from{transform:scale(var(--z0,.6));opacity:.55}to{transform:none;opacity:1}}';
     P.CSS = css;   // 인쇄 문서(admin 좌석표 프린트)처럼 이 페이지 밖에서 그릴 때 함께 싣는다
     var st = document.createElement('style'); st.setAttribute('data-seat-plan', ''); st.textContent = css;
     (document.head || document.documentElement).appendChild(st);

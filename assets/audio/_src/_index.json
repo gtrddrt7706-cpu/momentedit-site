@@ -5143,6 +5143,30 @@
    "voice": "우성",
    "when": "2026-11-16",
    "take": "우성_누가 8_t2"
+  },
+  "386_narr-close-bow-online#3": {
+   "text": "신랑 신부, 하객 여러분께 인사!",
+   "voice": "우성",
+   "when": "2026-11-22",
+   "splice": "CLOSE_C_GO_1122 · 108#2 와 같은 구호 한 판(GUHO_ONE_TAKE) · 클립은 scripts/splice-close-c-1122.py"
+  },
+  "387_narr-close-bow-ex2-online#3": {
+   "text": "신랑 신부, 하객 여러분께 인사!",
+   "voice": "우성",
+   "when": "2026-11-22",
+   "splice": "CLOSE_C_GO_1122 · 108#2 와 같은 구호 한 판(GUHO_ONE_TAKE) · 클립은 scripts/splice-close-c-1122.py"
+  },
+  "388_narr-close-bow-ex3-online#4": {
+   "text": "신랑 신부, 하객 여러분께 인사!",
+   "voice": "우성",
+   "when": "2026-11-22",
+   "splice": "CLOSE_C_GO_1122 · 108#2 와 같은 구호 한 판(GUHO_ONE_TAKE) · 클립은 scripts/splice-close-c-1122.py"
+  },
+  "389_narr-close-bow-ex4-online#3": {
+   "text": "신랑 신부, 하객 여러분께 인사!",
+   "voice": "우성",
+   "when": "2026-11-22",
+   "splice": "CLOSE_C_GO_1122 · 108#2 와 같은 구호 한 판(GUHO_ONE_TAKE) · 클립은 scripts/splice-close-c-1122.py"
   }
  },
  "_언제": "2026-11-15 · 935자리",

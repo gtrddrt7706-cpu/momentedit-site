@@ -564,7 +564,7 @@
   /* ★★[END_FLOW_1030 · BODY_CAP_1030 검토 167 2026-10-30 사장님] 닫는 인사 뒤 몫 — 40분 셈에 넣는다(본식 + 테이블 인사 + 이 몫 + 단체 사진 = 40).
        pre = 사진 전 안내(265 · 266)가 옛 사진 안내(26 · 닫는 인사 몫 46초 안)보다 긴 초(식사 있음 21 · 없음 9 · 엔진 글 길이 셈 · open-course 가 대조) ·
        online = 디지털 참석 날 온라인 인사(62 + 두 분 2분 · 엔진 live 와 같은 값). 빌더는 S 에 digital · meal 이 없어 마이페이지가 준 값을 setPost 로 싣는다 */
-  var POST_SEC = { none: 5, noneNt: 0, noneNc: 0, meal: 5, mealNt: 0, mealNc: 0, mealNr: 5, mealNrNt: 0, mealNrNc: 0, online: 120 };   /* ★[NARR_DEPLOY_1116 검사 기대 갱신] NARR_FIX_1115_1 식사 날 마무리도 287 · 292 · 325 판 → 식사 판 몫 = 식사 없는 판 몫(엔진 셈 · body-cap 대조 · 옛 meal 12 · mealNt 6 · mealNc 2 · mealNr 10 · mealNrNt 5) */   // ★[INFO_SPLIT_200 검토 200 수정 2] 마무리 멘트 판 = 식사 없음 · 식사 + 예약 시각 · 식사 + 예약 시각 없음 × 칩(Nt · Nc) — 엔진 셈 그대로(body-cap 이 대조)
+  var POST_SEC = { none: 5, noneNt: 0, noneNc: 0, meal: 5, mealNt: 0, mealNc: 0, mealNr: 5, mealNrNt: 0, mealNrNc: 0, online: 0 };   /* ★[CLOSE_C_GO_1122] 폐식 카메라 인사 2분(62 + 두 분) 걷음 — 온라인 날 구령 앞 감사 한 줄은 닫는 인사 큐(본식) 안이라 여기 몫 0 */   /* ★[NARR_DEPLOY_1116 검사 기대 갱신] NARR_FIX_1115_1 식사 날 마무리도 287 · 292 · 325 판 → 식사 판 몫 = 식사 없는 판 몫(엔진 셈 · body-cap 대조 · 옛 meal 12 · mealNt 6 · mealNc 2 · mealNr 10 · mealNrNt 5) */   // ★[INFO_SPLIT_200 검토 200 수정 2] 마무리 멘트 판 = 식사 없음 · 식사 + 예약 시각 · 식사 + 예약 시각 없음 × 칩(Nt · Nc) — 엔진 셈 그대로(body-cap 이 대조)
   var _POST = {};
   function setPost(o) { _POST = o || {}; }
   function _postOf(S, f) { if (S && typeof S[f] === 'boolean') return S[f]; if (f === 'guide') return S && S.guide != null ? !!S.guide : _POST.guide !== false; return !!_POST[f]; }   // ★[GUIDE_ALWAYS_202] 하객 안내는 기본 켜짐(ritual-cue gOn 과 같은 규칙)
@@ -895,7 +895,8 @@
       case 'declare': { var dp = declBy(S);   // [DECLARE_BY_PERSON] 늘 사람이 읽는다 · [DECLARE_ANYONE] 적은 분께 부탁 · 안 적었으면 «정하기»가 할 일로 남는다(예시는 칸에만)
         return dp ? [['couple', '성혼 선언문 낭독 · ' + dp + '께 부탁드리기', 'ask', null, NOTE_ASK]] : [['couple', '성혼 선언문 읽어 주실 분 정하기', 'ask', null, NOTE_ASK]]; }
       /* [SONG_BACK_1011] 부르실 분께 부탁 · 반주(MR)는 두 분이 사흘 전까지 보낸다(준비한 순서 영상과 같은 마감) */
-      case 'song': return (S && S.songBy === 'self' ? [] : [['couple', '축가 부르실 분 정하기', 'ask', null, NOTE_ASK]]).concat([   /* ★[REVIEW_166_1030 검토 166 B8] «두 분이 직접»이면 섭외 할 일은 없다(MR 준비는 그대로) */   /* [SONG_ANYONE_WORDS_1013] «불러 주실 분께 부탁드리기»는 두 분이 직접 부르는 날 틀린 말 */ ['couple', '축가 반주(MR) 파일 · 곡 이름과 함께 · 3분 안팎 한 곡', 'send', 3]]);   // ★[SONG_3MIN 2026-10-12] 자료 B «하이라이트만 3분 안쪽» · C 3:00 · L 3분 · 시간 표 210초(TIME.song)
+      case 'song': { var sgw = songWhoOf(S), sgL = sgw ? whoLabel(GUEST_WHO, sgw) : (S && S.songWho === 'etc' ? '부르실 분' : '');   /* ★[N20_SONG_ASK_1119 R3 #05 · 대기·대표님 결정] «누가» 칩을 고른 날은 «정하기»가 아니라 «그분께 부탁드리기» — 성혼 선언([DECLARE_ANYONE] «… 께 부탁드리기»)과 같은 꼴 · 고른 뒤 «다음»의 «축가 부르실 분 정하기가 남아 있어요»가 이미 고른 것을 또 하라는 말로 읽혔다 · 안 고른 날 · 두 분 직접은 종전 그대로 */
+        return (S && S.songBy === 'self' ? [] : [['couple', sgL ? sgL + '께 축가 부탁드리기' : '축가 부르실 분 정하기', 'ask', null, NOTE_ASK]]).concat([   /* ★[REVIEW_166_1030 검토 166 B8] «두 분이 직접»이면 섭외 할 일은 없다(MR 준비는 그대로) */   /* [SONG_ANYONE_WORDS_1013] «불러 주실 분께 부탁드리기»는 두 분이 직접 부르는 날 틀린 말 */ ['couple', '축가 반주(MR) 파일 · 곡 이름과 함께 · 3분 안팎 한 곡', 'send', 3]]); }   // ★[SONG_3MIN 2026-10-12] 자료 B «하이라이트만 3분 안쪽» · C 3:00 · L 3분 · 시간 표 210초(TIME.song)
       case 'tribute': { var t = chipOf('tribute', S), tr = t === 'none' ? [] : [['couple', crossTribute(S) ? '서로의 부모님께 드릴 말 · 한마디부터 1분쯤까지' : '부모님께 드릴 말 · 한마디부터 1분쯤까지'   /* [TRIB_ONE_SAY] */, 'write', null, NOTE_TRIB]];
         return tr.concat(goodsPrep('tribute', S)); }
       case 'free': {   // [FREE_WHAT] 무엇을 · 길이가 곧장 반영된다
@@ -1466,7 +1467,10 @@
   /* when[n − 1](S) = 그 예시가 «맞는 날» — 아닌 날은 칩에 없고 고른 값이 있어도 예시 1 로 흐른다(값은 지우지 않는다 · 다시 맞는 날이면 그대로) */
   /* names 는 배열 또는 함수(S) — 화촉처럼 서는 분마다 지금 글(예시 1)의 결이 달라 이름이 판마다 다를 때 · 빈 이름('')은 그 판에 없는 예시 */
   function narExNames(S, k) { var e = NAR_EX[k]; return !e ? [] : (typeof e.names === 'function' ? e.names(S || {}) : e.names); }
-  function narExOk(S, k, n) { var e = NAR_EX[k], nm = narExNames(S, k); if (!e || !(n >= 1) || n >= nm.length || !nm[n]) return false; var w = e.when && e.when[n - 1]; return (!w || !!w(S || {})) && (!e.need || !!e.need(S || {}, n)); }   // ★[REVIEW_166_1030 검토 166 B12] need = 이 판에서 실제로 쓰는 줄이 그 칩에 있나
+  /* ★★[EX_ROLE_HIDE_1122 2026-11-22 사장님 «축가 멘트 눌러도 변경이 없는데?»] 축가 · 축사에서 «누가»(부르시는 · 하시는 분)를 고른 날은 엔진이 역할 한 줄로 여는 말을 바꾼다(ROLE_SHIP_1117 roleSwapOf · 역할 줄이 이긴다) —
+       그날 멘트 예시 칩은 눌러도 소리 · 글이 안 바뀌어 칩 줄을 숨긴다(기본 판만 · 엔진 결과는 그대로) · 덕담은 고른 예시가 이기므로 해당 없음 */
+  function exRoleWins(S, k) { S = S || {}; if (S.course !== 'open') return false; if (k === 'song') return !!(songWhoOf(S) || songSelfOf(S)); if (k === 'speech') return !!speechWhoOf(S); return false; }
+  function narExOk(S, k, n) { var e = NAR_EX[k], nm = narExNames(S, k); if (!e || !(n >= 1) || n >= nm.length || !nm[n]) return false; if (exRoleWins(S, k)) return false; var w = e.when && e.when[n - 1]; return (!w || !!w(S || {})) && (!e.need || !!e.need(S || {}, n)); }   // ★[REVIEW_166_1030 검토 166 B12] need = 이 판에서 실제로 쓰는 줄이 그 칩에 있나
   /* ★[BASE_SWAP_1023 검토 156] 맞절 · 화촉(어머님) 기본과 예시 2 의 자리를 맞바꿨다 — exv 2 가 없는 옛 초안에서 고른 «1»(옛 예시 2 = 지금 기본)은 0 으로 읽는다.
      빌더는 불러올 때(_applySaved) 같은 옮기기를 하고 exv 2 를 적는다 · 고르지 않은 옛 초안은 새 기본을 따른다(사장님 뜻) */
   /* 옛 초안 = 식순 화면이 저장한 S(늘 entryScene 을 싣는다) 중 exv 2 가 없는 것 — 엔진 · 검사가 손으로 만든 S(entryScene 없음)와 미리듣기 주소는 새 차례로 읽는다 */
