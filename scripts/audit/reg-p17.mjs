@@ -117,13 +117,9 @@ try {
     const r4 = await f.evaluate(async () => { const BB = BgmBed._t, W = (ms) => new Promise((r) => setTimeout(r, ms)), st = LP.q[LP.i]; BgmBed.lpShow(st); const hold = !!BB.LPB.hold; await W(600); LP.paused = false; const rr = BgmBed.lpResume(); await W(1200); const v = BB.BED.cur; return { k: st.k, slug: st.slug, dk: st.dk, hold, rr, src: !!(v && v.src && v.want > -60), g: v && v.g ? Math.round(v.g.gain.value * 1000) / 1000 : 0 }; });
     console.log('T04 줄', r4.k, r4.slug, r4.dk); ok('T04 대조 — 의도적 무음 줄(맞절 · 목표 −60 이하)에서 «음악 켜기» 뒤 이어 들으면 무음 그대로', r0.pick > -1 && r4.k === 'matjeol' && r4.dk <= -60 && !r4.src && r4.g < 0.01, { r0: { pick: r0.pick, ks: r0.ks }, r4 });
     ok('C 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); } } catch (e) { ok('C 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })(),
-  (async () => { try { if (want('D')) {
-    /* ★[SEAM_WORD_1107 J06 · 1층 · CI 5개 1층 조건 맞춤 11/10] 맞절 → 감사 인사의 b8 이음말은 빠졌다(350 이 감사 인사 첫 줄) — 같은 꼴의 이음말 b14(식전 영상 → 화촉)로 잰다 */
-    const { ctx, f, errs, r0 } = await setup(['prevideo', 'candle'], 'pre', { candle: 3 });   /* ★[NARR_GO_1122 ⑤] 91(«화촉»을 스스로 말함)은 영상 뒤 B14 가 빠진다 — 이음말이 서는 칩(예시 4 «하객 여러분, …»)으로 잰다 */
-    const r6 = await f.evaluate(async () => { const BB = BgmBed._t, W = (ms) => new Promise((r) => setTimeout(r, ms)), st = LP.q[LP.i]; st.dk = -16; st.ldk = null;   /* 이음말이 말 아래 크기(−16)인 판(b12 · b14 꼴) */
-      BgmBed.lpShow(st); const hold = !!BB.LPB.hold; await W(600); LP.paused = false; BgmBed.lpResume(); await W(1200); const v = BB.BED.cur; return { slug: st.slug, pre: !!st._pre, hold, src: !!(v && v.src && v.want > -60), f: v && v.f, g: v && v.g ? Math.round(v.g.gain.value * 1000) / 1000 : 0 }; });
-    ok('T06 다음 순간 몫 이음말(_pre)에서 보류 뒤 이어 듣기 — 새 곡을 한 줄 일찍 걸지 않는다', r0.pick > -1 && r6.pre && r6.hold && !r6.src && r6.g < 0.01, { r0: { pick: r0.pick }, r6 });
-    ok('D 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); } } catch (e) { ok('D 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })(),
+  /* ★[PREVIDEO_SONG_1122 2026-11-22 대표님 승인] T06 은퇴 — 잰 자리(영상 뒤 b14 이음말이 «다음 순간 몫(_pre)» 줄)가 사라졌다: 263 은 이제 곡 위 첫 줄(GO 에서 곡이 먼저 오른다).
+     영상 없는 날 화촉 · 축가 → 부모님께 인사(b12)에도 _pre 줄이 서지 않아(11/23 실측 pick −1) 잴 자리가 없다 · 새 흐름은 meaning-r1 PREVIDEO_SONG_1122 두 줄 · pv-out-1122 가 잰다 · 옛 갈래 D 는 git 이력(이 커밋 앞) */
+  (async () => { if (want('D')) console.log('skip T06 — 은퇴([PREVIDEO_SONG_1122] _pre 이음말 자리 없음)'); })(),
   ]);
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); }
 await br.close(); srv.close();

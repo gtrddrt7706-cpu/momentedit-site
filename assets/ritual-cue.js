@@ -781,7 +781,7 @@
      그래서 자리는 남기고 여기 표시한다 — 안 하면 녹음 대기 목록이
      "소리가 없으니 녹음하라"고 하고, 폐지한 것을 다시 녹음하게 된다(실제로 한 번 그렇게 나왔다).
      ★되살리려면 여기서 빼는 것만으로는 안 된다. GADD 부터 되돌려야 하고 그건 사용자 지시에 반한다. */
-  var RETIRED = { 'narr-ringwarm-out': 1, 'ringwarm-family': 1, 'ringwarm-all': 1,
+  var RETIRED = { 'narr-prevideo-out': 1 /* ★[PV_OUT_OFF_1122] 261 영상 받는 말 — 2026-11-22 사용자 지시로 삭제 · 되살리지 말 것 */, 'narr-ringwarm-out': 1, 'ringwarm-family': 1, 'ringwarm-all': 1,
     /* ★★[CAKE_FILES_OFF_1110 사장님 11/10 12:42 «케이크는 없어졌잖아 삭제해» · 대본 A] 케이크 5클립(41 toast-cake · 42 toast-both · 76 toast-both-b · 77 narr-cake-out · 107 toast-both-pour-b)은
        mp3 · _src · 대장까지 지웠다 — FILES 에는 번호 자리만 남긴다(빼면 뒤 번호가 전부 밀린다) · 되살리기 금지 · 옛 초안 both → toast 옮기기는 그대로(CAKE_OLD_OFF_1017) */
     'toast-cake': 1, 'toast-both': 1, 'toast-both-b': 1, 'narr-cake-out': 1, 'toast-both-pour-b': 1,
@@ -1126,12 +1126,9 @@
         rescue: { slug: '', name: '재생 안 됨 · 사진 시간으로 미룸', text: '' } /* ★[FREE_FAIL_VOICE_OFF_1023 검토 151-1 4)] 녹음 한 줄(105)은 쉰다 — 안 나온 순간은 디렉터가 말로 알린다(자료 대본에 없는 글) · 단추는 남아 미룬 순서를 사진 시간에 적는다 */,
         live: { t: '두 분이 준비한 영상 상영 (3분 안 · 두 분은 문 밖에서 대기)', est: 180, duck: PARAM.duckOff,
           fallback: '영상이 안 나오면 [재생 안 됨] · 디렉터가 «사진 시간에 함께 보겠습니다» 한 줄로 알리고 곧장 다음 순간으로' }
-      }), cue({
-        /* ★[PV_OUT_1019 검토 132] 영상이 끝나면(디렉터 GO) 받는 한 줄 — 앞 큐에 사람 순간(상영)이 있어 손으로 나간다(CUE_FIRE_RULE) · 두 분 목소리 판에도 같다(진행자 몫) ·
-           다음 줄은 이어서 나간다(화촉) · 입장은 늘 손으로(entry 첫 줄 manual · B7) · [재생 안 됨]을 누른 날은 콘솔이 다음으로 넘긴다 */
-        k: 'prevideo', blockN: '식전 영상', slug: 'narr-prevideo-out', name: '영상이 끝나면', text: EXTRA['narr-prevideo-out'], duck: PARAM.duckSpeech,
-        hint: '영상이 끝나면'
       })];
+      /* ★«영상 받는 말»(261 narr-prevideo-out «두 사람의 진심이 여러분께 잘 전해졌기를 바랍니다») 금지 — 2026-11-22 사용자 지시로 삭제 [PV_OUT_OFF_1122]
+           대표님 17:16 «빼기» · 17:33 «식전 영상 이후 다음 순간에서 고른 BGM 이 바로 나오게 · 그 후 먼저 오늘의 멘트» — 영상 끝(디렉터 GO) → 다음 순간 곡 → 곡 위로 첫 줄(화촉 날 263) · 소리는 RETIRED(번호 · 파일 보존) */
     },
     /* ★[OPEN_COURSE] 화촉 — 입장 바로 앞. 서는 분(S.candleWho)에 따라 여는 말만 달라진다(명세 7장). */
     candle: function (S) {
@@ -1857,16 +1854,18 @@
              고른 화촉 멘트가 순서를 알리며 열면(«이제 …» · «먼저 …» · «그럼 먼저, …») BRIDGE_SKIP_1018 대로 안 끼운다 */
         /* ★[NARR_GO_1122 ⑤ · 릴스 방 NARR_종합_1119 #5 · 대표님 11/22 «나레이션 추천대로»] 식전 영상 바로 뒤에는 263 «먼저 …»을 끼우지 않는다 — 이미 순서가 지났는데 «먼저» ·
              고른 화촉 여는 말이 글 안에서 «화촉 · 촛불»을 스스로 말할 때만(가족 91 «양가 어머님께서 화촉에 불을 밝히실 때») · 영상 받는 말 뒤 3초는 여는 말이 진다 · 개식 바로 뒤(영상 없는 날)는 종전대로 263 */
-        var _b14Self = bc.k === 'prevideo' && /촛불|화촉/.test(String(_nxT));
-        if (bn.k === 'candle' && bc.k !== 'candle' && _b14Self && !bn.gapMs) bn.gapMs = 3000;
-        if (bn.k === 'candle' && bc.k !== 'candle' && !_b14Self && !BRIDGE_OPEN.test(_nxT) && !/촛불|화촉/.test(String(_nxT).split(/[.!?]/)[0])) _more.push('bridge-b14-candle-name');   /* ★[B14_SKIP_CANDLE_1023 검토 152 엔진 2)] 고른 화촉 여는 말 첫 문장이 «촛불 · 화촉»을 이미 말하면 B14 를 끼우지 않는다(5초 안 «촛불» 두 번 · «밝히» 세 번) */
+        /* ★★[PV_OUT_OFF_1122 대표님 11/22 17:33 «식전 영상 이후 다음 순간에서 고른 BGM 이 바로 나오게 · 그 후 먼저 오늘의 멘트»] 식전 영상 바로 뒤 화촉이면 263 «먼저 오늘의 …»이 늘 첫 줄 —
+             NARR_GO ⑤(영상 뒤 263 걷기 · 여는 말 3초)는 이 결정이 덮는다 · 고른 여는 말이 «이제 …»로 열거나 글 안에서 «화촉 · 촛불»을 말해도(91) 영상 뒤는 263 으로 순서 이름을 먼저(영상 받는 말 261 이 빠져 순서를 알리는 줄이 이것뿐) · 첫 문장부터 «촛불»이면(93) 5초 안 두 번이라 종전대로 뺀다 ·
+             개식 바로 뒤(영상 없는 날)는 종전 그대로(BRIDGE_OPEN · B14_SKIP_CANDLE) */
+        var _b14Pv = bc.k === 'prevideo';
+        if (bn.k === 'candle' && bc.k !== 'candle' && (_b14Pv || !BRIDGE_OPEN.test(_nxT)) && !/촛불|화촉/.test(String(_nxT).split(/[.!?]/)[0])) _more.push('bridge-b14-candle-name');   /* B14_SKIP_CANDLE_1023(첫 문장이 «촛불 · 화촉» — 아버님 93 등)은 영상 뒤에도 그대로 · 그날은 여는 말이 곡 뜸 뒤 첫 줄 */   /* ★[B14_SKIP_CANDLE_1023 검토 152 엔진 2)] 고른 화촉 여는 말 첫 문장이 «촛불 · 화촉»을 이미 말하면 B14 를 끼우지 않는다(5초 안 «촛불» 두 번 · «밝히» 세 번) */
         var pushMore = function (sm) {
           var _pre = sm === 'bridge-b8-face-guests' || sm === 'bridge-b12-tribute-calm' || sm === 'bridge-b14-candle-name', _at = _pre ? bn : bc;   // 다음 순간 앞에 서는 줄은 그 순간 몫(순간 쪽 · 미리 듣기 자르기가 그 순간에서 들린다) · B7 은 앞 순간 몫 — 입장 첫 줄은 디렉터가 손으로 낸다(CUE_FIRE_RULE · 신부 준비 완료 뒤)
           _bl.push(cue({ k: _at.k, blockN: _at.blockN, slug: sm, name: '이음말 · ' + ({ 'bridge-b7-entry-ready': '입장 앞', 'bridge-b8-face-guests': '하객 쪽으로', 'bridge-b9-declare-seat': '읽은 분 자리로', 'bridge-b9-declare-seat-end': '읽은 분 자리로',
               'bridge-b10-speech-clap': '축사 박수', 'bridge-b12-tribute-calm': '경건하게', 'bridge-b14-candle-name': '화촉 순서 알림' })[sm],
             text: EXTRA[sm], duck: sm === 'bridge-b10-speech-clap' ? (bgmBed(S, 'S5') ? PARAM.duckSpeech : PARAM.duckOff) : PARAM.duckMusic, note: '이음말 · 이 두 순간 사이에서만(BRIDGE_MORE_1018)',   /* ★[BGM_TIMING_1101] 축사 맺는 말 — «음악 없이»면 무음 · «음악과 함께»(M4S5)면 −16 · 박수에서 −8 */
             fire: sm === 'bridge-b7-entry-ready' ? 'manual' : '', hint: sm === 'bridge-b7-entry-ready' ? '신부 준비 완료 · 문 앞 대기 확인 후(이 줄 뒤 입장 멘트는 문이 열릴 때 한 번 더 GO)' : '',   // ★[CUE_FIRE_RULE] 입장 앞은 엔진이 손으로 내는 자리 — 입장 멘트와 같은 대기
-            gapMs: (sm === 'bridge-b14-candle-name' && bc.k === 'prevideo') ? 3000 : undefined,   /* [CANDLE_NAME_1019] 영상 받는 말(261) 뒤 3초(화제가 바뀌는 자리 · G2 5-2 · 영상 끝 조명이 오르는 사이 RR 115) · 개식 바로 뒤면 아래 OPEN_GAP 이 정한다 · 이음말 → 여는 말은 사슬 그대로 */
+            gapMs: undefined,   /* ★[PV_OUT_OFF_1122] 영상 뒤 263 은 디렉터 GO(영상이 끝나면) · 곡 뜸은 아래 영상 뒤 정리가 싣는다 — 옛 «261 뒤 3초»(CANDLE_NAME_1019)는 261 과 함께 걷음 */   /* [CANDLE_NAME_1019] 영상 받는 말(261) 뒤 3초(화제가 바뀌는 자리 · G2 5-2 · 영상 끝 조명이 오르는 사이 RR 115) · 개식 바로 뒤면 아래 OPEN_GAP 이 정한다 · 이음말 → 여는 말은 사슬 그대로 */
             live: sm === 'bridge-b10-speech-clap' ? clapUp(applause('하객 박수 · 축사해 주신 분께', PARAM.declare.applauseMs / 1000)) : null }));   // ★[CLAP_GO] 박수를 청하니 다음 줄은 디렉터 GO
         };
         _bl.push(bc);
@@ -2242,10 +2241,12 @@
            당일 콘솔에서 사슬 3초 + 뜸 3초가 겹쳐 약 6초 정적이었다(미리 듣기는 3초) · 박수를 청하는 개식(GO) · 그 밖 자리는 그대로(하객 맞이 곡 2초 내림 + 정적 1초) */
       var _pp = cues[pa - 1] || null, _pvNoClap = !!_pp && _pp.slug === 'narr-open' && _pc.fire === 'chain' && !(_pp.live && _pp.live.applause) && _pp.duck <= -60;   /* 박수 판은 여기서 아직 GO(manual) · live.applause — 미리 듣기 사슬 4.5초 전환은 이 뒤 */
       if (/^narr-prevideo-in/.test(_pc.slug || '')) { _pc.duck = PARAM.duckOff; _pc.fadeMs = 2000; if (!_pvNoClap) _pc.goLeadMs = Math.max(_pc.goLeadMs || 0, 3000); }
-      if (_pc.slug === 'narr-prevideo-out') { _pc.duck = PARAM.duckOff;
-        for (var pb = pa + 1; pb < cues.length; pb++) { var _pn = cues[pb]; if (_pn.k !== 'candle') break;
-          if (/^bridge-/.test(_pn.slug || '')) { _pn.duck = PARAM.duckOff; continue; }
-          _pn.goLeadMs = Math.max(_pn.goLeadMs || 0, 6000); _pn.leadDb = PARAM.duckMusic; break; } }
+      /* ★★[PV_OUT_OFF_1122 대표님 11/22 17:33] 영상 끝(디렉터 GO) → 다음 순간 곡이 바로(무음에서 −8 로 6초 앞서 · leadDb) → 곡 위로 첫 줄 — 화촉 날 = 263(말 아래 −15) → 여는 말 사슬 1.2초(안내 흐름 · 취향 프로필 6) ·
+           옛 «261(무음) → 이음말 무음 → 여는 말에서 곡»은 261 과 함께 걷음 · 화촉이 없는 날(입장)은 B7 이 정적을 이어받는다(SEAM_BG01 · 입장 곡은 입장 GO 에서) · 곡 크기 · 간격은 BGM 방과 맞춘다 */
+      var _pq = cues[pa + 1];
+      if (_pq && _pq.k !== 'prevideo' && /^narr-prevideo-in/.test(_pc.slug || '') && _pq.k === 'candle') {
+        _pq.fire = 'manual'; _pq.hint = '영상이 끝나면'; _pq.gapMs = 0; _pq.goLeadMs = Math.max(_pq.goLeadMs || 0, 6000); _pq.leadDb = PARAM.duckMusic; _pq.duck = PARAM.duckSpeech;
+        var _pr = cues[pa + 2]; if (_pr && _pr.k === 'candle' && /^bridge-/.test(_pq.slug || '')) { _pr.fire = 'chain'; _pr.gapMs = 1200; _pr.goLeadMs = 0; _pr.leadDb = null; } }
     }
     /* ★[SEAM_BG01 이음매 명세 · MEANING_R2_1102 ENTRY_HUSH] 입장 앞 이음말(b7) — 식전 영상 · 개식사 정리가 끝난 «뒤»에 정한다(앞 큐 크기가 확정된 뒤) ·
          앞이 정적으로 끝났으면(화촉 없는 날 영상 · 개식사 뒤) b7 도 정적을 이어받는다(−90 · 하객 맞이 곡이 다시 오르지 않는다 · 입장 GO 에서 입장 곡만) ·
