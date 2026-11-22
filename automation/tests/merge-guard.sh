@@ -21088,7 +21088,7 @@ chk 'BGM_FIX_1030' order-preview.html 2
 chk 'BGM_FIX_1030' automation/platform/80_production.gs 3
 chk 'BGM_FIX_1030' scripts/audit/bgm-fix.mjs 1
 # ★[PONYO_HOOK_1122 2026-11-22 사장님 «포뇨 메인 부분» · BGM 방 파일 실측] B36 강조 자리 = 주제 선율 한 마디 앞 18.2초
-chk "why: '가볍고 경쾌하게' , start: 18.2}" assets/bgm-picks.js 1
+chk "why: '가볍고 경쾌하게' , start: 18.2, startFirst: true}" assets/bgm-picks.js 1
 # ★[CHEER_TAIL_1030 2026-10-30 BGM 섹션] «위하여»가 미리 듣기의 마지막 줄이어도 축배 곡(M7)으로 넘어가 4초 들려준 뒤 끝낸다 —
 #   END_FLOW_1030 이 잔 내려놓기를 «위하여» 칸에 합쳐 축배 순간이 «위하여»에서 끝나자 축배 곡이 한 번도 안 나왔다(bgm-preview D6 빨강).
 #   소리는 브라우저가 있어야 재므로 CI 의 bgm-sound 칸([BGM_SOUND_CI])이 bgm-preview · bgm-seg8 · bgm-console2 를 실제로 돌린다.
@@ -21230,7 +21230,13 @@ chk "if (!d || d.multi || !S || !S.bgm) return ''" assets/bgm-picks.js 1   # 목
 chk 'LIST_NO_PICK_1101' scripts/audit/bgm-fill.mjs 1
 chk 'function effHas(sg)' assets/bgm-bed.js 1   # [GHIBLI_ADD_1101] 파일 있는 다음 곡
 chk 'BGM_FILL_1101' scripts/audit/bgm-fill.mjs 1
-chk "M1: \['B01', 'B24', 'B13'\]" assets/bgm-picks.js 1
+chk "M1: \['B36', 'B01', 'B24'\]" assets/bgm-picks.js 1   # ★[PONYO_FIRST_1122 2026-11-22 대본 결정] 하객 맞이 1순위 포뇨 · Moon River 는 FILL
+chk "var FILL = { M1: \['B13', 'B33', 'B35', 'B37'\]" assets/bgm-picks.js 1
+chk 'PONYO_FIRST_1122' console.html 1
+chk 'PONYO_FIRST_1122' assets/bgm-bed.js 1
+nochk "M1: \['B01', 'B24', 'B13'\]" assets/bgm-picks.js   # 옛 1순위 되살리지 말 것
+chk 'MATJEOL_WORD_1122' assets/bgm-slots.js 1
+nochk '하객을 향해 서시면 본식 피아노가 잔잔하게 깔려요' assets/bgm-slots.js   # [MATJEOL_WORD_1122] 맞절 듣기에서 안 나는 소리 약속 금지
 chk "M8L: \['B32', 'B11', 'B27'\]" assets/bgm-picks.js 1
 chk 'PICKS_THREE_1101' scripts/audit/picks-three.mjs 1
 nochk "'부터 이어서 틀어요'" assets/bgm-bed.js   # [SONG_ROW_LINES_1101] 곡 칸 아래 «… 이어서 틀어요 · 준비해요» 줄은 걷었다

@@ -1407,6 +1407,7 @@ function segGo(id){ if (!id || ((MODE === 'preview' || GUEST) && !pvsOn())) retu
        (같은 구간이라 다음 큐에서도 다시 시도하지 않았다 · 하객 맞이 20분 무음 · 설정 화면엔 깨진 파일도 ✓).
        앞 곡이 흐르는 중이면(안 들리게 낮춰 둔 정적 자리 포함) 종전 그대로 — DETAIL_R3_1101 ② «앞 곡 그대로 · 빨간 한 줄» · 꺼 둔 앞 곡 되돌림(NO_RELIFT_XF_1114 bedUnhush)도 그대로 */
   var _pe0 = BED.el[BED.on], _h4 = !!BED.m4h; if (_h4 || !(_pe0 && !_pe0.paused && _pe0.getAttribute('src'))) BED.onFail = function(){ segFirstFail(id, _h4); };   /* [M4_HANDOFF_NEXT_1115] 짧은 입장 곡 인계(esdEnd)는 앞 곡(꺼 둔 화촉 곡)이 있어도 다음 곡을 연다 */
+  if (rat == null && BP && BP.firstAt) { var _fa = BP.firstAt(L[li]); if (_fa > 0) rat = _fa; }   /* ★[PONYO_FIRST_1122] 구간 첫 곡이 startFirst 곡(하객 맞이 포뇨)이면 강조 자리(주제 18.2초)부터 · 미리 듣기 첫 곡과 같다 */
   var _r0 = bedPlay(L[li], SEG_XF, rat); BED.onFail = null;   /* 미뤄진 요청(BED.later)으로 새지 않게 */ return _r0; }
 /* [SEG_FIRST_FAIL_1114] 구간 첫 곡이 안 열렸고 흐르는 앞 곡도 없다 — 목록의 다음 곡(파일이 있고 못 연 적 없는 곡)을 한 번씩 · 다 안 되면 꺼 둔 재생기를 되돌리고(bedUnhush) 종전 한 줄 */
 function segFirstFail(id, h4){ if (BED.seg !== id) return; var L = BED.list || [], bad = BED.bad || {};
