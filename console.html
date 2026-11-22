@@ -1372,7 +1372,7 @@ function bedFree(){ var now = Date.now(); for (var k = 0; k < BED.el.length; k++
 function bedLater(){ var q = BED.later; BED.later = null; if (q && BED.mode !== 'off') bedPlay(q[0], q[1], q[2]); }
 /* ★★[PREVIEW_LINK_SONGS_1101 2026-11-01 BGM 섹션] 미리듣기(preview) · 손님 판(GUEST · 식순 화면 · 마이페이지 «연습 · 준비»)도 두 분이 고른 구간 곡 —
      곡 계획은 당일 콘솔과 같은 함수(segPlan → BgmPicks.plan · 이어짐 · 목록) · 파일은 부모(식순 화면 · 마이페이지)가 두 분 계정으로 받아 준다(key bed · 받기만)
-     · 곡을 못 받은 구간만 예시 음악(PREVIEW_BED · '@PV')으로 내려앉고 고지 줄이 «곡을 불러오지 못해 예시 음악이 흘러요» · 다른 구간은 고른 곡
+     · (옛) 곡을 못 받은 구간만 예시 음악(@PV)으로 내려앉던 갈래는 PREVIEW_BGM2_1122 로 걷음 — 이제 빨간 한 줄 · 다른 구간은 고른 곡
      · 디렉터가 고른 배경 음악 파일(BGMURL)이 있으면 그 파일이 이긴다(종전 그대로) · 크기 = 미리듣기 감쇠(BED_TRIM_DB) · 곡 보정(+songGain · 예시 음악은 0 dB) */
 var PVS = { wait: {}, fail: {}, err: {}, dir: {}, want: '', missAny: false };
 function pvsOn(){ return (MODE === 'preview' || GUEST) && !BGMURL; }
