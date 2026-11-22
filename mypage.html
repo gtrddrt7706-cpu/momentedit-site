@@ -2427,7 +2427,7 @@ button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
      그래서 **캐시 첫 페인트에는 버튼이 없고, 서버 갱신이 끝나 다시 그릴 때 나타났다.**
      망이 느리면 몇 초 동안 없고, 갱신이 실패하면 끝내 안 나온다 — '어쩔 땐'의 정체다.
      ★인라인 스크립트보다 **앞**에 둔다. 뒤로 옮기지 말 것. (head 로도 올리지 말 것 — MPD_E1) -->
-<script src="/assets/seat-plan.js?v=1122c"></script><!-- [SEAT_PLAN_9] 캔들존 확정 배치(9테이블 · 35석) 단일 원천 — 좌석 편집기 · seat · guide · admin 공용 -->
+<script src="/assets/seat-plan.js?v=1122d"></script><!-- [SEAT_PLAN_9] 캔들존 확정 배치(9테이블 · 35석) 단일 원천 — 좌석 편집기 · seat · guide · admin 공용 -->
 <script src="/assets/dining-data.js?v=1105a"></script><!-- [DINE_DATA_NI16] 식당 · 카페 목록 단일 원천(관리자 «당일 콘솔»도 읽는다) -->
 <script src="/assets/ritual-preview-link.js?v=1122t1"></script>
 <script src="/assets/snap-refs.js"></script><!-- [SNAP_REFS] 스냅 기획 레퍼런스 목록(단 하나의 원천) — 인라인 스크립트보다 앞 -->
@@ -13347,7 +13347,7 @@ function renderSeat(box){
     +'</div>'; _wzPin(box);
   SEATFLOW._rendering=false;
   (function(){ var sp=box.querySelector('[data-seat-scroll]'); if(!sp) return; if(_spX>=0) sp.scrollLeft=_spX;   // [SEAT_PLAN_9]
-    ME_SEAT_PLAN.edgeCue(sp); })();   // [SEAT_SWIPE_CUE] 그림 위 «우측 테이블 ›» · 끝이면 «‹ 좌측 테이블» · 다 들어오는 폭이면 숨김
+    ME_SEAT_PLAN.edgeCue(sp); ME_SEAT_PLAN.overview(sp, { key:'ed' }); })();   // ★[SEAT_OVERVIEW] 처음엔 전체 그림(점) · 누르면 확대 · «전체 보기»로 돌아감   // [SEAT_SWIPE_CUE] 그림 위 «우측 테이블 ›» · 끝이면 «‹ 좌측 테이블» · 다 들어오는 폭이면 숨김
   box.style.display='block';
   bindSeat(box);
   // wireSeatShare 호출 제거 — 좌석 편집기 안 공유 패널 폐지(2026-07-19 사용자 지시 · 링크·QR은 하객 안내 접점)
