@@ -68,6 +68,9 @@ const G = [
     ['G3-NR24', '축사 뒤 붙임 박수 (ROLE_SHIP_1117)', 'clap-speech', RC.EXTRA['clap-speech']],
     ['G3-NR25', '축가 뒤 붙임 박수 · 가족 · 친구 (ROLE_SHIP_1117)', 'clap-song', RC.EXTRA['clap-song']],
     ['G3-NR26', '축가 뒤 붙임 박수 · 두 분 직접 (ROLE_SHIP_1117)', 'clap-self', RC.EXTRA['clap-self']],
+    /* ★[NARR_GO_1122] 384 · 385 — 받은 소리를 잘라 붙인 판(새 녹음 = 385 첫 문장 하나 · ONLINE_GREET_1119 우성 후보 a) · 조립은 scripts/splice-narr-go-1122.py(43 처럼 전용) */
+    ['G3-NG1', '혼인 서약 시작 · 맞절이 «마주 보고 서»라고 한 날 (13 둘째 문장 뺌 · NARR_GO_1122)', 'narr-vow-in-face', RC.EXTRA['narr-vow-in-face']],
+    ['G3-NG2', '개식 선언 · 온라인 날 (137 첫 문장만 새 녹음 · NARR_GO_1122)', 'narr-open-online', RC.EXTRA['narr-open-online']],
     ['G3-2', '환영 마무리', 'narr-welcome-out', D.NARR.welcome.end],
     ['G3-3', '혼인 서약 시작', 'narr-vow-in', D.NARR.vow.nar],
     ['G3-4', '혼인 서약 마무리', 'narr-vow-out', D.NARR.vow.end],
