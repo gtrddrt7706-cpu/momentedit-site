@@ -24293,3 +24293,6 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/lf-more.mjs >/dev/nu
 # ★[PAIR_ARIA_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정] 고르기 «축사 · 축가» 칸 읽어 주는 이름 — 다른 칸과 같은 «○○ 담기» + 눌림(«축가 빼기, 눌림» 겹침 걷기)
 chk 'PAIR_ARIA_N06' order-preview.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/pair-aria.mjs >/dev/null 2>&1; _pa=$?; node scripts/audit/pair-aria.mjs --selftest >/dev/null 2>&1; _pas=$?; if [ "$_pa" != 0 ] || [ "$_pas" != 0 ]; then echo "REVERT? pair-aria: 축사 · 축가 칸 읽어 주는 이름이 «빼기»로 돌아갔다 ($_pa/$_pas) — node scripts/audit/pair-aria.mjs"; fail=1; else echo 'ok pair-aria'; fi; fi
+# ★[LIVE_EN_CEREMONY_N20_19 2026-11-22] 디지털 참석 영문 자리 글은 예식 기준(«before the ceremony») · 정각 기준 표현으로 되돌리지 않는다
+chk 'The live stream opens<br>5 minutes before the ceremony.' live.html 1
+nochk 'before the hour' live.html
