@@ -22848,6 +22848,7 @@ chk 'function _prBusy()' order-preview.html 1   # [B2_NA_23]
 chk '다음 차례를 준비하고 있어요' order-preview.html 1
 chk "if(k==='welcome'&&St().welcomeKind==='thanks') return '감사문';" assets/bgm-bed.js 1   # [THANKS_SWAP_1122]   # [B2_NA_24]
 chk "if(k==='welcome'&&S.welcomeKind==='thanks') return '감사문';" assets/bgm-form.js 1   # [THANKS_SWAP_1122]
+chk "if (_rc.k === 'welcome' && _rs !== 'bridge-b8-face-guests' && _rp" assets/ritual-cue.js 1   # ★[THANKS_LEAD_FIX_1122] 감사문 날 244 에 곡 뜸이 걸리지 않게(피아노 켜졌다 꺼짐)
 chk '현재 식순에는 이 시각의 안내가 없습니다.' order-preview.html 1   # [B2_NA_26]
 chk '착석 · 휴대폰 무음 · 온라인 참석자 환영' order-preview.html 1
 chk '본식부터 단체 사진까지 배정한 시간은' order-preview.html 1   # [B2_NA_27] d-16
