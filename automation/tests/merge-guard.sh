@@ -5804,6 +5804,12 @@ chk 'ME_SEAT_PLAN.edgeCue(' seat.html 1
 chk 'ME_SEAT_PLAN.edgeCue(' guide.html 2
 nochk 'data-swipe>옆으로 밀면' guide.html
 nochk 'data-swipe>옆으로 밀면' seat.html
+# ★[SEAT_FAM_FREE 2026-11-22 사장님 «혼주석은 신랑 신부가 정할 수 있게 · 추천 메모만» · «추천대로»] 빈 혼주석 «혼주» 표기를 걷고 자리 창에 추천 메모 한 줄
+chk 'famAt: function(tables, ti, si)' assets/seat-plan.js 1
+chk 'ME_SEAT_PLAN.famAt(s.tables, sel.ti, sel.si)' mypage.html 1
+chk 'SEAT_FAM_FREE' scripts/audit/seat-onecard.mjs 2
+nochk 'class="rs-fam"' mypage.html
+nochk "(fam?'혼주':'·')" admin.html
 nochk '<div class="seat-swipe"' mypage.html
 nochk "R:'레드와인'" guide.html
 chk "Y:'어린이 · 물'" mypage.html 1
