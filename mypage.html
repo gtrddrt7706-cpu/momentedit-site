@@ -8851,7 +8851,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   //   ★'들려줄 게 있는가'의 판단은 링크 조립기 한 곳이 한다 — 주소가 나오면 있고, 빈 문자열이면 없다.
   //     여기서 rd._v===3 같은 조건을 따로 세우면, 조립기 조건이 바뀌는 날 버튼만 남아 빈 화면을 연다.
   var _ritPre=null;
-  try{ if(window.RitualPreviewLink && RitualPreviewLink.urlFromDraft(rd)) _ritPre={id:'mp_ritualPreview', label:'연습 · 준비 ›'};   /* [PR_FROM_MYPAGE] 옛 «미리듣기» */ }catch(e){}
+  try{ if(window.RitualPreviewLink && RitualPreviewLink.urlFromDraft(rd)) _ritPre={id:'mp_ritualPreview', label:'연습 ›'};   /* [PR_FROM_MYPAGE] 옛 «미리듣기» · ★[PRACTICE_ONLY_1123 사장님 «연습 준비 이것을 좀 덜어내자 · 진짜 연습만»] «연습 · 준비 ›» → «연습 ›» · 준비 목록은 예식 준비 «준비할 것» 줄(PREP_HUB_1123) 한 곳 */ }catch(e){}
   /* ★★[PR_PREP_ONE 2026-10-07 사장님 «연습하기 · 준비할 것을 그 윗줄로 · 한 줄로 · 하나로 통합» → «추천대로»] 두 단추를 «연습 · 준비 ›» 하나로 —
      누르면 식순 빌더 ③ 연습 화면이 열리고 «준비할 것» 목록이 장면 카드 아래 펼친 채 있다(order-preview PR_PREP_FOLD).
      ★줄 아래로 펼치던 «준비할 것» 단추 · 목록(mp_ritualPrep · mp_ritPrepBox)을 되살리지 말 것 — 같은 목록이 두 곳이 된다 */
@@ -8907,7 +8907,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
           null, {tag:(!_seatDone?(_fUrgTag||_fdStepTag):null)}) },   // TRK_NO_SUB: 기한·좌석 안내 문구는 renderSeat 상단으로 이관 · 임박(D-30 이내)만 제목 옆 D-n 태그로 남김
     { done: _dDone, html: row('예식 후 식사', _dSt, 'mp_diningStart', dLabel, null, {tag:_dTag}) },
     { done: (t.ritual||'')==='완료', html: row('식순',   t.ritual||'시작전', 'mp_ritualStart', null, _migOfferSub(), {pre:_ritPre, pre2:_ritPre2}) },   /* [OLD_DRAFT_OFFER] 되찾을 예전 고침이 있을 때만 줄 아래 한 줄(설명이 아니라 알림 · TRK_NO_SUB 의 예외) */
-    { done: true, html: '' },   /* [PR_PREP_ONE] 준비 목록은 «연습 · 준비 ›»가 여는 연습 화면으로 옮겼다 */   // [PREP_LINK] 요약 줄은 끈 채 «준비할 것» 단추가 여는 목록   // ★[PREP_FOLD_OFF 2026-10-05 사장님 «준비할 것 N가지 · 도와주실 분 N — 일단 여기서는 안 보이게»] 식순 줄 아래 접힘을 잠시 끈다 · 함수 · 자리는 남겨 둔다(다시 켜려면 PREP_FOLD_OFF=false) · 목록은 식순 화면 «한눈에 보기»가 맡는다
+    { done: true, html: '' },   /* [PR_PREP_ONE] 준비 목록은 식순 줄 아래가 아니다 · ★[PRACTICE_ONLY_1123] 지금은 예식 준비 «준비할 것» 줄(PREP_HUB_1123) 한 곳 */   // [PREP_LINK] 요약 줄은 끈 채 «준비할 것» 단추가 여는 목록   // ★[PREP_FOLD_OFF 2026-10-05 사장님 «준비할 것 N가지 · 도와주실 분 N — 일단 여기서는 안 보이게»] 식순 줄 아래 접힘을 잠시 끈다 · 함수 · 자리는 남겨 둔다(다시 켜려면 PREP_FOLD_OFF=false) · 목록은 식순 화면 «한눈에 보기»가 맡는다
     { done: true, html: _bouquetFold(base) },
     _pvRow,   _mvRow,   /* ★[MID_VIDEO_1106] 식중 영상(선택)은 식전 영상 바로 뒤 · ★[PV_CAT_1031] 식전 영상 — 식순에 딸린 순서(개식 선언 뒤 · 입장 전 상영)라 식순 · 부케 바로 뒤 · 서버가 상태를 안 보내면(옛 GAS · 웨딩스냅) 빈 줄 */   // [BOUQUET_FLORIST] 목록이 비면 빈 문자열(숨김)   // [PREP_LIST] 식순 아래 접힌 준비 목록(없으면 빈 문자열)   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리듣기」가 함께 선다
     // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
