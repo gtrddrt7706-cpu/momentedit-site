@@ -333,7 +333,8 @@ try {
           if (!f.hit) out.miss.push(tag + ' · ' + k + ' (' + f.by + ')');
           const s0 = st[0] || {}, isBr = /^bridge-/.test(String(s0.slug || '')), looksBr = s0.lab === '다음 순서로 넘어가며' || /^이음말/.test(String(s0.slab || ''));
           if (isBr !== looksBr) out.key.push(tag + ' · ' + k + ' · ' + (s0.slug || '') + ' / ' + (s0.lab || ''));
-          if (f.by === 'top' && f.at !== (isBr ? 1 : 0)) out.head.push(tag + ' · ' + k + ' at ' + f.at); }); }); }); }
+          const brMus = isBr && /^bridge-b14-candle-name$/.test(String(s0.slug || '')) && s0.dk != null && +s0.dk > -60;   /* ★[PREVIDEO_SONG_1122] 영상 뒤 91(곡 위 −15)은 화촉 장면 첫 줄 — 음악 줄이 맨 앞 */
+          if (f.by === 'top' && f.at !== (isBr && !brMus ? 1 : 0)) out.head.push(tag + ' · ' + k + ' at ' + f.at); }); }); }); }
       finally { S = S0; }
       out.miss = out.miss.slice(0, 12); out.head = out.head.slice(0, 12); out.key = out.key.slice(0, 12); return out; });
     ok(`9 [BGM_R3_1023] 코스 ${C9.courses} × 조합 전부(흐름 음악 줄 ${C9.n}곳 · ${JSON.stringify(C9.by)}) — 큐 열쇠로 자리를 못 찾아 맨 앞으로 물러난 곳 0 · 닫는 인사(목례) · 축배(위하여)를 한 번 이상 잼`,
