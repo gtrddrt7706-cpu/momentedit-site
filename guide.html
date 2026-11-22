@@ -126,6 +126,19 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .gr-dot.me{width:13px;height:13px;background:#F4ECDD;border-color:var(--gold);z-index:2}   /* 다중 일치 강조(이름 없음) */
 .gr-nm{position:absolute;transform:translate(-50%,-50%);max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--serif-ko);font-size:9.5px;padding:2px 6px;border-radius:9px;background:var(--card-white);border:1px solid var(--border);color:var(--sub)}   /* 전체 공개 좌석표 이름 라벨(차분한 톤) */
 .mtb-cap{font-family:var(--serif-ko);font-size:12px;color:var(--light);margin-top:6px}
+/* [SEAT_PLAN_9 2026-11-22] 배치도 = 오프라인 시안(assets/seat-plan.js) · 이름표가 읽히는 크기(1m = 58px) · 폭이 모자라면 옆으로 민다(.mtb-wrap 이 이미 가로 스크롤 상자) */
+.gmap{--m:66px;padding:0 18px 4px}   /* [SEAT_PLAN_9] 66px/m — 네 글자 이름이 말줄임 없이 · 편집기 · 하객 좌석표와 같은 값 */
+.mtb-wrap:has(.gmap){overflow-x:visible}   /* 가로로 미는 것은 그림(.gmap)만 — 앞 띠 · 입장 · 안내 줄은 제자리 */
+.gmap .smap-s .gr-me,.gmap .smap-s .gr-nm,.gmap .smap-s .gr-dot{position:static;transform:none;display:block}
+.gmap .smap-s .gr-nm{max-width:calc(.82 * var(--m));font-size:10.5px}
+.gmap .smap-s .gr-me{max-width:calc(.82 * var(--m));font-size:10.5px;padding:3px 6px}   /* 내 자리 알약도 같은 자 — 86px 그대로면 긴 이름이 테이블 원을 덮는다(seat.html .seat.hit 와 같은 크기 · 강조는 색 · 테 · 굵기로) */
+.gmap .smap-t.hit{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,154,117,.25)}
+.gt-no{font-family:var(--serif-ko);font-size:23px;font-weight:500;line-height:1;color:var(--seal,#6B2A24)}
+.gt-cap{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:64px;font-family:var(--serif-ko);font-size:10px;line-height:1.25;color:var(--gold-deep);text-align:center;word-break:keep-all}
+.gmap-entry{font-family:var(--serif-ko);font-size:10.5px;letter-spacing:.3em;color:var(--light);margin-top:4px}
+.gmap-swipe{font-size:11px;color:var(--light);margin-top:2px}   /* [SEAT_PLAN_9] seat.html .swipe 와 같은 말 · 같은 크기 */
+.mtb-wrap:has(.gmap) .mtb-cap{word-break:keep-all}   /* 두 문장은 두 줄로(줄 앞에 «·»가 오거나 한 낱말만 떨어지지 않게 · [CF_DOT_BREAK]) */
+.mtb-wrap:has(.gmap) .mtb-cap{padding:0 18px}   /* 배치도가 카드 끝까지 넓어진 상자라 안내 줄은 카드 여백만큼 안쪽에 */
 .find-res b{color:var(--seal);font-weight:600}
 .find-res .rt{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:50%;background:var(--seal);color:#fff;font-size:12px;font-weight:500;margin-right:6px;vertical-align:middle}
 .mapall{display:block;text-align:center;font-size:12px;color:var(--gold-deep);text-decoration:none;margin-top:12px}
@@ -433,6 +446,7 @@ body{
   <div class="brand">Moment Edit</div>
   <p class="page-t">하객 안내</p><!-- [GUIDE_NAME_OWNER_1115] 음성이 부르는 이름 · 모든 상태(불러오는 중 · 종료 · 실패)에 보인다 -->
   <main id="root"><div class="card"><div class="state" role="status"><span class="bdot"></span>안내를 불러오는 중이에요…</div></div></main>
+<script src="/assets/seat-plan.js?v=1122a"></script><!-- [SEAT_PLAN_9] 좌석 번호 · 의자 방향 단일 원천 -->
 <script src="/assets/dining-data.js?v=1105a"></script><!-- [B2_MA_64] 식사 · 카페 판정 목록(마이페이지 · 당일 콘솔과 같은 원천 · DINE_DATA_NI16) -->
 </div>
 <script>
@@ -914,12 +928,7 @@ function rtBadge(no, label){
   var spoken = (String(label||'')===('테이블 '+no)) ? '' : '<span class="sr-only">테이블 '+no+' · </span>';
   return spoken+'<span class="rt" aria-hidden="true">'+no+'</span>';
 }
-function seatRowNum(tables){   // seat.html과 동일한 행순서 번호(좌 1·3·5 / 우 2·4·6)
-  var Ls=[],Rs=[]; tables.forEach(function(t,i){ (String(t.side||'L')==='R'?Rs:Ls).push(i); });
-  var num={},nn=1,mr=Math.max(Ls.length,Rs.length);
-  for(var rr=0;rr<mr;rr++){ if(rr<Ls.length) num[Ls[rr]]=nn++; if(rr<Rs.length) num[Rs[rr]]=nn++; }
-  return num;
-}
+function seatRowNum(tables){ return ME_SEAT_PLAN.numbers(tables); }   // [SEAT_PLAN_9 2026-11-22] 좌측 위부터 1 ~ 4 · 우측 5 ~ 9 — seat.html · 편집기 · 서버 검색과 한 벌(assets/seat-plan.js)
 function normName(s){ s=String(s||''); try{ s=s.normalize('NFC'); }catch(e){} return s.replace(/[\s　]+/g,'').toLowerCase(); }   // 공백(전각 포함) 제거 — '김 민수'로 입력해도 '김민수' 좌석을 찾게(양방향) · [B2_MA_80] 완성형 · 조합형(복사한 이름)을 같은 꼴(NFC)로 맞춰 비교 · 보이는 이름은 그대로
 /* ★[B2_MA_79 · d-10 2026-11-06 2차 B2-마79] 여러 자리 결과 — 부분 일치를 동명이인으로 단정하지 않는다.
    모든 후보 자리에 «성함 그대로»가 있을 때만 동명이인 글 · 그 밖은 «여러 자리에서 검색돼요» 글. seat.html 과 같은 말 */
@@ -956,8 +965,8 @@ function findSeat(v){
   var mi=[]; (t.seats||[]).forEach(function(s,si){ var nm=normName(s); if(nm && nm.indexOf(lc)>=0) mi.push(si); });   // 본인 자리 강조용
   var _dk=(mi.length===1 && normName((t.seats||[])[mi[0]])===lc)?drinkHtml(((t.drinks||[])[mi[0]])||''):'';   // [GUIDE_DRINK] 내 자리 음료만 · [B2_MA_73] 성함 그대로 한 자리일 때만(서버 규칙과 같다)
   var _rh=seatRoomHtml(_roomLocal(tables, num, hitI, mi, lc)), _sm=$('seatMap');
-  if(_sm){ _sm.innerHTML=_rh; fr.innerHTML=rtBadge(no,label)+'<b>'+esc(label)+'</b> 자리예요'+_dk; }
-  else fr.innerHTML=rtBadge(no,label)+'<b>'+esc(label)+'</b> 자리예요'+_dk+_rh;
+  if(_sm){ _sm.innerHTML=_rh; gmapCenter(_sm); fr.innerHTML=rtBadge(no,label)+'<b>'+esc(label)+'</b> 자리예요'+_dk; }
+  else { fr.innerHTML=rtBadge(no,label)+'<b>'+esc(label)+'</b> 자리예요'+_dk+_rh; gmapCenter(fr); }
 }
 // 로컬 배치 데이터 → 홀 배치(익명) 입력 — 서버(_seatFindByToken) 응답과 같은 계약({no,label,side,occ}·★변경 시 GAS와 함께).
 //   이름은 '전체 성함 정확 일치 + 단일 자리'일 때만(서버와 동일 규칙 — 부분 검색으로 타인 실명 표기 방지)
@@ -979,7 +988,7 @@ function bindSeat(seatToken, full){
       .then(function(r){ return r.json(); })
       .then(function(d){
         if(gen!==SEAT_GEN) return;   // [B2_MA_63]
-        if(d&&d.ok&&d.seat){ SEAT=d.seat; SEAT_STATE='ok'; renderFullMap(); }
+        if(d&&d.ok&&d.seat){ SEAT=d.seat; if(SEAT.tables) SEAT.tables=ME_SEAT_PLAN.migrate(SEAT.tables); SEAT_STATE='ok'; renderFullMap(); }   // [SEAT_PLAN_9] 옛 좌석표는 확정 배치로 옮겨 그린다(편집기가 다음에 열 때 옮기는 것과 같은 규칙)
         else if(d&&d.mineOnly){   // 부부가 그 사이 '내 자리만'으로 전환(캐시 포함) — 죽은 검색 대신 서버 검색으로 강등
           /* ★[GUIDE_MINE_SWAP 2026-10-07 triage-pages #12] 전체 배치도 모양(검색칸 #q 없음)으로 그린 뒤 이 답이 오면 종전엔 bindSeatServer(seatToken, null) 이
              TypeError 로 멈췄다 → catch 가 «연결이 끊겼어요 (코드 G6)»를 방금 숨긴 #seatMap 에 써서 좌석 칸이 비고 말도 없었다(캐시가 남은 하객).
@@ -1009,30 +1018,30 @@ function bindSeat(seatToken, full){
 // 전체 공개 인라인 맵 — 성함이 그대로 보이는 좌석표(부부가 전체 공개를 명시적으로 선택한 경우만 이 모드로 옴)
 function renderFullMap(){
   var sm=$('seatMap'); if(!sm||!SEAT) return;
-  var tables=SEAT.tables||[], num=seatRowNum(tables);
+  var tables=ME_SEAT_PLAN.migrate(SEAT.tables||[]), num=seatRowNum(tables);   // [SEAT_PLAN_9] 옛 좌석표도 그리는 자리에서 한 번 더 확정 배치로(불러올 때 옮긴 것과 같은 결과 · 이미 맞으면 그대로)
   var room=tables.map(function(t,i){ var c=String((t&&t.name)||'').trim();
     return { no:num[i]||(i+1), label:(c&&!/^테이블\s*\d+$/.test(c))?c:'', side:(String((t||{}).side||'L')==='R')?'R':'L',
       occ:((t&&t.seats)||[]).map(function(x){ return String(x||'').trim()?1:0; }),
       nms:((t&&t.seats)||[]).map(function(x){ return String(x||'').trim(); }) }; });
-  sm.innerHTML=seatRoomHtml({ hti:-1, mi:[], nm:'', all:true, room:room });
+  sm.innerHTML=seatRoomHtml({ hti:-1, mi:[], nm:'', all:true, room:room }); gmapCenter(sm);
 }
 // '내 자리만' 모드 — 이름이 입력되면 서버(seatView+q)에 물어 일치 테이블만 받는다(명단 비수신). 타이핑 멈춘 뒤 1회 호출(연타 절약).
 //   같은 검색·결과 규칙이 seat.html(검색 전용 화면)에도 복제돼 있음 — 문구·규칙 수정 시 두 파일 함께.
-/* [GUIDE_DRINK] 자리별 음료 — 마이페이지가 자리마다 고르는 3종과 같은 계약이다
-   (C 샴페인 · R 레드와인 · N 논알콜 스파클링 · K 유아 · Y 어린이 · mypage SEAT_DRINK_LABEL과 동일).
+/* [GUIDE_DRINK] 자리별 음료 — 마이페이지가 자리마다 고르는 값과 같은 계약이다
+   (11/22 부터 C 샴페인 · N 논알코올 스파클링 둘 · 옛 R · K · Y 는 아래 표처럼 읽는다 · 의자(유아용 · 휠체어)는 하객 화면에 내지 않는다).
    ★[KID_SEAT 2026-08-16] K 는 아이 자리 — 물과 유아용 의자를 준비한다는 뜻이다. 네 파일(mypage·guide·admin·80_production)이 한 벌.
    ★서버(seatView)가 drink를 보내줄 때만 뜬다 — 안 보내면 조용히 아무것도 안 그린다.
      없는 정보를 지어내지 않고, GAS가 필드를 싣기 시작하면 저절로 켜진다.
    ★하객에게는 '내 자리'의 음료만 보인다. 남의 음료는 취향·건강 정보라 절대 노출하지 않는다. */
-var DRINK_LABEL={C:'샴페인',R:'레드와인',N:'논알콜 스파클링',K:'물 (유아용 의자 준비)',Y:'물'};   // [KID_CHAIR] 어린이는 물만 · 의자 이야기를 붙이지 않는다(그 자리에 필요 없다)
-var DRINK_TONE={C:'#B08A3E',R:'#9B4A57',N:'#5F9E86',K:'#8FA9BF',Y:'#B9CBD8'};
+var DRINK_LABEL={C:'샴페인',R:'샴페인',N:'논알코올 스파클링',K:'논알코올 스파클링',Y:'논알코올 스파클링'};   // ★[DRINK_TWO 2026-11-22 사장님 «샴페인만» · «물도 빼고 논알콜 스파클링»] 음료는 둘 · 옛 값은 마이페이지가 옮기는 것과 같게 읽는다(R → 샴페인 · K · Y → 논알코올 스파클링) · 낱말은 부부가 고르는 칩(마이페이지 «논알코올 스파클링»)과 같게 · 레드와인 · 물은 되살리지 않는다
+var DRINK_TONE={C:'#B08A3E',R:'#B08A3E',N:'#5F9E86',K:'#5F9E86',Y:'#5F9E86'};
 function drinkHtml(code){
   var k=String(code||'').toUpperCase(), t=DRINK_LABEL[k];
   if(!t) return '';
   return '<div class="dk-line"><span class="dk-dot" style="background:'+DRINK_TONE[k]+'" aria-hidden="true"></span>'
     +'<span class="dk-t">준비된 음료 · <b>'+esc(t)+'</b></span></div>';
 }
-function _mtPos(n,i){ var off=180/(n||1), a=(-90+off+i*(360/(n||1)))*Math.PI/180; return { x:Math.cos(a)*41, y:Math.sin(a)*41 }; }   // seat.html·좌석 편집기와 동일 반칸 회전(단상 쪽 비움)
+function _mtPos(n,i,sd,row){ if(window.ME_SEAT_PLAN&&sd){ var u=ME_SEAT_PLAN.unit(sd,row,n,i); return { x:u.x*41, y:u.y*41 }; } var off=180/(n||1), a=(-90+off+i*(360/(n||1)))*Math.PI/180; return { x:Math.cos(a)*41, y:Math.sin(a)*41 }; }   // [SEAT_PLAN_9] 확정 배치의 의자 방향(없으면 종전 반 칸 회전)   // seat.html·좌석 편집기와 동일 반칸 회전(단상 쪽 비움)
 /* ★[SEAT_LABEL_CLAMP 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-2] seat.html 과 같은 처방 — 이름표 상자가 가운데 세로선(번호)을 넘지 않고 제 칸(열)에 남게.
    전체 공개 좌석표에서 6자 이름이 5명 표 위 두 자리끼리 최대 15.8px 겹쳤고 · «내 자리» 알약(외삼촌김철수 · Christopher Lee)이 통로를 10~12px 덮었다(1280 포함) · 412 이하에서 16px 잘렸다.
    g = 가운데 번호 높이에 걸린 자리(|세로| < 0.49 · 2명 표 · 5명 표 옆 · 6명 표 옆)는 8px · 나머지는 1px. 식은 CSS SEAT_LABEL_CLAMP 절(--lb-ch · --gz) */
@@ -1041,35 +1050,27 @@ function _mtLb(p){ var g=(Math.abs(p.y)<0.49*41)?8:1, s='--lb-ax:'+p.x.toFixed(1
   else if(p.x<-0.05) s+=';--lb-hi:calc('+(-g-p.x).toFixed(1)+'px - 100%);--lb-room:calc(var(--lb-ch) + var(--lb-zd, 0) * var(--gz,22px) - '+(2+g)+'px)';
   return s; }
 // 홀 전체 배치(익명) — room=[{no,label,side,occ[]}] · hti=본인 테이블 · mi=본인 자리 · nm=본인 이름만 표시(타인 명단 비노출)
+// [SEAT_PLAN_9] 배치도를 가로로 미는 상자(.gmap)에서 처음 위치 — 좌측 묶음이 통째로 보이는 자리 · 내 자리가 안 보이면 그 자리를 가운데로(옆으로만) · 그림이 다 들어가면 «옆으로 밀면» 줄을 숨긴다
+function gmapCenter(root){ try{ Array.prototype.forEach.call((root||document).querySelectorAll('[data-gmap]'),function(g){ var w=g;
+  var sw=g.parentNode&&g.parentNode.querySelector('[data-swipe]'); if(sw) sw.hidden=!(g.scrollWidth>g.clientWidth+2);
+  var me=g.querySelector('.smap-s .gr-me,.smap-s .gr-dot.me')||g.querySelector('.smap-t.hit'); if(!me){ g.scrollLeft=0; return; }   // 내 자리가 없는 전체 공개 그림은 좌측 묶음이 통째로 보이는 자리에서 시작(seat.html gmapFit 과 같은 시작)
+  w.scrollLeft=0; var wr=w.getBoundingClientRect(), mr=me.getBoundingClientRect(); if(mr.left<wr.left+24 || mr.right>wr.right-24) w.scrollLeft+=(mr.left+mr.width/2)-(wr.left+wr.width/2); }); }catch(e){} }   // 좌측 묶음이 통째로 보이는 자리에서 시작 · 내 자리가 안 보일 때만 그 자리를 가운데로(seat.html mineFit 과 같은 규칙)
 function seatRoomHtml(hit){
   var room=(hit&&hit.room)||[]; if(!room.length) return '';
   var one=((hit.mi||[]).length===1);   // 일치 자리가 1개일 때만 이름 칩 — 동일 테이블 부분 일치가 여럿이면 이름 없이 강조만(타인 자리 오표기 방지)
-  function tbl(t, isHit){
-    var chips='', list='';
-    var crowd=!!(hit.all && (t.occ||[]).length>=7);   // [GUIDE_SEAT_FIT] 7명부터 이름은 표 아래 목록(seat.html SEAT_CROWD 와 같은 임계)
-    for(var i=0;i<(t.occ||[]).length;i++){
-      var p=_mtPos(t.occ.length,i);
-      var pos='left:calc(50% + '+p.x.toFixed(1)+'px);top:calc(50% + '+p.y.toFixed(1)+'px);'+_mtLb(p);   // [SEAT_LABEL_CLAMP]
-      if(isHit && (hit.mi||[]).indexOf(i)>=0){ chips+= one ? ('<div class="gr-me" style="'+pos+'">'+esc(hit.nm||'내 자리')+'</div>') : ('<div class="gr-dot me" style="'+pos+'"></div>'); }
-      else if(hit.all && t.nms && t.nms[i]){
-        if(crowd){ chips+='<div class="gr-dot" style="'+pos+'"></div>'; list+='<span class="gr-nm gr-li">'+esc(t.nms[i])+'</span>'; }   // [GUIDE_SEAT_FIT] 원엔 자리 점 · 이름은 아래
-        else chips+='<div class="gr-nm" style="'+pos+'">'+esc(t.nms[i])+'</div>';   // 전체 공개 좌석표 — 성함 그대로
-      }
-      else if(t.occ[i]){ chips+='<div class="gr-dot" style="'+pos+'"></div>'; }
-    }
-    /* ★[SEAT_NAME_BELOW 2026-10-09 고객 여정 A~Z 점검 2라운드 D2-1] 표 이름이 번호 아래(원 안)에서 원 밖으로 5건 나가 자리 이름표를 최대 41×12px 덮었다 —
-       seat.html · 마이페이지 편집기(rt-cap)와 같은 처방: 번호는 원 가운데 그대로 · 표 이름은 원 아래 한 줄(넘치면 말줄임 · 온전한 이름은 낭독 목록 · 마우스를 올린 제목에) */
-    return '<div class="gr-tbl'+(isHit?' hit':'')+'"><span class="gr-no">'+t.no+'</span>'+chips+'</div>'
-      +(t.label?'<div class="gr-cap" title="'+esc(t.label)+'">'+esc(t.label)+'</div>':'')
-      +(list?'<div class="gr-list">'+list+'</div>':'');
-  }
-  var L='', R='', li=0, ri=0;   // 지그재그 — seat.html 전체 배치도·좌석 편집기와 같은 홀 모양(행마다 좌우 엇갈림)
-  function zigX(row,side){ var s=(row%2===0)?1:-1; return (side==='R'?-s:s); }   // [GUIDE_SEAT_FIT] 방향(±1)만 · 폭은 CSS var(--gz)(0~22px) — 좌우 반전 모양은 그대로
-  function zigCss(row,side){ var d=zigX(row,side); return '--lb-zd:'+d+';transform:translateX(calc('+d+' * var(--gz,22px)))'; }   // [SEAT_LABEL_CLAMP] 이름표가 칸 안에 남게 방향(--lb-zd)도 적는다
-  for(var k=0;k<room.length;k++){ var h=(k===hit.hti), t=room[k];
-    if(String(t.side||'L')==='R'){ R+='<div style="'+zigCss(ri++,'R')+'">'+tbl(t,h)+'</div>'; }
-    else { L+='<div style="'+zigCss(li++,'L')+'">'+tbl(t,h)+'</div>'; }
-  }
+  /* ★★[SEAT_PLAN_9 2026-11-22 사장님 «우리가 그린 그림이랑 다르잖아» · «디테일 챙겨»] 같은 그림(오프라인 시안 · assets/seat-plan.js) —
+     테이블 9개를 맞붙인 두 묶음 · 확정 의자 위치 · 남의 자리는 점, 내 자리만 이름(일치가 하나일 때) · 전체 공개면 성함 그대로.
+     종전 두 열 지그재그(.gr-room · --gz · SEAT_LABEL_CLAMP)는 이 그림에 쓰지 않는다. */
+  var tbls=room.map(function(t){ return { side:t.side, name:t.label, seats:(t.occ||[]).map(function(x){ return x?'1':''; }) }; });
+  var map=ME_SEAT_PLAN.mapHtml(tbls,{
+    sides:['좌측','우측'],
+    table:function(t,k){ var lb=String(room[k].label||'').trim(), isC=(lb && lb!==('테이블 '+room[k].no) && !/^테이블\s*\d+$/.test(lb)); return '<span class="gt-no">'+room[k].no+'</span>'+(isC?'<span class="gt-cap">'+esc(lb)+'</span>':''); },
+    cls:function(t,k){ return (k===hit.hti)?'hit':''; },
+    seat:function(t,k,i){ var isHit=(k===hit.hti), st=room[k];
+      if(isHit && (hit.mi||[]).indexOf(i)>=0) return one ? ('<div class="gr-me">'+esc(hit.nm||'내 자리')+'</div>') : '<div class="gr-dot me"></div>';
+      if(hit.all && st.nms && st.nms[i]) return '<div class="gr-nm">'+esc(st.nms[i])+'</div>';   // 전체 공개 좌석표 — 성함 그대로
+      return (st.occ||[])[i] ? '<div class="gr-dot"></div>' : ''; }
+  });
   // [GUIDE_MAP_SR] 이 배치도는 눈으로 보는 그림인데, 화면낭독기엔 숫자·이름 조각 10개가
   //   '3 김민수 5 2 4 친구석'처럼 맥락 없이 흘러나오고 있었다(실측).
   //   ① 검색 모드: 답은 이미 위 문장('테이블 3 자리예요')이 하니 그림은 aria-hidden으로 덮는다.
@@ -1088,9 +1089,10 @@ function seatRoomHtml(hit){
   // [A11Y_SEATMAP] 이 상자는 좌우로 스크롤된다(overflow-x:auto). 포커스를 못 받으면 키보드만 쓰는
   //   하객은 화면 밖 테이블을 영영 볼 수 없다(WCAG 2.1.1 · axe scrollable-region-focusable).
   //   ★tabindex를 뺐다가는 조용히 되돌아간다 — 눈으로는 아무 차이가 없어서 아무도 모른다.
-  return '<div class="mtb-wrap" tabindex="0" role="group" aria-label="좌석 배치도 · 좌우로 넘겨 보실 수 있어요">'+srAlt+'<div aria-hidden="true"><div class="mtb-stage">&#9672; 단상 · 신랑 신부</div>'
-    +'<div class="gr-room"><div class="gr-col">'+L+'</div><div class="gr-aisle"></div><div class="gr-col">'+R+'</div></div>'
-    +(hit.all?'':'<div class="mtb-cap">'+(one?'이름이 표시된 자리가 내 자리예요 · 다른 자리 성함은 보이지 않아요':'강조된 자리 중 하나가 내 자리예요 · 성함을 전체로 입력하면 정확히 표시돼요')+'</div>')+'</div></div>';   // 전체 공개 좌석표엔 검색용 캡션 불필요(2026-07-18 사용자 지시 · 미니멀)
+  return '<div class="mtb-wrap" tabindex="0" role="group" aria-label="좌석 배치도 · 좌우로 넘겨 보실 수 있어요">'+srAlt+'<div aria-hidden="true"><div class="mtb-stage">&#9672; 앞 · 신랑 신부</div>'
+    +'<div class="gmap smap-scroll" data-gmap>'+map+'</div><div class="gmap-entry">입장</div>'
+    +(hit.all?'<div class="gmap-swipe" data-swipe>옆으로 밀면 우측 테이블이 보여요</div>':'')   // [SEAT_PLAN_9] 전체 공개는 좌측 묶음부터 보인다 — 우측이 있다는 것을 한 줄로(seat.html · 편집기와 같은 말 · 그림이 다 들어가면 숨긴다)
+    +(hit.all?'':'<div class="mtb-cap">'+(one?'이름이 표시된 자리가 내 자리예요<br>다른 자리 성함은 보이지 않아요':'강조된 자리 중 하나가 내 자리예요<br>성함을 전체로 입력하면 정확히 표시돼요')+'</div>')+'</div></div>';   // 전체 공개 좌석표엔 검색용 캡션 불필요(2026-07-18 사용자 지시 · 미니멀)
 }
 function seatHitsHtml(v, hits){   // 서버 검색 결과 → 안내(0=못 찾음 · 1=단정+내 테이블 배치 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력)
   if(!hits.length) return '그 성함을 찾지 못했어요. 현장 안내를 참고해 주세요.';
@@ -1125,10 +1127,10 @@ function bindSeatServer(seatToken, q){
             var rb=_roomLocal(tables, num, hIdx[0], mi0, lc);
             hits0[0].room=rb.room; hits0[0].hti=rb.hti; hits0[0].mi=mi0; hits0[0].nm=rb.nm;
           }
-          var h0=seatHitsHtml(v,hits0); last={q:v,html:h0}; fr.innerHTML=h0; return;
+          var h0=seatHitsHtml(v,hits0); last={q:v,html:h0}; fr.innerHTML=h0; gmapCenter(fr); return;
         }
         if(!d || !d.ok){ _frFail(fr, _ecSrv(d,'G','자리를 찾지 못했어요'), _ecRetry(d)?function(){ search(v); }:null); return; }   // [ERR_CODE_PAGES] 서버 글(코드 포함) · 다시 해서 될 때만 «다시 찾기»
-        var h=seatHitsHtml(v, d.hits||[]); last={q:v,html:h}; fr.innerHTML=h;
+        var h=seatHitsHtml(v, d.hits||[]); last={q:v,html:h}; fr.innerHTML=h; gmapCenter(fr);
       })
       .catch(function(e){ var fr2=$('fr'); if(my===seq && gen===SEAT_GEN && fr2) _frFail(fr2, _ecNet(e,'G',''), function(){ search(v); }); });   // [ERR_CODE_PAGES] 종전 «네트워크 상태를 확인해 주세요» 한 줄 → 까닭(G5 · G6 · G7) + 다시 찾기 · [B2_MA_34] 옛 화면의 늦은 실패는 띄우지 않는다
   }
@@ -1310,7 +1312,7 @@ function renderDemo(){
   //    ★빈 검색창만 두면 이 페이지에서 가장 중요한 장면('이름을 넣으면 자리가 뜬다')이
   //      아무도 안 눌러서 안 보인다 — 홍보 화면에서 핵심을 상호작용 뒤에 숨기면 안 된다
   //      (2026-08-01 사용자 지적: "검색된 것도 보여줘야지").
-  SEAT={tables:DEMO_TABLES}; SEAT_STATE='ok';
+  SEAT={tables:ME_SEAT_PLAN.migrate(DEMO_TABLES)}; SEAT_STATE='ok';   // [SEAT_PLAN_9]
   var q=$('q');
   if(q){
     bindNameInput(q, findSeat, 250);   // [IME_QUIET] 표본 검색칸도 같은 규칙(조합 중에는 찾지 않는다)
