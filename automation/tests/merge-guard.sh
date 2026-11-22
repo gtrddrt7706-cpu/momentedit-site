@@ -5779,7 +5779,8 @@ chk 'SEAT_FIT' mypage.html 4
 chk 'mag=even?1:1.15' mypage.html 1
 chk 'rt-cap' mypage.html 4
 nochk 'class="rt-cnm"' mypage.html                # ★원 안 커스텀 이름 복원 금지(좌우 자리 알약과 겹친다 · 폐지 주석의 이름 언급은 남긴다)
-chk 'SEAT_FIT' scripts/audit/seat-onecard.mjs 3
+# (옛 줄 · [SEAT_PLAN_9 2026-11-22] seat-onecard 를 확정 배치 판으로 다시 썼다 — 카드 밖 절은 seat-name-fit 의 «배치도 밖»이 잰다) chk 'SEAT_FIT' scripts/audit/seat-onecard.mjs 3
+chk 'SEAT_PLAN_9' scripts/audit/seat-onecard.mjs 1
 # ★★[KID_SEAT 2026-08-16 사용자 지시 "애기들도 있을수있으니깐 … 음료는 물로"] 유아 자리 = 음료 한 칸(K).
 #   물 + 유아용 의자를 한 번에 정한다. 코드 K 는 네 파일이 한 벌 — 하나만 빠지면 저장 때 조용히 지워진다.
 chk 'KID_SEAT' mypage.html 6
@@ -5817,7 +5818,8 @@ chk 'KID_SEAT' scripts/audit/data-roundtrip.mjs 1   # 저장 왕복에 K 를 태
 chk "K:'유아 · 물'" mypage.html 1
 chk "_dv === 'K'" automation/platform/80_production.gs 1
 chk '유아용 의자' admin.html 2                    # 스태프 A4 합계 줄 + 관리자 상세(당일 준비물)
-chk 'KID_SEAT' scripts/audit/seat-onecard.mjs 1
+# (옛 줄 · [DRINK_TWO 2026-11-22] 아이 음료 K 칩은 없다 — 옛 K 는 논알코올 + 유아용 의자로 옮겨 읽는 것을 seat-onecard 가 잰다) chk 'KID_SEAT' scripts/audit/seat-onecard.mjs 1
+chk 'DRINK_TWO' scripts/audit/seat-onecard.mjs 1
 # [CF_SEAL·CF_ASK·CF_GATE_ONE 2026-08-16 사용자 지시 "고객이 확인했습니다 버튼 … 날짜랑 내가 이때
 #   이것으로 확정했다라는 책임의 부분이 느껴지게" + "모든걸 완료하면 한번에"]
 #   예식 확인서의 확정 = **이 한 곳뿐**이다. 섹션마다 확인 버튼을 만들지 말 것(사용자가 명시로 거절).
@@ -13990,7 +13992,8 @@ chk 'SEAT_NAME_FIT' mypage.html 1
 chk 'rt{--seatR:calc(var(--rt,150px)\*\.44)}' mypage.html 1
 chk '.rs>.rs-nm{max-width:38px}' mypage.html 1
 chk '@media(max-width:380px){ .seat-room{--zig:4px} }' mypage.html 1
-chk 'SEAT_NAME_FIT' scripts/audit/seat-name-fit.mjs 2              # 실렌더 감사(5자리 · 테이블 이름 있음/없음 × 320~600) — 브라우저가 필요해 게이트가 아니라 야간 run-all 이 돌린다 · 반증: BASE mypage 로 돌리면 빨강 14판
+chk 'SEAT_PLAN_9' scripts/audit/seat-name-fit.mjs 1
+chk 'SEAT_NAME_FIT' scripts/audit/seat-name-fit.mjs 1              # 실렌더 감사(5자리 · 테이블 이름 있음/없음 × 320~600) — 브라우저가 필요해 게이트가 아니라 야간 run-all 이 돌린다 · 반증: BASE mypage 로 돌리면 빨강 14판
 # [DN_MOBILE_ORDER] trk-3 · 다이닝 모바일 보정(칩 패딩 · 머리 카운트 줄바꿈)을 기본 규칙 «뒤»로 — 앞에 두면 같은 선택자의 기본 규칙이 덮는다
 chk 'DN_MOBILE_ORDER' mypage.html 2
 chk '.dn-head-c{flex-basis:100%;text-align:left;white-space:normal;line-height:1.5}' mypage.html 1
