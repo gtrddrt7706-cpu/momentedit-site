@@ -24378,6 +24378,9 @@ chk 'NARR_GO_48GAP_1122' assets/ritual-cue.js 2
 chk "ex = 'tribute-in-ex2'; out" assets/ritual-cue.js 1
 chk 'gapMs = 1700;' assets/ritual-cue.js 1
 chk '_mn.gapMs || 0, 1200)' assets/ritual-cue.js 1
+chk 'TRIBUTE_GAP_BGM_1122' assets/ritual-cue.js 1   # ★[TRIBUTE_GAP_BGM_1122 대본 11/22] 248 뒤 «음악만 6초 먼저» 걷음 · 곡은 141 아래에서 함께
+nochk "if (_mn && _mn.k === 'tribute') { _mn.goLeadMs = Math.max(_mn.goLeadMs || 0, 6000)" assets/ritual-cue.js   # [TRIBUTE_GAP_BGM_1122] 옛 6초 뜸 되살리지 말 것
+chk 'TRIBUTE_GAP_BGM_1122' order-preview.html 1   # [TRIBUTE_GAP_BGM_1122] 미리 듣기도 141 뜸 없음(_noLead)
 chk '뭉클하실 부모님께, 신랑 신부가' assets/ritual-open.js 1
 chk 'TRIBUTE_GO_1122' scripts/rec141-1122.py 1
 chk 'TRIBUTE_GO_1122' docs/rules/나레이션.md 1

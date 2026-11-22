@@ -2199,7 +2199,7 @@
       if (_ms === 'bridge-b8-face-guests') _mc.duck = PARAM.duckSpeech;
       if (_ms === 'bridge-b3-clap-thanks' || /^bridge-b9-declare-seat-end/.test(_ms)) { _mc.duck = PARAM.duckSpeech; _mc.fadeMs = 800; }
       if (_ms === 'bridge-b12-tribute-calm') { _mc.duck = PARAM.duckSpeech; _mc.post = [{ music: 'to', v: PARAM.duckOff, ms: 1500 }];
-        var _mn = cues[mr + 1]; if (_mn && _mn.k === 'tribute') { _mn.goLeadMs = Math.max(_mn.goLeadMs || 0, 6000); _mn.leadDb = PARAM.duckMusic; _mn.gapMs = Math.max(_mn.gapMs || 0, 1200); } }   // ★[TRIBUTE_GO_1122 ③] 248 → 이름 줄 1.0 → 1.2초(시범 판 pilot_1122 n141e · 말끝 → 말머리)
+        var _mn = cues[mr + 1]; if (_mn && _mn.k === 'tribute') { _mn.gapMs = Math.max(_mn.gapMs || 0, 1200); } }   /* ★★[TRIBUTE_GAP_BGM_1122 대본 11/22 «그 6초 걷고 음악은 141 아래에서 함께 올라오게»] «음악만 6초 먼저»(goLeadMs 6000 · leadDb −8)를 걷었다 — 248 뒤 1.2초에 바로 이름 줄(141) · 부모님께 인사 곡은 141 첫 말과 함께 무음에서 말 아래(−15)로 올라온다(콘솔 구간 곡 3초 겹침 · 미리 듣기 뜸 없음 _noLead) · 라이브 248 끝 → 141 이 약 8.7초였다 */   // ★[TRIBUTE_GO_1122 ③] 248 → 이름 줄 1.0 → 1.2초(시범 판 pilot_1122 n141e · 말끝 → 말머리)
     }
     /* ★★[MEANING_R2_1102 원칙 · 사장님 «도착에서 잦아듦으로 고쳐» · «이런 포인트들을 식순 전체에 녹여»] (위 MEANING_R1 원칙에 더한다)
          행진 · 이동은 음악이 끌어올린다 / 두 분이 멈춰 서서 하는 의식(맞절 등)은 음악을 빼서 «조용한 고점»(박수가 빈자리를 채운다) ·

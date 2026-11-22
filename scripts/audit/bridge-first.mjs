@@ -99,7 +99,9 @@ try {
       ok(`${W} a 감사 인사 첫 줄 = 350(narr-welcome-in · 이음말 b8 없음) · 첫 줄 앞에서 뜸`, q0.k === 'welcome' && q0.slug === 'narr-welcome-in' && !r.q.some((x) => /b8-face-guests/.test(x.slug) || x.pre || x.lh) && ld0.length > 5, { q0, ld: ld0.length }); }
     /* c 화촉 · 부모님께 인사 그 순간만 */
     await go(f, 'candle'); solo(W, 'candle', await trace(f, ['candle'], 11000, false));
-    await go(f, 'tribute'); solo(W, 'tribute', await trace(f, ['tribute'], 11000, false));
+    /* ★[TRIBUTE_GAP_BGM_1122] 부모님께 인사 — 248(b12)은 닫는 말 그대로 · 이름 줄(141)은 뜸 없이 248 뒤 바로 · 곡은 141 아래에서 함께 올라온다(옛 «음악만 6초 먼저» 걷음) */
+    { await go(f, 'tribute'); const r = await trace(f, ['tribute'], 11000, false), q = r.q, o = r.o, i0 = q.findIndex((x) => x.k === 'tribute'), bEnd = (o.find((x) => x.i > i0) || {}).t, ld = o.filter((x) => x.lead), s1 = o.find((x) => x.src && x.i === i0 + 1);
+      ok(`${W} tribute 그 순간만 듣기 — 248(${(q[i0] || {}).slug}) 동안 음악 없음 · 이름 줄 뜸 없음 · 곡은 이름 줄과 함께(248 끝 뒤 3초 안) [TRIBUTE_GAP_BGM_1122]`, i0 > -1 && /b12-tribute-calm/.test(q[i0].slug) && q[i0].pre && !(q[i0 + 1] || {}).lh && !ld.length && !o.some((x) => x.i === i0 && x.src) && bEnd != null && !!s1 && s1.t - bEnd < 3000, { q: q.slice(0, 3), ld: ld.length, bEnd: bEnd && Math.round(bEnd), s1: s1 && Math.round(s1.t) }); }
     /* d 이음말 없는 순간(혼인 서약) — 맨 앞 뜸 그대로 */
     { await go(f, 'vow'); const r = await trace(f, ['vow'], 4000, false), q0 = r.q[0] || {}, ld0 = r.o.filter((x) => x.i === 0 && x.lead);
       ok(`${W} d 이음말 없는 순간(혼인 서약) — 첫 줄 앞에서 뜸(옛 동작 그대로)`, q0.k === 'vow' && !PRE.test(q0.slug) && !r.q.some((x) => x.pre || x.lh) && ld0.length > 5, { q0, ld: ld0.length }); }
@@ -110,7 +112,8 @@ try {
     /* c 이어 듣기 축가 → 부모님께 인사 · 식전 영상 → 화촉 — 새 곡은 이음말 뒤 */
     for (const [a, b] of [['song', 'tribute'], ['prevideo', 'candle']]) { await go(f, b); const r = await trace(f, [a, b], a === 'song' ? 28000 : 20000, true), q = r.q, i0 = q.findIndex((x) => x.k === b);   /* [DETAIL_R2_1101 ⑤] 축가 뒤 박수 줄 3초가 더해졌다 · [TIME_GAP_1102] 이벤트 줄 사이 쉼 2.5초 */
       const bEnd = (r.o.find((x) => x.i > i0) || {}).t, fa = (r.o.filter((x) => x.k === a && x.src).pop() || {}).f, nf = r.o.find((x) => x.src && x.k === b && x.f !== fa);   /* ★[BGM_TIMING2_1101] 축가가 M4 를 틀게 되어 이음말 동안 앞 곡(M4)이 말 아래로 이어진다 — «새 곡» = 앞 순간 곡이 아닌 곡 */
-      ok(`${W} c 이어 듣기 ${a} → ${b} — 이음말(${(q[i0] || {}).slug}) 뒤에 새 곡 · 뜸은 그 다음 줄`, i0 > -1 && PRE.test(q[i0].slug) && !!nf && bEnd != null && nf.t >= bEnd - 50 && q[i0 + 1] && q[i0 + 1].lh, { i0, q: q.slice(Math.max(0, i0 - 1), i0 + 2), nf: nf && Math.round(nf.t), bEnd }); }
+      if (b === 'tribute') ok(`${W} c 이어 듣기 ${a} → ${b} — 이음말(${(q[i0] || {}).slug}) 뒤 새 곡은 이름 줄과 함께(뜸 없음 · 3초 안) [TRIBUTE_GAP_BGM_1122]`, i0 > -1 && PRE.test(q[i0].slug) && !!nf && bEnd != null && nf.t >= bEnd - 50 && nf.t - bEnd < 3000 && !(q[i0 + 1] || {}).lh, { i0, q: q.slice(Math.max(0, i0 - 1), i0 + 2), nf: nf && Math.round(nf.t), bEnd });
+      else ok(`${W} c 이어 듣기 ${a} → ${b} — 이음말(${(q[i0] || {}).slug}) 뒤에 새 곡 · 뜸은 그 다음 줄`, i0 > -1 && PRE.test(q[i0].slug) && !!nf && bEnd != null && nf.t >= bEnd - 50 && q[i0 + 1] && q[i0 + 1].lh, { i0, q: q.slice(Math.max(0, i0 - 1), i0 + 2), nf: nf && Math.round(nf.t), bEnd }); }
     /* a · b 감사 인사형 서약(vowKind thanks · 감사 인사 뺌) — b8 이 서약 첫 줄에 온다(BGM 섹션 전수조사 · 화면 top@1 · 콘솔 M4@b8 이던 갈래) */
     { await f.evaluate(() => { S.on.welcome = 0; S.vowKind = 'thanks'; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); });
       await go(f, 'vow'); solo(W, 'vow', await trace(f, ['vow'], 11000, false));
