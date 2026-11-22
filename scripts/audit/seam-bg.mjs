@@ -106,7 +106,7 @@ try {
   const laneA = (async () => { try {
   if (want('BG01')) {
     /* T01 영상 있음 · 화촉 없음 · 입장 A */
-    { const c = await con(S0of({ prevideo: 1, candle: 0 }, 'A')), iO = c.ix((x) => x.slug === 'narr-prevideo-out'), i7 = c.ix((x) => x.slug === 'bridge-b7-entry-ready'), iE = c.ix((x) => x.k === 'entry');
+    { const c = await con(S0of({ prevideo: 1, candle: 0 }, 'A')), iO = c.ix((x) => x.slug === 'narr-prevideo-out' || (x.k === 'prevideo' && x.live)) /* ★[PV_OUT_OFF_1122] 261 이 빠지면 영상(live) 큐 · 영상 끝 GO 다음은 b7 */, i7 = c.ix((x) => x.slug === 'bridge-b7-entry-ready'), iE = c.ix((x) => x.k === 'entry');
       const b7 = c.Rq[i7] || {}; await c.fire(iO); await c.pg.waitForTimeout(300); await c.log0(); await c.pg.waitForTimeout(5000); await c.fire(i7); await c.pg.waitForTimeout(7000); const lg = await c.log();
       ok('BG01-T01 영상 → b7 → 입장(화촉 없음) — b7 정적 · 영상 끝부터 입장 GO 전까지 −8 등 음악 올림 명령 0(콘솔)', iO > -1 && i7 > iO && iE > i7 && b7.duck === -90 && !lg.some((x) => x.db > -60), { b7: b7.duck, up: lg.filter((x) => x.db > -60) });
       ok('BG01 콘솔 오류 0(T01)', !c.errs.length, c.errs.slice(0, 2)); await c.ctx.close(); }

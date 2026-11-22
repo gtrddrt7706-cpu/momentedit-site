@@ -15923,7 +15923,7 @@ chk 'MU_REDRAW_EVEN_1019' scripts/audit/chip-full.mjs 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/rail-ignore.mjs >/dev/null 2>&1; _rig=$?; if [ "$_rig" = 1 ]; then echo 'FAIL rail-ignore: 식순 화면이 오른쪽 레일(말풍선) 자리를 비웁니다 — node scripts/audit/rail-ignore.mjs'; fail=1; else echo 'OK   rail-ignore [RAIL_IGNORE_1019]'; fi; fi
 # ★[REVIEW24_1019 2026-10-19 대본 섹션 검토 132 · 132 덧 2] 여섯째 · 넷째 예시(개식 OO · 맞절 EE B-1 · 부모님께 인사 PP 22 · 감사문 PP 14) · 식전 영상 소개 129 · 130 자료 글 · 소개 넷 우성 · 영상 뒤 받는 말 261 · 고르기 쪽 예시 카드 말풍선 자리
 chk 'REVIEW24_1019' assets/ritual-open.js 7
-chk 'PV_OUT_1019' assets/ritual-cue.js 3
+chk 'PV_OUT_1019' assets/ritual-cue.js 2   # ★[PV_OUT_OFF_1122] 3 → 2(261 큐를 걷어 빌더 주석 하나가 빠짐)
 chk 'PV_OUT_1019' assets/ritual-open.js 1
 chk "'narr-open-ex6', 'narr-entry-bow-ex6', 'narr-tribute-name-ex6', 'narr-thanks-in-ex4', 'narr-prevideo-out'" assets/ritual-cue.js 1
 chk "pvExNames: \['담백하게', '다정하게', '잔잔하게'\]," assets/ritual-open.js 1   # [B2_GEUL_01 d-01] 예시 4(130 시선 명령)는 고르는 목록에서 뺐다
@@ -19998,7 +19998,7 @@ chk 'BGM_R2_1023' assets/bgm-slots.js 5
 chk 'BGM_R2_1023' order-preview.html 2
 chk 'BGM_R2_1023' scripts/audit/bgm-form.mjs 6
 chk ".mk-flow li.q\[data-bgm\] .qa{font-weight:400;color:var(--sub)}" order-preview.html 1
-chk "function head(st) { return (st && st\[0\] && /^bridge-/.test(String(st\[0\].slug || ''))) ? 1 : 0; }" assets/bgm-slots.js 1
+chk "function head(st) { var x = st && st\[0\]; if (!x || !/^bridge-/.test(String(x.slug || ''))) return 0; if (/^bridge-b14-candle-name\$/.test(String(x.slug)) && x.dk != null && +x.dk > -60) return 0; return 1; }" assets/bgm-slots.js 1   # [PREVIDEO_SONG_1122] 영상 뒤 263(곡 위)은 앞 장면 머리로 세지 않는다(옛 한 줄 head)
 chk "if (!m) return { i: h, hit: true };   /\* top(옛 bridge 도 같다) \*/" assets/bgm-slots.js 1        # [BGM_R3_1023] flowAt → flowFind(맨 앞은 늘 찾음)
 nochk '부모님께 인사드리는 동안 밝고' assets/bgm-slots.js
 nochk '흐르던 피아노가 아주 작게 이어져요' assets/bgm-slots.js
@@ -22405,9 +22405,12 @@ chk "function _tgAm(c){" order-preview.html 1   # [TIME_GAP_1102] 줄 시각(atM
 chk "LP.tgGap=_tgk?_gap:0;" order-preview.html 1   # [TIME_GAP_1102] 이벤트 줄 사이 쉼(시각 간격 6초 · 제목 바뀜 2.5초)
 chk "if(tg&&pv&&pv.k===nx.k&&BED.cur.want>-60&&lvOf(nx)>-60){" assets/bgm-bed.js 1   # [TIME_GAP_1102] 쉼 동안 −8 · −12 · 정적은 그대로
 chk "_pc.duck = PARAM.duckOff; _pc.fadeMs = 2000; if (!_pvNoClap) _pc.goLeadMs = Math.max(_pc.goLeadMs || 0, 3000);" assets/ritual-cue.js 1   # [PREVIDEO_AFTER_1101] 소개 앞 2초 내림 + 정적 1초 · 음악 없이
-chk "_pn.goLeadMs = Math.max(_pn.goLeadMs || 0, 6000); _pn.leadDb = PARAM.duckMusic;" assets/ritual-cue.js 1   # [PREVIDEO_AFTER_1101] 화촉 곡 무음에서 6초 앞서
+chk "_pq.goLeadMs = Math.max(_pq.goLeadMs || 0, 6000); _pq.leadDb = PARAM.duckMusic;" assets/ritual-cue.js 1   # [PREVIDEO_AFTER_1101] 화촉 곡 무음에서 6초 앞서
 chk "var _ldL = PARAM.fadeDownMs + _aft, _ldb = (c.leadDb != null && _lead > _ldL) ? c.leadDb : null;" console.html 1   # [PREVIDEO_AFTER_1101] 콘솔이 leadDb 를 읽는다
 chk "ramp(BED.cur,-90,2000); return; }   /\\* ★\\[PREVIDEO_AFTER_1101\\]" assets/bgm-bed.js 1   # [PREVIDEO_AFTER_1101] 이어 듣기 소개 앞 2초
+chk "if (sl === 'bridge-b14-candle-name' && c.leadDb != null) return 'M2';" console.html 1   # [PREVIDEO_SONG_1122] 영상 뒤 91 = 화촉 장면 첫 줄(콘솔 구간)
+chk 'c.leadDb == null && !ESD.run' console.html 1   # [PREVIDEO_SONG_1122] 새 곡을 뜨는 91 은 PRE_HOLD 로 꺼 두지 않는다
+chk 'PREVIDEO_SONG_1122' assets/bgm-slots.js 1   # 화면 음악 줄 · 미리 듣기 뜸이 91 앞(head)
 chk "if(st.after){ var _f8=lastF(); if(_f8) return _f8; }" assets/bgm-bed.js 1   # [MEANING_R1_1102 16] 촬영 후 안내 = 마지막 곡(M8L 목록 차례)
 chk 'if(pv&&nx&&nx.after&&!pv.after){ if(BED.cur.want>-60) ramp(BED.cur,-90,2000); return; }' assets/bgm-bed.js 1   # [MEANING_R1_1102 16] 앞 곡 2초 내림 · 마지막 곡은 무음에서
 chk "if (c.slug === 'narr-close-bow') c.fadeMs = 2000;" assets/ritual-cue.js 1   # [MEANING_R1_1102 14] 닫는 인사 2초 내림
@@ -22639,7 +22642,7 @@ chk 'function pzNow' assets/bgm-bed.js 1
 chk 'function holdGo' assets/bgm-bed.js 1
 chk 'T01 멈춘 동안 lpShow' scripts/audit/reg-p17.mjs 1
 chk 'T04 대조' scripts/audit/reg-p17.mjs 1
-chk 'T06 다음 순간 몫 이음말' scripts/audit/reg-p17.mjs 1   # [REG_P17 검토 B] 보류가 _pre 이음말 · 박수 새 곡 줄에서 lpShow 규칙을 건너뛰지 않는다
+chk 'T06 은퇴' scripts/audit/reg-p17.mjs 1   # [PREVIDEO_SONG_1122] 옛 chk 'T06 다음 순간 몫 이음말' 은퇴(잴 자리 없음) ·   # [REG_P17 검토 B] 보류가 _pre 이음말 · 박수 새 곡 줄에서 lpShow 규칙을 건너뛰지 않는다
 chk 'REG_P17 검토 B' assets/bgm-bed.js 1
 chk 'photo-scene-flow reg-p17' .github/workflows/merge-guard.yml 1
 chk 'ONE_FLOW_1106' assets/bgm-picks.js 4   # [ONE_FLOW_1106] 축사 · 편지 «음악과 함께» = 본식 M4 그대로(oneSeg) · M4 겹침 8초(xfOf)
@@ -24414,7 +24417,7 @@ chk "nsw = 'narr-open-online'" assets/ritual-cue.js 1
 chk "nsw = 'narr-vow-in-face'" assets/ritual-cue.js 1
 chk "return c.slug !== 'online-3-welcome'" assets/ritual-cue.js 1
 chk "_more.shift(); pushMore('bridge-b9-declare-seat-end')" assets/ritual-cue.js 1
-chk '_b14Self' assets/ritual-cue.js 3
+chk '_b14Pv' assets/ritual-cue.js 2   # ★[PV_OUT_OFF_1122] NARR_GO ⑤ _b14Self 은퇴 → 영상 뒤 늘 263
 chk 'function bodyRecSec(S)' assets/ritual-cue.js 1
 chk 'REC_SEC_DATA' assets/ritual-cue.js 1
 chk "narEx: { speech: 1, matjeol: 4 }" assets/ritual-open.js 1
@@ -24493,6 +24496,11 @@ chk 'body.mkd .prog{position:sticky;top:-5px;' order-preview.html 1
 # ★[PV_BED_QUIET_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 A] 음악까지 미리듣기 — 예시 음악(@PV) 파일이 없으면 빨간 고장 줄 없이 조용히(PREVIEW_BED 머리말 그대로)
 chk 'PV_BED_QUIET_N06' console.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/pv-bed-quiet.mjs >/dev/null 2>&1; _pb=$?; node scripts/audit/pv-bed-quiet.mjs --selftest >/dev/null 2>&1; _pbs=$?; if [ "$_pb" != 0 ] || [ "$_pbs" != 0 ]; then echo "REVERT? pv-bed-quiet: 미리듣기 예시 음악이 없을 때 빨간 줄이 다시 선다 ($_pb/$_pbs) — node scripts/audit/pv-bed-quiet.mjs"; fail=1; else echo 'ok pv-bed-quiet'; fi; fi
+# ★★[PV_OUT_OFF_1122 대표님 11/22 17:16 · 17:33] 식전 영상 끝 261 없음 · 곡 먼저 → 263 → 여는 말 — 상세 docs/rules/나레이션.md
+chk "'narr-prevideo-out': 1 /\* ★\[PV_OUT_OFF_1122\]" assets/ritual-cue.js 1
+chk 'var _b14Pv = bc.k ===' assets/ritual-cue.js 1
+chk 'PV_OUT_OFF_1122' docs/rules/나레이션.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/pv-out-1122.mjs >/dev/null 2>&1; _pv=$?; if [ "$_pv" != 0 ]; then echo 'FAIL pv-out-1122: 식전 영상 끝 흐름(261 없음 · 곡 뜸 → 263 → 여는 말)이 대표님 11/22 결정과 다릅니다 — node scripts/audit/pv-out-1122.mjs'; fail=1; else echo 'ok pv-out-1122'; fi; fi
 
 # ★★[PREP_HUB_1123 2026-11-23 사장님 결정] 예식 준비 카드 «준비할 것» 줄(가족 · 친구 스냅 바로 뒤 · 단추 «열기» · 회색 한 줄 «n개 남음 · 다음 마감») + 전체 화면(스튜디오에 보낼 것 · 두 분이 준비할 것 · 보내 주시면 좋은 것)
 #   목록 원천 assets/send-list.js 한 곳([SEND_LIST_SYNC] 원천 ritual-open prepOf 와 맞대기) · 파일 = action ritualFile 새 열쇠 mr · fx · bl · sp(80_production RF_PREP) · 원고 글 = S.tx bless.p · free.p · 체크 = S.mkc
@@ -24544,6 +24552,6 @@ chk 'SONG_PICK_RING_1123' scripts/audit/detail-r1.mjs 2
 nochk '›이 대신 흘러요' assets/bgm-bed.js 0
 chk '› 곡이 대신 흘러요' assets/bgm-bed.js 2
 chk 'DUCK20_1122' scripts/audit/entry-nofile-1115.mjs 3   # [DUCK20_1122] lane g — 입장 멘트 아래 말 아래 표준 −20
-chk 'DUCK20_1122' scripts/audit/seam-bg.mjs 6   # [DUCK20_1122] lane e — 말 아래 −20 기대
+chk 'DUCK20_1122' scripts/audit/seam-bg.mjs 5   # [DUCK20_1122] lane e — 말 아래 −20 기대
 chk 'DUCK20_1122' scripts/audit/seam-b2.mjs 1   # 음09 · 음10 — 시험만 나레이션 줄을 −15 로 다르게(옮김을 크기로 본다)
 chk 'DUCK20_1122' scripts/audit/no-relift.mjs 2
