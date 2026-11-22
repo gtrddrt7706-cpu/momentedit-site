@@ -8077,9 +8077,9 @@ chk 'EX_STD_1012' scripts/audit/open-course.mjs 6
 chk 'EX_STD_1012' scripts/check-ritual-cue.js 2
 chk 'EX_STD_1012' scripts/audit/source-basis.mjs 6
 chk "{ k: 'standard', nm: '정석', title: '실제 예식에서 가장 많이 하는 순서', feel: '익숙하고 편안하게 · 가장 많이 하는 순서'," assets/ritual-open.js 1
-chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'song', 'tribute'\], set: { entry: 'A', tribute: 'long', free: 'speech', narEx: { speech: 1 } } }" assets/ritual-open.js 1   # ★[SPEECH_SONG_1115] 정석 = 축가만(옛 핀 «'vow', 'free', 'song'» · 축사 3분) · [SPEECH_TILE_1012] · [TOAST_LAST_1013] 축배는 기록에만   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'A', tribute: 'long', free»
-chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'tribute', 'toast', 'table'], set: { entry: 'B', tribute: 'none', narEx: { close: 3 } } }" assets/ritual-open.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'B', tribute: 'none' } }»
-chk "on: \['prevideo', 'candle', 'welcome', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long', narEx: { open: 1, candle: { mothers: 1 }, bless: 1 } } }" assets/ritual-open.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · [EX_CHIP_DEF_1019] 기본 칩   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'E', tribute: 'long', narE»
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'song', 'tribute'\], set: { entry: 'A', tribute: 'long', free: 'speech', narEx: { speech: 1, matjeol: 4 } } }" assets/ritual-open.js 1   # ★[SPEECH_SONG_1115] 정석 = 축가만(옛 핀 «'vow', 'free', 'song'» · 축사 3분) · [SPEECH_TILE_1012] · [TOAST_LAST_1013] 축배는 기록에만   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'A', tribute: 'long', free»
+chk "on: \['prevideo', 'candle', 'welcome', 'vow', 'tribute', 'toast', 'table'], set: { entry: 'B', tribute: 'none', narEx: { close: 3, matjeol: 4 } } }" assets/ritual-open.js 1   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'B', tribute: 'none' } }»
+chk "on: \['prevideo', 'candle', 'welcome', 'declare', 'bless', 'song', 'tribute'], set: { entry: 'E', tribute: 'long', narEx: { open: 1, candle: { mothers: 1 }, matjeol: 4, bless: 1 } } }" assets/ritual-open.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · [EX_CHIP_DEF_1019] 기본 칩   # ★[REVIEW26_1023 검토 150] 옛 핀 «set: { entry: 'E', tribute: 'long', narE»
 chk "on: \['prevideo', 'candle', 'vow', 'tribute'], set: { entry: 'C', tribute: 'none', narEx: { open: 2, matjeol: 4 } } }" assets/ritual-open.js 1   # ★[BASE_SWAP_1023 검토 156] 기본 ↔ 예시 2 · [EX_CHIP_DEF_1019] 기본 칩   # ★[REVIEW26_1023 검토 150] 옛 핀 «candle: { mothers: 2 }, matjeol: 4 } } }»
 # ★[LETTER_KEEP_1013 2026-10-13 사장님 «편지는 두는 게 좋을 거 같아»] 순간 줄이기 제안에서 편지 카드는 남긴다 — 표식이 카드 줄에 붙어 있어 카드를 지우면 빨강
 chk 'LETTER_KEEP_1013' assets/ritual-open.js 1
@@ -8175,7 +8175,7 @@ chk "'narr-open-ex2', 'narr-open-ex3', 'narr-open-ex4', 'narr-candle-in-mothers'
 chk "'toast-toast-ex2', 'toast-toast-ex3', 'narr-table-in-ex2'" assets/ritual-cue.js 1   # FILES 188 ~ 190
 chk 'window.mkNarEx=function(ek,n)' order-preview.html 1
 nochk "L('narEx:'" order-preview.html   # 칩 줄은 «안내 멘트»와 같은 _exRows 줄 하나(옛 _lGroups 길 없음)
-chk 'const CLIP_COUNT = 355;' scripts/build-typecast-import.mjs 1   # ★[ROLE_SHIP_1117] 350 → 355(+5 379 ~ 383)   # ★[NARR_ROLE_1115] 329 → 350(+21 «누가» 줄 358 ~ 378) · [CAKE_FILES_OFF_1110] 334 → 329(−5 케이크 41 · 42 · 76 · 77 · 107 지움)   # [W5M_FIX_1107] 327 → 329(+2 356 · 357)   # [SEAM_WORD_1107] 326 → 327(+1 350)   # [K3_SHORT_1106] 324 → 326(+2 · 348 · 349)   # [INFO_SPLIT_200 검토 200 수정 2] 305 → 324(+19 · 329 ~ 347)   # [CLOSING_CHEER_195 검토 195] 301 → 305(+4 · 325 ~ 328)   # [GUEST_WELCOME_191 검토 191] 273 → 301(+28 하객 맞이 · 촬영 후 안내)   # [CLOSING_SRC_1031 검토 179] 268 → 273(+5 감사 없이 시작하는 마무리 멘트)   # [CLOSING_LINE_1031 검토 178] 264 → 268(+5 마무리 멘트 · −1 219)   # [REVIEW27_1023 검토 151-1 2)] 243 → 242(204 축가 예시 3 = 예시 1)   # [REVIEW26_1023 검토 150-1 3)] 244 → 243(220 RETIRED)   # [CANDLE_FOUR_RETIRED_1023 검토 148-2] 247 → 244(네 분 화촉 예시 2 ~ 4 RETIRED)   # [SRC_ALL_1023 검토 144-5] 248 → 247(221 RETIRED)   # [CANDLE_NAME_1019 · PHOTO_UP_1019] 246 → 248(263 · 264)   # [PHOTO_FREE_OPEN_1019] 245 → 246(262)   # [REVIEW24_1019] 240 → 245(257 ~ 261)   # [REC_NEXT_APPLIED_1018] 238 → 240(255 · 256)   # [REVIEW7_1018] 235 → 238(새 예시 넷 · B11 걷음)   # [BRIDGE_MORE_1018] 227 → 235(이음말 일곱 · 축가 맺는 말 가족 · 친구 판)   # [REVIEW5_1018] 208 → 227(축가 맺는 말 예시 둘은 병합 전에 걷음)   # [REVIEW4_1018 인스타 섹션 검토 4판] 195 → 208(예시 13 · 211 ~ 223)   # [REVIEW23_1018 인스타 섹션 검토 2 · 3판] 193 → 195(축가 여는 말 예시 5 · 축가 맺는 말)   # [REVIEW1_1018 인스타 섹션 검토] 191 → 193(축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2)   # [R11_SRC_1018 라운드 11] 193 → 191(쉬는 소리 201 · 190)   # [R10_SRC_1018 라운드 10] 190 → 193(축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3)   # [NARR_R9_1018 라운드 9] 187 → 190(반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3) · [NARR_LOOP_1018 첫 판] 183 → 187(선언 맺는 말 예시 3 · 4 · 편지 예시 4) · [T3_OK_1017] 177 → 183(자료 T3 예시 여섯)   # [END_FLOW_1030 검토 167] 242 → 244(265 · 266 사진 전 안내)
+chk 'const CLIP_COUNT = 357;' scripts/build-typecast-import.mjs 1   # ★[NARR_GO_1122] 355 → 357(384 · 385)   # ★[ROLE_SHIP_1117] 350 → 355(+5 379 ~ 383)   # ★[NARR_ROLE_1115] 329 → 350(+21 «누가» 줄 358 ~ 378) · [CAKE_FILES_OFF_1110] 334 → 329(−5 케이크 41 · 42 · 76 · 77 · 107 지움)   # [W5M_FIX_1107] 327 → 329(+2 356 · 357)   # [SEAM_WORD_1107] 326 → 327(+1 350)   # [K3_SHORT_1106] 324 → 326(+2 · 348 · 349)   # [INFO_SPLIT_200 검토 200 수정 2] 305 → 324(+19 · 329 ~ 347)   # [CLOSING_CHEER_195 검토 195] 301 → 305(+4 · 325 ~ 328)   # [GUEST_WELCOME_191 검토 191] 273 → 301(+28 하객 맞이 · 촬영 후 안내)   # [CLOSING_SRC_1031 검토 179] 268 → 273(+5 감사 없이 시작하는 마무리 멘트)   # [CLOSING_LINE_1031 검토 178] 264 → 268(+5 마무리 멘트 · −1 219)   # [REVIEW27_1023 검토 151-1 2)] 243 → 242(204 축가 예시 3 = 예시 1)   # [REVIEW26_1023 검토 150-1 3)] 244 → 243(220 RETIRED)   # [CANDLE_FOUR_RETIRED_1023 검토 148-2] 247 → 244(네 분 화촉 예시 2 ~ 4 RETIRED)   # [SRC_ALL_1023 검토 144-5] 248 → 247(221 RETIRED)   # [CANDLE_NAME_1019 · PHOTO_UP_1019] 246 → 248(263 · 264)   # [PHOTO_FREE_OPEN_1019] 245 → 246(262)   # [REVIEW24_1019] 240 → 245(257 ~ 261)   # [REC_NEXT_APPLIED_1018] 238 → 240(255 · 256)   # [REVIEW7_1018] 235 → 238(새 예시 넷 · B11 걷음)   # [BRIDGE_MORE_1018] 227 → 235(이음말 일곱 · 축가 맺는 말 가족 · 친구 판)   # [REVIEW5_1018] 208 → 227(축가 맺는 말 예시 둘은 병합 전에 걷음)   # [REVIEW4_1018 인스타 섹션 검토 4판] 195 → 208(예시 13 · 211 ~ 223)   # [REVIEW23_1018 인스타 섹션 검토 2 · 3판] 193 → 195(축가 여는 말 예시 5 · 축가 맺는 말)   # [REVIEW1_1018 인스타 섹션 검토] 191 → 193(축배 여는 말 예시 4 · 감사 인사 여는 말 예시 2)   # [R11_SRC_1018 라운드 11] 193 → 191(쉬는 소리 201 · 190)   # [R10_SRC_1018 라운드 10] 190 → 193(축가 여는 말 예시 3 · 4 · 덕담 받는 말 예시 3)   # [NARR_R9_1018 라운드 9] 187 → 190(반지 맺는 말 예시 4 · 축가 여는 말 예시 2 · 테이블 인사 예시 3) · [NARR_LOOP_1018 첫 판] 183 → 187(선언 맺는 말 예시 3 · 4 · 편지 예시 4) · [T3_OK_1017] 177 → 183(자료 T3 예시 여섯)   # [END_FLOW_1030 검토 167] 242 → 244(265 · 266 사진 전 안내)
 chk "has: (id) => /^X-|^D-/.test(id) }" scripts/build-typecast-import.mjs 1   # ★[DECL_TITLE_1031] D- = 성혼 선언 호칭 판
 # ★★[T3_OK_1017 2026-10-17 사장님 «16번 허락받았어» · «허락받았다니깐»] 자료 T3(«주례없는 사회자 대본» · 원본 «외부공유 절대 금지»)는 원작자 허락을 받아 예시 여섯을 넣었다 —
 #   화촉 아버님 4 · 다른 두 분 2 · 반지 4 · 덕담 4(여는 말 · 받는 말) · 축사 4 · 소리 191 ~ 196(맨 끝) · 문장 단위만(원문 통째는 저장소에 두지 않는다) ·
@@ -23961,7 +23961,7 @@ chk "setAttribute('aria-pressed', String(muted));" console.html 1
 chk 'MUTE_PRESSED_1115' scripts/audit/console-r2-1115.mjs 3
 # ★[CONSOLE_R2_1115 2026-11-15 BGM 섹션 · GPT 라운드 2] 당일 콘솔 · 곡 계획 묶음 검사 — CI bgm-sound f 칸(가장 짧은 칸)에서 돈다
 chk 'CONSOLE_R2_1115' .github/workflows/merge-guard.yml 1
-chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115' }" .github/workflows/merge-guard.yml 1
+chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115 rec-sec' }" .github/workflows/merge-guard.yml 1
 # ★[GEN_ON_OPEN_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 검증 중 찾음] 새 곡이 재생기를 받을 때 세대 번호를 올린다 — 앞 겹침 뒷정리 타이머가 늦게 여는 곡 재생기를 세우지 않게(검사 console-r2-1115 F)
 chk 'GEN_ON_OPEN_1115' console.html 1
 chk '  BED.gen\[nx\] = (BED.gen\[nx\] || 0) + 1;' console.html 1
@@ -24023,7 +24023,7 @@ chk 'PV_R3_1115' scripts/audit/pv-r3-1115.mjs 1
 chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115 one-flow' }" .github/workflows/merge-guard.yml 1
 # ★[CI_SPLIT_G_1115 2026-11-15] bgm-sound g 칸 — 라운드 3 검사 둘(console-r3-1115 · pv-r3-1115) · f 칸이 20분에 가까워 나눔
 chk 'CI_SPLIT_G_1115' .github/workflows/merge-guard.yml 1
-chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115' }" .github/workflows/merge-guard.yml 1
+chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115 rec-sec' }" .github/workflows/merge-guard.yml 1
 # ★★[ARRIVE_ONCE_VISIT_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 01] 미리 듣기 · 연습 — «이 줄 몫으로 도는 내림» 기록(LPB.arr)은 그 줄의 이번 방문에만 · 다른 줄을 보여 주면 지운다(크게 보기에서 이전 줄 → 다음 줄로 도착 멘트 · MR 자리에 다시 들어와도 내림을 다시 건다)
 chk 'ARRIVE_ONCE_VISIT_1115' assets/bgm-bed.js 2
 chk "function arrLeave(st){ if(LPB.arr&&LPB.arr.st!==st) LPB.arr=null; }" assets/bgm-bed.js 1
@@ -24199,7 +24199,7 @@ chk 'HEARD_XF_1115' scripts/audit/r4-1115.mjs 2
 chk 'DECLARE_PLAYABLE_1115' scripts/audit/r4-1115.mjs 2
 chk 'ENTRY_WAIT_HUSH_1115' scripts/audit/r4-1115.mjs 3
 chk 'R4_1115' .github/workflows/merge-guard.yml 1
-chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115' }" .github/workflows/merge-guard.yml 1
+chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115 rec-sec' }" .github/workflows/merge-guard.yml 1
 # ★[WEEKDAY_OLD_OWNER_1116 2026-11-16 대표님 «수정 전이 더 좋은데»] 홈 «A Quiet Choice» 칸은 H4_18(11/06) 전 글 — 다시 바꾸자고 제안하지 않는다
 chk '>왜 평일이 더 자연스러운가</h3>' index.html 1
 chk '30명이 모이는 자리라면 굳이 주말일 이유가 없습니다. 평일은 일정을 맞추기 수월하고, 원하는 날짜를 넉넉히 고를 수 있습니다.</p>' index.html 1
@@ -24293,3 +24293,19 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/lf-more.mjs >/dev/nu
 # ★[PAIR_ARIA_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정] 고르기 «축사 · 축가» 칸 읽어 주는 이름 — 다른 칸과 같은 «○○ 담기» + 눌림(«축가 빼기, 눌림» 겹침 걷기)
 chk 'PAIR_ARIA_N06' order-preview.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/pair-aria.mjs >/dev/null 2>&1; _pa=$?; node scripts/audit/pair-aria.mjs --selftest >/dev/null 2>&1; _pas=$?; if [ "$_pa" != 0 ] || [ "$_pas" != 0 ]; then echo "REVERT? pair-aria: 축사 · 축가 칸 읽어 주는 이름이 «빼기»로 돌아갔다 ($_pa/$_pas) — node scripts/audit/pair-aria.mjs"; fail=1; else echo 'ok pair-aria'; fi; fi
+
+# ★★[NARR_GO_1122 대표님 11/22 10:02 «나레이션 추천대로» · 대본 NARR_GO_1122] 엔진 순서 · 쉼 · 고르기 + 잘라 붙인 새 소리 둘(384 · 385) — 상세 docs/rules/나레이션.md
+chk "nsw = 'narr-open-online'" assets/ritual-cue.js 1
+chk "nsw = 'narr-vow-in-face'" assets/ritual-cue.js 1
+chk "return c.slug !== 'online-3-welcome'" assets/ritual-cue.js 1
+chk "_more.shift(); pushMore('bridge-b9-declare-seat-end')" assets/ritual-cue.js 1
+chk '_b14Self' assets/ritual-cue.js 3
+chk 'function bodyRecSec(S)' assets/ritual-cue.js 1
+chk 'REC_SEC_DATA' assets/ritual-cue.js 1
+chk "narEx: { speech: 1, matjeol: 4 }" assets/ritual-open.js 1
+chk "narEx: { close: 3, matjeol: 4 }" assets/ritual-open.js 1
+chk "candle: { mothers: 1 }, matjeol: 4, bless: 1" assets/ritual-open.js 1
+chk "'narr-vow-in-face', 'narr-open-online'" assets/ritual-cue.js 1
+chk 'NARR_GO_1122' scripts/splice-narr-go-1122.py 1
+chk 'NARR_GO_1122' docs/rules/나레이션.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/narr-go-1122.mjs >/dev/null 2>&1; _ng=$?; if [ "$_ng" != 0 ]; then echo 'FAIL narr-go-1122: 온라인 개식 · 10분 전 판 · 성혼 · 화촉 · 맞절 · 서약 여는 말 순서가 대표님 11/22 결정과 다릅니다 — node scripts/audit/narr-go-1122.mjs'; fail=1; else echo 'ok narr-go-1122'; fi; fi

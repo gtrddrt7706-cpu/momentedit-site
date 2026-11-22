@@ -42,4 +42,13 @@ if __name__ == '__main__':
     print('13 문장', [[round(p, 2) for p in s] for s in ga], '→ 384', round(len(a) / SR, 2), '초')
     print('137 문장', [[round(p, 2) for p in s] for s in gb], '첫 문장 뒤 쉼', round(gap0, 2), '→ 385', round(len(b) / SR, 2), '초')
     if '--check' not in sys.argv:
-        save(a, os.path.join(N, '384_narr-vow-in-face.mp3')); save(b, os.path.join(N, '385_narr-open-online.mp3')); print('썼다 384 · 385')
+        save(a, os.path.join(N, '384_narr-vow-in-face.mp3')); save(b, os.path.join(N, '385_narr-open-online.mp3'))
+        # 녹음 기록(_recorded.json · RECORDED_TRUTH) — 실제로 들어간 글 · 13 · 137 기록에서 문장을 그대로 옮긴다
+        import json, re
+        rf = os.path.join(N, '_recorded.json'); R = json.load(open(rf, encoding='utf-8')); c = R['clips']
+        sp = lambda t: [x for x in re.split(r'(?<=[.!?])\s+', t.strip()) if x]
+        v13, v137 = sp(c['13_narr-vow-in']['text']), sp(c['137_narr-open']['text'])
+        c['384_narr-vow-in-face'] = {'text': ' '.join([v13[0]] + v13[2:]), 'voice': '우성', 'layer': 6, 'splice': 'NARR_GO_1122 · 13 둘째 문장 뺌'}
+        c['385_narr-open-online'] = {'text': ' '.join(['오늘 두 사람을 축복해 주시기 위하여 현장에 자리해 주신 하객분들과, 온라인으로 함께해 주시는 분들께 양가를 대표하여 감사의 말씀을 드립니다.'] + v137[1:]), 'voice': '우성', 'layer': 6, 'splice': 'NARR_GO_1122 · 첫 문장 ONLINE_GREET_1119 u60 + 137 #1 · #2'}
+        json.dump(R, open(rf, 'w', encoding='utf-8'), ensure_ascii=False, indent=1); open(rf, 'a', encoding='utf-8').write('\n')
+        print('썼다 384 · 385 · 녹음 기록')
