@@ -2432,7 +2432,7 @@
       if (b.slug === 'bridge-b3-clap-thanks' && cs[i + 2] && gap(b)) { via = true; b = cs[i + 2];
         /* ★[REVIEW22_1018 검토 130-4] 선언 박수 → «박수, 고맙습니다» → «선언해 주신 분께서는, …» → 다음 여는 말 — 사이 자리 줄이 하나 더 끼어도 박수 두 번은 같다(14초) */
         if (/^bridge-b9-declare-seat/.test(b.slug) && cs[i + 3]) b = cs[i + 3]; }
-      else if (/^bridge-b9-declare-seat/.test(b.slug) && cs[i + 2] && gap(b)) { via = true; b = cs[i + 2]; }   // ★[REVIEW26_1023 검토 150-2 5)] 선언이 마지막인 날 57 → 255 → 108 — B3 없이 B9 만 끼어도 박수 두 번은 같다(15초)
+      else if (/^bridge-b9-declare-seat/.test(b.slug) && cs[i + 2] && gap(b)) { via = true; b = cs[i + 2]; if (b.slug === 'bridge-b3-clap-thanks' && cs[i + 3]) b = cs[i + 3]; }   /* ★[NARR_GO_1122 ④] 255 → 111 차례가 된 뒤에도 사이 두 줄을 건너 다음 여는 말을 본다 */   // ★[REVIEW26_1023 검토 150-2 5)] 선언이 마지막인 날 57 → 255 → 108 — B3 없이 B9 만 끼어도 박수 두 번은 같다(15초)
       var k = O.narExKey ? O.narExKey(b.slug) : '';
       if (!k || (a.k === b.k && !/^bridge-/.test(a.slug))) continue;
       if (only && k !== only) continue;
