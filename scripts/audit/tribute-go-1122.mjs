@@ -25,9 +25,13 @@ for (const ex of ['standard', 'family', 'brief', 'record']) {
   ok(at(cs, 38) < 0, `② ${ex} 38(«… 이동하겠습니다.») 안 나옴`);
   ok(w > -1 && cs[w].slug === 'tribute-in' && cs[w].fire === 'chain' && cs[w].gapMs === 1700, `③ ${ex} 141 → 236 사슬 1.7초`);
   const b = at(cs, 248);
-  if (b > -1) ok(n === b + 1 && cs[n].fire === 'chain' && cs[n].gapMs === 1200, `③ ${ex} 248 → 141 사슬 1.2초`);
+  if (b > -1) ok(n === b + 1 && cs[n].fire === 'chain' && cs[n].gapMs === 1200 && !cs[n].goLeadMs && cs[n].leadDb == null, `③ ${ex} 248 → 141 사슬 1.2초 · 음악 뜸 없음(TRIBUTE_GAP_1122 · 곡은 141 아래에서 오름)`);
   else ok(n > -1 && cs[n].gapMs === 4500, `③ ${ex} 248 없는 날 · 서약 맺는 말 뒤 4.5초 그대로`);
 }
+/* ★[TRIBUTE_GAP_1122] 248 뒤 곡 내림(1.5초)은 걸어 두고 기다리지 않는다(free) — 기다리면 콘솔에서 말 사이 2.7초 · 콘솔 runPost 가 free 를 읽는다 */
+{ const cs = cues('standard'), b = at(cs, 248), p = (cs[b].post || [])[0] || {};
+  ok(p.music === 'to' && p.v <= -60 && p.free === true, '③ 248 뒤 곡 내림 free(사슬 쉼이 말끝부터)');
+  ok(/later\(function\(\)\{ runPost\(list, i\+1, done\); \}, st\.free \? 0 : \(st\.ms \|\| 0\)\)/.test(fs.readFileSync(path.join(ROOT, 'console.html'), 'utf8')), '③ 콘솔 runPost 가 free 를 읽는다'); }
 /* 예시 칩 — 3 · 4 는 그 칩 걷는 말 · 5 · 6 은 걷는 말이 없어 새 기본(236) · 쉼은 칩과 상관없이 같은 자리 */
 for (const [n, f] of [[1, '236'], [2, '182'], [3, '237'], [4, '236'], [5, '236']]) {
   const cs = cues('standard', { narEx: Object.assign({}, O.applyExample({ course: 'open' }, 'standard').narEx, { tribute: n }) }), w = cs.findIndex((c) => /^tribute-in/.test(c.slug || ''));

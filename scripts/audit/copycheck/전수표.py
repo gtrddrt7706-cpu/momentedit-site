@@ -275,6 +275,8 @@ for _no, _sl, *_r in rows:
 for _no, _sl, *_r in rows:
     if _no.isdigit() and 384 <= int(_no) <= 385 and re.match(r'^(narr-vow-in-face|narr-open-online)$', _sl):
         SKIP.setdefault((_no, _sl), '2026-11-22 신설 — 잘라 붙인 판 [NARR_GO_1122 · 대표님 «나레이션 추천대로» · ONLINE_GREET_1119] · 소리 = 13 · 137 그대로 + 385 첫 문장 우성 후보 a ×1.0')
+    if _no.isdigit() and 386 <= int(_no) <= 389 and re.match(r'^narr-close-bow(-ex[234])?-online$', _sl):
+        SKIP.setdefault((_no, _sl), '2026-11-22 신설 — 잘라 붙인 판 [CLOSE_C_GO_1122 · 대표님 «추천대로»] · 소리 = 108 · 185 · 186 · 187 그대로 + 구령 앞 감사 한 줄(CLOSE_C_TUNE r1)')
 LETTERS = {('10','letter-parent'),('11','letter-each'),('12','bless-father'),
            ('13','bless-mother'),('14','tribute'),('27','tribute-reply'),('43','parents-letter')}
 
