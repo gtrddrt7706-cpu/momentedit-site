@@ -20904,7 +20904,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/fab-names.mjs >/dev/
   esac
 fi
 # ★★[DRESS_SCROLL_LOCK · DRESS_LOCK_HOLD 2026-10-31 사장님 제보] 드레스 창 끝에서 더 내리면 뒤 마이페이지가 움직였다 — 창이 떠 있는 동안 다시 그리기(show)가 잠금을 풀었다(목록에 창이 없었다)
-chk "'mp_drViewer','mp_invSample'\];" mypage.html 1                                # [DRESS_LOCK_HOLD] 떠 있는 창 목록(한 곳)
+chk "'mp_drViewer','mp_invSample','mp_prepOverlay'\];" mypage.html 1                                # [DRESS_LOCK_HOLD] 떠 있는 창 목록(한 곳)  · [PREP_HUB_1123] 목록 끝에 «준비할 것» 창이 붙었다(옛 기대 «…mp_invSample];» 은퇴)
 chk "document.documentElement.style.overflow='hidden';   // \[DRESS_SCROLL_LOCK\]" mypage.html 1
 chk "ov.addEventListener('wheel', _stopScroll, {passive:false}); ov.addEventListener('touchmove', _stopScroll, {passive:false});" mypage.html 1
 chk 'html.pk-pop,html.pk-pop body{overscroll-behavior-y:contain}' dress.html 1
