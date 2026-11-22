@@ -46,7 +46,7 @@ const exS = (k, add) => { const S = O.applyExample({ course: 'open' }, k); S.cou
   CL.slice().forEach(([k, o]) => { CL.push([k + 'Nt', Object.assign({ narEx: { close: 3 } }, o)]); CL.push([k + 'Nc', Object.assign({ narEx: { close: 2 } }, o)]); });   // ★[CLOSING_SRC_1031] 닫는 멘트 187(Nt) · ★[CLOSING_CHEER_195] 186(Nc · 응원 문장 없음)
   ok('마무리 멘트 늘어난 몫 = 엔진 셈(' + CL.map(([k, o]) => k + ' ' + est(o)).join(' · ') + '초) · postSec 같은 판', CL.every(([k, o]) => est(o) === O.POST_SEC[k] && O.postSec(Object.assign({ digital: false, mealFull: false, resv: false }, o)) === O.POST_SEC[k]));
   const sp = O.span(exS('standard', { digital: true })), sp0 = O.span(exS('standard'));
-  ok('40분 셈에 온라인 인사 2분 — 디지털 참석 날 단체 사진이 2분 준다(본식 + 테이블 인사 + 닫는 인사 뒤 몫 + 단체 사진 = 40)', sp.pm === 2 && sp0.pm === 0 && sp.pa === sp0.pa - 2 && sp.tb + sp.pm + sp.pa === O.DAYMIN);
+  ok('40분 셈 — [CLOSE_C_GO_1122] 온라인 인사 2분 걷음 · 디지털 참석 날도 단체 사진이 줄지 않는다(본식 + 테이블 인사 + 닫는 인사 뒤 몫 + 단체 사진 = 40)', sp.pm === 0 && sp0.pm === 0 && sp.pa === sp0.pa && sp.tb + sp.pm + sp.pa === O.DAYMIN);
   ok('테이블 인사 9분 = TABLE_SEC × 6 · 카드 글에는 고정 숫자 없음(시간은 동적 표시 한 곳 · B2_GEUL_09 d-07)', O.TABLE_SEC * 6 === 540 && O.tableFull({}) === 540 && /그만큼 사진 시간은 줄어요/.test(O.CARDS.table.one) && !/\d분|테이블 기준/.test(O.CARDS.table.one));
   ok('차례 — 테이블 인사 → 축배 → 닫는 인사(bodyOrder 끝)', O.bodyOrder().slice(-3).join(',') === 'table,toast,_close');
 }
