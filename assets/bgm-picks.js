@@ -73,7 +73,7 @@
     /* ★★[SONGS_5_1115 2026-11-15 대표님 구매 · BGM 결정 카드 ⑤] 하객 맞이 · 테이블 인사 배경 곡 다섯 — 같은 앨범(Peace of Mind - STUDIO GHIBLI meets JAZZ BEST - · 2021) · 파일은 저장소 밖(완성 폴더 · 드라이브 «ME_구간곡») ·
          −23 LUFS · 피크 −2 dBTP 이하 · 앞뒤 무음 자름 · 한 번만(되풀이 편집 없음 · len 없음 = 파일 길이) · 고객이 고르는 3곡 목록(PICKS)에는 넣지 않고 fill 로만 */
     B35: { t: '이웃집 토토로', src: '이웃집 토토로', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '밝고 반가운 재즈 피아노' },
-    B36: { t: '벼랑 위의 포뇨', src: '벼랑 위의 포뇨', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '가볍고 경쾌하게' },
+    B36: { t: '벼랑 위의 포뇨', src: '벼랑 위의 포뇨', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '가볍고 경쾌하게' , start: 18.2, startFirst: true},   /* ★[PONYO_HOOK_1122 2026-11-22 사장님 «포뇨 메인 부분이 흘러나오면» · BGM 방 파일 실측] 강조 자리 = 주제 선율(«포뇨 포뇨 포뇨» 세 번 내리는 3도 · 19.25초)의 한 마디 앞 박(18.2초) · 같은 대목이 곡 끝 190.5초에 다시 나온다(크로마 대조 0.95) · 목록 둘째 곡부터 · 다시 이을 때 이 자리에서(종전 40% = 86초 · 솔로 한가운데) */
     B37: { t: '때로는 옛날 이야기를', src: '붉은 돼지', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '따뜻하고 차분하게' },
     B38: { t: '안녕 여름', src: '코쿠리코 언덕에서', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '잔잔하게 오래' },
     B39: { t: '비행기 구름', src: '바람이 분다', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '담백한 피아노 트리오' }
@@ -83,7 +83,7 @@
        목록에서 뺀 곡: B02 · B03 · B04 · B06 · B18 · B21 · B25(SONGS 데이터는 그대로 둔다 · 예전에 고른 저장값은 custK 가 «고르지 않음 = 1순위»로 읽는다) */
   /* ★[GHIBLI_ADD_1101] 지브리 4곡을 넣은 판 — 화촉 · 부모님께 인사 · 닫는 인사 · 마지막 곡을 바꿨다(B30 · B20 · B26 은 목록에서 빠지고 데이터만 남는다) */
   var PICKS = {
-    M1: ['B01', 'B24', 'B13'],     // 하객 맞이 — 바다가 보이는 마을 · Country Roads · Moon River(반복 목록 · 뒤에 FILL)
+    M1: ['B36', 'B01', 'B24'],     // 하객 맞이 — 벼랑 위의 포뇨 · 바다가 보이는 마을 · Country Roads(반복 목록 · 뒤에 FILL) · ★[PONYO_FIRST_1122 2026-11-22 사장님 «포뇨가 데모 듣기에서 흘러나왔으면 · 분위기가 맞아» · 대본 결정 «추천대로»] 1순위 포뇨(주제 18.2초부터 · startFirst) · Moon River 는 FILL 로 · 미리 듣기 = 당일(SCREEN_SOUND_1102) · 옛 1순위 B01 되돌리지 말 것
     M2: ['B05', 'B31', 'B07'],     // 화촉
     M4: ['B09', 'B10', 'B11'],     // 감사 인사 ~ 덕담
     /* ★★[ONE_FLOW_1106 2026-11-06 사장님 «이벤트가 짧아 이벤트마다 노래가 바뀌면 정신없다» · 대본 판정 «순간마다 곡 → 큰 덩어리마다 곡»] 축사 · 편지 «음악과 함께»(옛 M4S5 · M4S6)는 따로 곡을 두지 않는다 —
@@ -98,7 +98,7 @@
   /* ★★[BGM_FILL_1101 2026-11-01 사장님 «하객 맞이 음악은 계속 흐르는 건가? 한 곡만으로는 힘들지 않아?»] 목록 칸(multi · M1 · M8)은 30분을 채운다 —
        고객이 고르는 곡은 3곡 그대로 · 당일 콘솔이 트는 차례 끝에 «배경으로만 이어 트는 곡»(fill)을 붙인다(고객 화면 곡 줄 · 곡 카드 · 미리 듣기에는 없다 · 순서 줄에는 보인다)
        차례 = 고른 곡(없으면 1순위) → 그 구간 나머지 → fill · 한 바퀴 뒤 처음으로 · ★[GHIBLI_ADD_1101] fill 이 다른 구간에서 두 분이 고른 곡이면 건너뛴다(겹쳐 들리지 않게) */
-  var FILL = { M1: ['B33', 'B35', 'B36', 'B37'], M8: ['B38', 'B39', 'B12', 'B14', 'B13'], M6: ['B07', 'B16'], M4: ['B12', 'B14'], M8L: ['B26', 'B33'] };   /* ★[REPEAT_RULE_1107 ①] 본식 피아노(M4 · 약 18분 · 3곡)와 마지막 곡(M8L)에도 배경 곡 — 목록에 없던 피아노 B12 «Under the Willow» · B26 «Bluebird» 등 · 고객이 보는 3곡은 그대로 · 드라이브에 파일이 없으면 엔진이 건너뛴다(have) */   /* ★[DAYLONG_1101] 닫는 인사 → 사진(약 15분) 뒤에 이어 트는 곡 */
+  var FILL = { M1: ['B13', 'B33', 'B35', 'B37'], M8: ['B38', 'B39', 'B12', 'B14', 'B13'], M6: ['B07', 'B16'], M4: ['B12', 'B14'], M8L: ['B26', 'B33'] };   /* ★[REPEAT_RULE_1107 ①] 본식 피아노(M4 · 약 18분 · 3곡)와 마지막 곡(M8L)에도 배경 곡 — 목록에 없던 피아노 B12 «Under the Willow» · B26 «Bluebird» 등 · 고객이 보는 3곡은 그대로 · 드라이브에 파일이 없으면 엔진이 건너뛴다(have) */   /* ★[DAYLONG_1101] 닫는 인사 → 사진(약 15분) 뒤에 이어 트는 곡 */
   /* ★★[SONGS_5_1115] 하객 맞이 fill = B33 → 토토로 → 포뇨 → 때로는 옛날 이야기를(시작 직전 쪽) · 고른 곡 3 + fill 4 = 겹침 빼고 약 30분(부모님께 인사에 B16 을 골라도 그대로 · B16 은 하객 맞이 fill 에서 빼 테이블 인사 몫으로) ·
        테이블 인사 fill = 안녕 여름 → 비행기 구름 → 본식 배경 피아노(B12 · B14 · 본식에서 안 들린 날) → B13 · 옛 fill(M1 B16 · B33 / M8 B13 · B14) 되살리지 말 것 · 검사 scripts/audit/fill-30-1115.mjs */
   /* 본식 차례(«앞 구간» · 같은 곡 두 구간 한 줄) — 테이블 인사 → 축배 → 닫는 인사(END_FLOW_1030) */
@@ -140,12 +140,14 @@
   /* 곡 아이디 — [BGM_FIX_1030] 곡 번호 그대로(같은 곡은 어느 구간에서나 같은 아이디 · 콘솔이 그 기기에 넣은 파일을 구간마다 다시 넣지 않는다) ·
      번호가 없는 곡(콘솔 «곡 추가»는 own: 아이디를 따로 쓴다)만 옛 꼴(구간 · 곡 · 연주자) */
   function idOf(seg, p) { if (p && p.f) return p.f; return seg + ':' + String(p.t || '').toLowerCase().replace(/\s+/g, ' ').trim() + '|' + String(p.a || '').toLowerCase().trim(); }
-  function song(f) { var s = SONGS[f]; if (!s) return null; return { id: f, f: f, t: s.t, a: s.a || '', src: s.src || '', v: s.v || '', start: s.start == null ? null : +s.start, why: s.why || '', vocal: !!s.vocal }; }   /* src = 아는 영화 · 드라마(고객 화면 아랫줄 맨 앞 · 덧붙임 4) */
+  function song(f) { var s = SONGS[f]; if (!s) return null; return { id: f, f: f, t: s.t, a: s.a || '', src: s.src || '', v: s.v || '', start: s.start == null ? null : +s.start, why: s.why || '', vocal: !!s.vocal, startFirst: !!s.startFirst }; }   /* src = 아는 영화 · 드라마(고객 화면 아랫줄 맨 앞 · 덧붙임 4) */
   function list(seg) { seg = oneSeg(seg); return (PICKS[seg] || []).map(function (f, i) { var o = song(f); if (!o) return null; o.rank = i + 1; return o; }).filter(Boolean); }
   /* [BGM_FIX_1030] 곡 번호(f) — 'B05' 꼴(곡마다 하나) · 옛 구간 번호('M2_1')는 이 꼴이 아니라 «고르지 않음»으로 읽힌다 */
   var F_RE = /^B\d{2,3}$/;
   /* ★[REPEAT_RULE_1107 ②③] 같은 곡을 다시 이을 자리 — 곡 성질의 강조 자리(SONGS.start · 파형으로 잰 초)가 있으면 거기 · 없으면 곡 길이의 40%(전주부터 다시 들리지 않게) · 콘솔 · 미리 듣기가 같이 쓴다 */
   function hookAt(f, d) { var s0 = SONGS[String(f || '').toUpperCase()]; if (s0 && s0.start != null && isFinite(+s0.start)) return Math.max(0, +s0.start); d = lenOf(f, d); return d > 0 ? Math.round(d * 0.4 * 10) / 10 : 0; }   /* [REPEAT_FIX_1107 ③] 40% = 원곡 길이(len) 기준 */
+  /* ★[PONYO_FIRST_1122] 구간 첫 곡을 처음(0초)이 아니라 강조 자리에서 여는 곡(startFirst) — 콘솔 첫 곡 · 미리 듣기 첫 곡이 같이 쓴다 · 없으면 0 */
+  function firstAt(f) { var s0 = SONGS[String(f || '').toUpperCase()]; return (s0 && s0.startFirst && s0.start != null && isFinite(+s0.start)) ? Math.max(0, +s0.start) : 0; }
   function byF(f) { f = String(f || '').toUpperCase(); return F_RE.test(f) ? song(f) : null; }
   /* 고객이 고른 곡 번호 — 구간(M1 …)은 S.bgm[구간].k · 축사 · 편지 하위 칸(M4S5 · M4S6)은 S.bgm.S5 · S6 의 k(«음악과 함께»일 때만) · 그 구간 목록에 없으면 ''(1순위로 준비) */
   /* ★★[LIST_NO_PICK_1101 2026-11-01 사장님 «이러면 굳이 곡을 안 골라도 되잖아»] 목록 칸(multi · 하객 맞이 M1 · 테이블 인사 M8)은 고르지 않는다 — 다섯 곡이 다 흐르고 고르면 시작 곡만 바뀌었다 ·
@@ -241,5 +243,5 @@
     var used = {}; Object.keys(R).forEach(function (sg) { if (loopy(sg)) R[sg].list.forEach(function (f) { used[f] = 1; }); });
     segs.forEach(function (sg) { if (loopy(sg) || !R[sg]) return; var f0 = R[sg].first; R[sg].alt = (PICKS[sg] || []).filter(function (f) { return f && f !== f0 && have(f) && SONGS[f] && !used[f] && !(once[f] && once[f] !== sg); }); R[sg].alt.forEach(function (f) { used[f] = 1; }); });   /* 한 곡은 한 칸의 다음 곡으로만 */
     return R; }
-  return { SONGS: SONGS, PICKS: PICKS, FILL: FILL, CORDER: CORDER, SEGS: SEGS, song: song, seg: function (id) { return BY[oneSeg(id)] || null; }, list: list, idOf: idOf, byF: byF, custK: custK, order: order, carryOf: carryOf, loopy: loopy, dupSeg: dupSeg, backSeg: backSeg, F_RE: F_RE, plan: plan, NEED: NEED, LEN0: LEN0, SPAN: SPAN, GAP40: GAP40, hookAt: hookAt, lenOf: lenOf, PIANO: PIANO, BORROW_ONLY: BORROW_ONLY, REPLAN: REPLAN, guestMin: guestMin, oneSeg: oneSeg, xfOf: xfOf, XF: XF };
+  return { SONGS: SONGS, PICKS: PICKS, FILL: FILL, CORDER: CORDER, SEGS: SEGS, song: song, seg: function (id) { return BY[oneSeg(id)] || null; }, list: list, idOf: idOf, byF: byF, custK: custK, order: order, carryOf: carryOf, loopy: loopy, dupSeg: dupSeg, backSeg: backSeg, F_RE: F_RE, plan: plan, NEED: NEED, LEN0: LEN0, SPAN: SPAN, GAP40: GAP40, hookAt: hookAt, firstAt: firstAt, lenOf: lenOf, PIANO: PIANO, BORROW_ONLY: BORROW_ONLY, REPLAN: REPLAN, guestMin: guestMin, oneSeg: oneSeg, xfOf: xfOf, XF: XF };
 });

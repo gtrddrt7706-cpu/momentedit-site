@@ -71,9 +71,9 @@ async function open(W, embed, init) {
 
 const go = async (f, k) => { await f.evaluate((k) => mkGo(k), k); await wait(f, 700); };
 /* ★[GHIBLI_ADD_1101] 지브리 4곡을 넣은 판(화촉 · 부모님께 인사 · 닫는 인사 · 마지막 곡) — 뺀 곡 10(PICKS_THREE 7 + B20 · B26 · B30) */
-const WANT = { M1: ['B01', 'B24', 'B13'], M2: ['B05', 'B31', 'B07'], M4: ['B09', 'B10', 'B11'], M5: ['B15', 'B31', 'B16'], M6: ['B17', 'B34', 'B19'], M7: ['B28', 'B29', 'B22'], M8: ['B24', 'B23', 'B16'], M8L: ['B32', 'B11', 'B27'] };
+const WANT = { M1: ['B36', 'B01', 'B24'], M2: ['B05', 'B31', 'B07'], M4: ['B09', 'B10', 'B11'], M5: ['B15', 'B31', 'B16'], M6: ['B17', 'B34', 'B19'], M7: ['B28', 'B29', 'B22'], M8: ['B24', 'B23', 'B16'], M8L: ['B32', 'B11', 'B27'] };
 const GONE = ['B02', 'B03', 'B04', 'B06', 'B18', 'B20', 'B21', 'B25', 'B30'];   /* [REPEAT_RULE_1107 ①] B26 «Bluebird»는 마지막 곡 배경 곡으로 다시 쓴다(BGM 섹션 11/07) */
-const FILLW = { M1: ['B33', 'B35', 'B36', 'B37'], M8: ['B38', 'B39', 'B12', 'B14', 'B13'], M6: ['B07', 'B16'], M4: ['B12', 'B14'], M8L: ['B26', 'B33'] };   /* [DAYLONG_1101] 닫는 인사도 배경 곡 · [REPEAT_RULE_1107 ①] 본식 · 마지막 곡도 */   /* [DAYLONG_1101] 닫는 인사도 배경 곡 */
+const FILLW = { M1: ['B13', 'B33', 'B35', 'B37'], M8: ['B38', 'B39', 'B12', 'B14', 'B13'], M6: ['B07', 'B16'], M4: ['B12', 'B14'], M8L: ['B26', 'B33'] };   /* [DAYLONG_1101] 닫는 인사도 배경 곡 · [REPEAT_RULE_1107 ①] 본식 · 마지막 곡도 */   /* [DAYLONG_1101] 닫는 인사도 배경 곡 */
 const P = require(PICKSF || path.join(ROOT, 'assets/bgm-picks.js'));
 try {
   /* a · b 데이터 */
@@ -107,7 +107,7 @@ try {
     /* d 옛 저장값 — 테이블 첫 곡 = 하루 계획의 첫 곡(B23 · 하객 맞이와 겹치는 B24 · B16 과 축사 «음악과 함께» B13 은 맨 뒤 · DETAIL_R3_1101 ⑦ 보탬) */
     await f.evaluate(() => { S.bgm = { M1: { k: 'B03' }, M2: { k: 'B06' }, M8: { k: 'B25' }, S5: { m: 'bed', k: 'B02' }, M7: { k: 'B21' } }; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); });
     const dd = [];
-    for (const [k, sg, first] of [['guest', 'M1', 'B01'], ['candle', 'M2', 'B05'], ['table', 'M8', 'B23'], ['free', 'M4S5', 'B09'], ['toast', 'M7', 'B28']]   /* [ONE_FLOW_1106] 옛 축사 칸 이름은 본식 M4 1순위로 읽힌다(옛 S5.k 무시) */) { await go(f, k);
+    for (const [k, sg, first] of [['guest', 'M1', 'B36'], ['candle', 'M2', 'B05'], ['table', 'M8', 'B23'], ['free', 'M4S5', 'B09'], ['toast', 'M7', 'B28']]   /* [ONE_FLOW_1106] 옛 축사 칸 이름은 본식 M4 1순위로 읽힌다(옛 S5.k 무시) */) { await go(f, k);
       dd.push(await f.evaluate(({ sg, first }) => { const t = BgmBed._t, box = document.querySelector('.ls-bed[data-seg="' + sg + '"], .bed-sub[data-seg="' + sg + '"]'); return { sg, eff: t.eff(sg), first, on: box ? [...box.querySelectorAll('.mu-pick[aria-checked="true"]')].length : -1 }; }, { sg, first })); }
     ok(`${W} d 뺀 곡을 골라 둔 옛 저장값 → 1순위로 깔고(eff) · 눌린 곡 줄 없음 · 오류 0`, dd.every((x) => x.eff === x.first && x.on <= 0) && !errs.length, { dd, errs: errs.slice(0, 2) });
     ok(`${W} 쪽 오류 0`, !errs.length, errs.slice(0, 3));
