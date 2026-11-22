@@ -2427,7 +2427,7 @@ button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
      그래서 **캐시 첫 페인트에는 버튼이 없고, 서버 갱신이 끝나 다시 그릴 때 나타났다.**
      망이 느리면 몇 초 동안 없고, 갱신이 실패하면 끝내 안 나온다 — '어쩔 땐'의 정체다.
      ★인라인 스크립트보다 **앞**에 둔다. 뒤로 옮기지 말 것. (head 로도 올리지 말 것 — MPD_E1) -->
-<script src="/assets/seat-plan.js?v=1122a"></script><!-- [SEAT_PLAN_9] 캔들존 확정 배치(9테이블 · 35석) 단일 원천 — 좌석 편집기 · seat · guide · admin 공용 -->
+<script src="/assets/seat-plan.js?v=1122b"></script><!-- [SEAT_PLAN_9] 캔들존 확정 배치(9테이블 · 35석) 단일 원천 — 좌석 편집기 · seat · guide · admin 공용 -->
 <script src="/assets/dining-data.js?v=1105a"></script><!-- [DINE_DATA_NI16] 식당 · 카페 목록 단일 원천(관리자 «당일 콘솔»도 읽는다) -->
 <script src="/assets/ritual-preview-link.js?v=1122t1"></script>
 <script src="/assets/snap-refs.js"></script><!-- [SNAP_REFS] 스냅 기획 레퍼런스 목록(단 하나의 원천) — 인라인 스크립트보다 앞 -->
@@ -13333,7 +13333,7 @@ function renderSeat(box){
     +'<div class="seat-stage">◈ 앞 · 신랑 신부</div>'   // [SEAT_PLAN_9] 단상은 두지 않는다(오프라인 확정 · 2026-11-07)
     +'<div class="seat-plan smap-scroll" data-seat-scroll>'+mapHtml+'</div>'
     +'<div class="seat-entry" aria-hidden="true">입장</div>'
-    +'<div class="seat-swipe" aria-hidden="true">옆으로 밀면 우측 테이블이 보여요</div>'
+    /* ★아래 «옆으로 밀면 우측 테이블이 보여요» 한 줄 금지 — 2026-11-22 사용자 지시로 그림 위 «우측 테이블 ›» 알약으로 바꿈([SEAT_SWIPE_CUE] · 폰에서 배치 완료 단추 아래로 숨어 안 보였다) */
     + summaryHtml  // 인원·요금 + 음료 집계 — 한 요약 카드(공개 방식 카드와 같은 폭 · 2026-07-19 디자이너 개편)
     + privacyHtml  // 공개 방식 — 캔버스 아래 별도 카드
     +'<div class="cc-note" style="text-align:center;margin:12px 0 0;color:var(--label-soft)">지금 안 끝내도 돼요. 우측 위 \'저장\'을 누르면 언제든 이어서 할 수 있어요.</div>'   // [AFTER_BAR] 막대 뒤 → 앞
@@ -13343,7 +13343,7 @@ function renderSeat(box){
     +'</div>'; _wzPin(box);
   SEATFLOW._rendering=false;
   (function(){ var sp=box.querySelector('[data-seat-scroll]'); if(!sp) return; if(_spX>=0) sp.scrollLeft=_spX;   // [SEAT_PLAN_9]
-    var sw=box.querySelector('.seat-swipe'); if(sw) sw.hidden=!(sp.scrollWidth>sp.clientWidth+2); })();   // 다 들어오는 폭이면 «옆으로 밀면» 줄을 숨긴다
+    ME_SEAT_PLAN.edgeCue(sp); })();   // [SEAT_SWIPE_CUE] 그림 위 «우측 테이블 ›» · 끝이면 «‹ 좌측 테이블» · 다 들어오는 폭이면 숨김
   box.style.display='block';
   bindSeat(box);
   // wireSeatShare 호출 제거 — 좌석 편집기 안 공유 패널 폐지(2026-07-19 사용자 지시 · 링크·QR은 하객 안내 접점)
