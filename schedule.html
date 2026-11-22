@@ -737,6 +737,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
       <!-- ★[PAY_METHOD 2026-09-25 사장님 「예약금에도 카드결제 되게」 · «추천대로»] 결제 방법 — 카드결제가 «켜졌을 때만» 보인다(cardPayConfig · milestone 예약금).
            꺼져 있으면(토스 라이브 전) 지금처럼 계좌이체 한 길뿐이라 고를 것이 없다. ?preview_card=1 이면 결제 없이 배치만 본다.
            ★카드는 신청을 먼저 넣고(payBy:'card' · 관리자에게 «카드 결제 대기») 토스 결제창을 연다 → 복귀(?me_pay=1)하면 서버가 승인하고 바로 확정한다. -->
+      <!-- ★[DEPOSIT_BANK_ONLY_1122 2026-11-22 대표님 결정] 예약금은 계좌 입금만 — 서버(98_pay_card DEPOSIT_CARD_OPEN=false)가 예약금 설정을 늘 enabled:false 로 돌려줘 이 탭은 안 뜬다. 탭 · 카드 길은 지우지 않고 잠가 둔다. -->
       <div class="pay-method" id="payMethod" role="radiogroup" aria-label="결제 방법" hidden>
         <input type="radio" name="payM" id="payM_bank" value="bank" checked><label for="payM_bank">계좌이체</label>
         <input type="radio" name="payM" id="payM_card" value="card"><label for="payM_card">카드결제</label>

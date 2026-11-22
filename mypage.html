@@ -4079,7 +4079,7 @@ function _loadSlowRetry(err, retry){   // MPD_E3 무한 스피너 → 재시도 
      한 칸 더 건너뛰는 규칙은 nowLabel 쪽(묶음 A)이 맡는다. 라벨을 «제작»으로 되돌리지 말 것. */
 var STAGE_LABEL = {
   '신청접수':'신청 접수','상담확정':'상담 확정','촬영확정':'촬영 확정','시착':'드레스 시착',
-  '상담완료':'계약서 요청','계약완료':'계약서 서명','입금완료':'계약금 입금',
+  '상담완료':'계약서 요청','계약완료':'계약서 서명','입금완료':'계약금 결제',
   '스냅기획':'스냅 기획','제작중':'예식 준비','촬영완료':'촬영','예식완료':'예식 완료','결과물전달':'결과물 전달','후기':'후기'   // STAGE_REVIEW   // [STAGE_NAME_PREP] 제작중 = 예식 준비
 };
 function stageLabel(code, product){
@@ -4374,7 +4374,7 @@ function renderMyPage(d){
              숫자 옆에 붙어 있어야 값이 있다. NOW 는 계약금 갈래와 같은 모양으로 «무엇을»만 말한다. */
           sub = '아래에서 한 번에 보내 주시면, 확인 후 ' + _prep + '가 시작돼요.';
         } else {
-        head = '계약금 입금만 남았어요';   // MPD_G11 계약 성사 환대 1줄(§9-2-⑤)
+        head = '계약금 결제만 남았어요';   // MPD_G11 계약 성사 환대 1줄(§9-2-⑤)
         var _dep = Number((_pa && _pa.예약금) || 0);   // MPD_G1 ★예약금 결측 폴백(100000) 재도입 금지 — 스냅 예약금 0을 결측 오인해 허위 '100,000 차감' 표시(2026-07-25 수정) · 차감 문구는 예약금>0일 때만
         /* ★★[NOW_NO_MONEY 2026-09-21 사장님 지적 「윗부분이 금액이 직접적으로 나오니깐 조금
            지저분한느낌인데 아래랑중복되는거같기도하고」] 금액을 여기서 다시 말하지 말 것.
@@ -4389,14 +4389,14 @@ function renderMyPage(d){
            ★_dep 는 아래 [MPD_G1] 주석 때문에 남겨 둔다 — 스냅 예약금 0 판정에 쓰인다. */
         sub = '함께하기로 해 주셔서 고마워요.\n' + ((_pa && Number(_pa.납부액) > 0)
           ? ('아래에서 계약금을 보내 주시면, 확인 후 ' + _prep + '가 시작돼요.')
-          : ('아래 안내에 따라 계약금을 입금해 주시면, 확인 후 ' + _prep + '가 시작돼요.'));
+          : ('아래 안내에 따라 계약금을 결제해 주시면, 확인 후 ' + _prep + '가 시작돼요.'));
         /* ★[NOW_DEP_COVER 2026-09-26 · 통합 점검 L3 · B4] 계약금이 예약금으로 충당된 계약(납부액 0 · 계약총액 100만 원 이하)은 지금 낼 돈이 없다.
            종전엔 금액 결측과 같은 «아래 안내에 따라 계약금을 입금해 주시면»으로 빠져, 계좌도 버튼도 없는 카드(«더 내실 계약금은 없어요» · 2라운드 [COVER_SCOPE] 전에는 «추가로 내실 금액은 없어요») 위에서
            입금하라고 했다(진행 머리도 «계약금 입금»). 카드 조건(renderContractPayment «a && 납부액 <= 0»)과 같은 판정 · 금액은 말하지 않는다([NOW_NO_MONEY]).
            머리는 계약금만 가리킨다(«추가 입금은 없어요»는 중도금·잔금까지 없다고 읽힌다) · 13자 이내([NOW_ONELINE]). amounts 가 없을 때(결측)의 문장은 그대로.
            ★[NOW_DEP_COVER 검토] 부제는 인사 한 줄만 — «디렉터가 확인하면 예식 준비가 시작돼요»를 붙였더니 바로 아래 카드 «디렉터가 확인하면 예식 준비가 열려요»와
              한 낱말만 다른 문장이 연달아 섰다(요약은 NOW · 근거와 다음 순서는 카드 — [PAID_BACK_TYPO]·㉖ 와 같은 원칙 · 카드 문장은 이번 범위 밖이라 NOW 쪽을 줄인다). */
-        if (_pa && Number(_pa.납부액) <= 0) { head = '계약금 입금은 없어요'; sub = '함께하기로 해 주셔서 고마워요.'; }
+        if (_pa && Number(_pa.납부액) <= 0) { head = '계약금 결제는 없어요'; sub = '함께하기로 해 주셔서 고마워요.'; }
         }
       }
     }
@@ -4408,7 +4408,7 @@ function renderMyPage(d){
        신고 뒤 머리는 계약금 신고 갈래와 같은 말(「입금을 확인하고 있어요」)을 쓴다. */
     if (d.product === '웨딩스냅' && d.stage === '입금완료' && d.balance && !d.balance.confirmed) {
       if (d.balance.status === '완료신호') { head = '입금을 확인하고 있어요'; sub = ''; }   // [NOW_CARD_ONCE] 잔금 카드가 같은 말
-      else if (d.balance.dday != null && d.balance.dday <= _payDays(d).bal + 6) { head = '잔금 입금만 남았어요';
+      else if (d.balance.dday != null && d.balance.dday <= _payDays(d).bal + 6) { head = '잔금 결제만 남았어요';
         /* [EVENT_PAST_NOW 2026-09-26 · 통합 점검 2라운드 R1] 촬영일이 지났는데 잔금이 남은 며칠 — 머리 «촬영을 마쳤어요» 아래에서 «확인 후 촬영 준비가 마무리돼요»(끝난 촬영의 준비)를 말했다.
              지났으면 준비 권유를 뺀 앞 절만(새 문장을 만들지 않는다 · 제작중 결제 갈래 «_evPast ? ''»와 같은 원칙). 날짜는 머리와 같은 한국 날짜([KST_TODAY]). */
         var _shPast = _kstDdayOf((d.contract && d.contract.fill && d.contract.fill.weddingDate) || '');   // [EVENT_PAST_NOW]
@@ -4434,8 +4434,8 @@ function renderMyPage(d){
         head = '입금을 확인하고 있어요';
         sub  = _hdPast ? '' : '영업일 1~2일 안에 확인되면 예식 준비(청첩장·식순)가 열려요.';   // [EVENT_PAST_NOW] · [NOW_CARD_ONCE] 지난 예식이면 부제 없이 — 중도금 · 잔금 카드가 «영업일 1~2일 안에 확인하면…»을 말한다
       } else {
-        head = '중도금·잔금을 입금해 주세요';
-        sub  = _hdPast ? '' : '입금이 확인되면 예식 준비(청첩장·식순)가 열려요.';   // [EVENT_PAST_NOW]
+        head = '중도금·잔금을 결제해 주세요';
+        sub  = _hdPast ? '' : '결제가 확인되면 예식 준비(청첩장·식순)가 열려요.';   // [EVENT_PAST_NOW]
       }
     }
     /* ★★[NOW_PREP_TRUTH 2026-09-26 · prod-1 · inv-1 · x-1] «예식 준비가 끝났어요»는 **정말 끝났을 때만** 말한다.
@@ -4476,7 +4476,7 @@ function renderMyPage(d){
       var _bDue = _needB && !!((d.balance && d.balance.due) || _pp.combo);
       // 결제 줄 — 아직 준비가 남았으니 «만»·«끝» 없이 · 카드가 메인에 보이는 결제만([BAL_MINI_ONE] · 숨은 카드를 가리키지 않는다)
       var _needBv = _needB && _balOnMain(d.balance);
-      var _payLn = (_needM && _needBv) ? '중도금·잔금 입금도 부탁드려요.' : (_needM ? '중도금 입금도 부탁드려요.' : (_needBv ? '잔금 입금도 부탁드려요.' : ''));
+      var _payLn = (_needM && _needBv) ? '중도금·잔금 결제도 부탁드려요.' : (_needM ? '중도금 결제도 부탁드려요.' : (_needBv ? '잔금 결제도 부탁드려요.' : ''));
       // MPD_D4 감정 정점 — D-1 '내일 뵈어요' · 당일 '오늘이에요' (갈래와 무관하게 머리만 바꾼다 · 남은 준비·결제 sub는 유지)
       //   [KST_TODAY] 날짜 차이는 한국 날짜로(머리 날짜 줄과 같은 셈) — 기기 자정으로 세면 해외 기기에서 당일이 «내일 뵈어요»가 됐다
       var _ddEv = _kstDdayOf((d.production.base && d.production.base.weddingDate) || '');
@@ -4526,13 +4526,13 @@ function renderMyPage(d){
         head = '예식 준비가 끝났어요';
         // 잔금은 카드가 메인에 뜰 때부터(D-30 · [BAL_MINI_ONE]) 말한다 — 그 전엔 NEXT 가 날짜와 함께 예고한다([NEXT_PAY_DATE] · 너무 이르게 재촉하지 않는다)
         sub  = (_needM && _needBv) ? '이제 남은 결제(중도금·잔금)만 진행하시면 돼요.'
-             : (_needM ? '이제 중도금만 입금하시면 돼요.'
-             : (_needBv ? '이제 잔금만 입금하시면 끝이에요.'
+             : (_needM ? '이제 중도금만 결제하시면 돼요.'
+             : (_needBv ? '이제 잔금만 결제하시면 끝이에요.'
              : ((_pp.midSig || _pp.balSig) ? '입금 확인 중이에요. 확인되는 대로 알려드릴게요.' : '예식 날 정성껏 준비해서 뵐게요.')));
       } else if (_mDue || _bDue) {
         var _dueNm = (_mDue && _bDue) ? '중도금·잔금' : (_bDue ? '잔금' : '중도금');
-        head = _dueNm + '을 입금해 주세요';   // [NOW_PAY_DUE] 묶음은 입금완료 hold 갈래와 같은 문장
-        sub  = _d4 ? (_dueNm + ' 입금도 부탁드려요.')   // 정점 머리가 결제 머리를 대신하면 결제 요청은 부제로 남긴다
+        head = _dueNm + '을 결제해 주세요';   // [NOW_PAY_DUE] 묶음은 입금완료 hold 갈래와 같은 문장
+        sub  = _d4 ? (_dueNm + ' 결제도 부탁드려요.')   // 정점 머리가 결제 머리를 대신하면 결제 요청은 부제로 남긴다
              : _evPast ? ''   // [EVENT_PAST_NOW] 예식이 지났으면 «예식 준비는 이어서 하셔도 돼요»는 뜻이 없다(결제 요청 머리만)
              : ((d.stage === '입금완료') ? '예식 준비는 지금 바로 시작하셔도\u00a0돼요.' : '예식 준비는 그대로 이어서 하셔도\u00a0돼요.');   // 320 에서 «돼요.» 두 글자만 떨어지지 않게
       } else if (_reqOk) {
@@ -4682,7 +4682,7 @@ function renderMyPage(d){
        [NOW_DEP_COVER] 계약금이 예약금으로 충당(납부액 0)이면 낼 돈이 없다 — «계약금 확인»(카드 «디렉터가 확인하면…» · NOW «계약금 입금은 없어요»와 같은 사실). */
     if (d.stage==='계약완료' && d.payment && !d.payment.confirmed){
       var _pbL = (d.payment.bundle && d.payment.bundle.length) ? d.payment.bundle : ((d.payment.status==='완료신호' && d.payment.signaledBundle) || []);
-      nowLabel = _pbL.length ? ('계약금·'+_pbL.join('·')+' 입금') : ((d.payment.amounts && Number(d.payment.amounts.납부액) <= 0) ? '계약금 확인' : '계약금 입금');   // 서명은 끝났고 남은 건 입금 — 임박 계약은 묶음 표기
+      nowLabel = _pbL.length ? ('계약금·'+_pbL.join('·')+' 결제') : ((d.payment.amounts && Number(d.payment.amounts.납부액) <= 0) ? '계약금 확인' : '계약금 결제');   // 서명은 끝났고 남은 건 입금 — 임박 계약은 묶음 표기
     }
     if (payPlan(d).hold) nowLabel='중도금·잔금';   // 임박 묶음결제 동안엔 제목도 결제로(제작 준비 아님) — NOW·제작 잠금과 같은 payPlan 기준
     /* ★[STAGE_SIGN_NOW 2026-09-26 · 사장님 결정 ③ · x-2 · pay-14 ①] 계약서가 와 있으면(발송 · 서명 전 · 기한 안) 지금 단계는 «계약서 서명»이다.
@@ -4708,11 +4708,11 @@ function renderMyPage(d){
     if (nextStage === nowLabel) nextStage = '';
     // 제작중 부제: 실제 다음 할 일은 결제라 — 중도금·잔금 카드가 열리기 전(D-45·NEXT 자물쇠)엔 '중도금·잔금', 열리면 '예식 완료'
     if ((d.stage==='제작중' || (d.stage==='입금완료' && _nxAt > _dispCur + 1)) && nextStage && d.product!=='웨딩스냅' && !d.midpayment && !d.balance) nextStage='중도금·잔금';   // [STAGE_NEXT_SKIP 2026-09-26 · 검토] 입금완료가 제작중과 같은 이름(«예식 준비»)이라 한 칸 건너뛰었으면 같은 덮어쓰기를 건다 — 안 걸면 같은 결제 상황이 입금완료에선 «다음 · 예식 완료», 청첩장을 하나 저장해 제작중이 되면 «다음 · 중도금·잔금»으로 바뀌었다(A2 라벨 흉내 렌더로 확인)
-    if (_ctSend) nextStage='계약금 입금';   // [STAGE_SIGN_NOW] 서명 다음은 계약금 입금(계약완료 머리와 같은 말)
+    if (_ctSend) nextStage='계약금 결제';   // [STAGE_SIGN_NOW] 서명 다음은 계약금 입금(계약완료 머리와 같은 말)
     /* ★[SIGN_NEXT_BUNDLE 2026-09-26 · 통합 점검 L1] 임박 계약(중도금·잔금 기한이 이미 닥침)은 서명 뒤 계약금과 한 번에 받는다 —
        계약서 카드는 «서명하시면 계약금·중도금 입금 안내가 이어져요», 서명 뒤 머리는 서버 bundle 로 «계약금·중도금 입금»인데
        이 줄만 «다음 · 계약금 입금»이었다(서명 전과 뒤에 같은 결제를 다른 이름으로). 카드와 같은 판정(_signBundleKeys) 하나를 쓴다. 묶음이 아니면 위 줄 그대로. */
-    if (_ctSend){ var _sbk=_signBundleKeys(d); if (_sbk.length) nextStage='계약금·'+_sbk.join('·')+' 입금'; }   // [SIGN_NEXT_BUNDLE]
+    if (_ctSend){ var _sbk=_signBundleKeys(d); if (_sbk.length) nextStage='계약금·'+_sbk.join('·')+' 결제'; }   // [SIGN_NEXT_BUNDLE]
     if (_ctSend && !_signBundleKeys(d).length && _signDepCover(d)) nextStage='계약금 확인';   // [SIGN_DEP_COVER] 충당 계약 — 카드 «서명하실 때 따로 내실 금액은 없어요»와 같은 사실 · 서명 뒤 머리([NOW_DEP_COVER] «계약금 확인»)와 같은 말
     /* [JOURNEY_END_QUIET 2026-09-26 · post-2] 후기까지 끝나면(여정 완료 · STEP N/N) 부제를 비운다 — 종전엔 «여정 완료 · 마지막 단계예요»
        (끝났다는데 «아직 진행 중»으로 읽힌다) 또는 결과물전달 단계에서 NOW 머리와 같은 «모든 순간이 마무리됐어요»를 한 번 더 찍었다. */
@@ -5354,7 +5354,7 @@ function renderLedger(l){
   /* ★[PAY_DUE_WORD 2026-09-26 점검 pay-5·pay-6] 옛 문장 «중도금 안내는 예식 149일 전, 잔금은 예식 9일 전에 여기로 열려요. 그전까지는 준비하실 일이 없어요.» 삭제 — 되살리지 말 것.
        ① 149·9일 전은 «안내가 열리는 날»이 아니라 «내는 기한»이다 — 바로 위 행이 «…까지 · 예식 149일 전»이라 한 창에서 두 말이 맞붙었다.
        ② «준비하실 일이 없어요»는 예식 준비 카드(NOW «예식 준비»)와 부딪힌다. 기한은 위 행이 이미 말하니 여기선 «언제 열리나»만. */
-  var openNote = l.payOpenNote ? '<div class="led-opennote">기한이 가까워지면 마이페이지에 입금 안내가 열려요.</div>' : '';
+  var openNote = l.payOpenNote ? '<div class="led-opennote">기한이 가까워지면 마이페이지에 결제 안내가 열려요.</div>' : '';
   var paySec = (payRows || openNote) ? ('<div class="led-sec"><div class="led-h">결제</div>'+payRows+openNote+'</div>') : '';   // 계약총액 정해지기 전(금액 미정)엔 결제 섹션 생략. 진행률 게이지는 과해서 제거
   /* [02-8] 취소·환불 — ★2026-08-11 사용자 지시로 **금액 계산을 화면에서 뺐다.** [REFUND_NO_NUDGE]
      ★되살리지 말 것. 옛 판은 접힌 상자 안에 「지금 취소하면 얼마 돌려받는지」를 원 단위로 찍고
@@ -5718,7 +5718,7 @@ function renderConsult(c, product, d, boxArg, demo){
                → 375px 이상은 종전 그대로 한 덩어리, 그보다 좁으면 「최대」 뒤에서만 끊는다(.fit-cap-br · 가운뎃점은 줄 가운데에 남는다). 문구·숫자는 그대로다. */
             + '<div class="vg-row"><span class="vg-k">계약</span><span class="vg-v"><span class="ln-bal">정식 계약은 상담 후 보내드리는 <b style="white-space:nowrap">본 계약서 서명</b>으로 확정돼요.</span><span class="ln-bal">시착 후 계약하지 않으시면 진행한 벌수만큼<span style="white-space:nowrap">(1벌당 50,000원 · 최대<span class="fit-cap-br"> </span>100,000원)</span> 예약금에서 차감돼요.</span><span class="vg-sub">상담 당일 쓰는 시착 동의서는 정식 계약과 달라요.</span></span></div>')
          + (locked ? '' : '<div class="vg-row"><span class="vg-k">계약서</span><span class="vg-v">'+(isSnap
-              ? '<b>촬영 전</b>에 마이페이지로 계약서를 보내드려요.<br>서명·입금을 마치면 촬영을 진행해요.'
+              ? '<b>촬영 전</b>에 마이페이지로 계약서를 보내드려요.<br>서명·결제를 마치면 촬영을 진행해요.'
               : '상담 후 마이페이지에서 <b>계약 정보를 입력해 요청</b>하시면<br><b>24시간 안에</b> 계약서를 보내드려요.')+'</span></div>')   /* ★[MYPAGE_ALL_1114 F6] 서명한 스냅 고객([SNAP_SIGNED_LOCK] locked)에게 «계약서를 보내드려요»는 지난 일 — 줄을 뺀다 · 서명 전 · 시그니처는 그대로 */
          + '<div class="vg-row"><span class="vg-k">진행 알림</span><span class="vg-v">계약서 도착·입금 확인 같은 진행 소식은 카카오톡으로도 알려드려요.</span></div>'
          + '</div></details>';
@@ -6501,11 +6501,11 @@ function renderContractPayment(c, p, ctx){
          «입금해야 계약이 끝난다»로 갈렸다(150일 안 계약은 성립 15일 뒤 위약금이 붙어 오해가 비싸다). 두 형제 갈래와 같은 틀 · 금액과 원천(내 내역 행)은 그대로. */
     var _cdCover=_signDepCover(ctx);   // [SIGN_DEP_COVER] 판정은 한 곳(_signDepCover) — 진행 머리 «다음»도 같은 판정을 쓴다
     h += isSnap
-       ? '<div class="cc-note" style="text-align:center">서명 후 <b>계약금</b> 입금을 이어서 안내드려요.<br>계약과 계약금은 한 번에 진행돼요.</div>'
-       : (_bdl.length ? '<div class="cc-note" style="text-align:center"><span style="display:block;text-wrap:balance">서명하시면 계약금&#8288;·&#8288;'+escapeHtml(_bdl.join('\u2060·\u2060'))+' 입금 안내가 이어져요.</span><span style="display:block;text-wrap:balance">예식이 가까워 한 번에 받아요.</span></div>'
-         : (_dp&&!_dp.done&&Number(_dp.amount)>0) ? '<div class="cc-note" style="text-align:center;text-wrap:balance">서명하시면 계약금 잔액 <b>'+fmtWon(_dp.amount)+'</b> 입금 안내가 이어져요.</div>'   // [SIGN_DEP_WORD]
+       ? '<div class="cc-note" style="text-align:center">서명 후 <b>계약금</b> 결제를 이어서 안내드려요.<br>계약과 계약금은 한 번에 진행돼요.</div>'
+       : (_bdl.length ? '<div class="cc-note" style="text-align:center"><span style="display:block;text-wrap:balance">서명하시면 계약금&#8288;·&#8288;'+escapeHtml(_bdl.join('\u2060·\u2060'))+' 결제 안내가 이어져요.</span><span style="display:block;text-wrap:balance">예식이 가까워 한 번에 받아요.</span></div>'
+         : (_dp&&!_dp.done&&Number(_dp.amount)>0) ? '<div class="cc-note" style="text-align:center;text-wrap:balance">서명하시면 계약금 잔액 <b>'+fmtWon(_dp.amount)+'</b> 결제 안내가 이어져요.</div>'   // [SIGN_DEP_WORD]
          : _cdCover ? '<div class="cc-note" style="text-align:center"><span style="display:block;text-wrap:balance">계약금은 예약금으로 충당돼요.</span><span style="display:block;text-wrap:balance">서명하실 때 따로 내실 금액은 없어요.</span></div>'   // [SIGN_DEP_COVER]
-         : '<div class="cc-note" style="text-align:center;text-wrap:balance">서명하시면 계약금 입금 안내가 이어져요.</div>');
+         : '<div class="cc-note" style="text-align:center;text-wrap:balance">서명하시면 계약금 결제 안내가 이어져요.</div>');
     h += '<div class="cc-actions">'+link
        + '<button type="button" class="cc-btn cc-btn-seal" id="mp_signContract">계약서 서명하기</button>'
        + (c.reviewNote?'<div class="cc-note">'+escapeHtml(c.reviewNote)+'</div>':'')+'</div></div>';
@@ -6564,7 +6564,7 @@ function renderContractPayment(c, p, ctx){
   var acct = _acctBox(p.account, p.holder, '입금 계좌', (_amtV!=null&&_amtV!=='')?_acctAmt('data-copy-amt="'+String(_amtV)+'"','입금액 '+fmtWon(_amtV)+' 복사'):'');
   /* [BUNDLE_TITLE 2026-09-26 사장님 결정 ③ · 점검 pay-14 ②] 묶음(계약금+중도금±잔금)이면 제목이 금액과 맞게 «계약금·중도금을 함께 입금해 주세요».
        종전엔 묶음이어도 «이어서, 계약금을 입금해 주세요»라 중도금이 든 1,550,000원이 틀린 금액처럼 보였다. 묶음이 아니면 종전 그대로. */
-  var _depTitle = _bundleActive ? ('계약금·'+escapeHtml(_pb2.join('·'))+'을 함께 입금해 주세요') : '이어서, 계약금을 입금해 주세요';
+  var _depTitle = _bundleActive ? ('계약금·'+escapeHtml(_pb2.join('·'))+'을 함께 결제해 주세요') : '이어서, 계약금을 결제해 주세요';
   /* [DEP_NOTE_MID 2026-09-26 · 점검 L1 pay-5] 카드 끝 안내가 다음 결제로 잔금만 말하고, 그보다 먼저 오는 중도금(1,320,000원 · 예식 149일 전)은 빠졌다.
        NEXT 결제 줄은 날짜만 있고 금액이 없어, 중도금 금액은 이 화면 어디에도 없었다 → 시간 순으로 중도금 → 잔금, 한 항목에 한 줄.
        묶음에 든 것(위 금액에 이미 있다)과 이미 확인된 것은 뺀다. 스냅(중도금 0)과 묶음 카드는 종전과 같다. */
@@ -6581,8 +6581,8 @@ function renderContractPayment(c, p, ctx){
       +(_dueMid?'<span style="display:block;text-wrap:balance">중도금 '+fmtWon(a.중도금)+'은 '+escapeHtml(a.중도금시점)+'까지예요.</span>':'')
       +(_dueBal?'<span style="display:block;text-wrap:balance">잔금 '+fmtWon(a.잔금)+'은 '+escapeHtml(a.잔금시점)+'까지예요.</span>':'')
       +(_balLate
-        ? '<span style="display:block;text-wrap:balance">촬영이 가까워, 계약금이 확인되면 바로 이&nbsp;화면에 입금 안내가 열려요.</span>'
-        : '<span style="display:block;text-wrap:balance">기한이 가까워지면 이&nbsp;화면에 입금 안내가 열려요.</span>')
+        ? '<span style="display:block;text-wrap:balance">촬영이 가까워, 계약금이 확인되면 바로 이&nbsp;화면에 결제 안내가 열려요.</span>'
+        : '<span style="display:block;text-wrap:balance">기한이 가까워지면 이&nbsp;화면에 결제 안내가 열려요.</span>')
       +'</div>'):'';
   h += '<div class="cc-title" style="margin-top:8px;text-wrap:balance">'+_depTitle+'</div>'+amt+_fxNote+acct   // 좁은 폭에서 «주세요»만 떨어지지 않게
      + '<div class="cc-actions"><input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'
@@ -6832,7 +6832,7 @@ function renderPayment(p){
       amt = '<div class="cc-sub">납부 금액은 디렉터 확인 후 안내드려요.</div>';
     }
     var acct = _acctBox(p.account, p.holder, '입금 계좌', (a&&a.납부액!=null)?_acctAmt('data-copy-amt="'+String(a.납부액)+'"','입금액 '+fmtWon(a.납부액)+' 복사'):'');
-    body = '<div class="cc-title">계약금을 입금해 주세요</div>'+amt+acct;
+    body = '<div class="cc-title">계약금을 결제해 주세요</div>'+amt+acct;
     cta = '<input type="text" class="cc-input" id="mp_payer" placeholder="입금하신 분 성함" autocomplete="name">'
         + '<div class="cc-note" style="text-align:left;margin:-2px 0 10px;color:var(--light);line-height:1.6">입금자명이 같으면 확인이 빨라요.</div>'
         + cashReceiptField('mp_payerCR', p.cashReceipt)
@@ -6934,7 +6934,7 @@ function renderBalance(p, mid){
   if(p.status==='완료신호'){
     body='<div class="cc-title">잔금 입금 확인 중</div><div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+'<br>'):'')+'영업일 1~2일 안에 확인하면 마이페이지에 반영돼요.</div>';
   } else {
-    var head=p.due?'잔금 입금 안내':(near?(_pw+'이 가까워졌어요'):'잔금 안내');
+    var head=p.due?'잔금 결제 안내':(near?(_pw+'이 가까워졌어요'):'잔금 안내');
     var _xBrk=(p.extra&&p.extra.amount>0&&p.baseAmount!=null)?('<br><span class="cc-mini">잔금 '+fmtWon(p.baseAmount)+' + 인원 추가 '+fmtWon(p.extra.amount)+' (스탠딩 '+p.extra.standing+'명)</span>'):'';   // [GUEST30_NOFEE] 0원 줄 숨김   // 최종확정 인원 추가 요금 산식(서버 합산)
     /* ★[GUEST30_NOFEE 2026-09-19] 「최종 인원 확정 시 추가 요금이 있으면 잔금에 합산돼요」 삭제 —
        하객 30명까지 추가금이 0이 되어 이 예고는 영영 참이 되지 않는다. 고객에게 없는 비용을 예고하면
@@ -6949,7 +6949,7 @@ function renderBalance(p, mid){
     else if(_bPast){ balDue='<b>지금 바로</b>'; balTag=''; }
     else { balDue=dueLabel+'까지'; balTag=''; }
     var when='<div class="cc-note">'+(
-        p.due?(balDue+' 입금 부탁드려요'+balTag)
+        p.due?(balDue+' 결제 부탁드려요'+balTag)
       : (balDue+' 보내 주세요'+balTag)
     )+'</div>';
     if(p.extraPending && !!((window._mpStateD||{}).production) && !p.due){   // 하드 게이트 — 여유 있을 때만(마감 D-9 전). 마감 임박 시 자동 해제 → 선택제(기본 잔금 먼저 결제 가능)
@@ -7053,7 +7053,7 @@ function renderMid(p, bal){
     var _both=!!(bal && bal.status==='완료신호' && !bal.confirmed);   // 중도금+잔금 함께 입금신호 → 한 카드로 통합 표시
     body='<div class="cc-title">'+(_both?'중도금·잔금':'중도금')+' 입금 확인 중</div><div class="cc-sub">'+(p.payerName?('입금자 '+escapeHtml(p.payerName)+'<br>'):'')+'영업일 1~2일 안에 확인하면 마이페이지에 반영돼요.</div>';
   } else {
-    var head=forceCombo?'중도금·잔금 입금 안내':(p.due?'중도금 입금 안내':(near?'중도금 시기가 다가와요':'중도금 안내'));
+    var head=forceCombo?'중도금·잔금 결제 안내':(p.due?'중도금 결제 안내':(near?'중도금 시기가 다가와요':'중도금 안내'));
     /* [MID_FREE_WINDOW 2026-09-26 점검 pay-2] 중도금 카드는 예식 164일 전부터 뜨는데, 무료 취소는 예식 150일 전까지다(70_journey 환불 dd≥150 ·
          예식일 변경 안내 「무료 취소 기간(예식 150일 전까지)」과 같은 값). 날짜와 상관없이 «끝나 확정됐어요»라 하면
          D-164~D-150 고객에게 아직 남은 권리를 끝났다고 알리는 셈이었다 → 150일 전을 넘긴 뒤에만 «끝나 확정됐어요». */
@@ -7086,10 +7086,10 @@ function renderMid(p, bal){
     else if(_balPast){ comboDue='<b>지금 바로</b>'; comboTag=''; }   // 임박 계약: 기한이 이미 지난 날짜라 달력 날짜 대신 즉시 납부 안내
     else { comboDue='예식 '+_pd.bal+'일 전까지'; comboTag=''; }
     var when='<div class="cc-note">'+(
-        forceCombo?('<span class="ln-bal">예식이 가까워 함께 받아요.</span><span class="ln-bal">'+comboDue+' 입금 부탁드려요'+comboTag+'</span>')
-      : _mPast?('<span class="ln-bal"><b>'+escapeHtml(midDateTxt)+'</b> 기한이 지났어요.</span><span class="ln-bal">지금 바로 입금 부탁드려요</span>')
-      : _mWith?'<b>지금 바로</b> 입금 부탁드려요'   // [MID_WITH_WORD]
-      : p.due?(midDue+' 입금 부탁드려요'+midTag)
+        forceCombo?('<span class="ln-bal">예식이 가까워 함께 받아요.</span><span class="ln-bal">'+comboDue+' 결제 부탁드려요'+comboTag+'</span>')
+      : _mPast?('<span class="ln-bal"><b>'+escapeHtml(midDateTxt)+'</b> 기한이 지났어요.</span><span class="ln-bal">지금 바로 결제 부탁드려요</span>')
+      : _mWith?'<b>지금 바로</b> 결제 부탁드려요'   // [MID_WITH_WORD]
+      : p.due?(midDue+' 결제 부탁드려요'+midTag)
       : (midDue+' 보내 주세요'+midTag)
     )+'</div>';
     var acct=_acctBox(p.account, p.holder, '입금 계좌', _acctAmt('data-copy-from="mp_mAmtV"','금액 복사'));
@@ -7284,7 +7284,7 @@ var meCardPay = (function(){
       + '<div style="text-align:center;font-family:var(--serif);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9a7b3f;padding:8px 0 10px">Card Payment Preview · 실제 결제 아님</div>'
       + '<div class="consult-sec" style="display:block"><div class="consult-card">'
       +   '<div class="cc-eyebrow en-22">Contract</div>'
-      +   '<div class="cc-title" style="margin-top:8px">이어서, 계약금을 입금해 주세요</div>'
+      +   '<div class="cc-title" style="margin-top:8px">이어서, 계약금을 결제해 주세요</div>'
       +   '<div class="cc-sub">납부하실 금액 · <b>150,000원</b><br><span class="cc-mini">계약금 250,000 − 예약금 100,000</span></div>'   // 평일 예시(미리보기 전용 · 실제 금액은 서버가 계산) — 현행가 기준(인상 전 예시 잔존 수정 2026-08-30)
       +   _acctBox('기업 000-000-00000','모먼트에디트','입금 계좌', _acctAmt('data-copy-amt="150000"','입금액 150,000원 복사'))
       +   '<div class="cc-actions"><input type="text" class="cc-input" placeholder="입금하신 분 성함">'
@@ -14366,7 +14366,7 @@ window.ME_ADV_PAGE = {
   greeting: '안녕하세요, 모먼트에디트 상담 도우미예요. 진행 중인 예약·계약과 관련해 궁금하신 점을 물어보세요.',
   schedule: false,
   chips: [
-    { label: '잔금은 언제까지 입금하나요?' },
+    { label: '잔금은 언제까지 결제하나요?' },
     { label: '예식일을 변경하고 싶어요' },
     { label: '결과물은 언제 받을 수 있나요?' }
   ],
