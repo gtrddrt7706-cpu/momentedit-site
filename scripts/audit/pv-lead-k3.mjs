@@ -49,7 +49,8 @@ pvCheck(C, '① [PV_LEAD_NOCLAP_1106] 박수 없는 개식(칩 1 ~ 5) → 식전
 { /* 그 밖 큐의 뜸은 그대로 — 영상 없는 날 화촉 첫 큐 6초 · 닫는 인사 3초 */
   const r = C.build({ course: 'open', on: { candle: 1 }, narEx: { open: 2 } }, { mode: 'console' }), i = r.cues.findIndex((c) => c.slug === 'narr-open'), cd = r.cues.slice(i + 1).find((c) => c.k === 'candle' && !/^bridge-/.test(c.slug || '')) || {};
   const cb = r.cues.find((c) => c.slug === 'narr-close-bow') || {};
-  ok('① 다른 자리 그대로 — 영상 없는 날 화촉 첫 큐 뜸 6초(−8) · 닫는 인사 뜸 3초', cd.goLeadMs >= 6000 && cd.leadDb === -8 && cb.goLeadMs === 3000, { cd: [cd.slug, cd.goLeadMs, cd.leadDb], cb: cb.goLeadMs });
+  /* ★[GAP_SWEEP_GO_1122 ③ 대표님 11/22 23:15] 개식 바로 뒤 사슬 화촉 여는 말(영상 없는 날 · 개식 칩 2)은 «음악만 6초 먼저»를 걷었다 — 옛 기대(뜸 6초 −8)를 새 기대(뜸 없음 · 사슬 3초 · 곡 3초 오름)로 · 검사 gap-sweep-go-1122.mjs */
+  ok('① 다른 자리 — 영상 없는 날 개식 뒤 사슬 화촉 첫 큐는 뜸 없이 3초(GAP_SWEEP_GO_1122 ③) · 닫는 인사 뜸 3초 그대로', !cd.goLeadMs && cd.leadDb == null && cd.gapMs >= 3000 && cd.fadeMs === 3000 && cb.goLeadMs === 3000, { cd: [cd.slug, cd.goLeadMs, cd.leadDb, cd.gapMs, cd.fadeMs], cb: cb.goLeadMs });
 }
 /* 콘솔 셈이 이 검사의 모델과 같은가 — 줄이 바뀌면 여기를 다시 맞춘다 */
 { const con = fs.readFileSync(P('console.html'), 'utf8');
