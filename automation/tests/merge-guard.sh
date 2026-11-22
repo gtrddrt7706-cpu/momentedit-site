@@ -15923,7 +15923,7 @@ chk 'MU_REDRAW_EVEN_1019' scripts/audit/chip-full.mjs 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/rail-ignore.mjs >/dev/null 2>&1; _rig=$?; if [ "$_rig" = 1 ]; then echo 'FAIL rail-ignore: 식순 화면이 오른쪽 레일(말풍선) 자리를 비웁니다 — node scripts/audit/rail-ignore.mjs'; fail=1; else echo 'OK   rail-ignore [RAIL_IGNORE_1019]'; fi; fi
 # ★[REVIEW24_1019 2026-10-19 대본 섹션 검토 132 · 132 덧 2] 여섯째 · 넷째 예시(개식 OO · 맞절 EE B-1 · 부모님께 인사 PP 22 · 감사문 PP 14) · 식전 영상 소개 129 · 130 자료 글 · 소개 넷 우성 · 영상 뒤 받는 말 261 · 고르기 쪽 예시 카드 말풍선 자리
 chk 'REVIEW24_1019' assets/ritual-open.js 7
-chk 'PV_OUT_1019' assets/ritual-cue.js 3
+chk 'PV_OUT_1019' assets/ritual-cue.js 2   # ★[PV_OUT_OFF_1122] 3 → 2(261 큐를 걷어 빌더 주석 하나가 빠짐)
 chk 'PV_OUT_1019' assets/ritual-open.js 1
 chk "'narr-open-ex6', 'narr-entry-bow-ex6', 'narr-tribute-name-ex6', 'narr-thanks-in-ex4', 'narr-prevideo-out'" assets/ritual-cue.js 1
 chk "pvExNames: \['담백하게', '다정하게', '잔잔하게'\]," assets/ritual-open.js 1   # [B2_GEUL_01 d-01] 예시 4(130 시선 명령)는 고르는 목록에서 뺐다
@@ -19998,7 +19998,7 @@ chk 'BGM_R2_1023' assets/bgm-slots.js 5
 chk 'BGM_R2_1023' order-preview.html 2
 chk 'BGM_R2_1023' scripts/audit/bgm-form.mjs 6
 chk ".mk-flow li.q\[data-bgm\] .qa{font-weight:400;color:var(--sub)}" order-preview.html 1
-chk "function head(st) { return (st && st\[0\] && /^bridge-/.test(String(st\[0\].slug || ''))) ? 1 : 0; }" assets/bgm-slots.js 1
+chk "function head(st) { var x = st && st\[0\]; if (!x || !/^bridge-/.test(String(x.slug || ''))) return 0; if (/^bridge-b14-candle-name\$/.test(String(x.slug)) && x.dk != null && +x.dk > -60) return 0; return 1; }" assets/bgm-slots.js 1   # [PREVIDEO_SONG_1122] 영상 뒤 263(곡 위)은 앞 장면 머리로 세지 않는다(옛 한 줄 head)
 chk "if (!m) return { i: h, hit: true };   /\* top(옛 bridge 도 같다) \*/" assets/bgm-slots.js 1        # [BGM_R3_1023] flowAt → flowFind(맨 앞은 늘 찾음)
 nochk '부모님께 인사드리는 동안 밝고' assets/bgm-slots.js
 nochk '흐르던 피아노가 아주 작게 이어져요' assets/bgm-slots.js
@@ -20904,7 +20904,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/fab-names.mjs >/dev/
   esac
 fi
 # ★★[DRESS_SCROLL_LOCK · DRESS_LOCK_HOLD 2026-10-31 사장님 제보] 드레스 창 끝에서 더 내리면 뒤 마이페이지가 움직였다 — 창이 떠 있는 동안 다시 그리기(show)가 잠금을 풀었다(목록에 창이 없었다)
-chk "'mp_drViewer','mp_invSample'\];" mypage.html 1                                # [DRESS_LOCK_HOLD] 떠 있는 창 목록(한 곳)
+chk "'mp_drViewer','mp_invSample','mp_prepOverlay'\];" mypage.html 1                                # [DRESS_LOCK_HOLD] 떠 있는 창 목록(한 곳)  · [PREP_HUB_1123] 목록 끝에 «준비할 것» 창이 붙었다(옛 기대 «…mp_invSample];» 은퇴)
 chk "document.documentElement.style.overflow='hidden';   // \[DRESS_SCROLL_LOCK\]" mypage.html 1
 chk "ov.addEventListener('wheel', _stopScroll, {passive:false}); ov.addEventListener('touchmove', _stopScroll, {passive:false});" mypage.html 1
 chk 'html.pk-pop,html.pk-pop body{overscroll-behavior-y:contain}' dress.html 1
@@ -22051,7 +22051,7 @@ nochk "어느 쪽부터 갈지는 리허설 때 디렉터와 정해요" order-pr
 nochk "FG_LAB={wait:'대기 자리',walk:'입장',front:'앞'" order-preview.html
 # [BALL_BOW_1101 검토 186-1] 맞절 = 무도회 맞절(빌더 줄 · 콘솔 live · 이야기 장면 · AI 상담) · «3초 숙이고 · 3초 멈추고 · 3초 일어나기» 걷음
 # [BOW_TIP_1122] 맞절 동작 줄 = 지시가 아니라 팁(평소 인사도 괜찮다) · 옛 지시 말투가 돌아오면 빨강
-chk '팁 · 사진에 예쁘게 남는 인사예요. 신랑은 한 손을 가슴에 얹고 가볍게 숙이고, 신부는 치맛자락을 살짝 잡고 무릎을 굽혀요. 마지막에 서로 눈을 맞추면 좋아요. 평소처럼 인사하셔도 괜찮아요.' order-preview.html 1
+chk '두 분이 마주 보고 서로에게 인사해요. 평소처럼 인사하셔도 되고, 무도회 맞절도 좋아요. 무도회 맞절은 신랑은 한 손을 가슴에 얹고 가볍게 숙이고, 신부는 치맛자락을 살짝 잡고 무릎을 굽혀요. 마지막에 서로 눈을 맞추면 좋아요.' order-preview.html 1   # [BOW_LINE_PLAIN_1123] 팁 머리 걷음
 nochk '신랑은 한 손을 가슴에 얹고 가볍게 숙여요 · 신부는 치맛자락을 살짝 잡고 무릎을 굽혔다 일어나요 · 마지막에 서로 눈을 맞춰요' order-preview.html 0
 chk 'BOW_TIP_1122' assets/ritual-story.js 1
 chk 'HEAD_FLOAT_1122' order-preview.html 1   # [HEAD_EDGE_FADE_1122] 은퇴 → 시안 B(띠 배경 없음 · 단추만)
@@ -22264,7 +22264,7 @@ chk 'LISTEN_LOOK_LEVEL_1101' console.html 3
 chk 'LISTEN_LOOK_LEVEL_1101' scripts/audit/listen-pace.mjs 2
 chk 'LISTEN_LOOK_LEVEL_1101' scripts/audit/bgm-preview.mjs 1
 chk 'LISTEN_LOOK_LEVEL_1101' scripts/audit/bgm-seg8.mjs 1
-chk '    songGain: 7,' assets/ritual-cue.js 1
+chk '    songGain: 10,' assets/ritual-cue.js 1   # [DUCK20_1122] 7 → 10
 chk 'return db<=-80?0.00003:Math.pow(10,(db+p.trim+p.song)/20);' assets/bgm-bed.js 1
 chk 'v.g.connect(bus(a));' assets/bgm-bed.js 1
 chk 'function lpFin()' assets/bgm-bed.js 1
@@ -22405,9 +22405,12 @@ chk "function _tgAm(c){" order-preview.html 1   # [TIME_GAP_1102] 줄 시각(atM
 chk "LP.tgGap=_tgk?_gap:0;" order-preview.html 1   # [TIME_GAP_1102] 이벤트 줄 사이 쉼(시각 간격 6초 · 제목 바뀜 2.5초)
 chk "if(tg&&pv&&pv.k===nx.k&&BED.cur.want>-60&&lvOf(nx)>-60){" assets/bgm-bed.js 1   # [TIME_GAP_1102] 쉼 동안 −8 · −12 · 정적은 그대로
 chk "_pc.duck = PARAM.duckOff; _pc.fadeMs = 2000; if (!_pvNoClap) _pc.goLeadMs = Math.max(_pc.goLeadMs || 0, 3000);" assets/ritual-cue.js 1   # [PREVIDEO_AFTER_1101] 소개 앞 2초 내림 + 정적 1초 · 음악 없이
-chk "_pn.goLeadMs = Math.max(_pn.goLeadMs || 0, 6000); _pn.leadDb = PARAM.duckMusic;" assets/ritual-cue.js 1   # [PREVIDEO_AFTER_1101] 화촉 곡 무음에서 6초 앞서
+chk "_pq.goLeadMs = Math.max(_pq.goLeadMs || 0, 6000); _pq.leadDb = PARAM.duckMusic;" assets/ritual-cue.js 1   # [PREVIDEO_AFTER_1101] 화촉 곡 무음에서 6초 앞서
 chk "var _ldL = PARAM.fadeDownMs + _aft, _ldb = (c.leadDb != null && _lead > _ldL) ? c.leadDb : null;" console.html 1   # [PREVIDEO_AFTER_1101] 콘솔이 leadDb 를 읽는다
 chk "ramp(BED.cur,-90,2000); return; }   /\\* ★\\[PREVIDEO_AFTER_1101\\]" assets/bgm-bed.js 1   # [PREVIDEO_AFTER_1101] 이어 듣기 소개 앞 2초
+chk "if (sl === 'bridge-b14-candle-name' && c.leadDb != null) return 'M2';" console.html 1   # [PREVIDEO_SONG_1122] 영상 뒤 91 = 화촉 장면 첫 줄(콘솔 구간)
+chk 'c.leadDb == null && !ESD.run' console.html 1   # [PREVIDEO_SONG_1122] 새 곡을 뜨는 91 은 PRE_HOLD 로 꺼 두지 않는다
+chk 'PREVIDEO_SONG_1122' assets/bgm-slots.js 1   # 화면 음악 줄 · 미리 듣기 뜸이 91 앞(head)
 chk "if(st.after){ var _f8=lastF(); if(_f8) return _f8; }" assets/bgm-bed.js 1   # [MEANING_R1_1102 16] 촬영 후 안내 = 마지막 곡(M8L 목록 차례)
 chk 'if(pv&&nx&&nx.after&&!pv.after){ if(BED.cur.want>-60) ramp(BED.cur,-90,2000); return; }' assets/bgm-bed.js 1   # [MEANING_R1_1102 16] 앞 곡 2초 내림 · 마지막 곡은 무음에서
 chk "if (c.slug === 'narr-close-bow') c.fadeMs = 2000;" assets/ritual-cue.js 1   # [MEANING_R1_1102 14] 닫는 인사 2초 내림
@@ -22639,7 +22642,7 @@ chk 'function pzNow' assets/bgm-bed.js 1
 chk 'function holdGo' assets/bgm-bed.js 1
 chk 'T01 멈춘 동안 lpShow' scripts/audit/reg-p17.mjs 1
 chk 'T04 대조' scripts/audit/reg-p17.mjs 1
-chk 'T06 다음 순간 몫 이음말' scripts/audit/reg-p17.mjs 1   # [REG_P17 검토 B] 보류가 _pre 이음말 · 박수 새 곡 줄에서 lpShow 규칙을 건너뛰지 않는다
+chk 'T06 은퇴' scripts/audit/reg-p17.mjs 1   # [PREVIDEO_SONG_1122] 옛 chk 'T06 다음 순간 몫 이음말' 은퇴(잴 자리 없음) ·   # [REG_P17 검토 B] 보류가 _pre 이음말 · 박수 새 곡 줄에서 lpShow 규칙을 건너뛰지 않는다
 chk 'REG_P17 검토 B' assets/bgm-bed.js 1
 chk 'photo-scene-flow reg-p17' .github/workflows/merge-guard.yml 1
 chk 'ONE_FLOW_1106' assets/bgm-picks.js 4   # [ONE_FLOW_1106] 축사 · 편지 «음악과 함께» = 본식 M4 그대로(oneSeg) · M4 겹침 8초(xfOf)
@@ -23871,7 +23874,7 @@ chk '_tblWatch(_tb0); };' order-preview.html 1
 chk 'RA5_TABLE_NOTE' scripts/audit/toast-min.mjs 1
 chk 'RA5_RULES' scripts/audit/ra5-rules.mjs 1
 # ★[LAYER7_DUCK_1108] 7층 음악 낮추기 — 말 아래 −15 · 내림 1.6초 · 올림 2.0초 dB 코사인 · 첫 말 0.4초 뒤 · 콘솔 · 미리 듣기 한 원천(RitualCue.dbRamp)
-chk "    duckSpeech: -15,       // 말이 주인공" assets/ritual-cue.js 1
+chk "    duckSpeech: -20,       // 말이 주인공" assets/ritual-cue.js 1   # [DUCK20_1122] −15 → −20
 chk "    vocalExtra: -6," assets/ritual-cue.js 1   # 보컬 곡 말 아래 = −15 − 6 = −21(대본 확정)
 chk "  function dbRamp(prm, ac, to, sec) {" assets/ritual-cue.js 1
 chk "PARAM: PARAM, dbRamp: dbRamp," assets/ritual-cue.js 1
@@ -24414,7 +24417,7 @@ chk "nsw = 'narr-open-online'" assets/ritual-cue.js 1
 chk "nsw = 'narr-vow-in-face'" assets/ritual-cue.js 1
 chk "return c.slug !== 'online-3-welcome'" assets/ritual-cue.js 1
 chk "_more.shift(); pushMore('bridge-b9-declare-seat-end')" assets/ritual-cue.js 1
-chk '_b14Self' assets/ritual-cue.js 3
+chk '_b14Pv' assets/ritual-cue.js 2   # ★[PV_OUT_OFF_1122] NARR_GO ⑤ _b14Self 은퇴 → 영상 뒤 늘 263
 chk 'function bodyRecSec(S)' assets/ritual-cue.js 1
 chk 'REC_SEC_DATA' assets/ritual-cue.js 1
 chk "narEx: { speech: 1, matjeol: 4 }" assets/ritual-open.js 1
@@ -24431,6 +24434,9 @@ chk 'NARR_GO_48GAP_1122' assets/ritual-cue.js 2
 chk "ex = 'tribute-in-ex2'; out" assets/ritual-cue.js 1
 chk 'gapMs = 1700;' assets/ritual-cue.js 1
 chk '_mn.gapMs || 0, 1200)' assets/ritual-cue.js 1
+nochk "if (_mn && _mn.k === 'tribute') { _mn.goLeadMs = Math.max(_mn.goLeadMs || 0, 6000)" assets/ritual-cue.js   # [TRIBUTE_GAP_BGM_1122] 옛 6초 뜸 되살리지 말 것
+chk 'TRIBUTE_GAP_BGM_1122' order-preview.html 2   # [TRIBUTE_GAP_BGM_1122 · GAP_SWEEP_GO_1122 ①③] 미리 듣기 — 엔진이 곡을 그 줄 아래에서 올리는 자리(fm 3000 · gl 0)는 뜸 없음(_noLead)
+chk 'if(_rise(q\[i+h\])) q\[i+h\]._noLead=1;' order-preview.html 1
 chk '뭉클하실 부모님께, 신랑 신부가' assets/ritual-open.js 1
 chk 'TRIBUTE_GO_1122' scripts/rec141-1122.py 1
 chk 'TRIBUTE_GO_1122' docs/rules/나레이션.md 1
@@ -24494,6 +24500,41 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/pv-bed-quiet.mjs >/d
 chk 'function pvsDirect(f)' console.html 1
 chk "if (window.parent === window) { pvsDirect(f); return; }" console.html 1
 nochk "SEGF\['@PV'\] = PREVIEW_BED; BED.seg = id; BED.list = \['@PV'\]" console.html   # 옛 예시 음악 내려앉기 되살리지 말 것
+# ★[PREVIEW_LOGIN_1122 2026-11-22 대표님 «로그인해야 확인할 수 있게 · 신랑 신부는 아이디 공유»] 예식 미리 듣기는 로그인한 두 분(또는 관리자)만 · 없으면 마이페이지 로그인 → 돌아오기
+chk 'PREVIEW_LOGIN_1122' console.html 1
+chk 'PREVIEW_LOGIN_1122' mypage.html 5
+chk 'var _NEXT_RE=/' mypage.html 1   # 돌아갈 곳은 미리 듣기 주소 꼴만(열린 리다이렉트 금지 · 실행 검사 ⑥)
+if command -v node >/dev/null 2>&1; then node scripts/audit/preview-login.mjs >/dev/null 2>&1; _pvl=$?; if [ "$_pvl" = 1 ]; then echo 'FAIL [PREVIEW_LOGIN_1122] 미리 듣기 로그인 관문이 깨졌다 — node scripts/audit/preview-login.mjs'; fail=1; else echo "ok [PREVIEW_LOGIN_1122] preview-login (종료 $_pvl)"; fi; fi
+# ★★[PV_OUT_OFF_1122 대표님 11/22 17:16 · 17:33] 식전 영상 끝 261 없음 · 곡 먼저 → 263 → 여는 말 — 상세 docs/rules/나레이션.md
+chk "'narr-prevideo-out': 1 /\* ★\[PV_OUT_OFF_1122\]" assets/ritual-cue.js 1
+chk 'var _b14Pv = bc.k ===' assets/ritual-cue.js 1
+chk 'PV_OUT_OFF_1122' docs/rules/나레이션.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/pv-out-1122.mjs >/dev/null 2>&1; _pv=$?; if [ "$_pv" != 0 ]; then echo 'FAIL pv-out-1122: 식전 영상 끝 흐름(261 없음 · 곡 뜸 → 263 → 여는 말)이 대표님 11/22 결정과 다릅니다 — node scripts/audit/pv-out-1122.mjs'; fail=1; else echo 'ok pv-out-1122'; fi; fi
+
+# ★★[PREP_HUB_1123 2026-11-23 사장님 결정] 예식 준비 카드 «준비할 것» 줄(가족 · 친구 스냅 바로 뒤 · 단추 «열기» · 회색 한 줄 «n개 남음 · 다음 마감») + 전체 화면(스튜디오에 보낼 것 · 두 분이 준비할 것 · 보내 주시면 좋은 것)
+#   목록 원천 assets/send-list.js 한 곳([SEND_LIST_SYNC] 원천 ritual-open prepOf 와 맞대기) · 파일 = action ritualFile 새 열쇠 mr · fx · bl · sp(80_production RF_PREP) · 원고 글 = S.tx bless.p · free.p · 체크 = S.mkc
+chk 'PREP_HUB_1123' mypage.html 6
+chk 'PREP_HUB_1123' assets/send-list.js 1
+chk 'PREP_HUB_1123' automation/platform/80_production.gs 8
+chk 'PREP_HUB_1123' automation/platform/70_journey.gs 1
+chk "'mp_invSample','mp_prepOverlay'];" mypage.html 1
+chk '    ,_prhRow   /\*' mypage.html 1
+chk '<script src="/assets/send-list.js?v=' mypage.html 1
+chk "var RF_PREP = { mr: '축가 반주', fx: '준비한 순서 파일', bl: '덕담 원고', sp: '축사 원고' };" automation/platform/80_production.gs 1
+chk 'SEND_LIST_SYNC' assets/send-list.js 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/send-list-sync.mjs >/dev/null 2>&1; _sl=$?; node scripts/audit/send-list-sync.mjs --selftest >/dev/null 2>&1; _sls=$?
+  if [ "$_sl" = 0 ] && [ "$_sls" = 0 ]; then echo 'ok send-list-sync: «준비할 것» 규칙 = 원천 ritual-open prepOf · 깨 보기 빨강'; else echo 'FAIL send-list-sync: «준비할 것» 규칙이 원천과 갈라졌다 — node scripts/audit/send-list-sync.mjs'; fail=1; fi
+fi
+if command -v node >/dev/null 2>&1; then _ph=$(node scripts/audit/prep-hub.mjs 2>&1); _phr=$?
+  case "$_phr" in
+    0) echo 'ok prep-hub: «준비할 것» 줄 · 전체 화면 · 올리기 · 체크 · 원고 · 서버 열쇠' ;;
+    1) echo 'FAIL prep-hub: «준비할 것»이 어긋났다 — node scripts/audit/prep-hub.mjs'; printf '%s\n' "$_ph" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
+    *) echo 'ok prep-hub: 화면은 재지 못했습니다(브라우저 없음) — 서버 · 목록은 통과' ;;
+  esac
+fi
+# ★[BOW_LINE_PLAIN_1123 2026-11-23 사장님 «자세 보기가 있으니 팁은 빼고 일반적으로 문구만»] 맞절 줄 머리 «팁 · 사진에 예쁘게 남는 인사예요» 걷음 · 짧은 판 «두 분이 마주 보고 서로에게 인사해요. 자세 보기»
+chk 'BOW_LINE_PLAIN_1123' order-preview.html 1
+nochk '팁 · 사진에 예쁘게 남는 인사' order-preview.html 0
 # ★★[TRIBUTE_GAP_1122] 248 → 141 음악 뜸 없음 · 말끝 → 1.2초 → 141 · 곡 내림 free — 상세 docs/rules/나레이션.md
 chk '_mn.fadeMs = 3000; } }' assets/ritual-cue.js 1
 chk 'st.free ? 0 : (st.ms || 0)' console.html 1
@@ -24510,3 +24551,20 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/close-c-go-1122.mjs 
 chk 'online: 0 };' assets/ritual-open.js 1
 nochk '온라인 인사까지' order-preview.html 0
 nochk '온라인 인사 약 2분' api/_kb.js 0
+# ★[DUCK20_1122] lane f 기대도 −20 — console-r2 B ①② 옛 «−15 → −20 내림» 은퇴 · one-flow T05 · T06 축가 여는 말 −20
+chk 'DUCK20_1122' scripts/audit/console-r2-1115.mjs 2
+chk 'DUCK20_1122' scripts/audit/one-flow.mjs 1
+# ★★[GAP_SWEEP_GO_1122 대표님 11/22 23:15 «①③ 승인 · 엔진 반영»] «음악만 먼저»가 승인한 쉼을 덮던 두 자리 — 244 → 다음 줄 1.2초 · 개식 → 사슬 화촉 여는 말 3.0초 · 뜸 없음 — 상세 docs/rules/나레이션.md
+chk 'GAP_SWEEP_GO_1122' assets/ritual-cue.js 2
+chk 'GAP_SWEEP_GO_1122' docs/rules/나레이션.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/gap-sweep-go-1122.mjs >/dev/null 2>&1; _gs=$?; if [ "$_gs" != 0 ]; then echo 'FAIL gap-sweep-go-1122: 244 → 다음 줄 1.2초 · 개식 → 화촉 여는 말 3.0초(음악 뜸 없음)가 대표님 11/22 승인과 다릅니다 — node scripts/audit/gap-sweep-go-1122.mjs'; fail=1; else echo 'ok gap-sweep-go-1122'; fi; fi
+# ★[SONG_PICK_RING_1123 2026-11-23 사장님 «이거 선택하라는건지 잘모르겠어 개선해보자»] 곡 줄마다 빈 동그라미 · 고른 곡은 채운 동그라미 + 흰 ✓ (화촉 · 테이블 · 축사 · 편지 곡 칸 · 입장 곡 목록 같은 모양) — 실행 검사 detail-r1 ①b
+chk 'SONG_PICK_RING_1123' order-preview.html 1
+chk 'SONG_PICK_RING_1123' scripts/audit/detail-r1.mjs 2
+# ★[SUB_JOSA_1123] «‹곡›이 대신» → «‹곡› 곡이 대신»(‹Summer›이 처럼 곡 이름 따라 조사가 틀림) — 줄 아래 · 미리 듣기 알림 둘 다
+nochk '›이 대신 흘러요' assets/bgm-bed.js 0
+chk '› 곡이 대신 흘러요' assets/bgm-bed.js 2
+chk 'DUCK20_1122' scripts/audit/entry-nofile-1115.mjs 3   # [DUCK20_1122] lane g — 입장 멘트 아래 말 아래 표준 −20
+chk 'DUCK20_1122' scripts/audit/seam-bg.mjs 5   # [DUCK20_1122] lane e — 말 아래 −20 기대
+chk 'DUCK20_1122' scripts/audit/seam-b2.mjs 1   # 음09 · 음10 — 시험만 나레이션 줄을 −15 로 다르게(옮김을 크기로 본다)
+chk 'DUCK20_1122' scripts/audit/no-relift.mjs 2

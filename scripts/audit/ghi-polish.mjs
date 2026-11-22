@@ -20,7 +20,7 @@ const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 let pw = null; for (const p of ['playwright', '/opt/node22/lib/node_modules/playwright']) { try { pw = require(p); break; } catch {} }
 if (!pw) { console.log('못 쟀다 — playwright 없음'); process.exit(2); }
-const BOW_Q = '팁 · 사진에 예쁘게 남는 인사예요. 신랑은 한 손을 가슴에 얹고 가볍게 숙이고, 신부는 치맛자락을 살짝 잡고 무릎을 굽혀요. 마지막에 서로 눈을 맞추면 좋아요. 평소처럼 인사하셔도 괜찮아요.';   // [BOW_TIP_1122] 지시 → 팁   // [BALL_BOW_1101 검토 186-1]   // [MATJEOL_1011] order-preview _lQuiet 의 맞절 줄 · [MATJEOL_SPLIT_1013] 10/13 부터 맞절 순간(matjeol) 쪽
+const BOW_Q = '두 분이 마주 보고 서로에게 인사해요. 평소처럼 인사하셔도 되고, 무도회 맞절도 좋아요. 무도회 맞절은 신랑은 한 손을 가슴에 얹고 가볍게 숙이고, 신부는 치맛자락을 살짝 잡고 무릎을 굽혀요. 마지막에 서로 눈을 맞추면 좋아요.';   // [BOW_TIP_1122] 지시 → 팁   // [BALL_BOW_1101 검토 186-1]   // [MATJEOL_1011] order-preview _lQuiet 의 맞절 줄 · [MATJEOL_SPLIT_1013] 10/13 부터 맞절 순간(matjeol) 쪽
 let fail = 0;
 const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
 

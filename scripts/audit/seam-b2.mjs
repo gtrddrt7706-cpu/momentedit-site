@@ -285,7 +285,7 @@ try {
     await f.evaluate(() => { const i = STEPS.findIndex((x) => x.k === 'listen'); if (i > -1) { idx = i; render(); } });
     const r = await f.evaluate(async () => { const BB = BgmBed._t, W = (ms) => new Promise((r) => setTimeout(r, ms)), on = () => !!(BB.BED.cur && BB.BED.cur.src && BB.BED.cur.want > -60);
       LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(['welcome'], true); _lFull(); (LP.q || []).forEach((x) => { if (x.talk || x.talk2 || x.said || x.act || x.quiet) x.ms = 2500; }); for (let k = 0; k < 120 && !on(); k++) await W(100); await W(1500);
-      const nar = LP.q.findIndex((x) => x.k === 'welcome' && !x._pre && !x.talk && !x.talk2 && x.dk === -15 && !/^bridge-/.test(x.slug || '')), tk = LP.q.findIndex((x) => x.k === 'welcome' && (x.talk || x.talk2) && x.ldk === -20);
+      const nar = LP.q.findIndex((x) => x.k === 'welcome' && !x._pre && !x.talk && !x.talk2 && (x.dk === -15 || x.dk === -20) && !/^bridge-/.test(x.slug || '')), tk = LP.q.findIndex((x) => x.k === 'welcome' && (x.talk || x.talk2) && x.ldk === -20); if (nar > -1) LP.q[nar].dk = -15;   /* ★[DUCK20_1122] 나레이션 줄도 −20 이 되어 두 줄 크기가 같아졌다 — 옮김을 크기로 보려고 시험만 나레이션 줄을 −15 로 다르게 둔다(엔진 값은 −20) */
       LP.paused = true; clearTimeout(LP.t); LP.tok++; await W(1500); LP.i = nar; LP.paused = false; const rr = BgmBed.lpResume(); await W(200); const w0 = BB.BED.cur.want;
       LP.i = tk; BgmBed.lpShow(LP.q[tk]); await W(400); const w1 = BB.BED.cur.want;
       /* 대조 — 같은 줄을 다시 보이면 0.9초 안에는 덮지 않는다 */
@@ -303,7 +303,7 @@ try {
     await f.evaluate(() => { const i = STEPS.findIndex((x) => x.k === 'listen'); if (i > -1) { idx = i; render(); } });
     const r = await f.evaluate(async () => { const BB = BgmBed._t, W = (ms) => new Promise((r) => setTimeout(r, ms)), on = () => !!(BB.BED.cur && BB.BED.cur.src && BB.BED.cur.want > -60);
       LP.fast = false; LP.noChips = false; _lOpenBig(); _lStart(['welcome'], true); _lFull(); (LP.q || []).forEach((x) => { if (x.talk || x.talk2 || x.said || x.act || x.quiet) x.ms = 2500; }); for (let k = 0; k < 120 && !on(); k++) await W(100); await W(1500);
-      const nar = LP.q.findIndex((x) => x.k === 'welcome' && !x._pre && !x.talk && !x.talk2 && x.dk === -15 && !/^bridge-/.test(x.slug || '')), tk = LP.q.findIndex((x) => x.k === 'welcome' && (x.talk || x.talk2) && x.ldk === -20);
+      const nar = LP.q.findIndex((x) => x.k === 'welcome' && !x._pre && !x.talk && !x.talk2 && (x.dk === -15 || x.dk === -20) && !/^bridge-/.test(x.slug || '')), tk = LP.q.findIndex((x) => x.k === 'welcome' && (x.talk || x.talk2) && x.ldk === -20); if (nar > -1) LP.q[nar].dk = -15;   /* ★[DUCK20_1122] 나레이션 줄도 −20 이 되어 두 줄 크기가 같아졌다 — 옮김을 크기로 보려고 시험만 나레이션 줄을 −15 로 다르게 둔다(엔진 값은 −20) */
       LP.paused = true; clearTimeout(LP.t); LP.tok++; await W(300); LP.paused = false;
       LP.i = nar; BgmBed.lpShow(LP.q[nar]); await W(1500); const w0 = BB.BED.cur.want;
       /* 다음 줄(말 · −20) 쉼 예약을 걸고 · 그 쉼 안에 다른 줄(나레이션 · −15)로 옮긴다 */

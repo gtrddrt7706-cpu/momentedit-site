@@ -89,9 +89,15 @@ const stop = (f) => f.evaluate(() => { try { lsStop(); } catch (e) {} try { lsCl
 try {
   const { ctx, pg, f, errs } = await open(390, true);
   /* ① 대신 흐르는 곡 */
-  { await setS(f, { bgm: {} }); await go(f, 'candle'); const T7 = P.SONGS.B07.t, want = `준비 중이라 지금은 ‹${T7}›이 대신 흘러요`;
+  { await setS(f, { bgm: {} }); await go(f, 'candle'); const T7 = P.SONGS.B07.t, want = `준비 중이라 지금은 ‹${T7}› 곡이 대신 흘러요`   /* [SUB_JOSA_1123] */;
     const a = await f.evaluate(() => [...document.querySelectorAll('.ls-bed[data-seg="M2"] .bed-sub-note')].map((x) => [x.textContent.trim(), getComputedStyle(x).fontSize]));
-    await f.click('[data-fk="bed:M2:B31"]'); await wait(f, 400); const b = await f.evaluate(() => [...document.querySelectorAll('.ls-bed[data-seg="M2"] .bed-sub-note')].map((x) => x.textContent.trim()));
+    /* ★[SONG_PICK_RING_1123] 안 고른 줄마다 빈 동그라미(20px · 채움 없음) · 고르면 그 줄만 채운 동그라미 + 흰 ✓ */
+    const ring = (sel) => f.evaluate((sel) => [...document.querySelectorAll(sel)].map((x) => { const A = getComputedStyle(x, '::after'), B = getComputedStyle(x, '::before'); return [x.getAttribute('aria-checked'), A.width, A.borderRadius, A.backgroundColor, B.content]; }), sel);
+    const r0 = await ring('.ls-bed[data-seg="M2"] .mu-pick');
+    await f.click('[data-fk="bed:M2:B31"]'); await wait(f, 400); await f.evaluate(() => { const c = document.querySelector('.ls-bed[data-seg="M2"] .mu-chg'); if (c) c.click(); }); await wait(f, 400);   /* 고르면 접힌다 · «바꾸기»로 다시 펴서 잰다 */
+    const r1 = await ring('.ls-bed[data-seg="M2"] .mu-pick'); const on1 = r1.filter((x) => x[0] === 'true');
+    ok('①b 곡 줄마다 고르는 동그라미 — 안 골랐을 때 빈 동그라미 · 고른 줄만 채움 + ✓ [SONG_PICK_RING_1123]', r0.length >= 3 && r0.every((x) => x[0] === 'false' && x[1] === '20px' && x[2] === '50%' && x[3] !== 'rgb(107, 42, 36)' && x[4] === 'none') && on1.length === 1 && on1[0][3] === 'rgb(107, 42, 36)' && on1[0][4] !== 'none' && r1.filter((x) => x[0] !== 'true').every((x) => x[1] === '20px' && x[4] === 'none'), { r0, r1 });
+    const b = await f.evaluate(() => [...document.querySelectorAll('.ls-bed[data-seg="M2"] .bed-sub-note')].map((x) => x.textContent.trim()));
     const r = await run(f, ['candle'], 5000); await stop(f); const notes = [...new Set(r.map((x) => x.note).filter(Boolean))];
     ok(`① 화촉 1순위(B05) · 고른 곡(B31) 파일이 없으면 줄 아래 «${want}»(12.5px) · 미리 듣기 줄도 같은 글 · 실제로 B07`, a.length === 1 && a[0][0] === want && a[0][1] === '12.5px' && b.length === 1 && b[0] === want && notes.indexOf(want) > -1 && r.some((x) => x.f === 'B07' && x.src), { a, b, notes, fs: [...new Set(r.map((x) => x.f))] }); }
   /* ② 늦은 곡 목록 */
@@ -118,16 +124,16 @@ try {
   { await go(f, 'prevideo'); const r = await run(f, ['prevideo'], 26000, false, true); await stop(f);
     const ln = r.filter((x) => x.k === 'prevideo' && !x.lead && x.src), pre = ln.filter((x) => x.slug === 'narr-prevideo-in' && !x.skip && !x.act), post = ln.filter((x) => x.slug === 'narr-prevideo-out'), sk = ln.filter((x) => x.slug !== 'narr-prevideo-out' && x.slug !== 'narr-prevideo-in');   /* 영상이 흐르는 줄 */
     const lds = r.filter((x) => x.k === 'prevideo' && x.lead && x.src), t1 = pre.length ? pre[0].t : null, sil = lds.filter((x) => x.want <= -60 && t1 != null && x.t < t1), silMs = sil.length ? t1 - sil[0].t : 0, w0 = lds.length ? lds[0].want : null;
-    ok('⑤ [PREVIDEO_AFTER_1101] 식전 영상 따로 듣기 — 소개 · 영상 · 받는 말 모두 음악 없이(≤ −60)', pre.length > 3 && post.length > 3 && sk.length > 3 && [...pre, ...sk, ...post].every((x) => x.want <= -60), { pre: pre.length, silMs: Math.round(silMs), w0, fs: [...new Set(ln.map((x) => [x.i, x.slug, x.skip, x.act, x.f, x.want].join(':')))] }); }
+    ok('⑤ [PREVIDEO_AFTER_1101] 식전 영상 따로 듣기 — 소개 · 영상 · 받는 말 모두 음악 없이(≤ −60)', pre.length > 3 && post.length === 0 /* ★[PV_OUT_OFF_1122] 받는 말 261 걷음 · 옛 post.length > 3 */ && sk.length > 3 && [...pre, ...sk, ...post].every((x) => x.want <= -60), { pre: pre.length, silMs: Math.round(silMs), w0, fs: [...new Set(ln.map((x) => [x.i, x.slug, x.skip, x.act, x.f, x.want].join(':')))] }); }
   /* ⑤b [PREVIDEO_AFTER_1101] 이어 듣기 식전 영상 → 화촉 — 화촉 곡은 무음에서 · 첫 멘트는 뜸 약 6초 뒤 · 당일 큐 값(콘솔이 읽는다) */
   { await go(f, 'guest'); const r = await run(f, ['guest', 'prevideo', 'candle'], 80000, true); await stop(f);
     const pv = r.filter((x) => x.k === 'prevideo' && !x.lead), cl = r.filter((x) => x.k === 'candle' && x.lead), cn = r.filter((x) => x.k === 'candle' && !x.lead), lastPv = pv.length ? pv[pv.length - 1] : null;
     const cn2 = cl.length ? cn.filter((x) => x.t > cl[0].t) : [], ldMs = cl.length && cn2.length ? cn2[0].t - cl[0].t : 0;
     const pi = r.filter((x) => x.k === 'prevideo' && !x.lead && /^narr-prevideo-in/.test(x.slug || '')), tI = (pi.find((x) => x.ta) || {}).t ?? null,   /* 줄 시계가 걸린 때(쉼이 끝나고 소개가 나오는 때) */ gs = r.filter((x) => tI != null && x.t < tI && x.t > tI - 4000), sil = gs.filter((x) => !x.src || x.want <= -60), silMs = sil.length && tI != null ? tI - sil[0].t : 0;
     ok('⑤b 이어 듣기 하객 맞이 → 식전 영상 → 화촉 — 소개 앞 정적 ≥ 0.8초 · 받는 말까지 음악 없이 · 화촉 곡은 무음에서 · 첫 멘트는 약 6초 뒤', silMs >= 800 && !!lastPv && (!lastPv.src || lastPv.want <= -60) && cl.length > 10 && ldMs > 5200 && ldMs < 7600, { silMs: Math.round(silMs), last: lastPv && [lastPv.f, lastPv.want], ldMs: Math.round(ldMs), f: cl.length && cl[cl.length - 1].f });
-    const cq = await f.evaluate(() => { const c = ENG.RitualCue.build(S, { mode: 'console' }); const L = c.cues || c; const at = (fn) => L.find(fn) || {}; const i = at((x) => /^narr-prevideo-in/.test(x.slug || '')), o = at((x) => x.slug === 'narr-prevideo-out'), io = L.indexOf(o), cd = L.slice(io + 1).find((x) => x.k === 'candle' && !/^bridge-/.test(x.slug || '')) || {};
+    const cq = await f.evaluate(() => { const c = ENG.RitualCue.build(S, { mode: 'console' }); const L = c.cues || c; const at = (fn) => L.find(fn) || {}; const i = at((x) => /^narr-prevideo-in/.test(x.slug || '')), o = at((x) => x.slug === 'narr-prevideo-out'), io = L.indexOf(i), cd = L.slice(io + 1).find((x) => x.k === 'candle') || {};   /* ★[PV_OUT_OFF_1122 · PREVIDEO_SONG_1122] 261 걷음 — 영상 뒤 첫 화촉 줄(263 이음말이면 그 줄)이 곡 뜸을 받는다 · 옛: 261 뒤 bridge 를 뺀 첫 화촉 줄 */
       return { i: [i.duck, i.fadeMs, i.goLeadMs], o: o.duck, c: [cd.slug, cd.goLeadMs, cd.leadDb] }; });
-    ok('⑤b 당일 큐 — 소개 −90(2초 · 3초 쉬고) · 받는 말 −90 · 화촉 첫 큐 무음에서 −8 로 6초 앞서', cq.i.join() === '-90,2000,3000' && cq.o === -90 && cq.c[1] === 6000 && cq.c[2] === -8, cq); }
+    ok('⑤b 당일 큐 — 소개 −90(2초 · 3초 쉬고) · 받는 말 없음(PV_OUT_OFF_1122) · 영상 뒤 첫 화촉 큐 무음에서 −8 로 6초 앞서', cq.i.join() === '-90,2000,3000' && cq.o === undefined && cq.c[1] === 6000 && cq.c[2] === -8, cq); }
   /* ⑨ 닫는 인사 따로 듣기 */
   { await go(f, '_close'); const vx12 = await f.evaluate(() => BgmBed._t.vx(-12, 'B28')); const r = await run(f, ['_close'], 30000, false, true); await stop(f);   /* 축배 곡은 가사가 있는 곡 — −12 에 vocalExtra(−6) */
     const bow = r.filter((x) => x.k === '_close' && x.slug === 'narr-close-bow' && !x.lead && x.src), cl = r.filter((x) => x.k === '_close' && x.slug !== 'narr-close-bow' && x.src && x.want > -60);

@@ -88,8 +88,8 @@ const RC = require(RCM || path.join(ROOT, 'assets/ritual-cue.js')), RO = require
     && V('vow', { onOf: (k) => k !== 'welcome' }).t === ONE.welcome && V('ring', { onOf: (k) => k !== 'welcome' }).t === '혼인 서약부터 피아노가 조용히 이어져요');
   const r4 = B.slot('S4').ref, cl = B.SLOTS.flatMap((s) => (s.ref.clap || []).map((c) => c.no)).join();
   /* [BGM_CONSOLE1_1023] 131 박수 줄은 걷었다(대본 157 로 «큰 박수로 맞이해 주십시오»가 빠졌다) · 108 은 «목례 · 박수 뒤 힘 있게 시작»(엔진 narr-close-bow live 와 같은 차례) */
-  ok('0 참고 값 그대로 — S4 크기 단계 둘 · 박수 줄 57 · 108(목례 · 박수 뒤) · S2 이음말(263) · 개식 인사(137)',
-    r4.levels.length === 2 && r4.levels[0].lv === '작게' && r4.levels[1].lv === '아주 작게 · 거의 들리지 않게' && cl === '57,108' && B.slot('S8').ref.clap[0].up === '목례 · 박수 뒤 힘 있게 시작' && !B.slot('S10').ref.clap && /263/.test(B.slot('S2').ref.from) && /137/.test(B.slot('S1').ref.note), { r4, cl });
+  ok('0 참고 값 그대로 — S4 크기 단계 둘 · 박수 줄 57 · 108(목례 · 박수 뒤) · S2 영상 끝 · 91 앞(PREVIDEO_SONG_1122 · 옛 «이음말 263 뒤») · 개식 인사(137)',
+    r4.levels.length === 2 && r4.levels[0].lv === '작게' && r4.levels[1].lv === '아주 작게 · 거의 들리지 않게' && cl === '57,108' && B.slot('S8').ref.clap[0].up === '목례 · 박수 뒤 힘 있게 시작' && !B.slot('S10').ref.clap && /식전 영상이 끝나면/.test(B.slot('S2').ref.from) && /91/.test(B.slot('S2').ref.from) && /137/.test(B.slot('S1').ref.note), { r4, cl });
   const OLD = { S1: { m: 'own', own: { n: '옛 곡', a: '가수', d: 200 } }, S5: { m: 'studio' }, S6: { m: 'none' }, S7: { m: 'warm' }, S10: { m: 'own' } };
   ok('0 옛 값은 버린다 — get: own · studio · none · warm → 기본 · clean: «음악과 함께»만 남고 곡 이름은 사라진다',
     B.get({ bgm: OLD }, 'S5').m === 'none' && !B.get({ bgm: OLD }, 'S5').set && B.get({ bgm: OLD }, 'S1').m === null && B.clean(OLD) === undefined
@@ -104,9 +104,9 @@ const RC = require(RCM || path.join(ROOT, 'assets/ritual-cue.js')), RO = require
     return { free: fr && fr.live.duck, l0: l0 && l0.duck, l0live: l0 && l0.live.duck, lt: l0 && l0.live.t, le: le && le.duck, post: le && JSON.stringify(le.post) }; };
   const n0 = pick(bld(null)), n0g = pick(bld(null, { on: Object.assign({}, SONG) })), nb = pick(bld({ S5: { m: 'bed' }, S6: { m: 'bed' } }, { on: Object.assign({}, SONG) })), nbF = pick(bld({ S5: { m: 'bed' }, S6: { m: 'bed' } })), nbS = nbF, n5 = pick(bld({ S5: { m: 'bed' } })), n5g = pick(bld({ S5: { m: 'bed' } }, { on: Object.assign({}, SONG) })), nOld = bld(OLD), nNone = bld(null);
   ok('0 엔진 기본(음악 없이) — 축사 사람 구간 −90 · 편지 첫 큐(앞이 축가) · 사람 구간 · 마무리 −90 · 마무리 뒤 2초 정적 → 다음 곡(next)',
-    n0.free === -90 && n0g.l0 === -90 && n0.l0live === -90 && n0.le === -90 && n0.lt === '두 분이 직접 편지 낭독' && n0.post === /* [LAYER7_DUCK_1108] 다음 곡 −15 */ '[{"wait":2000},{"music":"next","v":-15,"ms":4000,"nextMs":3000}]', n0);   /* ★[BGM_TIMING_1101] 정적 뒤 다음 순간 곡을 무음에서 3초(next) · 같은 곡이거나 없으면 종전 4초에 −16 */
+    n0.free === -90 && n0g.l0 === -90 && n0.l0live === -90 && n0.le === -90 && n0.lt === '두 분이 직접 편지 낭독' && n0.post === /* [LAYER7_DUCK_1108] 다음 곡 −15 · ★[DUCK20_1122] −20 */ '[{"wait":2000},{"music":"next","v":-20,"ms":4000,"nextMs":3000}]', n0);   /* ★[BGM_TIMING_1101] 정적 뒤 다음 순간 곡을 무음에서 3초(next) · 같은 곡이거나 없으면 종전 4초에 −16 */
   ok('0 엔진 «음악과 함께» — 축사 −20 · 편지 첫 큐 −16(앞 곡 아래) · 사람 구간 · 마무리 −20(duckRead) · 끝은 정적 없이 다음 곡으로 3초 겹침 · 편지 장면 글 판(«음악이 아주 작게») · 축사만 고르면 편지는 그대로',
-    RC.PARAM.duckRead === -20 && nbF.free === -20 && nb.l0 === -90 && nbS.l0 === -15 /* ★[LAYER7_DUCK_1108] 말 아래 −16 → −15(옛 −16 기대 은퇴) */ && nb.l0live === -20 && nb.le === -20 && nb.post === '[{"music":"next","v":-15,"ms":4000,"nextMs":3000,"xf":true}]'   /* ★[BGM_TIMING2_1101] 여는 말은 앞 곡(M4) −16 아래 · 낭독 차례 −20 · 끝은 정적 없이 다음 곡으로 3초 겹침 */   /* ★[SEAM_BG02] 앞이 축가(정적 끝)면 여는 말 −90 · 축가가 없으면 −16 */
+    RC.PARAM.duckRead === -20 && nbF.free === -20 && nb.l0 === -90 && nbS.l0 === -20 /* ★[DUCK20_1122] −15 → −20 · ★[LAYER7_DUCK_1108] 말 아래 −16 → −15(옛 −16 기대 은퇴) */ && nb.l0live === -20 && nb.le === -20 && nb.post === '[{"music":"next","v":-20,"ms":4000,"nextMs":3000,"xf":true}]'   /* ★[BGM_TIMING2_1101] 여는 말은 앞 곡(M4) −16 아래 · 낭독 차례 −20 · 끝은 정적 없이 다음 곡으로 3초 겹침 */   /* ★[SEAM_BG02] 앞이 축가(정적 끝)면 여는 말 −90 · 축가가 없으면 −16 */
     && nb.lt === '두 분이 직접 편지 낭독 (음악이 아주 작게)' && n5.free === -20 && n5g.l0 === -90 && n5.lt === '두 분이 직접 편지 낭독' && n5g.lt === '두 분이 직접 편지 낭독', { nb, nbF, n5, n5g });   /* [SPEECH_SONG_1115] «축사만 고르면 편지는 그대로» — 축사 쪽 n5 · 축가 쪽 n5g(앞이 축가) 둘 다 */
   const same = (a, b) => a.length === b.length && a.every((c, i) => JSON.stringify(c) === JSON.stringify(b[i]));
   const bedCs = bld({ S5: { m: 'bed' }, S6: { m: 'bed' } }), touched = bedCs.filter((c, i) => JSON.stringify(c) !== JSON.stringify(nNone[i])).map((c) => c.slug);
@@ -210,7 +210,7 @@ try {
     for (const [tag, i] of [['br', cdl.br], ['nb', cdl.nb]]) { if (i == null) continue; await pg.evaluate((i) => { S.narEx = Object.assign({}, S.narEx || {}); S.narEx.candle = i; try { buildSteps(); } catch (e) {} _persist(); }, i); await go(pg, 'welcome'); await go(pg, 'candle'); CDL[tag] = await look(pg); }
     await pg.evaluate(() => { if (S.narEx) delete S.narEx.candle; try { buildSteps(); } catch (e) {} _persist(); });
     ok(`${W} 1 [BGM_AUDIT_CANDLE_1023] 화촉 음악 줄 — 첫 줄이 이음말이면 그 바로 뒤(fi 1) · 아니면 맨 앞(fi 0) · 두 판 다 잼(예시 ${cdl.br} · ${cdl.nb})`,
-      cdl.br != null && cdl.nb != null && CDL.br && CDL.br.fi === 1 && /넘어가며/.test(CDL.br.prev) && /넘어가며/.test(CDL.br.first) && CDL.nb && CDL.nb.fi === 0 && !/넘어가며/.test(CDL.nb.first) && CDL.br.ftxt === G(ONE.candle) && CDL.nb.ftxt === G(ONE.candle),
+      cdl.br != null && cdl.nb != null && CDL.br && CDL.br.fi === 0 && /넘어가며/.test(CDL.br.next) /* ★[PREVIDEO_SONG_1122] 식전 영상이 있는 날 91 은 곡 위 첫 줄 — 음악 줄이 맨 앞 · 91 은 그 바로 뒤(영상 없는 날 정적 위 91 은 종전 fi 1 · bgm-slots head) */ && CDL.nb && CDL.nb.fi === 0 && !/넘어가며/.test(CDL.nb.first) && CDL.br.ftxt === G(ONE.candle) && CDL.nb.ftxt === G(ONE.candle),
       { cdl, br: CDL.br && [CDL.br.fi, CDL.br.first, CDL.br.prev], nb: CDL.nb && [CDL.nb.fi, CDL.nb.first, CDL.nb.next] });
     /* [BGM_R2_1023] 축가 바로 뒤 부모님께 인사(편지를 빼면) — 첫 줄이 «경건하게» 이음말 → 음악 줄은 그 바로 뒤 */
     await PAIR(pg, 'song'); await pg.evaluate(() => { delete S.on.letter; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); }); await go(pg, 'tribute'); const t12 = await look(pg);
@@ -333,7 +333,8 @@ try {
           if (!f.hit) out.miss.push(tag + ' · ' + k + ' (' + f.by + ')');
           const s0 = st[0] || {}, isBr = /^bridge-/.test(String(s0.slug || '')), looksBr = s0.lab === '다음 순서로 넘어가며' || /^이음말/.test(String(s0.slab || ''));
           if (isBr !== looksBr) out.key.push(tag + ' · ' + k + ' · ' + (s0.slug || '') + ' / ' + (s0.lab || ''));
-          if (f.by === 'top' && f.at !== (isBr ? 1 : 0)) out.head.push(tag + ' · ' + k + ' at ' + f.at); }); }); }); }
+          const brMus = isBr && /^bridge-b14-candle-name$/.test(String(s0.slug || '')) && s0.dk != null && +s0.dk > -60;   /* ★[PREVIDEO_SONG_1122] 영상 뒤 91(곡 위 −15)은 화촉 장면 첫 줄 — 음악 줄이 맨 앞 */
+          if (f.by === 'top' && f.at !== (isBr && !brMus ? 1 : 0)) out.head.push(tag + ' · ' + k + ' at ' + f.at); }); }); }); }
       finally { S = S0; }
       out.miss = out.miss.slice(0, 12); out.head = out.head.slice(0, 12); out.key = out.key.slice(0, 12); return out; });
     ok(`9 [BGM_R3_1023] 코스 ${C9.courses} × 조합 전부(흐름 음악 줄 ${C9.n}곳 · ${JSON.stringify(C9.by)}) — 큐 열쇠로 자리를 못 찾아 맨 앞으로 물러난 곳 0 · 닫는 인사(목례) · 축배(위하여)를 한 번 이상 잼`,

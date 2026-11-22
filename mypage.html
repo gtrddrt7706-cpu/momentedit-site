@@ -1277,6 +1277,47 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .trk.vu-row{padding-left:10px;padding-top:9px;padding-bottom:9px}   /* [릴스 방 점검 · bb8687b] 14 → 10px — 390 «스튜디오 확인 중» 꼬리표가 둘째 줄로 내려가 그 줄만 55 → 69px 이던 것(네 상태 147px 로 같게) */
 .trk.vu-row:not(.vu-last){border-bottom-color:transparent;background:linear-gradient(var(--border),var(--border)) right bottom/calc(100% - 10px) 1px no-repeat}
 .vu-when{font-size:12px;color:var(--label-soft);margin-left:6px;letter-spacing:.02em;white-space:nowrap}
+/* ★★[PREP_HUB_1123 2026-11-23] «준비할 것» — 줄 옆 새 항목 점(진사 6px) · 전체 화면(식전 영상 겹화면과 같은 틀 · 바탕 · 폭 620) · 글자 11 · 12.5 · 14 · 15 · 20px */
+.prh-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--seal,#6B2A24);margin-left:6px;vertical-align:3px}
+.prh-ov{position:fixed;inset:0;z-index:950;background:var(--bg,#FAFAF8);display:flex;flex-direction:column;opacity:0;transition:opacity .22s ease}
+.prh-ov.on{opacity:1}
+@media (prefers-reduced-motion:reduce){.prh-ov{transition:none}}
+.prh-body{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:20px 16px calc(32px + env(safe-area-inset-bottom,0px))}
+.prh-inner{max-width:620px;margin:0 auto;width:100%;box-sizing:border-box}
+.prh-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 6px}
+.prh-h{margin:6px 0;font-family:var(--serif-ko);font-size:20px;font-weight:500;letter-spacing:-.02em;line-height:1.4;color:var(--accent);outline:none}
+.prh-x{width:auto;min-width:72px;min-height:36px;padding:8px 14px;flex:0 0 auto}
+.prh-empty{margin:28px 0;font-family:var(--serif-ko);font-size:14px;color:var(--sub);text-align:center;line-height:1.7}
+.prh-sec{margin:18px 0 0;padding:16px 16px 4px;background:var(--card-white,#fff);border:1px solid var(--border);border-radius:8px;box-shadow:var(--card-shadow)}
+.prh-st{margin:0;font-family:var(--serif-ko);font-size:15px;font-weight:500;color:var(--accent);letter-spacing:.01em}
+.prh-ss{margin:2px 0 6px;font-size:12.5px;color:var(--label-soft);line-height:1.6}
+.prh-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--divider,#EDEAE4);text-align:left}
+.prh-main{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+.prh-nm{font-family:var(--serif-ko);font-size:14px;color:var(--accent);line-height:1.5;word-break:keep-all}
+.prh-row.is-got .prh-nm{color:var(--sub)}
+.prh-w{display:inline-block;font-family:var(--sans);font-size:11px;line-height:1.5;color:var(--label-soft);border:1px solid var(--border);border-radius:8px;padding:0 7px;margin-left:4px;vertical-align:1px;white-space:nowrap}
+.prh-w-got,.prh-w-ready{color:var(--seal,#6B2A24);border-color:rgba(107,42,36,.35)}
+.prh-w-late,.prh-w-check{color:var(--accent);border-color:var(--field-line)}
+.prh-src{appearance:none;background:none;border:0;padding:2px 0;margin:0;font-family:var(--sans);font-size:12.5px;color:var(--gold-deeper,#7A5F37);text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:rgba(122,95,55,.35);text-underline-offset:3px;line-height:1.5;word-break:keep-all}
+.prh-src:hover{color:var(--accent)}
+.prh-due{font-size:12.5px;color:var(--label-soft);line-height:1.5;word-break:keep-all;max-width:100%}
+.prh-due.prh-file{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* 받은 파일 이름은 한 줄 · 넘치면 말줄임(이름 가운데서 줄이 갈리지 않게) */
+.prh-act{min-width:104px}
+.prh-act[disabled]{opacity:.6;cursor:default}
+.prh-panel{margin:0 0 12px;padding:12px;background:var(--bg2);border-radius:8px;text-align:left}
+.prh-hint{margin:0 0 10px;font-size:12.5px;color:var(--sub);line-height:1.6;word-break:keep-all}
+.prh-f{display:block;margin:0 0 8px}
+.prh-f>span{display:block;font-family:var(--serif-ko);font-size:12.5px;color:var(--sub);margin:0 0 4px}
+.prh-ov .cc-input{width:100%;box-sizing:border-box;border:1px solid var(--field-line);border-radius:6px;padding:11px 12px;font-family:var(--serif-ko);font-size:16px;color:var(--accent);background:#fff;outline:none;margin:0}
+.prh-ov .cc-input:focus-visible{outline:2px solid var(--gold-deep);outline-offset:1px}
+.prh-ta{min-height:150px;resize:vertical;line-height:1.7}
+.prh-btns{display:flex;align-items:center;gap:14px;margin-top:6px}
+.prh-send{width:auto;flex:0 0 auto;padding:11px 18px}
+.prh-send[disabled]{opacity:.6;cursor:default}
+.prh-link{appearance:none;background:none;border:0;padding:8px 2px;font-family:var(--sans);font-size:12.5px;color:var(--gold-deeper,#7A5F37);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.prh-chk{cursor:pointer;align-items:flex-start}
+.prh-chk input{flex:0 0 auto;width:18px;height:18px;margin:3px 2px 0 0;accent-color:var(--seal,#6B2A24)}
+.prh-chk.is-got .prh-nm{text-decoration:line-through;text-decoration-color:rgba(58,45,34,.35)}
 .vu-cf{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:4px}   /* [GPT 1-c] 이름 · 상태는 왼쪽에서 읽고 단추는 같은 오른쪽 끝에서 찾는다 */
 .vu-cf:first-of-type{margin-top:10px}
 .vu-cf .cf-pvc{flex:0 0 auto}
@@ -2430,6 +2471,7 @@ button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
 <script src="/assets/seat-plan.js?v=1122d"></script><!-- [SEAT_PLAN_9] 캔들존 확정 배치(9테이블 · 35석) 단일 원천 — 좌석 편집기 · seat · guide · admin 공용 -->
 <script src="/assets/dining-data.js?v=1105a"></script><!-- [DINE_DATA_NI16] 식당 · 카페 목록 단일 원천(관리자 «당일 콘솔»도 읽는다) -->
 <script src="/assets/ritual-preview-link.js?v=1122t1"></script>
+<script src="/assets/send-list.js?v=1123a"></script><!-- ★[PREP_HUB_1123] «준비할 것» 목록의 원천(순수 함수 · 관리 화면도 같은 파일) -->
 <script src="/assets/snap-refs.js"></script><!-- [SNAP_REFS] 스냅 기획 레퍼런스 목록(단 하나의 원천) — 인라인 스크립트보다 앞 -->
 <script src="/assets/dress-refs.js"></script><!-- [DRESS_REFS] 시착 드레스 목록(단 하나의 원천) · 스위치 live 가 꺼져 있으면 카드가 그려지지 않는다 -->
 <script src="/assets/photo-refs.js"></script><!-- [PHOTO_EX_VIEW] 가족 · 친구 스냅 예시 사진 목록(단 하나의 원천) -->
@@ -2485,7 +2527,7 @@ function contractSrc(product, docVersion){
    열려 있는데도 뒤 배경이 함께 스크롤되고, 닫고 나면 엉뚱한 자리에 서 있다.
    ★새 전체화면 오버레이를 만들면 여기 id 를 더할 것. 세는 곳을 늘리지 말 것.
    ※'무엇을 편집 중인가'(_prodOpenTrack)와 '상담사를 숨길까'(advisor hideOn)는 묻는 질문이 달라 이 목록을 쓰지 않는다 — 각 자리에 이유를 적어 뒀다. */
-var MP_FS_OVERLAYS=['mp_snapOverlay','mp_photoOverlay','mp_pvcOverlay','mp_obViewer','mp_ctViewer','mp_ftViewer','mp_rpViewer','mp_drViewer','mp_invSample'];   // ★[DRESS_LOCK_HOLD 2026-10-31 사장님 제보] 드레스 창 · 청첩장 샘플이 빠져 있어 창이 떠 있는 동안 화면을 다시 그리면(show) 잠금이 풀리고 뒤 마이페이지가 스크롤됐다
+var MP_FS_OVERLAYS=['mp_snapOverlay','mp_photoOverlay','mp_pvcOverlay','mp_obViewer','mp_ctViewer','mp_ftViewer','mp_rpViewer','mp_drViewer','mp_invSample','mp_prepOverlay'];   /* ★[PREP_HUB_1123] «준비할 것» 전체 화면도 같은 목록(뒤로가기 · 막음 · 잠금) */   // ★[DRESS_LOCK_HOLD 2026-10-31 사장님 제보] 드레스 창 · 청첩장 샘플이 빠져 있어 창이 떠 있는 동안 화면을 다시 그리면(show) 잠금이 풀리고 뒤 마이페이지가 스크롤됐다
 function _mpFsOpen(){ for(var i=0;i<MP_FS_OVERLAYS.length;i++){ if(document.getElementById(MP_FS_OVERLAYS[i])) return true; } return false; }
 // [당겨서 새로고침 · 상단] 맨 위에서 아래로 당기면 상태 새로고침(2026-07-18 사용자 지시 · 하단 방식에서 반전).
 //   전체 리로드가 아니라 loadMyState(로그인 유지·서버 최신 상태만) · 위저드·오버레이 편집 중엔 입력 보호를 위해 비활성.
@@ -3912,8 +3954,14 @@ function _mpApplyFocus(){   // renderMyPage 완료 후 호출 — 카드 보이�
   }, 250);
 }
 
+/* ★[PREVIEW_LOGIN_1122 2026-11-22 대표님 «로그인해야 확인할 수 있게»] 예식 미리 듣기(console.html?mode=preview)를 로그인 없이 열면 여기로 온다(?next=그 주소).
+   로그인하면(이미 로그인돼 있으면 바로) 그 미리 듣기로 돌아간다 · 돌아갈 곳은 미리 듣기 주소 꼴만(다른 곳으로 보내는 열린 리다이렉트 금지) */
+var _NEXT_RE=/^\/console\.html\?mode=preview(&|$)/;
+function _nextSave(){ var n=qp('next'); if(n&&_NEXT_RE.test(n)){ try{ sessionStorage.setItem('me_after_login',n); }catch(e){} return true; } return false; }
+function _goNext(){ var n=''; try{ n=sessionStorage.getItem('me_after_login')||''; sessionStorage.removeItem('me_after_login'); }catch(e){} if(n&&_NEXT_RE.test(n)){ location.replace(n); return true; } return false; }
 // ── 부팅 라우팅 ────────────────────────────────
 (function boot(){
+  var _nx=_nextSave();   // [PREVIEW_LOGIN_1122]
   var mode = qp('mode');
   if (mode === 'reset' && qp('code') && qp('sig') && qp('exp')) {
     var _ru=$('rs_user'); if(_ru) _ru.value=(qp('code')||'').trim().toUpperCase();   // 브라우저가 새 비번을 '이 계정'에 연결해 저장본을 갱신하도록(다음 로그인 옛 비번 자동완성 방지)
@@ -3925,6 +3973,7 @@ function _mpApplyFocus(){   // renderMyPage 완료 후 호출 — 카드 보이�
   var urlToken = qp('token');
   if (urlToken) { _autoLogin(urlToken); return; }   // [ERR_CODE_MYPAGE] F2 — 알림 링크 진입
   var t = getToken();
+  if (t && _nx && _goNext()) return;   // [PREVIEW_LOGIN_1122] 이미 로그인 — 미리 듣기로 바로
   if (t) {
     var cached = readCachedState();
     if (cached){
@@ -3935,6 +3984,7 @@ function _mpApplyFocus(){   // renderMyPage 완료 후 호출 — 카드 보이�
     return;
   }
   show('loginView');
+  if (_nx) softLoginNote('예식 미리 듣기는 로그인한 뒤 들을 수 있어요. 로그인하시면 바로 이어져요.');   // [PREVIEW_LOGIN_1122]
   prefillLoginCode();   // 신청 완료 화면에서 ?code=로 넘어온 경우 개인코드 미리 채움
   try{ var _ln=sessionStorage.getItem('me_login_note'); if(_ln){ sessionStorage.removeItem('me_login_note'); softLoginNote(_ln); } }catch(e){}   // [ERR_CODE_MYPAGE] 편집 중 로그인이 풀려 새로 열었을 때 — 까닭(코드)을 로그인 칸에
 })();
@@ -3971,7 +4021,7 @@ $('loginForm').addEventListener('submit', function(e){
   if (!code || !pw){ showErr('li_err','개인코드(또는 이메일)와 비밀번호를 입력해 주세요.'); return; }
   var btn=$('li_btn'); btn.disabled=true; btn.textContent='로그인 중…';
   api({action:'login', code:code, pw:pw}).then(function(d){
-    if (d && d.ok && d.token){ if(setToken(d.token)) loadMyState(); }   // [EPOCH_VERIFY]
+    if (d && d.ok && d.token){ if(setToken(d.token)){ if(!_goNext()) loadMyState(); } }   // [EPOCH_VERIFY] · [PREVIEW_LOGIN_1122] 미리 듣기에서 왔으면 그리로
     else { showErr('li_err', _errLine(d, 'L', '로그인이 안 됐어요 · 다시 눌러 주세요')); }   // [ERR_CODE_MYPAGE] F3 서버 까닭 + 코드
   }).catch(function(e){ showErr('li_err', _errLine(e, 'L')); })   // MPD_A4 네트워크 실패 시 편지체 기본 문구(무인자 호출 금지 · 2026-07-25) · [ERR_CODE_MYPAGE] F3 «연결이 잠시 불안정해요» 하나로 묶이던 끊김 L6 · 늦음 L5 · 깨진 답 L7 을 가른다
   .then(function(){ btn.disabled=false; btn.textContent='로그인'; });
@@ -7495,6 +7545,7 @@ function renderProduction(p, inv){
     startPhotoFlow(p.guideinfoDraft||{}, p.ritualDraft||null, (window.RitualPreviewLink&&RitualPreviewLink.digitalOf(inv))||false, !!p.photoFriendOk, _ml); });   /* [PHOTO_FRIEND] 서버가 새 칸을 알 때만 연다 */   /* [PHOTO_CAP_40] 온라인 날은 온라인 인사 2분을 먼저 뺀다 */   // 단체 사진 전용 화면(PHOTOFLOW) 진입 · 구도+연출 · [PHOTO_SCENE] 식순 초안은 읽기만 한다(저장 안 함)
   var _pvcB=$('mp_pvcStart'); if(_pvcB) _pvcB.addEventListener('click', function(){ startPvcFlow(p.prevideo||{}); });   // [PV_CAT_1031] 식전 영상
   var _mvcB=$('mp_mvcStart'); if(_mvcB) _mvcB.addEventListener('click', function(){ startPvcFlow(Object.assign({}, p.midvideo||{}, {kind:'mid'})); });   // [MID_VIDEO_1106] 식중 영상
+  var _prhB=$('mp_prepHub'); if(_prhB) _prhB.addEventListener('click', function(){ openPrepHub(p, inv); });   // ★[PREP_HUB_1123] «준비할 것» 전체 화면
   var _vuB=$('mp_vuOpen'); if(_vuB) _vuB.addEventListener('click', function(){ var f=$('mp_vuFold'); if(!f) return; var o=f.hidden; f.hidden=!o; window._vuFoldOpen=o; _vuB.setAttribute('aria-expanded', String(o)); _vuB.textContent=o?'닫기':(_vuB.getAttribute('data-lb')||'보기'); });   // ★[UMBRELLA_ROW_1116] «상영 영상» 한 줄 → 아래 식전 · 식중 두 줄 여닫기(두 줄 단추는 위 둘이 이미 잇는다)
   var st=$('mp_invStart'); if(st) st.addEventListener('click', function(){ startInvFlow(inv||{}, p.base||{}); });
   var dn=$('mp_diningStart'); if(dn) dn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault();
@@ -8542,6 +8593,180 @@ function _rfPurgeGo(btn){ btn.disabled=true; btn.textContent='지우는 중…';
   function(e){
     if(_errKind(e)==='slow'){ _wrSlow({ L:'D', done:function(st){ var v=(st.production&&st.production.voice)||st.voice||{}; return !!v.gone; }, fail:function(line){ btn.disabled=false; btn.textContent='지금 지우기'; say(line); } }, function(st){ var v=(st&&((st.production&&st.production.voice)||st.voice))||{}; gone(v.gone,v.aiPend); }); return; }
     btn.disabled=false; btn.textContent='지금 지우기'; say(_errLine(e,'D','지우지 못했어요 · 다시 눌러 주세요')); }); }
+/* ★★[PREP_HUB_1123 2026-11-23 사장님 결정] «준비할 것» — 예식 준비 카드의 한 줄 + 누르면 여는 전체 화면.
+   목록은 두 분이 고른 것에서 저절로 나온다(assets/send-list.js SendList.build 한 곳 · 관리 화면도 같은 함수).
+   ① 스튜디오에 보낼 것 — 파일은 두 분 목소리와 같은 길(action 'ritualFile' · 열쇠 mr · fx · bl · sp · 80_production RF_PREP) ·
+      덕담 · 축사 원고 글은 식순 초안의 같은 칸(S.tx 'bless.p' · 'free.p' · 빌더 «받은 덕담 원고»와 한 칸)에 저장한다(관리 화면 · 당일 콘솔이 이미 읽는다)
+   ② 두 분이 준비할 것 — 빌더와 같은 체크 칸(S.mkc 'p:<순간>:<j>') · 칸마다 고친 시각(S.fAt)을 붙여 서버가 칸마다 합친다([TX_MERGE] · 다른 칸은 그대로)
+   ③ 보내 주시면 좋은 것 — 선택 · 셈에 안 든다
+   새 항목 점 — 마지막으로 연 때 본 필수 항목 열쇠(이 기기 localStorage me_prephub_seen_<코드>) · ★TODO 여러 기기에서 함께 보는 «새 소식»은 다음 단계(서버 저장)
+   ★[SEND_LIST_SYNC] 무엇이 해당하나는 send-list.js 만 가른다 — 여기서 조건을 다시 세우지 않는다 · 검사 scripts/audit/prep-hub.mjs · send-list-sync.mjs */
+var PRHFLOW={open:false};
+var PRH_TXT_MAX=3000, PRH_FILE_MB=20;   // 원고 글 상한(덕담 두 분 · 축사 여러 분이 넉넉히) · 파일 한 개 상한(서버 GP_MAX_FILE_MB 와 같다)
+var PRH_ACCEPT={ mr:'audio/*,video/mp4,.mp3,.m4a,.wav,.aac', fx:'audio/*,video/mp4,video/quicktime,image/*,.pdf,.ppt,.pptx', bl:'.txt,.pdf,.hwp,.hwpx,.doc,.docx,image/*', sp:'.txt,.pdf,.hwp,.hwpx,.doc,.docx,image/*' };
+var PRH_EXT_MIME={ mp3:'audio/mpeg', m4a:'audio/mp4', wav:'audio/wav', aac:'audio/aac', mp4:'video/mp4', mov:'video/quicktime', jpg:'image/jpeg', jpeg:'image/jpeg', png:'image/png', webp:'image/webp', heic:'image/heic', pdf:'application/pdf', ppt:'application/vnd.ms-powerpoint', pptx:'application/vnd.openxmlformats-officedocument.presentationml.presentation', txt:'text/plain', hwp:'application/x-hwp', hwpx:'application/vnd.hancom.hwpx', doc:'application/msword', docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document' };
+function _prhToday(){ try{ return new Date(_snapKstToday()).toISOString().slice(0,10); }catch(e){ return ''; } }   // [KST_TODAY] 머리 D-day 와 같은 한국 날짜
+function _prhSeenKey(p){ return 'me_prephub_seen_'+String((p&&p.code)||((window._mpStateD||{}).code)||''); }
+/* 줄이 서는가 · 무엇이 해당하나 — 상영 영상 두 줄은 «예식 준비»에 그 줄이 서는 조건 그대로(PVC_ON · MVC_ON · 웨딩스냅 아님 · 식중은 식순에 담았을 때) */
+function _prhList(p, snap){
+  p=p||{}; var rd=p.ritualDraft, S=(rd&&rd._v===3&&rd.S)||{}, prod=(window._mpStateD||{}).product;
+  var pvUse=!!(typeof PVC_ON!=='undefined'&&PVC_ON&&p.prevideo&&p.prevideo.up&&prod!=='웨딩스냅');
+  var mvUse=!!(typeof MVC_ON!=='undefined'&&MVC_ON&&p.midvideo&&p.midvideo.up&&prod!=='웨딩스냅'&&_mvcOn(p)===true);
+  return SendList.build({ S:S, summary:(rd&&rd.summary)||{}, prevideo:pvUse?Object.assign({use:true},p.prevideo):null, midvideo:mvUse?Object.assign({use:true},p.midvideo):null,
+    files:p.prepFiles||{}, voice:p.voice||{}, wed:(p.base||{}).weddingDate||'', today:_prhToday(), snap:!!snap });
+}
+function _prhNew(L, p){ try{ var raw=localStorage.getItem(_prhSeenKey(p)); return SendList.hasNew(L, raw?JSON.parse(raw):null); }catch(e){ return false; } }   // 저장소를 못 쓰는 기기는 점을 띄우지 않는다(열어도 지울 수 없다)
+function openPrepHub(p, inv){
+  if($('mp_prepOverlay')||!window.SendList) return;
+  PRHFLOW={ open:true, p:p||{}, inv:inv||{}, busy:'', panel:'', dirty:false, L:null };
+  var ov=document.createElement('div'); ov.id='mp_prepOverlay'; ov.className='prh-ov'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-labelledby','prh_h');
+  ov.innerHTML='<div class="prh-body" id="mp_prepBody"><div class="prh-inner" id="mp_prepInner"></div></div>';
+  document.body.appendChild(ov);
+  requestAnimationFrame(function(){ ov.classList.add('on'); });
+  _mpLock(); _layerInertOn(ov);   // [C2_LAYER_INERT] 뒤 페이지는 막고 위에 뜨는 판(확인 창 · 알림)은 그대로
+  PRHFLOW._bk=bkOpen(function(){ _prhClose(); });   // 뒤로가기 = 닫기([MP_FS_OVERLAYS] 와 같은 규칙)
+  ov.addEventListener('click', _prhClick); ov.addEventListener('change', _prhChange);
+  document.addEventListener('keydown', _prhKey);
+  _prhRender();
+  try{ localStorage.setItem(_prhSeenKey(PRHFLOW.p), JSON.stringify(PRHFLOW.L.ids)); }catch(e){}   // 열었으면 «새 항목»은 본 것
+  var dot=document.querySelector('#mp_production .prh-dot'); if(dot&&dot.parentNode) dot.parentNode.removeChild(dot);
+  try{ var h=$('prh_h'); if(h) h.focus({preventScroll:true}); }catch(e){}
+}
+function _prhKey(e){ if(e.key==='Escape'&&PRHFLOW.open){ var mm=$('mpModal'); if(mm&&mm.classList.contains('open')) return; _prhClose(); } }
+function _prhClose(then){
+  if(!PRHFLOW.open) return; PRHFLOW.open=false;
+  if(PRHFLOW._bk!=null){ bkDone(PRHFLOW._bk); PRHFLOW._bk=null; }   // 뒤로가기로 닫힌 때는 bkDone 이 아무 일도 안 한다(_bkFromPop)
+  document.removeEventListener('keydown', _prhKey);
+  var ov=$('mp_prepOverlay'); _layerInertOff(ov, !!then); if(ov&&ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock();
+  var dirty=PRHFLOW.dirty; PRHFLOW.dirty=false;
+  _bkSettle(function(){ if(then){ then(); return; } if(dirty) _mpRefresh(); });   // [SIGN_AFTER_VIEW] 되감기가 끝난 뒤 다음 층을 연다
+}
+/* 다른 파트로 — 닫고 그 화면을 연다(식순은 그 순간으로 · order-preview 가 at 'mk:<순간>' 을 모르면 종전 자리에서 열린다) */
+function _prhGo(go){
+  var F=PRHFLOW, p=F.p, inv=F.inv; go=String(go||'');
+  _prhClose(function(){
+    if(go.indexOf('ritual:')===0){ openRitualBuilder(p, inv, {at:'mk:'+go.slice(7)}); return; }
+    if(go==='pvc'){ startPvcFlow(p.prevideo||{}); return; }
+    if(go==='mvc'){ startPvcFlow(Object.assign({}, p.midvideo||{}, {kind:'mid'})); return; }
+    if(go==='snap'){ var b=$('mp_snapStart')||$('mp_snapView'); if(b){ try{ b.scrollIntoView({block:'center'}); }catch(e){} b.click(); } }
+  });
+}
+function _prhAct(r){
+  if(r.closed||((r.act==='upload'||r.act==='paste')&&!r.open)) return '';
+  if(r.act==='upload') return r.got?'다시 올리기':'파일 올리기';
+  if(r.act==='paste') return r.got?'글 고치기':'글 붙여 넣기';
+  return '열기';
+}
+function _prhMeta(r){
+  if(r.got&&r.file) return '받은 파일 · '+String(r.file.name||'');
+  if(r.got&&r.text) return '받은 글 · '+r.text.length+'자';
+  return r.dueWord||'';
+}
+function _prhSendRow(r){
+  var F=PRHFLOW, act=_prhAct(r), open=F.panel===r.id, busy=F.busy===r.id, meta=_prhMeta(r);
+  var h='<div class="prh-row'+(r.got?' is-got':'')+'" id="prh_r_'+r.id+'">'
+    +'<div class="prh-main"><div class="prh-nm">'+escapeHtml(r.name)+(r.word?' <span class="prh-w prh-w-'+escapeHtml(r.status||'')+'">'+escapeHtml(r.word)+'</span>':'')+'</div>'
+    +'<button type="button" class="prh-src" data-prh="go" data-go="'+escapeHtml(r.go||'')+'">'+escapeHtml(r.src||'')+'</button>'
+    +(meta?'<div class="prh-due'+(r.got&&r.file?' prh-file':'')+'"'+(r.got&&r.file?' title="'+escapeHtml(meta)+'"':'')+'>'+escapeHtml(meta)+'</div>':'')+'</div>'
+    +(act?'<button type="button" class="cc-btn-ghost trk-act prh-act" data-prh="'+(r.act==='open'?'go':'panel')+'" data-id="'+r.id+'" data-go="'+escapeHtml(r.go||'')+'"'+(r.act==='open'?'':' aria-expanded="'+open+'" aria-controls="prh_p_'+r.id+'"')+(busy?' disabled':'')+'>'+(busy?'보내는 중':act)+'</button>':'')
+    +'</div>';
+  if(open&&(r.act==='upload'||r.act==='paste')) h+=_prhPanel(r);
+  return h;
+}
+function _prhPanel(r){
+  var S=((PRHFLOW.p.ritualDraft||{}).S)||{}, f=r.file||{}, busy=PRHFLOW.busy===r.id, h='<div class="prh-panel" id="prh_p_'+r.id+'">';
+  if(r.hint) h+='<p class="prh-hint">'+escapeHtml(r.hint)+'</p>';
+  var fld=function(id,lab,val,ph){ return '<label class="prh-f" for="'+id+'"><span>'+lab+'</span><input class="cc-input" type="text" id="'+id+'" maxlength="40" value="'+escapeHtml(val||'')+'"'+(ph?' placeholder="'+escapeHtml(ph)+'"':'')+'></label>'; };
+  if(r.id==='mr') h+=fld('prh_t_mr','곡 이름',f.t,'')+fld('prh_w_mr','부르는 분',f.w,'');
+  if(r.id==='fx') h+=fld('prh_t_fx','무엇을',f.t||String(S.freeEtc||'').trim(),'')+fld('prh_w_fx','몇 분',f.w||(S.freeLen?String(S.freeLen)+'분':''),'');
+  if(r.act==='paste') h+='<label class="prh-f" for="prh_x_'+r.id+'"><span>받은 원고</span><textarea class="cc-input prh-ta" id="prh_x_'+r.id+'" rows="7" maxlength="'+PRH_TXT_MAX+'" placeholder="받은 원고를 붙여 넣어 주세요">'+escapeHtml(r.text||'')+'</textarea></label>';
+  h+='<input type="file" id="prh_file_'+r.id+'" class="prh-file" data-id="'+r.id+'" accept="'+PRH_ACCEPT[r.key]+'" hidden>';
+  h+=r.act==='paste'
+    ? '<div class="prh-btns"><button type="button" class="cc-btn prh-send" data-prh="savetxt" data-id="'+r.id+'"'+(busy?' disabled':'')+'>보내기</button><button type="button" class="prh-link" data-prh="pick" data-id="'+r.id+'"'+(busy?' disabled':'')+'>파일로 보낼게요</button></div>'
+    : '<div class="prh-btns"><button type="button" class="cc-btn prh-send" data-prh="pick" data-id="'+r.id+'"'+(busy?' disabled':'')+'>파일 골라 보내기</button></div>';
+  return h+'</div>';
+}
+function _prhTwoRow(r){
+  return '<label class="prh-row prh-chk'+(r.got?' is-got':'')+'" for="prh_c_'+r.id.replace(/[^a-z0-9]/gi,'_')+'"><input type="checkbox" id="prh_c_'+r.id.replace(/[^a-z0-9]/gi,'_')+'" data-mk="'+escapeHtml(r.mk)+'"'+(r.got?' checked':'')+(PRHFLOW.busy==='mk'?' disabled':'')+'>'
+    +'<span class="prh-main"><span class="prh-nm">'+escapeHtml(r.name)+(r.who==='parents'?' <span class="prh-w">부모님께</span>':'')+'</span>'
+    +(r.hint?'<span class="prh-due">'+escapeHtml(r.hint)+'</span>':'')+(r.dueWord?'<span class="prh-due">'+escapeHtml(r.dueWord)+'</span>':'')+'</span></label>';
+}
+function _prhRender(){
+  var F=PRHFLOW, inner=$('mp_prepInner'); if(!inner) return;
+  var L=F.L=_prhList(F.p, !!($('mp_snapStart')||$('mp_snapView')));
+  var h='<div class="prh-head"><h2 class="prh-h" id="prh_h" tabindex="-1">준비할 것</h2><button type="button" class="cc-btn-ghost prh-x" data-prh="close">닫기</button></div>';
+  if(!L.any) h+='<p class="prh-empty">지금 고르신 순서로는 보내실 자료가 없어요</p>';
+  if(L.send.length) h+='<section class="prh-sec" aria-labelledby="prh_s1"><h3 class="prh-st" id="prh_s1">스튜디오에 보낼 것</h3><p class="prh-ss">올리면 스튜디오에 바로 전달돼요</p>'+L.send.map(_prhSendRow).join('')+'</section>';
+  if(L.two.length) h+='<section class="prh-sec" aria-labelledby="prh_s2"><h3 class="prh-st" id="prh_s2">두 분이 준비할 것</h3><p class="prh-ss">체크는 두 분만 봐요</p>'+L.two.map(_prhTwoRow).join('')+'</section>';
+  if(L.opt.length) h+='<section class="prh-sec" aria-labelledby="prh_s3"><h3 class="prh-st" id="prh_s3">보내 주시면 좋은 것</h3><p class="prh-ss">선택이에요</p>'+L.opt.map(_prhSendRow).join('')+'</section>';
+  inner.innerHTML=h;
+  var sub=$('mp_prepSub'); if(sub) sub.textContent=SendList.subOf(L);   // 카드 줄 회색 한 줄도 같은 셈
+}
+function _prhRowOf(id){ var L=PRHFLOW.L||{}; return [].concat(L.send||[], L.opt||[]).filter(function(r){ return r.id===id; })[0]||null; }
+function _prhClick(e){
+  var b=e.target&&e.target.closest?e.target.closest('[data-prh]'):null; if(!b||b.disabled) return;
+  var k=b.getAttribute('data-prh'), id=b.getAttribute('data-id');
+  if(k==='close'){ _prhClose(); return; }
+  if(k==='go'){ _prhGo(b.getAttribute('data-go')); return; }
+  if(k==='panel'){ PRHFLOW.panel=(PRHFLOW.panel===id)?'':id; _prhRender(); var t=$(PRHFLOW.panel==='bl'||PRHFLOW.panel==='sp'?'prh_x_'+id:'prh_t_'+id); if(t&&PRHFLOW.panel){ try{ t.focus({preventScroll:false}); }catch(_e){} } return; }
+  if(k==='pick'){ var inp=$('prh_file_'+id); if(inp){ inp.value=''; inp.click(); } return; }
+  if(k==='savetxt'){ _prhSaveText(id); return; }
+}
+function _prhChange(e){
+  var t=e.target; if(!t) return;
+  if(t.classList&&t.classList.contains('prh-file')){ var f=t.files&&t.files[0]; if(f) _prhUpload(t.getAttribute('data-id'), f); return; }
+  if(t.getAttribute&&t.getAttribute('data-mk')!=null){ _prhCheck(t.getAttribute('data-mk'), !!t.checked, t); }
+}
+function _prhMime(f){ var m=String((f&&f.type)||'').toLowerCase(), ext=String((f&&f.name)||'').split('.').pop().toLowerCase(); return (m&&m!=='application/octet-stream')?m:(PRH_EXT_MIME[ext]||m||''); }
+/* 파일 보내기 — 두 분 목소리와 같은 길(action 'ritualFile') · 결과는 이 화면에 바로 */
+function _prhUpload(id, f){
+  var r=_prhRowOf(id), F=PRHFLOW; if(!r||F.busy) return;
+  if(f.size>PRH_FILE_MB*1048576){ _miniToast('한 개에 '+PRH_FILE_MB+'MB 까지 올릴 수 있어요'); return; }
+  var t=$('prh_t_'+id), w=$('prh_w_'+id), meta={t:t?String(t.value||'').trim().slice(0,40):'', w:w?String(w.value||'').trim().slice(0,40):''};
+  F.busy=id; _prhRender();
+  var rdr=new FileReader();
+  rdr.onerror=function(){ F.busy=''; if(F.open) _prhRender(); _miniToast('파일을 못 읽었어요 · 다시 골라요'); };   // 기기에서 읽기 실패 — 서버에 가기 전이라 코드 없음(입력 확인과 같다)
+  rdr.onload=function(){
+    _post({action:'ritualFile', token:getToken(), key:r.key, name:String(f.name||'파일').slice(0,80), mime:_prhMime(f), data:String(rdr.result||''), t:meta.t, w:meta.w}, 180000)
+      .then(function(x){ F.busy='';
+        if(x&&x.ok){ var pf=F.p.prepFiles=Object.assign({}, F.p.prepFiles||{}); if(x.prep&&typeof x.prep==='object') F.p.prepFiles=x.prep; else pf[r.key]={id:x.id, name:x.name||f.name, at:x.at||'', t:meta.t, w:meta.w, st:''};
+          F.dirty=true; F.panel=''; if(F.open) _prhRender(); _miniToast('스튜디오에 보냈어요'); return; }
+        if(_errSess(x)){ _prhClose(function(){ _errGoLogin(x,'U'); }); return; }
+        if(F.open) _prhRender(); _errToast(_errLine(x,'U','파일을 올리지 못했어요 · 다시 눌러 주세요')); },
+      function(e){ F.busy=''; if(F.open) _prhRender(); _errToast(_errLine(e,'U','파일을 올리지 못했어요 · 다시 눌러 주세요')); });
+  };
+  rdr.readAsDataURL(f);
+}
+/* 식순 초안의 칸 하나를 고쳐 저장 — 고친 칸에만 시각(S.fAt)을 붙인다 · 서버가 칸마다 합친다([TX_MERGE] · 나머지가 같으면 충돌 아님) */
+function _prhDraftSave(grp, key, val){
+  var p=PRHFLOW.p, rd=p.ritualDraft; if(!(rd&&rd._v===3&&rd.S)) return Promise.resolve({ok:false, error:'식순을 먼저 만들어 주세요'});
+  var S=JSON.parse(JSON.stringify(rd.S)); S[grp]=S[grp]||{}; S.fAt=S.fAt||{};
+  S[grp][key]=val; var fk=grp+'.'+key; S.fAt[fk]=Math.max(Date.now(), (+S.fAt[fk]||0)+1);   // [B2_NA_11] 이 기기 시계가 늦어도 고친 칸은 불러온 판보다 뒤
+  var dr=Object.assign({}, rd, {S:S});
+  return apiTrackSave({action:'saveProductionTrack', token:getToken(), track:'ritual', draft:dr, done:false}).then(function(r){
+    if(r&&r.ok){ p.ritualDraft=(r.draft&&r.draft.S)?r.draft:dr; PRHFLOW.dirty=true; }
+    return r; });
+}
+function _prhSaveText(id){
+  var r=_prhRowOf(id), F=PRHFLOW, ta=$('prh_x_'+id); if(!r||!ta||F.busy) return;
+  var v=String(ta.value||'').replace(/\r\n?/g,'\n').trim().slice(0,PRH_TXT_MAX);
+  if(!v){ _miniToast('받은 원고를 붙여 넣어 주세요'); try{ ta.focus(); }catch(e){} return; }
+  F.busy=id; _prhRender(); var ta2=$('prh_x_'+id); if(ta2) ta2.value=v;
+  _prhDraftSave('tx', r.txt, v).then(function(x){ F.busy='';
+    if(x&&x.ok){ F.panel=''; if(F.open) _prhRender(); _miniToast('원고를 받았어요'); return; }
+    if(F.open){ _prhRender(); var t3=$('prh_x_'+id); if(t3) t3.value=v; }
+    if(x&&(x.code==='rev'||x._noCode)) return;   // 충돌 판(_revConflict)이 이미 말했다
+    if(x&&x.error&&!x.ecode&&!_errSess(x)){ _miniToast(x.error); return; }
+    _errToast(_errLine(x,'S',ERR_SAVE_BASE)); });
+}
+function _prhCheck(mk, on, el){
+  var F=PRHFLOW; if(F.busy){ if(el) el.checked=!on; return; }
+  F.busy='mk';
+  _prhDraftSave('mkc', mk, on?1:0).then(function(x){ F.busy='';   // [TX_MERGE] 푼 체크 = 0(지우지 않는다 · 빌더 mkChk 와 같다)
+    if(F.open) _prhRender();
+    if(x&&(x.code==='rev'||x._noCode)) return;   // 충돌 판(_revConflict)이 이미 말했다
+    if(!(x&&x.ok)) _errToast(_errLine(x,'S',ERR_SAVE_BASE)); });
+}
 function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
   p=p||{};
   t=t||{}; inv=inv||{};
@@ -8562,7 +8787,7 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     //     기한 임박한 '최종 확정'만 opt.tag(제목 옆)로 D-n을 남긴다(놓치면 잔금·진행에 영향).
     //   예외(2026-07-25 추가 지시 "하객안내랑 예식확인서는 밑에 설명있어도 괜찮아"): 구분선 아래 '확인·전달' 그룹 2행은 설명을 유지한다
     //     — 그 그룹 안에서는 둘 다 설명이 있어 리듬이 맞고, 무엇을 확인·전달하는지 목록에서 바로 읽히는 편이 낫다.
-    return '<div class="trk'+(sub?' has-sub':'')+(opt.pre&&opt.pre2?' trk-two':'')+(opt.cls?' '+opt.cls:'')+'"'+(sub?' style="border-bottom:none"':'')+'><span class="trk-nm">'+escapeHtml(name)+(opt.when?'<span class="vu-when">'+escapeHtml(opt.when)+'</span>':'')+(opt.tag?' <span class="trk-tag">'+escapeHtml(opt.tag)+'</span>':'')+(done?'&nbsp;<span class="trk-ok">✓</span>':'')+'</span>'   /* [TRK_OK_GLUE] ✓ 는 마지막 낱말에 붙는다 — 320 에서 «가족 · 친구 스냅»의 ✓ 만 홀로 다음 줄로 떨어졌다 */
+    return '<div class="trk'+(sub?' has-sub':'')+(opt.pre&&opt.pre2?' trk-two':'')+(opt.cls?' '+opt.cls:'')+'"'+(sub?' style="border-bottom:none"':'')+'><span class="trk-nm">'+escapeHtml(name)+(opt.dot?'<span class="prh-dot" role="img" aria-label="새 항목"></span>':'')/* [PREP_HUB_1123] 새 항목 점 */+(opt.when?'<span class="vu-when">'+escapeHtml(opt.when)+'</span>':'')+(opt.tag?' <span class="trk-tag">'+escapeHtml(opt.tag)+'</span>':'')+(done?'&nbsp;<span class="trk-ok">✓</span>':'')+'</span>'   /* [TRK_OK_GLUE] ✓ 는 마지막 낱말에 붙는다 — 320 에서 «가족 · 친구 스냅»의 ✓ 만 홀로 다음 줄로 떨어졌다 */
       + ((opt.pre||opt.pre2)?'<span class="trk-mins">':'')+(opt.pre?'<button type="button" class="cc-btn-ghost trk-act trk-act-min" id="'+opt.pre.id+'">'+escapeHtml(opt.pre.label)+'</button>':'')
       + (opt.pre2?'<button type="button" class="cc-btn-ghost trk-act trk-act-min trk-act-fold" id="'+opt.pre2.id+'" aria-expanded="'+!!opt.pre2.open+'" aria-controls="'+opt.pre2.ctl+'">'+escapeHtml(opt.pre2.label)+'<i class="trk-chev" aria-hidden="true"></i></button>':'')+((opt.pre||opt.pre2)?'</span>':'')   /* [PREP_LINK] 둘째 보조 = 누르면 줄 아래 목록을 여닫는다 */   /* opt.pre = 주 버튼 왼쪽 보조 동작(작은 규격). 행을 새로 만들지 않는다 — 목록 길이를 늘리지 말라는 지시(2026-07-25)와, 설명줄(sub) 금지(TRK_NO_SUB)를 둘 다 지키는 유일한 자리. */
       + '<button type="button" class="cc-btn-ghost trk-act" id="'+btnId+'">'+escapeHtml(label||actLabel(st))+'</button></div>'   /* PROD_BTN_UNIFORM(2026-07-25 사용자 지시 "우측 버튼 통일감·연속성"): 행 버튼 min-width 104px로 폭 통일 + primary(채움)도 ghost와 같은 국문 서체·자간 — 채움/테두리 대비는 유지(지금 할 차례 강조) */
@@ -8660,6 +8885,8 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     _pvRow={ done:_vuP.done, html:_vuHead+'<div id="mp_vuFold" class="vu-fold"'+(_vuOpen?'':' hidden')+'>'+row('식전 영상', _vuP.st, 'mp_pvcStart', _vuP.label, null, {tag:_vuDue(_vuP.tag)?null:_vuP.tag, cls:'vu-row', when:_vuNew(_vuP)?'입장 전':''})+row('식중 영상', _vuM.st, 'mp_mvcStart', _vuM.label, null, {tag:_vuDue(_vuM.tag)?null:_vuM.tag, cls:'vu-row vu-last', when:_vuNew(_vuM)?'축사 · 축가 뒤':''})+'</div>' };
     _mvRow={ done:_vuM.done, html:'' };
   } }catch(e){}
+  var _prhRow={ done:true, html:'' };   // [PREP_HUB_1123] «준비할 것» 줄 — 목록은 assets/send-list.js 한 곳(SendList.build)
+  try{ if(window.SendList){ var _prhL=_prhList(p, false); if(_prhL&&_prhL.any) _prhRow={ done:!_prhL.left, html:row('준비할 것', '', 'mp_prepHub', '열기', '<span id="mp_prepSub">'+escapeHtml(SendList.subOf(_prhL))+'</span>', {dot:_prhNew(_prhL, p)}) }; } }catch(e){}
   var _prepRows=[
     /* ★★[PREP_ORDER_0926 2026-09-26 사장님 지시 «위에서부터 청첩장, 좌석·음료, 예식 후 식사, 식순, 단체사진 순으로 하자»]
        종전 순서는 청첩장 · 식순 · 예식 후 식사 · 좌석·음료 · 단체 사진이었다. 식순 아래 접힘 두 줄(준비 목록 · 부케)은 식순에 딸린 것이라 식순과 함께 옮긴다.
@@ -8693,6 +8920,8 @@ function productionDashHtml(t, inv, dd, fd, base, rd, sd, p){
     _pvRow,   _mvRow,   /* ★[MID_VIDEO_1106] 식중 영상(선택)은 식전 영상 바로 뒤 · ★[PV_CAT_1031] 식전 영상 — 식순에 딸린 순서(개식 선언 뒤 · 입장 전 상영)라 식순 · 부케 바로 뒤 · 서버가 상태를 안 보내면(옛 GAS · 웨딩스냅) 빈 줄 */   // [BOUQUET_FLORIST] 목록이 비면 빈 문자열(숨김)   // [PREP_LIST] 식순 아래 접힌 준비 목록(없으면 빈 문자열)   // PREVIEW_LINK_V1 — 초안이 있을 때만 「미리듣기」가 함께 선다
     // 단체 사진 — 좌석 편집기처럼 전용 화면(PHOTOFLOW)으로 들어가 구도·연출(photoFx)을 정함(식순과 분리 · 2026-07-19). '선택' 태그 없음(사용자 지시)
     { done: !!(_phB2||_fxB2||_frB2||_ocB2), html: (function(){ var _ph=(_gpB2.photo||[]), _any=!!(_fxB2||_frB2||_ocB2); var _lbl=_ph.length?('전체 하객 + '+_ph.length+'컷'):(_any?'완료 · 수정':'구도 고르기'); return row('가족 · 친구 스냅', (_ph.length||_any)?'완료':'', 'mp_photoStart', _lbl, null); })() }   /* ★[PHOTO_EMPTY_SAVE 2026-09-27 3부 2] 구도가 있으면 «전체 하객 + N컷», 구도는 없고 다른 내용(요청 · 친구 부탁 · 불러 모아 주실 분 · 하객 사진 링크)이 있으면 «완료 · 수정» + ✓ — 종전엔 요청만 «요청 N개», 불러 모을 분 · 링크만이면 «구도 고르기»(✓ 없음)로 남아 저장 알림과 다른 말을 했다 */   /* [PHOTO_FRIEND_ROW] 친구 부탁만 = ✓ · 「완료 · 수정」 */   /* TRK_NO_SUB: 설명은 renderPhoto 상단 안내가 담당(본식 뒤 단체 기록·번호 순서) · [GROUP_SNAP_NAME 2026-09-26 사장님 선택] «단체 사진» → «가족 · 친구 스냅» — 친구들과 편하게 찍는 시간이 더해져 «단체»의 딱딱함을 뺐다. 홈페이지·하객 안내·진행표의 «단체 사진»은 본식 뒤 정식 촬영 시간을 가리켜 그대로 둔다 */
+    ,_prhRow   /* ★★[PREP_HUB_1123 2026-11-23 사장님 결정] «준비할 것» — 가족 · 친구 스냅 바로 뒤 · 같은 줄 모양 · 단추 «열기» · 해당하는 것이 없으면 줄 없음.
+                 [TRK_NO_SUB] 의 예외: 줄 아래 회색 한 줄 «n개 남음 · 다음 마감 M월 D일»(사장님이 정한 꼴 · 하객 안내 · 예식 확인서처럼 설명이 아니라 상태) · 검사 scripts/audit/prep-hub.mjs */
   ];
   /* ★★[TRK_NO_FOLD 2026-08-09 사용자 지시] 완료 행 접기 폐지 — 언제나 전부 보인다.
      > 사용자 원문: *"접히게 하지말자 완료된것들 접히는데 그냥 전체볼수잇게 접히게말고"*

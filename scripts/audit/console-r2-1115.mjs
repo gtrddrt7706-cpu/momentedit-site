@@ -167,8 +167,9 @@ try {
       const rL = await liveOf(iL, 'M4');
       const rCl = await liveOf(iCl, 'M4');
       console.log('  재 본 값 B', JSON.stringify({ PARAM: PM, 축사: rF, 편지: rL, 박수: rCl }));
-      ok('B ① 축사 «음악과 함께» — 안내(−15) 뒤 낭독 −20 은 내림 시간(fadeDownMs 1.6초)으로 [LIVE_DOWN_MS_1115]', rF.got && rF.앞 === -15 && rF.새 === -20 && rF.ms === PM.dn, rF);
-      ok('B ② 편지 «음악과 함께» — 안내(−15) 뒤 낭독 −20 도 1.6초', rL.got && rL.앞 === -15 && rL.새 === -20 && rL.ms === PM.dn, rL);
+      /* ★[DUCK20_1122] 안내 말씀도 −20 이 되어 «−15 → −20 내림» 자리가 사라졌다 — 옛 기대(앞 −15 · 내림 1.6초) 은퇴 · 새 기대: 앞뒤 같은 −20(내릴 것 없음) */
+      ok('B ① 축사 «음악과 함께» — 안내 −20 · 낭독 −20 같은 크기(내림 없음) [DUCK20_1122 · 옛 LIVE_DOWN_MS_1115 ①]', rF.got && rF.앞 === -20 && rF.새 === -20, rF);
+      ok('B ② 편지 «음악과 함께» — 안내 −20 · 낭독 −20 같은 크기', rL.got && rL.앞 === -20 && rL.새 === -20, rL);
       ok('B ③ 대조 — 박수(축사 맺는 말 · upMs 1.5초)는 그대로 · 오르는 쪽', rCl.got && rCl.새 > rCl.앞 && rCl.ms === 1500, rCl);
       /* 화촉 — 오르는 사람 구간은 올림 2.0초 그대로 */
       await c.fire(iO); await c.pg.waitForTimeout(3500);

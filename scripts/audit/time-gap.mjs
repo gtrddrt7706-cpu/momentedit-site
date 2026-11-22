@@ -99,7 +99,7 @@ try {
     ok(`${W} T3 «이어서»는 같은 이벤트 — 2.3초 쉼 없음`, cont.length >= 1 && cont.every((g) => g.tg === ''), cont.map((g) => [g.tg, g.gap]));
     await go(f, 'prevideo'); await hookGaps(f); await f.evaluate(() => lsPlay('prevideo')); await wait(f, 16000); const r3 = await take(f);
     const pe = r3.g.filter((g) => g.tg === 'evt'), pq = pe.map((g) => { const b = inG(r3, g, 0, 200).map((x) => x.want), m = inG(r3, g, 200, g.gap - 200).map((x) => x.want); return [g.plab, g.nlab, g.gap, b.length ? Math.max(...b) : null, m.length ? Math.max(...m) : null]; });
-    ok(`${W} T2 식전 영상 — 소개 → 영상이 끝나면 쉼 ≥ 2.3초 · 정적 자리는 쉼 동안도 정적`, pe.length >= 1 && pe.every((g) => g.gap >= 2300) && pq.every((x) => x[3] == null || x[3] > -60 || x[4] <= -60), pq);
+    ok(`${W} T2 식전 영상 — 이벤트가 바뀌는 자리 쉼 ≥ 2.3초 · 정적 자리는 쉼 동안도 정적(★[PV_OUT_OFF_1122] «영상이 끝나면» 줄은 화촉 263 으로 옮겨 식전 영상 쪽엔 없어도 된다 · 옛 pe.length >= 1)`, pe.every((g) => g.gap >= 2300) && pq.every((x) => x[3] == null || x[3] > -60 || x[4] <= -60), pq);
     ok(`${W} 쪽 오류 0`, !errs.length, errs.slice(0, 3)); await ctx.close(); }
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 500)); }
 await br.close(); srv.close();
