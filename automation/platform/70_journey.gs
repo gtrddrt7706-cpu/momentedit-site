@@ -2096,6 +2096,7 @@ function _pgVoiceFiles_(live, today) {
     _pgHit_(o, okAll ? 'ok' : worst, code);
     if (!live || !okAll) return;
     if (!all['RFGONE_' + code]) { props.setProperty('RFGONE_' + code, today); props.setProperty('RFAIGONE_' + code, today); try { props.deleteProperty('RFSTUDIO_' + code); } catch (e) {} try { _vcPurge(code); } catch (e) {} }
+    try { props.deleteProperty('RFPREP_' + code); } catch (e) {}   // ★[PREP_HUB_1123] «준비할 것» 받은 파일 기록(파일은 같은 폴더라 위에서 함께 지웠다)
     props.setProperty('RFPERM_' + code, today);
   });
   return o;

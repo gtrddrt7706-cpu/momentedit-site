@@ -78,12 +78,16 @@ async function trace(f, ks, ms, big) {
     await new Promise((res) => { const iv = setInterval(() => { const v = B.BED.cur, st = LP.q[LP.i];
       o.push({ t: performance.now() - t0, i: LP.i, k: st && st.k, slug: st && (st.slug || st.of) || '', lead: !!LP.leadSt, who: B.BED.who, f: v && v.f, src: !!(v && v.src), want: v && v.want });
       if (performance.now() - t0 > ms) { clearInterval(iv); res(); } }, 100); });
-    const q = LP.q.map((x) => ({ k: x.k, slug: x.slug || x.of || '', pre: !!x._pre, lh: !!x._leadHere }));
+    const q = LP.q.map((x) => ({ k: x.k, slug: x.slug || x.of || '', pre: !!x._pre, lh: !!x._leadHere, nl: !!x._noLead, rise: x.fm === 3000 && !x.gl && x.dk != null && x.dk > -60 /* [GAP_SWEEP_GO_1122] 엔진이 곡을 이 줄 아래에서 올린다 */ }));
     try { lsStop(); } catch (x) {} try { if (big) lsCloseBig(); } catch (x) {} return { o, q }; }, { ks, ms, big }); }
+/* ★★[TRIBUTE_GAP_BGM_1122 · GAP_SWEEP_GO_1122] 엔진이 곡을 그 줄 아래에서 3초에 올리는 자리(fm 3000 · gl 0) — 미리 듣기도 뜸 없이 · 곡은 그 줄과 함께(앞 줄 끝 뒤 3초 안) */
+function riseSolo(W, k, r, i0) { const q = r.q, o = r.o, bEnd = (o.find((x) => x.i > i0) || {}).t, s1 = o.find((x) => x.src && x.i === i0 + 1);
+  ok(`${W} ${k} 그 순간만 듣기 — 이음말(${q[i0].slug}) 동안 음악 없음 · 다음 줄(${(q[i0 + 1] || {}).slug}) 뜸 없음 · 곡은 그 줄과 함께(3초 안) [GAP_SWEEP_GO_1122]`, q[i0].pre && q[i0 + 1].nl && !q[i0 + 1].lh && !o.some((x) => x.lead) && !o.some((x) => x.i === i0 && x.src) && bEnd != null && !!s1 && s1.t - bEnd < 3000, { q: q.slice(0, 3), bEnd: bEnd && Math.round(bEnd), s1: s1 && Math.round(s1.t) }); }
 /* 그 순간만 듣기 — 첫 줄이 이음말인 순간(a · c) */
 function solo(W, k, r) { const q = r.q, o = r.o, i0 = q.findIndex((x) => x.k === k);
   const isPre = i0 > -1 && PRE.test(q[i0].slug);
   if (!isPre) { ok(`${W} ${k} 첫 줄이 이음말(b8 · b12 · b14)이다(시험 조건)`, false, q.slice(0, 3)); return; }
+  if (q[i0 + 1] && q[i0 + 1].rise) { riseSolo(W, k, r, i0); return; }   /* ★[GAP_SWEEP_GO_1122 ①] 엔진이 «음악만 먼저»를 걷은 자리(244 → 133 등) — 이음말 뒤 곡은 다음 줄과 함께 */
   const onB = o.filter((x) => x.i === i0), bEnd = (o.find((x) => x.i > i0) || {}).t, ld = o.filter((x) => x.i === i0 + 1 && x.lead), s1 = o.find((x) => x.src);
   const ldMs = ld.length ? ld[ld.length - 1].t - ld[0].t : 0, nxPlay = (o.find((x) => x.i === i0 + 1 && !x.lead && x.t > (ld.length ? ld[0].t : 0)) || {}).t;
   ok(`${W} ${k} 그 순간만 듣기 — 첫 소리 = 이음말(${q[i0].slug}) · 그동안 음악 없음 · 뜸 표시는 그 다음 줄(${(q[i0 + 1] || {}).slug})`, q[i0].pre && q[i0 + 1] && q[i0 + 1].lh && onB.length > 2 && !onB.some((x) => x.src || x.lead), { q: q.slice(0, 3), onB: onB.filter((x) => x.src || x.lead).slice(0, 3) });
@@ -101,7 +105,9 @@ try {
     /* ★[PREVIDEO_SONG_1122] 식전 영상이 있는 날 화촉 91(b14)은 곡 위 말 아래 — 화촉 장면 첫 줄 · 뜸(6초 앞 −8)도 91 앞 · 91 동안 화촉 곡이 들린다 */
     { await go(f, 'candle'); const r = await trace(f, ['candle'], 11000, false), q = r.q, o = r.o, i0 = q.findIndex((x) => x.k === 'candle'), ld = o.filter((x) => x.i === i0 && x.lead), ldMs = ld.length ? ld[ld.length - 1].t - ld[0].t : 0, on = o.filter((x) => x.i === i0 && !x.lead);
       ok(`${W} candle 그 순간만 듣기 — 첫 줄 = 91(${(q[i0] || {}).slug}) · 이음말이 아니라 첫 줄 · 뜸 약 6초가 91 앞 · 91 동안 화촉 곡 [PREVIDEO_SONG_1122]`, i0 > -1 && /^bridge-b14/.test(q[i0].slug) && !q[i0].pre && !(q[i0 + 1] || {}).lh && ldMs > 5200 && ldMs < 6800 && on.length > 2 && on.slice(-3).every((x) => x.src), { q: q.slice(0, 3), ldMs: Math.round(ldMs), on: on.slice(-2) }); }
-    await go(f, 'tribute'); solo(W, 'tribute', await trace(f, ['tribute'], 11000, false));
+    /* ★[TRIBUTE_GAP_BGM_1122] 부모님께 인사 — 248(b12)은 닫는 말 그대로 · 이름 줄(141)은 뜸 없이 248 뒤 바로 · 곡은 141 아래에서 함께 올라온다(옛 «음악만 6초 먼저» 걷음) */
+    { await go(f, 'tribute'); const r = await trace(f, ['tribute'], 11000, false), q = r.q, o = r.o, i0 = q.findIndex((x) => x.k === 'tribute'), bEnd = (o.find((x) => x.i > i0) || {}).t, ld = o.filter((x) => x.lead), s1 = o.find((x) => x.src && x.i === i0 + 1);
+      ok(`${W} tribute 그 순간만 듣기 — 248(${(q[i0] || {}).slug}) 동안 음악 없음 · 이름 줄 뜸 없음 · 곡은 이름 줄과 함께(248 끝 뒤 3초 안) [TRIBUTE_GAP_BGM_1122]`, i0 > -1 && /b12-tribute-calm/.test(q[i0].slug) && q[i0].pre && !(q[i0 + 1] || {}).lh && !ld.length && !o.some((x) => x.i === i0 && x.src) && bEnd != null && !!s1 && s1.t - bEnd < 3000, { q: q.slice(0, 3), ld: ld.length, bEnd: bEnd && Math.round(bEnd), s1: s1 && Math.round(s1.t) }); }
     /* d 이음말 없는 순간(혼인 서약) — 맨 앞 뜸 그대로 */
     { await go(f, 'vow'); const r = await trace(f, ['vow'], 4000, false), q0 = r.q[0] || {}, ld0 = r.o.filter((x) => x.i === 0 && x.lead);
       ok(`${W} d 이음말 없는 순간(혼인 서약) — 첫 줄 앞에서 뜸(옛 동작 그대로)`, q0.k === 'vow' && !PRE.test(q0.slug) && !r.q.some((x) => x.pre || x.lh) && ld0.length > 5, { q0, ld: ld0.length }); }
@@ -113,7 +119,15 @@ try {
     for (const [a, b] of [['song', 'tribute'], ['prevideo', 'candle']]) { await go(f, b); const r = await trace(f, [a, b], a === 'song' ? 28000 : 20000, true), q = r.q, i0 = q.findIndex((x) => x.k === b);   /* [DETAIL_R2_1101 ⑤] 축가 뒤 박수 줄 3초가 더해졌다 · [TIME_GAP_1102] 이벤트 줄 사이 쉼 2.5초 */
       const bEnd = (r.o.find((x) => x.i > i0) || {}).t, fa = (r.o.filter((x) => x.k === a && x.src).pop() || {}).f, nf = r.o.find((x) => x.src && x.k === b && x.f !== fa);   /* ★[BGM_TIMING2_1101] 축가가 M4 를 틀게 되어 이음말 동안 앞 곡(M4)이 말 아래로 이어진다 — «새 곡» = 앞 순간 곡이 아닌 곡 */
       if (b === 'candle') ok(`${W} c 이어 듣기 ${a} → ${b} — 영상 뒤 91(${(q[i0] || {}).slug})부터 화촉 곡(91 말보다 먼저 · 뜸은 91 앞) [PREVIDEO_SONG_1122]`, i0 > -1 && /^bridge-b14/.test(q[i0].slug) && !q[i0].pre && !!nf && nf.i === i0 && bEnd != null && nf.t < bEnd && !(q[i0 + 1] || {}).lh, { i0, q: q.slice(Math.max(0, i0 - 1), i0 + 2), nf: nf && { t: Math.round(nf.t), i: nf.i }, bEnd });
+      else if (b === 'tribute') ok(`${W} c 이어 듣기 ${a} → ${b} — 이음말(${(q[i0] || {}).slug}) 뒤 새 곡은 이름 줄과 함께(뜸 없음 · 3초 안) [TRIBUTE_GAP_BGM_1122]`, i0 > -1 && PRE.test(q[i0].slug) && !!nf && bEnd != null && nf.t >= bEnd - 50 && nf.t - bEnd < 3000 && !(q[i0 + 1] || {}).lh, { i0, q: q.slice(Math.max(0, i0 - 1), i0 + 2), nf: nf && Math.round(nf.t), bEnd });
       else ok(`${W} c 이어 듣기 ${a} → ${b} — 이음말(${(q[i0] || {}).slug}) 뒤에 새 곡 · 뜸은 그 다음 줄`, i0 > -1 && PRE.test(q[i0].slug) && !!nf && bEnd != null && nf.t >= bEnd - 50 && q[i0 + 1] && q[i0 + 1].lh, { i0, q: q.slice(Math.max(0, i0 - 1), i0 + 2), nf: nf && Math.round(nf.t), bEnd }); }
+    /* ★[GAP_SWEEP_GO_1122 ③] 영상 없는 날 개식(담백하게) → 화촉 이어 듣기 — 여는 말이 엔진에서 «곡이 그 줄 아래에서 오른다»면 미리 듣기도 뜸 없이 곡과 함께 · 아니면 옛 동작(맨 앞 뜸) */
+    { const P3 = await open(W, true), f3 = P3.f;   /* 새 쪽에서(앞 검사들이 바꾼 상태 없이 · 하객 맞이 곡부터 이어 듣는다) */
+      await f3.evaluate((mu) => { S.mu = mu; S.on.letter = 0; S.on.prevideo = 0; S.narEx = Object.assign({}, S.narEx || {}, { open: 2, tribute: 0 }); try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, MU('r5'));
+      await go(f3, 'candle'); const r = await trace(f3, ['guest', 'candle'], 40000, true), i0 = r.q.findIndex((x) => x.k === 'candle'), q0 = r.q[i0] || {}, on0 = r.o.filter((x) => x.i === i0), t0 = (on0[0] || {}).t, fa = (r.o.filter((x) => x.i < i0 && x.src).pop() || {}).f, nf = r.o.find((x) => x.src && x.i >= i0 && x.f !== fa);
+      if (q0.rise) ok(`${W} 이어 듣기 개식 → 화촉 여는 말(${q0.slug}) — 엔진이 곡을 여는 말 아래에서 올리는 날 · 뜸 없음 · 새 곡은 그 줄과 함께(3초 안) [GAP_SWEEP_GO_1122 ③]`, i0 > 0 && q0.nl && !q0.lh && !on0.some((x) => x.lead) && !!fa && !!nf && t0 != null && nf.i === i0 && nf.t - t0 < 3000, { q0, fa, nf: nf && { t: Math.round(nf.t), i: nf.i, f: nf.f }, t0: t0 && Math.round(t0) });
+      else ok(`${W} 이어 듣기 개식 → 화촉 여는 말(${q0.slug}) — 엔진에 «음악만 먼저»가 있는 날 · 여는 말 앞에서 뜸(옛 동작)`, i0 > 0 && !q0.nl && on0.some((x) => x.lead), { q0, ld: on0.filter((x) => x.lead).length, fa });
+      ok(`${W} 개식 → 화촉 쪽 오류 0`, !P3.errs.length, P3.errs.slice(0, 3)); await P3.ctx.close(); }
     /* a · b 감사문 판(감사 인사 자리 · welcomeKind thanks · [THANKS_SWAP_1122] 옛 «감사 인사형 서약» vowKind thanks) — b8 이 감사문 첫 줄에 온다(BGM 섹션 전수조사 · 화면 top@1 · 콘솔 M4@b8 이던 갈래) */
     { await f.evaluate(() => { S.on.welcome = 1; RitualOpen.thanksSet(S, true); try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); });
       await go(f, 'welcome'); solo(W, 'welcome', await trace(f, ['welcome'], 11000, false));
@@ -126,9 +140,9 @@ try {
       for (const c of COMBO) { await f.evaluate((c) => { Object.keys(c).forEach((k) => { S.on[k] = c[k]; }); try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, c);
         const ks = await f.evaluate(() => _lRows());
         for (const k of ks) { const x = await f.evaluate((k) => { const st = _lSteps(ENG, [k]), bq = window.BgmForm && BgmForm.flowRow ? BgmForm.flowRow(k, st) : null; if (!bq || (bq.by && bq.by !== 'top')) return null;
-            LP.q = _lpTag(st).filter((x) => !x.quiet || x.txt); LP.q._pm = 0; if (typeof _lPreMark === 'function') _lPreMark(); const li = LP.q.findIndex((x, i) => x._leadHere || (i === 0 && !x._pre)), sl = (x) => x ? (x.slug || x.of || '') : '';
-            const r = { k, at: bq.at, scr: sl(st[bq.at]), li, lead: sl(LP.q[li]) }; LP.q = []; return r; }, k);
-          if (!x) continue; seen.push(x.k + ':' + x.scr); if (x.scr !== x.lead) bad.push(Object.assign({ c }, x)); }
+            LP.q = _lpTag(st).filter((x) => !x.quiet || x.txt); LP.q._pm = 0; if (typeof _lPreMark === 'function') _lPreMark(); const li = LP.q.findIndex((x, i) => x._leadHere || (x._noLead && !x._base) /* [TRIBUTE_GAP_BGM_1122] 뜸 없이 새 곡이 서는 줄(141) */ || (i === 0 && !x._pre)), sl = (x) => x ? (x.slug || x.of || '') : '';
+            const rb = LP.q.filter((x) => x.fm === 3000 && !x.gl && x.dk != null && x.dk > -60 && (!x._noLead || x._leadHere)).map(sl) /* [GAP_SWEEP_GO_1122] 엔진이 곡을 그 줄 아래에서 올리는데 미리 듣기가 뜸을 거는 줄 */, r = { k, at: bq.at, scr: sl(st[bq.at]), li, lead: sl(LP.q[li]), rb }; LP.q = []; return r; }, k);
+          if (!x) continue; seen.push(x.k + ':' + x.scr); if (x.scr !== x.lead || x.rb.length) bad.push(Object.assign({ c }, x)); }
         await f.evaluate((c) => { Object.keys(c).forEach((k) => { S.on[k] = 1; }); try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, c); }
       ok(`${W} f 코스 · 조합 ${COMBO.length}개 — 화면 음악 줄 자리 == 미리 듣기 뜸 자리(${seen.length}곳 · 이음말 뒤 ${seen.filter((s) => /:/.test(s)).length})`, !bad.length && seen.length > 8, { bad: bad.slice(0, 4), seen: seen.slice(0, 12) }); }
     ok(`${W} 쪽 오류 0`, !errs.length, errs.slice(0, 3));

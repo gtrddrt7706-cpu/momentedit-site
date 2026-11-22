@@ -213,6 +213,26 @@
    "file": "80_production",
    "fn": "_hourKey_",
    "why": "시간당 셈 열쇠(이름_yyyyMMddHH)"
+  },
+  {
+   "file": "80_production",
+   "fn": "_rfPrepPut",
+   "why": "«준비할 것» 파일 받기(축가 반주 · 준비한 순서 · 덕담 · 축사 원고)"
+  },
+  {
+   "file": "80_production",
+   "fn": "_rfPrepPub",
+   "why": "«준비할 것» 받은 파일 → 두 분 화면"
+  },
+  {
+   "file": "80_production",
+   "fn": "_rfPrepGet",
+   "why": "«준비할 것» 받은 파일 기록 읽기"
+  },
+  {
+   "file": "80_production",
+   "fn": "_rfPrepForget",
+   "why": "«준비할 것» 지운 파일을 기록에서 빼기"
   }
  ],
  "marks": [
@@ -3803,6 +3823,36 @@
    "fn": "handleSignContract",
    "mark": "CONTRACT_V118",
    "why": "계약서 v1.18(식중 영상 · 결제 수단) — 이 파일이 옛것이면 새 문서 서명자가 v1.17 로 찍혀 옛 보존본을 본다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFile",
+   "mark": "PREP_HUB_1123",
+   "why": "«준비할 것»(PREP_HUB_1123) — 이 파일이 옛것이면 마이페이지 «준비할 것»에서 올린 축가 반주 · 덕담 · 축사 원고가 «어느 자리의 녹음인지 알 수 없어요»로 거절된다"
+  },
+  {
+   "file": "80_production",
+   "fn": "buildProductionState",
+   "mark": "PREP_HUB_1123",
+   "why": "«준비할 것»(PREP_HUB_1123) — 이 파일이 옛것이면 올린 파일이 «받음»으로 안 바뀌고 줄이 계속 «남음»을 센다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFileDel",
+   "mark": "PREP_HUB_1123",
+   "why": "«준비할 것»(PREP_HUB_1123) — 이 파일이 옛것이면 지운 파일이 받은 기록(RFPREP_)에 남는다"
+  },
+  {
+   "file": "80_production",
+   "fn": "handleRitualFilePurgeMine",
+   "mark": "PREP_HUB_1123",
+   "why": "«준비할 것»(PREP_HUB_1123) — 이 파일이 옛것이면 «목소리 파일 모두 지우기» 뒤에도 받은 파일 기록이 남는다(개인정보 약속)"
+  },
+  {
+   "file": "70_journey",
+   "fn": "_pgVoiceFiles_",
+   "mark": "PREP_HUB_1123",
+   "why": "«준비할 것»(PREP_HUB_1123) — 이 파일이 옛것이면 예식 뒤 지우기 때 받은 파일 기록(RFPREP_)이 남는다"
   }
  ],
  "fns": {
@@ -4051,6 +4101,10 @@
    "_voiceStudio",
    "_voiceUpLive",
    "_voicePub",
+   "_rfPrepGet",
+   "_rfPrepPub",
+   "_rfPrepPut",
+   "_rfPrepForget",
    "_rfFolderFor",
    "_rfMailQueue",
    "_rfMailFlush",
@@ -4816,6 +4870,10 @@
    "VOICE_UP",
    "RF_ROOT_FOLDER",
    "RF_KEYS",
+   "RF_PREP",
+   "RF_PREP_TXT",
+   "RF_PREP_MIME",
+   "RF_PREP_HOUR_MAX",
    "REC_ROOT_FOLDER",
    "BED_ROOT_FOLDER",
    "REC_PUT_HASH",
@@ -5037,7 +5095,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-11-23 01:37 · 34c2ef27",
+ "_생성": "2026-11-23 03:45 · c8400efb",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -5299,6 +5357,12 @@
   },
   {
    "key": "RFOK_",
+   "kind": "state",
+   "a": "",
+   "b": ""
+  },
+  {
+   "key": "RFPREP_",
    "kind": "state",
    "a": "",
    "b": ""
@@ -5611,5 +5675,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "0b93c2e3642e"
+ "_표식서명": "707df8a713c2"
 }
