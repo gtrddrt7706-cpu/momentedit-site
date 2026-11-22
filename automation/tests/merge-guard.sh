@@ -22003,6 +22003,10 @@ chk 'BOW_PIC_1122' order-preview.html 5
 chk "data-fk=\"mkbowpic\"" order-preview.html 1
 chk 'matjeol-plain-640.webp' order-preview.html 1
 chk 'matjeol-ball-640.webp' order-preview.html 1
+# ★[VP_FOLLOW_1122 2026-11-22 사장님 «처음 고른 스튜디오 나레이션 / AI 두 분 목소리를 고르는 곳은 기존 것을 따라가게»] 안 고른 다른 안내 목소리 자리가 따라온다 · 손댄 자리는 그대로
+chk 'VP_FOLLOW_1122' order-preview.html 2
+chk 'VP_FOLLOW_1122' scripts/audit/vp-follow.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/vp-follow.mjs >/dev/null 2>&1; _vpf=$?; if [ "$_vpf" = 1 ]; then echo 'FAIL [VP_FOLLOW_1122] 안내 목소리 따라가기가 깨졌다 — node scripts/audit/vp-follow.mjs'; fail=1; else echo "ok [VP_FOLLOW_1122] vp-follow (종료 $_vpf)"; fi; fi   # [HEAD_EDGE_FADE_1122] 은퇴 → 시안 B(띠 배경 없음 · 단추만)
 nochk 'body.mkd .prog::after' order-preview.html 0
 chk '두 분이 마주 보고 무도회 맞절 (신랑은 가슴에 손 얹고 숙이고 · 신부는 치맛자락 잡고 무릎 굽혀 · 서로 눈맞춤)' assets/ritual-cue.js 1
 chk '두 분이 마주 보고 무도회 맞절 (신랑은 가슴에 손 얹고 숙이고 · 신부는 치맛자락 잡고 무릎 굽혀 · 서로 눈맞춤)' assets/ritual-story.js 1
