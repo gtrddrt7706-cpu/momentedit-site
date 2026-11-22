@@ -92,7 +92,7 @@ try {
   for (const W of [390, 1280]) {
     const { ctx, pg, f, errs } = await open(W, true);
     /* 이음말이 들어가는 조합 — 화촉 멘트 «뭉클»(narEx.candle 1 · 순서를 알리며 열지 않는다) · 축가 바로 뒤 부모님께 인사(편지 빼기 · narEx.tribute 0) · open-course · bgm-form 과 같은 조건 */
-    await f.evaluate((mu) => { S.mu = mu; S.narEx = Object.assign({}, S.narEx || {}, { candle: 1, tribute: 0 }); S.on.letter = 0; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, MU('r5'));
+    await f.evaluate((mu) => { S.mu = mu; S.narEx = Object.assign({}, S.narEx || {}, { candle: 3, tribute: 0 } /* ★[NARR_GO_1122 ⑤] 91 은 영상 뒤 B14 가 빠진다 — 이음말이 서는 예시 4 */); S.on.letter = 0; try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, MU('r5'));
     /* a 감사 인사 그 순간만 */
     /* ★[SEAM_WORD_1107 J06 · 1층 · CI 5개 1층 조건 맞춤 11/10] 감사 인사 첫 줄 = 350(narr-welcome-in · «신랑 신부는 하객을 향해 서주시기 바랍니다» 가 들어 있어 244 b8 이음말이 붙지 않는다) — 이음말 없는 순간(d)과 같게 첫 줄 앞에서 뜸 */
     { await go(f, 'welcome'); const r = await trace(f, ['welcome'], 4000, false), q0 = r.q[0] || {}, ld0 = r.o.filter((x) => x.i === 0 && x.lead);

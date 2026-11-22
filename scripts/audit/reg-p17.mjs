@@ -119,7 +119,7 @@ try {
     ok('C 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); } } catch (e) { ok('C 갈래가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); } })(),
   (async () => { try { if (want('D')) {
     /* ★[SEAM_WORD_1107 J06 · 1층 · CI 5개 1층 조건 맞춤 11/10] 맞절 → 감사 인사의 b8 이음말은 빠졌다(350 이 감사 인사 첫 줄) — 같은 꼴의 이음말 b14(식전 영상 → 화촉)로 잰다 */
-    const { ctx, f, errs, r0 } = await setup(['prevideo', 'candle'], 'pre', { candle: 1 });
+    const { ctx, f, errs, r0 } = await setup(['prevideo', 'candle'], 'pre', { candle: 3 });   /* ★[NARR_GO_1122 ⑤] 91(«화촉»을 스스로 말함)은 영상 뒤 B14 가 빠진다 — 이음말이 서는 칩(예시 4 «하객 여러분, …»)으로 잰다 */
     const r6 = await f.evaluate(async () => { const BB = BgmBed._t, W = (ms) => new Promise((r) => setTimeout(r, ms)), st = LP.q[LP.i]; st.dk = -16; st.ldk = null;   /* 이음말이 말 아래 크기(−16)인 판(b12 · b14 꼴) */
       BgmBed.lpShow(st); const hold = !!BB.LPB.hold; await W(600); LP.paused = false; BgmBed.lpResume(); await W(1200); const v = BB.BED.cur; return { slug: st.slug, pre: !!st._pre, hold, src: !!(v && v.src && v.want > -60), f: v && v.f, g: v && v.g ? Math.round(v.g.gain.value * 1000) / 1000 : 0 }; });
     ok('T06 다음 순간 몫 이음말(_pre)에서 보류 뒤 이어 듣기 — 새 곡을 한 줄 일찍 걸지 않는다', r0.pick > -1 && r6.pre && r6.hold && !r6.src && r6.g < 0.01, { r0: { pick: r0.pick }, r6 });
