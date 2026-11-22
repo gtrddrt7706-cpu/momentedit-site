@@ -3743,6 +3743,30 @@
    "fn": "handleSaveProductionTrack",
    "mark": "DRINK_TWO",
    "why": "좌석 저장에 자리 준비(chair: 유아용 의자 · 휠체어)를 남긴다 · 빠지면 저장 때 지워진다"
+  },
+  {
+   "file": "80_production",
+   "fn": "_prodPack",
+   "mark": "MEAL_NAME_1122",
+   "why": "고객 · 운영 글 이름 «애프터 웨딩» → «예식 후 식사»(사장님 11/22)"
+  },
+  {
+   "file": "70_journey",
+   "fn": "adminConfirmWeddingChange",
+   "mark": "MEAL_NAME_1122",
+   "why": "고객 · 운영 글 이름 «애프터 웨딩» → «예식 후 식사»(사장님 11/22)"
+  },
+  {
+   "file": "88_place_audit",
+   "fn": "awMonthlyAudit",
+   "mark": "MEAL_NAME_1122",
+   "why": "고객 · 운영 글 이름 «애프터 웨딩» → «예식 후 식사»(사장님 11/22)"
+  },
+  {
+   "file": "95_notify",
+   "fn": "_nfAdminText",
+   "mark": "MEAL_NAME_1122",
+   "why": "고객 · 운영 글 이름 «애프터 웨딩» → «예식 후 식사»(사장님 11/22)"
   }
  ],
  "fns": {
@@ -4975,7 +4999,7 @@
    "bytes": 7442
   }
  ],
- "_생성": "2026-11-22 11:54 · b9e52c6",
+ "_생성": "2026-11-22 15:32 · c685834",
  "props": [
   {
    "key": "ADMIN_ALERT_EMAIL",
@@ -5549,5 +5573,5 @@
    "why": "Archive Opening Honor 는 「2027 상반기 «계약» 한정」이다(2026-09-06 대표 답변 \"계약기준\"). 「계약」을 빼면 예식일 기준으로 읽혀 「2027년 하반기 오픈」과 모순이 된다 — 그 옛 문구가 되살아나면 붉게 한다."
   }
  ],
- "_표식서명": "e5e3f3b8cde7"
+ "_표식서명": "81ade094a989"
 }

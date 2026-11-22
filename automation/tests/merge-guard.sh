@@ -486,7 +486,7 @@ chk 'SNAP_ZONE_NOTE' brief.html 1
 chk 'SNAP_TONE' mypage.html 3                        # ★같은 날 밤 «진사 포인트 좀 주자 · 칙칙해» — 점 다섯(지금 걸음[9/27 부터 진행 표시 윗선 · WZ_STEPS] · 순서 번호 · 촬영 칸 · 마감 · 동의 알림) · snap-plan 이 CSS 를 잰다
 # ★★[WZ_STEPS 2026-09-27 사장님 «1번(스냅 동그라미)과 2번(식순 진행바) · 2번 식순 형태의 진행바로 다른 곳들도 통일하자»]
 #   입력 화면 진행 표시 한 벌 = 식순 .op-steps 모양(칸마다 윗선 2px + «① 이름» · 지금 걸음 진사 · 지나온 걸음 금빛 · 지나온 걸음은 밑줄 단추 44px).
-#   청첩장 · 애프터 웨딩 · 스냅 기획이 wzSteps() 하나를 쓴다. 옛 동그라미([SNAP_STEP_DOT] · 9/26 하루 살았다)나 «청첩장 · 1 / 4» 숫자 글을 되살리면 빨강.
+#   청첩장 · 예식 후 식사 · 스냅 기획이 wzSteps() 하나를 쓴다. 옛 동그라미([SNAP_STEP_DOT] · 9/26 하루 살았다)나 «청첩장 · 1 / 4» 숫자 글을 되살리면 빨강.
 chk 'WZ_STEPS' mypage.html 14
 chk '_invSteps(d,' mypage.html 4
 chk "wzSteps(m.names, stepNo-1, 'data-trkgo')" mypage.html 1
@@ -496,7 +496,7 @@ nochk '<ol class="snp-steps"' mypage.html 0
 nochk 'inv-step-n">청첩장 · ' mypage.html 0
 nochk "' · '+stepNo+'&nbsp;/&nbsp;'" mypage.html 0
 # ★[WZ_HEAD_ALL · WZ_TITLE · WZ_PILL · WZ_FINISH_LABEL 2026-09-27 사장님 «비슷한 기능인데 다른 형태 · 마이페이지 전체를 꼼꼼히 · 더 나은 쪽으로 일관성 있게»]
-#   입력 화면 겉틀 나머지 — ①애프터 웨딩 마지막 걸음에도 저장 · 나가기(결과 화면만 뺀다) ②제목 한 벌(.inv-q = .snp-h 16/500 · 좌석도 왼쪽 정렬)
+#   입력 화면 겉틀 나머지 — ①예식 후 식사 마지막 걸음에도 저장 · 나가기(결과 화면만 뺀다) ②제목 한 벌(.inv-q = .snp-h 16/500 · 좌석도 왼쪽 정렬)
 #   ③위 알약 = 식순 .ob-exit(고딕 · 마우스 올림 금빛) ④마침 단추 «저장하고 마치기»(스냅 기획 · 가족·친구 스냅과 같은 말).
 chk "(result?'':wizActs())+'</div>'" mypage.html 1
 nochk "(last?'':''+wizActs()+'')" mypage.html 0
@@ -510,7 +510,7 @@ nochk "true,'저장하고 닫기');" mypage.html 0
 # ★★[SEL_ONE · NOTE_DOT · ERR_ONE · CC_BTN_KO 2026-09-27 사장님 «비슷한 기능인데 다른 형태 · 섹션마다 다른 느낌 · 더 나은 쪽으로 일관성 있게»]
 #   ①고름 표시 한 벌 = 금빛 테 한 겹(2026-10-11 [SEL_THIN] · 종전 두 겹) + 옅은 금빛 바탕 + 먹빛(식순 .seg-b.on · 음료 .dk-chip.on 과 같은 말) — 진사 칠 · 먹빛 칠 · 진사 테로 되돌리면 빨강
 #   ②안내 한 줄 = «점 + 글»(.mp-dotln) — 칠한 상자(분홍 #FBF3F1 · 진사 옅은 칠 · 회색 칠 · 금빛 칠)로 되돌리면 빨강
-#   ③오류 = 진사(후기 · 애프터 웨딩 AI) ④주 단추 .cc-btn 글꼴 = 한글 명조(라틴 Cormorant 만 걸려 한글이 기기 기본 명조로 떨어졌다)
+#   ③오류 = 진사(후기 · 예식 후 식사 AI) ④주 단추 .cc-btn 글꼴 = 한글 명조(라틴 Cormorant 만 걸려 한글이 기기 기본 명조로 떨어졌다)
 chk 'SEL_ONE' mypage.html 12
 chk '.inv-yn button.on,.inv-dz.sel,.dn-fpill.on,.dn-showtgl.on,.srv-opts button.on,.rev-chip.on{border-color:var(--gold-deep);' mypage.html 1
 chk '.inv-opt.sel,.sp-opt.on,.wed-slot.sel{border-color:var(--gold-deep);' mypage.html 1
@@ -651,11 +651,11 @@ chk 'photoShareNorm' mypage.html 3                 # 하객 사진 모으기 링
 chk 'photoShareHtml' guide.html 2                  # 하객 안내 '사진 올리기' 버튼 섹션
 chk 'photoShareUrl' automation/platform/80_production.gs 2   # guideinfo 정규화+guideView 출력
 chk 'PROD_OVERLAY' mypage.html 1                   # 단체사진 전체화면 오버레이 전환(파일럿)
-# ── 2026-07-21 애프터 웨딩 입구 게이트('선택' 태그 폐지 · 만들기 vs 안 함 3-상태)
+# ── 2026-07-21 예식 후 식사 입구 게이트('선택' 태그 폐지 · 만들기 vs 안 함 3-상태)
 chk 'DN_GATE' mypage.html 2                         # 입구 두 카드 게이트(CSS 마커+렌더 마커)
 chk 'dn_none' mypage.html 1                         # '안 함'(안내 없이 진행) 카드 배선
 chk 'dn_again' mypage.html 2                        # 안 함 되돌리기('역시 만들래요') 버튼+배선
-_dseltag=$(grep -c "{tag:'선택'})" mypage.html 2>/dev/null); _dseltag=${_dseltag:-0}; if [ "$_dseltag" -gt 0 ]; then echo "REVERT? mypage.html: 애프터 웨딩 '선택' 태그 부활($_dseltag)"; fail=1; else echo "ok mypage.html: 애프터 웨딩 '선택' 태그 폐지 유지(3-상태)"; fi
+_dseltag=$(grep -c "{tag:'선택'})" mypage.html 2>/dev/null); _dseltag=${_dseltag:-0}; if [ "$_dseltag" -gt 0 ]; then echo "REVERT? mypage.html: 예식 후 식사 '선택' 태그 부활($_dseltag)"; fail=1; else echo "ok mypage.html: 예식 후 식사 '선택' 태그 폐지 유지(3-상태)"; fi
 # ── 2026-07-21 스크롤 잠금 자가 치유(오버레이 다녀온 뒤 마이페이지 스크롤 굳음 실기기 버그)
 chk 'MP_LOCK_RECONCILE' mypage.html 2              # orphan 배경 잠금 자가 해제(show가 바탕 복귀 시 호출 · 정의+배선)
 chk 'meGuideCta-inline' shared/hydrate.js 1
@@ -3710,12 +3710,12 @@ chk '계약정보이력' automation/admin/admin.gs 1
 chk 'SILENT_BANNER' admin.html 3
 chk 'function renderSilentContacts' admin.html 1
 chk 'renderSilentContacts();' admin.html 1
-# ── 2026-09-22 애프터 웨딩 트랙 순서 [DN_*] ─────────────────────────────────────────
+# ── 2026-09-22 예식 후 식사 트랙 순서 [DN_*] ─────────────────────────────────────────
 # 입구 게이트는 «단계»가 아니다 — 번호를 주면 바로 다음 식당 목록과 둘 다 «1 / 2» 가 된다
 # (실측: 게이트 1/2 → 목록 1/2 → 정리 2/2 · 같은 번호가 두 화면에 붙어 «안 넘어갔나»로 읽힌다).
 chk 'DN_STEP_LABEL' mypage.html 1
 nochk "· 1 / '+m.steps" mypage.html
-# 「역시 애프터 웨딩 만들래요」는 이미 결정을 말한 버튼이다 — 게이트로 되돌려 다시 묻지 않는다.
+# 「역시 예식 후 식사 만들래요」는 이미 결정을 말한 버튼이다 — 게이트로 되돌려 다시 묻지 않는다.
 chk 'DN_AGAIN_DIRECT' mypage.html 1
 chk 'TRKFLOW._dnPick=true; TRKFLOW.step=0' mypage.html 1
 # 「다이닝 없이 진행할게요」가 partner 에 남으면 관리자 화면이 «안 하기로 했다»로 읽는다.
@@ -4059,7 +4059,7 @@ chk 'npm root -g' scripts/check-guest-skin.mjs 1
 # ── [WIZ_EXIT_ONE] 위저드 저장·나가기 = 한 벌 (2026-08-14 사용자 지시) ──
 # 원문: "식순섹션에서 했던 것이랑 통일해서 똑같이 적용 저장 나가기 /
 #        따로 저장없이 나가기 시 팝업등장 이건 전부 통일되게 적용 다른곳들도 조사해서 전부"
-# 청첩장·애프터 웨딩·좌석·단체 사진·스냅 다섯이 「저장 후 나가기」 한 버튼을 쓰고 있었다 —
+# 청첩장·예식 후 식사·좌석·단체 사진·스냅 다섯이 「저장 후 나가기」 한 버튼을 쓰고 있었다 —
 # 나가기가 몰래 저장하니 저장 버튼이 설 자리가 없었다(식순에서 2026-08-13 에 이미 고친 것).
 # ★한 버튼으로 되돌리지 말 것. 손잡이는 둘이고, 나가기는 바뀐 게 있을 때만 묻는다.
 chk 'WIZ_EXIT_ONE' mypage.html 15
@@ -4827,10 +4827,10 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/wiz-dirty.mjs >/dev/
     *) echo 'ok wiz-dirty: 재지 못했습니다(함수 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
 fi
-# ★★[PREP_ORDER_0926 2026-09-26 사장님 지시 «위에서부터 청첩장, 좌석·음료, 애프터웨딩, 식순, 단체사진 순으로 하자»]
+# ★★[PREP_ORDER_0926 2026-09-26 사장님 지시 «위에서부터 청첩장, 좌석·음료, 예식 후 식사, 식순, 단체사진 순으로 하자»]
 #   «예식 준비» 카드의 행 순서는 productionDashHtml 의 _prepRows 배열 하나가 정한다. 식순에 딸린 접힘 두 줄(준비 목록 · 부케)은 식순 바로 뒤.
 chk 'PREP_ORDER_0926' mypage.html 1
-chk 'CF_ORDER_0926' mypage.html 3                    # 예식 확인서 줄도 같은 순서(식순·애프터 웨딩 줄을 좌석 뒤에서 붙인다)
+chk 'CF_ORDER_0926' mypage.html 3                    # 예식 확인서 줄도 같은 순서(식순·예식 후 식사 줄을 좌석 뒤에서 붙인다)
 chk 'GROUP_SNAP_NAME' mypage.html 4                  # «단체 사진» → «가족 · 친구 스냅»(사장님 선택 2026-09-26) — 목록 줄·화면 제목·저장 알림·확인서 줄 · 옛 이름 복귀는 prep-order 가 잡는다
 chk 'PHOTOG_CONTRACT' privacy.html 1                  # 촬영(스냅) 위탁 = 모먼트에디트와 계약한 사진작가 · 개인정보 조항은 작가 계약서에(사장님 2026-09-26) — 문구는 snap-plan 이 잰다
 # ★★[PHOTO_FRIEND · PHOTO_FAMILY_ONLY 2026-09-26 사장님 G1·G2·G3] «가족 · 친구 스냅» — 계획된 구도는 전부 가족 · 그 뒤 친구들과 자유롭게(사진작가에게 부탁할 것 한 칸).
@@ -5185,7 +5185,7 @@ chk 'PV_SAME' automation/platform/89_prevideo.gs 1
 chk 'var PVC_ON=' mypage.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/prep-order.mjs >/dev/null 2>&1; _pro=$?
   case "$_pro" in
-    0) echo 'ok prep-order: 예식 준비 = 청첩장 › 좌석 · 음료 › 애프터 웨딩 › 식순 › 가족 · 친구 스냅 · 예식 확인서도 같은 순서' ;;
+    0) echo 'ok prep-order: 예식 준비 = 청첩장 › 좌석 · 음료 › 예식 후 식사 › 식순 › 가족 · 친구 스냅 · 예식 확인서도 같은 순서' ;;
     1) echo 'FAIL prep-order: 예식 준비 카드(또는 예식 확인서) 순서가 사장님 지시(2026-09-26)와 다릅니다 — node scripts/audit/prep-order.mjs'; fail=1 ;;
     *) echo 'ok prep-order: 재지 못했습니다(배열 없음) — 재지 못한 것이지 결함이 아닙니다' ;;
   esac
@@ -13884,7 +13884,7 @@ chk "서명하시면 계약금&#8288;·&#8288;" mypage.html 1
 chk '이&nbsp;화면에 입금 안내가 열려요' mypage.html 1
 # ── 묶음 C
 # [INV_SKIP_ROW·INV_BANK_PICK·INV_PUB_SAVE·INV_FIELD_LABEL·INV_PUB_LABEL·INV_TAP44·GUIDE_NOTE_TRUE·GUIDE_SHARE_GRID·TRK_SEP_LABEL·TRK_END_LINE·TRK_SUB_BALANCE·TRK_ACT_PAD12·SNAP_BTN_GHOST·GUIDE_BTN_HOWTO·CF_EMPTY_WORD·EG_DASH_NOTE·GUIDE_QR_BY_KIND] 2026-09-26 마이페이지 고객 점검 묶음 C — 예식 준비 카드 · 청첩장 위저드 · 하객 안내 패널 · 예식 확인서
-# [INV_SKIP_ROW] 청첩장 없이 = ✓ 대신 「안 함」 + 「다시 정하기」(애프터 웨딩과 같은 모양) · 확인서 「청첩장 없이 진행」 · 링크 없이 마친 판 재진입은 1단계부터 · 배지 nowrap · 개인 제작 보정(none+selfQR:false)은 invitationUrls 가 null(청첩장 없이로 마침)이면 하지 않는다 · 초안에 살아 있는 링크가 있으면(발행 뒤 청첩장 없이를 저장만 함) 「안 함」이 아니다(검토)
+# [INV_SKIP_ROW] 청첩장 없이 = ✓ 대신 「안 함」 + 「다시 정하기」(예식 후 식사와 같은 모양) · 확인서 「청첩장 없이 진행」 · 링크 없이 마친 판 재진입은 1단계부터 · 배지 nowrap · 개인 제작 보정(none+selfQR:false)은 invitationUrls 가 null(청첩장 없이로 마침)이면 하지 않는다 · 초안에 살아 있는 링크가 있으면(발행 뒤 청첩장 없이를 저장만 함) 「안 함」이 아니다(검토)
 chk "_invMethodEff(inv.draft)==='none'" mypage.html 1
 chk "d.selfQR===false && d.invitationUrls!==null) ? 'self' : m" mypage.html 1
 chk 'function _invLiveUrls(d)' mypage.html 1
@@ -13924,7 +13924,7 @@ chk 'padding:0 18px;min-height:44px' mypage.html 1
 chk 'margin:0;min-height:44px;padding:12px 0 10px' mypage.html 1
 chk "setAttribute('aria-controls', panelId)" mypage.html 1
 nochk '^\.inv-chk{display:flex' mypage.html 0
-# [GUIDE_NOTE_TRUE] 하객 안내 칩·안내문은 한 판정(_guideSections)에서 — 애프터 웨딩 ✓ 인데 식당이 없으면 「장소 미정」 + «식당을 고르면» · 둘 다 켜지면 안내문 없음
+# [GUIDE_NOTE_TRUE] 하객 안내 칩·안내문은 한 판정(_guideSections)에서 — 예식 후 식사 ✓ 인데 식당이 없으면 「장소 미정」 + «식당을 고르면» · 둘 다 켜지면 안내문 없음
 chk 'function _guideSections(p)' mypage.html 1
 chk '+_guideNoteHtml(p)' mypage.html 1
 chk "g.dnPend?'장소 미정':'준비 전'" mypage.html 1   # [B2_MA_14 2026-11-06] 상태 넷(사용 안 함 · 공개한 곳 없음 · 장소 미정 · 준비 전)
@@ -13965,7 +13965,7 @@ chk '<div class="inv-onep-note">점선은 이름·날짜가 바뀌는 자리예�
 chk "(u.family?'위 오프라인 청첩장에는 이미 들어 있어요.':'하객분께 이 링크나 QR을 따로 전해 주세요.')" mypage.html 1
 nochk '이 QR을 넣으세요 · 온라인 청첩장에는 이미 들어 있어요' mypage.html 0
 # ── 묶음 D
-# ── 2026-09-26 마이페이지 점검 묶음 D · 트랙 속화면(가족 · 친구 스냅 · 좌석 · 음료 · 애프터 웨딩 · 식순 빌더) [DECISION_GUARD] ──
+# ── 2026-09-26 마이페이지 점검 묶음 D · 트랙 속화면(가족 · 친구 스냅 · 좌석 · 음료 · 예식 후 식사 · 식순 빌더) [DECISION_GUARD] ──
 # [PHOTO_LINK_FOLD] trk-1 · 하객 사진 링크 칸을 «비었을 때»(접힘 안)와 «넣었을 때»(맨 위)로 갈라 그린다 — 링크가 있으면 사진은 그 링크로 가므로
 #   «두 분이 준비하실 건 없어요» · «결과물과 함께 전해 드려요» 두 줄은 비었을 때만. 자리표시 문자열은 _psIn 한 벌(SHARE_WEDUP chk 는 그대로 1).
 chk 'PHOTO_LINK_FOLD' mypage.html 8
@@ -13975,7 +13975,7 @@ chk '따로 만드신 곳이 있으면 링크를 넣어 주세요 · 하객 사�
 chk "하객 안내 페이지의 <b>사진 올리기</b> 버튼이 이 링크로 이어져요" mypage.html 1
 nochk "h+='<input class=\"cc-input\" id=\"mp_photoShare\"" mypage.html      # 칸을 절 맨 위에 무조건 그리던 옛 줄 — 되살리면 «붙여 넣으라» 바로 아래 «준비하실 건 없어요»가 다시 붙는다
 # [STEP_N_KO] trk-11 · 위저드 머리 .inv-step-n 한글 라벨 = serif-ko · 12px · 0.08em([LABEL_KO_TRACK]) · 번호 안쪽 &nbsp; · .inv-sub 왼쪽 6px 들여쓰기 제거(37px 선)
-#   ★2026-09-27 [WZ_STEPS] 머리의 «애프터 웨딩 · 1 / 2» 숫자 글을 걷었다(몇 걸음째는 진행 표시가 말한다) — 번호 안쪽 &nbsp; 를 지키던 chk 와
+#   ★2026-09-27 [WZ_STEPS] 머리의 «예식 후 식사 · 1 / 2» 숫자 글을 걷었다(몇 걸음째는 진행 표시가 말한다) — 번호 안쪽 &nbsp; 를 지키던 chk 와
 #     그 자리 [STEP_N_KO] 주석이 함께 사라져 3 → 2. 숫자 글이 돌아오지 않게 지키는 것은 위 [WZ_STEPS] 의 nochk 가 맡는다.
 chk 'STEP_N_KO' mypage.html 2
 chk '.inv-step-n{font-family:var(--serif-ko);font-size:12px;color:var(--gold-deep);letter-spacing:.08em' mypage.html 1
@@ -14003,7 +14003,7 @@ nochk '.dn-head-c{white-space:normal;text-align:right;line-height:1.5}' mypage.h
 # [DN_MAKE_BASE] trk-8 · 「식사·카페 안내 만들기」만 누른 직후엔 «저장하지 않은 변경»이 아니다 — 그린 뒤 기준선을 다시 잡는다(WIZ_BASE_AFTER 계열)
 chk 'DN_MAKE_BASE' mypage.html 1
 chk 'TRKFLOW._dnPick=true; renderDining(box); try{ WIZ_BASE.trk=_wizJson(WIZ_ADAPT.trk.data()); _wizPaintSoon(); }catch(e){}' mypage.html 1
-# [DN_NONE_RESULT] trk-9 · 애프터 웨딩 «안 함» 화면은 걸음이 아니라 결과 — 번호 없는 머리 · «이전» 없음 · 버튼 «닫기»(되돌리기는 dn_again 하나)
+# [DN_NONE_RESULT] trk-9 · 예식 후 식사 «안 함» 화면은 걸음이 아니라 결과 — 번호 없는 머리 · «이전» 없음 · 버튼 «닫기»(되돌리기는 dn_again 하나)
 chk 'DN_NONE_RESULT' mypage.html 3
 chk "true,'닫기',true);" mypage.html 1
 chk '(TRKFLOW.step>0 && !result)' mypage.html 1
@@ -14422,7 +14422,7 @@ chk '^\.led-modal-x::before{content:' mypage.html 1
 chk '<button type="button" id="mp_logout">' mypage.html 1
 nochk '<a id="mp_logout">' mypage.html
 # ── 묶음 G5
-# ── G5 · 2026-09-26 통합 점검 1차 수정 (가족 · 친구 스냅 · 애프터 웨딩 · 스냅 동의) [DECISION_GUARD]
+# ── G5 · 2026-09-26 통합 점검 1차 수정 (가족 · 친구 스냅 · 예식 후 식사 · 스냅 동의) [DECISION_GUARD]
 # [PHOTO_BLUR_CLICK] 사진 링크 칸 blur — 초점이 머리의 저장·나가기로 옮겨 가면 그 click 뒤에 다시 그린다(첫 누름이 먹히던 것 · 마우스 · 120ms · 터치 실측)
 chk 'PHOTO_BLUR_CLICK' mypage.html 2
 chk "_rt.closest('\[data-wiz-save\],\[data-wiz-exit\]')" mypage.html 1
@@ -14455,11 +14455,11 @@ nochk '화면은 영어예요 · 하객이' mypage.html
 nochk '봐 주세요 · 드라이브가 꽉 차면' mypage.html
 chk '고르기⁠·⁠올리기 두 번</b>이라' mypage.html 1
 chk "+'. QR은 테이블 카드용이에요.</div>'" mypage.html 1
-# [FIELD_NAME_A11Y] 자리표시만 있던 칸에 이름(aria-label) — 구도 직접 추가 · 애프터 웨딩 AI 칸
+# [FIELD_NAME_A11Y] 자리표시만 있던 칸에 이름(aria-label) — 구도 직접 추가 · 예식 후 식사 AI 칸
 chk 'FIELD_NAME_A11Y' mypage.html 2
 chk 'id="mp_photoAdd" maxlength="20" autocomplete="off" aria-label="구도 직접 추가"' mypage.html 1
 chk 'id="dncInput" maxlength="200" autocomplete="off" enterkeyhint="send" aria-label="찾는 자리를 말로 적기"' mypage.html 1
-# [DN_ARIA_STATE] 애프터 웨딩 고르는 단추 aria-pressed · 펼침 단추 aria-expanded + aria-controls · 다시 그린 뒤 같은 단추로 초점
+# [DN_ARIA_STATE] 예식 후 식사 고르는 단추 aria-pressed · 펼침 단추 aria-expanded + aria-controls · 다시 그린 뒤 같은 단추로 초점
 chk 'DN_ARIA_STATE' mypage.html 5
 chk "data-fv=\"'+escapeHtml(v)+'\" aria-pressed=\"'+on+'\"" mypage.html 1
 chk "pill('theme','formal','정찬')+pill('theme','casual','캐주얼')+pill('theme','cafe','카페')" mypage.html 1   # [DN_CHIP_ONE_1102] 자리 칩도 알약 · aria-pressed 는 pill() 이 그린다(DN_ARIA_STATE)
@@ -14468,7 +14468,7 @@ chk 'aria-controls="dn_preBody"' mypage.html 1
 chk 'id="dn_detBody"' mypage.html 1
 chk 'id="dn_preBody"' mypage.html 1
 chk '_dnRefocus(function' mypage.html 3
-# [DN_CLOCK_SAY] 애프터 웨딩 도착 시각은 말하는 꼴(«오후 3시» · «오전 11시 50분») — SLOT_CLOCK · wedTimeKo 를 거치지 않는다 · 브레이크 셈은 원값
+# [DN_CLOCK_SAY] 예식 후 식사 도착 시각은 말하는 꼴(«오후 3시» · «오전 11시 50분») — SLOT_CLOCK · wedTimeKo 를 거치지 않는다 · 브레이크 셈은 원값
 chk 'DN_CLOCK_SAY' mypage.html 5
 chk 'function _dnSayClock(hm)' mypage.html 1
 chk "{lead:'오후 예식은 하객이 2시 20분쯤부터 도착해" mypage.html 1   # [EARLY_EAT_OWNER_1115] 하객 도착 기준
@@ -14494,7 +14494,7 @@ chk "_dnRsvHtml(d, _vpPh?'none':(!R?'bare':(_dnTelOf(R.n, R.tel)?'tel':'notel'))
 chk "(mode==='tel'?'<span class=\"ln-bal\">위 전화번호와 통화 문구를 그대로 쓰시면 돼요.</span>'" mypage.html 1
 nochk "'지도에서 매장 번호를 확인하고," mypage.html      # 코드의 옛 noTel 문장(따옴표로 시작) — 주석의 인용은 안 잡는다
 nochk "해주세요 · '+(noTel?" mypage.html
-# [DN_DOT_SPLIT] 애프터 웨딩 가운뎃점 — 줄 끝 · 머리에 안 서게(«자리·주차·식사예요» 한 덩어리 · 나열은 U+2060 · 절을 잇는 점은 &nbsp;)
+# [DN_DOT_SPLIT] 예식 후 식사 가운뎃점 — 줄 끝 · 머리에 안 서게(«자리·주차·식사예요» 한 덩어리 · 나열은 U+2060 · 절을 잇는 점은 &nbsp;)
 chk 'DN_DOT_SPLIT' mypage.html 3   # [DN_ONE_CAUTION_1102] 목록 아래 각주(가운뎃점 U+2060 자리)는 뺐다
 nochk '자리·주차·식사예요' mypage.html   # [DN_INTRO_SHORT_1102] 앞 반 문장은 뺐다(폰 첫 화면)
 chk 'white-space:nowrap">장소·지도·전화는</span> 그대로 나가요.' mypage.html 1
@@ -14559,7 +14559,7 @@ chk "_frB2=!!String(_gpB2.photoFriend||'').trim()" mypage.html 1
 chk "done: !!(_phB2||_fxB2||_frB2||_ocB2)" mypage.html 1        # [PHOTO_EMPTY_SAVE 2026-09-27] 불러 모아 주실 분 · 링크도 끝낸 것
 chk "(_any?'완료 · 수정':'구도 고르기')" mypage.html 1
 chk 'PHOTO_FRIEND_ROW' scripts/audit/photo-friend.mjs 1
-# [DN_ROW_TRUTH] 애프터 웨딩 «완료»는 정한 것이 있을 때만(안 함 N · 담은 곳 · 고른 곳 · 옛 자리표시) — 「역시 만들래요」 뒤 빈손으로 나가도 서버 딱지가 «완료»로 남는다 · 행 · 확인서 · 내 완성물이 한 판정
+# [DN_ROW_TRUTH] 예식 후 식사 «완료»는 정한 것이 있을 때만(안 함 N · 담은 곳 · 고른 곳 · 옛 자리표시) — 「역시 만들래요」 뒤 빈손으로 나가도 서버 딱지가 «완료»로 남는다 · 행 · 확인서 · 내 완성물이 한 판정
 chk 'function _dnHas(dd)' mypage.html 1
 chk "var _dDone=(t.dining||'')==='완료' && _dnHas(dd);" mypage.html 1
 chk "_dDone=(t.dining||'')==='완료'&&_dnHas(dd)" mypage.html 1
@@ -14633,7 +14633,7 @@ chk '<span class="ln-bal">비어 있는 부분은 하객 화면에 나오지 않
 chk '<span class="ln-bal">누르신 날짜와 시각이 함께 기록돼요.</span>' mypage.html 1
 nochk '링크 주소가 바뀌어요&nbsp;· 반영한 뒤 새 링크를 다시 보내 주세요.</div>' mypage.html 0
 nochk '모바일 참석 QR·링크를 드려요' mypage.html 0
-nochk '하객 화면에 나오지 않아요 · 애프터 웨딩·좌석 배치를' mypage.html 0
+nochk '하객 화면에 나오지 않아요 · 예식 후 식사·좌석 배치를' mypage.html 0
 nochk "나오지 않아요'+(a.length?(' · '" mypage.html 0
 nochk '함께 기록돼요 · 저희는' mypage.html 0
 nochk '<b>이름·예식 날짜·계좌·혼주 호칭</b>' mypage.html 0
@@ -14643,17 +14643,17 @@ nochk '옮겨 적으세요 · 아래 QR과' mypage.html 0
 nochk '만들어져요 · 준비된 내용만' mypage.html 0
 nochk '직접 전하세요 · 이 청첩장 안에' mypage.html 0
 nochk 'QR(모바일 참석·하객 안내)' mypage.html 0
-# [COND_PAREN_GLUE] (G4 검토) GUIDE_MAKE_COND — 점을 붙인 뒤 줄이 괄호 앞에서 갈려 «애프터 웨딩 / (식사)·좌석…»(하객 안내 패널 320~330) · «웨딩(» 사이 U+2060 · «애프터 웨딩» NBSP
+# [COND_PAREN_GLUE] (G4 검토) GUIDE_MAKE_COND — 점을 붙인 뒤 줄이 괄호 앞에서 갈려 «예식 후 식사 / (식사)·좌석…»(하객 안내 패널 320~330) · «웨딩(» 사이 U+2060 · «예식 후 식사» NBSP
 chk 'COND_PAREN_GLUE' mypage.html 1
-nochk "var GUIDE_MAKE_COND='<b>애프터 웨딩(식사)" mypage.html 0
+nochk "var GUIDE_MAKE_COND='<b>예식 후 식사(식사)" mypage.html 0
 # [INV_DONE_EID] (G4 검토) 완성 화면 «보내신 링크는 그대로예요»는 받은 결과의 eventId 가 반영 전과 같을 때만 — 예측(_invLinkChange)은 예식 날짜를 모른다(eventId 에 MMDD)
 chk 'INV_DONE_EID' mypage.html 2
 chk "var _eid0=String(_d0.eventId||(INVFLOW.pub&&INVFLOW.pub.eventId)||'');" mypage.html 1
 chk "if(r.urls && INVFLOW._lkChg==='' && _eid0 && r.eventId && String(r.eventId)!==_eid0) INVFLOW._lkChg='name';" mypage.html 1
-# [FOLD_JOSA_GLUE] (G4 검토) 완성 화면 «하객 안내만 따로 보내기» 둘째 줄 — balance 로 감싼 뒤 320~345 «…웨딩(식사) / 을 완료하면»(조사 줄 머리) · «자리 / 찾기» 갈림 → «웨딩(식사)을» U+2060 · «애프터 웨딩» · «자리 찾기» · «식사 안내» NBSP
+# [FOLD_JOSA_GLUE] (G4 검토) 완성 화면 «하객 안내만 따로 보내기» 둘째 줄 — balance 로 감싼 뒤 320~345 «…웨딩(식사) / 을 완료하면»(조사 줄 머리) · «자리 / 찾기» 갈림 → «웨딩(식사)을» U+2060 · «예식 후 식사» · «자리 찾기» · «식사 안내» NBSP
 chk 'FOLD_JOSA_GLUE' mypage.html 1
 chk "애프터&nbsp;웨딩&#8288;(식사)&#8288;을 완료하면 이&nbsp;안내에 <b>자리&nbsp;찾기&#8288;·&#8288;식사&nbsp;안내</b>" mypage.html 1
-nochk "애프터 웨딩(식사)을 완료하면 이&nbsp;안내에" mypage.html 0
+nochk "예식 후 식사(식사)을 완료하면 이&nbsp;안내에" mypage.html 0
 # [CF_DATE_NBSP 보정] 확인서 예식 일시는 fmtWedKoT(내 내역 · 임시 고정 · 결제 카드와 같은 모양) — NBSP 한 덩어리는 320~325 에서 긴 날짜가 칸 밖으로 넘쳤다(180조합 중 84 → 0)
 # (옛 줄 · 2026-10-09 A~Z 점검 1라운드 마이페이지 고침으로 아래 [R6_MYPAGE] 묶음에서 새 꼴로 바꿈) "L+=line('예식 일시', escapeHtml(_bw.weddingTime ? fmtWedKoT(String(_bw.weddingDate)
 nochk "(_bw.weddingTime?(' · '+wedTimeKo(_bw.weddingTime)):'')).replace(/ /g" mypage.html 0
@@ -14786,7 +14786,7 @@ chk 'SIG_TITLE_WJ' mypage.html 1
 chk 'escapeHtml(_sb.length?(.계약금\\u2060·\\u2060.+_sb.join(.\\u2060·\\u2060.)):.계약금.)' mypage.html 1
 nochk "escapeHtml(_sb.length?('계약금·'+_sb.join('·'))" mypage.html 0
 # ── 2라운드 묶음 H2
-# [WZ_BAR_DEBOUNCE] 붙는 막대는 단계마다 같은 자리 — 막대 단추 누른 뒤 450ms 안의 막대 누름(사람 누름만 · isTrusted)은 버린다(청첩장 1/4→3/4 · 수정하기 2/4→4/4 · 애프터 웨딩 «저장하고 닫기»까지 눌리던 두 번 누름)
+# [WZ_BAR_DEBOUNCE] 붙는 막대는 단계마다 같은 자리 — 막대 단추 누른 뒤 450ms 안의 막대 누름(사람 누름만 · isTrusted)은 버린다(청첩장 1/4→3/4 · 수정하기 2/4→4/4 · 예식 후 식사 «저장하고 닫기»까지 눌리던 두 번 누름)
 chk 'WZ_BAR_DEBOUNCE' mypage.html 2
 chk "var b=(e.target&&e.target.closest)?e.target.closest('.wz-bar button'):null; if(!b) return;" mypage.html 1
 chk "var t=Date.now(), _dt=t-(window._wzBarAt||0); if(_dt>=0 && _dt<450){ e.stopImmediatePropagation(); e.preventDefault(); return; }" mypage.html 1
@@ -14877,7 +14877,7 @@ nochk "function photoShareNorm(u){ u=String(u==null?'':u).trim(); if(!" mypage.h
 # [SHARE_EXTRACT] 검토 보완 — 스킴 없는 도메인 판정도 끝 문장부호를 뗀 뒤에 한다(«weduploader.com.»이 링크로 안 읽혀 관문에 막히던 것)
 chk "\[.,!?」』\]+\$/,''))) u='https://'+u; }" mypage.html 1
 # ── 2라운드 묶음 H3b
-# ═══ [MP_AUDIT_R2_0926] 2026-09-26 병합 뒤 통합 점검 2라운드 — 묶음 H3b(R4 갈래 · 판 · 초점 링 · 서명 판 · 애프터 웨딩) ═══
+# ═══ [MP_AUDIT_R2_0926] 2026-09-26 병합 뒤 통합 점검 2라운드 — 묶음 H3b(R4 갈래 · 판 · 초점 링 · 서명 판 · 예식 후 식사) ═══
 # [SAVEFAIL_STAY] 저장 실패 판 «저장이 안 됐어요» — 바깥 누름 · Esc 는 null(판만 닫고 머문다) · 명시적 «저장 없이 나가기»(false)만 버린다 · 청첩장 · 좌석 · 스냅 기획 · 트랙 네 곳(사진 판은 H3a [PHOTO_FAIL_STAY])
 chk 'SAVEFAIL_STAY' mypage.html 5
 chk "no:'저장 없이 나가기', dismissNull:true })   // \[SAVEFAIL_STAY\]" mypage.html 4
@@ -19079,7 +19079,7 @@ chk '\.ovl-x{' mypage.html 1
 chk 'BIRTH_RANGE' mypage.html 1
 chk 'BIRTH_DAYS' mypage.html 2
 chk 'function _birthWire(idBase)' mypage.html 1
-# [INV_STEP_TOP] C-10 걸음이 바뀌면 맨 위 + 제목 초점(청첩장 · 애프터 웨딩/최종)
+# [INV_STEP_TOP] C-10 걸음이 바뀌면 맨 위 + 제목 초점(청첩장 · 예식 후 식사/최종)
 chk 'INV_STEP_TOP' mypage.html 3
 chk 'INVFLOW._shownStep=INVFLOW.step;' mypage.html 1
 chk 'TRKFLOW._shownStep=TRKFLOW.step;' mypage.html 1
@@ -20337,7 +20337,7 @@ chk 'DRESS_BAR_STICK' dress.html 1
 chk 'DRESS_BADGE_NOFILL' dress.html 1                                     # «Nº» = 흰 바탕 · 먹빛 글 · 금빛 테 한 겹(진사 칠 걷음 · [SEL_ONE])
 nochk "'건너뛰기'" dress.html 0                                        # ★[DRESS_Q_FIRST 2026-10-24 사장님 «질문 먼저 의무»] «건너뛰기»는 없다 — 답하기 전엔 «다음»이 옅고 눌리지 않는다
 chk 'WZ_STEPS_STILL' dress.html 1                                         # 지나온 걸음 단추가 진행 표시 높이를 키우지 않는다(제목이 걸음마다 같은 자리)
-chk 'WZ_STEPS_STILL' mypage.html 1                                        # [COURSE_WIDE] 마이페이지 진행 표시(청첩장 · 애프터 웨딩 · 기록)도 같은 값
+chk 'WZ_STEPS_STILL' mypage.html 1                                        # [COURSE_WIDE] 마이페이지 진행 표시(청첩장 · 예식 후 식사 · 기록)도 같은 값
 chk 'DRESS_SUM_ONE' assets/dress-refs.js 1                                # 칸 한 줄 = 라인 · 길이 · 소재(넥라인은 자세히)
 chk 'DRESS_SUM_ONE' dress.html 2
 chk 'DRESS_DUE_DATE' assets/dress-refs.js 1                               # 마감 날 «10월 23일(금)» — 상담일 −2일 · 요일 계산
@@ -21747,7 +21747,7 @@ chk 'CLIP_STATUS_1031' scripts/audit/keepgap-text.mjs 1
 chk 'CLIP_STATUS_1031' CLAUDE.md 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/clip-status.mjs >/dev/null 2>&1; _cst=$?; [ "$_cst" = 1 ] && { echo 'FAIL clip-status: 안 나는 녹음 표시가 엔진과 다르거나 도구 숫자가 갈렸습니다(안 남이라 적은 클립이 나거나 · 없는 파일 · CAST_MUTE 를 표에 또 적음 · 실청 기준 나레이션 숫자가 다름) — node scripts/audit/clip-status.mjs'; fail=1; }; :; fi
 # ── 2026-10-31 [LISTEN_FIX_1031 검토 176 사장님 실청 코멘트] 글 고침 — 다시 받기 5클립(120 · 40 · 146 · 138 · 48 중 글이 바뀐 문장 · 22 는 검토 177 로 뺌) · 음성 쉼은 174 녹음과 한 PR 로 · _recorded 는 녹음 PR 이 바꾼다
-#    265 «촬영을 마치신 분들은 편히 귀가하셔도 좋습니다.»(애프터 웨딩 안 고른 날 판)와 88 guide-meal(RETIRED · 266 과 겹침)은 그대로
+#    265 «촬영을 마치신 분들은 편히 귀가하셔도 좋습니다.»(예식 후 식사 안 고른 날 판)와 88 guide-meal(RETIRED · 266 과 겹침)은 그대로
 chk 'LISTEN_FIX_1031' assets/ritual-open.js 1
 chk 'LISTEN_FIX_1031' assets/ritual-data.js 1
 chk 'LISTEN_FIX_1031' assets/ritual-cue.js 1
@@ -21943,7 +21943,7 @@ chk 'GROUP_PHOTO_199' order-preview.html 3   # [POST_FLOW_200] 셋은 POST_KS �
 chk "function _photoLine()" order-preview.html 1
 chk "_fixSteps('post').map(fxRow).join('')" order-preview.html 1   # [FIX_FLOW_204 B] 예식 흐름 사진 · 정리 = 늘 있는 진행 한 벌
 chk "lab:k==='_after'?_post('_after').sub:" order-preview.html 1   # [POST_FLOW_200]
-chk "'+ 식사 안내 멘트: 애프터 웨딩에서 식당을 정하면 붙어요'" order-preview.html 1   # ★[MEAL_HINT_SHORT_204 사장님 «너무 길어요»] «마이페이지 ›» · «예약 시각» 뺌
+chk "'+ 식사 안내 멘트: 예식 후 식사에서 식당을 정하면 붙어요'" order-preview.html 1   # ★[MEAL_HINT_SHORT_204 사장님 «너무 길어요»] «마이페이지 ›» · «예약 시각» 뺌
 nochk '식사 안내 멘트: 마이페이지 ›' order-preview.html   # [CL_HINT_199] 진사 · 짧게(종전 긴 회색 문장) · [MEAL_HINT_1102] 무엇이 붙는지 · 언제 붙는지 한 줄
 nochk "'+ 식사 안내: 마이페이지에 장소 · 예약 시각 적기'" order-preview.html   # [MEAL_HINT_1102] 할 일만 말하던 옛 줄
 nochk "o.push('+ 사진 올리기 안내" order-preview.html   # ★[GUIDE_ALWAYS_202] «하객 안내 켜기» 줄 삭제(사장님 17:30 · 되살리지 말 것)
@@ -22065,7 +22065,7 @@ nochk "b.firstChild.nodeValue=MK.navOpen" order-preview.html
 chk 'MK_HEAD_D' scripts/audit/listen-page.mjs 2
 # ★[MK_HEAD_PILL 1101 사장님 PC «좀 이상한데»] 상태 단추 = 도구와 같은 알약(테 · 카드 바탕 · 44 · 12.5/500) · 자리가 되면 한 줄(.one) · 모자라면 두 층(모서리 22) · 꺾쇠는 글 바로 뒤
 chk 'MK_HEAD_PILL' order-preview.html 3
-# ★[4차 마이페이지 1106 · 대본 분배] M10 스냅 마감 당일 · M11 확인서 애프터 웨딩 공개 상태 · M13 옛 영상 만들기 «분위기» 한 이름 · M18 예약 시각 확인 · G01 하객 안내는 모든 예식
+# ★[4차 마이페이지 1106 · 대본 분배] M10 스냅 마감 당일 · M11 확인서 예식 후 식사 공개 상태 · M13 옛 영상 만들기 «분위기» 한 이름 · M18 예약 시각 확인 · G01 하객 안내는 모든 예식
 chk 'SNAP_DUE_TODAY_1106' mypage.html 1
 chk 'late:days<14, today:days===14, lock:days<=3' mypage.html 1
 nochk 'late:days<=14, lock:days<=3' mypage.html 0
@@ -22379,7 +22379,7 @@ chk "function gOn(S) { return !S || S.guide == null ? true : !!S.guide; }" asset
 chk "function guideOf(token, closed) { return !closed; }" assets/ritual-preview-link.js 1
 chk "var CUSTGUIDE=true;" order-preview.html 1
 nochk "S\.guide ?" assets/ritual-cue.js   # 하객 안내 조건은 gOn(S) 하나로
-# ★[MEAL_GO_1102 대본 섹션 · 사장님 «칸 이름이 ‹애프터 웨딩›인데 ‹마이페이지›라 헷갈림»] 식사 조건 줄 = 메뉴 이름 그대로 · 마이페이지 안에서는 누르면 나가기(저장 묻기) → 애프터 웨딩 칸 · 머물면 잊는다
+# ★[MEAL_GO_1102 대본 섹션 · 사장님 «칸 이름이 ‹예식 후 식사›인데 ‹마이페이지›라 헷갈림»] 식사 조건 줄 = 메뉴 이름 그대로 · 마이페이지 안에서는 누르면 나가기(저장 묻기) → 예식 후 식사 칸 · 머물면 잊는다
 chk 'MEAL_GO_1102' order-preview.html 3
 chk 'MEAL_GO_1102' mypage.html 2
 chk "window.clGo=function(to){ if(!EMBED) return;" order-preview.html 1
@@ -22421,7 +22421,7 @@ chk '20m | Farewell · 옷을 갈아입고 하루를 정리하는 시간' index.
 chk "'정리', '20분', \['11:00', '14:20', '17:40'\], '옷을 갈아입고 하루를 정리해요.'" assets/sequence-modal.js 1
 chk 'Farewell(정리)' api/_kb.js 1
 nochk 'Farewell(마무리)' api/_kb.js
-# ★[DN_BUGS_1102 GPT 애프터 웨딩 1라운드] 예약 시간 · 이름은 예약할 곳을 정한 뒤 · 장소마다 따로 · 빼기 실패면 예약할 곳까지 되돌림 · 숨은 «카페 빼기» 없음 · 초기화 늘 · 0곳 안내 정직 · 다 빼면 빈 목록
+# ★[DN_BUGS_1102 GPT 예식 후 식사 1라운드] 예약 시간 · 이름은 예약할 곳을 정한 뒤 · 장소마다 따로 · 빼기 실패면 예약할 곳까지 되돌림 · 숨은 «카페 빼기» 없음 · 초기화 늘 · 0곳 안내 정직 · 다 빼면 빈 목록
 chk 'DN_RSV_AFTER_PICK_1102' mypage.html 1
 chk 'function _dnRsvFor(d, place, nm)' mypage.html 1   # [B2_FIX_MA_38 2026-11-06] nm = 옛 이름 열쇠 옮기기용
 chk 'DN_RSV_PER_PLACE_1102' mypage.html 3
@@ -22430,14 +22430,14 @@ chk 'DN_NO_HIDDEN_FL_1102' mypage.html 1
 chk 'DN_RESET_ALWAYS_1102' mypage.html 3
 chk 'DN_EMPTY_STEP_1102' mypage.html 1
 nochk '원하시는 곳이 따로 있으면 그대로 진행하셔도 돼요' mypage.html
-# ★[DN_NO_EMOJI_1102 사장님 «애프터 웨딩 들어가서 이모지 같은 거 전부 없애고»] 고르기 카드 🍽 · 🍃 삭제 — 되살리지 말 것
+# ★[DN_NO_EMOJI_1102 사장님 «예식 후 식사 들어가서 이모지 같은 거 전부 없애고»] 고르기 카드 🍽 · 🍃 삭제 — 되살리지 말 것
 chk 'DN_NO_EMOJI_1102' mypage.html 3   # [DN_ONE_PICK_1102] 별 그림 자리는 카드 담기로 바뀌었다
 nochk "content:'\\\\2665'" mypage.html
 nochk "(_pf?'★':'☆')" mypage.html
 nochk 'class="dgc-ico"' mypage.html
 nochk '🍽' mypage.html
 nochk '🍃' mypage.html
-# ★[DN_DESIGN_1102 사장님 «전부 추천대로»] 애프터 웨딩 1라운드 1~12 · 14 — 자동 예약할 곳 없음 · 펼침 셋 한 모양 · 칩 한 모양 · 공개 스위치 · 지도 결과도 카드로 담기 · 전화 확인 한 번 · 위 안내 줄임 · «예약할 곳으로 정하기» · 인원 «명» · 상황 칩은 그 조건만 · 접기 · 가볼 곳 위로 · 비교 정보 · 가운뎃점 띄움
+# ★[DN_DESIGN_1102 사장님 «전부 추천대로»] 예식 후 식사 1라운드 1~12 · 14 — 자동 예약할 곳 없음 · 펼침 셋 한 모양 · 칩 한 모양 · 공개 스위치 · 지도 결과도 카드로 담기 · 전화 확인 한 번 · 위 안내 줄임 · «예약할 곳으로 정하기» · 인원 «명» · 상황 칩은 그 조건만 · 접기 · 가볼 곳 위로 · 비교 정보 · 가운뎃점 띄움
 chk 'DN_NO_AUTO_REP_1102' mypage.html 1
 nochk 'if(!rep && restos.length===1){ rep=restos\[0\].n; d.venuePick=rep; }' mypage.html
 chk 'DN_FOLD_ONE_1102' mypage.html 1   # [DN_ATTR_OFF_1122] .dn-attr 모양 줄이 빠져 2 → 1
@@ -22947,7 +22947,7 @@ nochk '잠시 두 사람은 서로의 눈을 바라보며 지금 이 순간을' 
 nochk '지금부터 서로의 눈을 바라봐 주시기 바랍니다. 긴 시간' assets/ritual-open.js
 nochk '지금부터 서로의 눈을 지그시 바라봐 주세요' assets/ritual-open.js
 nochk '두 분은 부모님을 바라보며 편지를 낭독해' order-preview.html
-# ── 2026-11-06 [B2_HOME_01 ~ B2_HOME_32 · 2차 홈 · AI 상담] 제한 시간은 본문까지 · 일정 잠금 · 저장본 표시 · 신청 결과 · 취소 잠금 · 애프터 웨딩 AI 답 · 이름 맞추기
+# ── 2026-11-06 [B2_HOME_01 ~ B2_HOME_32 · 2차 홈 · AI 상담] 제한 시간은 본문까지 · 일정 잠금 · 저장본 표시 · 신청 결과 · 취소 잠금 · 예식 후 식사 AI 답 · 이름 맞추기
 chk 'B2_HOME_01' inquiry.html 2
 chk 'B2_HOME_01' schedule.html 3
 chk 'B2_HOME_01' cancel.html 1
@@ -23176,11 +23176,11 @@ chk 'B2_MA_06' shared/hydrate.js 3                 # 처음 읽은 틀에 매번
 chk 'B2_MA_36' shared/hydrate.js 2                 # 하객 안내 단추 — 끝내 실패하면 «다시 불러오기»
 chk '하객 안내를 불러오지 못했어요.' shared/hydrate.js 1
 chk 'B2_MA_51' shared/hydrate.js 1                 # 단독 표본에도 예시 표시
-# ── 2026-11-06 [B2_MA_* 2차 B2 마이페이지] 애프터 웨딩 · 하객 안내 패널 · 단체 사진 · 식전 영상 · 로그인 찾기 · 운영 메일
+# ── 2026-11-06 [B2_MA_* 2차 B2 마이페이지] 예식 후 식사 · 하객 안내 패널 · 단체 사진 · 식전 영상 · 로그인 찾기 · 운영 메일
 chk 'B2_MA_02' mypage.html 2                     # 하객 안내 패널 — 사진 올리기는 늘 · 식사 · 좌석은 준비한 것만
 chk '하객 안내에서 사진을 올릴 수 있어요.' mypage.html 2
-chk 'B2_MA_14' mypage.html 3                     # 상태 = 실제 공개 장소 · «식사 · 애프터 웨딩»(d-18)
-chk "'식사 · 애프터 웨딩'" mypage.html 1
+chk 'B2_MA_14' mypage.html 3                     # 상태 = 실제 공개 장소 · «식사 · 예식 후 식사»(d-18)
+chk "\\['예식 후 식사',g.dining" mypage.html 1   # [MEAL_NAME_1122] «식사 · 애프터 웨딩» → «예식 후 식사» (겹말 정리)
 nochk "'식사 · 애프터'" mypage.html
 chk 'B2_MA_12' mypage.html 4                     # 예약 시각 · 식사·카페 후보 · 사진 준비 요약(확인된 식사만)
 chk '\[식사·카페 후보 · ' mypage.html 1
@@ -23222,7 +23222,7 @@ chk 'img|dscf|dsc|photo' mypage.html 1
 chk 'B2_MA_56' mypage.html 1
 chk 'B2_MA_57' mypage.html 3
 chk 'B2_MA_65' mypage.html 1
-chk '애프터 웨딩 안내 없이 진행할게요' mypage.html 1
+chk '예식 후 식사 안내 없이 진행할게요' mypage.html 1
 chk 'B2_MA_66' mypage.html 2
 chk 'B2_MA_69' mypage.html 1
 chk 'B2_MA_76' mypage.html 1
@@ -23241,8 +23241,8 @@ chk "마이페이지의 ‘예식 준비’에서 청첩장과 식순을 차근�
 chk 'B2_MA_68' automation/platform/95_notify.gs 1
 chk '보정할 사진 선택 완료' automation/platform/95_notify.gs 1
 chk 'B2_MA_94' automation/platform/95_notify.gs 1
-chk '애프터 웨딩 장소 점검' automation/platform/88_place_audit.gs 2
-chk '청첩장·식순·애프터 웨딩이 옛 일시로 남을 수 있음' automation/platform/70_journey.gs 1
+chk '예식 후 식사 장소 점검' automation/platform/88_place_audit.gs 2
+chk '청첩장·식순·예식 후 식사가 옛 일시로 남을 수 있음' automation/platform/70_journey.gs 1
 # ── 2026-11-06 [B2_MA_* 2차 B2 나머지 10건] 식전 영상 순서 · 확정 대조 · 사진 칸 · 청첩장 발행 · 보정 사진 고르기 · 대본에 담긴 글
 chk 'B2_MA_07' mypage.html 4                     # 저장 · 보내기 · 확정을 한 줄로 · 판 번호(rev)
 chk '저장을 마친 뒤 영상을 만들게요.' mypage.html 1
@@ -23278,7 +23278,7 @@ chk "+_longTxBtn()+'</div>'" order-preview.html 1
 chk 'B2_FIX_NI16' api/after-concierge.js 1                  # 지도 분류 «갈래 > 끝 토막»
 chk 'B2_FIX_NI16' assets/ritual-preview-link.js 2           # 옛 끝 토막 꼴 — 분명한 음식 분류 낱말일 때만
 chk 'B2_FIX_NI16' scripts/audit/console-inject.mjs 2
-chk 'PROD_FS_INERT' mypage.html 2                # [PROD_FS_INERT R3X #14] 청첩장 · 좌석 · 음료 · 애프터 웨딩 전체화면도 뒤 페이지 inert(Tab 이 가려진 본문으로 안 나간다)
+chk 'PROD_FS_INERT' mypage.html 2                # [PROD_FS_INERT R3X #14] 청첩장 · 좌석 · 음료 · 예식 후 식사 전체화면도 뒤 페이지 inert(Tab 이 가려진 본문으로 안 나간다)
 if command -v node >/dev/null 2>&1; then node scripts/audit/prod-fs-inert.mjs >/tmp/_pfi.txt 2>&1; _pfi=$?; if [ "$_pfi" = 1 ]; then echo 'REVERT? scripts/audit/prod-fs-inert.mjs 빨강 — 제작 전체화면이 떠 있는데 Tab 이 뒤 본문으로 나간다(또는 닫아도 막음이 남는다)'; grep FAIL /tmp/_pfi.txt | head -3; fail=1; else echo "ok prod-fs-inert [PROD_FS_INERT] (코드 $_pfi · 2 = 브라우저 없어 정적만)"; fi; fi
 chk 'B2_FIX_MA_38_GAS' automation/platform/80_production.gs 1   # 하객 안내 대표 장소 = 이름 + venuePickPid(없으면 옛 초안처럼 이름)
 chk "String(v.pid || '').trim() === _ppid" automation/platform/80_production.gs 1
