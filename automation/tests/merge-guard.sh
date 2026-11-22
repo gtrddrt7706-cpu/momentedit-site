@@ -22637,7 +22637,7 @@ chk 'function pzNow' assets/bgm-bed.js 1
 chk 'function holdGo' assets/bgm-bed.js 1
 chk 'T01 멈춘 동안 lpShow' scripts/audit/reg-p17.mjs 1
 chk 'T04 대조' scripts/audit/reg-p17.mjs 1
-chk 'T06 다음 순간 몫 이음말' scripts/audit/reg-p17.mjs 1   # [REG_P17 검토 B] 보류가 _pre 이음말 · 박수 새 곡 줄에서 lpShow 규칙을 건너뛰지 않는다
+chk 'T06 은퇴' scripts/audit/reg-p17.mjs 1   # [PREVIDEO_SONG_1122] 옛 chk 'T06 다음 순간 몫 이음말' 은퇴(잴 자리 없음) ·   # [REG_P17 검토 B] 보류가 _pre 이음말 · 박수 새 곡 줄에서 lpShow 규칙을 건너뛰지 않는다
 chk 'REG_P17 검토 B' assets/bgm-bed.js 1
 chk 'photo-scene-flow reg-p17' .github/workflows/merge-guard.yml 1
 chk 'ONE_FLOW_1106' assets/bgm-picks.js 4   # [ONE_FLOW_1106] 축사 · 편지 «음악과 함께» = 본식 M4 그대로(oneSeg) · M4 겹침 8초(xfOf)
