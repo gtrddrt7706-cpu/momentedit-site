@@ -5791,7 +5791,15 @@ chk 'KID_CHAIR' admin.html 1
 chk 'DRINK_TWO' guide.html 1
 chk "K:'논알코올 스파클링',Y:'논알코올 스파클링'" guide.html 1   # 낱말은 부부가 고르는 칩(«논알코올 스파클링»)과 같게
 chk "return ({R:'C',K:'N',Y:'N'})" admin.html 1   # [DRINK_TWO] 스태프 A4 도 옛 값을 지금 준비하는 둘로 센다
-chk 'data-swipe>옆으로 밀면 우측 테이블이 보여요' guide.html 1   # [SEAT_PLAN_9] 전체 공개 좌석표에도 우측이 있다는 한 줄
+# (옛 줄 · [SEAT_SWIPE_CUE 2026-11-22] 아래 한 줄 → 그림 위 알약) chk 'data-swipe>옆으로 밀면 우측 테이블이 보여요' guide.html 1   # [SEAT_PLAN_9] 전체 공개 좌석표에도 우측이 있다는 한 줄
+# ★[SEAT_SWIPE_CUE 2026-11-22 사장님 «옆으로 넘어가게 할 수 있다는 표시»] 그림 위 «우측 테이블 ›» · «‹ 좌측 테이블» 알약 — 세 화면이 한 함수
+chk 'P.edgeCue = function(sc, o)' assets/seat-plan.js 1
+chk 'ME_SEAT_PLAN.edgeCue(' mypage.html 1
+chk 'ME_SEAT_PLAN.edgeCue(' seat.html 1
+chk 'ME_SEAT_PLAN.edgeCue(' guide.html 2
+nochk 'data-swipe>옆으로 밀면' guide.html
+nochk 'data-swipe>옆으로 밀면' seat.html
+nochk '<div class="seat-swipe"' mypage.html
 nochk "R:'레드와인'" guide.html
 chk "Y:'어린이 · 물'" mypage.html 1
 chk "_dv === 'Y'" automation/platform/80_production.gs 1
