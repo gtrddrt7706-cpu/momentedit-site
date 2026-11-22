@@ -49,7 +49,8 @@ pvCheck(C, '① [PV_LEAD_NOCLAP_1106] 박수 없는 개식(칩 1 ~ 5) → 식전
 { /* 그 밖 큐의 뜸은 그대로 — 영상 없는 날 화촉 첫 큐 6초 · 닫는 인사 3초 */
   const r = C.build({ course: 'open', on: { candle: 1 }, narEx: { open: 2 } }, { mode: 'console' }), i = r.cues.findIndex((c) => c.slug === 'narr-open'), cd = r.cues.slice(i + 1).find((c) => c.k === 'candle' && !/^bridge-/.test(c.slug || '')) || {};
   const cb = r.cues.find((c) => c.slug === 'narr-close-bow') || {};
-  ok('① 다른 자리 그대로 — 영상 없는 날 화촉 첫 큐 뜸 6초(−8) · 닫는 인사 뜸 3초', cd.goLeadMs >= 6000 && cd.leadDb === -8 && cb.goLeadMs === 3000, { cd: [cd.slug, cd.goLeadMs, cd.leadDb], cb: cb.goLeadMs });
+  /* ★[GAP_SWEEP_GO_1122 ③ 대표님 11/22 23:15] 개식 바로 뒤 사슬 화촉 여는 말(영상 없는 날 · 개식 칩 2)은 «음악만 6초 먼저»를 걷었다 — 옛 기대(뜸 6초 −8)를 새 기대(뜸 없음 · 사슬 3초 · 곡 3초 오름)로 · 검사 gap-sweep-go-1122.mjs */
+  ok('① 다른 자리 — 영상 없는 날 개식 뒤 사슬 화촉 첫 큐는 뜸 없이 3초(GAP_SWEEP_GO_1122 ③) · 닫는 인사 뜸 3초 그대로', !cd.goLeadMs && cd.leadDb == null && cd.gapMs >= 3000 && cd.fadeMs === 3000 && cb.goLeadMs === 3000, { cd: [cd.slug, cd.goLeadMs, cd.leadDb, cd.gapMs, cd.fadeMs], cb: cb.goLeadMs });
 }
 /* 콘솔 셈이 이 검사의 모델과 같은가 — 줄이 바뀌면 여기를 다시 맞춘다 */
 { const con = fs.readFileSync(P('console.html'), 'utf8');
@@ -132,10 +133,12 @@ if (!FAST) {
     /* 식순 화면 — 미리 듣기 쉼(이미 맞다 · 뜸을 읽지 않는다) · 하객 맞이 10분 전 줄 · 전체 대본 */
     const { pg, errs } = await pageOf(`http://127.0.0.1:${port}/order-preview.html`);
     await pg.waitForFunction(() => typeof ENG !== 'undefined' && ENG && ENG.RitualCue, null, { timeout: 20000 }).catch(() => {});
+    /* ★[TRIBUTE_GAP_BGM_1122 · GAP_SWEEP_GO_1122] 미리 듣기는 goLeadMs 를 «곡이 그 줄 아래에서 오르는 자리(gl 0) 표시»로 한 자리만 읽는다(쉼 셈에는 안 씀) — 그 한 줄(표시 · 주석)만 빼고 잰다 */
+    const GL_MARK = 'gl:c.goLeadMs||0';
     const pvG = await pg.evaluate(() => [0, 1, 2, 3, 4, 5].map((n) => { S.on = { prevideo: 1 }; S.narEx = { open: n }; const q = _lSteps(ENG, ['guest', 'prevideo']), i = q.findIndex((x) => /^narr-prevideo-in/.test(x.slug || '') && !x.lead);
       return i > 0 && q[i - 1].slug === 'narr-open' ? _lGapOf(q, i, q[i - 1], q[i], true).gap : null; }));
     ok(`① 미리 듣기(식순 화면) 개식 → 소개 쉼 ${pvG.join(' · ')}ms — 3초 이하 · 칩과 상관없이 같다(엔진 뜸 goLeadMs 를 읽지 않는다 · 음악이 있으면 3초 하한)`,
-      pvG.every((g) => g != null && g <= 3000 && g === pvG[0]) && !/goLeadMs/.test(fs.readFileSync(P('order-preview.html'), 'utf8')) && !/goLeadMs/.test(fs.readFileSync(P('assets/bgm-bed.js'), 'utf8')), pvG);
+      pvG.every((g) => g != null && g <= 3000 && g === pvG[0]) && !/goLeadMs/.test(fs.readFileSync(P('order-preview.html'), 'utf8').split('\n').filter((l) => !l.includes(GL_MARK)).join('\n')) && !/goLeadMs/.test(fs.readFileSync(P('assets/bgm-bed.js'), 'utf8')), pvG);
     const scr = await pg.evaluate((ex) => { const bS = RitualOpen.applyExample({ course: 'open' }, 'brief'); bS.course = 'open'; Object.keys(S).forEach((k) => { delete S[k]; }); Object.assign(S, bS);
       const f = (typeof _fixSteps === 'function' ? _fixSteps('pre') : [])[1] || {}; let all = ''; try { all = scriptTextOpen(); } catch (e) { all = 'ERR ' + e.message; }
       return { ten: f.tx || '', all: all.indexOf(ex) > -1 }; }, C.EXTRA['guest-w-10m-n10']);

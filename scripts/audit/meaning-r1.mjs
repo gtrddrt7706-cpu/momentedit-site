@@ -100,9 +100,10 @@ const K4 = ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter', 'son
     ok('PREVIDEO_SONG_1122 영상 뒤 첫 화촉 줄 — 6초 앞 −8 로 곡이 먼저 · 91 이음말은 곡 위 −15 · 받는 말 261 은 정적(서는 분 넷 × 예시 넷)', PV.length === 16 && !bad.length && PV.some((x) => x.b14), bad.slice(0, 3));
     const N = B2({ on: { prevideo: 1, candle: 0 } }), nb7 = by(N, 'bridge-b7-entry-ready');
     ok('PREVIDEO_SONG_1122 화촉 없는 날 — 영상 뒤 입장 앞 이음말(b7)은 정적 · 입장 곡은 입장 GO 에서(미리 틀지 않는다)', nb7.duck === -90 && !(nb7.goLeadMs > 0 && nb7.leadDb != null), { b7: [nb7.duck, nb7.goLeadMs, nb7.leadDb] }); }
-  /* ★[THANKS_LEAD_FIX_1122] 감사문 날(welcomeKind thanks) — 맞절 뒤 이음말 244(k welcome)는 정적 · 곡 뜸(6초 앞 −8)은 133 에만(244 에 뜸이 걸리면 피아노가 켜졌다 꺼지고 다시 켜졌다) */
+  /* ★[THANKS_LEAD_FIX_1122] 감사문 날(welcomeKind thanks) — 맞절 뒤 이음말 244(k welcome)는 정적 · 뜸 없음(244 에 뜸이 걸리면 피아노가 켜졌다 꺼지고 다시 켜졌다)
+     ★[GAP_SWEEP_GO_1122 ① 대표님 11/22 23:15 승인] 133 의 6초 앞 −8 뜸은 걷었다 → 244 뒤 사슬 1.2초 · 곡은 133 아래에서 3초에 걸쳐 오른다(옛 기대 «133 에 6초 앞 −8»은 이 결정으로 바꿈) */
   { const T = B2({ on: { welcome: 1, vow: 1 }, welcomeKind: 'thanks' }), ib = T.findIndex((c) => c.slug === 'bridge-b8-face-guests'), b = T[ib] || {}, n = T[ib + 1] || {};
-    ok('THANKS_LEAD_FIX_1122 감사문 날 — 244 정적 · 뜸 없음 → 133 에 6초 앞 −8', ib > -1 && b.k === 'welcome' && b.duck === -90 && !(b.goLeadMs > 0) && b.leadDb == null && n.slug === 'narr-thanks-in' && n.goLeadMs >= 6000 && n.leadDb === -8, { b: [b.k, b.duck, b.goLeadMs, b.leadDb], n: [n.slug, n.goLeadMs, n.leadDb] }); }
+    ok('THANKS_LEAD_FIX_1122 · GAP_SWEEP_GO_1122 ① 감사문 날 — 244 정적 · 뜸 없음 → 133 사슬 1.2초 · 뜸 없음 · 곡은 133 아래 3초', ib > -1 && b.k === 'welcome' && b.duck === -90 && !(b.goLeadMs > 0) && b.leadDb == null && n.slug === 'narr-thanks-in' && n.fire === 'chain' && n.gapMs === 1200 && !(n.goLeadMs > 0) && n.leadDb == null && n.fadeMs === 3000, { b: [b.k, b.duck, b.goLeadMs, b.leadDb], n: [n.slug, n.fire, n.gapMs, n.goLeadMs, n.leadDb, n.fadeMs] }); }
   const b7 = by(O2, 'bridge-b7-entry-ready');
   ok('17 영상 · 화촉 없는 날 — 입장 앞 이음말(b7)은 정적 위(하객 맞이 곡이 돌아오지 않는다)', b7.duck === -90, { b7: b7.duck });
   ok('20 영상 없는 날도 박수를 청하는 개식사면 박수 live(사람이 GO)', !!(o2.live && o2.live.applause) || !/박수/.test(o2.text || ''), { live: !!o2.live, text: String(o2.text || '').slice(0, 30) });
