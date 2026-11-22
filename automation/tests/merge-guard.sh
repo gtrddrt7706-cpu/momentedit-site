@@ -24506,3 +24506,6 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/close-c-go-1122.mjs 
 chk 'online: 0 };' assets/ritual-open.js 1
 nochk '온라인 인사까지' order-preview.html 0
 nochk '온라인 인사 약 2분' api/_kb.js 0
+# ★[DUCK20_1122] lane f 기대도 −20 — console-r2 B ①② 옛 «−15 → −20 내림» 은퇴 · one-flow T05 · T06 축가 여는 말 −20
+chk 'DUCK20_1122' scripts/audit/console-r2-1115.mjs 2
+chk 'DUCK20_1122' scripts/audit/one-flow.mjs 1
