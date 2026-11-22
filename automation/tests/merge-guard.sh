@@ -19973,7 +19973,7 @@ chk 'BGM_R2_1023' assets/bgm-slots.js 5
 chk 'BGM_R2_1023' order-preview.html 2
 chk 'BGM_R2_1023' scripts/audit/bgm-form.mjs 6
 chk ".mk-flow li.q\[data-bgm\] .qa{font-weight:400;color:var(--sub)}" order-preview.html 1
-chk "function head(st) { return (st && st\[0\] && /^bridge-/.test(String(st\[0\].slug || ''))) ? 1 : 0; }" assets/bgm-slots.js 1
+chk "function head(st) { var x = st && st\[0\]; if (!x || !/^bridge-/.test(String(x.slug || ''))) return 0; if (/^bridge-b14-candle-name\$/.test(String(x.slug)) && x.dk != null && +x.dk > -60) return 0; return 1; }" assets/bgm-slots.js 1   # [PREVIDEO_SONG_1122] 영상 뒤 263(곡 위)은 앞 장면 머리로 세지 않는다(옛 한 줄 head)
 chk "if (!m) return { i: h, hit: true };   /\* top(옛 bridge 도 같다) \*/" assets/bgm-slots.js 1        # [BGM_R3_1023] flowAt → flowFind(맨 앞은 늘 찾음)
 nochk '부모님께 인사드리는 동안 밝고' assets/bgm-slots.js
 nochk '흐르던 피아노가 아주 작게 이어져요' assets/bgm-slots.js
