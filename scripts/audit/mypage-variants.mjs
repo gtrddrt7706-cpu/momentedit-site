@@ -65,7 +65,7 @@ for (const w of [430, 560, 760, 900]) {
   await page.close();
 }
 
-// 속화면 — 다이닝 추천(애프터 웨딩) · 좌석·음료
+// 속화면 — 다이닝 추천(예식 후 식사) · 좌석·음료
 for (const [key, label, fn] of [['dining', '다이닝추천', "mp_diningStart"], ['final', '좌석음료', "mp_finalStart"]]) {
   for (const w of [560, 760]) {
     const page = await open(w);

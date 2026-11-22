@@ -60,7 +60,7 @@ body{background:var(--bg);margin:0;padding:26px 15px 60px;font-family:var(--seri
 .wrap{max-width:440px;margin:0 auto;position:relative}
 .brand{text-align:center;font-family:var(--serif);font-size:12px;letter-spacing:.24em;color:var(--gold-deep);text-transform:uppercase;margin-bottom:16px}
 /* ★[GUIDE_NAME_OWNER_1115 2026-11-15 대표님 «화면을 하객 안내로»] 안내 음성이 늘 «모바일 청첩장의 하객 안내»라고 부른다 — 링크 · QR · 청첩장 단추 어느 길로 열어도 맨 위에 그 이름이 보이게.
-   불러오는 중 · 기간 종료 · 실패 화면에도 보이도록 그리기 전 HTML 에 둔다 · «애프터 웨딩» · «여기로 모여요»는 안쪽 칸 제목 그대로 · 이 줄을 빼면 음성이 부르는 이름이 화면에서 사라진다 */
+   불러오는 중 · 기간 종료 · 실패 화면에도 보이도록 그리기 전 HTML 에 둔다 · «예식 후 식사» · «여기로 모여요»는 안쪽 칸 제목 그대로 · 이 줄을 빼면 음성이 부르는 이름이 화면에서 사라진다 */
 .page-t{text-align:center;font-family:var(--serif-ko);font-size:18px;font-weight:600;letter-spacing:.04em;color:var(--accent);margin:-6px 0 16px;line-height:1.4}
 .backbar{position:absolute;left:0;top:-4px}   /* 브랜드 줄과 같은 높이 왼쪽 — 홀로 뜬 알약이 상단 리듬을 깨던 것 통합(2026-07-18 사용자 지적) */
 .backbar button{font-family:var(--serif-ko);font-size:12.5px;color:var(--faint);background:transparent;border:none;padding:6px 8px;cursor:pointer}
@@ -624,7 +624,7 @@ function diningHtml(dn){
   // [GUIDE_EMPTY_SEC] on만 켜고 담은 곳이 하나도 없으면 제목만 있는 빈 섹션이 떴다(실측).
   //   하객에겐 '뭔가 있는데 안 뜬 화면'으로 보인다 — 내용이 없으면 섹션 자체를 내지 않는다.
   if(!dn.pick && !restos.length && !spots.length) return '';
-  var h='<div class="sec"><div class="sec-h"><h2 class="sec-t">애프터 웨딩</h2><span class="sec-n">After Wedding</span></div>';  // [B2_HOME_32] 줄임 «애프터» 금지 · 마이페이지 메뉴 이름 그대로(d-18)
+  var h='<div class="sec"><div class="sec-h"><h2 class="sec-t">예식 후 식사</h2><span class="sec-n">Dining</span></div>';  // [B2_HOME_32] 줄임 «애프터» 금지 · 마이페이지 메뉴 이름 그대로(d-18)
   if(dn.pick){
     // 선택 식당이 찜 목록에도 있으면 카드 하나로 합침 — 같은 이름 이중 노출 방지 + 소개·지도·전화를 '여기로 모여요' 안에서 바로(2026-07-17 사용자 지적)
     var mi=-1; for(var i=0;i<restos.length;i++){ if(normName(restos[i].n)===normName(dn.pick)){ mi=i; break; } }
