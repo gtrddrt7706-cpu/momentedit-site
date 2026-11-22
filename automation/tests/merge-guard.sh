@@ -1503,6 +1503,9 @@ chk 'HOME_CTA_KO' index.html 1                 # 주 버튼 한글 주·영문 �
 chk 'cta-eyebrow' index.html 4                 # 영문 아이브로우 3곳 + CSS 1. ★영문을 버튼 '안'에 2줄로 넣는 안(cta-btn-ko/en)은 2026-07-26 재검토로 폐기 — 되살리지 말 것(버튼 73px·영문 불투명 66%로 안 읽힘)
 chk 'BTN_TIER' index.html 4                    # 버튼 2단 체계(채움=전환 3곳 / 외곽=보조 이동 1곳). journal-guide-link를 채움 마룬으로 되돌리면 화면에 전환 버튼이 4개가 된다 — 복원 금지
 chk 'MAP_BREATH' index.html 1                  # 지도 블록 상하 여백 80/88 — margin-top만 두고 아래를 0으로 되돌리면 다시 푸터에 끼인다
+chk 'FIT_WEAR_SPLIT' inquiry.html 1               # [2026-11-22 대본 GPT_FIX_1122] 신청서 «상담 때 시착» / «예식 당일 착용» 말 나눔
+chk '상담 때 시착(기본 2벌)은 그날 동의 후 진행됩니다.' inquiry.html 1
+chk '예식 당일 착용 1벌 포함 · 2벌째부터 추가금' inquiry.html 1
 chk 'PILL_FOCUS_ROUND_1119' order-preview.html 1  # [2026-11-19 NIGHT20 #13 R3X2] 알약 단추는 키보드 초점에서도 둥글게(전역 4px 에 지지 않게)
 chk 'NEXT_SEG_1119' order-preview.html 2          # [2026-11-19 NIGHT20 #13 R3X2] ② 다음 단추 글은 «·» 마디째로만 줄바꿈(320 «하객 / 맞이 안내» 끊김)
 chk 'DEPOSIT_WORD_1119' index.html 2             # [2026-11-19 대표님 «추천대로» · DEC3] 예약금은 «입금» 한 낱말(FAQ · 예약 및 환불)
@@ -5733,7 +5736,7 @@ chk '드레스를 시착하신 경우에만' index.html 1              # 제4조
 # 제7조② — 23스크린 접힘 안에만 있던 사실을 가격 카드로 끌어올린 것이 이 가드의 뜻이다.
 #   ★2026-08-18 문구만 바뀌었다(「위약금 없이 전액 환급」→「전액 돌려드립니다」·[PRICE_NOTE_TONE]).
 #     사실도 자리도 그대로다 — 지키려던 것은 «일찍 보인다»이지 특정 단어가 아니다.
-chk '예식 150일 전까지는 전액 돌려드립니다 · 드레스 시착 비용만 제외' index.html 1
+chk '계약 성립 15일 이내 또는 예식 150일 전까지는 전액 돌려드립니다 · 드레스 시착 비용만 제외' index.html 1   # [REFUND_15D_SUM 2026-11-22 · RULES_SLIM ⑧] 계약서 7조①의 15일도 요약에(옛 핀은 150일만)
 chk '디지털 참석 페이지' index.html 1                     # 제3조⑥ 포함 칸(별도 칸에 있었다)
 # [PRICE_STAGE_TABLE 2026-08-16] 계약서 단계별 지급 표가 총액과 따로 놀지 않게(평일 열이 240만이었다)
 chk 'PRICE_STAGE_TABLE' scripts/check-price-sync.mjs 1

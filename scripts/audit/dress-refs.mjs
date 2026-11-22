@@ -159,7 +159,7 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   t(!/dress-refs\.js|data-dress-|href="dress\.html"|DRESS_HOME_BELOW|DRESS_LIVE/.test(IDXX), '④ [DRESS_PUBLIC_OFF] 홈에 드레스 자리가 없다(dress-refs.js · data-dress-* · dress.html 링크 0)');
   /* ★[DRESS_NOTE_ONE 2026-10-23 코워크 검토 4] Nº 03 Note 는 글 한 덩어리 — 줄이 flex 라 span 과 맨 글이 따로 칸이 되면 스위치가 꺼져 있어도 두 단으로 갈라진다(운영 신청서가 깨진다).
      켜질 글은 data-dress-text 에 통째로 두고 스크립트가 바꾼다(꺼짐 = 종전과 같은 글 한 덩어리 · 픽셀까지 같다) */
-  const NOTE_TAIL = ' 시착(기본 2벌)은 상담 당일 동의 후 진행됩니다. 계약을 진행하지 않으시면 시착하신 벌수만큼(1벌 50,000원 · 최대 100,000원) 차감되고 나머지 예약금은 환불됩니다.';
+  const NOTE_TAIL = ' 상담 때 시착(기본 2벌)은 그날 동의 후 진행됩니다. 계약을 진행하지 않으시면 시착하신 벌수만큼(1벌 50,000원 · 최대 100,000원) 차감되고 나머지 예약금은 환불됩니다.';
   /* ★[DRESS_NOTE_APPLY 명세 2 · 5장] 켜질 첫 문장 = «…입니다. 신청하시면 마이페이지에서 상담 날 입어 보실 드레스를 미리 둘러보실 수 있습니다.» */
   const NOTE_HTML = '<span class="accent">Note</span><span data-dress-text="대여 의상은 프리 사이즈(44~88 내외)입니다. 신청하시면 마이페이지에서 상담 날 입어 보실 드레스를 미리 둘러보실 수 있습니다.' + NOTE_TAIL + '">대여 의상은 프리 사이즈(44~88 내외)로, 상담에서 직접 보고 확인하실 수 있습니다.' + NOTE_TAIL + '</span>\n';
   t(INQX.indexOf(NOTE_HTML) > -1, '④ [DRESS_NOTE_ONE] 신청서 Nº 03 Note — «Note» 뒤 글 한 덩어리(지금 문장) · 켜질 문장은 data-dress-text(링크 없음)');
@@ -296,7 +296,7 @@ function audit(src, gas, PAGE = PAGE0, MP = MP0, X = {}) {
   t(PAGE.indexOf('class="fit-p"') < 0 && PAGE.indexOf('class="fit-dots"') < 0, '⑪ [DRESS_PUBLIC_OFF] 공개 시착 칸(세 문장 · 점 줄)이 없다');
   t(J70.indexOf("'드레스 시착은 2벌까지 포함됩니다. (3벌째부터 1벌당 50,000원)'") > -1 && J70.indexOf('실제 진행한 벌수만큼(1벌당 50,000원 · 최대 100,000원) 예약금이 시착 비용으로 공제되고 나머지는 전액 환불됩니다') > -1, '⑪ [DRESS_FIT_FEE] 시착 동의서(70_journey FITTING_CONSENT) = 2벌 포함 · 3벌째부터 1벌당 50,000원 · 최대 100,000원 — 시착비 금액은 상담 카드 · 시착 동의서가 맡는다');
   t(IDXX.indexOf('<li>드레스 시착 <span class="li-meta">상담 당일 · 기본 2벌</span></li>') > -1 && IDXX.indexOf('<li>추가 시착 <span class="li-price">₩50,000<span class="li-meta">/벌 · 3벌째부터</span></span></li>') > -1, '⑪ [DRESS_FIT_FEE] 홈 가격표 = 상담 당일 · 기본 2벌 · ₩50,000/벌 · 3벌째부터 — 시착 동의서와 같은 숫자');
-  t(INQX.indexOf('시착(기본 2벌)은 상담 당일 동의 후 진행됩니다. 계약을 진행하지 않으시면 시착하신 벌수만큼(1벌 50,000원 · 최대 100,000원) 차감되고 나머지 예약금은 환불됩니다.') > -1, '⑪ [DRESS_FIT_FEE] 신청서 Nº 03 = 기본 2벌 · 최대 100,000원 · 차감 — 시착 동의서와 같은 숫자');
+  t(INQX.indexOf('상담 때 시착(기본 2벌)은 그날 동의 후 진행됩니다. 계약을 진행하지 않으시면 시착하신 벌수만큼(1벌 50,000원 · 최대 100,000원) 차감되고 나머지 예약금은 환불됩니다.') > -1, '⑪ [DRESS_FIT_FEE] 신청서 Nº 03 = 기본 2벌 · 최대 100,000원 · 차감 — 시착 동의서와 같은 숫자');
   t(!/pk-bar-note|시착비/.test(decom(PAGE)), '⑬ [DRESS_BAR_PLAIN] 고르기 화면에 시착비 줄이 없다 — 막대 위 «안 입은 드레스는 시착비가 들지 않아요.»를 걷었다(금액 안내는 상담 카드 «예식까지 함께 챙길 것들» · 시착 동의서 몫)');
   t(fnOf('doneHTML').indexOf('<p class="dotln">시착(기본 2벌)은 현장에서 다시 보고 정하셔도 돼요.</p>') > -1 && !/입어 볼지는 상담 날/.test(decom(JS) + decom(card)), '⑪ [DRESS_NO_DEADLINE] 완료 화면 점 줄도 «시착(기본 2벌)은 …» 같은 말(카드 · 띠 · 완료 한 문장)');
   // [DRESS_MEMO_DONE] 남길 말 = 완료 화면 · «남기기»
