@@ -22046,7 +22046,7 @@ nochk "어느 쪽부터 갈지는 리허설 때 디렉터와 정해요" order-pr
 nochk "FG_LAB={wait:'대기 자리',walk:'입장',front:'앞'" order-preview.html
 # [BALL_BOW_1101 검토 186-1] 맞절 = 무도회 맞절(빌더 줄 · 콘솔 live · 이야기 장면 · AI 상담) · «3초 숙이고 · 3초 멈추고 · 3초 일어나기» 걷음
 # [BOW_TIP_1122] 맞절 동작 줄 = 지시가 아니라 팁(평소 인사도 괜찮다) · 옛 지시 말투가 돌아오면 빨강
-chk '팁 · 사진에 예쁘게 남는 인사예요. 신랑은 한 손을 가슴에 얹고 가볍게 숙이고, 신부는 치맛자락을 살짝 잡고 무릎을 굽혀요. 마지막에 서로 눈을 맞추면 좋아요. 평소처럼 인사하셔도 괜찮아요.' order-preview.html 1
+chk '두 분이 마주 보고 서로에게 인사해요. 평소처럼 인사하셔도 되고, 무도회 맞절도 좋아요. 무도회 맞절은 신랑은 한 손을 가슴에 얹고 가볍게 숙이고, 신부는 치맛자락을 살짝 잡고 무릎을 굽혀요. 마지막에 서로 눈을 맞추면 좋아요.' order-preview.html 1   # [BOW_LINE_PLAIN_1123] 팁 머리 걷음
 nochk '신랑은 한 손을 가슴에 얹고 가볍게 숙여요 · 신부는 치맛자락을 살짝 잡고 무릎을 굽혔다 일어나요 · 마지막에 서로 눈을 맞춰요' order-preview.html 0
 chk 'BOW_TIP_1122' assets/ritual-story.js 1
 chk 'HEAD_FLOAT_1122' order-preview.html 1   # [HEAD_EDGE_FADE_1122] 은퇴 → 시안 B(띠 배경 없음 · 단추만)
@@ -24485,3 +24485,6 @@ chk 'body.mkd .prog{position:sticky;top:-5px;' order-preview.html 1
 # ★[PV_BED_QUIET_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 A] 음악까지 미리듣기 — 예시 음악(@PV) 파일이 없으면 빨간 고장 줄 없이 조용히(PREVIEW_BED 머리말 그대로)
 chk 'PV_BED_QUIET_N06' console.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/pv-bed-quiet.mjs >/dev/null 2>&1; _pb=$?; node scripts/audit/pv-bed-quiet.mjs --selftest >/dev/null 2>&1; _pbs=$?; if [ "$_pb" != 0 ] || [ "$_pbs" != 0 ]; then echo "REVERT? pv-bed-quiet: 미리듣기 예시 음악이 없을 때 빨간 줄이 다시 선다 ($_pb/$_pbs) — node scripts/audit/pv-bed-quiet.mjs"; fail=1; else echo 'ok pv-bed-quiet'; fi; fi
+# ★[BOW_LINE_PLAIN_1123 2026-11-23 사장님 «자세 보기가 있으니 팁은 빼고 일반적으로 문구만»] 맞절 줄 머리 «팁 · 사진에 예쁘게 남는 인사예요» 걷음 · 짧은 판 «두 분이 마주 보고 서로에게 인사해요. 자세 보기»
+chk 'BOW_LINE_PLAIN_1123' order-preview.html 1
+nochk '팁 · 사진에 예쁘게 남는 인사' order-preview.html 0
