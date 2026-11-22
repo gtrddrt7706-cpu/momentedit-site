@@ -58,7 +58,7 @@ ok((CON.match(/c\.live\.showT \|\| fmt\(c\.live\.est\)/g) || []).length === 2, '
   const T = [
     ['welcome', /^narr-welcome-in$/, { 'welcome.g': syl(60), 'welcome.b': syl(40) }, {}, 46, 100],
     ['vow', /^narr-vow-in$/, { 'vow.g': syl(150), 'vow.b': syl(150) }, {}, 70, 300],
-    ['vow', /^narr-thanks-in$/, { 'vow.g': syl(120) }, { vowKind: 'thanks' }, 70, 120],
+    ['welcome', /^narr-thanks-in$/, { 'welcome.g': syl(120) }, { welcomeKind: 'thanks' }, 70, 120],   // [THANKS_SWAP_1122] 감사문 = 감사 인사 자리의 판(글칸 welcome.g · b)
     ['letter', /^letter-/, { 'letter.g': syl(240), 'letter.b': syl(240) }, {}, 165, 480],
     ['bless', /^narr-bless-/, { 'bless.p': syl(300) }, {}, 100, 300],
     ['tribute', /^tribute-in$/, { 'tribute.g': syl(80), 'tribute.b': syl(80) }, {}, 160, 160]
@@ -66,8 +66,8 @@ ok((CON.match(/c\.live\.showT \|\| fmt\(c\.live\.est\)/g) || []).length === 2, '
   T.forEach(([k, re, tx, extra, d, n]) => {
     const S0 = Object.assign(J(BASE), extra), S1 = Object.assign(J(S0), { tx: tx }), want = Math.round(n / 4 + 5);
     const l0 = live(S0, re), l1 = live(S1, re), adj = k === 'tribute' ? 20 : 0;
-    ok(l0 && l0.est === d, `E7 ${k}${extra.vowKind ? '(감사문)' : ''} 글 없음 · ${l0 && l0.est} (${d})`);
-    ok(l1 && l1.est === want + adj, `E7 ${k}${extra.vowKind ? '(감사문)' : ''} 글 ${n}음절 · ${l1 && l1.est} (${want + adj})`);
+    ok(l0 && l0.est === d, `E7 ${k}${extra.welcomeKind ? '(감사문)' : ''} 글 없음 · ${l0 && l0.est} (${d})`);
+    ok(l1 && l1.est === want + adj, `E7 ${k}${extra.welcomeKind ? '(감사문)' : ''} 글 ${n}음절 · ${l1 && l1.est} (${want + adj})`);
     const p = O.partsOf(k, S1); ok(k === 'bless' ? p[1] >= want : p[1] === want, `E8 본식 합 · ${k} 말하는 시간 ${p[1]} (${want})`);
   });
   ok(O.textSec({ tx: { 'vow.g': '가 나, 다. 라!' } }, 'vow') === Math.round(4 / 4 + 5), 'E7 띄어쓰기 · 문장부호는 세지 않는다');
