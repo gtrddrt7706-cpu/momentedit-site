@@ -24309,3 +24309,4 @@ chk "'narr-vow-in-face', 'narr-open-online'" assets/ritual-cue.js 1
 chk 'NARR_GO_1122' scripts/splice-narr-go-1122.py 1
 chk 'NARR_GO_1122' docs/rules/나레이션.md 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/narr-go-1122.mjs >/dev/null 2>&1; _ng=$?; if [ "$_ng" != 0 ]; then echo 'FAIL narr-go-1122: 온라인 개식 · 10분 전 판 · 성혼 · 화촉 · 맞절 · 서약 여는 말 순서가 대표님 11/22 결정과 다릅니다 — node scripts/audit/narr-go-1122.mjs'; fail=1; else echo 'ok narr-go-1122'; fi; fi
+if command -v node >/dev/null 2>&1; then node scripts/audit/rec-sec.mjs >/dev/null 2>&1; _rs=$?; if [ "$_rs" != 0 ]; then echo 'FAIL rec-sec: 나레이션 파일 길이표(REC_SEC)가 mp3 와 다르거나 10분 전 판이 어긋났습니다 — node scripts/rec-sec.mjs --write 뒤 node scripts/audit/rec-sec.mjs'; fail=1; else echo 'ok rec-sec'; fi; fi   # [NARR_GO_1122] ffprobe 없이 mp3 머리로 잰다
