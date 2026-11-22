@@ -1614,7 +1614,8 @@ chk 'SEAT_CROWD' seat.html 3                   # 자리 8명 이상이면 원 �
 # (옛 줄 · ★임계 7 · 2026-10-09 글꼴 들어온 판 실측 — 7명 이름표 두 쌍이 겹쳤다 · 아래 R6_PUBLIC 묶음 crowd=(n>=7)) crowd=(n>=8)
 chk 'tbl-list' seat.html 2                     # 목록형 표 본체(CSS 1 + 조립 1). max-width는 통로 침범 때문에 126px — 넓히지 말 것
 chk 'SEAT_ORIENT' seat.html 2                  # '좌측/우측'이 무엇 기준인지 화면에 없던 것 — 단상을 바라볼 때 기준임을 한 줄로(주석 1 + CSS 1)
-chk '단상을 바라볼 때의 좌·우예요' seat.html 1     # 위 한 줄 — 지우면 하객이 좌우를 반대로 읽을 수 있다
+# (옛 줄 · [SEAT_PLAN_9 2026-11-22] 단상이 없어졌다 — 기준을 «신랑 신부 쪽»으로) chk '단상을 바라볼 때의 좌·우예요' seat.html 1
+chk '신랑 신부 쪽을 바라볼 때의 좌·우예요' seat.html 1     # 위 한 줄 — 지우면 하객이 좌우를 반대로 읽을 수 있다
 # ── 2026-07-27 parents.html 1라운드(사이트에서 독자 나이가 가장 많은 화면)
 chk 'PAR_CONTRAST' parents.html 1              # 장식 골드(2.54:1)가 一二三四 장 번호·아이브로우 글자에 쓰이던 것 → --gold-text
 chk 'gold-text' parents.html 3                 # 토큰 1 + 적용 2. 노안 독자에게 장 번호는 '어디까지 읽었는지' 짚는 표시다
@@ -5778,7 +5779,8 @@ chk 'SEAT_FIT' mypage.html 4
 chk 'mag=even?1:1.15' mypage.html 1
 chk 'rt-cap' mypage.html 4
 nochk 'class="rt-cnm"' mypage.html                # ★원 안 커스텀 이름 복원 금지(좌우 자리 알약과 겹친다 · 폐지 주석의 이름 언급은 남긴다)
-chk 'SEAT_FIT' scripts/audit/seat-onecard.mjs 3
+# (옛 줄 · [SEAT_PLAN_9 2026-11-22] seat-onecard 를 확정 배치 판으로 다시 썼다 — 카드 밖 절은 seat-name-fit 의 «배치도 밖»이 잰다) chk 'SEAT_FIT' scripts/audit/seat-onecard.mjs 3
+chk 'SEAT_PLAN_9' scripts/audit/seat-onecard.mjs 1
 # ★★[KID_SEAT 2026-08-16 사용자 지시 "애기들도 있을수있으니깐 … 음료는 물로"] 유아 자리 = 음료 한 칸(K).
 #   물 + 유아용 의자를 한 번에 정한다. 코드 K 는 네 파일이 한 벌 — 하나만 빠지면 저장 때 조용히 지워진다.
 chk 'KID_SEAT' mypage.html 6
@@ -5786,7 +5788,12 @@ chk 'KID_SEAT' mypage.html 6
 #   하이체어 수량은 K 만 센다. Y 를 더하면 스태프가 쓰지 않을 의자를 꺼낸다.
 chk 'KID_CHAIR' mypage.html 4
 chk 'KID_CHAIR' admin.html 1
-chk 'KID_CHAIR' guide.html 1
+# (옛 줄 · [DRINK_TWO 2026-11-22] 하객 음료 표는 둘(샴페인 · 논알콜 스파클링) · 옛 K · Y 도 논알콜로 읽는다) chk 'KID_CHAIR' guide.html 1
+chk 'DRINK_TWO' guide.html 1
+chk "K:'논알코올 스파클링',Y:'논알코올 스파클링'" guide.html 1   # 낱말은 부부가 고르는 칩(«논알코올 스파클링»)과 같게
+chk "return ({R:'C',K:'N',Y:'N'})" admin.html 1   # [DRINK_TWO] 스태프 A4 도 옛 값을 지금 준비하는 둘로 센다
+chk 'data-swipe>옆으로 밀면 우측 테이블이 보여요' guide.html 1   # [SEAT_PLAN_9] 전체 공개 좌석표에도 우측이 있다는 한 줄
+nochk "R:'레드와인'" guide.html
 chk "Y:'어린이 · 물'" mypage.html 1
 chk "_dv === 'Y'" automation/platform/80_production.gs 1
 chk 'cK+' admin.html 1                              # 의자 개수는 유아만(어린이 cY 를 더하지 말 것)
@@ -5813,7 +5820,8 @@ chk 'KID_SEAT' scripts/audit/data-roundtrip.mjs 1   # 저장 왕복에 K 를 태
 chk "K:'유아 · 물'" mypage.html 1
 chk "_dv === 'K'" automation/platform/80_production.gs 1
 chk '유아용 의자' admin.html 2                    # 스태프 A4 합계 줄 + 관리자 상세(당일 준비물)
-chk 'KID_SEAT' scripts/audit/seat-onecard.mjs 1
+# (옛 줄 · [DRINK_TWO 2026-11-22] 아이 음료 K 칩은 없다 — 옛 K 는 논알코올 + 유아용 의자로 옮겨 읽는 것을 seat-onecard 가 잰다) chk 'KID_SEAT' scripts/audit/seat-onecard.mjs 1
+chk 'DRINK_TWO' scripts/audit/seat-onecard.mjs 1
 # [CF_SEAL·CF_ASK·CF_GATE_ONE 2026-08-16 사용자 지시 "고객이 확인했습니다 버튼 … 날짜랑 내가 이때
 #   이것으로 확정했다라는 책임의 부분이 느껴지게" + "모든걸 완료하면 한번에"]
 #   예식 확인서의 확정 = **이 한 곳뿐**이다. 섹션마다 확인 버튼을 만들지 말 것(사용자가 명시로 거절).
@@ -8257,7 +8265,7 @@ chk 'THANKS_IN_VOW' assets/ritual-preview-link.js 1
 chk 'THANKS_IN_VOW' scripts/check-ritual-mirror.js 1
 chk 'THANKS_IN_VOW' scripts/build-course-story.mjs 1
 chk 'THANKS_IN_VOW' scripts/lib/engine-calls.mjs 1
-chk 'THANKS_IN_VOW' scripts/audit/open-course.mjs 7
+chk 'THANKS_IN_VOW' scripts/audit/open-course.mjs 6   # [VOW_GROOM_FIRST_1122] 신부부터 감사문 검사 한 줄 은퇴(새 기대로 바꿈)
 chk "'narr-thanks-in'" assets/ritual-cue.js 3
 chk "if (S.vowKind === 'thanks') {" assets/ritual-cue.js 1
 chk 'var THANKSBOTH=\["감사합니다."\];' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «var THANKSBOTH=\["서로 아끼며 잘 살겠습니다."…»
@@ -13977,8 +13985,8 @@ nochk '.inv-sub{margin:2px 0 8px 6px' mypage.html
 chk 'SEAT_HEAD_ONE' mypage.html 1
 nochk 'inv-step-n">좌석 · 음료 · 3 / 3' mypage.html
 # [SEAT_ADD_CAP] trk-6 · 5자리가 찬 테이블의 ＋ — aria-disabled 로 흐리게 + 누르면 까닭을 토스트로(disabled 속성은 쓰지 않는다 · 폰은 title 이 안 뜬다)
-chk 'SEAT_ADD_CAP' mypage.html 3
-chk "(n>=5?' aria-disabled=\"true\" title=\"한 테이블은 5자리까지예요\"'" mypage.html 1
+# (옛 줄 · [SEAT_PLAN_9 2026-11-22] 확정 배치는 테이블마다 자리 수가 정해져 있어 ＋ · － · ✕ 단추를 걷었다 — 아래 세 줄은 남은 헬퍼를 지킨다) chk 'SEAT_ADD_CAP' mypage.html 3
+# (옛 줄 · [SEAT_PLAN_9] ＋ 단추를 걷어 이 조립 줄이 없다) chk "(n>=5?' aria-disabled=\"true\" title=\"한 테이블은 5자리까지예요\"'" mypage.html 1
 chk "_miniToast('한 테이블은 5자리까지예요'" mypage.html 1
 chk 'rt-mini\[aria-disabled="true"\]' mypage.html 1
 # [SEAT_NAME_FIT] trk-2 · ≤480 자리 반지름 ×.44 · 이름 칸 38px · 컨트롤·테이블 이름 줄 9px 아래 · ≤380 지그재그 4px — 실제 이름(3~4자) 겹침 0(320~480 · rt-cap 표본 포함)
@@ -13986,7 +13994,8 @@ chk 'SEAT_NAME_FIT' mypage.html 1
 chk 'rt{--seatR:calc(var(--rt,150px)\*\.44)}' mypage.html 1
 chk '.rs>.rs-nm{max-width:38px}' mypage.html 1
 chk '@media(max-width:380px){ .seat-room{--zig:4px} }' mypage.html 1
-chk 'SEAT_NAME_FIT' scripts/audit/seat-name-fit.mjs 2              # 실렌더 감사(5자리 · 테이블 이름 있음/없음 × 320~600) — 브라우저가 필요해 게이트가 아니라 야간 run-all 이 돌린다 · 반증: BASE mypage 로 돌리면 빨강 14판
+chk 'SEAT_PLAN_9' scripts/audit/seat-name-fit.mjs 1
+chk 'SEAT_NAME_FIT' scripts/audit/seat-name-fit.mjs 1              # 실렌더 감사(5자리 · 테이블 이름 있음/없음 × 320~600) — 브라우저가 필요해 게이트가 아니라 야간 run-all 이 돌린다 · 반증: BASE mypage 로 돌리면 빨강 14판
 # [DN_MOBILE_ORDER] trk-3 · 다이닝 모바일 보정(칩 패딩 · 머리 카운트 줄바꿈)을 기본 규칙 «뒤»로 — 앞에 두면 같은 선택자의 기본 규칙이 덮는다
 chk 'DN_MOBILE_ORDER' mypage.html 2
 chk '.dn-head-c{flex-basis:100%;text-align:left;white-space:normal;line-height:1.5}' mypage.html 1
@@ -17561,6 +17570,13 @@ chk "'G3-3b', '혼인 서약 시작 · 신부부터', 'narr-vow-in-b'" scripts/b
 chk "'vowFirst'" assets/ritual-preview-link.js 1
 chk 'c.live.tv || c.live.t' console.html 1
 chk 'VOW_FIRST' scripts/audit/vow-form.mjs 1
+# ★★[VOW_GROOM_FIRST_1122 2026-11-22 사장님 «먼저 읽는 분은 신랑으로 고정 · 선택이 별로 의미가 없을 거 같아»] 칩 삭제 · 엔진 norm 이 옛 'b' 를 지운다 · 127 · 166 ~ 168 retired
+chk 'VOW_GROOM_FIRST_1122' assets/ritual-cue.js 1
+chk "delete s.vowFirst;" assets/ritual-cue.js 1
+chk "function _vowFirst(){ return 'g'; }" order-preview.html 1
+nochk "L('vowFirst','먼저 읽는 분'" order-preview.html 0
+chk 'VOW_GROOM_FIRST_1122' assets/audio/clip-status.json 4
+chk 'VOW_GROOM_FIRST_1122' scripts/audit/vow-form.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vow-form.mjs >/dev/null 2>&1; _vwf=$?; if [ "$_vwf" = 1 ]; then echo 'FAIL vow-form: 서약 순서 · 글칸 · 끝 신호가 어긋났습니다 — node scripts/audit/vow-form.mjs'; fail=1; else echo "ok vow-form ($_vwf)"; fi; fi
 # ★[WAIT_BOX 2026-10-06 사장님 «불러오는 중 · 직관적이게 · 기다리면 되는구나 싶게»] 옅은 «불러오는 중이에요…» 한 줄 → 기다리는 칸(제목 · 움직이는 막대 · «잠깐이면 돼요» · 8초 넘으면 «조금 오래 걸리고 있어요»)
 chk 'WAIT_BOX' order-preview.html 6
@@ -19229,12 +19245,13 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/vc-r2-server.mjs >/d
 # ★★[R6_PUBLIC 2026-10-09 고객 여정 A~Z 점검 1라운드 · 공개 화면] D-2 좌석 배치도 폰 맞춤 · D-4 상담 흐름 문구 · D-5~D-7 신청서 · D-8 · D-9 · D-17 상담 일정 · D-10 · D-18 취소 · D-11 단색 상단 바 · D-12 청첩장 06 대비 · D-13 인사말 방향 낱말 · D-14 지도 · D-15 카톡 답변 시간 · D-16 라이브 · D-20 표본 날짜 · D-21 — 되돌리지 말 것
 chk 'function zig(row,side){ return (row%2===0)?1:-1; }' seat.html 1   # [SEAT_ZIG] 평행 이동 본체 — 방향(±1)만
 chk "' \* var(--zig)))'" seat.html 1                                    # [SEAT_FIT] 폭은 CSS var(--zig)
-chk 'crowd=(n>=7)' seat.html 1                                           # [SEAT_FIT] 임계 7(글꼴 들어온 판 실측) · 종전 8
+# (옛 줄 · [SEAT_PLAN_9 2026-11-22] 확정 배치는 한 테이블 5자리까지라 7명 목록형 분기가 없다) chk 'crowd=(n>=7)' seat.html 1
 nochk 'crowd=(n>=8)' seat.html
 nochk ')\*30' seat.html                                                  # 30px 고정 지그재그로 되돌리면 폰에서 잘린다
 chk 'SEAT_FIT' seat.html 10
 chk 'SEAT_LEAD_KEEP' seat.html 1
-chk 'GUIDE_SEAT_FIT' guide.html 4
+# (옛 줄 · [SEAT_PLAN_9 2026-11-22] 두 열 지그재그 그림을 확정 배치 그림으로 바꿔 그 처방 자리가 줄었다) chk 'GUIDE_SEAT_FIT' guide.html 4
+chk 'GUIDE_SEAT_FIT' guide.html 2
 chk 'var(--gz,22px)' guide.html 1
 chk '.mtb-wrap .mtb-wrap{margin-left:0;margin-right:0}' guide.html 1
 chk 'SAMPLE_DATE_2027' guide.html 2
@@ -19400,11 +19417,27 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/mypage-r2.mjs >/dev/
 #   D2-11 예약 취소 셋 · D2-12 견본 날짜는 화면 디자인이라 하지 않았다(가지에서 걷음). 아래는 남긴 버그 고침만 지킨다.
 # D2-1 ~ D2-3 좌석 배치도(seat) · 하객 안내 배치도(guide) — 표 이름 · 번호 · 이름표가 서로 덮지 않게: 표 이름은 원 아래 한 줄(글자 모양은 그대로 · 번호는 원 가운데) ·
 #   이름표는 제 칸 안(가운데 줄 · 이웃 칸 · 화면 밖으로 안 나간다) · 내 자리 지도도 같다 · 한글 조합 중에는 찾지 않고 조합이 끝나면 한 번(폰 조합 멈춤은 0.8초 뒤)
-chk 'SEAT_NAME_BELOW' seat.html 6
-chk 'SEAT_LABEL_CLAMP' seat.html 5
+# ★[SEAT_PLAN_9 2026-11-22 사장님 «추천대로 적용» · «우리가 그린 그림이랑 다르잖아»] 배치도를 확정 배치(맞붙인 원형 9개 · 35석 · assets/seat-plan.js 한 파일)로 바꿨다 —
+#   표 이름은 원 안 번호 아래 두 줄 · 이름표는 그림 상자 안(폰은 그림만 옆으로 민다) · 네 글자 이름 말줄임 없이(66px/m). 옛 SEAT_NAME_BELOW · SEAT_LABEL_CLAMP 는 은퇴(줄 수만 남은 자리를 지키지 않는다).
+#   실측은 scripts/audit/seat-label-fit.mjs · seat-name-fit.mjs · seat-onecard.mjs 가 한다.
+# (옛 줄) chk 'SEAT_NAME_BELOW' seat.html 6 · chk 'SEAT_LABEL_CLAMP' seat.html 5 · chk 'SEAT_NAME_BELOW' guide.html 2 · chk 'SEAT_LABEL_CLAMP' guide.html 5
+chk 'SEAT_PLAN_9' seat.html 10
+chk 'SEAT_PLAN_9' guide.html 8
+chk 'SEAT_PLAN_9' mypage.html 9
+chk 'SEAT_PLAN_9' admin.html 4
+chk 'SEAT_PLAN_9' automation/platform/80_production.gs 1
+chk 'ME_SEAT_PLAN.mapHtml' seat.html 2
+chk 'ME_SEAT_PLAN.mapHtml' guide.html 1
+chk 'ME_SEAT_PLAN.mapHtml' mypage.html 1
+chk 'ME_SEAT_PLAN.mapHtml' admin.html 1
+chk "return a === 'L5,L3,L3,L5,R4,R4,R3,R3,R5';" assets/seat-plan.js 1   # 확정 배치 자리 수(좌 5 · 3 · 3 · 5 · 우 4 · 4 · 3 · 3 · 5 = 35)
 chk 'IME_QUIET' seat.html 5
-chk 'SEAT_NAME_BELOW' guide.html 2
-chk 'SEAT_LABEL_CLAMP' guide.html 5
+# ★[SEAT_EX_SHOT 2026-11-22 사장님 «하객 입장에서 보여주는 게 이해가 더 쉬울 것 같아»] 공개 방식 두 칸마다 하객 화면 예시 그림(scripts/seat-example-shots.mjs 가 찍는다)
+chk 'SEAT_EX_SHOT' mypage.html 2
+chk "_spEx('all')" mypage.html 1
+chk "_spEx('mine')" mypage.html 1
+chk 'SEAT_EX_SHOT' scripts/seat-example-shots.mjs 1
+if [ -s assets/seat/ex-all.webp ] && [ -s assets/seat/ex-mine.webp ]; then echo 'ok assets/seat: ex-all.webp · ex-mine.webp'; else echo 'REVERT? assets/seat: 하객 화면 예시 그림(ex-all · ex-mine .webp)이 없다 [SEAT_EX_SHOT]'; fail=1; fi
 chk 'IME_QUIET' guide.html 3
 chk 'function bindNameInput(' seat.html 1
 chk 'function bindNameInput(' guide.html 1
@@ -22889,7 +22922,7 @@ chk '일어나셨다면 포옹 뒤 편히 앉아 주세요.' order-preview.html 
 chk '마이크를 디렉터에게 돌려주세요. 앞으로 나오셨다면 자리로 돌아가 앉아 주세요.' order-preview.html 1   # B2_GEUL_04 축사 · 귀석 선언(P16 덕담 잇는 분 제외)
 chk "if(S.tribHug!=='off') L.push('· 안내 음성이 청하면 저희를 안아 주세요" order-preview.html 1   # B2_GEUL_10
 nochk "due+'까지'" order-preview.html 0   # B2_GEUL_21 «까지까지»
-chk '신부의 첫 문장이 앞말을 이어받고 있어요. 시작 문장을 확인해 주세요.' order-preview.html 1   # B2_GEUL_07
+nochk '신부의 첫 문장이 앞말을 이어받고 있어요' order-preview.html 0   # B2_GEUL_07 은퇴 — [VOW_GROOM_FIRST_1122] 신부부터가 없어져 이 알림도 없다
 chk '고르지 않으시면 말없이 인사해요' order-preview.html 1   # B2_GEUL_27
 chk '고르지 않으시면 말로 인사해요' order-preview.html 1
 chk 'g.tipToo&&g.tip' order-preview.html 1

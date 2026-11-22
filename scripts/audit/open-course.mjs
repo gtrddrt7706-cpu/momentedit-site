@@ -439,9 +439,10 @@ ok('FILES 맨 끝 89~385 이 새 줄 297개(384 · 385 = 잘라 붙인 판 · NA
     return a.v.length === 1 && c.file === '133_narr-thanks-in' && c.text === D.NARR.thanksIn && c.blockN === '감사문' && c.live && c.live.peak === true
       && JSON.stringify(c.live.both) === JSON.stringify(D.THANKSBOTH) && D.THANKSBOTH.length === 1 && /하객 쪽을 보고/.test(c.live.t) && /감사문/.test(c.live.fallback)
       && a.next && a.next.fire === 'manual' && a.next.hint === '마지막 한 문장을 함께 읽고 나면'; })());
-  ok('[THANKS_IN_VOW] 읽는 방식 · 먼저 읽는 분은 서약과 같은 칩 — 각자 차례로 · 신부부터면 «신부 먼저» · 번갈아 · 신부부터면 «(신부부터)»', (() => {
-    const e = vc({ vowKind: 'thanks', vowHow: 'each', vowFirst: 'b' }).v[0].live, al = vc({ vowKind: 'thanks', vowFirst: 'b' }).v[0].live;
-    return /신부 먼저, 신랑 다음으로 감사문/.test(e.tv) && e.first === 'b' && /번갈아 감사문 낭독\(신부부터\)/.test(al.tv); })());
+  /* ★[VOW_GROOM_FIRST_1122 2026-11-22 사장님 «먼저 읽는 분은 신랑으로 고정»] 옛 «신부부터» 기대 은퇴 → 옛 저장분 vowFirst 'b' 도 신랑부터(감사문 · 서약 모두 · 127 안 남) */
+  ok('[VOW_GROOM_FIRST_1122] 옛 저장분 신부부터(b)도 신랑부터 — 감사문 각자 · 번갈아 · 서약 여는 말 13(127 아님)', (() => {
+    const e = vc({ vowKind: 'thanks', vowHow: 'each', vowFirst: 'b' }).v[0].live, al = vc({ vowKind: 'thanks', vowFirst: 'b' }).v[0].live, v = vc({ vowFirst: 'b' }).v[0];
+    return /신랑 먼저, 신부 다음으로 감사문/.test(e.tv) && e.first === 'g' && !/신부부터/.test(al.tv) && al.first === 'g' && v.file === '13_narr-vow-in' && v.live.first === 'g'; })());
   ok('[THANKS_IN_VOW] 고르지 않으면 · 모르는 값이면 서약 그대로(여는 말 13 · 맺는 말 14 · VOWBOTH)', ['vow', undefined, 'x'].every((k) => {
     const a = vc(k === undefined ? {} : { vowKind: k }); return a.v.length === 2 && a.v[0].file === '13_narr-vow-in' && a.v[1].file === '14_narr-vow-out' && JSON.stringify(a.v[0].live.both) === JSON.stringify(D.VOWBOTH); }));
   ok('[THANKS_IN_VOW] 시간 = 서약보다 17초 짧다(맺는 말 몫 · [REVIEW29_1023] 서약 여는 말 고은천 글로 다시 잼 · 옛 15 · 14) · 할 일 «감사문 · 한 분 300자쯤» · 설명 · 말하는 자리 글', (() => {
