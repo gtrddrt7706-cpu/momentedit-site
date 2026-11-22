@@ -89,9 +89,15 @@ const stop = (f) => f.evaluate(() => { try { lsStop(); } catch (e) {} try { lsCl
 try {
   const { ctx, pg, f, errs } = await open(390, true);
   /* ① 대신 흐르는 곡 */
-  { await setS(f, { bgm: {} }); await go(f, 'candle'); const T7 = P.SONGS.B07.t, want = `준비 중이라 지금은 ‹${T7}›이 대신 흘러요`;
+  { await setS(f, { bgm: {} }); await go(f, 'candle'); const T7 = P.SONGS.B07.t, want = `준비 중이라 지금은 ‹${T7}› 곡이 대신 흘러요`   /* [SUB_JOSA_1123] */;
     const a = await f.evaluate(() => [...document.querySelectorAll('.ls-bed[data-seg="M2"] .bed-sub-note')].map((x) => [x.textContent.trim(), getComputedStyle(x).fontSize]));
-    await f.click('[data-fk="bed:M2:B31"]'); await wait(f, 400); const b = await f.evaluate(() => [...document.querySelectorAll('.ls-bed[data-seg="M2"] .bed-sub-note')].map((x) => x.textContent.trim()));
+    /* ★[SONG_PICK_RING_1123] 안 고른 줄마다 빈 동그라미(20px · 채움 없음) · 고르면 그 줄만 채운 동그라미 + 흰 ✓ */
+    const ring = (sel) => f.evaluate((sel) => [...document.querySelectorAll(sel)].map((x) => { const A = getComputedStyle(x, '::after'), B = getComputedStyle(x, '::before'); return [x.getAttribute('aria-checked'), A.width, A.borderRadius, A.backgroundColor, B.content]; }), sel);
+    const r0 = await ring('.ls-bed[data-seg="M2"] .mu-pick');
+    await f.click('[data-fk="bed:M2:B31"]'); await wait(f, 400); await f.evaluate(() => { const c = document.querySelector('.ls-bed[data-seg="M2"] .mu-chg'); if (c) c.click(); }); await wait(f, 400);   /* 고르면 접힌다 · «바꾸기»로 다시 펴서 잰다 */
+    const r1 = await ring('.ls-bed[data-seg="M2"] .mu-pick'); const on1 = r1.filter((x) => x[0] === 'true');
+    ok('①b 곡 줄마다 고르는 동그라미 — 안 골랐을 때 빈 동그라미 · 고른 줄만 채움 + ✓ [SONG_PICK_RING_1123]', r0.length >= 3 && r0.every((x) => x[0] === 'false' && x[1] === '20px' && x[2] === '50%' && x[3] !== 'rgb(107, 42, 36)' && x[4] === 'none') && on1.length === 1 && on1[0][3] === 'rgb(107, 42, 36)' && on1[0][4] !== 'none' && r1.filter((x) => x[0] !== 'true').every((x) => x[1] === '20px' && x[4] === 'none'), { r0, r1 });
+    const b = await f.evaluate(() => [...document.querySelectorAll('.ls-bed[data-seg="M2"] .bed-sub-note')].map((x) => x.textContent.trim()));
     const r = await run(f, ['candle'], 5000); await stop(f); const notes = [...new Set(r.map((x) => x.note).filter(Boolean))];
     ok(`① 화촉 1순위(B05) · 고른 곡(B31) 파일이 없으면 줄 아래 «${want}»(12.5px) · 미리 듣기 줄도 같은 글 · 실제로 B07`, a.length === 1 && a[0][0] === want && a[0][1] === '12.5px' && b.length === 1 && b[0] === want && notes.indexOf(want) > -1 && r.some((x) => x.f === 'B07' && x.src), { a, b, notes, fs: [...new Set(r.map((x) => x.f))] }); }
   /* ② 늦은 곡 목록 */
