@@ -13,7 +13,7 @@ const at = (cs, n) => cs.findIndex((c) => no(c) === String(n));
 for (const ex of ['standard', 'record', 'family', 'brief']) { const cs = cues(ex); ok(cs.some((c) => no(c) === '252'), `⑦ ${ex} 맞절 = 252 · 160 없음`); ok(!cs.some((c) => no(c) === '160'), `⑦ ${ex} 160 안 나옴`); }
 { const cs = cues('standard', { digital: true }); ok(at(cs, 385) > -1 && at(cs, 48) < 0 && at(cs, 137) < 0, '① 정석 온라인 날 개식 = 385 · 48 · 137 없음'); ok(at(cs, 316) > -1 && at(cs, 316) < at(cs, 385), '① 1분 전 316 → 개식 385'); }
 { const cs = cues('standard'); ok(at(cs, 137) > -1 && at(cs, 385) < 0, '① 온라인 아닌 날은 137 그대로'); ok(at(cs, 309) > -1, '② 정석 10분 전 = 309 «약 이십 분»'); }
-{ const cs = cues('family', { digital: true }), i = at(cs, 48); ok(i > -1 && cs[i].gapMs === 1000 && no(cs[i - 1]) === '316', '① 가족(개식 예시) 온라인 날 48 그대로 · 316 뒤 1초'); ok(at(cs, 385) < 0, '① 개식 예시를 고른 날은 385 안 씀'); }
+{ const cs = cues('family', { digital: true }), i = at(cs, 48); ok(i > -1 && !cs[i].gapMs && no(cs[i - 1]) === '316', '① 가족(개식 예시) 온라인 날 48 그대로 · 316 뒤 콘솔 기본 2초(gapMs 0 = 기본 · NARR_GO_48GAP_1122)'); ok(at(cs, 385) < 0, '① 개식 예시를 고른 날은 385 안 씀'); }
 { const cs = cues('family'), a = at(cs, 255), b = at(cs, 111); ok(a > -1 && b === a + 1, '④ 가족 성혼 박수 뒤 255 → 111'); ok(cs[a].fire === 'manual' && cs[b].fire === 'chain', '④ 박수 뒤 GO 로 255 · 111 은 이어서');
   const v = at(cs, 261); ok(v > -1 && at(cs, 263) < 0 && no(cs[v + 1]) === '91' && cs[v + 1].gapMs === 3000, '⑤ 가족 식전 영상 뒤 263 없음 · 91 이 3초 뒤'); ok(at(cs, 95) > -1 && at(cs, 211) < 0, '⑥ 가족 화촉 맺는 말 = 95(211 «밝혔습니다» 겹침 없음)'); }
 { const S = O.applyExample({ course: 'open' }, 'family'); S.course = 'open'; S.on.prevideo = 0; delete S.on.prevideo; const cs = C.build(S, { mode: 'console' }).cues; ok(at(cs, 263) > -1, '⑤ 식전 영상 없는 날(개식 → 화촉)은 263 그대로'); }

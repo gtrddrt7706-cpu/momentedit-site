@@ -14910,14 +14910,13 @@ nochk '청약철회·무상취소' mypage.html 0
 nochk '(제13조·제14조)' mypage.html 0
 nochk '(옵트인)과 개인정보' mypage.html 0
 nochk '(나레이션)은 AI' mypage.html 0
-# [DN_ATTR_KB] 애프터 웨딩 «예식 후 가볼 만한 곳» 펼침 = button(aria-expanded · 펼쳤을 때만 aria-controls) · 다시 그린 뒤 같은 단추로 초점 · 겉모양은 단추 초기화로 그대로
-chk 'DN_ATTR_KB' mypage.html 4
-chk '<button type="button" class="dn-attr-h" id="dn_attr_h" aria-expanded=' mypage.html 1
-chk 'dn-attr-list" id="dn_attrBody"' mypage.html 1
-chk "render(box); _dnRefocus(function(){ return .('dn_attr_h'); }); }); }" mypage.html 1
-chk '^button\.dn-attr-h{width:100%;margin:0;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left' mypage.html 1
-chk '^\.dn-attr-h:focus-visible{outline:2px solid var(--gold-deep)' mypage.html 1
-nochk '<div class="dn-attr-h"' mypage.html 0
+# [DN_ATTR_OFF_1122] 사장님 11/22 «예식 후 가볼 만한 곳» 빼기 — 옛 [DN_ATTR_KB](펼침 단추 접근성) 검사는 그 칸이 없어져 은퇴 · 칸 · 목록 · 담기 연결이 되살아나면 빨강
+chk 'DN_ATTR_OFF_1122' mypage.html 7
+nochk '식당 · 카페 · 가볼 곳을 안내해요' mypage.html 0
+nochk 'var DN_ATTRACTIONS' mypage.html 0
+nochk 'id="dn_attr_h"' mypage.html 0
+nochk 'data-favattr' mypage.html 0
+nochk '예식 후 가볼 만한 곳</span>' mypage.html 0
 # [DN_RO_LATIN] (으)로 도우미 — 한글 아닌 끝은 m · n · ng 만 «으로», 숫자는 읽는 소리대로, 그 밖은 조사가 바뀌지 않는 «에»(«Soul Club에 예약만 마치면»)
 chk 'DN_RO_LATIN' mypage.html 2
 chk "if(/\[036\]\$/.test(t)) return '으로'; if(/\[0-9\]\$/.test(t)) return '로'; if(/(ng|\[mn\])\$/i.test(t)) return '으로'; return '에'; }" mypage.html 1
@@ -22439,7 +22438,7 @@ nochk '🍃' mypage.html
 # ★[DN_DESIGN_1102 사장님 «전부 추천대로»] 애프터 웨딩 1라운드 1~12 · 14 — 자동 예약할 곳 없음 · 펼침 셋 한 모양 · 칩 한 모양 · 공개 스위치 · 지도 결과도 카드로 담기 · 전화 확인 한 번 · 위 안내 줄임 · «예약할 곳으로 정하기» · 인원 «명» · 상황 칩은 그 조건만 · 접기 · 가볼 곳 위로 · 비교 정보 · 가운뎃점 띄움
 chk 'DN_NO_AUTO_REP_1102' mypage.html 1
 nochk 'if(!rep && restos.length===1){ rep=restos\[0\].n; d.venuePick=rep; }' mypage.html
-chk 'DN_FOLD_ONE_1102' mypage.html 2
+chk 'DN_FOLD_ONE_1102' mypage.html 1   # [DN_ATTR_OFF_1122] .dn-attr 모양 줄이 빠져 2 → 1
 nochk 'border:1px dashed var(--border);background:none;border-radius:9px;justify-content:center' mypage.html
 chk 'DN_CHIP_ONE_1102' mypage.html 4
 nochk 'class="dn-segbtn' mypage.html
@@ -23197,8 +23196,8 @@ chk '예약할 곳을 정하면 예약 시각과 예약자 이름을 적을 수 
 chk 'B2_MA_30' mypage.html 1                     # _rsvBy 를 지금 값과 합쳐 변경 비교
 chk 'B2_MA_58' mypage.html 1                     # _onlineSame 도 변경
 chk 'B2_MA_31' mypage.html 3                     # 인원 칩으로만 총액 · 옛 25명 고정 금지
-chk 'B2_MA_33' mypage.html 1
-chk '전체 5.2km로, 약 2시간 걸리는 중급 숲길이에요.' mypage.html 1
+# (은퇴 [DN_ATTR_OFF_1122] 가볼 만한 곳 칸을 뺐다) chk 'B2_MA_33' mypage.html 1
+# (은퇴 [DN_ATTR_OFF_1122] 가볼 만한 곳 칸을 뺐다) chk '전체 5.2km로, 약 2시간 걸리는 중급 숲길이에요.' mypage.html 1
 nochk '어르신도 부담 없이 짧게 걷기 좋아요' mypage.html
 chk 'B2_MA_35' mypage.html 2
 chk 'B2_MA_35' automation/platform/80_production.gs 1
@@ -23225,8 +23224,8 @@ chk '애프터 웨딩 안내 없이 진행할게요' mypage.html 1
 chk 'B2_MA_66' mypage.html 2
 chk 'B2_MA_69' mypage.html 1
 chk 'B2_MA_76' mypage.html 1
-chk 'B2_MA_77' mypage.html 1
-chk 'B2_MA_78' mypage.html 1
+# (은퇴 [DN_ATTR_OFF_1122] 가볼 만한 곳 칸을 뺐다) chk 'B2_MA_77' mypage.html 1
+# (은퇴 [DN_ATTR_OFF_1122] 가볼 만한 곳 칸을 뺐다) chk 'B2_MA_78' mypage.html 1
 chk 'B2_MA_83' mypage.html 1
 chk '단체 인원 확인 필요' mypage.html 2
 chk 'B2_MA_93' mypage.html 1
@@ -23677,7 +23676,7 @@ chk 'B2_FIX_MA_38_OLDKEY' mypage.html 1   # 옛 초안의 이름 열쇠 예약 �
 chk '연결을 확인하지 못했어요. 화면을 새로 고쳐 주세요.' live.html 1
 chk 'B2_FIX_MA_09' mypage.html 3                    # 청첩장 발행 중 뒤로가기 · 키보드로 이전 · 단계 이동 안 함
 chk "if(id==='inv' && INVFLOW._publishing){ _wizRearm(id); return; }" mypage.html 1
-chk 'B2_FIX_MA_16' mypage.html 1                    # 가볼 곳 카드도 실패하면 바꾸기 전 전체(_dnSnap)로
+# (은퇴 [DN_ATTR_OFF_1122] 가볼 만한 곳 칸을 뺐다) chk 'B2_FIX_MA_16' mypage.html 1                    # 가볼 곳 카드도 실패하면 바꾸기 전 전체(_dnSnap)로
 nochk "_dnFavSaved(function(){ _dnFavToggle(TRKFLOW.draft,_u1); render(box); });" mypage.html
 chk 'B2_FIX_MA_38' mypage.html 7                    # 공개 · 빼기 · 예약할 곳 · 장소별 예약 값도 지도 장소 ID(pid)로
 chk 'function _dnIsRep' mypage.html 1
@@ -24334,3 +24333,5 @@ chk 'NARR_GO_1122' scripts/splice-narr-go-1122.py 1
 chk 'NARR_GO_1122' docs/rules/나레이션.md 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/narr-go-1122.mjs >/dev/null 2>&1; _ng=$?; if [ "$_ng" != 0 ]; then echo 'FAIL narr-go-1122: 온라인 개식 · 10분 전 판 · 성혼 · 화촉 · 맞절 · 서약 여는 말 순서가 대표님 11/22 결정과 다릅니다 — node scripts/audit/narr-go-1122.mjs'; fail=1; else echo 'ok narr-go-1122'; fi; fi
 if command -v node >/dev/null 2>&1; then node scripts/audit/rec-sec.mjs >/dev/null 2>&1; _rs=$?; if [ "$_rs" != 0 ]; then echo 'FAIL rec-sec: 나레이션 파일 길이표(REC_SEC)가 mp3 와 다르거나 10분 전 판이 어긋났습니다 — node scripts/rec-sec.mjs --write 뒤 node scripts/audit/rec-sec.mjs'; fail=1; else echo 'ok rec-sec'; fi; fi   # [NARR_GO_1122] ffprobe 없이 mp3 머리로 잰다
+nochk 'gapMs: 1000   /\* ★\[NARR_GO_1122 · NARR_종합 #1\]' assets/ritual-cue.js 0   # ★[NARR_GO_48GAP_1122] 316 → 48 은 콘솔 기본 2초 — 1초로 줄이지 않는다
+chk 'NARR_GO_48GAP_1122' assets/ritual-cue.js 2
