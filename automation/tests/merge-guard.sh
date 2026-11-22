@@ -8265,7 +8265,7 @@ chk 'THANKS_IN_VOW' assets/ritual-preview-link.js 1
 chk 'THANKS_IN_VOW' scripts/check-ritual-mirror.js 1
 chk 'THANKS_IN_VOW' scripts/build-course-story.mjs 1
 chk 'THANKS_IN_VOW' scripts/lib/engine-calls.mjs 1
-chk 'THANKS_IN_VOW' scripts/audit/open-course.mjs 7
+chk 'THANKS_IN_VOW' scripts/audit/open-course.mjs 6   # [VOW_GROOM_FIRST_1122] 신부부터 감사문 검사 한 줄 은퇴(새 기대로 바꿈)
 chk "'narr-thanks-in'" assets/ritual-cue.js 3
 chk "if (S.vowKind === 'thanks') {" assets/ritual-cue.js 1
 chk 'var THANKSBOTH=\["감사합니다."\];' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «var THANKSBOTH=\["서로 아끼며 잘 살겠습니다."…»
@@ -17570,6 +17570,13 @@ chk "'G3-3b', '혼인 서약 시작 · 신부부터', 'narr-vow-in-b'" scripts/b
 chk "'vowFirst'" assets/ritual-preview-link.js 1
 chk 'c.live.tv || c.live.t' console.html 1
 chk 'VOW_FIRST' scripts/audit/vow-form.mjs 1
+# ★★[VOW_GROOM_FIRST_1122 2026-11-22 사장님 «먼저 읽는 분은 신랑으로 고정 · 선택이 별로 의미가 없을 거 같아»] 칩 삭제 · 엔진 norm 이 옛 'b' 를 지운다 · 127 · 166 ~ 168 retired
+chk 'VOW_GROOM_FIRST_1122' assets/ritual-cue.js 1
+chk "delete s.vowFirst;" assets/ritual-cue.js 1
+chk "function _vowFirst(){ return 'g'; }" order-preview.html 1
+nochk "L('vowFirst','먼저 읽는 분'" order-preview.html 0
+chk 'VOW_GROOM_FIRST_1122' assets/audio/clip-status.json 4
+chk 'VOW_GROOM_FIRST_1122' scripts/audit/vow-form.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/vow-form.mjs >/dev/null 2>&1; _vwf=$?; if [ "$_vwf" = 1 ]; then echo 'FAIL vow-form: 서약 순서 · 글칸 · 끝 신호가 어긋났습니다 — node scripts/audit/vow-form.mjs'; fail=1; else echo "ok vow-form ($_vwf)"; fi; fi
 # ★[WAIT_BOX 2026-10-06 사장님 «불러오는 중 · 직관적이게 · 기다리면 되는구나 싶게»] 옅은 «불러오는 중이에요…» 한 줄 → 기다리는 칸(제목 · 움직이는 막대 · «잠깐이면 돼요» · 8초 넘으면 «조금 오래 걸리고 있어요»)
 chk 'WAIT_BOX' order-preview.html 6
@@ -22904,7 +22911,7 @@ chk '일어나셨다면 포옹 뒤 편히 앉아 주세요.' order-preview.html 
 chk '마이크를 디렉터에게 돌려주세요. 앞으로 나오셨다면 자리로 돌아가 앉아 주세요.' order-preview.html 1   # B2_GEUL_04 축사 · 귀석 선언(P16 덕담 잇는 분 제외)
 chk "if(S.tribHug!=='off') L.push('· 안내 음성이 청하면 저희를 안아 주세요" order-preview.html 1   # B2_GEUL_10
 nochk "due+'까지'" order-preview.html 0   # B2_GEUL_21 «까지까지»
-chk '신부의 첫 문장이 앞말을 이어받고 있어요. 시작 문장을 확인해 주세요.' order-preview.html 1   # B2_GEUL_07
+nochk '신부의 첫 문장이 앞말을 이어받고 있어요' order-preview.html 0   # B2_GEUL_07 은퇴 — [VOW_GROOM_FIRST_1122] 신부부터가 없어져 이 알림도 없다
 chk '고르지 않으시면 말없이 인사해요' order-preview.html 1   # B2_GEUL_27
 chk '고르지 않으시면 말로 인사해요' order-preview.html 1
 chk 'g.tipToo&&g.tip' order-preview.html 1

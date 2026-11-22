@@ -2,6 +2,7 @@
 //   ①칩 둘(읽는 방식 · 먼저 읽는 분) 처음엔 안 눌림 + «고르지 않으시면 한 줄씩 번갈아 · 신랑부터 진행돼요» 한 줄
 //   ②번갈아 = 줄 칸 · 이름표가 먼저 분부터 번갈아 · 예시 카드 → 문장이 번갈아 들어감 · ＋ 줄 더하기 · 맨 아래 «두 분 함께» 두 줄
 //   ③신부부터 → 첫 줄 신부 · 흐름 줄 «두 분 번갈아 · 신부부터» · 엔진 여는 말 127(신랑부터 없는 판)
+//   ★[VOW_GROOM_FIRST_1122 2026-11-22 사장님 «먼저 읽는 분은 신랑으로 고정»] ① ③ ④ 은퇴 → 새 기대: 칩은 읽는 방식 하나 · 옛 저장분 신부부터('b')도 신랑부터 · 여는 말은 신랑부터 판(127 안 남)
 //   ④각자 차례로 = 두 칸 · 먼저 분 칸이 위 ⑤서약 현장 체크 = 끝 신호 칸 없음 · 다 됨 ⑥첫인사 = 끝 신호는 신부만
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
 //   종료 코드 0 = 통과 · 1 = 실패 · 2 = 재지 못함
@@ -26,22 +27,23 @@ try {
     await wait(400); await pg.evaluate(() => mkGo('vow')); await wait(600);
     const a = await pg.evaluate(() => { const rg = [...document.querySelectorAll('[role=radiogroup]')].filter((r) => /읽는 방식|먼저 읽는 분/.test(r.getAttribute('aria-label')));
       return { n: rg.length, pressed: rg.map((r) => r.querySelectorAll('[aria-checked=true]').length), note: (document.querySelector('.mk-vpask1') || {}).textContent }; });
-    ok(`${w} ① 칩 둘 · 처음엔 안 눌림 · 안 고른 한 줄`, a.n === 2 && a.pressed.join() === '0,0' && /한 줄씩 번갈아 · 신랑부터 진행돼요/.test(a.note || ''), JSON.stringify(a));
+    ok(`${w} ① 칩 하나(읽는 방식 · 먼저 읽는 분 칩 없음 VOW_GROOM_FIRST_1122) · 처음엔 안 눌림 · 안 고른 한 줄`, a.n === 1 && a.pressed.join() === '0' && /한 줄씩 번갈아 진행돼요/.test(a.note || '') && !/신부부터/.test(a.note || ''), JSON.stringify(a));
     await shot(pg, '.mk-say', `alt-empty-${w}`);
     await pg.click('[data-fk^="mkrc:vow:0"]').catch(() => {}); await wait(400);
     const b = await pg.evaluate(() => { const rows = [...document.querySelectorAll('.mk-vwl .mk-vwr')].map((r) => r.querySelector('.mk-vwn').textContent); const both = [...document.querySelectorAll('.mk-vwboth .mk-vwfix')].map((r) => r.textContent); const bl = (document.querySelector('.mk-vwboth .mk-vwn') || {}).textContent;
       return { rows, both, vb: VOWBOTH.slice(), bl, add: !!document.querySelector('[data-fk="mkvwadd"]'), cue: document.querySelectorAll('.mk-say .mk-cue').length, hint: !!document.querySelector('.mk-say>.prep-hint'), alt: !!document.querySelector('.mk-txalt') }; });
     ok(`${w} ② 번갈아 · 예시 → 신랑 · 신부 번갈아 · ＋ 줄 더하기 · 맨 아래 두 분 함께(원천 VOWBOTH 그대로) · 위 안내 줄 · 아래 안내 줄 없음`, b.rows.length >= 4 && b.rows[0] === '신랑' && b.rows[1] === '신부' && b.rows[2] === '신랑' && b.both.length >= 1 && b.both.join('|') === b.vb.join('|') /* [SOURCE_FIRST_1016] 함께 읽는 끝 문장은 자료 그대로 한 문장 — 줄 수 · 낱말을 박지 않고 원천과 같은지 본다 */ && b.bl === '두 분 함께' && b.add && !b.hint && !b.alt, JSON.stringify(b));
     await shot(pg, '.mk-say', `alt-${w}`);
-    await pg.click('[data-fk="lsc:vowFirst:b"]'); await wait(600);
+    const noChip = await pg.evaluate(() => !document.querySelector('[data-fk^="lsc:vowFirst"]'));
+    await pg.evaluate(() => { S.vowFirst = 'b'; render(); }); await wait(600);   // [VOW_GROOM_FIRST_1122] 옛 저장분 'b' 를 흉내
     const c = await pg.evaluate(() => { const rows = [...document.querySelectorAll('.mk-vwl .mk-vwr')].map((r) => r.querySelector('.mk-vwn').textContent); const flow = [...document.querySelectorAll('.mk-flowsec li.t b')].map((x) => x.textContent);
       const cue = ENG ? ENG.RitualCue.build(S, { mode: 'preview' }).cues.filter((x) => x.k === 'vow')[0] : null; return { rows, flow, file: cue && cue.file, text: cue && cue.text, tv: cue && cue.live && cue.live.tv }; });
-    ok(`${w} ③ 신부부터 → 첫 줄 신부 · 흐름 «신부부터» · 여는 말 127 · 신랑부터 없음`, c.rows[0] === '신부' && c.rows[1] === '신랑' && c.flow.some((x) => /신부부터/.test(x)) && c.file === '127_narr-vow-in-b' && !/신랑부터/.test(c.text || ''), JSON.stringify(c));
+    ok(`${w} ③ 신랑 고정 · 옛 저장분 신부부터도 첫 줄 신랑 · 흐름에 «신부부터» 없음 · 여는 말 신랑부터 판(127 아님)`, noChip && c.rows[0] === '신랑' && c.rows[1] === '신부' && !c.flow.some((x) => /신부부터/.test(x)) && !/vow-in-b/.test(c.file || '') && /narr-vow-in/.test(c.file || ''), JSON.stringify(c));
     await pg.evaluate(() => { const t = document.querySelector('[data-fk="mkvw:b:0"]'); t.value = '고친 첫 줄입니다.'; t.dispatchEvent(new Event('input', { bubbles: true })); });
     ok(`${w} ② 줄을 고치면 그 분 글에 줄로 담긴다`, await pg.evaluate(() => String(S.tx['vow.b']).split('\n')[0] === '고친 첫 줄입니다.' && S.txLn['vow.b'] === 1));
     await pg.click('[data-fk="lsc:vowHow:each"]'); await wait(500);
     const d = await pg.evaluate(() => [...document.querySelectorAll('.mk-vwc .mk-txr .mk-who')].map((x) => x.textContent));
-    ok(`${w} ④ 각자 차례로 = 두 칸 · 먼저 분(신부) 칸이 위`, d.length === 2 && /^신부/.test(d[0]) && /^신랑/.test(d[1]), JSON.stringify(d));
+    ok(`${w} ④ 각자 차례로 = 두 칸 · 신랑 칸이 위(VOW_GROOM_FIRST_1122)`, d.length === 2 && /^신랑/.test(d[0]) && /^신부/.test(d[1]), JSON.stringify(d));
     await shot(pg, '.mk-say', `each-${w}`);
     await pg.click('[data-fk="mkchk:vow.b"]'); await wait(400);
     const e = await pg.evaluate(() => ({ cue: document.querySelectorAll('.mk-say .mk-cue').length, done: _txSiteDone('vow', _mkChk(), 'vow.b') }));

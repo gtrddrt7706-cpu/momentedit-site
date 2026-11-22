@@ -2,6 +2,22 @@
  "about": "[CLIP_STATUS_1031 검토 175] 안 나는 녹음 표시 — 파일 단위(열쇠 = «폴더/번호_이름») · 녹음 · 파일 · 번호는 그대로(표시만). 상태: retired(어디서도 안 남) · legacy(옛 저장분 전용 — 옛 코스 · «직접 녹음» 배역) · dormant(구조상 지금 차례에선 안 섬 · 실청은 «지금 안 남»으로 따로) · manual_off(수동 전용 · 당일 재생 안 함 — 콘솔 보조 단추 · 촬영 연출 판을 걷은 자리 · AUTO_ONLY_1031). ★원천이 따로 있는 것은 여기 적지 않는다: 나레이션 폐지 슬러그 = assets/ritual-cue.js RETIRED · 안 트는 배역 = assets/ritual-story.js CAST_MUTE(06 ~ 14 · 24 · 25 · 26) — 두 군데가 갈리지 않게 그쪽을 읽는다(scripts/lib/clip-status.mjs). 실청 · 쉼 도구 · check-recorded 는 retired + legacy + dormant + manual_off + CAST_MUTE 를 함께 뺀다. 검사 scripts/audit/clip-status.mjs · ★예외 [CAKE_FILES_OFF_1110] 케이크 5클립(41 · 42 · 76 · 77 · 107)은 사장님 11/10 지시로 파일까지 지움 · 번호 자리만 남김(ritual-cue FILES · RETIRED)",
  "v": "1031d",
  "clips": {
+  "narration/127_narr-vow-in-b": {
+   "s": "retired",
+   "why": "먼저 읽는 분 신부부터 판 — VOW_GROOM_FIRST_1122 사장님 11/22 «신랑으로 고정»(칩 삭제 · 엔진 norm 이 vowFirst 를 지움)"
+  },
+  "narration/166_narr-vow-in-b-ex2": {
+   "s": "retired",
+   "why": "먼저 읽는 분 신부부터 판 — VOW_GROOM_FIRST_1122 사장님 11/22 «신랑으로 고정»(칩 삭제 · 엔진 norm 이 vowFirst 를 지움)"
+  },
+  "narration/167_narr-vow-in-b-ex3": {
+   "s": "retired",
+   "why": "먼저 읽는 분 신부부터 판 — VOW_GROOM_FIRST_1122 사장님 11/22 «신랑으로 고정»(칩 삭제 · 엔진 norm 이 vowFirst 를 지움)"
+  },
+  "narration/168_narr-vow-in-b-ex4": {
+   "s": "retired",
+   "why": "먼저 읽는 분 신부부터 판 — VOW_GROOM_FIRST_1122 사장님 11/22 «신랑으로 고정»(칩 삭제 · 엔진 norm 이 vowFirst 를 지움)"
+  },
   "narration/114_bridge-b6-lighter": {
    "s": "retired",
    "why": "이음말 편지 → 케이크 — 케이크 순간 RETIRED"
