@@ -22029,7 +22029,12 @@ nochk "FG_LAB={wait:'대기 자리',walk:'입장',front:'앞'" order-preview.htm
 chk '팁 · 사진에 예쁘게 남는 인사예요. 신랑은 한 손을 가슴에 얹고 가볍게 숙이고, 신부는 치맛자락을 살짝 잡고 무릎을 굽혀요. 마지막에 서로 눈을 맞추면 좋아요. 평소처럼 인사하셔도 괜찮아요.' order-preview.html 1
 nochk '신랑은 한 손을 가슴에 얹고 가볍게 숙여요 · 신부는 치맛자락을 살짝 잡고 무릎을 굽혔다 일어나요 · 마지막에 서로 눈을 맞춰요' order-preview.html 0
 chk 'BOW_TIP_1122' assets/ritual-story.js 1
-chk 'HEAD_FLOAT_1122' order-preview.html 1
+chk 'HEAD_FLOAT_1122' order-preview.html 1   # [HEAD_EDGE_FADE_1122] 은퇴 → 시안 B(띠 배경 없음 · 단추만)
+# ★[BOW_PIC_1122 2026-11-22 사장님 «너무 서술형 · 클릭하면 그림으로» · 대본 «지금 영상의 무도회 맞절 + 일반 맞절 한 장 나란히»] 맞절 팁 줄 짧게 + «자세 보기» 창(평소 인사 / 무도회 맞절)
+chk 'BOW_PIC_1122' order-preview.html 5
+chk "data-fk=\"mkbowpic\"" order-preview.html 1
+chk 'matjeol-plain-640.webp' order-preview.html 1
+chk 'matjeol-ball-640.webp' order-preview.html 1
 # ★[VP_FOLLOW_1122 2026-11-22 사장님 «처음 고른 스튜디오 나레이션 / AI 두 분 목소리를 고르는 곳은 기존 것을 따라가게»] 안 고른 다른 안내 목소리 자리가 따라온다 · 손댄 자리는 그대로
 chk 'VP_FOLLOW_1122' order-preview.html 2
 chk 'VP_FOLLOW_1122' scripts/audit/vp-follow.mjs 1
