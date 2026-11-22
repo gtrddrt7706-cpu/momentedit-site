@@ -16,7 +16,8 @@ cd "$(dirname "$0")/../.." || exit 1
 fail=0
 # ★[NO_CONFLICT_MARK 2026-10-23] 병합 충돌 표시(줄 머리 «#   실사고: #1385 가 main 흡수 충돌을 풀지 않은 채(git commit -a 가 충돌 파일을 그대로 담았다) order-preview.html 에 남겨 병합됐다 — 라이브 약 3분(#1386 으로 걷음).
 #   그때 이 검사는 마커만 보고 초록이었다. 이제 충돌 표시가 하나라도 있으면 빨강이다(문서 *.md 는 예시로 쓸 수 있어 뺀다).
-_cm=$(git grep -n -E '^([ -n "$_cm" ] && { echo "FAIL NO_CONFLICT_MARK 병합 충돌 표시가 남았다:"; echo "$_cm"; fail=1; }
+_cm=$(git grep -n -E '^(<<<<<<< |>>>>>>> )' -- '*.html' '*.js' '*.mjs' '*.gs' '*.css' '*.json' '*.sh' '*.py' 2>/dev/null | head -5)
+[ -n "$_cm" ] && { echo "FAIL NO_CONFLICT_MARK 병합 충돌 표시가 남았다:"; echo "$_cm"; fail=1; }
 # ★GATE_AT_EXIT(2026-07-26) — 성패 판정을 EXIT 트랩에 걸어 '파일 맨 끝'에서 돌게 한다.
 #   이유: 판정을 본문 중간에 두면, 나중에 누가 검사를 파일 끝에 덧붙였을 때 그 검사가 fail=1을 세워도
 #   판정은 이미 지나가 exit 0 + 'ALL MARKERS OK'로 초록이 된다(=죽은 검사).
@@ -24429,13 +24430,12 @@ chk 'if (exRoleWins(S, k)) return false;' assets/ritual-open.js 1
 # ★[TRIBUTE_NOTES_OFF_1122 2026-11-22 사장님 «고르지 않으시면 말로 인사해요 · 신랑분은 원하시면 큰절을 … 굳이 없어도 될 것 같아»] 부모님께 인사 인사말 칩 아래 두 줄을 걷었다 · 돌아오면 빨강
 chk 'TRIBUTE_NOTES_OFF_1122' order-preview.html 2
 nochk '고르지 않으시면 말없이 인사해요' order-preview.html 0
-
-<<<<<<< HEAD
 # ★[N20_SONG_ASK_1119 2026-11-22 대표님 «둘 다 올리기» · NIGHT20 #05 제안 6] 축가 «누가»를 고른 날 할 일 = «○○께 축가 부탁드리기»(안 고르면 «축가 부르실 분 정하기») · 돌아오면 빨강
 chk 'N20_SONG_ASK_1119' assets/ritual-open.js 1
 chk "sgL + '께 축가 부탁드리기'" assets/ritual-open.js 1
 # ★[N20_SPEECH_WHO_ROW_1119 2026-11-22 대표님 «둘 다 올리기» · NIGHT20 #05 제안 16] 축사 흐름 «말씀하실 차례 · 고른 분»(덕담과 같은 꼴) · 돌아오면 빨강
 chk 'N20_SPEECH_WHO_ROW_1119' order-preview.html 1
 chk "'말씀하실 차례 · '+_swName()" order-preview.html 1
+
 # ★[HEAD_GAP_1122 2026-11-22 사장님 «맨 위 간격이 좁다»] 머리 줄이 붙으면 맨 위에서 10px 띄움(옛 −15px = 딱 붙음)
 chk 'body.mkd .prog{position:sticky;top:-5px;' order-preview.html 1
