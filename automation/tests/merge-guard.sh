@@ -15884,7 +15884,7 @@ chk 'MU_REDRAW_EVEN_1019' scripts/audit/chip-full.mjs 2
 if command -v node >/dev/null 2>&1; then node scripts/audit/rail-ignore.mjs >/dev/null 2>&1; _rig=$?; if [ "$_rig" = 1 ]; then echo 'FAIL rail-ignore: 식순 화면이 오른쪽 레일(말풍선) 자리를 비웁니다 — node scripts/audit/rail-ignore.mjs'; fail=1; else echo 'OK   rail-ignore [RAIL_IGNORE_1019]'; fi; fi
 # ★[REVIEW24_1019 2026-10-19 대본 섹션 검토 132 · 132 덧 2] 여섯째 · 넷째 예시(개식 OO · 맞절 EE B-1 · 부모님께 인사 PP 22 · 감사문 PP 14) · 식전 영상 소개 129 · 130 자료 글 · 소개 넷 우성 · 영상 뒤 받는 말 261 · 고르기 쪽 예시 카드 말풍선 자리
 chk 'REVIEW24_1019' assets/ritual-open.js 7
-chk 'PV_OUT_1019' assets/ritual-cue.js 3
+chk 'PV_OUT_1019' assets/ritual-cue.js 2   # ★[PV_OUT_OFF_1122] 3 → 2(261 큐를 걷어 빌더 주석 하나가 빠짐)
 chk 'PV_OUT_1019' assets/ritual-open.js 1
 chk "'narr-open-ex6', 'narr-entry-bow-ex6', 'narr-tribute-name-ex6', 'narr-thanks-in-ex4', 'narr-prevideo-out'" assets/ritual-cue.js 1
 chk "pvExNames: \['담백하게', '다정하게', '잔잔하게'\]," assets/ritual-open.js 1   # [B2_GEUL_01 d-01] 예시 4(130 시선 명령)는 고르는 목록에서 뺐다
@@ -24361,7 +24361,7 @@ chk "nsw = 'narr-open-online'" assets/ritual-cue.js 1
 chk "nsw = 'narr-vow-in-face'" assets/ritual-cue.js 1
 chk "return c.slug !== 'online-3-welcome'" assets/ritual-cue.js 1
 chk "_more.shift(); pushMore('bridge-b9-declare-seat-end')" assets/ritual-cue.js 1
-chk '_b14Self' assets/ritual-cue.js 3
+chk '_b14Pv' assets/ritual-cue.js 2   # ★[PV_OUT_OFF_1122] NARR_GO ⑤ _b14Self 은퇴 → 영상 뒤 늘 263
 chk 'function bodyRecSec(S)' assets/ritual-cue.js 1
 chk 'REC_SEC_DATA' assets/ritual-cue.js 1
 chk "narEx: { speech: 1, matjeol: 4 }" assets/ritual-open.js 1
@@ -24382,3 +24382,8 @@ chk '뭉클하실 부모님께, 신랑 신부가' assets/ritual-open.js 1
 chk 'TRIBUTE_GO_1122' scripts/rec141-1122.py 1
 chk 'TRIBUTE_GO_1122' docs/rules/나레이션.md 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/tribute-go-1122.mjs >/dev/null 2>&1; _tg=$?; if [ "$_tg" != 0 ]; then echo 'FAIL tribute-go-1122: 부모님께 인사 장면(141 새 판 · 걷는 말 236 · 쉼 1.2 / 1.7)이 대표님 11/22 승인과 다릅니다 — node scripts/audit/tribute-go-1122.mjs'; fail=1; else echo 'ok tribute-go-1122'; fi; fi
+# ★★[PV_OUT_OFF_1122 대표님 11/22 17:16 · 17:33] 식전 영상 끝 261 없음 · 곡 먼저 → 263 → 여는 말 — 상세 docs/rules/나레이션.md
+chk "'narr-prevideo-out': 1 /\* ★\[PV_OUT_OFF_1122\]" assets/ritual-cue.js 1
+chk 'var _b14Pv = bc.k ===' assets/ritual-cue.js 1
+chk 'PV_OUT_OFF_1122' docs/rules/나레이션.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/pv-out-1122.mjs >/dev/null 2>&1; _pv=$?; if [ "$_pv" != 0 ]; then echo 'FAIL pv-out-1122: 식전 영상 끝 흐름(261 없음 · 곡 뜸 → 263 → 여는 말)이 대표님 11/22 결정과 다릅니다 — node scripts/audit/pv-out-1122.mjs'; fail=1; else echo 'ok pv-out-1122'; fi; fi

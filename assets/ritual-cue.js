@@ -1848,10 +1848,10 @@
         /* ★[NARR_GO_1122 ⑤ · 릴스 방 NARR_종합_1119 #5 · 대표님 11/22 «나레이션 추천대로»] 식전 영상 바로 뒤에는 263 «먼저 …»을 끼우지 않는다 — 이미 순서가 지났는데 «먼저» ·
              고른 화촉 여는 말이 글 안에서 «화촉 · 촛불»을 스스로 말할 때만(가족 91 «양가 어머님께서 화촉에 불을 밝히실 때») · 영상 받는 말 뒤 3초는 여는 말이 진다 · 개식 바로 뒤(영상 없는 날)는 종전대로 263 */
         /* ★★[PV_OUT_OFF_1122 대표님 11/22 17:33 «식전 영상 이후 다음 순간에서 고른 BGM 이 바로 나오게 · 그 후 먼저 오늘의 멘트»] 식전 영상 바로 뒤 화촉이면 263 «먼저 오늘의 …»이 늘 첫 줄 —
-             NARR_GO ⑤(영상 뒤 263 걷기 · 여는 말 3초)는 이 결정이 덮는다 · 고른 여는 말이 «이제 …»로 열거나 «화촉 · 촛불»을 말해도 영상 뒤는 263 으로 순서 이름을 먼저(영상 받는 말 261 이 빠져 순서를 알리는 줄이 이것뿐) ·
+             NARR_GO ⑤(영상 뒤 263 걷기 · 여는 말 3초)는 이 결정이 덮는다 · 고른 여는 말이 «이제 …»로 열거나 글 안에서 «화촉 · 촛불»을 말해도(91) 영상 뒤는 263 으로 순서 이름을 먼저(영상 받는 말 261 이 빠져 순서를 알리는 줄이 이것뿐) · 첫 문장부터 «촛불»이면(93) 5초 안 두 번이라 종전대로 뺀다 ·
              개식 바로 뒤(영상 없는 날)는 종전 그대로(BRIDGE_OPEN · B14_SKIP_CANDLE) */
         var _b14Pv = bc.k === 'prevideo';
-        if (bn.k === 'candle' && bc.k !== 'candle' && (_b14Pv || (!BRIDGE_OPEN.test(_nxT) && !/촛불|화촉/.test(String(_nxT).split(/[.!?]/)[0])))) _more.push('bridge-b14-candle-name');   /* ★[B14_SKIP_CANDLE_1023 검토 152 엔진 2)] 고른 화촉 여는 말 첫 문장이 «촛불 · 화촉»을 이미 말하면 B14 를 끼우지 않는다(5초 안 «촛불» 두 번 · «밝히» 세 번) */
+        if (bn.k === 'candle' && bc.k !== 'candle' && (_b14Pv || !BRIDGE_OPEN.test(_nxT)) && !/촛불|화촉/.test(String(_nxT).split(/[.!?]/)[0])) _more.push('bridge-b14-candle-name');   /* B14_SKIP_CANDLE_1023(첫 문장이 «촛불 · 화촉» — 아버님 93 등)은 영상 뒤에도 그대로 · 그날은 여는 말이 곡 뜸 뒤 첫 줄 */   /* ★[B14_SKIP_CANDLE_1023 검토 152 엔진 2)] 고른 화촉 여는 말 첫 문장이 «촛불 · 화촉»을 이미 말하면 B14 를 끼우지 않는다(5초 안 «촛불» 두 번 · «밝히» 세 번) */
         var pushMore = function (sm) {
           var _pre = sm === 'bridge-b8-face-guests' || sm === 'bridge-b12-tribute-calm' || sm === 'bridge-b14-candle-name', _at = _pre ? bn : bc;   // 다음 순간 앞에 서는 줄은 그 순간 몫(순간 쪽 · 미리 듣기 자르기가 그 순간에서 들린다) · B7 은 앞 순간 몫 — 입장 첫 줄은 디렉터가 손으로 낸다(CUE_FIRE_RULE · 신부 준비 완료 뒤)
           _bl.push(cue({ k: _at.k, blockN: _at.blockN, slug: sm, name: '이음말 · ' + ({ 'bridge-b7-entry-ready': '입장 앞', 'bridge-b8-face-guests': '하객 쪽으로', 'bridge-b9-declare-seat': '읽은 분 자리로', 'bridge-b9-declare-seat-end': '읽은 분 자리로',
