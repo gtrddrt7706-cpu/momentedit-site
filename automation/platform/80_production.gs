@@ -243,7 +243,7 @@ function _prodPack(d, opts) { _gsr_();
     if (withPrev && val.length > capP && !migrating) {
       try { val = _prodTrackPack(d[t + 'Draft'], undefined); withPrev = false; } catch (e4) {}
     }
-    err = put(PROD_TRACK_COL[t], val, withPrev ? capP : cap, t === 'ritual' ? '' : (TRACK_LABEL_KO[t] || t));   // [B2_GEUL_16] 식순은 어느 원고가 긴지 모른다 — 이름을 고정하지 않는다
+    err = put(PROD_TRACK_COL[t], val, withPrev ? capP : cap, t === 'ritual' ? '' : (TRACK_LABEL_KO[t] || t));   // [B2_GEUL_16] 식순은 어느 원고가 긴지 모른다 — 이름을 고정하지 않는다   /* [MEAL_NAME_1122] 이름표 dining «애프터 웨딩» → «예식 후 식사» */
     if (err) return { cols: {}, err: err };
   }
   // [B-6] 합산 상한은 '행 전체'를 묶어야 의미가 있다 — 이번에 쓰지 않는 컬럼의 현재 길이도 더한다.
@@ -255,7 +255,7 @@ function _prodPack(d, opts) { _gsr_();
   if (total > totalCap) return { cols: {}, err: _prodTooLong_('긴') };   // [PROD_CAP_WORDS] 행 전체 합산 — 숫자 없이
   return { cols: cols, err: '' };
 }
-var TRACK_LABEL_KO = { ritual: '식순', dining: '애프터 웨딩', seat: '좌석 배치', guideinfo: '하객 안내', snap: '스냅 기획', final: '최종 확정', invitation: '청첩장' };
+var TRACK_LABEL_KO = { ritual: '식순', dining: '예식 후 식사', seat: '좌석 배치', guideinfo: '하객 안내', snap: '스냅 기획', final: '최종 확정', invitation: '청첩장' };   // 이름표 바꾼 표식은 이 이름표를 쓰는 _prodPack 본문 안([MEAL_NAME_1122])
 /* ★[PROD_CAP_WORDS 2026-10-09 A~Z 점검 2라운드 A2-15] 길이 상한 거절 글 한 곳 — «글이 너무 길어요 · ○○ 글을 조금 줄여 주세요 (코드 S0)».
    종전 «현재 약 12947자 · 최대 12,000자»는 저장 꼴(JSON) 길이라 화면 칸 글자 수와 비교가 안 됐다 · 코드 글자는 부른 동작의 자리(저장 S · 올리기 U …) · 0 = 글이 곧 까닭 */
 function _prodTooLong_(label) {

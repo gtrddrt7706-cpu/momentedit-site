@@ -53,7 +53,7 @@ if (has('_ritualCapLen_') && has('_prodPack')) {
   const old = { _v: 3, S: { letterText: L(13000) } }, pkO = C._prodPack({ ritualDraft: old }, { track: 'ritual' });
   ok('A2-15 ③ tx 에 짝이 없는 옛 칸(옛 빌더 초안)은 그 글이 원본이라 센다 — 13,000자면 거절', C._ritualCapLen_(old) > 12000 && !!pkO.err, JSON.stringify({ len: C._ritualCapLen_(old), err: pkO.err }));
   const dn = { memo: L(12500) }, pkD = C._prodPack({ diningDraft: dn }, { track: 'dining' });
-  ok('A2-15 ④ 다른 칸 상한 글도 숫자 없이(«현재 약 · 최대 N자» 없음) — 애프터 웨딩', pkD.err === '글이 너무 길어요 · 애프터 웨딩 글을 조금 줄여 주세요 (코드 S0)' && !/\d{3}/.test(pkD.err.replace(/\(코드 [A-Z]\d\)/, '')), pkD.err);
+  ok('A2-15 ④ 다른 칸 상한 글도 숫자 없이(«현재 약 · 최대 N자» 없음) — 예식 후 식사', pkD.err === '글이 너무 길어요 · 예식 후 식사 글을 조금 줄여 주세요 (코드 S0)' && !/\d{3}/.test(pkD.err.replace(/\(코드 [A-Z]\d\)/, '')), pkD.err);
   C.__ERR_ACT = 'snapRefUpload'; const pkU = C._prodPack({ diningDraft: dn }, { track: 'dining' }); C.__ERR_ACT = 'saveProductionTrack';
   ok('A2-15 ⑤ 코드 글자는 부른 동작의 자리(올리기 → U0)', /\(코드 U0\)$/.test(pkU.err || ''), pkU.err);
   const big = two(9000), pkP = C._prodPack({ ritualDraft: two(5000), _prev: { track: 'ritual', at: 'x', draft: big } }, { track: 'ritual' });

@@ -1,4 +1,4 @@
-// ★[PROD_FS_INERT 2026-11-19 R3X #14] 청첩장 · 좌석 · 음료 · 애프터 웨딩 전체화면(#mp_production.mp-fs)이 떠 있는 동안 Tab 이 가려진 뒤 페이지로 안 나간다.
+// ★[PROD_FS_INERT 2026-11-19 R3X #14] 청첩장 · 좌석 · 음료 · 예식 후 식사 전체화면(#mp_production.mp-fs)이 떠 있는 동안 Tab 이 가려진 뒤 페이지로 안 나간다.
 //   종전: 이 셋만 [C2_LAYER_INERT] 에서 빠져 PC Tab 13 ~ 19번이 뒤 페이지(새로고침 · 계좌번호 복사 · «입금했어요» · 로그아웃)로 나갔다.
 //   잰다: ① 정적 — _prodFsSync 가 켤 때 _layerInertOn(box) · 끌 때 _layerInertOff(box) ② 브라우저 — 세 화면 × Tab 25번이 뒤 본문(.mp-main 밖 · 레일 제외)으로 안 나간다 ·
 //         «나가기» 확인 판은 눌린다 · 닫으면 막음이 풀린다. 종료 코드 0 통과 · 1 실패 · 2 브라우저 없음(정적은 그래도 잰다)
@@ -23,7 +23,7 @@ const ST = JSON.parse(JSON.stringify(G.handleGetMyState({ token: 't' })));
 const T = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.woff2': 'font/woff2' };
 const srv = http.createServer((q, r) => { const u = decodeURIComponent(q.url.split('?')[0]); const p = path.join(ROOT, u); if (!p.startsWith(ROOT)) { r.writeHead(403); r.end(); return; } fs.readFile(p, (e, b) => { if (e) { r.writeHead(404); r.end(); return; } r.writeHead(200, { 'Content-Type': T[path.extname(p)] || 'application/octet-stream' }); r.end(b); }); });
 await new Promise((r) => srv.listen(0, '127.0.0.1', r)); const BASE = 'http://127.0.0.1:' + srv.address().port;
-for (const row of ['청첩장', '좌석 · 음료', '애프터 웨딩']) {
+for (const row of ['청첩장', '좌석 · 음료', '예식 후 식사']) {
   const ctx = await br.newContext({ viewport: { width: 1280, height: 800 }, locale: 'ko-KR', timezoneId: 'Asia/Seoul' });
   await ctx.addInitScript("window.__ME_PREVIEW_GUARD_TEST_OFF = true; try{ localStorage.setItem('me_token','TOK'); localStorage.setItem('me_ledtip_v1','o'); }catch(e){}");
   await ctx.route('**/*', async (rt) => { const u = rt.request().url();

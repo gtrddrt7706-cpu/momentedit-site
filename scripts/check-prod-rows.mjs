@@ -9,7 +9,7 @@
  * ★규칙 (행마다)
  *   ① 트랙이 '완료'면 행도 완료로 보여야 한다 — ✓ 가 서고, 버튼이 '시작하기'가 아니어야 한다
  *      ★예외 «안 함» — 하지 않기로 마친 줄은 ✓ 대신 회색 「안 함」 배지 + 「다시 정하기」다(안 했는데 완료로 보이던 오해 제거).
- *        애프터 웨딩 「안내 없이 진행」(dining_on 'N' · 2026-07-21) · 청첩장 「청첩장 없이」(method 'none' · [INV_SKIP_ROW] 2026-09-26).
+ *        예식 후 식사 「안내 없이 진행」(dining_on 'N' · 2026-07-21) · 청첩장 「청첩장 없이」(method 'none' · [INV_SKIP_ROW] 2026-09-26).
  *        아래 ROWS 는 그 상태를 만들지 않으므로 이 예외는 여기서 재지 않는다 — «안 함» 상태를 ROWS 에 넣으면 이 규칙에 예외 분기를 함께 넣을 것.
  *   ② 트랙이 '진행중'이면 '시작하기'가 아니라 이어서 하는 말이어야 한다
  *   ③ 트랙이 비었으면 ✓ 가 서면 안 된다
@@ -21,7 +21,7 @@ import { openProbe } from './audit/page-probe.mjs';
 const ROWS = [
   { nm: '청첩장',      set: (S, v) => { S.inv.status = v; if (v === '완료') S.inv.published = { urls: { family: 'https://x/a' } }; } },
   { nm: '식순',        set: (S, v) => { S.t.ritual = v; } },
-  { nm: '애프터 웨딩', set: (S, v) => { S.t.dining = v; S.dd = { need: 'yes', venuePick: '어느 식당' }; } },
+  { nm: '예식 후 식사', set: (S, v) => { S.t.dining = v; S.dd = { need: 'yes', venuePick: '어느 식당' }; } },
   { nm: '좌석 · 음료', set: (S, v) => { S.t.seat = v; S.sd = { tables: [{ seats: ['', ''], drinks: ['', ''] }] }; } },
 ];
 
