@@ -13637,7 +13637,7 @@ chk "_nxReq.replace(/ /g, " mypage.html 1
 nochk "head = '제작 정보를 입력해 주세요'" mypage.html 0
 chk "var _mDue = _needM && !!((d.midpayment && d.midpayment.due) || _pp.combo);" mypage.html 1
 chk "var _bDue = _needB && !!((d.balance && d.balance.due) || _pp.combo);" mypage.html 1
-chk "head = _dueNm + '을 입금해 주세요';" mypage.html 1
+chk "head = _dueNm + '을 결제해 주세요';" mypage.html 1
 chk 'if (_d4) head = _d4;' mypage.html 1
 chk "(_pp.midSig || _pp.balSig) ? '입금 확인 중이에요." mypage.html 1
 # [NOW_PICK_OVER][NOW_RETOUCH_NO_ETA][NOW_CONFIRMED_THANKS] 2026-09-26 사장님 결정 ⑩ ① ㉖ — 선택완료는 «보정 대기»(초과>0 · 추가 보정 대기면 NOW 가 «추가 보정을 정해 주세요») · 선택완료 NOW 에서 «보통 약 4주 걸리고»(고른 뒤부터로 읽히는 기간 절) 삭제 · 컨펌완료 NOW 는 ④ 패널 문장과 겹치지 않게
@@ -13654,7 +13654,7 @@ nochk "sub = '최종본을 정리해 전달하고 카톡으로 알려드려요.'
 chk 'STAGE_SIGN_NOW' mypage.html 2
 chk "var _ctSend = (d.stage==='상담완료' && d.contract && !d.contract.signed && !d.contract.expired);" mypage.html 1
 chk "if (_ctSend) nowLabel='계약서 서명';" mypage.html 1
-chk "if (_ctSend) nextStage='계약금 입금';" mypage.html 1
+chk "if (_ctSend) nextStage='계약금 결제';" mypage.html 1
 chk 'STAGE_NEXT_SKIP' mypage.html 1
 chk 'while (nextStage && nextStage === nowLabel && _nxAt + 1 < _dispList.length)' mypage.html 1
 # [NEXT_PAY_DATE] 2026-09-26 사장님 결정 ⑨ ③ — NEXT 결제 줄에 실제 날짜(fmtWedKo · 예식일 확정 뒤만) · «예식완료 · 예정일에 진행»은 날짜를 알면 날짜로 · 표시 라벨 «예식 완료»(셋째 칸 단계 키 «예식완료»는 그대로)
@@ -13865,7 +13865,7 @@ nochk '</b>에 여기로 열려요' mypage.html 0
 nochk "에 안내드려요.</div>':''" mypage.html 0
 # [BUNDLE_TITLE] [BUNDLE_ITEM_NOWRAP] 2026-09-26 사장님 결정 ③ · 점검 pay-14 ②·pay-17 ② — 묶음 결제 제목 «계약금·중도금을 함께 입금해 주세요»(_bundleActive 일 때만) · 항목은 «+»까지 한 덩어리
 chk 'BUNDLE_TITLE' mypage.html 1
-chk "을 함께 입금해 주세요') : '이어서, 계약금을 입금해 주세요'" mypage.html 1
+chk "을 함께 결제해 주세요') : '이어서, 계약금을 결제해 주세요'" mypage.html 1
 chk 'BUNDLE_ITEM_NOWRAP' mypage.html 1
 chk 'white-space:nowrap">+ 중도금' mypage.html 1
 # [CR_HINT_FIT] 2026-09-26 점검 x-11·pay-17 ①·x-10 — 현금영수증 안내글 320 잘림(«…사업자번») → «휴대폰·사업자번호 (선택)» · 아래 줄 «주세요 · 비워두면»(줄 머리 가운뎃점) → 두 문장 · 결제 카드와 계약서 요청 폼 두 곳
@@ -13918,7 +13918,7 @@ chk 'RB_SAVED_LINE' mypage.html 3
 chk 'function _rbSavedHtml' mypage.html 1
 # [SIGN_DEP_TRUE] [PAY_DUE_WORD] 2026-09-26 B2 검토 — 서명 전 임박 계약 «계약금·중도금·잔금» 가운뎃점 양옆 낱말 잇기(320 «…중도금· / 잔금» 매달림) · 계약금 카드 «이&nbsp;화면에»(320 «…가까워지면 이 / 화면에» 지시어 떨어짐)
 chk "서명하시면 계약금&#8288;·&#8288;" mypage.html 1
-chk '이&nbsp;화면에 입금 안내가 열려요' mypage.html 1
+chk '이&nbsp;화면에 결제 안내가 열려요' mypage.html 1
 # ── 묶음 C
 # [INV_SKIP_ROW·INV_BANK_PICK·INV_PUB_SAVE·INV_FIELD_LABEL·INV_PUB_LABEL·INV_TAP44·GUIDE_NOTE_TRUE·GUIDE_SHARE_GRID·TRK_SEP_LABEL·TRK_END_LINE·TRK_SUB_BALANCE·TRK_ACT_PAD12·SNAP_BTN_GHOST·GUIDE_BTN_HOWTO·CF_EMPTY_WORD·EG_DASH_NOTE·GUIDE_QR_BY_KIND] 2026-09-26 마이페이지 고객 점검 묶음 C — 예식 준비 카드 · 청첩장 위저드 · 하객 안내 패널 · 예식 확인서
 # [INV_SKIP_ROW] 청첩장 없이 = ✓ 대신 「안 함」 + 「다시 정하기」(예식 후 식사와 같은 모양) · 확인서 「청첩장 없이 진행」 · 링크 없이 마친 판 재진입은 1단계부터 · 배지 nowrap · 개인 제작 보정(none+selfQR:false)은 invitationUrls 가 null(청첩장 없이로 마침)이면 하지 않는다 · 초안에 살아 있는 링크가 있으면(발행 뒤 청첩장 없이를 저장만 함) 「안 함」이 아니다(검토)
@@ -14276,7 +14276,7 @@ chk "PEAK_INK = '#6B2A24'" assets/ritual-open.js 1
 chk 'SIGN_NEXT_BUNDLE' mypage.html 3
 chk 'function _signBundleKeys(d){' mypage.html 1
 chk 'var _bdl=_signBundleKeys(ctx);' mypage.html 1
-chk "if (_ctSend){ var _sbk=_signBundleKeys(d); if (_sbk.length) nextStage='계약금·'+_sbk.join('·')+' 입금'; }" mypage.html 1
+chk "if (_ctSend){ var _sbk=_signBundleKeys(d); if (_sbk.length) nextStage='계약금·'+_sbk.join('·')+' 결제'; }" mypage.html 1
 nochk 'var _tdY=(function(){ var t=new Date(); return t.getFullYear()' mypage.html 0
 # [KST_TODAY] 2026-09-26 통합 점검 G1(L8) — 머리 D-day · NOW 당일/전날(MPD_D4) · NEXT 폴백 D-day · NEXT 지난 결제일 · 보관 만료(NOW·배너)를 한국 날짜로 — 기기 자정 셈으로 되돌리면 LA·UTC 기기에서 하루 어긋난다(renderBalance·renderMid·doSignContract 쪽 [KST_TODAY] 는 G1b)
 chk 'function _kstDdayOf(ymd){' mypage.html 1
@@ -14295,8 +14295,8 @@ chk "var _pbL = (d.payment.bundle && d.payment.bundle.length) ? d.payment.bundle
 chk '_pbU = _pbU.concat(d.payment.signaledBundle);' mypage.html 1
 # [NOW_DEP_COVER] 2026-09-26 통합 점검 G1(L3 · B4) — 계약금이 예약금으로 충당(납부액 0)이면 NOW «계약금 입금은 없어요» · 진행 머리 «계약금 확인»(입금하라는 말 없음)
 chk 'NOW_DEP_COVER' mypage.html 2
-chk "if (_pa && Number(_pa.납부액) <= 0) { head = '계약금 입금은 없어요';" mypage.html 1
-chk "? '계약금 확인' : '계약금 입금')" mypage.html 1
+chk "if (_pa && Number(_pa.납부액) <= 0) { head = '계약금 결제는 없어요';" mypage.html 1
+chk "? '계약금 확인' : '계약금 결제')" mypage.html 1
 # [SNAP_SIGN_NOW] 2026-09-26 통합 점검 G1(L3 · B1) — 스냅 촬영확정 + 계약서 발송(서명 전 · 기한 안)도 진행 머리 «계약서 서명 · 다음 · 계약금 입금»(시그니처 결정 ③과 같은 조건) · 시그니처 _ctSend 원문 줄은 그대로 둔다
 chk 'SNAP_SIGN_NOW' mypage.html 2
 chk "if (._ctSend && d.product==='웨딩스냅' && d.stage==='촬영확정' && d.contract && .d.contract.signed && .d.contract.expired) _ctSend = true;" mypage.html 1
@@ -14330,7 +14330,7 @@ chk 'SIGN_DEP_COVER' mypage.html 3
 chk '_ldSum>=_ldT;' mypage.html 1
 chk '서명하실 때 따로 내실 금액은 없어요.' mypage.html 1
 chk 'SIGN_DEP_WORD' mypage.html 2
-chk "서명하시면 계약금 잔액 <b>'+fmtWon(_dp.amount)+'</b> 입금 안내가 이어져요." mypage.html 1
+chk "서명하시면 계약금 잔액 <b>'+fmtWon(_dp.amount)+'</b> 결제 안내가 이어져요." mypage.html 1
 nochk '입금해 주시면 계약이 마무리돼요' mypage.html 0
 # [NOW_SUB_BAL][NOW_SNAP_BAL_NB] 2026-09-26 통합 점검 G1(L6 · L5) — NOW 부제는 문장마다 .ln-bal(균형 줄바꿈) 블록 · 낱말 사이 «·»·«)가»는 잇기로(가운뎃점 매달림 금지) · 스냅 잔금 «확인 후» 한 덩어리
 chk 'NOW_SUB_BAL' mypage.html 1
@@ -14342,7 +14342,7 @@ chk '보내 주시면, 확인\\u00a0후 촬영 준비가 마무리돼요.' mypag
 chk 'function _signDepCover(d){' mypage.html 1
 chk 'var _cdCover=_signDepCover(ctx);' mypage.html 1
 chk "if (_ctSend && ._signBundleKeys(d).length && _signDepCover(d)) nextStage='계약금 확인';" mypage.html 1
-chk "head = '계약금 입금은 없어요'; sub = '함께하기로 해 주셔서 고마워요.'; }" mypage.html 1
+chk "head = '계약금 결제는 없어요'; sub = '함께하기로 해 주셔서 고마워요.'; }" mypage.html 1
 nochk "디렉터가 확인하면 ' + _prep + '가 시작돼요" mypage.html 0
 chk "보관해요(만료 7일 전 안내).'+_calm+'</div>'" mypage.html 2
 nochk "보관해요(만료 7일 전 안내). 천천히 받으셔도 괜찮아요.</div>'" mypage.html 0
@@ -14557,15 +14557,15 @@ chk '(_dueMid?.<span style="display:block;text-wrap:balance">중도금 .+fmtWon(
 chk '_pb2.indexOf(.중도금.)===-1&&!p.midConfirmed' mypage.html 1
 # [SNAP_BAL_LATE] 2026-09-26 통합 점검 G1b(L3 · L8) — 스냅 잔금 기한(촬영 7일 전)이 한국 날짜로 오늘이거나 지났으면 계약금 카드 둘째 줄 «촬영이 가까워, 계약금이 확인되면 바로 이 화면에 입금 안내가 열려요.»(«기한이 가까워지면» 약속 금지 · 서버 묶음 여부는 사장님 결정 대기 · NEXT 줄은 G1)
 chk 'SNAP_BAL_LATE' mypage.html 2
-chk '촬영이 가까워, 계약금이 확인되면 바로 이&nbsp;화면에 입금 안내가 열려요' mypage.html 1
+chk '촬영이 가까워, 계약금이 확인되면 바로 이&nbsp;화면에 결제 안내가 열려요' mypage.html 1
 chk 'if(!isSnap||!_dueBal) return false;' mypage.html 1
 chk '_payDays().bal)<=_snapKstToday()' mypage.html 1
 # [MID_PAST_WORD] 2026-09-26 통합 점검 G1b(L3) — 계약 뒤 기한을 넘긴 중도금(단순 연체)은 날짜를 남기고 «(날짜) 기한이 지났어요.» / «지금 바로 입금 부탁드려요»(지난 날짜에 «…까지 입금 부탁드려요» 금지) · 두 덩어리
 chk 'MID_PAST_WORD' mypage.html 1
-chk ': _mPast?(.<span class="ln-bal"><b>.+escapeHtml(midDateTxt)+.</b> 기한이 지났어요.</span><span class="ln-bal">지금 바로 입금 부탁드려요</span>.)' mypage.html 1
+chk ': _mPast?(.<span class="ln-bal"><b>.+escapeHtml(midDateTxt)+.</b> 기한이 지났어요.</span><span class="ln-bal">지금 바로 결제 부탁드려요</span>.)' mypage.html 1
 # [COMBO_NOTE_SPLIT] 2026-09-26 통합 점검 G1b(L5 B9 ①) — 중도금·잔금 묶음 카드 «예식이 가까워 함께 받아요.» / «(기한) 입금 부탁드려요» 두 덩어리(«받아요 · / 지금 바로» 가운뎃점 줄 끝 매달림) · 날짜 꼬리 «·&nbsp;예식&nbsp;N일&nbsp;전»
 chk 'COMBO_NOTE_SPLIT' mypage.html 1
-chk 'forceCombo?(.<span class="ln-bal">예식이 가까워 함께 받아요.</span><span class="ln-bal">.+comboDue+. 입금 부탁드려요.+comboTag+.</span>.)' mypage.html 1
+chk 'forceCombo?(.<span class="ln-bal">예식이 가까워 함께 받아요.</span><span class="ln-bal">.+comboDue+. 결제 부탁드려요.+comboTag+.</span>.)' mypage.html 1
 chk 'cc-mini">·&nbsp;예식&nbsp;' mypage.html 1
 nochk 'forceCombo?(.예식이 가까워 함께 받아요 · .' mypage.html 0
 # [KST_TODAY] 2026-09-26 통합 점검 G1b(L8-tz) — 잔금 카드 _bPast · 묶음 카드 _balPast · 중도금 연체 _mPast · 스냅 계약금 카드 _balLate · 서명 창 «오늘(날짜)»는 한국 날짜(_snapKstToday) — 기기 자정 셈으로 되돌리면 LA 기기는 하루 전, 오클랜드 기기는 하루 뒤를 «오늘»로 센다(머리·NOW·NEXT·보관 쪽 [KST_TODAY] 는 G1)
@@ -14811,13 +14811,13 @@ chk "else if (_rx.status === '결제대기' && _rs === '전달완료' && _svDone
 chk 'var _shPast = _kstDdayOf(' mypage.html 1
 chk "sub = (_shPast != null && _shPast < 0) ? '아래에서 잔금을 보내 주세요.' : " mypage.html 1
 chk 'var _hdPast = _kstDdayOf(' mypage.html 1
-chk "sub  = _hdPast ? '' : '입금이 확인되면 예식 준비(청첩장·식순)가 열려요.';" mypage.html 1
+chk "sub  = _hdPast ? '' : '결제가 확인되면 예식 준비(청첩장·식순)가 열려요.';" mypage.html 1
 # (옛 줄 · 2026-10-09 A~Z 점검 1라운드 마이페이지 고침으로 아래 [R6_MYPAGE] 묶음에서 새 꼴로 바꿈) "sub  = _hdPast ? '보통 영업일 1~2일 안에 확인하고 알려드려요.' : " mypage.html 1
 chk "|| (r\\[0]==='예식 준비' && r\\[2]==='제작중')); });" mypage.html 1
 # [MID_WITH_WORD] 2026-09-26 통합 점검 2라운드 R1 — 임박 계약 중도금(날짜 없음 · 서버 dueLabel «계약 시 함께 납부»)은 «지금 바로 입금 부탁드려요»(«계약 시 함께 납부까지 입금 부탁드려요» 금지 · 꼬리 «· 계약 시 함께 납부» 없음 — 320 에서 가운뎃점이 줄 머리에 선다 · 잔금 카드 _bPast 와 같은 말)
 chk 'MID_WITH_WORD' mypage.html 2
 chk "var _mWith=!midDateTxt && String(p.dueLabel||'')==='계약 시 함께 납부';" mypage.html 1
-chk "_mWith?'<b>지금 바로</b> 입금 부탁드려요'" mypage.html 1
+chk "_mWith?'<b>지금 바로</b> 결제 부탁드려요'" mypage.html 1
 # [SIG_TITLE_WJ] 2026-09-26 통합 점검 2라운드 R1 — 묶음 입금 신고 뒤 계약 카드 제목 «계약금·중도금·잔금 입금 확인 중»은 가운뎃점 양옆 낱말 잇기(U+2060) — 풀면 320 에서 «계약금·중도금· / 잔금»으로 점이 줄 끝에 매달린다([CHECKS_NO_DANGLE] · [SIGN_DEP_TRUE] 선례)
 chk 'SIG_TITLE_WJ' mypage.html 1
 chk 'escapeHtml(_sb.length?(.계약금\\u2060·\\u2060.+_sb.join(.\\u2060·\\u2060.)):.계약금.)' mypage.html 1
@@ -24427,12 +24427,37 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/tribute-go-1122.mjs 
 # ★[EX_ROLE_HIDE_1122 2026-11-22 사장님 «축가 멘트 눌러도 변경이 없는데?»] «누가»를 고른 축가 · 축사는 멘트 예시 칩을 숨긴다
 chk 'EX_ROLE_HIDE_1122' assets/ritual-open.js 1
 chk 'if (exRoleWins(S, k)) return false;' assets/ritual-open.js 1
+
+# ★★[PAY_METHOD_1122 2026-11-22 대표님 결정 · 대본 PAY_METHOD_1122] 예약금 = 계좌 입금만 · 계약금 · 중도금 · 잔금 = 토스 카드 결제 또는 계좌 이체(고객이 고름).
+#   낱말: 예약금 «입금» · 계약금 · 중도금 · 잔금 «결제»(계좌 패널 안의 «입금했어요 · 입금자명 · 입금 확인 · 입금액»은 계좌 동작이라 그대로).
+#   [DEPOSIT_BANK_ONLY_1122] 예약금 카드 길은 지우지 않고 잠근다(98_pay_card DEPOSIT_CARD_OPEN=false) — deposit-card ⓪ 가 카드가 켜져 있어도 막히는지 잰다(돌연변이: true 로 바꾸면 붉어짐).
+chk 'var DEPOSIT_CARD_OPEN = false;' automation/platform/98_pay_card.gs 1
+chk 'DEPOSIT_BANK_ONLY_1122' automation/platform/98_pay_card.gs 2
+chk 'DEPOSIT_BANK_ONLY_1122' automation/consultation/consultation-booking.gs 1
+chk 'DEPOSIT_BANK_ONLY_1122' schedule.html 1
+chk 'DEPOSIT_BANK_ONLY_1122' scripts/audit/deposit-card.mjs 1
+chk '상담 예약금은 계좌 입금으로만 받아요. 계약금·중도금·잔금은 카드 결제와 계좌 이체 모두 가능해요' api/_kb.js 1
+chk '상담 예약금만 계좌 입금으로 받아요.' assets/advisor-kb.js 2
+nochk '잔액을 입금(' api/_kb.js
+nochk '을 입금하시면 됩니다' assets/advisor-kb.js
+chk "head = '계약금 결제만 남았어요';" mypage.html 1
+chk "head = '잔금 결제만 남았어요';" mypage.html 1
+chk "head = '중도금·잔금을 결제해 주세요';" mypage.html 1
+chk '<div class="cc-title">계약금을 결제해 주세요</div>' mypage.html 1
+chk "'중도금·잔금 결제 안내':(p.due?'중도금 결제 안내'" mypage.html 1
+chk "p.due?'잔금 결제 안내'" mypage.html 1
+nochk "' 입금 부탁드려요'" mypage.html
+chk "화면에 결제 안내가 열려요." mypage.html 2
+chk "서명하시면 계약금 결제 안내가 이어져요." mypage.html 1
 # ★[TRIBUTE_NOTES_OFF_1122 2026-11-22 사장님 «고르지 않으시면 말로 인사해요 · 신랑분은 원하시면 큰절을 … 굳이 없어도 될 것 같아»] 부모님께 인사 인사말 칩 아래 두 줄을 걷었다 · 돌아오면 빨강
 chk 'TRIBUTE_NOTES_OFF_1122' order-preview.html 2
 nochk '고르지 않으시면 말없이 인사해요' order-preview.html 0
 
 # ★[HEAD_GAP_1122 2026-11-22 사장님 «맨 위 간격이 좁다»] 머리 줄이 붙으면 맨 위에서 10px 띄움(옛 −15px = 딱 붙음)
 chk 'body.mkd .prog{position:sticky;top:-5px;' order-preview.html 1
+# ★[PV_BED_QUIET_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 A] 음악까지 미리듣기 — 예시 음악(@PV) 파일이 없으면 빨간 고장 줄 없이 조용히(PREVIEW_BED 머리말 그대로)
+chk 'PV_BED_QUIET_N06' console.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/pv-bed-quiet.mjs >/dev/null 2>&1; _pb=$?; node scripts/audit/pv-bed-quiet.mjs --selftest >/dev/null 2>&1; _pbs=$?; if [ "$_pb" != 0 ] || [ "$_pbs" != 0 ]; then echo "REVERT? pv-bed-quiet: 미리듣기 예시 음악이 없을 때 빨간 줄이 다시 선다 ($_pb/$_pbs) — node scripts/audit/pv-bed-quiet.mjs"; fail=1; else echo 'ok pv-bed-quiet'; fi; fi
 # ★★[TRIBUTE_GAP_1122] 248 → 141 음악 뜸 없음 · 말끝 → 1.2초 → 141 · 곡 내림 free — 상세 docs/rules/나레이션.md
 chk '_mn.fadeMs = 3000; } }' assets/ritual-cue.js 1
 chk 'st.free ? 0 : (st.ms || 0)' console.html 1
