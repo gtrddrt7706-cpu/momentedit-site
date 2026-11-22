@@ -8251,7 +8251,6 @@ chk "'신랑·신부 맞절': {" assets/ritual-story.js 1
 nochk "})()\].slice(0, openC ? 1 : 2).concat(openC ? \[cue({" assets/ritual-cue.js     # 입장 끝 concat 으로 되돌리지 말 것
 nochk "et\[0\] + BOW\[0\], et\[1\] + BOW\[1\]" assets/ritual-open.js                          # 입장 몫 +15초로 되돌리지 말 것
 nochk "if (ESD.run && (c.k !== 'entry' || esdMain(c)))" console.html                   # 맞절에서 입장 곡이 끊기지 않게
-<<<<<<< ours
 # ★★[THANKS_IN_VOW 2026-10-11] 서약 카드 «무엇을 읽나요 · 서약 / 감사문» — 2026-11-22 [THANKS_SWAP_1122] 로 은퇴(검사 은퇴 길 · 옛 chk 와 thanks-in-vow.mjs 를 걷고 새 기대로 바꿨다)
 # ★★[THANKS_SWAP_1122 2026-11-22 사장님 «추천대로»] 감사 인사 ↔ 감사문 둘 중 하나(축사 · 축가와 같은 꼴) · 서약 카드는 서약 고정
 #   감사문 = 감사 인사 자리(welcome)의 판 S.welcomeKind 'thanks' · 여는 말 133 · 신랑 먼저, 신부 다음으로 · 마지막 한 문장(THANKSBOTH) 함께 · 맺는 말 없음 · 서약과 함께 담을 수 있다
