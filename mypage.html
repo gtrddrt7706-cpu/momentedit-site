@@ -1733,7 +1733,13 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     .sp-opt .sp-d{display:block;font-size:11px;color:var(--sub);margin-top:3px;line-height:1.5;word-break:keep-all;text-wrap:pretty}   /* 마지막 줄에 «보여요» 한 낱말만 떨어지지 않게 */
     .sp-opt .sp-ex{display:block;margin-top:9px}   /* [SEAT_EX_SHOT] 하객 화면 예시 — 두 칸이 같은 크기 · 같은 자리 */
     .sp-opt .sp-ex-c{display:block;font-size:10px;letter-spacing:.04em;color:var(--label-soft);margin-bottom:4px}
-    .sp-opt .sp-ex img{display:block;width:100%;max-width:320px;height:auto;aspect-ratio:358/300;border:1px solid var(--border);border-radius:8px;background:#FAF8F4}
+    /* ★[SEAT_EX_POLISH 2026-11-22 사장님 «디자이너 입장에서 한번 더»] ① PC 는 두 칸을 나란히(같은 높이 · 같은 크기 그림 — 한 자리를 두 방식으로 견주는 그림이다)
+       ② 그림은 칸 폭을 채우고 위에서부터 같은 높이로 · 아래는 칼로 자르지 않고 흐리게 닫는다 ③ 오른쪽 버진로드 띠는 찍을 때 뺐다(정체 모를 점선 덩어리로 읽혔다) */
+    .sp-opt .sp-ex-f{display:block;max-width:250px;border:1px solid var(--border);border-radius:10px;background:#fff;overflow:hidden}
+    .sp-opt .sp-ex img{display:block;width:100%;height:auto;aspect-ratio:301/340;-webkit-mask-image:linear-gradient(#000 78%,transparent),linear-gradient(to right,#000 93%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(#000 78%,transparent),linear-gradient(to right,#000 93%,transparent);mask-composite:intersect}   /* 위를 잘라 높이를 맞추면 «내 자리만» 그림에서 정작 내 자리 알약이 잘렸다 → 원래 비율 그대로 · 폭만 250 · 아래 · 오른쪽 잘린 가장자리는 흐리게(더 넓은 화면의 한 부분으로 읽히게) */
+    .seat-privacy .sp-opts{display:grid;gap:8px;margin-bottom:8px}
+    .seat-privacy .sp-opts .sp-opt{margin-bottom:0}
+    @media(min-width:640px){ .seat-privacy .sp-opts{grid-template-columns:1fr 1fr} }
     .seat-privacy .sp-note{text-align:center;font-size:11px;color:var(--label-soft);margin-top:2px}
     /* 단체사진·스냅 칩 CSS는 전용화면 블록(.ph-list 근처)으로 단일화 — 구 f83da9b .ph-chip 규칙 제거(중복·구 스타일이 새 디자인을 덮던 문제 2026-07-19 병합) */
     /* 자리 편집 중 음료 선택 바 — '지금 이 자리를 편집 중' 신호로 골드 톤(중립 베이지 요약 카드와 위계 구분 · 2026-07-19 디자이너 개편) */
@@ -13218,10 +13224,9 @@ function renderSeat(box){
       +(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':(fam?'<span class="rs-fam" aria-hidden="true">혼주</span>':'<span class="rs-add" aria-hidden="true">＋</span>'))+dot+'</button>';
   }
   function tableIn(t, ti, no){
-    // 원 안 = 번호(누르면 테이블 이름 정하기) + 부부가 붙인 이름(작게 · 두 줄까지) — 이웃 테이블과 맞닿아 원 아래 줄([SEAT_FIT] rt-cap)을 둘 자리가 없다
-    var _cn=String(t.name||'').trim(), _hasCn=!!(_cn && !/^테이블\s*\d+$/.test(_cn));
-    if(isEd(ti,'name')) return '<input class="rt-cin" data-ed data-edk="'+ti+':name" value="'+escapeHtml(t.name||'')+'" maxlength="24" autocomplete="off" placeholder="테이블 이름" aria-label="'+no+'번 테이블 이름">';
-    return '<button type="button" class="rt-c rt-cbtn" data-seat-edit data-ti="'+ti+'" data-si="name" aria-label="'+no+'번 테이블 이름 정하기"><span class="rt-num">'+no+'</span>'+(_hasCn?'<span class="rt-cn">'+escapeHtml(_cn)+'</span>':'')+'</button>';
+    /* ★테이블 이름 정하기(번호를 누르면 «테이블 1» 입력칸) 금지 — 2026-11-22 사용자 지시로 삭제([SEAT_NO_RENAME] 사장님 «테이블번호를 굳이 수정할 필요는 없을 것 같아»).
+       번호(좌 1 ~ 4 · 우 5 ~ 9)는 확정 배치의 이름이다 — 하객 좌석표 · 하객 안내 · 스태프 A4 가 같은 번호로 부른다. 원은 번호만 보이고 눌리지 않는다. */
+    return '<span class="rt-c" aria-hidden="true"><span class="rt-num">'+no+'</span></span>';
   }
   /* ★테이블 아래 ＋ － ✕(자리 추가 · 줄이기 · 테이블 삭제) · «+ 테이블» 금지 — 2026-11-22 사용자 지시로 삭제([SEAT_PLAN_9]).
      테이블 9개 · 35석은 공간 설계로 정해진 배치라 부부가 바꾸면 실제 홀과 어긋난다 · 빈 자리는 비워 두면 된다.
@@ -13288,10 +13293,10 @@ function renderSeat(box){
   var _mine=(s.gi&&s.gi.seatMode==='mine'), _giDis=(s.gi&&s.gi._saving)?' style="opacity:.5;pointer-events:none"':'';
   /* ★[SEAT_EX_SHOT 2026-11-22 사장님 «하객 입장에서 보여주는 게 이해가 더 쉬울 것 같아»] 두 칸마다 하객 화면 예시 그림 하나(seat.html 실화면 · 예시 성함 «성 + ○○»)
      그림은 scripts/seat-example-shots.mjs 가 찍는다(배치도를 바꾸면 다시 찍는다) · 그림을 눌러도 그 칸이 골라진다(label 안) · 설명은 위 글이 하니 그림은 화면낭독기에서 덮는다 */
-  function _spEx(k){ return '<span class="sp-ex" aria-hidden="true"><span class="sp-ex-c">하객 화면 예시</span><img src="/assets/seat/ex-'+k+'.webp?v=1122" alt="" width="358" height="300" loading="lazy" decoding="async"></span>'; }
-  var privacyHtml='<div class="seat-privacy"'+_giDis+'><div class="sp-q">하객분들께 어떻게 보여드릴까요?</div>'
+  function _spEx(k){ return '<span class="sp-ex" aria-hidden="true"><span class="sp-ex-c">하객 화면 예시</span><span class="sp-ex-f"><img src="/assets/seat/ex-'+k+'.webp?v=1122b" alt="" width="301" height="340" loading="lazy" decoding="async"></span></span>'; }
+  var privacyHtml='<div class="seat-privacy"'+_giDis+'><div class="sp-q">하객분들께 어떻게 보여드릴까요?</div><div class="sp-opts">'
     +'<label class="sp-opt'+(_mine?'':' on')+'"><input type="radio" name="seatmode" value="all"'+(_mine?'':' checked')+'><span class="sp-t">전체 공개 <span class="sp-tag">좌석표</span></span><span class="sp-d">성함이 보이는 좌석표 · 하객이 검색 없이 자기 자리를 바로 봐요</span>'+_spEx('all')+'</label>'
-    +'<label class="sp-opt'+(_mine?' on':'')+'"><input type="radio" name="seatmode" value="mine"'+(_mine?' checked':'')+'><span class="sp-t">내 자리만 검색</span><span class="sp-d">각자 이름을 검색해 자기 자리만 · 다른 분 성함은 안 보여요</span>'+_spEx('mine')+'</label>'
+    +'<label class="sp-opt'+(_mine?' on':'')+'"><input type="radio" name="seatmode" value="mine"'+(_mine?' checked':'')+'><span class="sp-t">내 자리만 검색</span><span class="sp-d">각자 이름을 검색해 자기 자리만 · 다른 분 성함은 안 보여요</span>'+_spEx('mine')+'</label></div>'
     +'<div class="sp-note">고르면 바로 저장돼요</div></div>'
     /* ★★[SEAT_NOTE 2026-08-16 사용자 지시 "추천대로"] 「미리 알려주실 것」 — 되살린 것이 아니라 **끊긴 것을 이은 것**이다.
        2026-07-19 에 최종확정 위저드를 좌석 화면으로 합치면서 인원·음료는 옮겨졌는데 이 칸만 따라오지 못했다.
