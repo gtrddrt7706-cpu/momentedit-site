@@ -39,7 +39,7 @@ var CONTRACT_FALLBACK = [
 
 function contractCheck() {
   if (typeof _effectiveEmail_ === 'function' && !_isOwnerRun_()) { var _dm = '편집기 전용 진단이에요 · 소유자 계정으로 실행해 주세요' + (typeof _ownerHint_ === 'function' ? _ownerHint_() : ''); Logger.log(_dm); return _dm; }   // [DIAG_OWNER_ONLY 2026-10-09 점검] 공개 화면에서는 돌지 않게 · admin.gs 가 없거나 옛 판이어도 진단은 돈다(typeof _effectiveEmail_ — 그래야 admin 누락을 짚는다)
-  /* [FALLBACK_SEAT35] 폴백 표의 착석 · 최대 기대값 30 → 35 (2026-11-22 사장님 «35석으로 올리기» · 캔들존 확정 배치 35석 · CAP_35).
+  /* [FALLBACK_SEAT35] 폴백 표의 착석 · 최대 기대값 30 → 35 (2026-11-22 사장님 «35석으로 올리기» · 캔들존 확정 배치 원형 9테이블 35석 · CAP_35).
      이 표식이 GAS 에 없으면 옛 폴백(30)이 남은 것 — 점검이 30 을 정답이라 믿는다. */
   /* [FALLBACK_SEAT30] 폴백 표의 착석 기대값 25 → 30 (2026-09-13 대표 지시 검토38 · 2026-09-19 재확인).
      이 표식이 GAS 에 없으면 «이 파일을 안 붙여넣은» 것이고, 그러면 이 점검이 착석 25 를 정답이라
