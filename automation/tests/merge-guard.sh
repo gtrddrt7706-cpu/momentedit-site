@@ -24544,3 +24544,6 @@ chk 'SONG_PICK_RING_1123' scripts/audit/detail-r1.mjs 2
 nochk '›이 대신 흘러요' assets/bgm-bed.js 0
 chk '› 곡이 대신 흘러요' assets/bgm-bed.js 2
 chk 'DUCK20_1122' scripts/audit/entry-nofile-1115.mjs 3   # [DUCK20_1122] lane g — 입장 멘트 아래 말 아래 표준 −20
+chk 'DUCK20_1122' scripts/audit/seam-bg.mjs 6   # [DUCK20_1122] lane e — 말 아래 −20 기대
+chk 'DUCK20_1122' scripts/audit/seam-b2.mjs 1   # 음09 · 음10 — 시험만 나레이션 줄을 −15 로 다르게(옮김을 크기로 본다)
+chk 'DUCK20_1122' scripts/audit/no-relift.mjs 2
