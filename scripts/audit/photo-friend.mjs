@@ -48,7 +48,7 @@ t(/_frB2=!!String\(_gpB2\.photoFriend\|\|''\)\.trim\(\)/.test(pd) && /done: !!\(
   t(!miss.length && sorted, '차례 — [END_FLOW_1030 검토 167] (디지털 참석 날) 온라인 인사 → 전체 하객 + 꼭 담고 싶은 사진 → 촬영 후 안내(AFTER_BEFORE_FAMILY_200) → 가족 구도(+ 불러 모아 주실 분) → 추가 촬영(친구 부탁 칸 · POST_FLOW_200) → 예식 순서에서 남는 사진 → 하객 사진 모으기 · 감사 인사 차례 없음' + (miss.length ? ' — 못 찾음: ' + miss.join(' · ') : (sorted ? '' : ' — 순서가 어긋남')));
   t(rp.indexOf('class="snp-flow"') === -1 && !/var _flw=/.test(rp), '흐름 줄(알약)은 없다 — 번호 줄이 곧 흐름(같은 말 두 번 금지)');
   const cue = read('assets/ritual-cue.js') || '';
-  const eng = ["slug: 'narr-online-in'", 'slug: _ppre', "actId: 'photo-all'", "name: '촬영 후 안내'", "actId: 'photo-family'", "actId: 'photo-free', name: _px.n"].map((x) => cue.indexOf(x));   // ★[CLOSING_LINE_1031] 마무리 멘트 → 소리 없는 사진 큐(전체 하객 → 가족 구도 → 자유 사진)
+  const eng = [/* ★[CLOSE_C_GO_1122] 새 코스 62(온라인 인사) 걷음 — 엔진 순서는 마무리 멘트부터 */ 'slug: _ppre', "actId: 'photo-all'", "name: '촬영 후 안내'", "actId: 'photo-family'", "actId: 'photo-free', name: _px.n"].map((x) => cue.indexOf(x));   // ★[CLOSING_LINE_1031] 마무리 멘트 → 소리 없는 사진 큐(전체 하객 → 가족 구도 → 자유 사진)
   t(eng.every((p, i) => p > -1 && (i === 0 || p > eng[i - 1])) && rp.indexOf("_stepHd('감사 인사 · 남아 주실 분 안내'") === -1, '엔진 새 코스 큐 순서가 화면 차례와 같다(온라인 인사 → 마무리 멘트 → 전체 하객 → 촬영 후 안내 → 가족 구도 → 추가 촬영 · AFTER_BEFORE_FAMILY_200 · END_FLOW_1030 · POST_FLOW_200 · CLOSING_LINE_1031) · 감사 인사 차례는 걷었다');
 }
 t(/고른 구도와 순서대로 찍어요\./.test(rp), '«고른 구도와 순서대로 찍어요.» — [B2_MA_66 2026-11-06 2차 판정] 가족 사진 차례 설명(옛 «사진작가가 불러 드리고…»는 판정본 문구로 바뀌었다)');

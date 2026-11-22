@@ -155,7 +155,7 @@ try {
   /* 14 · 15 당일 큐 */
   const cq = await f.evaluate(() => { const S2 = JSON.parse(JSON.stringify(S)); S2.digital = true; const L = ENG.RitualCue.build(S2, { mode: 'console' }).cues, at = (fn) => L.find(fn) || {};
     const b = at((x) => x.slug === 'narr-close-bow'), cl = at((x) => /^narr-closing/.test(x.slug || '')), on = at((x) => x.slug === 'narr-online-in'); return { b: [b.duck, b.fadeMs, b.goLeadMs], cl: cl.duck, on: [on.duck, on.live && on.live.duck] }; });
-  ok('14 · 15 당일 큐 — 닫는 인사 −90(2초 · 3초) · 마무리 멘트 −15 · 온라인 인사 −15 / 두 분 말하는 동안 −20', cq.b.join() === '-90,2000,3000' && cq.cl === -15 && cq.on.join() === '-15,-20', cq);
+  ok('14 · 15 당일 큐 — 닫는 인사 −90(2초 · 3초) · 마무리 멘트 −15 · 온라인 인사 없음(CLOSE_C_GO_1122 · 62 걷음 · 옛 15 −15 / −20 은퇴)', cq.b.join() === '-90,2000,3000' && cq.cl === -15 && cq.on.join() === ',', cq);
   /* 18 선언 앞 — 반지 바로 뒤일 때만 «4초 내림 + 2.5초 정적» · 그 밖에는 1.5초에 끄고 정적 1초 */
   const silBefore = (r, k) => { const i = r.findIndex((x) => x.k === k && x.au && !x.act), t = i > -1 ? r[i].t : null; if (t == null) return -1; const pre = r.filter((x) => x.t < t && x.t > t - 9000), j = pre.length - 1; let st = t; for (let q = j; q >= 0; q--) { if (pre[q].src && pre[q].want > -60) break; st = pre[q].t; } return t - st; };
   await setX(f, { on: { vow: 1, ring: 1, declare: 1 }, bgm: {} }); await go(f, 'ring');
