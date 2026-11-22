@@ -60,6 +60,30 @@ const rec = (w) => { try { return JSON.parse(w.C['동의기록'] || '{}'); } cat
 const call = (fn, body) => { try { return G[fn](body); } catch (e) { return { ok: false, error: 'THROW ' + e.message }; } };
 const BODY = (o) => Object.assign({ token: 't', milestone: '예약금', paymentKey: 'pk_1', orderId: 'MD_1', amount: 100000 }, o || {});
 
+/* ★[DEPOSIT_BANK_ONLY_1122 2026-11-22 대표님 결정 · PAY_METHOD] 예약금 = 계좌 입금만.
+   ⓪ 카드결제(PAY_CARD_ENABLED)가 켜져 있어도 예약금은 설정 enabled:false · 승인 거절 · 토스 0회 · 카드로 낼 신청도 «카드 대기»로 안 적힌다.
+   그 아래 ①~⑬ 은 잠가 둔 옛 길(DEPOSIT_CARD)이 다시 열릴 때를 위해 문을 열고(G.DEPOSIT_CARD_OPEN = true) 그대로 잰다. */
+console.log('━━ deposit-card — ⓪ 예약금은 계좌 입금만(카드결제가 켜져 있어도)');
+{
+  say(G.DEPOSIT_CARD_OPEN === false, '기본값 DEPOSIT_CARD_OPEN = false', String(G.DEPOSIT_CARD_OPEN));
+  mk(); cardOn(true);
+  const c = call('handleCardPayConfig', { token: 't', milestone: '예약금' });
+  say(c && c.ok === true && c.enabled === false && /계좌 입금/.test(c.reason || ''), '설정 조회 → enabled:false · «계좌 입금으로만»', JSON.stringify(c));
+  const r = call('handleCardConfirm', BODY());
+  say(r && r.ok === false && tossCalls === 0, '승인 → 거절 · 토스 안 부름', JSON.stringify(r));
+  {   // ⓪-2 마이페이지 길(doPost)에서 payBy=card 로 와도 «카드 결제 대기»로 적지 않는다
+    const w = mk({}, { 상태: '신청접수', 선택날짜: '', 선택시간: '', 신청일시: new Date() }); cardOn(true);
+    G.findRowByToken = () => ({ num: 2, get: (h) => (h in w.B ? w.B[h] : '') });
+    G._IN_POST = true; notes = [];
+    let r2; try { r2 = G.submitSchedule('ctok', DAY, '14:50', [], '', null, '', '', 'card'); } catch (e) { r2 = { ok: false, error: 'THROW ' + e.message }; }
+    const sp0 = notes.find((n) => n.k === 'admin.slotPicked') || { x: {} };
+    say(r2 && r2.ok === true && !rec(w).예약금결제 && sp0.x.card === false, '카드로 낼 신청이 와도 «카드 결제 대기»로 안 적는다(관리자 승인 흐름 그대로)', JSON.stringify({ r2, rec: w.C['동의기록'], sp0 }));
+    G._IN_POST = false;
+  }
+  cardOn(false);
+}
+G.DEPOSIT_CARD_OPEN = true;   // 아래는 잠긴 옛 길을 잰다
+
 console.log('━━ deposit-card — ① 꺼져 있으면 아무 일도 안 한다');
 {
   mk(); cardOn(false);

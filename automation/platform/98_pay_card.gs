@@ -148,7 +148,12 @@ function _payPreValidate(cust, milestone) { _gsr_();
 function _payDepositAmount() { _gsr_();
   return Number((typeof PAYMENT !== 'undefined' && PAYMENT && PAYMENT.예약금) || (typeof CONFIG !== 'undefined' && CONFIG && CONFIG.DEPOSIT) || 100000) || 100000;
 }
+/* ★[DEPOSIT_BANK_ONLY_1122 2026-11-22 대표님 결정 · 대본 PAY_METHOD_1122] 예약금 = 계좌 입금만 · 계약금 · 중도금 · 잔금 = 토스 카드 결제 또는 계좌 이체(고객이 고름).
+   위 [DEPOSIT_CARD](예약금 카드 길)는 지우지 않고 잠근다 — 이 값이 false 면 설정 조회는 enabled:false(예약 화면 «결제 방법» 탭이 안 뜬다) · 승인은 거절(토스를 부르지 않는다).
+   이미 카드로 받은 예약금의 환불(카드 취소) 길은 그대로 둔다. 다시 열려면 대표님 결정이 먼저다(값만 true · deposit-card ⓪ 를 함께 고친다). */
+var DEPOSIT_CARD_OPEN = false;
 function _depositCardBlock(consult, cust) { _gsr_();   // 카드로 예약금을 받을 수 없는 까닭(없으면 '') — 설정 조회·승인이 같은 자로 본다
+  if (typeof DEPOSIT_CARD_OPEN === 'undefined' || !DEPOSIT_CARD_OPEN) return '상담 예약금은 계좌 입금으로만 받아요.';   // [DEPOSIT_BANK_ONLY_1122] 예약금 = 계좌 입금만
   if (!consult) return '상담 신청 정보를 찾을 수 없어요.';
   if (cust && String(cust.get('상품타입') || '').trim() === '웨딩스냅') return '스냅은 예약금 카드결제를 쓰지 않아요.';
   if (cust && typeof STAGE_EXCEPTIONS !== 'undefined' && STAGE_EXCEPTIONS.indexOf(String(cust.get('현재단계') || '').trim()) !== -1) return '진행이 종료된 예약이에요. 디렉터에게 문의해 주세요.';

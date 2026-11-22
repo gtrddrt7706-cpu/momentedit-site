@@ -51,7 +51,7 @@ try {
     const sub = (subEl && getComputedStyle(subEl).display !== 'none') ? subEl.textContent.trim() : '';
     const shown = cards.map((id) => document.getElementById(id).textContent).join(' ');
     return { cards, now, sub,
-      asksPay: /입금해 주세요|입금해주세요/.test(now + ' ' + sub + ' ' + shown),
+      asksPay: /(?:입금|결제)해 ?주세요/.test(now + ' ' + sub + ' ' + shown),
       canPay: !!document.getElementById('mp_paySignal') || /입금 계좌/.test(shown),
       body: (now + ' ' + sub + ' ' + shown).replace(/\s+/g, ' ').slice(0, 90) };
   }, d);
