@@ -1447,7 +1447,10 @@
   /* when[n − 1](S) = 그 예시가 «맞는 날» — 아닌 날은 칩에 없고 고른 값이 있어도 예시 1 로 흐른다(값은 지우지 않는다 · 다시 맞는 날이면 그대로) */
   /* names 는 배열 또는 함수(S) — 화촉처럼 서는 분마다 지금 글(예시 1)의 결이 달라 이름이 판마다 다를 때 · 빈 이름('')은 그 판에 없는 예시 */
   function narExNames(S, k) { var e = NAR_EX[k]; return !e ? [] : (typeof e.names === 'function' ? e.names(S || {}) : e.names); }
-  function narExOk(S, k, n) { var e = NAR_EX[k], nm = narExNames(S, k); if (!e || !(n >= 1) || n >= nm.length || !nm[n]) return false; var w = e.when && e.when[n - 1]; return (!w || !!w(S || {})) && (!e.need || !!e.need(S || {}, n)); }   // ★[REVIEW_166_1030 검토 166 B12] need = 이 판에서 실제로 쓰는 줄이 그 칩에 있나
+  /* ★★[EX_ROLE_HIDE_1122 2026-11-22 사장님 «축가 멘트 눌러도 변경이 없는데?»] 축가 · 축사에서 «누가»(부르시는 · 하시는 분)를 고른 날은 엔진이 역할 한 줄로 여는 말을 바꾼다(ROLE_SHIP_1117 roleSwapOf · 역할 줄이 이긴다) —
+       그날 멘트 예시 칩은 눌러도 소리 · 글이 안 바뀌어 칩 줄을 숨긴다(기본 판만 · 엔진 결과는 그대로) · 덕담은 고른 예시가 이기므로 해당 없음 */
+  function exRoleWins(S, k) { S = S || {}; if (S.course !== 'open') return false; if (k === 'song') return !!(songWhoOf(S) || songSelfOf(S)); if (k === 'speech') return !!speechWhoOf(S); return false; }
+  function narExOk(S, k, n) { var e = NAR_EX[k], nm = narExNames(S, k); if (!e || !(n >= 1) || n >= nm.length || !nm[n]) return false; if (exRoleWins(S, k)) return false; var w = e.when && e.when[n - 1]; return (!w || !!w(S || {})) && (!e.need || !!e.need(S || {}, n)); }   // ★[REVIEW_166_1030 검토 166 B12] need = 이 판에서 실제로 쓰는 줄이 그 칩에 있나
   /* ★[BASE_SWAP_1023 검토 156] 맞절 · 화촉(어머님) 기본과 예시 2 의 자리를 맞바꿨다 — exv 2 가 없는 옛 초안에서 고른 «1»(옛 예시 2 = 지금 기본)은 0 으로 읽는다.
      빌더는 불러올 때(_applySaved) 같은 옮기기를 하고 exv 2 를 적는다 · 고르지 않은 옛 초안은 새 기본을 따른다(사장님 뜻) */
   /* 옛 초안 = 식순 화면이 저장한 S(늘 entryScene 을 싣는다) 중 exv 2 가 없는 것 — 엔진 · 검사가 손으로 만든 S(entryScene 없음)와 미리듣기 주소는 새 차례로 읽는다 */
