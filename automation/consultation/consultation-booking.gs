@@ -975,6 +975,7 @@ function submitSchedule(token, dateKey, time, flexArr, etc, hold, cashReceipt, p
      카드결제가 꺼져 있으면(PAY_CARD_ENABLED) 무시한다 — 낼 수 없는 카드를 «대기»로 적지 않는다. */
   var _byCard = false;
   try { _byCard = String(payBy || '') === 'card' && typeof _payCfg_ === 'function' && !!_payCfg_().enabled; } catch (e) { _byCard = false; }
+  if (typeof DEPOSIT_CARD_OPEN === 'undefined' || !DEPOSIT_CARD_OPEN) _byCard = false;   // [DEPOSIT_BANK_ONLY_1122] 예약금은 계좌 입금만 — 카드 «대기»로 적지 않는다(관리자 승인 흐름 그대로)
   var sheet = getSheet();
   var colOf = buildHeaderIndex(sheet);
   var row = findRowByToken(sheet, colOf, token);

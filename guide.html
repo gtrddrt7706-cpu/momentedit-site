@@ -446,7 +446,7 @@ body{
   <div class="brand">Moment Edit</div>
   <p class="page-t">하객 안내</p><!-- [GUIDE_NAME_OWNER_1115] 음성이 부르는 이름 · 모든 상태(불러오는 중 · 종료 · 실패)에 보인다 -->
   <main id="root"><div class="card"><div class="state" role="status"><span class="bdot"></span>안내를 불러오는 중이에요…</div></div></main>
-<script src="/assets/seat-plan.js?v=1122a"></script><!-- [SEAT_PLAN_9] 좌석 번호 · 의자 방향 단일 원천 -->
+<script src="/assets/seat-plan.js?v=1122b"></script><!-- [SEAT_PLAN_9] 좌석 번호 · 의자 방향 단일 원천 -->
 <script src="/assets/dining-data.js?v=1105a"></script><!-- [B2_MA_64] 식사 · 카페 판정 목록(마이페이지 · 당일 콘솔과 같은 원천 · DINE_DATA_NI16) -->
 </div>
 <script>
@@ -1052,9 +1052,8 @@ function _mtLb(p){ var g=(Math.abs(p.y)<0.49*41)?8:1, s='--lb-ax:'+p.x.toFixed(1
 // 홀 전체 배치(익명) — room=[{no,label,side,occ[]}] · hti=본인 테이블 · mi=본인 자리 · nm=본인 이름만 표시(타인 명단 비노출)
 // [SEAT_PLAN_9] 배치도를 가로로 미는 상자(.gmap)에서 처음 위치 — 좌측 묶음이 통째로 보이는 자리 · 내 자리가 안 보이면 그 자리를 가운데로(옆으로만) · 그림이 다 들어가면 «옆으로 밀면» 줄을 숨긴다
 function gmapCenter(root){ try{ Array.prototype.forEach.call((root||document).querySelectorAll('[data-gmap]'),function(g){ var w=g;
-  var sw=g.parentNode&&g.parentNode.querySelector('[data-swipe]'); if(sw) sw.hidden=!(g.scrollWidth>g.clientWidth+2);
-  var me=g.querySelector('.smap-s .gr-me,.smap-s .gr-dot.me')||g.querySelector('.smap-t.hit'); if(!me){ g.scrollLeft=0; return; }   // 내 자리가 없는 전체 공개 그림은 좌측 묶음이 통째로 보이는 자리에서 시작(seat.html gmapFit 과 같은 시작)
-  w.scrollLeft=0; var wr=w.getBoundingClientRect(), mr=me.getBoundingClientRect(); if(mr.left<wr.left+24 || mr.right>wr.right-24) w.scrollLeft+=(mr.left+mr.width/2)-(wr.left+wr.width/2); }); }catch(e){} }   // 좌측 묶음이 통째로 보이는 자리에서 시작 · 내 자리가 안 보일 때만 그 자리를 가운데로(seat.html mineFit 과 같은 규칙)
+  var me=g.querySelector('.smap-s .gr-me,.smap-s .gr-dot.me')||g.querySelector('.smap-t.hit'); if(!me){ g.scrollLeft=0; ME_SEAT_PLAN.edgeCue(g); return; }   // 내 자리가 없는 전체 공개 그림은 좌측 묶음이 통째로 보이는 자리에서 시작(seat.html gmapFit 과 같은 시작)
+  w.scrollLeft=0; var wr=w.getBoundingClientRect(), mr=me.getBoundingClientRect(); if(mr.left<wr.left+24 || mr.right>wr.right-24) w.scrollLeft+=(mr.left+mr.width/2)-(wr.left+wr.width/2); ME_SEAT_PLAN.edgeCue(g); }); }catch(e){} }   // 좌측 묶음이 통째로 보이는 자리에서 시작 · 내 자리가 안 보일 때만 그 자리를 가운데로(seat.html mineFit 과 같은 규칙)
 function seatRoomHtml(hit){
   var room=(hit&&hit.room)||[]; if(!room.length) return '';
   var one=((hit.mi||[]).length===1);   // 일치 자리가 1개일 때만 이름 칩 — 동일 테이블 부분 일치가 여럿이면 이름 없이 강조만(타인 자리 오표기 방지)
@@ -1091,7 +1090,7 @@ function seatRoomHtml(hit){
   //   ★tabindex를 뺐다가는 조용히 되돌아간다 — 눈으로는 아무 차이가 없어서 아무도 모른다.
   return '<div class="mtb-wrap" tabindex="0" role="group" aria-label="좌석 배치도 · 좌우로 넘겨 보실 수 있어요">'+srAlt+'<div aria-hidden="true"><div class="mtb-stage">&#9672; 앞 · 신랑 신부</div>'
     +'<div class="gmap smap-scroll" data-gmap>'+map+'</div><div class="gmap-entry">입장</div>'
-    +(hit.all?'<div class="gmap-swipe" data-swipe>옆으로 밀면 우측 테이블이 보여요</div>':'')   // [SEAT_PLAN_9] 전체 공개는 좌측 묶음부터 보인다 — 우측이 있다는 것을 한 줄로(seat.html · 편집기와 같은 말 · 그림이 다 들어가면 숨긴다)
+    /* ★아래 «옆으로 밀면 …» 한 줄 금지 — 2026-11-22 사용자 지시로 그림 위 «우측 테이블 ›» 알약으로 바꿈([SEAT_SWIPE_CUE] · seat.html · 편집기와 같은 알약 · 그림이 다 들어가면 숨긴다) */
     +(hit.all?'':'<div class="mtb-cap">'+(one?'이름이 표시된 자리가 내 자리예요<br>다른 자리 성함은 보이지 않아요':'강조된 자리 중 하나가 내 자리예요<br>성함을 전체로 입력하면 정확히 표시돼요')+'</div>')+'</div></div>';   // 전체 공개 좌석표엔 검색용 캡션 불필요(2026-07-18 사용자 지시 · 미니멀)
 }
 function seatHitsHtml(v, hits){   // 서버 검색 결과 → 안내(0=못 찾음 · 1=단정+내 테이블 배치 · 2~3=후보 나열(동명이인 막다른길 방지) · 4+=성함 더 입력)
