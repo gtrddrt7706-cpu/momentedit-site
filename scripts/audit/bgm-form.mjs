@@ -319,7 +319,7 @@ try {
     const C9 = await pg.evaluate(() => { const R = RitualOpen, S0 = JSON.parse(JSON.stringify(S)), out = { n: 0, by: {}, miss: [], head: [], key: [], courses: 0 };
       /* ★[SPEECH_SONG_1115] «전부»를 축사 쪽 · 축가 쪽 둘로(축사 · 축가는 함께 담지 못한다 · 둘 다 식중 영상 담음) · 옛 «영상» 갈래 대신 식중 영상 빼기 판 */
       const base = [{ nm: '전부 · 축사', on: R.PICKABLE.filter((k) => k !== 'song'), set: {} }, { nm: '전부 · 축가', on: R.PICKABLE.filter((k) => k !== 'free'), set: {} }].concat((R.EXAMPLES || []).map((x) => ({ nm: x.nm, on: x.on, set: x.set || {} })));
-      const vars = [{}, { vowKind: 'thanks' }, { candleWho: 'fathers' }, { candleWho: 'others' }, { _off: ['welcome'] }, { _off: ['letter'] }, { _off: ['welcome', 'letter'] }, { _off: ['candle'] }, { _off: ['toast'] }, { _off: ['table'] }, { _off: ['tribute'] },
+      const vars = [{}, { welcomeKind: 'thanks' } /* [THANKS_SWAP_1122] 감사문 = 감사 인사 자리의 판(옛 vowKind) */, { candleWho: 'fathers' }, { candleWho: 'others' }, { _off: ['welcome'] }, { _off: ['letter'] }, { _off: ['welcome', 'letter'] }, { _off: ['candle'] }, { _off: ['toast'] }, { _off: ['table'] }, { _off: ['tribute'] },
         { guestVoice: 'couple' }, { entryVoice: 'couple' }, { _chip: ['tribute', 'none'] }, { _chip: ['letter', 'parent'] }, { _chip: ['toast', 'toast'] }, { _chip: ['toast', 'cake'] }, { _off: ['midvid'] }, { _on: ['song'], _off: ['letter'] }];
       Object.keys(R.NAR_EX || {}).forEach((k) => { const n = ((R.NAR_EX[k] || {}).lines || []).length; for (let i = 1; i <= n; i++) vars.push({ _ex: [k, i] }); });
       const ks = ['guest', 'candle', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'midvid', 'letter', 'tribute', '_close', 'toast', 'table', 'prevideo'];   /* [SPEECH_SONG_1115] + 식중 영상 */

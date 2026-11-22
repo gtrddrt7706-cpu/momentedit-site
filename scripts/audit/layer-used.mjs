@@ -49,10 +49,10 @@ process.on('exit', () => { rec = false; const ns = seen.size; for (const S of se
     for (let n = 1; n <= L; n++) run(Object.assign({}, S, { narEx: Object.assign({}, S.narEx || {}, { [k]: n }) }), '새 코스 상태 · 칩 ' + (NE[k].lab || k) + ' ' + n); } }
   /* 칩이 서는 조건이 다른 칸에 걸린 것(서약 «두 분이 먼저» · 감사문 판 · 선언 읽는 분 호칭) — 새 코스 상태 500개 고루 × 그 칸 × 칩 */
   const opens = [...seen.values()].filter((S) => S.course === 'open'), step = Math.max(1, Math.floor(opens.length / 500));
-  const FO = [{ vowFirst: 'b' }, { vowKind: 'thanks' }].concat((O.DECL_TITLES || []).flatMap(([t]) => [{ declTitle: t }, { declareWho: 'friend', declTitle: t }]));
+  const FO = [{ vowFirst: 'b' }, { welcomeKind: 'thanks' } /* [THANKS_SWAP_1122] */].concat((O.DECL_TITLES || []).flatMap(([t]) => [{ declTitle: t }, { declareWho: 'friend', declTitle: t }]));
   /* 칸 값 하나씩 × 새 코스 상태 500 — 순간이 담긴 상태에서만 서는 갈래(식전 영상 예시 S.pvEx 1 → 128 같은 것 · 11/08 대본 대조에서 놓친 자리) */
   for (let i = 0; i < opens.length; i += step) for (const [f, set] of Object.entries(vals)) for (const v of set) run(Object.assign({}, opens[i], { [f]: v }), '새 코스 상태 · ' + f + '=' + v);
-  for (let i = 0; i < opens.length; i += step) { const S = opens[i]; for (const f of FO) { const S2 = Object.assign({}, S, f); if (f.vowKind && S2.on) S2.on = Object.assign({}, S2.on, { welcome: 0 });
+  for (let i = 0; i < opens.length; i += step) { const S = opens[i]; for (const f of FO) { const S2 = Object.assign({}, S, f); if (f.welcomeKind && S2.on) S2.on = Object.assign({}, S2.on, { welcome: 1 });   /* [THANKS_SWAP_1122] 감사문 판은 감사 인사 자리를 담아야 선다 */
     run(S2, '새 코스 상태 · ' + JSON.stringify(f)); for (const k of Object.keys(NE)) { const L = Object.values(NE[k].lines || {}).reduce((a, x) => Math.max(a, x.length), 0);
       for (let n = 1; n <= L; n++) run(Object.assign({}, S2, { narEx: Object.assign({}, S2.narEx || {}, { [k]: n }) }), '새 코스 상태 · ' + JSON.stringify(f) + ' · 칩 ' + (NE[k].lab || k) + ' ' + n); } } }
   fs.writeFileSync(${JSON.stringify(out)}, JSON.stringify({ hit, nb, ns })); });
