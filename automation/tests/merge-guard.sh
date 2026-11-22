@@ -10427,7 +10427,7 @@ chk 'NOTE_OFF_1003' order-preview.html 4
 nochk "ai:'각자 1분쯤 소리 내어 읽으면" order-preview.html   # ★칩 아래 AI 설명 금지 — 2026-10-03 사용자 지시로 삭제
 nochk "'멘트를 바꾸면 두 분 목소리 입장 인사도 아래에서 다시 만들어 주세요.'" order-preview.html   # ★금지 — 2026-10-03 사용자 지시로 삭제(R8-03 이 같은 말)
 chk 'MK_FORM_ONE' order-preview.html 6
-chk "h+=_mkFlow(k,(_pn>=2&&!_scn)?lb:'');" order-preview.html 1   # [ONE_PLAY_1013] ② 입장에 곡을 골라 장면이 서면 «이 순간 전체 듣기»는 장면 알약 하나(MK_FORM_ONE 의 그 알약 · 음악과 함께)
+chk "h+=_mkFlow(k,(_pn>=2&&!_scn)?lb:''," order-preview.html 1   # [SAY_INLINE_1123] 셋째 인자(흐름 위 참고 예시 · 왜 적는지)가 붙었다 · 알약 자리는 그대로   # [ONE_PLAY_1013] ② 입장에 곡을 골라 장면이 서면 «이 순간 전체 듣기»는 장면 알약 하나(MK_FORM_ONE 의 그 알약 · 음악과 함께)
 nochk "(gs.some(function(g){ return !g.q; })||_pn<2)?'':lb" order-preview.html   # ★«칩이 있으면 들어 보기 숨김» 금지 — 2026-10-03 사용자 지시로 삭제
 nochk "'<b>두 분 번갈아</b> · 약 '" order-preview.html   # ★차례 줄 길이 금지 — 2026-10-03
 chk 'MK_FORM_ONE' scripts/audit/mk-form-one.mjs 4
@@ -17681,7 +17681,7 @@ chk 'STAGE_LINES' scripts/audit/stage-lines.mjs 1
 #   깨 보고 믿음: A 없는 화면에 flow-thread 를 돌리면 50건 빨강 · 종료 코드 1
 chk 'FLOW_THREAD' order-preview.html 7
 chk ".mk-flow>li::before{content:'';position:absolute;left:17px;top:0;bottom:0;width:1px" order-preview.html 1
-chk 'function _qRow(t,key)' order-preview.html 1   # [LISTEN_PACE_1031] key = 줄 자리(지금 · 지나감 표시)
+chk 'function _qRow(t,key' order-preview.html 1   # [SAY_INLINE_1123] 셋째 인자 ex(«두 분 함께» 끝 문장)가 붙었다   # [LISTEN_PACE_1031] key = 줄 자리(지금 · 지나감 표시)
 nochk '.mk-flow li.q{color:var(--light);font-size:12.5px' order-preview.html
 nochk "if(x.quiet){ h+='<li class=\"q\">'+esc(x.txt)" order-preview.html
 nochk "h+='<li class=\"t\">'+_vTag(k,{talk:true})+'<b>" order-preview.html
@@ -24485,3 +24485,16 @@ chk 'body.mkd .prog{position:sticky;top:-5px;' order-preview.html 1
 # ★[PV_BED_QUIET_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 A] 음악까지 미리듣기 — 예시 음악(@PV) 파일이 없으면 빨간 고장 줄 없이 조용히(PREVIEW_BED 머리말 그대로)
 chk 'PV_BED_QUIET_N06' console.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/pv-bed-quiet.mjs >/dev/null 2>&1; _pb=$?; node scripts/audit/pv-bed-quiet.mjs --selftest >/dev/null 2>&1; _pbs=$?; if [ "$_pb" != 0 ] || [ "$_pbs" != 0 ]; then echo "REVERT? pv-bed-quiet: 미리듣기 예시 음악이 없을 때 빨간 줄이 다시 선다 ($_pb/$_pbs) — node scripts/audit/pv-bed-quiet.mjs"; fail=1; else echo 'ok pv-bed-quiet'; fi; fi
+# ★★[SAY_INLINE_1123 2026-11-23 사장님 «너의 추천대로하고 전부 적용»(3안 · 흐름에서 바로)] «두 분이 할 말» 따로 상자를 걷고 글을 흐름 «신랑 차례 · 신부 차례» 줄 바로 아래에(감사 인사 · 감사문 · 서약 두 판 · 편지 · 부모님께 인사 · 축배)
+#   참고 예시 칩 줄 · 왜 적는지 한 줄은 흐름 위 · 예시 이름 알림 + «n자 · 약 n초» 한 줄 · 4줄 넘으면 접힘 · 떠나면 가라앉고 알림 한 줄 · 저장 자리(S.tx · S.mkc · S.cueSig)는 그대로 · 상자가 돌아오면 빨강
+chk 'SAY_INLINE_1123' order-preview.html 12
+chk 'SAY_INLINE_1123' scripts/audit/say-inline.mjs 2
+chk 'function _mkSayRows(k,key)' order-preview.html 1
+chk 'function _mkSayLi(k,kind,w,lab,key,last)' order-preview.html 1
+chk "h+=_mkSayRows(k,k+':'+i);" order-preview.html 1
+chk 'onfocus="mkSayIn(this)" onblur="mkSayOut(this)"' order-preview.html 2
+chk '<p class="mk-saym"><span class="mk-exw" id="mkw_' order-preview.html 2
+nochk 'class="mk-sec mk-say"' order-preview.html
+nochk '<h4 id="mkSay">두 분이 할 말</h4>' order-preview.html
+nochk 'onblur="mkSayOut(this)">.*저장했어요' order-preview.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/say-inline.mjs >/dev/null 2>&1; _si=$?; node scripts/audit/say-inline.mjs --selftest >/dev/null 2>&1; _sis=$?; if [ "$_si" = 1 ] || [ "$_sis" = 1 ]; then echo "REVERT? say-inline: 두 분이 할 말이 흐름 차례 줄 아래가 아니다(검사 $_si · 자기 시험 $_sis) — node scripts/audit/say-inline.mjs [SAY_INLINE_1123]"; fail=1; else echo "ok say-inline ($_si · 자기 시험 $_sis) [SAY_INLINE_1123]"; fi; fi

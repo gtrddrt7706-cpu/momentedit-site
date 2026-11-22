@@ -161,7 +161,6 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 .nar .alt:first-of-type{margin-top:0}
 .nar .alt .altw{flex:0 0 auto;font-size:11px;letter-spacing:.04em;color:var(--gold-deeper);font-weight:600;background:#EFEAE1;border-radius:6px;padding:2px 6px;line-height:1.5}
 .prep-hint{font-size:12.5px;color:var(--sub);margin-top:9px;word-break:keep-all;line-height:1.6}
-.mk-say>.prep-hint{margin:0 0 14px}   /* [VOW_HOW] 글칸 위로 올린 읽는 방식 안내 — 아래 «신랑» 이름표와 붙지 않게 */
 .noplay{font-size:12.5px;color:var(--ink-3,#8a8177);margin-top:9px;word-break:keep-all;line-height:1.6}   /* [NO_PLAY] 죽은 버튼 대신 이유 한 줄 */
 /* ★[TIP_QUIET 2026-08-14 사용자 지적 "팁 부분 너무 주저리야 깔끔하게 개선"]
    팁이 **상자 안의 상자**였다 — 베이지 카드(.oc.on #F4F0E9) 안에 거의 같은 톤의 상자(#F3EEE6)를
@@ -1993,29 +1992,16 @@ html.mk-dlg-lock{overflow:hidden}   /* [DLG_SCROLL_LOCK] 창이 떠 있는 동�
 .mk-sladd{display:inline-flex;align-items:center;min-height:44px;margin:0}
 .mk-slc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:2px 16px 0}   /* [CARD_POLISH] 카드 = 줄들 + 아래 «＋ 줄 더하기» 한 줄 */
 .mk-slc{margin-top:12px}
-.mk-txc{padding:0 16px}   /* ★[CUE_FORM 2026-10-06] 두 분이 할 말 = 줄 편집기와 같은 흰 카드 · 사람마다 한 칸(가는 선으로 나눈다) */
-.mk-txc .mk-txr{margin:0;padding:12px 0 6px}
-.mk-txc .mk-txr+.mk-txr{border-top:1px solid var(--border)}
+/* ★[SAY_INLINE_1123] «두 분이 할 말» 흰 카드(.mk-txc · .mk-vwc · .mk-vwbw · .mk-say>.prep-hint) 규칙을 걷었다 — 글은 흐름 차례 줄 아래(.mk-sayli · 아래 SAY_INLINE_1123 묶음) · 옛 [CUE_FORM] 카드 · [VOW_FORM] 서약 카드 · [VOW_HOW] 읽는 방식 안내 자리 */
 .mk-txh{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;min-height:44px}
 .mk-txh .mk-who{margin:0}
 .mk-txh .mk-extag{margin:0}
 .mk-txh .mk-ck{margin-left:auto}
-.mk-txc .mk-txta.ta.grow{width:100%;margin-top:0;padding:6px 0 10px;border:0;border-bottom:1px solid transparent;border-radius:0;background:transparent}   /* 칸 사이는 가는 선 하나 — 글칸 밑줄은 쓰는 동안만 */
-.mk-txc .mk-txta.ta.grow:focus{border-bottom-color:var(--gold-deeper);box-shadow:0 1px 0 var(--gold-deeper);outline:none}   /* [FIELD_NO_RED] */
-.mk-txc .mk-txta.ta.grow{min-height:52px}
-.mk-txc .mk-txr .mk-fl{margin-top:2px}
-.mk-txc .mk-txr .mk-fl:not(:has(.mk-cnt:not(:empty))){display:none}   /* 글자 수가 빈 줄은 자리를 차지하지 않는다 */
-.mk-txc .mk-exw:empty{display:none}
 .mk-rsel.mk-rsel0{margin:0;padding:0;border:0}   /* [CUE_FORM] 예시 글은 아래 칸에 들어간다 — 미리보기 자리를 비운다 */
-.mk-txc .mk-cue{margin:2px 0 8px}
 .mk-cue-first{margin:2px 0 10px}   /* [CUE_LAST] 먼저 하는 분 · 현장 체크 = 끝 신호 대신 한 줄 */
-.mk-vwc{padding:0 16px}   /* ★[VOW_FORM 2026-10-06] 서약 글칸 — 줄 편집기와 같은 흰 카드 */
-.mk-vwc .mk-vwl{margin:0;gap:0}
 .mk-vwr{align-items:center}
 .mk-vwn{display:inline-flex;align-items:center;min-height:36px;font-size:12.5px;font-weight:600;color:var(--accent)}
 .mk-vwr .mk-slx{margin:-4px -12px -4px auto}
-.mk-vwc .mk-slf{margin:0 -16px;padding:0 16px;border-top:1px solid var(--border)}
-.mk-vwbw{margin:0 -16px;padding:4px 16px 12px;border-top:1px solid var(--border);background:var(--bg2);border-radius:0 0 12px 12px}   /* [VOW_BOTH_ROWS] 고칠 수 없는 끝 두 줄 = 옅은 바탕 */
 .mk-vwboth{margin:0;display:flex;flex-wrap:wrap}
 .mk-vwboth .mk-vwfix+.mk-vwfix{margin-top:-4px}
 .mk-vwr.both .mk-vwn{color:var(--gold-deeper)}
@@ -2048,6 +2034,40 @@ html.mk-dlg-lock{overflow:hidden}   /* [DLG_SCROLL_LOCK] 창이 떠 있는 동�
 .mk-slf .mk-note.mk-pvn{margin-left:auto}   /* 글자 수(누르지 않는 글)만 오른쪽 */
 .mk-slf .mk-note{margin:0}
 .mk-slf .pk-link{min-height:44px}
+/* ★★[SAY_INLINE_1123 2026-11-23 사장님 «추천대로 · 전부 적용»(3안)] 두 분이 할 말 = 흐름 차례 줄 바로 아래 글(상자 없음) — 평소 읽는 글 · 올리면 옅은 테 · 누르면 금빛 테 + 카드 바탕 · 떠나면 0.35초에 테가 사라진다 */
+.mk-flowsec>.mk-ref{margin:0 0 14px;padding:0 0 12px;border-top:0;border-bottom:1px solid var(--border)}   /* 칩 줄은 «이 순간 전체 듣기» 바로 아래 · 흐름과 가는 선 하나로 나눈다 */
+.mk-saytop{margin:0 0 14px}.mk-saytop .mk-note:last-child{margin-bottom:0}.mk-sayex{margin-top:10px}
+.mk-flow li.mk-sayli{padding-bottom:22px}
+.mk-sayh{display:flex;align-items:center;flex-wrap:wrap;gap:0 8px;min-height:26px}
+.mk-sayh .mk-ck{margin:-9px 0 -9px auto;font-size:14px;line-height:1.4;color:var(--sub)}   /* «현장에서 바로 할게요» = 차례 줄 오른쪽 끝 · 누르는 칸 44 는 그대로(위아래 여백만 줄 밖으로) */
+.mk-flow .mk-sayta.ta.grow{display:block;width:calc(100% + 10px);margin:2px 0 0 -10px;min-height:0;padding:4px 10px 6px;border:1px solid transparent;border-radius:10px;background:transparent;font-size:16px;line-height:1.75;color:var(--accent);resize:none;overflow:hidden;transition:border-color .35s ease,background-color .35s ease,box-shadow .35s ease}
+.mk-flow .mk-slb .mk-slt.ta.grow.mk-sayta{flex:1 1 auto;width:auto;margin:0 0 0 -10px;padding:4px 10px;border:1px solid transparent;border-radius:10px}
+.mk-flow .mk-sayta.ta.grow:hover,.mk-flow .mk-sayta.ta.grow:placeholder-shown{border-color:var(--border)}
+.mk-flow .mk-sayta.ta.grow:focus,.mk-flow .mk-slb .mk-slt.ta.grow.mk-sayta:focus{border-color:var(--gold-deeper);background:var(--card);box-shadow:0 1px 6px rgba(58,45,34,.08);outline:none}   /* [FIELD_NO_RED] 쓰는 동안은 금빛 테 · 빨간 테 없음 */
+@media (hover:none){.mk-flow .mk-sayta.ta.grow,.mk-flow .mk-slb .mk-slt.ta.grow.mk-sayta{border-color:var(--border)}}   /* 폰은 올릴 마우스가 없다 — 누를 수 있는 칸인 줄 알게 옅은 테를 늘 둔다 */
+.mk-flow .mk-sayta.clip{-webkit-mask-image:linear-gradient(180deg,#000 72%,transparent);mask-image:linear-gradient(180deg,#000 72%,transparent)}   /* 4줄 넘는 글 = 접힌 모양(끝이 옅어진다) */
+.mk-flow .mk-sayta.saved{animation:saySettle .9s ease}
+@keyframes saySettle{0%{background-color:#F3ECDF}100%{background-color:transparent}}
+.mk-sayfold{display:inline-flex;align-items:center;min-height:44px;margin:-4px 0 -8px;padding:0;border:0;background:none;color:var(--sub);font:inherit;font-size:14px;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;cursor:pointer}
+.mk-sayfold[hidden]{display:none}
+.mk-sayfold:focus-visible{outline:2px solid var(--gold-deeper);outline-offset:2px}
+.mk-saym{margin:4px 0 0;font-size:12.5px;line-height:1.6;color:var(--light);word-break:keep-all}   /* 예시 이름 알림 + «n자 · 약 n초» = 회색 한 줄 */
+.mk-saym .mk-exw{margin:0;font-size:12.5px;color:var(--seal)}
+.mk-saym .mk-cnt{font-size:12.5px;color:var(--light)}
+.mk-saym .mk-exw:empty{display:none}
+.mk-saym .mk-exw:not(:empty)+.mk-cnt:not(:empty)::before{content:' · ';color:var(--light)}
+.mk-saym:has(>.mk-exw:empty):has(>.mk-cnt:empty){display:none}
+.mk-flow li.mk-sayli .mk-cue{margin:6px 0 0}
+.mk-flow li.mk-sayli .mk-cue-first{margin:4px 0 0}
+.mk-flow li.mk-sayli .mk-txconf{margin:6px 0 4px;font-size:14px}
+.mk-flow li.mk-sayli>.mk-note:last-child{margin:6px 0 0}
+.mk-flow li.mk-sayalt .mk-vwl{margin:6px 0 0;gap:2px}
+.mk-flow li.mk-sayalt .mk-vwlim{margin:6px 0 0}
+.mk-flow li.mk-sayalt .mk-slf{margin:0}
+.mk-flow li.mk-sayq .mk-vwboth{display:block;margin:4px 0 0}
+.mk-flow li.mk-sayq .mk-vwfix{margin:0;font-size:16px;line-height:1.75;font-weight:400;color:var(--sub)}   /* 고칠 수 없는 끝 문장 = 읽는 글과 같은 크기 · 한 단계 옅게 */
+.mk-flow li.mk-sayq .mk-vwbn{margin:2px 0 0}
+@media (prefers-reduced-motion:reduce){.mk-flow .mk-sayta.ta.grow{transition:none}.mk-flow .mk-sayta.saved{animation:none}}
 .mk-whob{min-height:44px;min-width:52px;padding:0 12px;border:0;border-radius:999px;background:none;color:var(--sub);font:inherit;font-size:12.5px;cursor:pointer}
 .mk-whob.on{background:#F3ECDF;color:var(--accent);font-weight:600;box-shadow:inset 0 0 0 1px var(--gold-deep)}   /* [R1-10 SEL_ONE] 고른 것 = 금빛 테 + 옅은 금빛 바탕 + 먹빛 글자(칩 · 예시 · 창 판과 같은 말) */
 .mk-whob:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
@@ -3847,6 +3867,7 @@ function render(){
   try{ if(typeof LP!=='undefined'&&LP.q.length&&!LP.big) _lPaint(); }catch(e){}   // [MINI_OFF_ROWS] 다시 그린 줄 ▶ 에도 «흐르는 중»(❚❚)을 바로 입힌다
   try{ _mkVidAfter(el,_mv0); }catch(e){}   // [LVID_ONCE] ② 쪽 영상 한 번
   try{ [].forEach.call(el.querySelectorAll('.ta.grow'),_taGrow); }catch(e){}   // [RIT_VOW_GROW] 적어 둔 글이 있으면 그 높이로
+  try{ _saySize(el); }catch(e){}   // [SAY_INLINE_1123] 4줄 넘는 두 분 글은 접고 · 떠난 번갈아 줄은 새 칸에서 가라앉는다
   /* ★[PICK_V2] ① 은 제 배치를 쓴다(PC 이야기판 · 아래 막대 흐림) — 수정하러 온 길(editReturn)에는 아래 단추(취소 · 저장)를 남긴다 */
   var _pk=(st.k==='pick'&&isOpen()); document.body.classList.toggle('pk2',_pk); document.body.classList.toggle('pr2',st.k==='practice'&&isOpen());   /* [PR_WIDE] ③ 연습하기는 PC 에서 넓게 */ document.body.classList.toggle('pk2e',_pk&&!!editReturn);
   if(_pk){ try{ _pickPaint(); }catch(e){} /* ★단체 사진 부족 알림 둘째 줄(_shortCheck) 금지 — 2026-10-09 사장님 지시로 삭제 [SHORT_TOAST_OFF] */ } else { try{ _pkSlim(); }catch(e){} if(PV.k) _pvClose(); _opPrev=null; _pkUndo(''); if(st.k==='done'&&isOpen()) try{ _donePaint(); }catch(e){} }   // ① 을 떠나면 창 · 되돌리기 알림 줄도 닫는다   // [FLOW_LINE] 그림은 칸을 그린 뒤 실제 폭으로 · [PREVIEW_SHEET] ① 을 떠나면 창도 닫힌다
@@ -5398,7 +5419,7 @@ window.mkTx=function(id,t){ var _w=document.getElementById('mkw_'+id.replace('.'
   var _tb0=_TBL.t?null:_tblCut();   // [RA5_TABLE_NOTE] 쓰기 시작 전 줄인 초(멈춘 뒤 다시 잰다)
   var kind=id.split('.')[0], k=TX_KIND[kind]; if(!S.tx) S.tx={}; S.tx[id]=t.value; if(S.txLn) delete S.txLn[id]; _fAt('tx.'+id); _txLeg(kind);   // [VOW_FORM] 칸에 적은 글은 줄 표시를 걷는다(번갈아 판은 문장으로 다시 나눠 보여 준다)
   var c=document.getElementById('mkc_'+id.replace('.','_')); if(c){ var n=t.value.length; c.textContent=_mkCntT(n,k.lim); c.style.color=n>k.lim?'var(--seal)':''; }
-  _taGrow(t); _persist(); _mkStripRepaint(); _tblWatch(_tb0); };
+  _taGrow(t); if(t.classList.contains('mk-sayta')) _saySize1(t); _persist(); _mkStripRepaint(); _tblWatch(_tb0); };   // [SAY_INLINE_1123] 4줄을 넘으면 «접기» 단추가 선다
 /* [TX_MERGE] 서버가 다른 기기의 더 나중 칸을 돌려주면(pull) 이 화면에도 채운다 — 안 채우면 다음 저장 때 이 기기가 옛 글을 들고 간다
    (서버가 칸마다 시각으로 다시 고르니 지워지지는 않지만, 화면이 서버와 다르게 보인다). 지금 쓰고 있는 칸은 건드리지 않는다. */
 /* ★[B2_NA_10 · B2_NA_11 2026-11-06 BATCH2 나10 · 나11] 다른 기기 글을 합칠 때 «지금 쓰는 칸»은 줄 아이디가 아니라 그 칸이 맡은 원고(vow.g · vow.b · bless.p …)로 지킨다 —
@@ -5490,35 +5511,31 @@ window.mkVowDel=function(w,j){ var L=_vowSplit('vow.'+w); if(j>=L.length) return
   ordAsk({title:'이 줄을 뺄까요?',body:(f==='b'?'신부':'신랑')+'부터 읽도록 문장 순서가 바뀌어요.',yes:'빼기',no:'그대로 두기'}).then(function(ok){ if(ok) go(); else render(); }); };
 window.mkVowSite=function(on){ if(!S.mkc) S.mkc={}; ['vow.g','vow.b'].forEach(function(id){ S.mkc[id]=on?1:0; _fAt('mkc.'+id); }); _persist(); render(); };   // 번갈아 = 두 분이 한 칸 · 체크도 하나
 function _vowLimT(n){ return n>=300?'이 줄은 300자까지 적을 수 있어요 · 지금 '+n+'자':'이 줄은 300자까지 적을 수 있어요'; }   // [B2_GEUL_31]
-function _vowBothRows(arr){ return '<div class="mk-slr mk-vwr both mk-vwboth" role="group" aria-label="마지막에 두 분이 함께 읽는 문장"><span class="mk-vwn">두 분 함께</span>'+(arr||_vowBoth()).map(function(x){ return '<p class="mk-vwfix">'+esc(x)+'</p>'; }).join('')+'</div>'
+/* ★★[SAY_INLINE_1123 2026-11-23 사장님 «너의 추천대로하고 전부 적용»(3안 · 흐름에서 바로)] «두 분이 할 말» 따로 상자를 걷고 글을 흐름의 «신랑 차례 · 신부 차례» 줄 바로 아래에 둔다.
+   평소엔 다른 흐름 글과 같은 읽는 글(테두리 없음 · 16px) · 마우스를 올리면 옅은 테 · 누르면 금빛 테 + 카드 바탕의 글칸(글 길이만큼 늘어난다) · 폰(hover 없음)은 옅은 테를 늘 둔다(누를 수 있는 칸인 줄 알게).
+   저장 자리는 그대로(S.tx · mkTx · mkChk · S.cueSig · _exWarn · _mkCnt · _cueBox · S.txLn) — 저장된 초안 · 서버 합치기(TX_MERGE)는 바뀌지 않는다(열쇠 · 꼴 그대로).
+   «현장에서 바로 할게요»(K.chk)는 차례 줄 오른쪽 끝 · 고르면 글 대신 끝 신호 칸(_cueBox) 또는 다음 분 한 줄 · 예시 이름 알림과 «n자 · 약 n초»는 글 아래 회색 한 줄.
+   참고 예시 칩 줄 · 왜 적는지 한 줄은 흐름 위(«이 순간 전체 듣기» 바로 아래 · _mkSayTop) · 4줄이 넘는 글은 접혀 «펼치기 · 접기» · 칸을 떠나면 테가 사라지며 가라앉고 아래 알림 한 줄(_sayMsg).
+   흐름이 그 순간의 차례 줄을 그리지 못한 날(뺀 순간 · 엔진을 아직 못 받음)은 같은 줄 모양으로 따로 그린다(_mkWrite = 대신 그리기).
+   ★«두 분이 할 말» 따로 상자(.mk-say · 머리 «두 분이 할 말» · 흰 카드 .mk-txc · .mk-vwc) 금지 — 2026-11-23 사용자 지시로 삭제 · 되살리지 말 것 · 검사 scripts/audit/say-inline.mjs */
+function _vowBothRows(arr){ return '<div class="mk-vwboth mk-sayboth" role="group" aria-label="마지막에 두 분이 함께 읽는 문장">'+(arr||_vowBoth()).map(function(x){ return '<p class="mk-vwfix">'+esc(x)+'</p>'; }).join('')+'</div>'
   +'<p class="mk-note mk-vwbn">이 문장은 미리 넣어 두었어요</p>'; }   /* [REVIEW5_1018] 검토 36 «준비해 둬요»는 앞으로 할 일처럼 읽힌다 · 이미 들어 있는 문장 */   /* «하객 쪽으로 돌아서서»는 바로 위 흐름 줄이 말한다(같은 말 두 번 금지) */
-function _vowForm(K,c){ var f=_vowFirst(), nm={g:'신랑',b:'신부'}, h='';
-  if(_vowHow()==='alt'){ var site=!!(c['vow.g']&&c['vow.b']), R=_vowRows(), n=R.length;
-    h+='<div class="mk-slc mk-txc mk-vwc"><div class="mk-txh mk-vwh"><span class="mk-who">번갈아 읽을 글</span><label class="upchk mk-ck"><input type="checkbox"'+(site?' checked':'')+' data-fk="mkvwsite" onchange="mkVowSite(this.checked)"><span>'+esc(K.chk)+'</span></label></div>';
-    if(site) h+='<p class="mk-note mk-cue-first">당일 두 분이 현장에서 번갈아 말해요</p>';
+   /* [SAY_INLINE_1123] 흐름의 «마지막 한 문장은 두 분이 … 함께 읽어요» 줄 바로 아래 — 그 줄이 «두 분 함께»를 말하니 따로 이름표(«두 분 함께»)는 두지 않는다 · [VOW_BOTH_ROWS] 고칠 수 없는 끝 문장 */
+function _vowForm(K,c){ var f=_vowFirst(), nm={g:'신랑',b:'신부'}, h='', site=!!(c['vow.g']&&c['vow.b']), R=_vowRows(), n=R.length;   /* [SAY_INLINE_1123] 번갈아 판만 — 각자 차례로 판은 다른 순간과 같은 차례 줄(_mkSayLi) */
+    if(site) return '<p class="mk-note mk-cue-first">당일 두 분이 현장에서 번갈아 말해요</p>';
     else { /* ★[B2_NA_07 2026-11-06 BATCH2 나07] 각자 판에서 한 분만 «현장에서 바로»를 고른 채 번갈아로 오면 그 상태를 드러낸다 — 종전엔 체크칸이 꺼진 모양인데 연습은 현장으로 읽었다 ·
            현장인 분의 줄은 읽을 원고처럼 보이지 않게 숨기고(적은 글은 지우지 않는다) · «○○도 글을 적을게요»로 그분 표시만 푼다 */
       var _s1=c['vow.g']?'g':c['vow.b']?'b':''; if(_s1){ var _o1=_s1==='g'?'b':'g'; R=R.filter(function(x){ return x.w!==_s1; }); n=R.length;
         h+='<p class="mk-note mk-cue-first mk-vw1">'+(_s1==='g'?'신랑은':'신부는')+' 현장에서 바로 말해요. '+(_o1==='g'?'신랑은':'신부는')+' 적어 둔 글을 읽어요. <button type="button" class="pk-link" data-fk="mkvw1off:'+_s1+'" onclick="mkChk(\'vow.'+_s1+'\',false)">'+nm[_s1]+'도 글을 적을게요</button></p>'; }
       h+='<ol class="mk-sl mk-vwl" aria-label="'+esc('번갈아 읽을 '+_vowNm()+' · 줄마다')+'">'+R.map(function(x,i){ var lab=nm[x.w];
         return '<li class="mk-slr mk-vwr"><span class="mk-vwn">'+lab+'</span>'+(n>2?'<button type="button" class="mk-slx" data-fk="mkvwx:'+x.w+':'+x.j+'" aria-label="'+esc((i+1)+'번째 줄 빼기 · '+lab)+'" onclick="mkVowDel(\''+x.w+'\','+x.j+')">'+ICO_X+'</button>':'')
-          +'<span class="mk-slb"><textarea class="ta grow mk-slt" rows="1" maxlength="300" id="mkt_vow_'+x.w+(x.j?'_'+x.j:'')+'" data-fk="mkvw:'+x.w+':'+x.j+'" aria-label="'+esc(_vowNm()+' '+(i+1)+'번째 줄 · '+lab)+'" placeholder="'+esc((x.w==='b'?'신부가':'신랑이')+' 읽을 줄을 적어 주세요')+'" oninput="mkVowLn(\''+x.w+'\','+x.j+',this)" onchange="_taChange()">'+esc(x.t)+'</textarea></span></li>'; }).join('')+'</ol>'
+          +'<span class="mk-slb"><textarea class="ta grow mk-slt mk-sayta" rows="1" maxlength="300" id="mkt_vow_'+x.w+(x.j?'_'+x.j:'')+'" data-fk="mkvw:'+x.w+':'+x.j+'" aria-label="'+esc(_vowNm()+' '+(i+1)+'번째 줄 · '+lab)+'" placeholder="'+esc((x.w==='b'?'신부가':'신랑이')+' 읽을 줄을 적어 주세요')+'" oninput="mkVowLn(\''+x.w+'\','+x.j+',this)" onfocus="mkSayIn(this)" onblur="mkSayOut(this)" onchange="mkSayOut(this,1);_taChange()">'+esc(x.t)+'</textarea></span></li>'; }).join('')+'</ol>'
         +'<p class="mk-note mk-vwlim" id="mkvw_lim" role="status">'+esc(_vowLimT(0))+'</p>'   /* ★[B2_GEUL_31] 줄칸은 maxlength 300 인데 안내는 합계(두 분 600)만 있어 막혀도 까닭을 몰랐다 — 줄칸 바로 아래 한 줄 · 이미 넘는 옛 글은 자르지 않는다(maxlength 는 입력만 막는다) */
-        +'<div class="mk-slf"><button type="button" class="pk-link mk-sladd" data-fk="mkvwadd" onclick="mkVowAdd()">＋ 줄 더하기</button>'+(function(){ var n=_vowAllN(), lim=K.lim*2; return '<span class="mk-cnt mk-vwcnt" id="mkc_vow_all"'+(n>lim?' style="color:var(--seal)"':'')+'>'+_mkCntT(n,lim)+'</span>'; })()+'</div>'; }   /* 두 분 합친 글자 수 · 약 n초(한 분 기준 두 배) */
-    h+='<div class="mk-vwbw">'+_vowBothRows()+'</div></div>';
-    var _all=_vowSplit('vow.g').concat(_vowSplit('vow.b')).join(' '), _w=_exWarn('vow.g',_all);
-    if(!site) h+='<p class="mk-exw" id="mkw_vow_g" role="status">'+esc(_w)+'</p>';   /* [EX_NAMES] 번갈아 판은 두 분 글을 한 번에 본다(빈 줄은 숨는다 · .mk-exw:empty) */
+        +'<div class="mk-slf"><button type="button" class="pk-link mk-sladd" data-fk="mkvwadd" onclick="mkVowAdd()">＋ 줄 더하기</button>'+'</div>'; }   /* 두 분 합친 글자 수 · 약 n초(한 분 기준 두 배) */
+      var _all=_vowSplit('vow.g').concat(_vowSplit('vow.b')).join(' '), _w=_exWarn('vow.g',_all), _vn=_vowAllN(), _vl=K.lim*2;
+      h+='<p class="mk-saym"><span class="mk-exw" id="mkw_vow_g" role="status">'+esc(_w)+'</span><span class="mk-cnt mk-vwcnt" id="mkc_vow_all"'+(_vn>_vl?' style="color:var(--seal)"':'')+'>'+_mkCntT(_vn,_vl)+'</span></p>';   /* [EX_NAMES] 번갈아 판은 두 분 글을 한 번에 본다 · [SAY_INLINE_1123] 예시 이름 알림 + 두 분 합친 «n자 · 약 n초»(한 분 기준 두 배) = 글 아래 회색 한 줄 */
     return h; }
-  h+='<div class="mk-slc mk-txc mk-vwc">';
-  [f,f==='g'?'b':'g'].forEach(function(wk){ var id='vow.'+wk, v=(S.tx||{})[id]||'', chk=_txSite('vow',c,id), fid='mkt_vow_'+wk;
-    h+='<div class="mk-fld mk-txr'+(chk?' site':'')+'"><div class="mk-txh"><label class="mk-who" for="'+fid+'">'+nm[wk]+(wk===f?' · 먼저':' · 다음')+'</label>'
-      +'<label class="upchk mk-ck"><input type="checkbox"'+(chk?' checked':'')+' data-fk="mkchk:'+id+'" onchange="mkChk(\''+id+'\',this.checked)"><span>'+esc(K.chk)+'</span></label></div>'
-      +(chk?'<p class="mk-note mk-cue-first">'+esc(_txNextNote('vow',wk))+'</p>'
-        :'<textarea class="ta grow mk-txta" id="'+fid+'" rows="2" maxlength="4000" aria-label="'+esc(_vowNm()+' · '+nm[wk])+'" placeholder="'+esc(nm[wk]+'의 서약을 적어 주세요'   /* [THANKS_WORD_1013] «감사 인사»는 이제 다른 순간 이름(THANKS_GREET_1013) */)+'" oninput="mkTx(\''+id+'\',this)">'+esc(v)+'</textarea>'
-          +'<p class="mk-exw" id="mkw_'+id.replace('.','_')+'" role="status">'+esc(_exWarn(id,v))+'</p>'
-          +'<div class="mk-fl">'+_mkCnt(id,v,K.lim)+'</div>')
-      +'</div>'; });
-  return h+'<div class="mk-vwbw">'+_vowBothRows()+'</div></div>'; }
+  /* [SAY_INLINE_1123] 각자 차례로 판의 «신랑 · 먼저 / 신부 · 다음» 두 칸 · 흰 카드는 흐름 차례 줄(_mkSayLi)로 옮겼다 · «두 분 함께»는 흐름 «마지막 한 문장은 …» 줄 아래(_vowBothRows) */
 /* ★[EX_MINE_OLD 2026-10-06 사장님 «이름 미리 준비해 놓기로 한 건 어떻게 된 거야 · 지금은 반영이 안 되어 있는 것 같은데»] EX_MINE 은 «앞으로 채우는 예시»에만 이름을 넣었다 —
    그 전에 칸에 채워 둔 예시(이서준 · 정하윤 그대로)는 남았다. 칸 글이 «고치지 않은 예시 원문»과 한 글자도 같으면 두 분 이름 판으로 바꿔 둔다(고친 글은 건드리지 않는다).
    두 분 이름이 한글 2~4자가 아니면(시험 고객 «테스트 A» 등) EX_MINE 이 그대로 두므로 여기서도 바뀌지 않는다 */
@@ -5530,9 +5547,9 @@ function _exMineOld(kind){ var rows=(window.RITUAL_REF&&RITUAL_REF.rows)||[], ch
     var hit=rows.filter(function(r){ return r.who===w[1]&&(String(r.text).trim()===v||(REF_OLD_1018[r.id]||[]).some(function(o){ return String(o).trim()===v; })); })[0]; if(!hit) return; var nv=_exMine(v); if(nv===v) return;   /* [REF_OLD_1018] 옛 글이면 그 글 그대로 이름만 */
     S.tx[id]=nv; if(S.txLn) delete S.txLn[id]; _fAt('tx.'+id); ch++; });
   if(ch){ _txLeg(kind); _persist(); } }
-function _mkWrite(k){ var h='', ks=_mkKinds(k); if(!ks.length) return ''; try{ _exMineOld(ks[0]); }catch(e){}   /* [EX_MINE_OLD] */
-  var kind=ks[0], K=TX_KIND[kind], R=RitualOpen, c=_mkChk();
-  h+='<section class="mk-sec mk-say" aria-labelledby="mkSay"><h4 id="mkSay">두 분이 할 말</h4>';
+/* [SAY_INLINE_1123] 흐름 위 한 덩어리 — 왜 적는지 한 줄(순간마다) · 옮긴 옛 글 한 줄 · 참고 예시가 없는 날의 예시 접기. 참고 예시 칩 줄(_mkRef)은 부르는 쪽이 바로 앞에 붙인다 */
+function _mkSayTop(k,ref){ var h='', ks=_mkKinds(k); if(!ks.length) return ''; try{ _exMineOld(ks[0]); }catch(e){}   /* [EX_MINE_OLD] */
+  var kind=ks[0], K=TX_KIND[kind]; MK.sayTop=k;
   /* ★서약 글칸 위 «마지막 한 문장은 하객분들 쪽으로 … 저희가 준비해 둬요» 안내 줄 금지 — 2026-10-06 사장님 «추천대로»로 옮김 [VOW_BOTH_ROWS] · 글칸 맨 아래 «두 분 함께» 줄이 보여 준다 */
   if(kind==='tribute') h+='<p class="mk-note">한마디부터 1분쯤까지 · 적어 주시면 큰 글씨 카드로 드려요 · 비워 두셔도 돼요</p>';   /* [TRIB_CARD_SAME_1015] */
   else if(kind==='toast') h+='<p class="mk-note">한 분 한 문장쯤 · 비워 두시면 당일 «위하여»만 외치셔도 돼요</p>';   // [TOAST_SAY] 안 적으면 어떻게 되는지 한 줄(엔진 cue2 · 나레이션이 하객 답을 청한다)   // [R1-20] 1분쯤 = 300자 · [TRIB_CARD_OPT] 그대로
@@ -5543,24 +5560,55 @@ function _mkWrite(k){ var h='', ks=_mkKinds(k); if(!ks.length) return ''; try{ _
   if(kind==='letter') h+='<p class="mk-note mk-txwhy">편지는 당일 직접 읽어요 · 적어 두시면 저희가 마지막 줄을 보고 다음 순서를 이어요 · «'+esc(K.chk)+'»를 고르시면 끝 신호만 알려 주세요</p>';   /* [REVIEW5_1018] 검토 37 «체크하면»은 기계 말 · 화면 다른 곳은 «고르시면» */   // NOTE_READ 뜻은 그대로(보내지 않아도 된다 = 체크)
   else if(kind==='welcome'||kind==='vow') h+='<p class="mk-note mk-txwhy">당일엔 두 분이 직접 말해요 · 적어 두시면 저희가 글을 보며 다음 순서로 넘어갈 때를 맞춰요'+(kind==='welcome'&&_welKind()==='thanks'?' · 감사문은 한 분 300자쯤이에요':'')+'</p>';   /* [THANKS_SWAP_1122] 감사문 판 길이 안내 한 줄 */   // ★[TXWHY_US_1014 2026-10-14 사장님 «추천대로»] 고객 화면 말투 «저희가»(GUEST_SKIN) · «디렉터가» 되살리지 말 것
   if(S.txMig&&S.txMig[kind]) h+='<p class="mk-note">전에 한 칸에 적어 두신 글을 신랑 칸에 옮겨 두었어요 · 두 칸으로 나눠 주세요</p>';
-  h+=_txConfBox([kind+'.g',kind+'.b']);   /* [B2_NA_10] */
-  if(kind==='vow'){ h+=_vowForm(K,c); }
-  else { h+='<div class="mk-slc mk-txc">';
-  TX_WHO.forEach(function(w){ var id=kind+'.'+w[0], v=(S.tx||{})[id]||'', chk=_txSite(kind,c,id), fid='mkt_'+id.replace('.','_');   // [SITE_CHK_OFF] · [CUE_FORM]
-    h+='<div class="mk-fld mk-txr'+(chk?' site':'')+'"><div class="mk-txh"><label class="mk-who" for="'+fid+'">'+w[1]+'</label>'/* ★«예시 글 · 고쳐 써도 돼요» 칸마다 붙던 표 금지 — 2026-10-06 사용자 지시로 삭제 [EXTAG_OFF] · 위 «참고 예시» 설명 줄이 한 번 말한다 · 예시 속 이름 경고는 그대로 */
-      +(K.chk?'<label class="upchk mk-ck"><input type="checkbox"'+(chk?' checked':'')+' data-fk="mkchk:'+id+'" onchange="mkChk(\''+id+'\',this.checked)"><span>'+esc(K.chk)+'</span></label>':'')+'</div>'
-      +(chk?(_txIsLast(kind,w[0])?_cueBox(id):'<p class="mk-note mk-cue-first">'+esc(_txNextNote(kind,w[0]))+'</p>')
-        :'<textarea class="ta grow mk-txta" id="'+fid+'" rows="2" maxlength="4000" aria-label="'+esc(K.nm+' · '+w[1])+'" placeholder="'+esc((w[0]==='g'?'신랑':'신부')+({welcome:(_welKind()==='thanks'?'의 감사문을':'의 감사 인사를') /* [THANKS_SWAP_1122] */,vow:'의 서약을',letter:'의 편지를',tribute:'의 인사를',toast:'의 한마디를'}[kind]||'의 말을')+' 적어 주세요')+'" oninput="mkTx(\''+id+'\',this)">'+esc(v)+'</textarea>'
-          +'<p class="mk-exw" id="mkw_'+id.replace('.','_')+'" role="status">'+esc(_exWarn(id,v))+'</p>'
-          +'<div class="mk-fl">'+_mkCnt(id,v,K.lim)+'</div>')
-      +'</div>'; });
-  h+=(kind==='welcome'&&_welKind()==='thanks'?'<div class="mk-vwbw">'+_vowBothRows(THANKSBOTH)+'</div>':'')+'</div>'; }   /* ★[THANKS_SWAP_1122] 감사문 판 — 신랑 칸 위 · 신부 칸 아래 · 맨 아래 «두 분 함께»(THANKSBOTH · 서약의 VOWBOTH 줄과 같은 모양) */
-  if(kind==='letter'&&(c['letter.g']||c['letter.b'])) h+='<p class="mk-note">따로 준비한 편지는 길이를 알 수 없어 기본 시간으로 계산해요.</p>';   /* [B2_NA_22] 시간 셈에서 보관 글을 뺀 까닭 한 줄 */
   /* ★체크칸 아래 «미리 적기 어려우면 … 체크하고 끝 신호만» 안내 줄 금지 — 2026-10-06 사장님 «추천대로»(서약 개선 4) [TXALT_OFF] · 체크칸이 스스로 말한다 */
   /* ★편지 카드 아래 따로 안내 줄(.mk-txalt «보내지 않아도 돼요 · …») 금지 — 2026-10-07 사용자 지시로 위 한 줄에 합침 [SAME_PLACE] 다른 «두 분이 할 말»은 안내가 카드 위 한 줄뿐이다 */
-  var ex=_mkRef(k)?'':kind==='vow'?fold('vowEx','서약 예시 보기',exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW,true,true)):kind==='letter'?fold('letterEx','편지 예시 보기',exBox('이렇게 써도 좋아요 · 편지 예시',EXLETTER,true,true)):'';
-  if(ex) h+='<div style="margin-top:10px">'+ex+'</div>';
-  return h+'</section>'; }
+  var ex=ref?'':kind==='vow'?fold('vowEx','서약 예시 보기',exBox('이렇게 써도 좋아요 · 서약 예시',EXVOW,true,true)):kind==='letter'?fold('letterEx','편지 예시 보기',exBox('이렇게 써도 좋아요 · 편지 예시',EXLETTER,true,true)):'';
+  if(ex) h+='<div class="mk-sayex">'+ex+'</div>';
+  return h?'<div class="mk-saytop">'+h+'</div>':''; }
+/* [SAY_INLINE_1123] 한 분의 차례 줄 — 머리(«신랑 차례» · 오른쪽 끝 «현장에서 바로 할게요») + 글칸(또는 끝 신호 칸 · 다음 분 한 줄) + 회색 한 줄. key = 흐름 줄 자리(data-li · 듣는 동안 줄 표시) */
+function _mkSayLi(k,kind,w,lab,key,last){ var K=TX_KIND[kind], c=_mkChk(), id=kind+'.'+w[0], v=(S.tx||{})[id]||'', chk=_txSite(kind,c,id), u=id.replace('.','_'), fid='mkt_'+u, hid='mksh_'+u, lr=key?_lpRow(key):{c:''}, h='';   // [SITE_CHK_OFF] · [CUE_FORM]
+  h+='<li class="t mk-sayli'+(chk?' site':'')+lr.c+'"'+(key?' data-li="'+esc(key)+'"':'')+'><div class="mk-sayh"><b id="'+hid+'">'+esc(lab)+'</b>'+_vTag(k,{talk:true})
+    +(K.chk?'<label class="upchk mk-ck"><input type="checkbox"'+(chk?' checked':'')+' data-fk="mkchk:'+id+'" aria-describedby="'+hid+'" onchange="mkChk(\''+id+'\',this.checked)"><span>'+esc(K.chk)+'</span></label>':'')+'</div>';   /* ★«예시 글 · 고쳐 써도 돼요» 칸마다 붙던 표 금지 — 2026-10-06 사용자 지시로 삭제 [EXTAG_OFF] · 위 «참고 예시» 설명 줄이 한 번 말한다 · 예시 속 이름 경고는 그대로 */
+  h+=_txConfBox([id]);   /* [B2_NA_10] 부딪힌 글은 그 분 줄 안에 */
+  if(chk) h+=_txIsLast(kind,w[0])?_cueBox(id):'<p class="mk-note mk-cue-first">'+esc(_txNextNote(kind,w[0]))+'</p>';
+  else h+='<textarea class="ta grow mk-txta mk-sayta" id="'+fid+'" rows="1" maxlength="4000" aria-label="'+esc((kind==='vow'?_vowNm():K.nm)+' · '+w[1])+'" placeholder="'+esc((w[0]==='g'?'신랑':'신부')+({welcome:(_welKind()==='thanks'?'의 감사문을':'의 감사 인사를') /* [THANKS_SWAP_1122] */,vow:'의 서약을',letter:'의 편지를',tribute:'의 인사를',toast:'의 한마디를'}[kind]||'의 말을')+' 적어 주세요')+'" oninput="mkTx(\''+id+'\',this)" onfocus="mkSayIn(this)" onblur="mkSayOut(this)">'+esc(v)+'</textarea>'   /* [THANKS_WORD_1013] «감사 인사»는 이제 다른 순간 이름(THANKS_GREET_1013) */
+    +'<button type="button" class="mk-sayfold" hidden aria-controls="'+fid+'" aria-expanded="false" data-fk="mksayf:'+id+'" onclick="mkSayFold(\''+fid+'\')">펼치기</button>'
+    +'<p class="mk-saym"><span class="mk-exw" id="mkw_'+u+'" role="status">'+esc(_exWarn(id,v))+'</span>'+_mkCnt(id,v,K.lim)+'</p>';   /* [EX_NAMES] · [SAY_INLINE_1123] 예시 이름 알림 + «n자 · 약 n초» = 회색 한 줄 */
+  if(last&&kind==='letter'&&(c['letter.g']||c['letter.b'])) h+='<p class="mk-note">따로 준비한 편지는 길이를 알 수 없어 기본 시간으로 계산해요.</p>';   /* [B2_NA_22] 시간 셈에서 보관 글을 뺀 까닭 한 줄 */
+  return h+'</li>'; }
+/* [SAY_INLINE_1123] 흐름의 말하는 차례 한 자리(엔진 줄 i) — 번갈아 서약은 한 줄(«두 분 번갈아 · 신랑부터») 아래 줄 편집기 · 그 밖은 신랑 · 신부 차례 줄(첫인사 · 편지 = 신랑 다음 신부 · 서약 = 먼저 읽는 분부터) */
+function _mkSayRows(k,key){ var kind=_mkKinds(k)[0]; if(!kind) return ''; var K=TX_KIND[kind], c=_mkChk(), h='';
+  if(kind==='vow'&&_vowHow()==='alt'){ var _site=!!(c['vow.g']&&c['vow.b']), lr=key?_lpRow(key):{c:''};
+    h+='<li class="t mk-sayli mk-sayalt'+(_site?' site':'')+lr.c+'"'+(key?' data-li="'+esc(key)+'"':'')+'><div class="mk-sayh"><b id="mksh_vow_alt">두 분 번갈아 · '+(_vowFirst()==='b'?'신부부터':'신랑부터')+'</b>'+_vTag(k,{talk:true})
+      +'<label class="upchk mk-ck"><input type="checkbox"'+(_site?' checked':'')+' data-fk="mkvwsite" aria-describedby="mksh_vow_alt" onchange="mkVowSite(this.checked)"><span>'+esc(K.chk)+'</span></label></div>'+_txConfBox(['vow.g','vow.b'])+_vowForm(K,c)+'</li>';   /* [VOW_FORM] 번갈아 = 두 분이 한 칸 · 체크도 하나 */
+    return h; }
+  var ws=TX_WHO.slice(); if(kind==='vow'&&_vowFirst()==='b') ws.reverse();   /* [VOW_FIRST] */
+  ws.forEach(function(w,j){ h+=_mkSayLi(k,kind,w,w[1]+(kind==='toast'?' 한마디':' 차례'),key,j===ws.length-1); });   /* [TOAST_SAY] 축배는 «신랑 한마디 · 신부 한마디» */
+  return h; }
+/* [SAY_INLINE_1123] 대신 그리기 — 흐름이 차례 줄을 그리지 못한 쪽(뺀 순간 «다시 넣기» 쪽 · 엔진을 아직 못 받음)만 같은 줄 모양으로. 흐름이 그렸으면 빈 글 */
+function _mkWrite(k){ var ks=_mkKinds(k); if(!ks.length||MK.sayIn===k) return ''; var kind=ks[0], both=(kind==='vow')?_vowBoth():(kind==='welcome'&&_welKind()==='thanks')?THANKSBOTH:null;   /* [THANKS_SWAP_1122] 감사문 판도 «두 분 함께» */
+  var top=MK.sayTop===k?'':_mkSayTop(k,_mkRef(k)); MK.sayIn=k;
+  return '<section class="mk-sec mk-flowsec mk-sayfb" aria-label="두 분이 할 말">'+top+'<ol class="mk-flow">'+_mkSayRows(k,'')+(both?_qRow('마지막 한 문장은 두 분이 함께 읽어요',null,_vowBothRows(both)):'')+'</ol></section>'; }
+/* [SAY_INLINE_1123] 칸에 들어가면 펼치고 · 떠나면 테가 사라지며 가라앉는다(0.35초 · 바탕 한 번) + 아래 알림 한 줄. 저장 단추는 없다(쓰는 대로 이 기기에 남는다 · 마이페이지 저장은 머리 «저장») */
+var SAY_LINES=4;   /* 접힌 글 = 4줄 */
+MK.sayOpen={};   /* 펼친 칸(칸 id) — 이 방문 동안 */
+window.mkSayIn=function(t){ if(!t) return; t._v0=t.value; t._said=0; t.classList.remove('saved'); MK.sayOpen[t.id]=1; _saySize1(t); };
+window.mkSayOut=function(t,re){ if(!t||t._said) return; t._said=1; var ch=t._v0!=null&&t.value!==t._v0; t._v0=null; if(!ch){ _saySize1(t); return; }
+  if(re) MK.sayFx=t.id;   /* onchange 뒤 다시 그리는 칸(번갈아 줄)은 새 칸에서 가라앉는다(_saySize) */
+  t.classList.remove('saved'); void t.offsetWidth; t.classList.add('saved'); _saySize1(t);
+  var s0=_TBL.said; setTimeout(function(){ if(_TBL.said!==s0&&_TBL.said!=null) return; _noteToast(_sayMsg()); },0); };   /* [RA5_TABLE_NOTE] 같은 순간 «테이블 인사를 …» 알림이 떴으면 그쪽만 */
+/* [SAY_INLINE_1123] 떠날 때 한 줄 — 이 화면은 이 기기에만 남긴다(마이페이지 서버 저장은 머리 «저장» · ORD_SAVE_BTN). «저장했어요»는 머리 저장이 끝났을 때만 쓴다(_saveDone) · [PERSIST_TRUE] 못 남겼으면 그대로 말한다 · [TOAST_MIN] 20자 안 · «·» 한 번 */
+function _sayMsg(){ if(_persistBad) return '이 기기에 남기지 못했어요'; if(!EMBED) return '이 기기에 남겨 뒀어요'; if(!MK.saySaid&&_autoDirty){ MK.saySaid=1; return '남겨 뒀어요 · 저장을 눌러 주세요'; } return '남겨 뒀어요'; }
+/* [SAY_INLINE_1123] 4줄이 넘는 글은 접는다(쓰는 중 · 펼친 칸은 그대로) · 단추는 넘칠 때만 · 접을 때 단추가 화면에서 같은 자리에 남게 스크롤을 맞춘다(REF_FOLD 와 같다) */
+function _saySize1(t){ try{ if(!t||!t.classList.contains('mk-txta')) return; var b=document.querySelector('.mk-sayfold[aria-controls="'+t.id+'"]'), cs=getComputedStyle(t), lh=parseFloat(cs.lineHeight)||28, lim=Math.round(lh*SAY_LINES+(parseFloat(cs.paddingTop)||0)+(parseFloat(cs.paddingBottom)||0)+(parseFloat(cs.borderTopWidth)||0)+(parseFloat(cs.borderBottomWidth)||0));
+  t.classList.remove('clip'); _taGrow(t); var long=t.offsetHeight>lim+4, open=!!MK.sayOpen[t.id]||document.activeElement===t;
+  if(long&&!open){ t.classList.add('clip'); t.style.height=lim+'px'; }
+  if(b){ b.hidden=!long; b.textContent=open?'접기':'펼치기'; b.setAttribute('aria-expanded',String(open)); } }catch(e){} }
+function _saySize(el){ try{ [].forEach.call((el||document).querySelectorAll('textarea.mk-sayta'),_saySize1); if(MK.sayFx){ var t=document.getElementById(MK.sayFx); MK.sayFx=null; if(t){ t.classList.remove('saved'); void t.offsetWidth; t.classList.add('saved'); } } }catch(e){} }
+window.mkSayFold=function(fid){ var t=document.getElementById(fid); if(!t) return; var b=document.querySelector('.mk-sayfold[aria-controls="'+fid+'"]'), y0=b?b.getBoundingClientRect().top:0;
+  if(MK.sayOpen[fid]) delete MK.sayOpen[fid]; else MK.sayOpen[fid]=1; _saySize1(t);
+  if(b&&!MK.sayOpen[fid]){ try{ var dy=b.getBoundingClientRect().top-y0; if(dy) window.scrollBy(0,dy); }catch(e){} } };
+try{ var _sayRT=0; window.addEventListener('resize',function(){ clearTimeout(_sayRT); _sayRT=setTimeout(function(){ _saySize(); },150); }); }catch(e){}
 var MK_CAT={ask:'부탁드릴 것',send:'보낼 것',bring:'챙길 것'};
 /* ★[MK_ROWS 2026-09-27 사장님 «내가 요구한 것들의 의도를 파악해 전체적으로 · 센스 있게»] 부탁 · 보낼 · 챙길 = 녹음 카드와 같은 줄 모양.
    왼쪽 = 할 것 + 언제까지 · 오른쪽 = «부탁드렸어요 / 보냈어요» 한 단추(누르면 ✓ · 다시 누르면 풀림). 체크 칸 + 단추가 항목 밑에 흩어져 있던 것을 걷었다.
@@ -7598,13 +7646,13 @@ function _bowTipRow(t){ return /^팁 · 사진에 예쁘게 남는 인사예요\
 function _bowPicBody(){ return '<div class="bow-pair">'+BOW_PIC.map(function(b){ return '<figure class="bow-pic"><img src="'+b[0]+'" alt="'+esc(b[3])+'" width="640" height="360" decoding="async"><figcaption><b>'+esc(b[1])+'</b>'+esc(b[2])+'</figcaption></figure>'; }).join('')+'</div>'
   +'<p class="bow-note">어느 쪽이든 좋아요 · 무도회 맞절은 사진에 예쁘게 남아요 · 마지막에 서로 눈을 맞추면 좋아요</p>'; }
 window.mkBowPic=function(){ MK.bowPic=true; render(); };
-function _qRow(t,key){ t=String(t||''); var m=t.match(Q_TAG), w=key?_lpRow(key):null; return '<li class="q'+(w?w.c:'')+'"'+(key?' data-li="'+esc(key)+'"':'')+'><span class="qa">'+(_bowTipRow(t)?'팁 · 사진에 예쁘게 남는 인사예요. 평소처럼 인사하셔도 괜찮아요. <button type="button" class="pk-link bow-open" data-fk="mkbowpic" onclick="mkBowPic()">자세 보기</button>':esc(m?t.slice(0,m.index):t))+'</span>'+(w?w.e:'')+'</li>'; }   /* ★[TAG_OFF_1101] 줄 끝 «말 없이 · 미리 듣기에서는 넘겨요» 작은 표 금지 — 2026-11-01 사용자 지시로 삭제 · Q_TAG 는 줄 글에서 떼는 데만 쓴다 */   /* [LISTEN_PACE_1031] key = 줄 자리(data-li) · 흐르는 줄 표시 */
+function _qRow(t,key,ex){ t=String(t||''); var m=t.match(Q_TAG), w=key?_lpRow(key):null; return '<li class="q'+(ex?' mk-sayq':'')+(w?w.c:'')+'"'+(key?' data-li="'+esc(key)+'"':'')+'><span class="qa">'+(_bowTipRow(t)?'팁 · 사진에 예쁘게 남는 인사예요. 평소처럼 인사하셔도 괜찮아요. <button type="button" class="pk-link bow-open" data-fk="mkbowpic" onclick="mkBowPic()">자세 보기</button>':esc(m?t.slice(0,m.index):t))+'</span>'+(w?w.e:'')+(ex||'')+'</li>'; }   /* [SAY_INLINE_1123] ex = 그 줄 아래 붙는 글(«두 분 함께» 끝 문장) */   /* ★[TAG_OFF_1101] 줄 끝 «말 없이 · 미리 듣기에서는 넘겨요» 작은 표 금지 — 2026-11-01 사용자 지시로 삭제 · Q_TAG 는 줄 글에서 떼는 데만 쓴다 */   /* [LISTEN_PACE_1031] key = 줄 자리(data-li) · 흐르는 줄 표시 */
 function _mkNarLi(k,x,i){ return '<li class="n'+_lpRow(k+':'+i).c+'" data-li="'+k+':'+i+'">'+(function(w){ return '<button type="button" class="mk-pl'+(_mlOn(k+':'+i)?' on':'')+w.c+'"'+w.s+(/ ld/.test(w.c)?' disabled aria-busy="true"':''); })(_mlWait(k+':'+i))+' data-ml="'+k+':'+i+'" aria-pressed="'+_mlOn(k+':'+i)+'" aria-label="'+esc((x.lab||'나레이션')+(_mlOn(k+':'+i)?' 멈추기':' 듣기'))+'" onclick="mkLine(\''+k+'\','+i+')">'+(_mlOn(k+':'+i)?ICO_STOP:ICO_PLAY)+'</button><span><span class="mk-lab">'+(x.lab?'<b class="mk-ln">'+esc(x.lab)+'</b>':'')+_vTag(k,x)+(x.pending?' · <span class="ls-new">'+esc(_pendT(x))+'</span>':'')+'</span>'+(x.own&&_upLive()?'<span class="mk-ltx1">'+esc(x.txt||'')+'</span>':esc(x.txt||''))+(x.alt?'<span class="mk-alt" data-alt="'+esc(x.alt.file)+'">'+esc(x.alt.when)+' · '+esc(x.alt.txt)+'</span>':'')+'</span></li>'; }   /* ★[CLOSING_SRC_1031 검토 179] 길어지면 바뀌는 말(덕담 긴 판 · c.alt)도 화면에 한 줄 — 화면에 없는 멘트는 현장에서도 안 나온다 · 재생 목록에는 안 들어간다 */   /* [GUEST_TAIL_1015] 흐름 칸 · 카드 뒤 꼬리가 같은 줄 */
 function _mkTailFrom(st){ var last=-1; st.forEach(function(x,i){ if(x.own) last=i; }); return last>-1?last+1:-1; }   /* [GUEST_TAIL_1015] 마지막 두 분 목소리 줄 다음 자리 */
 function _mkFlowTail(k){ if(!ENG||k!=='guest'||!_upLive()||_vpCur(k)==='nar') return ''; var st=_lSteps(ENG,[k]), from=_mkTailFrom(st), h=''; if(from<0) return '';
   st.forEach(function(x,i){ if(i<from||x.own||x.quiet||x.skip||x.talk) return; h+=_mkNarLi(k,x,i); });
   return h?'<ol class="mk-flow mk-vtail">'+h+'</ol>':''; }   /* [GUEST_TAIL_1015] 카드 넷 뒤 · 실제 차례대로 */
-function _mkFlow(k,btn){ try{ if(window.BgmBed&&BgmBed.warmK&&_bedOn()) BgmBed.warmK(k); }catch(e){}   /* ★[BED_LOAD_1101 ⑤] 순간 쪽이 열리면 그 순간 곡 하나를 미리 받는다 */ var R=RitualOpen, hd=btn?'<div class="mk-sech mk-sech-r">'+btn+'</div>'+_lsNote(k)+(window.BgmBed?BgmBed.pubLine(k):''):'';   /* [BGM_PREVIEW_1024] 공개 미리보기 «음악은 마이페이지에서 함께 들어 볼 수 있어요» */   /* [AI_PLAY_READY · LS_MAKE_ALL] 단추 바로 아래 한 줄 */
+function _mkFlow(k,btn,mid){ try{ if(window.BgmBed&&BgmBed.warmK&&_bedOn()) BgmBed.warmK(k); }catch(e){}   /* ★[BED_LOAD_1101 ⑤] 순간 쪽이 열리면 그 순간 곡 하나를 미리 받는다 */ var R=RitualOpen, hd=(btn?'<div class="mk-sech mk-sech-r">'+btn+'</div>'+_lsNote(k)+(window.BgmBed?BgmBed.pubLine(k):''):'')+(mid||'');   /* [SAY_INLINE_1123] mid = 참고 예시 칩 줄 + 왜 적는지 한 줄(«이 순간 전체 듣기» 바로 아래 · 흐름 위) */   /* [BGM_PREVIEW_1024] 공개 미리보기 «음악은 마이페이지에서 함께 들어 볼 수 있어요» */   /* [AI_PLAY_READY · LS_MAKE_ALL] 단추 바로 아래 한 줄 */
   if(!ENG) return '<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+_engBox()+'</section>';   // [WAIT_BOX] · [ENG_ONCE]
   var st=_lSteps(ENG,[k]), exN=st.filter(function(x){ return x.own&&!x.couple; }).length;
   /* ★★[BGM_R1_1023 2026-10-23 BGM 섹션 라운드 1 «안내는 ‹흐름›으로 · 고르기에는 고를 것만»] 고를 것이 없는 음악 안내는 흐름의 채운 점 줄 하나(assets/bgm-form.js flowRow · 원천 bgm-slots.js) —
@@ -7623,10 +7671,12 @@ function _mkFlow(k,btn){ try{ if(window.BgmBed&&BgmBed.warmK&&_bedOn()) BgmBed.w
   /* [MK_MIN] 하객 맞이 — 줄마다 붙던 «두 분이 녹음하실 글(예시)»를 머리 아래 한 번으로 · [VOICE_KIND] 두 분 목소리 줄은 줄 머리 표가 «두 분 목소리 · 미리 준비»를 말한다 */
   var h='<section class="mk-sec mk-flowsec" aria-label="흐름">'+hd+(exN?'<p class="mk-note">'+(_upLive()?((k==='guest'||k==='entry')&&_vpCur(k)==='ai'?'두 분 목소리 줄은 «두 분 목소리 만들기»에서 목소리를 만들면 채워져요':'두 분 목소리 줄은 아래 «두 분 목소리 준비»에서 한 줄씩 준비해요'):exN>1?'두 분이 녹음하실 글(예시)이에요':'두 분 목소리 줄의 글은 녹음하실 글(예시)이에요')+'</p>':'')+'<ol class="mk-flow">'+(k==='_after'?_qRow(_postLine('_photo')):'');   /* ★[POST_FLOW_200 4] 촬영 후 안내 첫 줄 = 단체 사진(진한 점) */   // [VP_FLOW_CLAMP] 문이 열리면 글 전문은 아래 줄 카드가 보인다 — 흐름에선 첫 줄만
   var _tgA=null;   /* [TIME_GAP_1102] 앞 나레이션 줄의 시각 */
+  var _sayK=_mkKinds(k)[0], _both=_sayK?((_sayK==='vow')?_vowBoth():(_sayK==='welcome'&&_welKind()==='thanks')?THANKSBOTH:null):null, _bothOn=false;   /* [SAY_INLINE_1123] 두 분 글칸이 이 흐름 안 · «두 분 함께» 끝 문장은 «마지막 한 문장은 …» 줄 아래 */
   st.forEach(function(x,i){ if(bq&&!bqDone&&i>=bq.at){ h+=bq.html; bqDone=true; }   /* [BGM_R1_1023] 음악 줄 — 이 줄 앞에 */
     if(one&&(x.own||x.quiet||x.skip)) return; if(tailFrom>-1&&i>=tailFrom) return;   // [VP_ONE_LIST] · [R2-03] · [GUEST_TAIL_1015]
     if(x.own) x={lab:String(x.lab||'').replace(/^(두 분이 녹음하실 글\(예시\)|두 분 목소리)( · )?/,''),txt:x.txt,pending:x.pending,own:true,up:x.up,couple:x.couple};
-    if(x.quiet){ h+=_qRow(x.txt,k+':'+i); return; }
+    if(x.quiet){ if(_both&&!_bothOn&&/^마지막 한 문장은/.test(String(x.txt||''))){ _bothOn=true; h+=_qRow(x.txt,k+':'+i,_vowBothRows(_both)); return; } h+=_qRow(x.txt,k+':'+i); return; }   /* [SAY_INLINE_1123] [VOW_BOTH_ROWS] */
+    if(x.talk&&_sayK&&MK.sayIn!==k){ MK.sayIn=k; h+=_mkSayRows(k,k+':'+i); if(_sayK==='toast') h+=_qRow('두 분의 선창에 하객이 «위하여!»로 답해요.',k+':'+i); return; }   /* ★[SAY_INLINE_1123] 두 분이 할 말이 있는 순간 — 차례 줄 아래 글칸(번갈아 서약은 한 줄 아래 줄 편집기) · 축배는 비워도 «신랑 한마디 · 신부 한마디» 줄이 글 자리다(B2_NA_51 «적은 분만»은 글칸이 따로 있던 때 · 선창 한 줄은 그대로) */
     if(x.talk){ var sets=_lRefSets(k), whos=sets.length?sets[0].map(function(p){ return p.who; }):['두 분'], hs=R.partsOf(k,S)[1]||0, each=whos.length?Math.round(hs/whos.length):0;
       if(k==='vow'&&_vowHow()==='alt'&&hs){ var _hm=Math.round(hs); h+='<li class="t'+_lpRow(k+':'+i).c+'" data-li="'+k+':'+i+'"><b>두 분 번갈아 · '+(_vowFirst()==='b'?'신부부터':'신랑부터')+'</b>'+_vTag(k,{talk:true})+'</li>'; return; }   /* [VOW_FIRST] */
       if(k==='vow'&&_vowFirst()==='b') whos=whos.slice().reverse();   /* [VOW_FIRST] 각자 차례로 · 신부부터 */   /* ★[MK_FORM_ONE] 차례 줄 «약 1분 40초» 금지 — 2026-10-03 사용자 지시로 삭제(길이는 순간 머리 한 곳 · LEN_ONE · LINE_NO_SEC) */   /* [VOW_HOW] 번갈아 읽으면 차례가 둘로 나뉘지 않는다 · 한 줄(약 1분 40초) */
@@ -7641,6 +7691,7 @@ function _mkFlow(k,btn){ try{ if(window.BgmBed&&BgmBed.warmK&&_bedOn()) BgmBed.w
     h+=_mkNarLi(k,x,i);
   });
   if(bq&&!bqDone) h+=bq.html;   /* [BGM_R1_1023] 자리가 맨 뒤(줄이 모자라면) */
+  if(_both&&!_bothOn&&MK.sayIn===k) h+=_qRow('마지막 한 문장은 두 분이 함께 읽어요',null,_vowBothRows(_both));   /* [SAY_INLINE_1123] 엔진에 그 줄이 없는 날도 끝 문장은 보인다 */
   var _phRow=(k==='_close'&&_afterOn())?_qRow('다음 · '+_post('_photo').n):k==='_after'?_qRow(_postLine('_extra')):'';   /* ★[POST_FLOW_200 4 · 5] 닫는 인사 끝 «다음 · 단체 사진(전체 → 가족)» · 촬영 후 안내 끝 «추가 촬영 · …» (진한 점) */
   if((k==='_close'&&_clHasLine(st))||k==='guest'||k==='_after') _clHints().forEach(function(t){ var _tx=esc(t.replace(/^\+\s*/,'')); h+='<li class="q qh"><span class="qa">'+((EMBED&&/^\+ 식사 안내 멘트/.test(t))?'<button type="button" class="qh-go" data-fk="clgo:dining" onclick="clGo(\'dining\')">'+_tx+'</button>':_tx)+'</span></li>'; });   /* ★[MEAL_GO_1102] 마이페이지 안(식순 창)에서는 누르면 나가기 흐름을 거쳐 예식 후 식사 칸으로 · 혼자 연 화면은 글만 */   /* [CL_HINT_199] 타임라인은 점 자리 «+» 하나(글 앞 «+»는 뺀다 · 연습 카드 · 전체 대본은 글에 «+») 하객 맞이 · 닫는 인사 · 식후 같은 줄(세 곳 다 식사 · 하객 안내 값으로 문장이 붙는다 · 엔진 guestCue · closingOf · afterPhotoOf) */   /* ★[AFTER_FIX_196] 하객 맞이 칸처럼 «어디서 바꾸나» 한 줄 — 글은 마이페이지 값으로 갈린다 */   /* [CLOSING_FULLER 1] 회색 · 듣기 줄 아님 */
   h+=_phRow;
@@ -7681,7 +7732,9 @@ function _mkRef(k){ if(!ENG) return ''; var st=_lSteps(ENG,[k]); if(!st.some(fun
   var cur=_refCur(k,sets);   /* [DECL_REF_PRINT] · [REF_BEST4_ONLY] sets = 고른 넷뿐(_refKeep) — 상황 예시 · 부모님 예시 갈래가 없다 */
   /* [MK_MIN] «당일엔 두 분이 직접 말해요»는 머리 아래 한 번 */
   /* ★[EX_ROW_PLACE 2026-10-07 사장님 «추천대로»] 현장에서 말하는 순간(서약 · 편지 · 첫인사 · 덕담 …)의 «참고 예시» 줄은 이 자리(«두 분이 할 말» 바로 위)에 둔다 —
-     맨 위 고르기 묶음으로 올리면 폰에서 누른 글이 흐름 줄 너머 화면 밖에서 바뀐다. 모양은 위쪽 칩 줄과 같다(EX_ROW). 위로 올리자는 제안을 다시 하지 않는다 */
+     맨 위 고르기 묶음으로 올리면 폰에서 누른 글이 흐름 줄 너머 화면 밖에서 바뀐다. 모양은 위쪽 칩 줄과 같다(EX_ROW). 위로 올리자는 제안을 다시 하지 않는다
+     ★[SAY_INLINE_1123 2026-11-23 사장님 «추천대로 · 전부 적용»] 두 분 글칸이 흐름 차례 줄 아래로 들어가면서 «두 분이 할 말» 바로 위 = 흐름 바로 위(«이 순간 전체 듣기» 아래)가 됐다 —
+     같은 까닭(누른 글이 바로 아래에서 바뀐다)을 지키는 자리 · 고르기 묶음(맨 위)으로 올리지 않는다는 위 결정은 그대로 · 보기만 하는 예시(덕담 · 축사 …)는 흐름 아래 그대로 */
   var h='<section class="mk-sec mk-ref" aria-label="참고 예시">';   /* [EX_ROW] 머리 h4 · 머리말 줄 대신 칩 줄 이름표(참고 예시) + 칩 아래 한 줄(_rh) */   /* [R1-21] 말하는 사람별 머리말 · [R3-09] 머리말이 비면(축배) 줄을 그리지 않는다 */
   h+='<div class="ls-cg cg-vp mk-rcg" role="radiogroup" aria-label="참고 예시"><span class="gl" aria-hidden="true">참고 예시</span><span class="cg-c">';
   /* [REF_PV_WHO 2026-09-27 점검 시뮬] 글이 같은 예시(성혼 선언 · 가족 낭독 세 벌은 문장이 같고 읽는 사람만 다르다)는 미리보기가 같은 글로 겹쳤다 —
@@ -7807,6 +7860,8 @@ function renderMake(){
   /* [R2-27] ② 순간 쪽 설명에서만 «(한 분 1분쯤)»을 뗀다 — 바로 아래 차례 줄이 사람마다 시간을 말한다(① 미리 보기 · ② 첫 쪽 펼침은 그대로)
      ★[R2_SPEECH_LEN_1014] 축사 «(3분 안팎)»도 같다 — 바로 뒤 «약 n분»(길이 칩)과 한 줄에 다른 숫자가 남았다(1분을 고르면 «(3분 안팎). 약 1분») */
   /* ★설명 줄과 그림 사이 «반지는 단상 위에 미리 놓아 둬요» 따로 줄 금지 — 2026-10-07 사용자 지시로 옮김 [SAME_PLACE · RING_STAGE] (사장님 «다른 곳과 형태 · 배치가 다른 것 점검») 그림 위에 안내가 붙은 쪽은 반지뿐이었다 → «당일 챙길 것» 반지 줄 아래 작은 글(다른 쪽 «예식 7일 전까지»와 같은 자리) */
+  MK.sayIn=''; MK.sayTop='';   /* [SAY_INLINE_1123] 이 쪽에서 두 분 글칸 · 흐름 위 안내를 그렸나(흐름이 못 그리면 _mkWrite 가 대신) */
+  var _sayOn=!!_mkKinds(k)[0], _sayRef=_sayOn?_mkRef(k):'';
   if(!off){
     if(_lAnyVid()) h+='<div class="mk-vid">'+_lVid(k,{big:true,tap:true})+'</div>';   /* [VID_AUTO_ONLY] data-vk 가 붙은 ② 장면 — 쪽에 들어올 때 한 번 */   // ★[MK_VID_CHIP 2026-09-27] 고른 판대로(firstVideo) — name:k 는 «케이크만»에도 잔 들기(toast.mp4)를 억지로 띄웠다
     /* ★[MK_PICK_TOP 2026-09-27 사장님 «고르기를 위로 · 선택하고 들어 볼 수 있게 · 선택이 우선»] 고르기 → 흐름 (그 사이 «고른 대로 들어 보기» 단추는 MK_MIN 이 걷었다 · 칩이 곧 듣기) */
@@ -7838,12 +7893,12 @@ function renderMake(){
        두 갈래의 차이는 «나레이션 자세히»(같은 줄 오른쪽) 한 곳이 말하고, 안 골랐을 때는 칩 바로 아래 한 줄(_lChipRow · ls-gnote)만. ★«먼저 골라 주세요» 상자 금지 — 2026-10-06 사용자 지시로 삭제 */
     if(_vpAsk){}
     else { var _scn=(k==='entry'&&window.EntryMusic&&EntryMusic.sceneHtml)?EntryMusic.sceneHtml():''; h+=_scn;   /* ★★[ENTRY_SCENE_1012 2026-10-12 사장님 «일단 전부 올려»] 입장 «음악과 함께 듣기»(그래프 · 긴 알약) = 고르기 칸 바로 아래 · 흐름 위 — 시험실 PLAYER_ORDER · SCENE_FIRST(고르기 → 듣기 → 흐름 → 글) · 이 기기에 올린 곡이 있을 때만 · 아래 흐름 줄은 그대로 한 줄(merge-guard 표식) */
-      h+=_mkFlow(k,(_pn>=2&&!_scn)?lb:'');   /* ★[ONE_PLAY_1013 2026-10-13 사장님 «플레이 위아래 두 개» → «a»] 곡을 골라 장면이 서면 «이 순간 전체 듣기»는 장면 알약 하나(음악과 함께 · 다음 줄까지) — 이 알약을 다시 함께 그리지 말 것 */
+      h+=_mkFlow(k,(_pn>=2&&!_scn)?lb:'',_sayOn?_sayRef+_mkSayTop(k,_sayRef):'');   /* ★[SAY_INLINE_1123] 두 분이 할 말이 있는 순간 = 참고 예시 칩 줄 · 왜 적는지 한 줄이 «이 순간 전체 듣기» 바로 아래(흐름 위) — 누른 예시 글이 바로 아래 차례 줄에서 바뀐다 */   /* ★[ONE_PLAY_1013 2026-10-13 사장님 «플레이 위아래 두 개» → «a»] 곡을 골라 장면이 서면 «이 순간 전체 듣기»는 장면 알약 하나(음악과 함께 · 다음 줄까지) — 이 알약을 다시 함께 그리지 말 것 */
       /* [EX_ROW] 스튜디오 판 하객 맞이 넷(안내 멘트) · 식전 영상 소개 넷(소개 멘트)은 위쪽 칩 줄로 옮겼다 */ }
     if(k==='tribute'&&R.crossTribute(S)) h+='<p class="ls-why">편지를 각자 부모님께 쓰셔서, 인사말은 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</p>';
-    h+=_mkRef(k);
+    if(!_sayOn) h+=_mkRef(k);   /* [SAY_INLINE_1123] 보기만 하는 예시(덕담 · 축사 · 성혼 선언)는 흐름 아래 그대로 — 예시 글이 칩 바로 아래 펼쳐진다 */
   }
-  h+=_mkWrite(k)+_mkPrep(k);
+  h+=_mkWrite(k)+_mkPrep(k);   /* [SAY_INLINE_1123] _mkWrite = 흐름이 차례 줄을 못 그린 쪽만 대신 그리기 */
   if(!off) h+=_psFold(k);   /* [PHOTO_SCENE_1031] 설정 · 글쓰기 먼저 · 맨 아래 접힌 줄 */
   h+='</section>';
   return h+'</div>'; }

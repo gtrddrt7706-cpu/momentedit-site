@@ -30,9 +30,9 @@ try {
   await nx(); await pg.waitForTimeout(1500); await pg.evaluate(() => { try { engine(); } catch (e) {} }); await pg.waitForTimeout(900);
   const go = async (k) => { await pg.evaluate((x) => { try { lsStop(); } catch (e) {} mkGo(x); }, k); await pg.waitForTimeout(350); };
   const look = (k) => pg.evaluate((k) => { const q = (s) => document.querySelector('.mk-pg ' + s), qa = (s) => [...document.querySelectorAll('.mk-pg ' + s)];
-    return { ref: !!q('.mk-ref'), fill: !!q('.mk-ref .mk-rsel0'), plain: qa('.mk-ref .mk-rw').length, ta: qa('.mk-say textarea').length,
+    return { ref: !!q('.mk-ref'), fill: !!q('.mk-ref .mk-rsel0'), plain: qa('.mk-ref .mk-rw').length, ta: qa('.mk-flow li.mk-sayli textarea').length,   /* ★[SAY_INLINE_1123 2026-11-23] «두 분이 할 말» 칸(.mk-say) → 흐름 차례 줄 아래 글칸 */
       chips: qa('.mk-ref .mk-exc').map((b) => b.textContent.replace(/\s+/g, ' ').trim()), counts: qa('.mk-ref .mk-rl').length,
-      whos: qa('.mk-ref .mk-rw b').map((b) => b.textContent.trim()), talk: qa('.mk-flow li.t b').map((b) => b.textContent.trim()) }; }, k);
+      whos: qa('.mk-ref .mk-rw b').map((b) => b.textContent.trim()), talk: qa('.mk-flow li.t:not(.mk-sayli) b').map((b) => b.textContent.trim()) }; }, k);   /* [SAY_INLINE_1123] 두 분 글칸 줄(li.t.mk-sayli)의 머리는 «차례» 이름표가 아니라 글칸 줄 — 말하실 분 차례 줄만 본다 */
 
   /* ① 두 분이 직접 말하는 순간 — 예시가 칸을 채운다 */
   for (const k of ['welcome', 'vow', 'tribute', 'letter', 'toast']) {
@@ -48,7 +48,7 @@ try {
     const taG = document.getElementById('mkt_toast_g'), taB = document.getElementById('mkt_toast_b');
     return { pairs: P.length, filled: P.length === 2 && !!g && !!b && g === P[0].txt && b === P[1].txt, boxes: !!taG && !!taB && taG.value === g && taB.value === b,
       tasks, same: u0 === u1, before: /축배 한마디\(두 분 작성\)/.test(s0), after: /축배 한마디\(두 분 작성\)/.test(s1) && s1.indexOf(g) > -1 && s1.indexOf(b) > -1,
-      note: /비워 두시면 당일 «?위하여»?만 외치셔도 돼요/.test((document.querySelector('.mk-pg .mk-say') || {}).textContent || ''),
+      note: /비워 두시면 당일 «?위하여»?만 외치셔도 돼요/.test((document.querySelector('.mk-pg .mk-saytop') || {}).textContent || ''),   /* [SAY_INLINE_1123] 왜 적는지 한 줄은 흐름 위 */
       opt: RitualOpen.prepOf('toast', S).filter((q) => q[2] === 'write').every((q) => RitualOpen.prepOpt({ note: q[4] })) };
   });
   ok('② 축배 — 예시 카드를 누르면 신랑 · 신부 칸에 들어간다', tz.pairs === 2 && tz.filled && tz.boxes, JSON.stringify(tz));
