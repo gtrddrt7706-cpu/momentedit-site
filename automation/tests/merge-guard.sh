@@ -22105,7 +22105,7 @@ chk '<button type="button" class="mk-status" id="mkStat" data-fk="mkfold" aria-e
 chk 'function _mkStatPaint()' order-preview.html 1
 chk "'본식 '+_bN+'개 순간 중 '+_no+'번째'" order-preview.html 1
 chk "<span class=\"mk-pre\">본식 </span><span class=\"mk-num\"><b>'+_no+'</b>/'+_bN" order-preview.html 1
-chk 'body.mkd .prog{position:sticky;top:-15px' order-preview.html 1
+nochk 'body.mkd .prog{position:sticky;top:-15px' order-preview.html 0   # [HEAD_GAP_1122] 은퇴(옛 chk 1 · −5px 로)
 chk 'body.mkd .op-steps-c{margin:0}' order-preview.html 1
 chk '@media (max-width:408px) and (hover:hover) and (pointer:fine){ body.mkd .prog-top{flex-wrap:wrap' order-preview.html 1
 chk 'body.op4 #obExit{min-width:48px;padding:0 4px}' order-preview.html 1
