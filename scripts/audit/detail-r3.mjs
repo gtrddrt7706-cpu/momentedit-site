@@ -64,6 +64,12 @@ try {
     const good = want === 'third' ? (s1.id === ids[2] && !s1.paused[s1.on] && s2.id === ids[2]) : (s1.id === s0.id && !s1.paused[s1.on] && !s2.paused[s2.on] && err === '다음 곡을 열지 못해 지금 곡을 이어 틀어요');
     ok(`R5 규칙 5 ${want === 'third' ? '둘째 곡이 안 열린다 — 셋째 곡으로 넘어가 계속 흐른다' : '다른 곡이 다 안 열린다 — 지금 곡을 처음부터 이어 틀고 «다음 곡을 열지 못해 지금 곡을 이어 틀어요»'}`, s0.seg === 'M1' && s0.id === ids[0] && good, { ids, s0: [s0.seg, s0.id], s1: [s1.id, s1.on, s1.paused], s2: [s2.id, s2.paused], err });
     ok(`R5 규칙 5 ${nm} 쪽 오류 0`, !errs.length, errs); await ctx.close(); }
+  /* ★[PONYO_FIRST_1122] 하객 맞이 첫 곡(포뇨 B36 · startFirst)은 강조 자리 18.2초부터 연다 · [PONYO_FIT_1122] 넣은 파일이 그 자리 + 20초보다 짧으면 처음부터(위 R5 의 12초 파일) */
+  { const ctx = await br.newContext({ viewport: { width: 1280, height: 900 } }); const { pg, errs } = await page(ctx, base(), 'PF');
+    await put(pg, 'M1', 1, fileOf('pf60.wav', 60, 300)); await pg.waitForTimeout(1500); await pg.click('#go'); await pg.waitForTimeout(2500); const s0 = await st(pg);
+    const ids = await pg.evaluate(() => window.__seg.st().list.slice()), at = await pg.evaluate(() => [...document.querySelectorAll('audio')].filter((a) => !a.paused && /^blob:/.test(a.src)).map((a) => Math.round(a.currentTime * 10) / 10));
+    ok('PONYO 하객 맞이 첫 곡(B36 · 60초 파일)은 18.2초 자리부터 흐른다 [PONYO_FIRST_1122]', ids[0] === 'B36' && s0.id === 'B36' && at.length === 1 && at[0] >= 18.2 && at[0] < 24, { ids: ids.slice(0, 3), id: s0.id, at });
+    ok('PONYO 쪽 오류 0', !errs.length, errs); await ctx.close(); }
   /* R3 ③ 겹침 중 GO */
   { const ctx = await br.newContext({ viewport: { width: 1280, height: 900 } }); const { pg, errs } = await page(ctx, base(), 'R3C');
     await put(pg, 'M1', 1, fileOf('a1.wav', 60, 300)); await put(pg, 'M2', 1, fileOf('a2.wav', 60, 400)); await put(pg, 'M2', 2, fileOf('a2b.wav', 60, 400)); await put(pg, 'M2', 3, fileOf('a2c.wav', 60, 400)); await put(pg, 'M4', 1, fileOf('a4.wav', 60, 500));

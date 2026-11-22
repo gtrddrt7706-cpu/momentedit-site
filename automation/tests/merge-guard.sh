@@ -21120,6 +21120,8 @@ chk 'BGM_FIX_1030' console.html 12
 chk 'BGM_FIX_1030' order-preview.html 2
 chk 'BGM_FIX_1030' automation/platform/80_production.gs 3
 chk 'BGM_FIX_1030' scripts/audit/bgm-fix.mjs 1
+# ★[PONYO_HOOK_1122 2026-11-22 사장님 «포뇨 메인 부분» · BGM 방 파일 실측] B36 강조 자리 = 주제 선율 한 마디 앞 18.2초
+chk "why: '가볍고 경쾌하게' , start: 18.2, startFirst: true}" assets/bgm-picks.js 1
 # ★[CHEER_TAIL_1030 2026-10-30 BGM 섹션] «위하여»가 미리 듣기의 마지막 줄이어도 축배 곡(M7)으로 넘어가 4초 들려준 뒤 끝낸다 —
 #   END_FLOW_1030 이 잔 내려놓기를 «위하여» 칸에 합쳐 축배 순간이 «위하여»에서 끝나자 축배 곡이 한 번도 안 나왔다(bgm-preview D6 빨강).
 #   소리는 브라우저가 있어야 재므로 CI 의 bgm-sound 칸([BGM_SOUND_CI])이 bgm-preview · bgm-seg8 · bgm-console2 를 실제로 돌린다.
@@ -21252,7 +21254,7 @@ nochk "t: '[^']*(Instrumental)'" assets/bgm-picks.js
 chk "M7: \['B28', 'B29', 'B22'\]" assets/bgm-picks.js 1   # ★[PICKS_THREE_1101] 구간마다 3곡
 chk "M2: \['B05', 'B31', 'B07'\]" assets/bgm-picks.js 1   # ★[GHIBLI_ADD_1101] 지브리 판
 chk "M6: \['B17', 'B34', 'B19'\]" assets/bgm-picks.js 1
-chk "FILL = { M1: \['B33', 'B35', 'B36', 'B37'\], M8: \['B38', 'B39', 'B12', 'B14', 'B13'\], M6: \['B07', 'B16'\], M4: \['B12', 'B14'\], M8L: \['B26', 'B33'\] }" assets/bgm-picks.js 1   # [REPEAT_RULE_1107 ①] 본식 · 마지막 곡에도 배경 곡 · [SONGS_5_1115] 하객 맞이 · 테이블 fill
+chk "FILL = { M1: \['B13', 'B33', 'B35', 'B37'\], M8: \['B38', 'B39', 'B12', 'B14', 'B13'\], M6: \['B07', 'B16'\], M4: \['B12', 'B14'\], M8L: \['B26', 'B33'\] }" assets/bgm-picks.js 1   # [REPEAT_RULE_1107 ①] 본식 · 마지막 곡에도 배경 곡 · [SONGS_5_1115] 하객 맞이 · 테이블 fill
 chk 'function order(S, seg, prev, on)' assets/bgm-picks.js 1
 chk 'if (BP.order) return segListOf(id, cur).filter(function(x){ return have(x) || !!(play && SEGF\[x\] && BP.SONGS && BP.SONGS\[x\]); });' console.html 1   # 콘솔 차례 = 식순 화면 순서 줄과 같은 함수 · ★[TABLE_BORROW_PLAY_1114 11/14] 재생 목록(play)은 빌려 온 곡도 남긴다 — 옛 줄 «.filter(have);» 로 되돌리지 말 것(테이블 인사 30분이 3곡 13분으로 줄었다)
 chk 'function listRoHtml(sg,k)' assets/bgm-bed.js 1   # ★[LIST_NO_PICK_1101] 목록 칸 = 안내 칸(고르기 없음)
@@ -21261,7 +21263,16 @@ chk "if (!d || d.multi || !S || !S.bgm) return ''" assets/bgm-picks.js 1   # 목
 chk 'LIST_NO_PICK_1101' scripts/audit/bgm-fill.mjs 1
 chk 'function effHas(sg)' assets/bgm-bed.js 1   # [GHIBLI_ADD_1101] 파일 있는 다음 곡
 chk 'BGM_FILL_1101' scripts/audit/bgm-fill.mjs 1
-chk "M1: \['B01', 'B24', 'B13'\]" assets/bgm-picks.js 1
+chk "M1: \['B36', 'B01', 'B24'\]" assets/bgm-picks.js 1   # ★[PONYO_FIRST_1122 2026-11-22 대본 결정] 하객 맞이 1순위 포뇨 · Moon River 는 FILL
+chk "var FILL = { M1: \['B13', 'B33', 'B35', 'B37'\]" assets/bgm-picks.js 1
+chk 'PONYO_FIRST_1122' console.html 1
+chk 'PONYO_FIRST_1122' assets/bgm-bed.js 1
+chk '_fd > _fa + 20' console.html 1   # [PONYO_FIT_1122] 넣은 파일이 강조 자리 + 20초보다 짧으면 처음부터(detail-r3 R5 · console-relift ⑤ 의 짧은 시험 파일)
+chk '+st > _d0 - 20) return m.head' console.html 1   # [PONYO_FIT_1122] 다시 트는 자리(reHookC)도 같은 규칙
+nochk "M1: \['B01', 'B24', 'B13'\]" assets/bgm-picks.js   # 옛 1순위 되살리지 말 것
+chk 'MATJEOL_WORD_1122' assets/bgm-slots.js 1
+nochk '하객을 향해 서시면 본식 피아노가 잔잔하게 깔려요' assets/bgm-slots.js   # [MATJEOL_WORD_1122] 맞절 듣기에서 안 나는 소리 약속 금지
+chk 'MATJEOL_AT_1122' assets/bgm-slots.js 1   # 맞절 줄 {at} = 본식 피아노가 처음 깔리는 순간 이름(감사 인사 · 감사문 · …) · «감사 인사» 박지 않기 [THANKS_SWAP_BGM_1122]
 chk "M8L: \['B32', 'B11', 'B27'\]" assets/bgm-picks.js 1
 chk 'PICKS_THREE_1101' scripts/audit/picks-three.mjs 1
 nochk "'부터 이어서 틀어요'" assets/bgm-bed.js   # [SONG_ROW_LINES_1101] 곡 칸 아래 «… 이어서 틀어요 · 준비해요» 줄은 걷었다
