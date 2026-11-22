@@ -567,7 +567,7 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
 <!-- ★DECL_ADMIN_MIRROR — 식순 문안·선택지 원천. 선언 주체 라벨을 하드코딩하지 않고 여기서 읽는다.
      async/defer 금지(파일 헤더 4행) · 인라인 스크립트보다 먼저 로드돼야 DECLBY(선언문 원천)를 참조할 수 있다. -->
 <script src="/assets/ritual-data.js"></script><script src="/assets/dining-data.js?v=1105a"></script><script src="/assets/ritual-preview-link.js?v=1122t1"></script><!-- [CONSOLE_INJECT_1019] 당일 콘솔 주소의 식사 · 사진 · 하객 안내 유무 -->
-<script src="/assets/rec-process.js"></script><!-- [RF_STUDIO_UP] 스튜디오 대신 올리기 — 두 분 화면과 같은 다듬기(한 원천) -->
+<script src="/assets/seat-plan.js?v=1122a"></script><!-- [SEAT_PLAN_9] 좌석표 프린트 번호 · 의자 방향 --><script src="/assets/rec-process.js"></script><!-- [RF_STUDIO_UP] 스튜디오 대신 올리기 — 두 분 화면과 같은 다듬기(한 원천) -->
 <script src="/assets/snap-refs.js"></script><script src="/assets/dress-refs.js"></script><!-- [DRESS_ADMIN_ROWS] 시착 드레스 이름 · 사진 원천(고객 화면과 같은 파일) --><script src="/assets/err-codes.js"></script><!-- [ERR_CODES] 고객 화면 «(코드 S6)»의 뜻 — 검색창 «코드 찾기» · 고객 상세 «최근 실패» --><!-- [SNAP_REFS] 스냅 기획 장면 이름·준비물 원천(부부 화면·브리프와 같은 파일) -->
 <script>
 // ★DECL_ADMIN_MIRROR — 선언 «읽는 분» 행은 두 분이 적은 글을 그대로 보인다([DECLARE_ANYONE] · 종전엔 DECLWHO 갈래 이름을 읽었다).
@@ -989,33 +989,30 @@ function _seatChartDoc(d){
   var names=esc(d.names||''), code=esc(d.code||''), wdate=(d.pin&&d.pin['예식일'])?esc(fmtDate(d.pin['예식일'])):'';
   var DL={C:'샴페인',R:'레드와인',N:'논알콜 스파클링',K:'유아 · 물',Y:'어린이 · 물'};   // 자리별 음료(2026-07-19 · 상단 대표음료 폐지) · [KID_SEAT 2026-08-16] K=유아(물+유아용 의자) · 미정(''·구 A/J)은 '미정'
   // 편집기와 동일한 번호(위→아래 행 순서·각 행 좌→우)
-  var Ls=[],Rs=[]; tables.forEach(function(t,i){ (String((t&&t.side)||'L')==='R'?Rs:Ls).push(i); });
-  var num={},nn=1,mr=Math.max(Ls.length,Rs.length); for(var rr=0;rr<mr;rr++){ if(rr<Ls.length)num[Ls[rr]]=nn++; if(rr<Rs.length)num[Rs[rr]]=nn++; }
-  var cC=0,cR=0,cN=0,cK=0,cY=0,cU=0,cT=0;
-  tables.forEach(function(t){ ((t&&t.seats)||[]).forEach(function(v,i){ if(!String(v||'').trim())return; cT++; var dv=((t.drinks||[])[i])||''; if(dv==='C')cC++; else if(dv==='R')cR++; else if(dv==='N')cN++; else if(dv==='K')cK++; else if(dv==='Y')cY++; else cU++; }); });
-  function tbl(t,no){ var seats=(t&&t.seats)||[]; var n=seats.length,inner=''; for(var i=0;i<n;i++){ var nm=String(seats[i]||'').trim(); var dk=nm?(((t.drinks||[])[i])||''):''; var u=_seatChartPos(n,i,46); var dot=DL[dk]?'<i class="pd pd-'+dk+'"></i>':''; inner+='<span class="pseat'+(nm?'':' e')+'" style="left:calc(50% + '+u.x.toFixed(1)+'px);top:calc(50% + '+u.y.toFixed(1)+'px)">'+(nm?esc(nm):'·')+dot+'</span>'; } return '<div class="ptbl"><span class="ptno">'+no+'</span>'+inner+'</div>'; }   // 색점은 이름 있는 자리만(고아 음료가 빈자리에 찍혀 합계와 어긋나는 것 방지)
-  var L='',R='';
-  /* [SEAT_ZIGZAG] 편집기(mypage _seatZig)와 같은 값 — 짝수행 통로쪽 1배 · 홀수행 바깥 1.15배 · 우측은 미러 */
-  /* ★폭은 편집기 실측값을 쓴다 — mypage .seat-room 의 --zig 는 PC 에서
-       min(80px, calc(min(92vw,880px)/7.6 - 40px)) = 75.8px 였다(실측 2026-09-14).
-       테이블 상자(.ptbl 150px)도 편집기(.rt 150px)와 같아 그대로 옮겨도 비율이 맞는다. */
-  function zigX(row, side){ var even=(row%2===0); var base=(even?1:-1)*(even?1:1.15); return (side==='R'? -base : base)*76; }
-  var li=0, ri=0;
-  tables.forEach(function(t,i){
-    var no=num[i]||(i+1), isR=(String((t&&t.side)||'L')==='R');
-    var dx=zigX(isR?ri++:li++, isR?'R':'L');
-    var cell='<div style="transform:translateX('+dx.toFixed(1)+'px)">'+tbl(t,no)+'</div>';
-    if(isR) R+=cell; else L+=cell;
+  tables=ME_SEAT_PLAN.migrate(tables);   // [SEAT_PLAN_9] 옛 좌석표는 확정 배치로 옮겨 찍는다(편집기 · 하객 화면과 같은 규칙)
+  var num=ME_SEAT_PLAN.numbers(tables);   // [SEAT_PLAN_9 2026-11-22] 좌측 위부터 1 ~ 4 · 우측 5 ~ 9 — 편집기 · 하객 화면 · 서버 검색과 한 벌
+  var CL={B:'유아용 의자',W:'휠체어'};   // [DRINK_TWO 2026-11-22] 자리 준비(음료와 따로) · 옛 K(유아 · 물)는 유아용 의자로 센다
+  var cC=0,cR=0,cN=0,cK=0,cY=0,cU=0,cT=0,cB=0,cW=0;
+  function _ch(t,i){ var c=((t&&t.chair)||[])[i]||''; if(!c && ((t.drinks||[])[i])==='K') c='B'; return (c==='B'||c==='W')?c:''; }
+  function _dk(t,i){ var v=((t&&t.drinks)||[])[i]||''; return ({R:'C',K:'N',Y:'N'})[v]||v; }   // [DRINK_TWO] 옛 레드와인 · 유아 · 어린이 값도 지금 준비하는 둘(샴페인 · 논알콜)로 센다 — 편집기가 옮기는 것과 같은 규칙 · 스태프가 와인 · 물을 따로 챙기지 않게
+  tables.forEach(function(t){ ((t&&t.seats)||[]).forEach(function(v,i){ if(!String(v||'').trim())return; cT++; var dv=_dk(t,i); if(dv==='C')cC++; else if(dv==='R')cR++; else if(dv==='N')cN++; else if(dv==='K')cK++; else if(dv==='Y')cY++; else cU++; var c=_ch(t,i); if(c==='B')cB++; else if(c==='W')cW++; }); });
+  /* ★[SEAT_PLAN_9 2026-11-22] 당일 세팅용 인쇄물도 같은 그림(오프라인 시안 · assets/seat-plan.js) — 테이블 9개를 맞붙인 두 묶음 · 확정 의자 위치 ·
+     빈 혼주석은 «혼주» · 음료 색점 · 유아용 의자(유) · 휠체어(휠). 종전 두 열 지그재그(zigX · .proom · .ptbl)는 폐지. A4 한 장에 들어가게 1m = 72px. */
+  var mapH=ME_SEAT_PLAN.mapHtml(tables,{
+    sides:['좌측','우측'],
+    table:function(t,i,no){ var _cn=String((t&&t.name)||'').trim(), c=(_cn && !/^테이블\s*\d+$/.test(_cn))?esc(_cn):''; return '<span class="ptno">'+no+'</span>'+(c?'<span class="ptcap">'+c+'</span>':''); },
+    seat:function(t,i,si,fam){ var nm=String(((t&&t.seats)||[])[si]||'').trim(); var dk=nm?_dk(t,si):''; var dot=DL[dk]?'<i class="pd pd-'+dk+'"></i>':''; var c=nm?_ch(t,si):'';
+      return '<span class="pseat'+(nm?'':' e')+((!nm&&fam)?' f':'')+'">'+(nm?('<span class="pnm">'+esc(nm)+'</span>'):(fam?'혼주':'·'))+dot+(c?'<b class="pch">'+(c==='W'?'휠':'유')+'</b>':'')+'</span>'; }
   });
   var roster=''; var ordered=[]; tables.forEach(function(t,i){ ordered.push({t:t,no:num[i]||(i+1)}); }); ordered.sort(function(a,b){ return a.no-b.no; });
-  ordered.forEach(function(o){ var parts=[]; ((o.t&&o.t.seats)||[]).forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm)return; var dk=((o.t.drinks||[])[i])||''; parts.push(esc(nm)+' · '+esc(DL[dk]||'미정')); }); var _cn=String((o.t&&o.t.name)||'').trim(); var _cnl=(_cn && !/^테이블\s*\d+$/.test(_cn))?(' · '+esc(_cn)):'';   // 자리마다 음료 명시(자리별 선택 · 미정 표기) · 커스텀 테이블명도 표기
+  ordered.forEach(function(o){ var parts=[]; ((o.t&&o.t.seats)||[]).forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm)return; var dk=_dk(o.t,i); var _c=_ch(o.t,i); parts.push(esc(nm)+' · '+esc(DL[dk]||'미정')+(_c?(' · '+CL[_c]):'')); }); var _cn=String((o.t&&o.t.name)||'').trim(); var _cnl=(_cn && !/^테이블\s*\d+$/.test(_cn))?(' · '+esc(_cn)):'';   // 자리마다 음료 명시(자리별 선택 · 미정 표기) · 커스텀 테이블명도 표기
     if(parts.length) roster+='<div class="pr"><b>'+o.no+'번 '+(String(o.t.side||'L')==='R'?'우측':'좌측')+_cnl+'</b> '+parts.join(' |  ')+'</div>'; });
-  var totLine='음료 합계 · 샴페인 '+cC+' · 레드와인 '+cR+' · 논알콜 스파클링 '+cN+(cK?(' · 유아(물) '+cK):'')+(cY?(' · 어린이(물) '+cY):'')+(cU?(' · 미정 '+cU):'')+' · 총 '+cT+'명'
-    + (cK?('  ★유아용 의자 '+cK+'개 준비'):'');   // [KID_SEAT] 당일 준비물이라 합계 줄에 바로 · [KID_CHAIR] 의자는 유아(K)만 — 어린이(Y)를 더하면 안 쓸 의자가 나온다
+  var totLine='음료 합계 · 샴페인 '+cC+(cR?(' · 레드와인 '+cR):'')+' · 논알콜 스파클링 '+cN+(cK?(' · 유아(물) '+cK):'')+(cY?(' · 어린이(물) '+cY):'')+(cU?(' · 미정 '+cU):'')+' · 총 '+cT+'명'
+    + (cB?('  ★유아용 의자 '+cB+'개'):'')+(cW?('  ★휠체어 '+cW+'자리(의자 빼 두기)'):'');   // [DRINK_TWO] 당일 준비물 — 자리 준비에서 센다(옛 K 포함)   // [KID_SEAT] 당일 준비물이라 합계 줄에 바로 · [KID_CHAIR] 의자는 유아(K)만 — 어린이(Y)를 더하면 안 쓸 의자가 나온다
   var css='*{box-sizing:border-box}body{font-family:"Noto Serif KR","Nanum Myeongjo",serif;color:#2a2018;margin:0;padding:16px 18px}'
     +'h1{font-size:19px;margin:0 0 2px;font-weight:600}.psub{font-size:12.5px;color:#6b6257;margin-bottom:10px}'
     +'.ptot{font-size:13px;font-weight:600;background:#f5f1ea;border:1px solid #e3dccf;border-radius:8px;padding:8px 11px;margin-bottom:6px}'
-    +'.plg{font-weight:400;font-size:11.5px;color:#6b6257;margin-left:6px}.plg i{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:middle;margin:0 3px 0 9px}'
+    +'.plg{display:block;margin-top:4px;font-weight:400;font-size:11.5px;color:#6b6257}.plg i{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:middle;margin:0 3px 0 9px}'
     +'.pstage{text-align:center;font-size:11px;letter-spacing:.12em;color:#8a8072;border:1px dashed #d8d1c4;border-radius:16px;padding:6px;margin:8px 0 10px}'
     +'.proom{display:flex;gap:6px;align-items:flex-start;justify-content:center}.pcol{flex:1;max-width:380px;display:flex;flex-direction:column;gap:18px;align-items:center;overflow:visible}'
     +'.paisle{writing-mode:vertical-rl;font-size:9px;letter-spacing:.3em;color:#9a7b4f;padding:20px 3px 0}'
@@ -1030,19 +1027,21 @@ function _seatChartDoc(d){
     +'.ptbl::before{content:"";position:absolute;left:50%;top:50%;width:66px;height:66px;transform:translate(-50%,-50%);border-radius:50%;background:#fcfbf9;border:1.5px solid #b89a75}'
     +'.ptno{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:22px;font-weight:600;color:#6B2A24}'
     +'.pseat{position:absolute;transform:translate(-50%,-50%);max-width:78px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid #ddd8d1;background:#fff;border-radius:11px;font-size:11px;padding:3px 8px}'
-    +'.pseat.e{color:#b3ad9f;border-style:dashed;background:#f7f5f0}'
+    +'.pseat.e{color:#b3ad9f;border-style:dashed;background:#f7f5f0}.pseat.f{color:#6B2A24;border-color:#c9a39c;background:#f7eeec}'
+    +'.pch{display:inline-block;margin-left:4px;font-size:9px;font-weight:600;color:#fff;background:#3a2d22;border-radius:6px;padding:0 3px;line-height:13px;vertical-align:middle}'
     +'.pd{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:4px;vertical-align:middle}'
     +'.pd-N,.dN{background:#5F9E86}.pd-C,.dC{background:#C9A227}.pd-R,.dR{background:#9B4A57}.pd-K,.dK{background:#8FA9BF}.pd-Y,.dY{background:#B9CBD8}.pd-A,.dA{background:#9B4A57}.pd-J,.dJ{background:#E0912F}'
     +'.proster{margin-top:16px;border-top:1px solid #e3dccf;padding-top:10px}.proster h2{font-size:13px;margin:0 0 6px;color:#6b6257}'
     +'.pr{font-size:12.5px;line-height:1.9;padding:2px 0;border-bottom:1px dotted #ece6da}.pr b{color:#6B2A24;margin-right:6px}'
+    +ME_SEAT_PLAN.CSS+'.pmap{--m:72px}.pmap .smap-s .pseat{position:static;transform:none;display:inline-flex;align-items:center;max-width:none;overflow:visible;padding:2px 7px;font-size:11px}.pnm{display:inline-block;max-width:4.2em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pentry{text-align:center;font-size:10px;letter-spacing:.3em;color:#8a8072;margin-top:4px}'
+    +'.smap-t .ptno{position:static;transform:none;font-size:24px}.ptcap{font-size:9.5px;color:#9A7B4F;max-width:70px;text-align:center;line-height:1.2}'
     +'@page{size:A4;margin:12mm}@media print{body{padding:0}.ptbl,.pseat{-webkit-print-color-adjust:exact;print-color-adjust:exact}}';
   /* ★[SEAT_DOC_USE 2026-09-14] 「이 종이가 무엇인가」를 제목에 적는다. 고객이 보는 좌석 화면(guide.html)과
      생김새가 비슷해 구분이 안 됐다 — 이건 예식 «당일 스태프가 들고 다니는 인쇄물»이다. */
   var body='<h1>좌석 배치도 · 당일 세팅용</h1><div class="psub">'+(names||'')+(wdate?(' · 예식 '+wdate):'')+(code?(' · '+code):'')+'</div>'
-    +'<div class="ptot">'+totLine+'<span class="plg"><i class="dC"></i>샴페인<i class="dR"></i>레드와인<i class="dN"></i>논알콜 스파클링<i class="dK"></i>유아 · 물<i class="dY"></i>어린이 · 물</span></div>'
-    +'<div class="pstage">◈ 단상 · 신랑 신부</div>'
-    +'<div class="proom"><div class="pcol">'+(L||'<div style="color:#b3ad9f;font-size:12px">좌측 테이블 없음</div>')+'</div>'
-    +'<div class="paisle">버진로드</div><div class="pcol">'+(R||'<div style="color:#b3ad9f;font-size:12px">우측 테이블 없음</div>')+'</div></div>'
+    +'<div class="ptot">'+totLine+'<span class="plg"><i class="dC"></i>샴페인<i class="dN"></i>논알콜 스파클링 · 유 = 유아용 의자 · 휠 = 휠체어</span></div>'
+    +'<div class="pstage">◈ 앞 · 신랑 신부</div>'   // [SEAT_PLAN_9] 단상 없음
+    +'<div class="pmap">'+mapH+'</div><div class="pentry">입장</div>'
     +'<div class="proster"><h2>테이블별 명단 · 음료</h2>'+(roster||'<div style="color:#b3ad9f;font-size:12px">입력된 이름이 없어요</div>')+'</div>';
   return '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>좌석 배치도 '+(code||'')+'</title><style>'+css+'</style></head><body>'+body+'</body></html>';
 }
