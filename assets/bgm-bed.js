@@ -159,7 +159,7 @@
        종전: 곡 처음(0초)에서 구호와 함께 시작 — 강조가 구호 말끝 14초 전에 지나갔다. 입장 장면(entry-scene LATE_MUSIC «목소리가 먼저 · 음악은 뒤에»)과 당일 콘솔(같은 ES.plan)이 이미 이렇게 한다.
        그대로: 강조 자리가 넉넉한 곡(추천 곡 · 뒤 소절 hooks) · 화촉 곡 내림 + 정적 1초 · 늦게 들어올 때도 1.5초 올림 · 검사 scripts/audit/pv-r3-1115.mjs 13 */
   function entHushAt(st0,el){ var o=BUF[ENT_F], x=o&&o.ext; if(!x) return 0; var c0=callOf(st0,x); return Math.min(x.H-c0.hd-c0.v-0.3+(el||0),x.end-1)-x.o; }
-  function atOf(f,st,lead){ if(BED.cur.f===f&&BED.cur.src) return 0; if(f===ENT_F) return entAt(st&&st.k,lead?st:null);   /* [ENTRY_LEAD_CALL_1115] lead = 순간 첫 줄 뜸(lpLead) — 입장이면 그 줄이 구호 */ if(LPB.keep[f]!=null) return LPB.keep[f]; try{ if(st&&!entMulti()&&dayAt(st.k)===f&&ordOf('M4').filter(has)[0]!==f) return hookOf(f); }catch(x){} return 0; }   /* ★[SCREEN_SOUND_1102 2] 순간 하나 = 당일 시간표 그 자리 곡 · 목록 둘째 곡부터는 강조 자리에서(당일 목록이 넘길 때와 같다) · 첫 곡은 처음(0초) */
+  function atOf(f,st,lead){ if(BED.cur.f===f&&BED.cur.src) return 0; if(f===ENT_F) return entAt(st&&st.k,lead?st:null);   /* [ENTRY_LEAD_CALL_1115] lead = 순간 첫 줄 뜸(lpLead) — 입장이면 그 줄이 구호 */ if(LPB.keep[f]!=null) return LPB.keep[f]; try{ if(st&&!entMulti()&&dayAt(st.k)===f&&ordOf('M4').filter(has)[0]!==f) return hookOf(f); }catch(x){} try{ var _s1=P.byF(f); if(_s1&&_s1.startFirst&&_s1.start!=null) return Math.max(0,+_s1.start); }catch(x){} return 0; }   /* ★[PONYO_FIRST_1122] 첫 곡이라도 startFirst 곡(하객 맞이 포뇨)은 강조 자리(주제 18.2초)부터 — 당일 콘솔 첫 곡과 같다 */   /* ★[SCREEN_SOUND_1102 2] 순간 하나 = 당일 시간표 그 자리 곡 · 목록 둘째 곡부터는 강조 자리에서(당일 목록이 넘길 때와 같다) · 첫 곡은 처음(0초) */
 
   /* ── 있는 곡(드라이브 목록) · 곡 받기 — 마이페이지 안에서만 ── */
   var AV={ st:'', set:{}, t:null, cb:[] };   /* [DETAIL_R1_1101 ②] cb = 목록을 기다리는 듣기 */
