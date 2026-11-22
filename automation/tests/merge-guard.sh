@@ -21988,7 +21988,7 @@ nochk '신랑은 한 손을 가슴에 얹고 가볍게 숙여요 · 신부는 �
 chk 'BOW_TIP_1122' assets/ritual-story.js 1
 chk 'HEAD_FLOAT_1122' order-preview.html 1
 # ★[BOW_PIC_1122 2026-11-22 사장님 «너무 서술형 · 클릭하면 그림으로» · 대본 «지금 영상의 무도회 맞절 + 일반 맞절 한 장 나란히»] 맞절 팁 줄 짧게 + «자세 보기» 창(평소 인사 / 무도회 맞절)
-chk 'BOW_PIC_1122' order-preview.html 4
+chk 'BOW_PIC_1122' order-preview.html 5
 chk "data-fk=\"mkbowpic\"" order-preview.html 1
 chk 'matjeol-plain-640.webp' order-preview.html 1   # [HEAD_EDGE_FADE_1122] 은퇴 → 시안 B(띠 배경 없음 · 단추만)
 nochk 'body.mkd .prog::after' order-preview.html 0
