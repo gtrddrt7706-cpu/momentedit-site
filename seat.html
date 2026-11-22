@@ -23,7 +23,7 @@
 <!-- 좌석 데이터가 오는 곳 — 폰트만 걸려 있고 정작 여기가 빠져 있었다.
      ★[GAS_PRECONNECT_CORS 2026-11-19 NIGHT20 #16] crossorigin 이 없으면 미리 연 연결을 fetch()(쿠키 없는 연결)가 다시 쓰지 못한다 —
      표시만 있고 효과가 없었다. 서버가 넘겨 주는 script.googleusercontent.com 까지 함께 연다(mypage · schedule 과 같은 모양). -->
-<script src="/assets/seat-plan.js?v=1122c"></script><!-- [SEAT_PLAN_9] 캔들존 확정 배치(자리 방향 · 테이블 번호) 단일 원천 — 좌석 편집기 · guide · admin 과 같은 파일 -->
+<script src="/assets/seat-plan.js?v=1122d"></script><!-- [SEAT_PLAN_9] 캔들존 확정 배치(자리 방향 · 테이블 번호) 단일 원천 — 좌석 편집기 · guide · admin 과 같은 파일 -->
 <link rel="preconnect" href="https://script.google.com" crossorigin>
 <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -421,7 +421,7 @@ function render(seat){
   //   이 그림은 단상이 위에 있는 평면도 — 즉 '단상을 바라보는 방향'으로 그려져 있다. 그걸 한 줄로 말해 준다.
   var room = srList+'<div aria-hidden="true"><div class="stage">&#9672; 앞 · 신랑 신부</div>'   // [SEAT_PLAN_9] 단상은 두지 않는다
     +'<div class="stage-note">신랑 신부 쪽을 바라볼 때의 좌·우예요</div>'
-    +'<div class="gmap smap-scroll" data-gmap>'+ME_SEAT_PLAN.mapHtml(tables,{ sides:['좌측','우측'], table:tIn, seat:sIn, attr:function(t,i){ return 'data-tbl="'+i+'"'; } })+'</div>'
+    +'<div class="gmap smap-scroll" data-gmap data-gmap-all>'+ME_SEAT_PLAN.mapHtml(tables,{ sides:['좌측','우측'], table:tIn, seat:sIn, attr:function(t,i){ return 'data-tbl="'+i+'"'; } })+'</div>'
     +'<div class="entry">입장</div></div>';   // ★아래 «옆으로 밀면 …» 한 줄 금지 — 2026-11-22 사용자 지시로 그림 위 «우측 테이블 ›» 알약으로 바꿈([SEAT_SWIPE_CUE])
   $('root').innerHTML =
     '<div class="card">'
@@ -444,7 +444,7 @@ function render(seat){
    ★guide.html 이 같은 함수를 한 벌 가진다(bindSeatServer) — 한 곳만 고치지 말 것. */
 // [SEAT_PLAN_9] 배치도가 폭에 다 들어오면 «옆으로 밀면» 줄을 숨기고, 넘치면 버진로드가 가운데 오게 처음 위치를 잡는다(좌 · 우가 반씩 보인다)
 function mineFit(fr){ gmapFit(); try{ var g=fr.querySelector('[data-gmap]'), me=fr.querySelector('.smap-s .hit')||fr.querySelector('.smap-t.hit'); if(g&&me){ var gr=g.getBoundingClientRect(), mr=me.getBoundingClientRect(); var pad=24; if(mr.left<gr.left+pad || mr.right>gr.right-pad) g.scrollLeft+=(mr.left+mr.width/2)-(gr.left+gr.width/2); } }catch(e){} }   // [SEAT_PLAN_9] 내 자리가 이미 보이면 그대로(좌측 묶음이 통째로 보이는 첫 자리) · 안 보일 때만 그 자리를 가운데로(옆으로만 · 위아래는 움직이지 않는다)
-function gmapFit(){ Array.prototype.forEach.call(document.querySelectorAll('[data-gmap]'),function(g){ var over=g.scrollWidth>g.clientWidth+2; if(over && !g._fit){ g._fit=1; g.scrollLeft=0; } ME_SEAT_PLAN.edgeCue(g); }); }   // [SEAT_PLAN_9] 전체 배치도는 좌측 묶음이 통째로 보이는 자리에서 시작(가운데부터 보이면 양쪽 테이블이 반씩 잘린다) · 편집기와 같은 시작 · 내 자리 검색은 mineFit 이 내 자리로 옮긴다
+function gmapFit(){ Array.prototype.forEach.call(document.querySelectorAll('[data-gmap]'),function(g){ var over=g.scrollWidth>g.clientWidth+2; if(over && !g._fit){ g._fit=1; g.scrollLeft=0; } ME_SEAT_PLAN.edgeCue(g); if(g.hasAttribute('data-gmap-all')) ME_SEAT_PLAN.overview(g, { key:'all' }); }); }   /* ★[SEAT_OVERVIEW] 전체 공개 좌석표는 처음엔 전체 그림 · 누르면 확대(내 자리 검색 그림은 그대로) */   // [SEAT_PLAN_9] 전체 배치도는 좌측 묶음이 통째로 보이는 자리에서 시작(가운데부터 보이면 양쪽 테이블이 반씩 잘린다) · 편집기와 같은 시작 · 내 자리 검색은 mineFit 이 내 자리로 옮긴다
 var IME_IDLE=800;
 /* ★[B2_MA_80 · B2_MA_79 · B2_MA_92 2026-11-06 2차] guide.html 과 같은 규칙 · 같은 말 —
    ①비교는 같은 유니코드 꼴(NFC · 복사한 조합형 이름도 맞는다 · 보이는 이름은 그대로) ②여러 자리면 모든 자리에 성함 그대로가 있을 때만 동명이인(d-10)

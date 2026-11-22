@@ -5810,6 +5810,11 @@ chk 'ME_SEAT_PLAN.famAt(s.tables, sel.ti, sel.si)' mypage.html 1
 chk 'SEAT_FAM_FREE' scripts/audit/seat-onecard.mjs 2
 nochk 'class="rs-fam"' mypage.html
 nochk "(fam?'혼주':'·')" admin.html
+# ★[SEAT_OVERVIEW 2026-11-22 사장님 «처음엔 전체 배치도 · 누르면 확대해 좌우로» · «추천대로»] 폰 첫 화면 = 전체 그림(점) · 누르면 확대 · «전체 보기»
+chk 'P.overview = function(sc, o)' assets/seat-plan.js 1
+chk "ME_SEAT_PLAN.overview(sp, { key:'ed' })" mypage.html 1
+chk "ME_SEAT_PLAN.overview(g, { key:'all' })" seat.html 1
+chk 'SEAT_OVERVIEW' scripts/audit/seat-onecard.mjs 3
 nochk '<div class="seat-swipe"' mypage.html
 nochk "R:'레드와인'" guide.html
 chk "Y:'어린이 · 물'" mypage.html 1
