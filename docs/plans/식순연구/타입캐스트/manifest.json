@@ -50,9 +50,9 @@
         "한 문장 = 한 줄입니다. 다운로드는 반드시 '문장별 분리'로 받으세요 — 순서가 곧 파일명이 되고, node scripts/assemble-narration.mjs 가 그 순서로 클립을 다시 붙입니다."
       ],
       "dir": "assets/audio/narration",
-      "clips": 78,
-      "sents": 142,
-      "chars": 4866
+      "clips": 82,
+      "sents": 159,
+      "chars": 5474
     },
     {
       "file": "3_진행_후반.txt",
@@ -3432,6 +3432,160 @@
         {
           "i": 2,
           "text": "지금부터 신랑과 신부의 예식을 여러분의 박수로 시작하겠습니다!",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "386",
+      "id": "G3-CC1",
+      "label": "닫는 인사 · 온라인 날 (108 구령 앞 감사 한 줄 · CLOSE_C_GO_1122)",
+      "file": "narr-close-bow-online",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이상으로 오늘의 결혼식을 마치겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "마지막까지 큰 박수 부탁드립니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "현장과 화면 너머에서 함께해 주신 모든 분들, 정말 고맙습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "신랑 신부, 하객 여러분께 인사!",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "387",
+      "id": "G3-CC2",
+      "label": "닫는 인사 예시 2 · 온라인 날 (185 · CLOSE_C_GO_1122)",
+      "file": "narr-close-bow-ex2-online",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "신랑 신부의 매일이 항상 행복하고 찬란하길 바라면서, 오늘 결혼식을 모두 마치겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "마지막까지 큰 박수 부탁드립니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "현장과 화면 너머에서 함께해 주신 모든 분들, 정말 고맙습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "신랑 신부, 하객 여러분께 인사!",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "388",
+      "id": "G3-CC3",
+      "label": "닫는 인사 예시 3 · 온라인 날 (186 · CLOSE_C_GO_1122)",
+      "file": "narr-close-bow-ex3-online",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "살면서 이렇게 뜨거운 응원과 축하를 받는 일이 또 얼마나 있을까요?",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "오늘 이 순간을 빛내 주신 여러분, 진심으로 감사드립니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "두 사람이 앞으로 행복하게 잘 사는 모습도, 계속 지켜봐 주시고, 응원 많이 해 주시기 바랍니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "현장과 화면 너머에서 함께해 주신 모든 분들, 정말 고맙습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 4,
+          "text": "신랑 신부, 하객 여러분께 인사!",
+          "before": 0,
+          "after": 0
+        }
+      ]
+    },
+    {
+      "no": "389",
+      "id": "G3-CC4",
+      "label": "닫는 인사 예시 4 · 온라인 날 (187 · CLOSE_C_GO_1122)",
+      "file": "narr-close-bow-ex4-online",
+      "role": "진행",
+      "part": "2_진행_전반.txt",
+      "dir": "assets/audio/narration",
+      "head": 0.4,
+      "tail": 0.45,
+      "sents": [
+        {
+          "i": 0,
+          "text": "이상으로 신랑 신부의 결혼식을 모두 마치겠습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 1,
+          "text": "바쁘신 가운데 자리를 빛내 주신 하객 여러분께 양가 가족을 대신하여 진심으로 감사의 말씀을 드립니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 2,
+          "text": "현장과 화면 너머에서 함께해 주신 모든 분들, 정말 고맙습니다.",
+          "before": 0,
+          "after": 1.25
+        },
+        {
+          "i": 3,
+          "text": "신랑 신부, 하객 여러분께 인사!",
           "before": 0,
           "after": 0
         }
