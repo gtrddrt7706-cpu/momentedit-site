@@ -2468,7 +2468,7 @@ button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
      그래서 **캐시 첫 페인트에는 버튼이 없고, 서버 갱신이 끝나 다시 그릴 때 나타났다.**
      망이 느리면 몇 초 동안 없고, 갱신이 실패하면 끝내 안 나온다 — '어쩔 땐'의 정체다.
      ★인라인 스크립트보다 **앞**에 둔다. 뒤로 옮기지 말 것. (head 로도 올리지 말 것 — MPD_E1) -->
-<script src="/assets/seat-plan.js?v=1122c"></script><!-- [SEAT_PLAN_9] 캔들존 확정 배치(9테이블 · 35석) 단일 원천 — 좌석 편집기 · seat · guide · admin 공용 -->
+<script src="/assets/seat-plan.js?v=1122d"></script><!-- [SEAT_PLAN_9] 캔들존 확정 배치(9테이블 · 35석) 단일 원천 — 좌석 편집기 · seat · guide · admin 공용 -->
 <script src="/assets/dining-data.js?v=1105a"></script><!-- [DINE_DATA_NI16] 식당 · 카페 목록 단일 원천(관리자 «당일 콘솔»도 읽는다) -->
 <script src="/assets/ritual-preview-link.js?v=1122t1"></script>
 <script src="/assets/send-list.js?v=1123a"></script><!-- ★[PREP_HUB_1123] «준비할 것» 목록의 원천(순수 함수 · 관리 화면도 같은 파일) -->
@@ -10870,7 +10870,7 @@ var PHOTO_MAX=5;    // 전체 하객 제외 추가 구도 상한(총 6컷)
        종전(8 고정)은 요청을 안 적은 분도 2분을 잡아 구도를 하나 덜 받았다. 엔진 (44, end-0-photo) est 도 같은 셈(360 + 60 × 적은 수).
      ★줄이는 차례: 자유 사진 → 숨 고르기 → 뒤에 고른 구도. 배웅 시각은 지킨다. */
 /* ★[PHOTO_THANKS 2026-09-26 사장님 결정] 전체 사진 바로 뒤 두 분 감사 인사 약 1분(PHOTO_THANKS) — 엔진 (45, end-1a-farewell) 목표 60초와 같은 셈. 구도 자리가 그만큼 준다. */
-var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=6, PHOTO_PER=3, PHOTO_ONLINE=2, PHOTO_THANKS=1;
+var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=6, PHOTO_PER=3, PHOTO_ONLINE=0, PHOTO_THANKS=1;   /* ★[CLOSE_C_GO_1122 2026-11-22 대표님 «추천대로»] 폐식 카메라 인사 2분 걷음 — 온라인 날도 0(엔진 62 걷음과 같은 셈) */
 function photoWishN(){ return wishClean(PHOTOFLOW.wish).length; }   // [WISH_COUNT] 글이 있는 요청만 센다(빈 칸은 시간을 잡지 않는다)
 function photoMaxNow(){ var c=photoCapOf(PHOTOFLOW.rd, PHOTOFLOW.dig, photoWishN()); return c?c.max:PHOTO_MAX; }   // [PHOTO_CAP_RD] 고를 수 있는 최대 = 대본대로 간 날 값
 function photoCapOf(rd, dig, wishN){
@@ -11050,7 +11050,7 @@ function renderPhoto(box){
   var _dig=!!PHOTOFLOW.dig, _ml=PHOTOFLOW.meal;
   h+='<ol class="ph-steps" aria-label="본식 뒤 단체 사진 시간의 차례">';
   /* ★[END_FLOW_1030 검토 167 2026-10-30 사장님] 닫는 인사(감사 인사) → 온라인 인사(디지털 참석 날) → 사진 전 안내 → 전체 사진 · 가족 구도 · 자유 사진 — 온라인 인사가 사진 앞으로 왔다 */
-  if(_dig) h+=_stepHd('온라인 인사', '', 'show', '<span class="ph-st-m">약 2분</span>')+'<div class="cc-note ph-st-note">닫는 인사 뒤, 멀리서 보고 계신 분들께 두 분이 카메라를 보고 인사를 전해요.</div></li>';
+  /* ★사진 차례 «온라인 인사 · 약 2분» 금지 — 2026-11-22 사용자 지시로 삭제 [CLOSE_C_GO_1122] · 폐식 인사는 한 번(온라인 날은 구령 앞 감사 한 줄) · 송출은 마무리 멘트 뒤 끝 */
   h+=_stepHd('전체 단체 사진', '전체 하객과 한 장 · 늘 먼저 찍어요');   // [B2_MA_66 2026-11-06 2차 B2-마66] 다른 화면이 부르는 이름(전체 단체 사진 · 가족 사진)으로 · 안내 줄은 더하거나 옮기지 않는다   // ★[PHOTO_STEP1_TRIM 2026-09-27 사장님 «전부 반영»] 옛 «오신 분들 모두»는 제목(모두 함께)·카드(모두 앞으로)와 세 번 겹쳤다 — 대신 «고정»이 무슨 뜻인지를 말한다   // ★[PHOTO_SHOOT_ORDER] 1번 = 엔진 end-0-photo(전체 하객 → 두 분이 적은 요청) · 요청 칸이 이 차례 안에 온다
   h+='<div class="ph-list"><div class="ph-item locked"><span class="ph-nm">전체 하객<span class="ph-sub">두 분이 가운데 · 모두 앞으로 모여요</span>'+_phExLnk('전체 하객')+'</span><span class="ph-fix">고정</span></div></div>';   // [PHOTO_FIX_TEXT] «고정»은 테두리 없는 글 · [PHOTO_EX_VIEW] 예시(g00)
   /* ★★★[PHOTO_WISH] 「꼭 담고 싶은 사진」 — 고르는 카드 열 장을 없애고 **적는 칸**으로 바꿨다.
@@ -13568,7 +13568,7 @@ function renderSeat(box){
     +'</div>'; _wzPin(box);
   SEATFLOW._rendering=false;
   (function(){ var sp=box.querySelector('[data-seat-scroll]'); if(!sp) return; if(_spX>=0) sp.scrollLeft=_spX;   // [SEAT_PLAN_9]
-    ME_SEAT_PLAN.edgeCue(sp); })();   // [SEAT_SWIPE_CUE] 그림 위 «우측 테이블 ›» · 끝이면 «‹ 좌측 테이블» · 다 들어오는 폭이면 숨김
+    ME_SEAT_PLAN.edgeCue(sp); ME_SEAT_PLAN.overview(sp, { key:'ed' }); })();   // ★[SEAT_OVERVIEW] 처음엔 전체 그림(점) · 누르면 확대 · «전체 보기»로 돌아감   // [SEAT_SWIPE_CUE] 그림 위 «우측 테이블 ›» · 끝이면 «‹ 좌측 테이블» · 다 들어오는 폭이면 숨김
   box.style.display='block';
   bindSeat(box);
   // wireSeatShare 호출 제거 — 좌석 편집기 안 공유 패널 폐지(2026-07-19 사용자 지시 · 링크·QR은 하객 안내 접점)
