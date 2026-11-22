@@ -24455,3 +24455,7 @@ nochk '고르지 않으시면 말없이 인사해요' order-preview.html 0
 
 # ★[HEAD_GAP_1122 2026-11-22 사장님 «맨 위 간격이 좁다»] 머리 줄이 붙으면 맨 위에서 10px 띄움(옛 −15px = 딱 붙음)
 chk 'body.mkd .prog{position:sticky;top:-5px;' order-preview.html 1
+# ★★[GAP_SWEEP_GO_1122 대표님 11/22 23:15 «①③ 승인 · 엔진 반영»] «음악만 먼저»가 승인한 쉼을 덮던 두 자리 — 244 → 다음 줄 1.2초 · 개식 → 사슬 화촉 여는 말 3.0초 · 뜸 없음 — 상세 docs/rules/나레이션.md
+chk 'GAP_SWEEP_GO_1122' assets/ritual-cue.js 2
+chk 'GAP_SWEEP_GO_1122' docs/rules/나레이션.md 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/gap-sweep-go-1122.mjs >/dev/null 2>&1; _gs=$?; if [ "$_gs" != 0 ]; then echo 'FAIL gap-sweep-go-1122: 244 → 다음 줄 1.2초 · 개식 → 화촉 여는 말 3.0초(음악 뜸 없음)가 대표님 11/22 승인과 다릅니다 — node scripts/audit/gap-sweep-go-1122.mjs'; fail=1; else echo 'ok gap-sweep-go-1122'; fi; fi
