@@ -5790,7 +5790,9 @@ chk 'KID_CHAIR' mypage.html 4
 chk 'KID_CHAIR' admin.html 1
 # (옛 줄 · [DRINK_TWO 2026-11-22] 하객 음료 표는 둘(샴페인 · 논알콜 스파클링) · 옛 K · Y 도 논알콜로 읽는다) chk 'KID_CHAIR' guide.html 1
 chk 'DRINK_TWO' guide.html 1
-chk "K:'논알콜 스파클링',Y:'논알콜 스파클링'" guide.html 1
+chk "K:'논알코올 스파클링',Y:'논알코올 스파클링'" guide.html 1   # 낱말은 부부가 고르는 칩(«논알코올 스파클링»)과 같게
+chk "return ({R:'C',K:'N',Y:'N'})" admin.html 1   # [DRINK_TWO] 스태프 A4 도 옛 값을 지금 준비하는 둘로 센다
+chk 'data-swipe>옆으로 밀면 우측 테이블이 보여요' guide.html 1   # [SEAT_PLAN_9] 전체 공개 좌석표에도 우측이 있다는 한 줄
 nochk "R:'레드와인'" guide.html
 chk "Y:'어린이 · 물'" mypage.html 1
 chk "_dv === 'Y'" automation/platform/80_production.gs 1

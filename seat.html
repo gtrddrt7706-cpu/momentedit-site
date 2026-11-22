@@ -513,7 +513,7 @@ function mineRoomHtml(hit){
   return (one?'':'<p class="sr-only">같은 테이블에 성함이 비슷한 자리가 여럿이에요. 성함을 전체로 입력하면 정확히 표시돼요.</p>')
     +'<div aria-hidden="true"><div class="stage" style="margin:16px 0 6px">&#9672; 앞 · 신랑 신부</div>'
     +'<div class="gmap smap-scroll" data-gmap>'+map+'</div><div class="entry">입장</div>'
-    +'<div class="foot" style="margin-top:8px">'+(one?'이름이 표시된 자리가 내 자리예요 · 다른 자리 성함은 보이지 않아요':'강조된 자리 중 하나가 내 자리예요 · 성함을 전체로 입력하면 정확히 표시돼요')+'</div></div>';
+    +'<div class="foot" style="margin-top:8px">'+(one?'이름이 표시된 자리가 내 자리예요<br>다른 자리 성함은 보이지 않아요':'강조된 자리 중 하나가 내 자리예요<br>성함을 전체로 입력하면 정확히 표시돼요')+'</div></div>';
 }
 // '내 자리만' 모드(부부 설정 · 기본값) — 전체 배치도 대신 이름 검색 전용 화면. 명단은 기기로 받지 않고
 //   서버 검색(seatView+q)으로 본인 테이블만 답한다. 이미 배포된 링크·QR도 이 화면으로 자연 전환(죽은 링크 없음).

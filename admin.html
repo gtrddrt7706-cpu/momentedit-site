@@ -994,24 +994,25 @@ function _seatChartDoc(d){
   var CL={B:'유아용 의자',W:'휠체어'};   // [DRINK_TWO 2026-11-22] 자리 준비(음료와 따로) · 옛 K(유아 · 물)는 유아용 의자로 센다
   var cC=0,cR=0,cN=0,cK=0,cY=0,cU=0,cT=0,cB=0,cW=0;
   function _ch(t,i){ var c=((t&&t.chair)||[])[i]||''; if(!c && ((t.drinks||[])[i])==='K') c='B'; return (c==='B'||c==='W')?c:''; }
-  tables.forEach(function(t){ ((t&&t.seats)||[]).forEach(function(v,i){ if(!String(v||'').trim())return; cT++; var dv=((t.drinks||[])[i])||''; if(dv==='C')cC++; else if(dv==='R')cR++; else if(dv==='N')cN++; else if(dv==='K')cK++; else if(dv==='Y')cY++; else cU++; var c=_ch(t,i); if(c==='B')cB++; else if(c==='W')cW++; }); });
+  function _dk(t,i){ var v=((t&&t.drinks)||[])[i]||''; return ({R:'C',K:'N',Y:'N'})[v]||v; }   // [DRINK_TWO] 옛 레드와인 · 유아 · 어린이 값도 지금 준비하는 둘(샴페인 · 논알콜)로 센다 — 편집기가 옮기는 것과 같은 규칙 · 스태프가 와인 · 물을 따로 챙기지 않게
+  tables.forEach(function(t){ ((t&&t.seats)||[]).forEach(function(v,i){ if(!String(v||'').trim())return; cT++; var dv=_dk(t,i); if(dv==='C')cC++; else if(dv==='R')cR++; else if(dv==='N')cN++; else if(dv==='K')cK++; else if(dv==='Y')cY++; else cU++; var c=_ch(t,i); if(c==='B')cB++; else if(c==='W')cW++; }); });
   /* ★[SEAT_PLAN_9 2026-11-22] 당일 세팅용 인쇄물도 같은 그림(오프라인 시안 · assets/seat-plan.js) — 테이블 9개를 맞붙인 두 묶음 · 확정 의자 위치 ·
      빈 혼주석은 «혼주» · 음료 색점 · 유아용 의자(유) · 휠체어(휠). 종전 두 열 지그재그(zigX · .proom · .ptbl)는 폐지. A4 한 장에 들어가게 1m = 72px. */
   var mapH=ME_SEAT_PLAN.mapHtml(tables,{
     sides:['좌측','우측'],
     table:function(t,i,no){ var _cn=String((t&&t.name)||'').trim(), c=(_cn && !/^테이블\s*\d+$/.test(_cn))?esc(_cn):''; return '<span class="ptno">'+no+'</span>'+(c?'<span class="ptcap">'+c+'</span>':''); },
-    seat:function(t,i,si,fam){ var nm=String(((t&&t.seats)||[])[si]||'').trim(); var dk=nm?(((t.drinks||[])[si])||''):''; var dot=DL[dk]?'<i class="pd pd-'+dk+'"></i>':''; var c=nm?_ch(t,si):'';
+    seat:function(t,i,si,fam){ var nm=String(((t&&t.seats)||[])[si]||'').trim(); var dk=nm?_dk(t,si):''; var dot=DL[dk]?'<i class="pd pd-'+dk+'"></i>':''; var c=nm?_ch(t,si):'';
       return '<span class="pseat'+(nm?'':' e')+((!nm&&fam)?' f':'')+'">'+(nm?('<span class="pnm">'+esc(nm)+'</span>'):(fam?'혼주':'·'))+dot+(c?'<b class="pch">'+(c==='W'?'휠':'유')+'</b>':'')+'</span>'; }
   });
   var roster=''; var ordered=[]; tables.forEach(function(t,i){ ordered.push({t:t,no:num[i]||(i+1)}); }); ordered.sort(function(a,b){ return a.no-b.no; });
-  ordered.forEach(function(o){ var parts=[]; ((o.t&&o.t.seats)||[]).forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm)return; var dk=((o.t.drinks||[])[i])||''; var _c=_ch(o.t,i); parts.push(esc(nm)+' · '+esc(DL[dk]||'미정')+(_c?(' · '+CL[_c]):'')); }); var _cn=String((o.t&&o.t.name)||'').trim(); var _cnl=(_cn && !/^테이블\s*\d+$/.test(_cn))?(' · '+esc(_cn)):'';   // 자리마다 음료 명시(자리별 선택 · 미정 표기) · 커스텀 테이블명도 표기
+  ordered.forEach(function(o){ var parts=[]; ((o.t&&o.t.seats)||[]).forEach(function(nm,i){ nm=String(nm||'').trim(); if(!nm)return; var dk=_dk(o.t,i); var _c=_ch(o.t,i); parts.push(esc(nm)+' · '+esc(DL[dk]||'미정')+(_c?(' · '+CL[_c]):'')); }); var _cn=String((o.t&&o.t.name)||'').trim(); var _cnl=(_cn && !/^테이블\s*\d+$/.test(_cn))?(' · '+esc(_cn)):'';   // 자리마다 음료 명시(자리별 선택 · 미정 표기) · 커스텀 테이블명도 표기
     if(parts.length) roster+='<div class="pr"><b>'+o.no+'번 '+(String(o.t.side||'L')==='R'?'우측':'좌측')+_cnl+'</b> '+parts.join(' |  ')+'</div>'; });
   var totLine='음료 합계 · 샴페인 '+cC+(cR?(' · 레드와인 '+cR):'')+' · 논알콜 스파클링 '+cN+(cK?(' · 유아(물) '+cK):'')+(cY?(' · 어린이(물) '+cY):'')+(cU?(' · 미정 '+cU):'')+' · 총 '+cT+'명'
     + (cB?('  ★유아용 의자 '+cB+'개'):'')+(cW?('  ★휠체어 '+cW+'자리(의자 빼 두기)'):'');   // [DRINK_TWO] 당일 준비물 — 자리 준비에서 센다(옛 K 포함)   // [KID_SEAT] 당일 준비물이라 합계 줄에 바로 · [KID_CHAIR] 의자는 유아(K)만 — 어린이(Y)를 더하면 안 쓸 의자가 나온다
   var css='*{box-sizing:border-box}body{font-family:"Noto Serif KR","Nanum Myeongjo",serif;color:#2a2018;margin:0;padding:16px 18px}'
     +'h1{font-size:19px;margin:0 0 2px;font-weight:600}.psub{font-size:12.5px;color:#6b6257;margin-bottom:10px}'
     +'.ptot{font-size:13px;font-weight:600;background:#f5f1ea;border:1px solid #e3dccf;border-radius:8px;padding:8px 11px;margin-bottom:6px}'
-    +'.plg{font-weight:400;font-size:11.5px;color:#6b6257;margin-left:6px}.plg i{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:middle;margin:0 3px 0 9px}'
+    +'.plg{display:block;margin-top:4px;font-weight:400;font-size:11.5px;color:#6b6257}.plg i{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:middle;margin:0 3px 0 9px}'
     +'.pstage{text-align:center;font-size:11px;letter-spacing:.12em;color:#8a8072;border:1px dashed #d8d1c4;border-radius:16px;padding:6px;margin:8px 0 10px}'
     +'.proom{display:flex;gap:6px;align-items:flex-start;justify-content:center}.pcol{flex:1;max-width:380px;display:flex;flex-direction:column;gap:18px;align-items:center;overflow:visible}'
     +'.paisle{writing-mode:vertical-rl;font-size:9px;letter-spacing:.3em;color:#9a7b4f;padding:20px 3px 0}'

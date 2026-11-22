@@ -1,6 +1,7 @@
 // ★[SEAT_EX_SHOT 2026-11-22 영상 섹션 → 오프라인 디자인 · 사장님 «하객 입장에서 보여주는 게 이해가 더 쉬울 것 같아»]
 //   마이페이지 좌석표 «하객분들께 어떻게 보여드릴까요?» 두 칸(전체 공개 · 내 자리만 검색)에 넣는 «하객 화면 예시» 그림을 seat.html 실화면으로 찍는다.
 //   예시 성함은 실명처럼 안 보이게 «성 + ○○» · 배치도(assets/seat-plan.js)를 바꾸면 이 스크립트로 다시 찍는다.
+//   전체 공개는 성함이 보이는 배치도부터(그 칸 설명이 «검색 없이 바로»라 검색창을 넣지 않는다) · 내 자리만은 검색창 + 답 + 내 자리 알약
 //   쓰기: node scripts/seat-example-shots.mjs → assets/seat/ex-all.webp · ex-mine.webp (폰 390 · 2배 · 358×300)
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require=createRequire(import.meta.url);
@@ -26,7 +27,7 @@ for (const mode of ['all','mine']){
   await page.evaluate(()=>document.activeElement&&document.activeElement.blur()); await page.waitForTimeout(200);
   await page.evaluate(()=>{ document.querySelectorAll('.me-fab-stack,[class*="fab"]').forEach(e=>e.style.display='none'); });
   const box=await page.evaluate(()=>{ const r=(s)=>{const e=document.querySelector(s); if(!e) return null; const b=e.getBoundingClientRect(); return {x:b.left,y:b.top+scrollY,w:b.width,h:b.height};}; return {find:r('.find'), map:r('.gmap .smap'), card:r('.wrap'), stage:r('.stage')}; });
-  const png=path.join(OUT,`ex-${mode}.png`); await page.screenshot({path:png,clip:{x:16,y:box.find.y-14,width:358,height:300}});
+  const png=path.join(OUT,`ex-${mode}.png`); await page.screenshot({path:png,clip:{x:16,y:(mode==='all'?box.stage.y:box.find.y)-14,width:358,height:300}});
   execFileSync('python3',['-c',`from PIL import Image; im=Image.open('${png}').convert('RGB'); im.save('${png.replace(/\.png$/,'.webp')}','WEBP',quality=82,method=6)`]); fs.unlinkSync(png);
   console.log('찍음', mode, png.replace(/\.png$/,'.webp'));
   await ctx.close();
