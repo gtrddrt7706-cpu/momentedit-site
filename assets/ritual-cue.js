@@ -2200,6 +2200,10 @@
         for (var mo = mr + 1; mo < cues.length; mo++) { var _mo = cues[mo];
           if (_mo.k === 'prevideo' || _mo.k === 'entry') break;
           if (/^bridge-/.test(_mo.slug || '')) { _mo.duck = PARAM.duckOff; continue; }
+          /* ★★[GAP_SWEEP_GO_1122 대표님 11/22 23:15 «나머지는 추천대로» ③] 개식 바로 뒤 사슬로 이어지는 화촉 여는 말(이음말 없이 · «담백하게» 등 · 영상 없는 날) — «음악만 6초 먼저»를 걷고
+               승인한 쉼(OPEN_GAP_CHIP_1019 3초 · 말끝 → 말머리) 그대로 · 화촉 곡은 여는 말 아래에서 3초에 걸쳐 오른다(248 → 141 TRIBUTE_GAP 과 같은 규칙) ·
+               이음말(263)이 사이에 있는 날(가족 판 ②)은 대표님 «지금 방식 유지 · 쉼만 조금 줄이고 · 곡은 하이라이트에서» — 판을 고른 뒤 따로(그때까지 종전 그대로) · 박수 뒤 GO 로 여는 날은 종전 그대로 */
+          if (_mo.k === 'candle' && _mo.fire === 'chain' && mo === mr + 1) { _mo.gapMs = Math.max(_mo.gapMs || 0, 1000); _mo.fadeMs = 3000; break; }
           if (_mo.k === 'candle') { _mo.goLeadMs = Math.max(_mo.goLeadMs || 0, 6000); _mo.leadDb = PARAM.duckMusic; _mo.gapMs = Math.max(_mo.gapMs || 0, 1000); break; } } }
       if (_ms === 'bridge-b8-face-guests') _mc.duck = PARAM.duckSpeech;
       if (_ms === 'bridge-b3-clap-thanks' || /^bridge-b9-declare-seat-end/.test(_ms)) { _mc.duck = PARAM.duckSpeech; _mc.fadeMs = 800; }
@@ -2219,7 +2223,7 @@
       if (_rs === 'narr-entry-arrive') { _rc.duck = PARAM.duckOff; _rc.fadeMs = 4500; _rc.fadeWith = true; }
       if (_rc.k === 'matjeol' && _rs === 'narr-entry-bow') { _rc.duck = PARAM.duckOff; if (_rc.live) _rc.live.duck = PARAM.duckOff; }
       /* [ENTRY_SETTLE] 하객을 향해 서시겠습니다(b8) = 정적 → 줄 끝에서 감사 인사 곡을 무음에서 뜸(6초 앞서 −8 · 종전 3초 겹침 대신) */
-      if (_rs === 'bridge-b8-face-guests' && _rp && _rp.k === 'matjeol') { _rc.duck = PARAM.duckOff;   /* 맞절 바로 뒤만 — 편지 끝 이음말(b8 · 편지 «음악과 함께» 곡 아래)은 그대로 */ var _rn = cues[r2 + 1]; if (_rn && _rn.k === _rc.k) { _rn.goLeadMs = Math.max(_rn.goLeadMs || 0, 6000); _rn.leadDb = PARAM.duckMusic; _rn.gapMs = Math.max(_rn.gapMs || 0, 1000); } }
+      if (_rs === 'bridge-b8-face-guests' && _rp && _rp.k === 'matjeol') { _rc.duck = PARAM.duckOff;   /* 맞절 바로 뒤만 — 편지 끝 이음말(b8 · 편지 «음악과 함께» 곡 아래)은 그대로 */ var _rn = cues[r2 + 1]; if (_rn && _rn.k === _rc.k) { _rn.gapMs = Math.max(_rn.gapMs || 0, 1200); _rn.fadeMs = 3000; } }   /* ★★[GAP_SWEEP_GO_1122 대표님 11/22 23:15 «추천대로» ①] 맞절 뒤 «하객 쪽으로»(244) → 다음 줄(감사문 133 · 감사 인사 여는 말) — «음악만 6초 먼저(−8)»를 걷고 말끝 → 1.2초(안내 흐름) → 다음 줄 · 곡은 그 줄 아래에서 3초에 걸쳐 오른다(TRIBUTE_GAP 과 같은 규칙 · 옛 7초) */
       /* ★[SEAM_WORD_1107 J06 · FACE_LEAD_1107] 350(«…향해 서주시기 바랍니다» 가 첫머리)이 맞절 바로 뒤 — b8 이 하던 «무음에서 감사 인사 곡을 뜸(6초 앞서 −8 · 정적 1초)»을 350 이 받는다 */
       /* ★[LAYER7_FACE_LEAD_1110] 7층과 하나로 — 6초 앞 −8(leadDb) 은 그대로 · 말 크기로 내리는 끝은 콘솔 · 미리 듣기 모두 «내림 1.6초 + 다 낮아진 뒤 0.4초»(_ldL · lpLead)라 첫 말 0.4초 앞에 −15 · 입장 받는 말 144 → 맞절 사슬 2초(LAYER7_DUCK_1108) */
       if (_rc.k === 'welcome' && _rs !== 'bridge-b8-face-guests' && _rp && _rp.k === 'matjeol' && /향해 서/.test(_rc.text || '')) {   /* ★[THANKS_LEAD_FIX_1122] 감사문 날 이음말 244(k welcome · «향해 서»)는 이 규칙 밖 — 걸리면 피아노가 4초 켜졌다 6초 꺼지고 133 앞에서 다시 켜졌다(콘솔 실측) · 뜸은 위 b8 규칙이 133 에 싣는다 */ _rc.goLeadMs = Math.max(_rc.goLeadMs || 0, 6000); _rc.leadDb = PARAM.duckMusic; _rc.gapMs = Math.max(_rc.gapMs || 0, 1000); }
