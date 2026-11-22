@@ -92,6 +92,9 @@ const K4 = ['welcome', 'vow', 'ring', 'declare', 'bless', 'free', 'letter', 'son
   const c1 = O1[bi(O1, 'narr-open') + 1] || {};
   ok('1 개식사 — 하객 맞이 곡 2초 내림 + 정적 1초 · 멘트 · 박수는 음악 없이', o1.duck === -90 && o1.fadeMs === 2000 && o1.goLeadMs >= 3000 && (!o1.live || o1.live.duck === -90), { duck: o1.duck, fade: o1.fadeMs, lead: o1.goLeadMs, live: o1.live && o1.live.duck });
   ok('1 영상 없는 날 — 화촉 첫 큐는 정적 1초 뒤 무음에서 M2 를 6초 앞서(−8)', c1.k === 'candle' && c1.goLeadMs >= 6000 && c1.leadDb === -8 && c1.gapMs >= 1000, { k: c1.k, lead: c1.goLeadMs, ldb: c1.leadDb, gap: c1.gapMs });
+  /* ★[THANKS_LEAD_FIX_1122] 감사문 날(welcomeKind thanks) — 맞절 뒤 이음말 244(k welcome)는 정적 · 곡 뜸(6초 앞 −8)은 133 에만(244 에 뜸이 걸리면 피아노가 켜졌다 꺼지고 다시 켜졌다) */
+  { const T = B2({ on: { welcome: 1, vow: 1 }, welcomeKind: 'thanks' }), ib = T.findIndex((c) => c.slug === 'bridge-b8-face-guests'), b = T[ib] || {}, n = T[ib + 1] || {};
+    ok('THANKS_LEAD_FIX_1122 감사문 날 — 244 정적 · 뜸 없음 → 133 에 6초 앞 −8', ib > -1 && b.k === 'welcome' && b.duck === -90 && !(b.goLeadMs > 0) && b.leadDb == null && n.slug === 'narr-thanks-in' && n.goLeadMs >= 6000 && n.leadDb === -8, { b: [b.k, b.duck, b.goLeadMs, b.leadDb], n: [n.slug, n.goLeadMs, n.leadDb] }); }
   const b7 = by(O2, 'bridge-b7-entry-ready');
   ok('17 영상 · 화촉 없는 날 — 입장 앞 이음말(b7)은 정적 위(하객 맞이 곡이 돌아오지 않는다)', b7.duck === -90, { b7: b7.duck });
   ok('20 영상 없는 날도 박수를 청하는 개식사면 박수 live(사람이 GO)', !!(o2.live && o2.live.applause) || !/박수/.test(o2.text || ''), { live: !!o2.live, text: String(o2.text || '').slice(0, 30) });
