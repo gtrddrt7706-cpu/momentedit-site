@@ -774,6 +774,17 @@ var MODE = (QS.get('mode') === 'preview') ? 'preview' : 'console';
 var EMBED = QS.get('embed') === '1';
 var GUEST = EMBED;
 if (GUEST) MODE = 'preview';              // 고객 화면은 언제나 저절로 흐른다
+/* ★[PREVIEW_LOGIN_1122 2026-11-22 대표님 «로그인해야 확인할 수 있게 · 신랑 신부는 아이디 공유»] 예식 미리 듣기는 로그인한 두 분만 연다.
+   이 기기에 두 분 로그인(me_token) 또는 관리자 로그인(me_admin_token)이 없으면 마이페이지 로그인으로 보내고, 로그인 뒤 이 주소로 돌아온다(mypage ?next=).
+   현장 진행(관리자 · 디렉터 판 · mode 없음)은 그대로 · 주소의 S 는 그대로 쓴다(빌더에서 아직 저장 안 한 초안도 들을 수 있게) */
+/* 로컬 검사 서버(localhost · 127.0.0.1)는 관문을 건너뛴다 — 미리 듣기를 여는 검사 수십 개가 로그인 없이 돈다 · 관문 자체는 ?gate=1 로 잰다(scripts/audit/preview-login.mjs) */
+var _PV_GATE = !/^(localhost|127\.0\.0\.1)$/.test(location.hostname) || QS.get('gate') === '1';
+if (MODE === 'preview' && _PV_GATE && !(function(){ try { return !!(localStorage.getItem('me_token') || localStorage.getItem('me_admin_token')); } catch (e) { return false; } })()) {
+  var _pvBack = location.pathname + location.search + location.hash;
+  try { document.documentElement.style.visibility = 'hidden'; } catch (e) {}
+  try { (window.top || window).location.replace('/mypage.html?next=' + encodeURIComponent(_pvBack)); } catch (e) { location.replace('/mypage.html?next=' + encodeURIComponent(_pvBack)); }
+  return;
+}
 
 var S = { course:'damback', entry:'A', declareWho:'', declare:'1',   // [DECLARE_ANYONE] 읽을 분 = 두 분이 적은 글(빈칸 = 아직 안 정함)
          

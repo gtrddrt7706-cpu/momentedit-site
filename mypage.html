@@ -3911,8 +3911,14 @@ function _mpApplyFocus(){   // renderMyPage 완료 후 호출 — 카드 보이�
   }, 250);
 }
 
+/* ★[PREVIEW_LOGIN_1122 2026-11-22 대표님 «로그인해야 확인할 수 있게»] 예식 미리 듣기(console.html?mode=preview)를 로그인 없이 열면 여기로 온다(?next=그 주소).
+   로그인하면(이미 로그인돼 있으면 바로) 그 미리 듣기로 돌아간다 · 돌아갈 곳은 미리 듣기 주소 꼴만(다른 곳으로 보내는 열린 리다이렉트 금지) */
+var _NEXT_RE=/^\/console\.html\?mode=preview(&|$)/;
+function _nextSave(){ var n=qp('next'); if(n&&_NEXT_RE.test(n)){ try{ sessionStorage.setItem('me_after_login',n); }catch(e){} return true; } return false; }
+function _goNext(){ var n=''; try{ n=sessionStorage.getItem('me_after_login')||''; sessionStorage.removeItem('me_after_login'); }catch(e){} if(n&&_NEXT_RE.test(n)){ location.replace(n); return true; } return false; }
 // ── 부팅 라우팅 ────────────────────────────────
 (function boot(){
+  var _nx=_nextSave();   // [PREVIEW_LOGIN_1122]
   var mode = qp('mode');
   if (mode === 'reset' && qp('code') && qp('sig') && qp('exp')) {
     var _ru=$('rs_user'); if(_ru) _ru.value=(qp('code')||'').trim().toUpperCase();   // 브라우저가 새 비번을 '이 계정'에 연결해 저장본을 갱신하도록(다음 로그인 옛 비번 자동완성 방지)
@@ -3924,6 +3930,7 @@ function _mpApplyFocus(){   // renderMyPage 완료 후 호출 — 카드 보이�
   var urlToken = qp('token');
   if (urlToken) { _autoLogin(urlToken); return; }   // [ERR_CODE_MYPAGE] F2 — 알림 링크 진입
   var t = getToken();
+  if (t && _nx && _goNext()) return;   // [PREVIEW_LOGIN_1122] 이미 로그인 — 미리 듣기로 바로
   if (t) {
     var cached = readCachedState();
     if (cached){
@@ -3934,6 +3941,7 @@ function _mpApplyFocus(){   // renderMyPage 완료 후 호출 — 카드 보이�
     return;
   }
   show('loginView');
+  if (_nx) softLoginNote('예식 미리 듣기는 로그인한 뒤 들을 수 있어요. 로그인하시면 바로 이어져요.');   // [PREVIEW_LOGIN_1122]
   prefillLoginCode();   // 신청 완료 화면에서 ?code=로 넘어온 경우 개인코드 미리 채움
   try{ var _ln=sessionStorage.getItem('me_login_note'); if(_ln){ sessionStorage.removeItem('me_login_note'); softLoginNote(_ln); } }catch(e){}   // [ERR_CODE_MYPAGE] 편집 중 로그인이 풀려 새로 열었을 때 — 까닭(코드)을 로그인 칸에
 })();
@@ -3970,7 +3978,7 @@ $('loginForm').addEventListener('submit', function(e){
   if (!code || !pw){ showErr('li_err','개인코드(또는 이메일)와 비밀번호를 입력해 주세요.'); return; }
   var btn=$('li_btn'); btn.disabled=true; btn.textContent='로그인 중…';
   api({action:'login', code:code, pw:pw}).then(function(d){
-    if (d && d.ok && d.token){ if(setToken(d.token)) loadMyState(); }   // [EPOCH_VERIFY]
+    if (d && d.ok && d.token){ if(setToken(d.token)){ if(!_goNext()) loadMyState(); } }   // [EPOCH_VERIFY] · [PREVIEW_LOGIN_1122] 미리 듣기에서 왔으면 그리로
     else { showErr('li_err', _errLine(d, 'L', '로그인이 안 됐어요 · 다시 눌러 주세요')); }   // [ERR_CODE_MYPAGE] F3 서버 까닭 + 코드
   }).catch(function(e){ showErr('li_err', _errLine(e, 'L')); })   // MPD_A4 네트워크 실패 시 편지체 기본 문구(무인자 호출 금지 · 2026-07-25) · [ERR_CODE_MYPAGE] F3 «연결이 잠시 불안정해요» 하나로 묶이던 끊김 L6 · 늦음 L5 · 깨진 답 L7 을 가른다
   .then(function(){ btn.disabled=false; btn.textContent='로그인'; });

@@ -24455,3 +24455,8 @@ nochk '고르지 않으시면 말없이 인사해요' order-preview.html 0
 
 # ★[HEAD_GAP_1122 2026-11-22 사장님 «맨 위 간격이 좁다»] 머리 줄이 붙으면 맨 위에서 10px 띄움(옛 −15px = 딱 붙음)
 chk 'body.mkd .prog{position:sticky;top:-5px;' order-preview.html 1
+# ★[PREVIEW_LOGIN_1122 2026-11-22 대표님 «로그인해야 확인할 수 있게 · 신랑 신부는 아이디 공유»] 예식 미리 듣기는 로그인한 두 분(또는 관리자)만 · 없으면 마이페이지 로그인 → 돌아오기
+chk 'PREVIEW_LOGIN_1122' console.html 1
+chk 'PREVIEW_LOGIN_1122' mypage.html 5
+chk 'var _NEXT_RE=/' mypage.html 1   # 돌아갈 곳은 미리 듣기 주소 꼴만(열린 리다이렉트 금지 · 실행 검사 ⑥)
+if command -v node >/dev/null 2>&1; then node scripts/audit/preview-login.mjs >/dev/null 2>&1; _pvl=$?; if [ "$_pvl" = 1 ]; then echo 'FAIL [PREVIEW_LOGIN_1122] 미리 듣기 로그인 관문이 깨졌다 — node scripts/audit/preview-login.mjs'; fail=1; else echo "ok [PREVIEW_LOGIN_1122] preview-login (종료 $_pvl)"; fi; fi
