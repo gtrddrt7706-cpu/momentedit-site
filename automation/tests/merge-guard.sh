@@ -1502,6 +1502,11 @@ chk 'HOME_CTA_KO' index.html 1                 # 주 버튼 한글 주·영문 �
 chk 'cta-eyebrow' index.html 4                 # 영문 아이브로우 3곳 + CSS 1. ★영문을 버튼 '안'에 2줄로 넣는 안(cta-btn-ko/en)은 2026-07-26 재검토로 폐기 — 되살리지 말 것(버튼 73px·영문 불투명 66%로 안 읽힘)
 chk 'BTN_TIER' index.html 4                    # 버튼 2단 체계(채움=전환 3곳 / 외곽=보조 이동 1곳). journal-guide-link를 채움 마룬으로 되돌리면 화면에 전환 버튼이 4개가 된다 — 복원 금지
 chk 'MAP_BREATH' index.html 1                  # 지도 블록 상하 여백 80/88 — margin-top만 두고 아래를 0으로 되돌리면 다시 푸터에 끼인다
+chk 'HERO_KO_LINE' index.html 2               # [HERO_KO_GO_1122 대표님 11/22] 첫 화면 한글 캡션 한 줄 «작은 결혼식 · 2027년 4월 고양에서»
+chk '<p class="hero-logo-ko" id="heroKo">작은 결혼식 · 2027년 4월 고양에서</p>' index.html 1   # [HERO_KO_GO_1122]
+chk 'HERO_KO_OPEN' index.html 2               # 오픈(2027-04-29 KST)부터 날짜만 빠짐 — hero-ko-open.mjs 가 날짜 전/후 둘 다 잰다
+chk 'HERO_KO_OPEN' scripts/audit/hero-ko-open.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/hero-ko-open.mjs >/dev/null 2>&1; _hk=$?; if [ "$_hk" = 1 ]; then echo 'FAIL hero-ko-open: 첫 화면 한글 한 줄이 날짜(오픈 2027-04-29 KST) 전 · 후에 결정과 다릅니다 — node scripts/audit/hero-ko-open.mjs'; fail=1; else echo 'ok hero-ko-open: 오픈 전 «2027년 4월 고양에서» · 오픈 날부터 «고양에서»'; fi; fi
 chk 'PILL_FOCUS_ROUND_1119' order-preview.html 1  # [2026-11-19 NIGHT20 #13 R3X2] 알약 단추는 키보드 초점에서도 둥글게(전역 4px 에 지지 않게)
 chk 'NEXT_SEG_1119' order-preview.html 2          # [2026-11-19 NIGHT20 #13 R3X2] ② 다음 단추 글은 «·» 마디째로만 줄바꿈(320 «하객 / 맞이 안내» 끊김)
 chk 'DEPOSIT_WORD_1119' index.html 2             # [2026-11-19 대표님 «추천대로» · DEC3] 예약금은 «입금» 한 낱말(FAQ · 예약 및 환불)
@@ -5791,7 +5796,15 @@ chk 'KID_CHAIR' admin.html 1
 chk 'DRINK_TWO' guide.html 1
 chk "K:'논알코올 스파클링',Y:'논알코올 스파클링'" guide.html 1   # 낱말은 부부가 고르는 칩(«논알코올 스파클링»)과 같게
 chk "return ({R:'C',K:'N',Y:'N'})" admin.html 1   # [DRINK_TWO] 스태프 A4 도 옛 값을 지금 준비하는 둘로 센다
-chk 'data-swipe>옆으로 밀면 우측 테이블이 보여요' guide.html 1   # [SEAT_PLAN_9] 전체 공개 좌석표에도 우측이 있다는 한 줄
+# (옛 줄 · [SEAT_SWIPE_CUE 2026-11-22] 아래 한 줄 → 그림 위 알약) chk 'data-swipe>옆으로 밀면 우측 테이블이 보여요' guide.html 1   # [SEAT_PLAN_9] 전체 공개 좌석표에도 우측이 있다는 한 줄
+# ★[SEAT_SWIPE_CUE 2026-11-22 사장님 «옆으로 넘어가게 할 수 있다는 표시»] 그림 위 «우측 테이블 ›» · «‹ 좌측 테이블» 알약 — 세 화면이 한 함수
+chk 'P.edgeCue = function(sc, o)' assets/seat-plan.js 1
+chk 'ME_SEAT_PLAN.edgeCue(' mypage.html 1
+chk 'ME_SEAT_PLAN.edgeCue(' seat.html 1
+chk 'ME_SEAT_PLAN.edgeCue(' guide.html 2
+nochk 'data-swipe>옆으로 밀면' guide.html
+nochk 'data-swipe>옆으로 밀면' seat.html
+nochk '<div class="seat-swipe"' mypage.html
 nochk "R:'레드와인'" guide.html
 chk "Y:'어린이 · 물'" mypage.html 1
 chk "_dv === 'Y'" automation/platform/80_production.gs 1
@@ -22029,7 +22042,12 @@ nochk "FG_LAB={wait:'대기 자리',walk:'입장',front:'앞'" order-preview.htm
 chk '팁 · 사진에 예쁘게 남는 인사예요. 신랑은 한 손을 가슴에 얹고 가볍게 숙이고, 신부는 치맛자락을 살짝 잡고 무릎을 굽혀요. 마지막에 서로 눈을 맞추면 좋아요. 평소처럼 인사하셔도 괜찮아요.' order-preview.html 1
 nochk '신랑은 한 손을 가슴에 얹고 가볍게 숙여요 · 신부는 치맛자락을 살짝 잡고 무릎을 굽혔다 일어나요 · 마지막에 서로 눈을 맞춰요' order-preview.html 0
 chk 'BOW_TIP_1122' assets/ritual-story.js 1
-chk 'HEAD_FLOAT_1122' order-preview.html 1
+chk 'HEAD_FLOAT_1122' order-preview.html 1   # [HEAD_EDGE_FADE_1122] 은퇴 → 시안 B(띠 배경 없음 · 단추만)
+# ★[BOW_PIC_1122 2026-11-22 사장님 «너무 서술형 · 클릭하면 그림으로» · 대본 «지금 영상의 무도회 맞절 + 일반 맞절 한 장 나란히»] 맞절 팁 줄 짧게 + «자세 보기» 창(평소 인사 / 무도회 맞절)
+chk 'BOW_PIC_1122' order-preview.html 5
+chk "data-fk=\"mkbowpic\"" order-preview.html 1
+chk 'matjeol-plain-640.webp' order-preview.html 1
+chk 'matjeol-ball-640.webp' order-preview.html 1
 # ★[VP_FOLLOW_1122 2026-11-22 사장님 «처음 고른 스튜디오 나레이션 / AI 두 분 목소리를 고르는 곳은 기존 것을 따라가게»] 안 고른 다른 안내 목소리 자리가 따라온다 · 손댄 자리는 그대로
 chk 'VP_FOLLOW_1122' order-preview.html 2
 chk 'VP_FOLLOW_1122' scripts/audit/vp-follow.mjs 1
@@ -22113,7 +22131,7 @@ chk '<button type="button" class="mk-status" id="mkStat" data-fk="mkfold" aria-e
 chk 'function _mkStatPaint()' order-preview.html 1
 chk "'본식 '+_bN+'개 순간 중 '+_no+'번째'" order-preview.html 1
 chk "<span class=\"mk-pre\">본식 </span><span class=\"mk-num\"><b>'+_no+'</b>/'+_bN" order-preview.html 1
-chk 'body.mkd .prog{position:sticky;top:-15px' order-preview.html 1
+nochk 'body.mkd .prog{position:sticky;top:-15px' order-preview.html 0   # [HEAD_GAP_1122] 은퇴(옛 chk 1 · −5px 로)
 chk 'body.mkd .op-steps-c{margin:0}' order-preview.html 1
 chk '@media (max-width:408px) and (hover:hover) and (pointer:fine){ body.mkd .prog-top{flex-wrap:wrap' order-preview.html 1
 chk 'body.op4 #obExit{min-width:48px;padding:0 4px}' order-preview.html 1
@@ -24412,6 +24430,9 @@ chk 'if (exRoleWins(S, k)) return false;' assets/ritual-open.js 1
 # ★[TRIBUTE_NOTES_OFF_1122 2026-11-22 사장님 «고르지 않으시면 말로 인사해요 · 신랑분은 원하시면 큰절을 … 굳이 없어도 될 것 같아»] 부모님께 인사 인사말 칩 아래 두 줄을 걷었다 · 돌아오면 빨강
 chk 'TRIBUTE_NOTES_OFF_1122' order-preview.html 2
 nochk '고르지 않으시면 말없이 인사해요' order-preview.html 0
+
+# ★[HEAD_GAP_1122 2026-11-22 사장님 «맨 위 간격이 좁다»] 머리 줄이 붙으면 맨 위에서 10px 띄움(옛 −15px = 딱 붙음)
+chk 'body.mkd .prog{position:sticky;top:-5px;' order-preview.html 1
 # ★[PV_BED_QUIET_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 A] 음악까지 미리듣기 — 예시 음악(@PV) 파일이 없으면 빨간 고장 줄 없이 조용히(PREVIEW_BED 머리말 그대로)
 chk 'PV_BED_QUIET_N06' console.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/pv-bed-quiet.mjs >/dev/null 2>&1; _pb=$?; node scripts/audit/pv-bed-quiet.mjs --selftest >/dev/null 2>&1; _pbs=$?; if [ "$_pb" != 0 ] || [ "$_pbs" != 0 ]; then echo "REVERT? pv-bed-quiet: 미리듣기 예시 음악이 없을 때 빨간 줄이 다시 선다 ($_pb/$_pbs) — node scripts/audit/pv-bed-quiet.mjs"; fail=1; else echo 'ok pv-bed-quiet'; fi; fi
