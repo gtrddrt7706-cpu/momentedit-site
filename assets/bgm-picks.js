@@ -73,7 +73,7 @@
     /* ★★[SONGS_5_1115 2026-11-15 대표님 구매 · BGM 결정 카드 ⑤] 하객 맞이 · 테이블 인사 배경 곡 다섯 — 같은 앨범(Peace of Mind - STUDIO GHIBLI meets JAZZ BEST - · 2021) · 파일은 저장소 밖(완성 폴더 · 드라이브 «ME_구간곡») ·
          −23 LUFS · 피크 −2 dBTP 이하 · 앞뒤 무음 자름 · 한 번만(되풀이 편집 없음 · len 없음 = 파일 길이) · 고객이 고르는 3곡 목록(PICKS)에는 넣지 않고 fill 로만 */
     B35: { t: '이웃집 토토로', src: '이웃집 토토로', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '밝고 반가운 재즈 피아노' },
-    B36: { t: '벼랑 위의 포뇨', src: '벼랑 위의 포뇨', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '가볍고 경쾌하게' },
+    B36: { t: '벼랑 위의 포뇨', src: '벼랑 위의 포뇨', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '가볍고 경쾌하게' , start: 18.2},   /* ★[PONYO_HOOK_1122 2026-11-22 사장님 «포뇨 메인 부분이 흘러나오면» · BGM 방 파일 실측] 강조 자리 = 주제 선율(«포뇨 포뇨 포뇨» 세 번 내리는 3도 · 19.25초)의 한 마디 앞 박(18.2초) · 같은 대목이 곡 끝 190.5초에 다시 나온다(크로마 대조 0.95) · 목록 둘째 곡부터 · 다시 이을 때 이 자리에서(종전 40% = 86초 · 솔로 한가운데) */
     B37: { t: '때로는 옛날 이야기를', src: '붉은 돼지', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '따뜻하고 차분하게' },
     B38: { t: '안녕 여름', src: '코쿠리코 언덕에서', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '잔잔하게 오래' },
     B39: { t: '비행기 구름', src: '바람이 분다', a: 'Kazumi Tateishi Trio', v: 'Peace of Mind - STUDIO GHIBLI meets JAZZ BEST -', why: '담백한 피아노 트리오' }
