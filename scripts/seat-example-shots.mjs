@@ -2,7 +2,9 @@
 //   마이페이지 좌석표 «하객분들께 어떻게 보여드릴까요?» 두 칸(전체 공개 · 내 자리만 검색)에 넣는 «하객 화면 예시» 그림을 seat.html 실화면으로 찍는다.
 //   예시 성함은 실명처럼 안 보이게 «성 + ○○» · 배치도(assets/seat-plan.js)를 바꾸면 이 스크립트로 다시 찍는다.
 //   전체 공개는 성함이 보이는 배치도부터(그 칸 설명이 «검색 없이 바로»라 검색창을 넣지 않는다) · 내 자리만은 검색창 + 답 + 내 자리 알약
-//   쓰기: node scripts/seat-example-shots.mjs → assets/seat/ex-all.webp · ex-mine.webp (폰 390 · 2배 · 358×300)
+//   [SEAT_EX_POLISH 2026-11-22 사장님 «디자이너 입장에서 한번 더»] 오른쪽은 버진로드 띠 앞에서 자른다(반쯤 걸린 점선 띠가 정체 모를 덩어리로 읽혔다) ·
+//     아래는 끊지 않고 화면(mypage .sp-ex img mask)에서 흐리게 닫는다 · 두 장 같은 크기.
+//   쓰기: node scripts/seat-example-shots.mjs → assets/seat/ex-all.webp · ex-mine.webp (폰 390 · 2배 · 좌측 묶음 폭 × 340)
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require=createRequire(import.meta.url);
 const ROOT=path.resolve(path.dirname(new URL(import.meta.url).pathname),'..'), OUT=path.join(ROOT,'assets/seat'); import { execFileSync } from 'node:child_process';
@@ -26,8 +28,8 @@ for (const mode of ['all','mine']){
   if(mode==='mine'){ await page.fill('#q',ME); await page.waitForTimeout(1800); }
   await page.evaluate(()=>document.activeElement&&document.activeElement.blur()); await page.waitForTimeout(200);
   await page.evaluate(()=>{ document.querySelectorAll('.me-fab-stack,[class*="fab"]').forEach(e=>e.style.display='none'); });
-  const box=await page.evaluate(()=>{ const r=(s)=>{const e=document.querySelector(s); if(!e) return null; const b=e.getBoundingClientRect(); return {x:b.left,y:b.top+scrollY,w:b.width,h:b.height};}; return {find:r('.find'), map:r('.gmap .smap'), card:r('.wrap'), stage:r('.stage')}; });
-  const png=path.join(OUT,`ex-${mode}.png`); await page.screenshot({path:png,clip:{x:16,y:(mode==='all'?box.stage.y:box.find.y)-14,width:358,height:300}});
+  const box=await page.evaluate(()=>{ const r=(s)=>{const e=document.querySelector(s); if(!e) return null; const b=e.getBoundingClientRect(); return {x:b.left,y:b.top+scrollY,w:b.width,h:b.height};}; return {find:r('.find'), map:r('.gmap .smap'), card:r('.wrap'), stage:r('.stage'), aisle:r('.gmap .smap-aisle')}; });
+  const png=path.join(OUT,`ex-${mode}.png`); await page.screenshot({path:png,clip:{x:16,y:(mode==='all'?box.stage.y:box.find.y)-14,width:Math.round(box.aisle.x-16+16),height:340}});
   execFileSync('python3',['-c',`from PIL import Image; im=Image.open('${png}').convert('RGB'); im.save('${png.replace(/\.png$/,'.webp')}','WEBP',quality=82,method=6)`]); fs.unlinkSync(png);
   console.log('찍음', mode, png.replace(/\.png$/,'.webp'));
   await ctx.close();

@@ -14,8 +14,7 @@ _SELF=$(cd "$(dirname "$0")" 2>/dev/null && pwd)/$(basename "$0")
 cd "$(dirname "$0")/../.." || exit 1
 [ -r "$_SELF" ] || { echo "REVERT? merge-guard.sh: 자기 파일을 못 읽는다($_SELF) — 자가검사(GATE_RAN·GUARD_TAIL) 무력화"; exit 1; }
 fail=0
-# ★[NO_CONFLICT_MARK 2026-10-23] 병합 충돌 표시(줄 머리 «<<<<<<< » · «>>>>>>> »)가 커밋에 남으면 화면이 통째로 깨진다.
-#   실사고: #1385 가 main 흡수 충돌을 풀지 않은 채(git commit -a 가 충돌 파일을 그대로 담았다) order-preview.html 에 남겨 병합됐다 — 라이브 약 3분(#1386 으로 걷음).
+# ★[NO_CONFLICT_MARK 2026-10-23] 병합 충돌 표시(줄 머리 «#   실사고: #1385 가 main 흡수 충돌을 풀지 않은 채(git commit -a 가 충돌 파일을 그대로 담았다) order-preview.html 에 남겨 병합됐다 — 라이브 약 3분(#1386 으로 걷음).
 #   그때 이 검사는 마커만 보고 초록이었다. 이제 충돌 표시가 하나라도 있으면 빨강이다(문서 *.md 는 예시로 쓸 수 있어 뺀다).
 _cm=$(git grep -n -E '^(<<<<<<< |>>>>>>> )' -- '*.html' '*.js' '*.mjs' '*.gs' '*.css' '*.json' '*.sh' '*.py' 2>/dev/null | head -5)
 [ -n "$_cm" ] && { echo "FAIL NO_CONFLICT_MARK 병합 충돌 표시가 남았다:"; echo "$_cm"; fail=1; }
@@ -8205,7 +8204,7 @@ chk 'THANKS_GREET_1013' assets/ritual-open.js 1
 chk "welcome: { n: '감사 인사', sn: '감사 인사', one: '두 분이 하객께 짧게 감사 인사를 드려요.'" assets/ritual-open.js 1
 nochk "welcome: { n: '첫인사'" assets/ritual-open.js
 chk "blockN: '감사 인사', slug: 'narr-welcome-in'" assets/ritual-cue.js 1
-chk "welcome:{nm:'감사 인사',leg:'welcomeText'" order-preview.html 1
+chk "welcome:{get nm(){ return _welKind()==='thanks'?'감사문':'감사 인사'; },leg:'welcomeText'" order-preview.html 1   # [THANKS_SWAP_1122] 감사문 판은 이름 «감사문»
 nochk "welcome:{nm:'첫인사'" order-preview.html
 chk "b.n.indexOf('감사 인사')>-1||b.n.indexOf('첫인사')>-1" order-preview.html 1
 chk '감사 인사(옛 이름 첫인사' api/_ritual-kb.js 1
@@ -8252,27 +8251,42 @@ chk "'신랑·신부 맞절': {" assets/ritual-story.js 1
 nochk "})()\].slice(0, openC ? 1 : 2).concat(openC ? \[cue({" assets/ritual-cue.js     # 입장 끝 concat 으로 되돌리지 말 것
 nochk "et\[0\] + BOW\[0\], et\[1\] + BOW\[1\]" assets/ritual-open.js                          # 입장 몫 +15초로 되돌리지 말 것
 nochk "if (ESD.run && (c.k !== 'entry' || esdMain(c)))" console.html                   # 맞절에서 입장 곡이 끊기지 않게
-# ★★[THANKS_IN_VOW 2026-10-11 사장님 «감사문 — 서약 카드 안에서 고르기»(추천대로 · 오전 «새 순간 카드»를 바꿈)] 서약 카드 «무엇을 읽나요 · 서약 / 감사문»
-#   감사문 = 여는 말 133 · 하객 쪽을 보고 읽기 · 마지막 한 문장(THANKSBOTH) 함께 · 맺는 말 없음 · 글칸은 서약과 같은 자리 · 시간 −14초
-#   open-course 가 엔진 · 시간 · 이름 · 미리듣기 주소를, thanks-in-vow 가 화면(칩 · 이름 · 예시 넷 · 두 분 함께 · 흐름 · 대본 · 되돌리면 글 그대로)을 잰다
-chk 'THANKS_IN_VOW' assets/ritual-cue.js 3
-chk 'THANKS_IN_VOW' assets/ritual-data.js 2
-chk 'THANKS_IN_VOW' assets/ritual-open.js 6
-chk 'THANKS_IN_VOW' order-preview.html 9
-chk 'THANKS_IN_VOW' assets/ritual-story.js 2
-chk 'THANKS_IN_VOW' api/_ritual-kb.js 2
-chk 'THANKS_IN_VOW' assets/ritual-preview-link.js 1
-chk 'THANKS_IN_VOW' scripts/check-ritual-mirror.js 1
-chk 'THANKS_IN_VOW' scripts/build-course-story.mjs 1
-chk 'THANKS_IN_VOW' scripts/lib/engine-calls.mjs 1
-chk 'THANKS_IN_VOW' scripts/audit/open-course.mjs 6   # [VOW_GROOM_FIRST_1122] 신부부터 감사문 검사 한 줄 은퇴(새 기대로 바꿈)
+# ★★[THANKS_IN_VOW 2026-10-11] 서약 카드 «무엇을 읽나요 · 서약 / 감사문» — 2026-11-22 [THANKS_SWAP_1122] 로 은퇴(검사 은퇴 길 · 옛 chk 와 thanks-in-vow.mjs 를 걷고 새 기대로 바꿨다)
+# ★★[THANKS_SWAP_1122 2026-11-22 사장님 «추천대로»] 감사 인사 ↔ 감사문 둘 중 하나(축사 · 축가와 같은 꼴) · 서약 카드는 서약 고정
+#   감사문 = 감사 인사 자리(welcome)의 판 S.welcomeKind 'thanks' · 여는 말 133 · 신랑 먼저, 신부 다음으로 · 마지막 한 문장(THANKSBOTH) 함께 · 맺는 말 없음 · 서약과 함께 담을 수 있다
+#   open-course 가 엔진 · 시간 · 이름 · 옛 초안 옮기기 · 판 바꾸기 보관 · 미리듣기 주소를, thanks-swap 이 화면(① 한 카드 · 바꿔 담기 · 창 · ② 감사문 글칸 · 서약 칩 없음)을 잰다
+chk 'THANKS_SWAP_1122' assets/ritual-cue.js 4
+chk 'THANKS_SWAP_1122' assets/ritual-open.js 20
+chk 'THANKS_SWAP_1122' order-preview.html 30
+chk 'THANKS_SWAP_1122' assets/ritual-story.js 2
+chk 'THANKS_SWAP_1122' api/_ritual-kb.js 2
+chk 'THANKS_SWAP_1122' assets/ritual-preview-link.js 2
+chk 'THANKS_SWAP_1122' mypage.html 2
+chk 'THANKS_SWAP_1122' admin.html 1
+chk 'THANKS_SWAP_1122' scripts/audit/open-course.mjs 8
+chk 'THANKS_SWAP_1122' scripts/audit/thanks-swap.mjs 1
+chk 'THANKS_SWAP_1122' scripts/lib/engine-calls.mjs 1
+chk 'THANKS_SWAP_1122' scripts/build-course-story.mjs 1
 chk "'narr-thanks-in'" assets/ritual-cue.js 3
-chk "if (S.vowKind === 'thanks') {" assets/ritual-cue.js 1
-chk 'var THANKSBOTH=\["감사합니다."\];' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «var THANKSBOTH=\["서로 아끼며 잘 살겠습니다."…»
-chk 'THANKS_IN_VOW' scripts/audit/thanks-in-vow.mjs 1
-chk 'THANKS_IN_VOW' mypage.html 2   # «직접 쓰는 글» 감사문이면 «감사문»
-chk 'THANKS_IN_VOW' admin.html 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/thanks-in-vow.mjs >/dev/null 2>&1; _tiv=$?; if [ "$_tiv" = 1 ]; then echo 'FAIL thanks-in-vow: 서약 카드 «무엇을 읽나요 · 감사문»이 어긋났습니다 — node scripts/audit/thanks-in-vow.mjs'; fail=1; else echo "ok thanks-in-vow ($_tiv)"; fi; fi
+chk "if (S.welcomeKind === 'thanks') {" assets/ritual-cue.js 1
+chk "var tKey = '하객 쪽을 보고 신랑 먼저, 신부 다음으로 감사문 낭독 · 마지막 한 문장은 함께';" assets/ritual-cue.js 1   # ritual-story LIVE 키와 같은 글
+chk "'하객 쪽을 보고 신랑 먼저, 신부 다음으로 감사문 낭독 · 마지막 한 문장은 함께': {" assets/ritual-story.js 1
+chk "if (O.thanksMigrate) O.thanksMigrate(s);" assets/ritual-cue.js 1   # 옛 초안 vowKind thanks → 감사문 판
+nochk "if (S.vowKind === 'thanks') {" assets/ritual-cue.js   # 서약 카드 안 감사문 갈래 되살리지 말 것
+nochk "L('vowKind','무엇을 읽나요'" order-preview.html   # «무엇을 읽나요» 칩 되살리지 말 것
+nochk "key==='vowKind'" order-preview.html
+nochk "S.vowKind==='thanks'" order-preview.html
+nochk "S.vowKind === 'thanks' ?" assets/ritual-open.js
+chk 'function thanksMigrate(S) {' assets/ritual-open.js 1
+chk 'function thanksSet(S, want) {' assets/ritual-open.js 1
+chk "window.opWPair=function(w){" order-preview.html 1
+chk "function _wPairTile(k,vw){" order-preview.html 1
+chk 'RitualOpen.thanksMigrate(S);' order-preview.html 1   # 초안을 읽을 때 옮긴다
+chk 'var THANKSBOTH=\["감사합니다."\];' assets/ritual-data.js 1   # ★[SOURCE_FIRST_1016] 자료 글
+chk "'welcomeKind'," assets/ritual-preview-link.js 1
+chk "welcomeKind: \['greet', 'thanks'\]" scripts/lib/engine-calls.mjs 1   # 133 이 «엔진이 안 부르는 줄»로 잡히지 않게
+chk "{ welcomeKind: 'thanks' }\])" scripts/check-text-audio.mjs 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/thanks-swap.mjs >/dev/null 2>&1; _tsw=$?; if [ "$_tsw" = 1 ]; then echo 'FAIL thanks-swap: 감사 인사 ↔ 감사문 둘 중 하나(① 한 카드 · ② 감사문 글칸 · 서약 칩 없음)가 어긋났습니다 — node scripts/audit/thanks-swap.mjs'; fail=1; else echo "ok thanks-swap ($_tsw)"; fi; fi
 # ★[SONG_SELF_1011 2026-10-11 사장님] 축가는 두 분이 직접 불러도 된다
 chk 'SONG_SELF_1011' assets/ritual-open.js 1
 chk 'SONG_SELF_1011' order-preview.html 1
@@ -8422,7 +8436,7 @@ chk 'SOURCE_FIRST_1016' 'docs/plans/식순연구/자료그대로_1016.json' 1
 # ★[SOURCE_FIRST_1016] 자료 글이 걸리면 글이 아니라 검사를 고친다 — 같은 목록을 읽는 검사 넷(요청 수 · 말투 층 · 감사문 띄어쓰기 · 선언문 꼴). 예외가 빠지면 자료 글이 다시 옛 검사에 막힌다
 chk 'SOURCE_FIRST_1016' scripts/check-narr-rule.mjs 5
 chk 'SOURCE_FIRST_1016' scripts/audit/voice-register.mjs 3
-chk 'SOURCE_FIRST_1016' scripts/audit/thanks-in-vow.mjs 1
+# chk 'SOURCE_FIRST_1016' scripts/audit/thanks-in-vow.mjs — [THANKS_SWAP_1122] 파일 은퇴(thanks-swap.mjs)
 chk 'SOURCE_FIRST_1016' scripts/audit/declare-by-person.mjs 1
 chk 'SOURCE_FIRST_1016' scripts/check-echo-inrun.js 2
 chk 'SOURCE_FIRST_1016' scripts/audit/guest-ear.js 2
@@ -8544,7 +8558,7 @@ chk 'WELCOME_KB_1014' order-preview.html 3
 chk 'NARR_RETIRED_END' assets/ritual-data.js 3         # 엔진이 끈 맺는 줄은 빌더에 «없어야» 한다(거울 검사) · 깨 보기: 글을 빌더에 되돌리면 check-ritual-mirror 빨강(10/14 확인)
 chk 'NARR_RETIRED_END' scripts/check-ritual-mirror.js 3
 chk 'VOW_PRACTICE_1014' assets/ritual-story.js 4      # 서약 · 감사문 넷 판 팁 끝 «미리 두세 번 소리 내어 맞춰 보시면 편해요.»(자료 M · O · V · N · 리허설 없음)
-chk '미리 두세 번 소리 내어 맞춰 보시면 편해요.' assets/ritual-story.js 4
+chk '미리 두세 번 소리 내어 맞춰 보시면 편해요.' assets/ritual-story.js 3   # [THANKS_SWAP_1122] 번갈아 감사문 장면 걷음 −1
 chk 'BLESS_LISTEN_1014' assets/ritual-story.js 2      # 덕담 듣는 두 분 «부모님 쪽을 보고, 가끔 고개를 끄덕여 주세요.»(자료 O) · 대독 판에도
 chk 'SPEECH_CALM_1014' assets/ritual-story.js 1       # 축사 안심 = 덕담 안심과 같은 말(자료 Y 1-5 «축사 · 덕담 공통»)
 chk 'SONG_HELLO_1014' assets/ritual-story.js 1        # 축가 앞 «짧게 인사나 곡 소개를 하셔도 되고»(자료 M 11 · U1 · S 11 · T1)
@@ -8583,8 +8597,8 @@ chk '마이크는 말할 분 손에 건네고, 끝나면 받습니다.' console.
 chk 'MIC_HAND_1015' docs/plans/식순연구/개편_진행판.md 2   # 8/16 MIC_PIN 절과 «핀 2개 + 핸드 1개» 줄에 «걷힘» 표시
 chk 'VOW_EACH_WHO_1015' assets/ritual-story.js 1       # 서약 «각자 차례로» 장면 «한 분이 … 다른 한 분이»(신부부터 날 틀린 말)
 nochk '신랑님이 먼저 준비하신 서약문' assets/ritual-story.js
-chk 'THANKS_SCENE_TRIM_1015' assets/ritual-story.js 2  # 감사문 두 판 장면은 블록 설명을 되풀이하지 않는다
-chk 'THANKS_EYE_1015' assets/ritual-story.js 1         # 감사문 번갈아 팁 «눈을 마주쳐»(«맞춰» 두 번)
+chk 'THANKS_SCENE_TRIM_1015' assets/ritual-story.js 1  # [THANKS_SWAP_1122] 한 판만 남음 · 감사문 장면은 블록 설명을 되풀이하지 않는다
+# chk 'THANKS_EYE_1015' assets/ritual-story.js — [THANKS_SWAP_1122] 감사문 번갈아 장면을 걷어 은퇴(검사 은퇴 길)
 # ★★[R5_APPLY_1015 2026-10-16 줄 검토 라운드 5 · ★SOURCE_BEST_1015 사장님 10/15 «무조건 넣어야 하는 고정 멘트는 없어 · 자료집 멘트 베스트를 그대로 넣거나 단어만 조금씩 바꿔서»]
 #   지어낸 여는 말 · 하객 맞이 줄을 자료 글로 갈아 끼웠다(줄마다 자료 글자 = docs research/식순_참고자료/줄검토_라운드5_1016.md) · 녹음은 9판 대기
 chk 'SOURCE_BEST_1015' assets/ritual-data.js 4
@@ -8657,7 +8671,7 @@ chk '사랑하는 하윤이와 서준이에게, 오빠가.' assets/ritual-ref.js
 nochk '서준 씨, 우리 가족이 된 걸 환영합니다.' assets/ritual-ref.js
 # [WAIT_SAFE_R6_1016] 서약 · 감사문 · 편지 안심 — 폐지된 대기 클립(WAIT_BRIDGE_RETIRED 9/6)을 약속하지 않는다
 chk 'WAIT_SAFE_R6_1016' assets/ritual-story.js 1
-chk '먼 곳을 보며 숨을 한 번 고르시고, 그래도 힘드시면' assets/ritual-story.js 5
+chk '먼 곳을 보며 숨을 한 번 고르시고, 그래도 힘드시면' assets/ritual-story.js 4   # [THANKS_SWAP_1122] 번갈아 감사문 장면 걷음 −1
 nochk '자리를 메워 드리고, 그래도' assets/ritual-story.js
 nochk '\[대기 클립\]' assets/ritual-story.js
 nochk '\[대기 클립\]' assets/ritual-cue.js
@@ -8698,10 +8712,9 @@ chk 'VOW_FB_WORDS_R7_1016' assets/ritual-cue.js 1         # 서약 디렉터 막
 nochk '마지막 합창이 어긋나면' assets/ritual-cue.js
 nochk '마지막 합창이 어긋나면' assets/ritual-story.js
 chk 'KB_CRY_R7_1016' api/_ritual-kb.js 1                   # AI 지식 «읽다가 울 것 같아요» 첫 단계 = 화면 안심(먼 곳 · 숨)
-# [THANKS_DUP_BOTH_R7_1016] 감사 인사 + 감사문 겹침 알림 — 고르는 순서와 상관없이(브라우저로 잰다 · 고치기 전 판에선 «감사문 먼저» 순서가 빨강)
-chk 'THANKS_DUP_BOTH_R7_1016' order-preview.html 1
-chk '_thanksDupToast(k)' order-preview.html 2
-if command -v node >/dev/null 2>&1; then node scripts/audit/thanks-dup-toast.mjs >/dev/null 2>&1; _tdt=$?; if [ "$_tdt" = 1 ]; then echo 'FAIL thanks-dup-toast: 감사 인사 · 감사문 겹침 알림이 한쪽 순서에서만 뜬다 — node scripts/audit/thanks-dup-toast.mjs'; fail=1; elif [ "$_tdt" = 0 ]; then echo 'ok thanks-dup-toast: 겹침 알림 양쪽 순서'; else echo 'skip thanks-dup-toast: 브라우저 없음(재지 못함)'; fi; fi
+# [THANKS_DUP_BOTH_R7_1016] 감사 인사 + 감사문 겹침 알림 — 2026-11-22 [THANKS_SWAP_1122] 로 은퇴(둘 중 하나라 겹칠 수 없다 · thanks-dup-toast.mjs 걷음)
+nochk '_thanksDupToast(k)' order-preview.html
+nochk '감사 인사와 내용이 겹쳐요' order-preview.html
 # ★[NARR_AUDIO_REAL 2026-10-13] 3단계 녹음(rev1013) — 플레이 03 조각이 실제 파일로 있고 글 = 원고 · 원고 문장마다 실제 소리(낱개 · 옛 줄째 클립 안 · 없음)를 센다
 #   1판 · 2판의 «소리 원천 빠짐 0»은 대본 목록끼리 대조였다 — 실제 파일로 재니 옛 예시 25문장은 클립 안에만 있었다 · ffmpeg 없이 돈다
 chk 'NARR_AUDIO_REAL' scripts/build-rev1013.mjs 1
@@ -13575,11 +13588,12 @@ nochk '고른 차례대로 장면과 나레이션을' order-preview.html   # [IN
 chk 'H1_FIRST_HELLO' order-preview.html 1
 chk '<div class="wn">감사 인사</div>' order-preview.html 1   # [THANKS_GREET_1013] 옛 «첫인사»
 chk 'aria-label="감사 인사"' order-preview.html 1   # [THANKS_GREET_1013]
-chk '감사 인사(두 분 작성 · 카드로 인쇄):' order-preview.html 2   # [THANKS_GREET_1013] · ★[WELCOME_CARD_1014] 카드로 인쇄한다는 표시(서약문 · 부모님께 드릴 말과 같은 꼴)
+chk '감사 인사(두 분 작성 · 카드로 인쇄):' order-preview.html 1   # [THANKS_SWAP_1122] 새 코스 대본은 판 이름(_wn)으로 — 아래 줄
+chk "lines.push(_wn+'(두 분 작성 · 카드로 인쇄):" order-preview.html 1   # [THANKS_GREET_1013] · ★[WELCOME_CARD_1014] 카드로 인쇄한다는 표시(서약문 · 부모님께 드릴 말과 같은 꼴)
 nochk '인사말(두 분 작성)' order-preview.html
 nochk '인사말 예시 보기' order-preview.html   # [H1] 칸 안 예시 단추도 «첫인사 예시 보기»(390 실렌더에서 찾음)
 nochk "welcome:'하객 맞이 인사말'" order-preview.html
-chk "_wo.push('감사 인사')" mypage.html 1   # [THANKS_GREET_1013]   # [H1] 마이페이지 식순 요약(새 코스 갈래) · 옛 코스 요약은 그대로
+chk "_wo.push(rd.S.welcomeKind==='thanks'?'감사문':'감사 인사')" mypage.html 1   # [THANKS_SWAP_1122]   # [THANKS_GREET_1013]   # [H1] 마이페이지 식순 요약(새 코스 갈래) · 옛 코스 요약은 그대로
 chk 'H2_SEND_LUMP' order-preview.html 1   # [H2] 식전 영상 한 덩어리 · 축배 음료 줄은 그 뒤
 chk 'H3_CALLER_HELPER' assets/ritual-open.js 1
 chk '가족사진 때 촬영하실 분들을 불러 모아 주실 분' assets/ritual-open.js 1   # [NARROW_170_1030 N3] 옛 «친척분들»
@@ -15621,7 +15635,7 @@ chk '«흐름 보기로 시작»(자동으로 흘러요)' docs/handoff/insta-fin
 #   서약 · 덕담 · 축가 맺는 말 · 선언(친구 · 지인) 여는 말 · 부모님께 인사(걸어가는 말 · 구호 둘) · 화촉 다른 두 분 · 테이블 예시 5 · 참고 예시(선언 셋 · 축사 · 덕담) ·
 #   화면 글 셋(서약 «두 분 함께» 아래 · 편지 안내 «고르시면» · «남은 할 일» TODO_NAME_1018) · 새 클립 224 ~ 242(녹음 전엔 글로)
 chk 'REVIEW5_1018' assets/ritual-cue.js 1
-chk "thanks: { lab: '감사문 멘트', at: 'vow'" assets/ritual-open.js 1
+chk "thanks: { lab: '감사문 멘트', at: 'welcome'" assets/ritual-open.js 1   # [THANKS_SWAP_1122] 감사 인사 자리
 chk "letterParent: { lab: '편지 멘트', at: 'letter'" assets/ritual-open.js 1
 chk 'SONG_END_NO_PRAISE_1018' assets/ritual-open.js 1
 nochk '멋지고 아름다운 축가였습니다' assets/ritual-open.js   # 녹음은 노래를 평할 수 없다(검토 10 과 같은 까닭 · 인스타 바로잡기)
@@ -17377,7 +17391,7 @@ chk 'REF_ROW4' scripts/audit/listen-page.mjs 2   # [REF_BEST4_ONLY 2026-10-09] �
 #   «상담 때 안내» 금지 — 식순은 상담을 다 마친 뒤 짓는다
 chk 'TRIB_ONE_SAY' assets/ritual-open.js 1
 chk "tribute: \[\['long', '말로 인사'\], \['none', '말없이'\]\]" assets/ritual-open.js 1
-chk '신랑분은 원하시면 큰절을 올리셔도 돼요' order-preview.html 1
+nochk '신랑분은 원하시면 큰절을 올리셔도 돼요' order-preview.html 0   # [TRIBUTE_NOTES_OFF_1122] 은퇴(옛 chk 1)
 chk 'GROOM_BOW_TIP' assets/ritual-cue.js 1
 nochk "\['bowGroom', '신랑 큰절'\]" assets/ritual-open.js
 chk 'FREE_ETC' assets/ritual-open.js 2
@@ -19447,6 +19461,14 @@ chk 'SEAT_EX_SHOT' mypage.html 2
 chk "_spEx('all')" mypage.html 1
 chk "_spEx('mine')" mypage.html 1
 chk 'SEAT_EX_SHOT' scripts/seat-example-shots.mjs 1
+# ★[SEAT_EX_POLISH 2026-11-22] PC 두 칸 나란히 · 그림 원래 비율 · 아래 · 오른쪽 흐리게 닫기 · 버진로드 띠는 찍을 때 뺀다
+chk 'SEAT_EX_POLISH' mypage.html 1
+chk 'SEAT_EX_POLISH' scripts/seat-example-shots.mjs 1
+chk 'class="sp-opts"' mypage.html 1
+# ★[SEAT_NO_RENAME 2026-11-22 사장님 «테이블번호를 굳이 수정할 필요는 없을 것 같아»] 원은 번호만 · 눌러서 테이블 이름 바꾸기 없음
+chk 'SEAT_NO_RENAME' mypage.html 1
+nochk 'data-si="name"' mypage.html
+nochk '번 테이블 이름 정하기' mypage.html
 if [ -s assets/seat/ex-all.webp ] && [ -s assets/seat/ex-mine.webp ]; then echo 'ok assets/seat: ex-all.webp · ex-mine.webp'; else echo 'REVERT? assets/seat: 하객 화면 예시 그림(ex-all · ex-mine .webp)이 없다 [SEAT_EX_SHOT]'; fail=1; fi
 chk 'IME_QUIET' guide.html 3
 chk 'function bindNameInput(' seat.html 1
@@ -20107,7 +20129,7 @@ nochk '3분쯤 되면 저희가' assets/ritual-story.js                         
 nochk '원고는 분당 300자' assets/ritual-open.js
 chk 'TOAST_SAY_TALK_1013' assets/ritual-open.js 1
 chk 'BRIDGE_BY_PICK_1013' order-preview.html 3
-chk "'vow.thanks':'두 분이 하객께 직접 건네는 시간입니다.'" order-preview.html 1  # ★[SOURCE_BEST_1015 라운드 5] 여는 말 «감사문 낭독이 있겠습니다»와 «감사문 · 읽는» 되풀이 풂   # [BRIDGE_R4_1015] «하객께» 걷음(여는 말 133 이 받는 분을 이미 말한다)
+chk "'welcome.thanks':'두 분이 하객께 직접 건네는 시간입니다.'" order-preview.html 1   # [THANKS_SWAP_1122] 옛 열쇠 vow.thanks  # ★[SOURCE_BEST_1015 라운드 5] 여는 말 «감사문 낭독이 있겠습니다»와 «감사문 · 읽는» 되풀이 풂   # [BRIDGE_R4_1015] «하객께» 걷음(여는 말 133 이 받는 분을 이미 말한다)
 chk 'KB_MATCH_SCREEN_1013' api/_ritual-kb.js 4
 nochk '편지 낭독 3방향' api/_ritual-kb.js
 nochk '나레이션이 대독하는 옵션 있음' api/_ritual-kb.js
@@ -20194,7 +20216,7 @@ chk '적어 주시면 큰 글씨 카드로 드려요' assets/ritual-open.js 1
 chk "(두 분 작성 · 카드로 인쇄):'" order-preview.html 1
 chk 'STORY_TIPS_1014' assets/ritual-story.js 5
 chk '문이 열리면 바로 걷지 말고 한 박자 서 있다가 출발해요.' assets/ritual-story.js 1   # humanize-korean light(연결어미 뒤 쉼표 C-11)
-chk '카드는 얼굴이 가려지지 않게 가슴 아래 높이로 들어 주세요.' assets/ritual-story.js 4
+chk '카드는 얼굴이 가려지지 않게 가슴 아래 높이로 들어 주세요.' assets/ritual-story.js 3   # [THANKS_SWAP_1122] 번갈아 감사문 장면 걷음 −1
 chk '끼우기 직전 한 박자 멈추고 반지가 보이게 잡아 주세요.' assets/ritual-story.js 1
 chk '두 분은 선언을 듣는 동안 손을 잡고' assets/ritual-story.js 1
 chk '목소리가 떨리셔도 괜찮아요.' assets/ritual-story.js 1
@@ -20270,7 +20292,7 @@ nochk '귀한 주말,' assets/ritual-ref.js   # [검토 147-2] 902 평일 예식
 chk 'REVIEW26_1023 검토 150' scripts/audit/open-course.mjs 4   # 동작 검사 셋 + 축배 56(테이블 인사 날만)
 chk "'narr-close-ex3': 1, 'bridge-b9-declare-seat': 1," assets/ritual-cue.js 1   # 220 · 245 쉼(번호 보존)
 chk "_cSeam = 'bridge-b8-face-guests';" assets/ritual-cue.js 1   # 마지막 순간이 서약 · 편지(서로에게) · 반지면 B8 → 108 디렉터 GO
-chk "thanksTwice: '감사문이 하객께 드리는 인사를 함께 해요. 감사 인사는 빼도 돼요.'," assets/ritual-open.js 1
+nochk "thanksTwice: '감사문이 하객께" assets/ritual-open.js   # [THANKS_SWAP_1122] 겹침 알림 은퇴(둘 중 하나)
 chk "else if(a\[1\]==='off'){ if(S.on) delete S.on\[a\[2\]\]; }" order-preview.html 1   # 알림 «감사 인사 빼기»
 chk "keys\[0\]==='thanks'&&_vowFirst()==='b'" order-preview.html 1   # 신부부터 감사문은 «그리고 …»로 여는 예시 1 · 2 를 뺀다
 chk 'SENT_BORROW' scripts/sent-lib.mjs 2   # 같은 성우 · 같은 글자 소리 빌려 오기(고른 자리만)
@@ -21143,7 +21165,7 @@ chk 'LISTEN_PACE_1031' assets/bgm-bed.js 2
 chk 'function lpLead(st,re)' assets/bgm-bed.js 1
 chk 'lpLead:lpLead' assets/bgm-bed.js 1
 chk 'function _lpMs(est){ return Math.min(6,Math.max(3,Math.round((+est||0)/12)))\*1000; }' order-preview.html 1
-chk "var LP_EST_FROM={'tribute-in':'tribute-out'}, LP_EST_NOTE={vow:1};" order-preview.html 1
+chk "var LP_EST_FROM={'tribute-in':'tribute-out'}, LP_EST_NOTE={vow:1,welcome:1};" order-preview.html 1   # [THANKS_SWAP_1122] 감사문 «마지막 한 문장» 줄
 chk 'try{ _lpPaint(); }catch(e){}   /\* \[LISTEN_PACE_1031\] 지금 · 지나감 · 남음 \*/ try{ if(window.EntryMusic&&EntryMusic.paint) EntryMusic.paint(); }' order-preview.html 1
 chk 'LISTEN_PACE_1031' scripts/audit/listen-pace.mjs 1
 chk 'listen-pace' .github/workflows/merge-guard.yml 1
@@ -22007,7 +22029,12 @@ nochk "FG_LAB={wait:'대기 자리',walk:'입장',front:'앞'" order-preview.htm
 chk '팁 · 사진에 예쁘게 남는 인사예요. 신랑은 한 손을 가슴에 얹고 가볍게 숙이고, 신부는 치맛자락을 살짝 잡고 무릎을 굽혀요. 마지막에 서로 눈을 맞추면 좋아요. 평소처럼 인사하셔도 괜찮아요.' order-preview.html 1
 nochk '신랑은 한 손을 가슴에 얹고 가볍게 숙여요 · 신부는 치맛자락을 살짝 잡고 무릎을 굽혔다 일어나요 · 마지막에 서로 눈을 맞춰요' order-preview.html 0
 chk 'BOW_TIP_1122' assets/ritual-story.js 1
-chk 'HEAD_FLOAT_1122' order-preview.html 1
+chk 'HEAD_FLOAT_1122' order-preview.html 1   # [HEAD_EDGE_FADE_1122] 은퇴 → 시안 B(띠 배경 없음 · 단추만)
+# ★[BOW_PIC_1122 2026-11-22 사장님 «너무 서술형 · 클릭하면 그림으로» · 대본 «지금 영상의 무도회 맞절 + 일반 맞절 한 장 나란히»] 맞절 팁 줄 짧게 + «자세 보기» 창(평소 인사 / 무도회 맞절)
+chk 'BOW_PIC_1122' order-preview.html 5
+chk "data-fk=\"mkbowpic\"" order-preview.html 1
+chk 'matjeol-plain-640.webp' order-preview.html 1
+chk 'matjeol-ball-640.webp' order-preview.html 1
 # ★[VP_FOLLOW_1122 2026-11-22 사장님 «처음 고른 스튜디오 나레이션 / AI 두 분 목소리를 고르는 곳은 기존 것을 따라가게»] 안 고른 다른 안내 목소리 자리가 따라온다 · 손댄 자리는 그대로
 chk 'VP_FOLLOW_1122' order-preview.html 2
 chk 'VP_FOLLOW_1122' scripts/audit/vp-follow.mjs 1
@@ -22835,8 +22862,9 @@ chk 'B2_NA_22' assets/ritual-open.js 2   # 현장 · 따로 편지 보관 글은
 chk '따로 준비한 편지는 길이를 알 수 없어 기본 시간으로 계산해요.' order-preview.html 1
 chk 'function _prBusy()' order-preview.html 1   # [B2_NA_23]
 chk '다음 차례를 준비하고 있어요' order-preview.html 1
-chk "if(k==='vow'&&St().vowKind==='thanks') return '감사문';" assets/bgm-bed.js 1   # [B2_NA_24]
-chk "if(k==='vow'&&S.vowKind==='thanks') return '감사문';" assets/bgm-form.js 1
+chk "if(k==='welcome'&&St().welcomeKind==='thanks') return '감사문';" assets/bgm-bed.js 1   # [THANKS_SWAP_1122]   # [B2_NA_24]
+chk "if(k==='welcome'&&S.welcomeKind==='thanks') return '감사문';" assets/bgm-form.js 1   # [THANKS_SWAP_1122]
+chk "if (_rc.k === 'welcome' && _rs !== 'bridge-b8-face-guests' && _rp" assets/ritual-cue.js 1   # ★[THANKS_LEAD_FIX_1122] 감사문 날 244 에 곡 뜸이 걸리지 않게(피아노 켜졌다 꺼짐)
 chk '현재 식순에는 이 시각의 안내가 없습니다.' order-preview.html 1   # [B2_NA_26]
 chk '착석 · 휴대폰 무음 · 온라인 참석자 환영' order-preview.html 1
 chk '본식부터 단체 사진까지 배정한 시간은' order-preview.html 1   # [B2_NA_27] d-16
@@ -22941,8 +22969,8 @@ chk '마이크를 디렉터에게 돌려주세요. 앞으로 나오셨다면 자
 chk "if(S.tribHug!=='off') L.push('· 안내 음성이 청하면 저희를 안아 주세요" order-preview.html 1   # B2_GEUL_10
 nochk "due+'까지'" order-preview.html 0   # B2_GEUL_21 «까지까지»
 nochk '신부의 첫 문장이 앞말을 이어받고 있어요' order-preview.html 0   # B2_GEUL_07 은퇴 — [VOW_GROOM_FIRST_1122] 신부부터가 없어져 이 알림도 없다
-chk '고르지 않으시면 말없이 인사해요' order-preview.html 1   # B2_GEUL_27
-chk '고르지 않으시면 말로 인사해요' order-preview.html 1
+# [TRIBUTE_NOTES_OFF_1122] 은퇴 — 옛 chk '고르지 않으시면 말없이…' 1 (B2_GEUL_27) · 아래 nochk 로
+nochk '고르지 않으시면 말로 인사해요' order-preview.html 0   # [TRIBUTE_NOTES_OFF_1122] 은퇴(옛 chk 1)
 chk 'g.tipToo&&g.tip' order-preview.html 1
 chk '그리고 내가 제일 좋아하는 우리 매제, 오늘' assets/ritual-ref.js 1   # B2_GEUL_08
 nochk '우리 이 서방' assets/ritual-ref.js 0
@@ -24385,6 +24413,13 @@ chk '뭉클하실 부모님께, 신랑 신부가' assets/ritual-open.js 1
 chk 'TRIBUTE_GO_1122' scripts/rec141-1122.py 1
 chk 'TRIBUTE_GO_1122' docs/rules/나레이션.md 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/tribute-go-1122.mjs >/dev/null 2>&1; _tg=$?; if [ "$_tg" != 0 ]; then echo 'FAIL tribute-go-1122: 부모님께 인사 장면(141 새 판 · 걷는 말 236 · 쉼 1.2 / 1.7)이 대표님 11/22 승인과 다릅니다 — node scripts/audit/tribute-go-1122.mjs'; fail=1; else echo 'ok tribute-go-1122'; fi; fi
+
+# ★[EX_ROLE_HIDE_1122 2026-11-22 사장님 «축가 멘트 눌러도 변경이 없는데?»] «누가»를 고른 축가 · 축사는 멘트 예시 칩을 숨긴다
+chk 'EX_ROLE_HIDE_1122' assets/ritual-open.js 1
+chk 'if (exRoleWins(S, k)) return false;' assets/ritual-open.js 1
+# ★[TRIBUTE_NOTES_OFF_1122 2026-11-22 사장님 «고르지 않으시면 말로 인사해요 · 신랑분은 원하시면 큰절을 … 굳이 없어도 될 것 같아»] 부모님께 인사 인사말 칩 아래 두 줄을 걷었다 · 돌아오면 빨강
+chk 'TRIBUTE_NOTES_OFF_1122' order-preview.html 2
+nochk '고르지 않으시면 말없이 인사해요' order-preview.html 0
 # ★★[PV_OUT_OFF_1122 대표님 11/22 17:16 · 17:33] 식전 영상 끝 261 없음 · 곡 먼저 → 263 → 여는 말 — 상세 docs/rules/나레이션.md
 chk "'narr-prevideo-out': 1 /\* ★\[PV_OUT_OFF_1122\]" assets/ritual-cue.js 1
 chk 'var _b14Pv = bc.k ===' assets/ritual-cue.js 1
