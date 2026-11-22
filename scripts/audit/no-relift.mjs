@@ -104,10 +104,10 @@ try {
       ['부모님께 인사 · 테이블 뺌(편지 → 축배)', { on: Object.assign({}, ON, { tribute: 0, table: 0 }), bgm: {} }], ['편지 «음악과 함께»', { on: ON, bgm: { S6: { m: 'bed' } } }]];
     for (const [nm, o] of V) { const P = await table(f, o), bad = relifts(P, o); ok(`E ${nm} — 본식 곡 정적 뒤 다시 올라옴 0 · 올라 10초 안에 정적 0`, !bad.length, bad); }
     { const P = await table(f, V[0][1]);
-      ok('E 기본(축사 쪽) — 축사 뒤 박수(live) = −90 · 편지 첫 줄 −90(축사 무음 뒤) · 선언 뒤 박수 −8(예외) · 부모님께 인사 첫 줄 −15(무음에서 새 곡) [SPEECH_SONG_1115 · 옛 기대의 축가 줄은 축가 쪽 판으로]',
-        lvAt(P, 'bridge-b10-speech-clap', 'live') === -90 && lvAt(P, 'letter-each', 'say') === -90 && lvAt(P, 'narr-declare-family-out', 'live') === -8 && lvAt(P, 'narr-tribute-name', 'say') === -15,
+      ok('E 기본(축사 쪽) — 축사 뒤 박수(live) = −90 · 편지 첫 줄 −90(축사 무음 뒤) · 선언 뒤 박수 −8(예외) · 부모님께 인사 첫 줄 −20(무음에서 새 곡 · DUCK20_1122) [SPEECH_SONG_1115 · 옛 기대의 축가 줄은 축가 쪽 판으로]',
+        lvAt(P, 'bridge-b10-speech-clap', 'live') === -90 && lvAt(P, 'letter-each', 'say') === -90 && lvAt(P, 'narr-declare-family-out', 'live') === -8 && lvAt(P, 'narr-tribute-name', 'say') === -20,
         ['bridge-b10-speech-clap/live', 'letter-each/say', 'narr-declare-family-out/live', 'narr-tribute-name/say'].map((z) => z + ' ' + lvAt(P, ...z.split('/')))); }
-    { const P = await table(f, V[2][1]); ok('E 축가 쪽 — 덕담 곡이 흐르다 축가 여는 말은 −15 그대로(앞이 정적이 아니다) · MR 뒤 박수 · 편지 첫 줄은 −90', lvAt(P, 'narr-song', 'say') === -15 && lvAt(P, 'narr-song-end-friend', 'live') === -90 && lvAt(P, 'letter-each', 'say') === -90, [lvAt(P, 'narr-song', 'say'), lvAt(P, 'narr-song-end-friend', 'live'), lvAt(P, 'letter-each', 'say')]); }
+    { const P = await table(f, V[2][1]); ok('E 축가 쪽 — 덕담 곡이 흐르다 축가 여는 말은 −20 그대로(앞이 정적이 아니다 · DUCK20_1122) · MR 뒤 박수 · 편지 첫 줄은 −90', lvAt(P, 'narr-song', 'say') === -20 && lvAt(P, 'narr-song-end-friend', 'live') === -90 && lvAt(P, 'letter-each', 'say') === -90, [lvAt(P, 'narr-song', 'say'), lvAt(P, 'narr-song-end-friend', 'live'), lvAt(P, 'letter-each', 'say')]); }
     /* P 미리 듣기 하루 이어 듣기 */
     await setX(f, { on: ON, bgm: {} }); await go(f, 'welcome');
     const m7 = await f.evaluate(() => BgmPicks.plan ? (BgmBed._t && (function () { try { return (BgmPicks.PICKS.M7 || [])[0]; } catch (e) { return ''; } })()) : '');

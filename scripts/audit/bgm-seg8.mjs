@@ -76,7 +76,7 @@ try {
   ok('③ 3초 뒤 — 화촉 곡만 남고 앞 곡은 멈춘다', C.seg === 'M2' && C.paused[A.on] && !C.paused[C.on] && C.xg[C.on] > 0.9, C);
   /* ⑧ [LISTEN_LOOK_LEVEL_1101 ②] 구간 곡 = 곡 보정 +7 dB(곡 −23 LUFS → 나레이션 −16 기준) · 그 길 끝 리미터 · 리허설 칸 «곡 보정» */
   { const SG = await pg.evaluate(() => (window.__seg.song ? window.__seg.song() : {}));
-    ok('⑧ 구간 곡 = 곡 보정 +7 dB(gSong) · 그 길 끝 리미터(−1 dB · 20 · 2ms · 150ms) · 리허설 칸 «곡 보정» [LISTEN_LOOK_LEVEL_1101]', SG.mode === 'seg' && SG.g != null && Math.abs(SG.g - Math.pow(10, 7 / 20)) < 0.03 && JSON.stringify(SG.lim) === '[-1,20,2,150]' && SG.reh && SG.p === 7, SG); }
+    ok('⑧ 구간 곡 = 곡 보정 +7 dB(gSong) · 그 길 끝 리미터(−1 dB · 20 · 2ms · 150ms) · 리허설 칸 «곡 보정» [LISTEN_LOOK_LEVEL_1101]', SG.mode === 'seg' && SG.g != null && Math.abs(SG.g - Math.pow(10, 10 / 20)) < 0.03 && JSON.stringify(SG.lim) === '[-1,20,2,150]' && SG.reh && SG.p === 10 /* ★[DUCK20_1122] 7 → 10 */, SG); }
   const wi = await pg.evaluate(() => window.__bgmR().findIndex((c) => c.k === 'welcome'));
   await pg.evaluate((i) => window.__bgmGo.fire(i), wi); await pg.waitForTimeout(800);
   const D = await seg(pg);

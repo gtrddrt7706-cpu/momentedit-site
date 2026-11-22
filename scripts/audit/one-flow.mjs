@@ -130,8 +130,8 @@ try {
     const op = (S0) => (B(S0).find((c) => c.slug === 'narr-song') || {}).duck;
     /* ★[SPEECH_SONG_1115 · RULES_SLIM ⑧] 옛 기대 «축사 뒤 축가 여는 말 −90» → 새 기대: 옛 저장본(축사 + 축가) = 축가만(축사 큐 0) · 축가 여는 말 −15 = 축사가 없는 판(NO_RELIFT E)과 한 값 */
     const fq = (S0) => B(S0).filter((c) => c.k === 'free').length;
-    ok('T05 엔진 — 옛 저장본 축사 + 축가(«음악과 함께» · «조용히») = 축가만 · 축사 큐 0 · 축가 여는 말 −15(축사 없는 판과 같은 값)', op(mk({ free: 1, song: 1, bless: 1 }, { S5: { m: 'bed' } })) === -15 && op(mk({ free: 1, song: 1, bless: 1 })) === -15 && !fq(mk({ free: 1, song: 1, bless: 1 }, { S5: { m: 'bed' } })) && fq(mk({ free: 1, song: 0, bless: 1 }, { S5: { m: 'bed' } })) > 0);
-    ok('T06 대조 — 축사가 없으면 덕담 곡이 흐르다 축가 여는 말 −15 그대로(NO_RELIFT E)', op(mk({ free: 0, song: 1, bless: 1 })) === -15);
+    /* [DUCK20_1122] 축가 여는 말 −15 → −20 */ ok('T05 엔진 — 옛 저장본 축사 + 축가(«음악과 함께» · «조용히») = 축가만 · 축사 큐 0 · 축가 여는 말 −20(축사 없는 판과 같은 값)', op(mk({ free: 1, song: 1, bless: 1 }, { S5: { m: 'bed' } })) === -20 && op(mk({ free: 1, song: 1, bless: 1 })) === -20 && !fq(mk({ free: 1, song: 1, bless: 1 }, { S5: { m: 'bed' } })) && fq(mk({ free: 1, song: 0, bless: 1 }, { S5: { m: 'bed' } })) > 0);
+    ok('T06 대조 — 축사가 없으면 덕담 곡이 흐르다 축가 여는 말 −20 그대로(NO_RELIFT E)', op(mk({ free: 0, song: 1, bless: 1 })) === -20);
     const con = fs.readFileSync(CON || path.join(ROOT, 'console.html'), 'utf8');
     ok('T03 당일 콘솔 — 목록 곡 사이 겹침도 같은 값(본식 8초 · BgmPicks.xfOf) · «음악과 함께» 곡 칸으로 넘기지 않는다', P.xfOf && P.xfOf('M4') === 8 && P.xfOf('M6') === 6 /* [REPEAT_RULE_1107 ⑤] 닫는 인사 6초 */ && /function segXf\(\)/.test(con) && /bedPlay\(BED\.list\[j\], segXfFor\(BED\.list\[j\]\)\)/.test(con) && /function segXfFor\(sid\)/.test(con) && !/segGo\('M4S[56]'\)/.test(con));
     ok('T01 곡 계획 — 축사 · 편지 «음악과 함께» 구간(M4S5 · M4S6)이 없다 · 옛 이름은 M4 로 읽힌다', P.CORDER.indexOf('M4S5') < 0 && P.CORDER.indexOf('M4S6') < 0 && P.oneSeg && P.oneSeg('M4S5') === 'M4' && P.oneSeg('M4S6') === 'M4' && !P.SEGS.some((s) => /^M4S/.test(s.id)));
