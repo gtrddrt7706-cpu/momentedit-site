@@ -7593,7 +7593,7 @@ function _vTag(k,x){ var R=RitualOpen; if(!R.voiceKind) return ''; if(x&&x.vk) r
 var Q_TAG=/ · (말없이|말 없이|미리 듣기에서는 넘겨요|연습에서는 넘겨요)$/;   // [PRACTICE_WALK_1101]   // [REVIEW_166_1030 C7] «말없이» 붙여 씀
 /* ★★[BOW_PIC_1122 2026-11-22 사장님 «너무 서술형이라 잘 모르겠다 · 클릭하면 이미지로» · «실사 말고 그림으로»] 맞절 팁 줄은 짧게 + «자세 보기» → 그림 한 장 창(신랑 · 신부 · 눈 맞추기)
      ★줄 글(_lQuiet)은 그대로 둔다 — 대본 복사 · 연습 · 장면 글은 긴 글을 쓴다 · 이 화면 줄만 짧게 보여 준다 */
-var BOW_PIC=[['/assets/video/moments/scene/matjeol-plain-640.webp','평소 인사','마주 보고 함께 고개 숙여 인사해요','두 분이 마주 보고 허리를 숙여 인사하는 그림'],['/assets/video/moments/scene/matjeol-ball-640.webp','팁 · 무도회 맞절','신랑은 한 손을 가슴에, 신부는 치맛자락을 살짝 잡고 무릎을 굽혀요','신랑은 한 손을 가슴에 얹고 신부는 치맛자락을 잡은 그림']];   /* [BOW_PIC_1122 대본 17:04 «지금 영상의 무도회 맞절을 사진으로 · 일반 맞절 한 장만 더해 나란히»] 새로 만든 것은 평소 인사 한 장(같은 인물 · 옷 · 공간 · Runway Gen-4 · entry-look 첫 장을 참고 · 사장님 17:29 B) · 무도회 맞절 = 지금 영상 5.6초 장면(글자 없음 · 사장님 C) */
+var BOW_PIC=[['/assets/img/bow/matjeol-plain-640.webp','평소 인사','마주 보고 함께 고개 숙여 인사해요','두 분이 마주 보고 허리를 숙여 인사하는 그림'],['/assets/img/bow/matjeol-ball-640.webp','팁 · 무도회 맞절','신랑은 한 손을 가슴에, 신부는 치맛자락을 살짝 잡고 무릎을 굽혀요','신랑은 한 손을 가슴에 얹고 신부는 치맛자락을 잡은 그림']];   /* [BOW_PIC_1122 대본 17:04 «지금 영상의 무도회 맞절을 사진으로 · 일반 맞절 한 장만 더해 나란히»] 새로 만든 것은 평소 인사 한 장(같은 인물 · 옷 · 공간 · Runway Gen-4 · entry-look 첫 장을 참고 · 사장님 17:29 B) · 무도회 맞절 = 지금 영상 5.6초 장면(글자 없음 · 사장님 C) */
 function _bowTipRow(t){ return /^팁 · 사진에 예쁘게 남는 인사예요\./.test(t); }
 function _bowPicBody(){ return '<div class="bow-pair">'+BOW_PIC.map(function(b){ return '<figure class="bow-pic"><img src="'+b[0]+'" alt="'+esc(b[3])+'" width="640" height="360" decoding="async"><figcaption><b>'+esc(b[1])+'</b>'+esc(b[2])+'</figcaption></figure>'; }).join('')+'</div>'
   +'<p class="bow-note">어느 쪽이든 좋아요 · 무도회 맞절은 사진에 예쁘게 남아요 · 마지막에 서로 눈을 맞추면 좋아요</p>'; }
