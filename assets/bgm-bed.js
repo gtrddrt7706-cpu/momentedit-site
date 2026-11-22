@@ -87,9 +87,9 @@
     try{ (g.RitualCue.build(St(),{mode:'console'}).cues||[]).forEach(function(c){ if(L.ks.indexOf(c.k)<0) return; sec+=(+c.est||0)+((c.live&&(+(c.live.fullEst||c.live.est)||0))||0); }); }catch(x){ sec=0; }
     return (MIN.v[sg]=sec>0?Math.max(1,Math.round(sec/60)):0); }
   function longLine(sg){ var L=LONG[sg]; if(!L) return ''; var m=minOf(sg); return '<p class="bgm-note bed-long">'+e(picked(sg)?L.t:'여러 연주곡이 차례로 이어져요')+(m?' · 약 '+m+'분':'')+'</p>'; }   /* ★[GPT_R1_LONG] 고르지 않은 기본 상태(1순위부터)에도 여러 곡이 이어진다는 한 줄 */
-  /* ★[DETAIL_R1_1101 ①] 고른 곡(없으면 1순위) 파일이 아직 없어 다음 곡이 대신 흐르면 — 줄 아래 · 미리 듣기 한 줄 «준비 중이라 지금은 ‹곡›이 대신 흘러요» */
+  /* ★[DETAIL_R1_1101 ①] 고른 곡(없으면 1순위) 파일이 아직 없어 다음 곡이 대신 흐르면 — 줄 아래 · 미리 듣기 한 줄 «준비 중이라 지금은 ‹곡› 곡이 대신 흘러요»(★[SUB_JOSA_1123] ‹Summer›이 처럼 곡 이름에 따라 조사가 틀려 «곡이»로 붙인다) */
   function subOf(sg){ if(!emb()||AV.st!=='ok'||!sg) return ''; var f=eff(sg), h=effHas(sg); if(!f||!h||h===f||has(f)) return ''; var p=P.byF(h); return p?p.t:''; }
-  function subLine(sg,cls){ var t=subOf(sg); return t?'<'+(cls||'p')+' class="bgm-note bed-sub-note">준비 중이라 지금은 ‹'+e(t)+'›이 대신 흘러요</'+(cls||'p')+'>':''; }
+  function subLine(sg,cls){ var t=subOf(sg); return t?'<'+(cls||'p')+' class="bgm-note bed-sub-note">준비 중이라 지금은 ‹'+e(t)+'› 곡이 대신 흘러요</'+(cls||'p')+'>':''; }
   function carryLine(sg){ var c=carried(sg); return c?e(labelOf(c.sg))+'에서 흐르던 곡이 그대로 이어져요':''; }
   /* ★[GHIBLI_ADD_1101] 실제로 깔 곡 — 고른 곡(없으면 1순위)의 파일이 드라이브에 아직 없으면 그 구간 목록(고객이 보는 곡만 · fill 아님)에서 파일이 있는 다음 곡 · 콘솔 segPlan 과 같은 차례(BgmPicks.order) ·
        곡 줄 · 접힌 줄에는 원래 곡 이름 그대로(이 함수는 소리만 정한다) */
@@ -481,7 +481,7 @@
   var LEAD_WAIT=20000;   /* [LEAD_FIRST_1101] 8 → 20초 */
   function leadOf(){ try{ return (typeof LP!=='undefined')?LP.leadSt:null; }catch(x){ return null; } }
   /* [BED_LOAD_1101 ②③] 지금 줄 아래 한 줄 — 곡 카드 «곡을 불러오는 중이에요»와 같은 꼴(bgm-note bed-load) · 빌더 _lBedNote 가 그린다 · 그 순간 듣기 동안 */
-  function note(kind,ec){ var t=kind==='load'?'음악을 불러오는 중이에요':kind==='nomus'?'음악 없이 먼저 들려 드려요 · 곡이 오면 이어서 흘러요':kind==='fail'?'음악을 불러오지 못했어요 · 나레이션만 들려 드려요 (코드 '+(ec||'L4')+')':kind==='sub'?'준비 중이라 지금은 ‹'+ec+'›이 대신 흘러요':'';   /* [DETAIL_R1_1101 ①] sub = 대신 흐르는 곡 */ LPB.note=t; LPB.noteK=(curStep()||{}).k||'';
+  function note(kind,ec){ var t=kind==='load'?'음악을 불러오는 중이에요':kind==='nomus'?'음악 없이 먼저 들려 드려요 · 곡이 오면 이어서 흘러요':kind==='fail'?'음악을 불러오지 못했어요 · 나레이션만 들려 드려요 (코드 '+(ec||'L4')+')':kind==='sub'?'준비 중이라 지금은 ‹'+ec+'› 곡이 대신 흘러요':'';   /* [DETAIL_R1_1101 ①] sub = 대신 흐르는 곡 */ LPB.note=t; LPB.noteK=(curStep()||{}).k||'';
     try{ if(typeof _lBedNote==='function') _lBedNote(t); }catch(x){} }
   /* 줄과 줄 사이 — 다음 줄이 말이면 0.4초 앞서 내린다 · «위하여» 차례가 끝나면 축배 크기로 */
   function lpGap(pv,nx,gap,tg){ if(!emb()||!LPB.on||BED.who!=='lp') return; var p=PR(), gk=++LPB.gk, gOk=function(){ return LPB.gk===gk&&(!nx||curStep()===nx); };   /* ★[B2_EUM10] 쉼 예약 = 실행 번호 + 다음 줄 — 이전 · 다음 · 순간 이동 · 멈춤 · 새 쉼(lpShow · lpEnd · turn · 다음 lpGap)이면 지난 예약은 크기를 바꾸지 않는다 */
