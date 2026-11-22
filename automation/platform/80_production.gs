@@ -1250,6 +1250,54 @@ function _voicePub(code) { _gsr_();
 }
 var RF_ROOT_FOLDER = 'ME_예식준비파일';
 var RF_KEYS = { g0: '하객 입장 때', g1: '시작 10분 전', g2: '시작 5분 전', g3: '시작 1분 전', entry: '입장 인사', pv: '식전 영상 소개', mu: '입장 음악' };   // [ENTRY_SONG_UP 2026-10-12] mu = 두 분이 고른 입장 곡 원본(초안 S.mu.fid · 당일 콘솔이 미리 받는다)   // [PV_INTRO 2026-10-02] pv = 두 분이 쓴 식전 영상 소개글(AI 두 분 목소리)
+/* ★★[PREP_HUB_1123 2026-11-23 사장님 결정 «준비할 것»] 마이페이지 «준비할 것»에서 두 분이 스튜디오로 보내는 파일 — 두 분 목소리와 같은 폴더(RF_<코드>) · 같은 길(action 'ritualFile').
+   목소리 열쇠(RF_KEYS)와 따로 둔다 — AI 목소리 만들기 · 당일 콘솔 목소리 줄 · D-3 확인 알림이 이 열쇠를 목소리로 읽지 않게.
+   ★화면 assets/send-list.js 의 PREP_KEYS 와 같은 열쇠 · 같은 이름(scripts/audit/send-list-sync.mjs ④ 가 잰다) */
+var RF_PREP = { mr: '축가 반주', fx: '준비한 순서 파일', bl: '덕담 원고', sp: '축사 원고' };
+var RF_PREP_TXT = /^(text\/plain|application\/pdf|image\/(jpeg|png|webp|heic|heif)|application\/(msword|vnd\.openxmlformats-officedocument\.wordprocessingml\.document|x-hwp|haansofthwp|vnd\.hancom\.hwp|vnd\.hancom\.hwpx))$/;
+var RF_PREP_MIME = { mr: /^(audio\/[a-z0-9.+-]+|video\/mp4)$/, fx: /^(audio\/[a-z0-9.+-]+|video\/(mp4|quicktime)|image\/(jpeg|png|webp|heic|heif)|application\/pdf|application\/vnd\.(ms-powerpoint|openxmlformats-officedocument\.presentationml\.presentation))$/, bl: RF_PREP_TXT, sp: RF_PREP_TXT };
+var RF_PREP_HOUR_MAX = 40;   // 한 예식 한 시간 올리기 상한(시각 칸 · [HOUR_BUCKET_1107]) — 밖에서 누를 수 있는 동작 [B19_LOCK]
+/* 받은 파일 기록 — 스크립트 속성 RFPREP_<코드> = {열쇠: {id, name, at, kb, t(곡 · 무엇), w(부르는 분), st}} · 시트 열을 늘리지 않는다(RFSTUDIO_ · RFOK_ 와 같은 꼴)
+   st = 스튜디오가 매기는 상태(trim 다듬는 중 · ready 당일 준비 완료) — 관리 화면 단추는 다음 단계 · 지금은 두 분 화면이 읽기만 한다. 새로 올리면 st 는 비운다 */
+function _rfPrepGet(code) { _gsr_();
+  // [PREP_HUB_1123] 지운 예식(RFGONE)은 빈 기록
+  var p = PropertiesService.getScriptProperties(); if (p.getProperty('RFGONE_' + code)) return {};
+  try { return JSON.parse(p.getProperty('RFPREP_' + code) || '{}') || {}; } catch (e) { return {}; }
+}
+function _rfPrepPub(code) { _gsr_();
+  // [PREP_HUB_1123] 두 분 화면(production.prepFiles) — 두 분이 올린 것만 · 폴더 주소는 보내지 않는다
+  var m = _rfPrepGet(String(code || '')), out = {};
+  Object.keys(RF_PREP).forEach(function (k) { var v = m[k]; if (v && v.id) out[k] = { id: String(v.id), name: String(v.name || '').slice(0, 80), at: String(v.at || ''), kb: +v.kb || 0, t: String(v.t || '').slice(0, 40), w: String(v.w || '').slice(0, 40), st: (v.st === 'trim' || v.st === 'ready') ? v.st : '' }; });
+  return out;
+}
+function _rfPrepPut(code, row, key, body) { _gsr_();
+  // [PREP_HUB_1123] 예식 전날까지 받는다(마감이 지나도) · 예식 날부터는 닫는다 · 열쇠마다 받는 파일 꼴
+  var wy = (typeof _ymdOf === 'function') ? _ymdOf(row.get('예식일')) : '', today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
+  if (wy && today >= wy) return { ok: false, ecode: 'U0', error: '예식 전날까지 올릴 수 있어요.' };
+  var mime = String(body.mime || '').trim().toLowerCase();
+  if (!RF_PREP_MIME[key].test(mime)) return { ok: false, ecode: 'U0', error: '이 칸에는 올릴 수 없는 파일이에요.' };
+  var b64 = String(body.data || '').replace(/^data:[^,]*,/, '').replace(/\s+/g, '');
+  if (!b64) return { ok: false, error: '파일이 비어 있어요.' };
+  var bytes = Math.floor(b64.length * 3 / 4);
+  if (bytes > GP_MAX_FILE_MB * 1048576) return { ok: false, error: '한 개에 ' + GP_MAX_FILE_MB + 'MB 까지 올릴 수 있어요.' };
+  try { var ck = CacheService.getScriptCache(), qk = _hourKey_('RFPQ_' + code), n = +(ck.get(qk) || 0); if (n >= RF_PREP_HOUR_MAX) return { ok: false, ecode: 'U1', error: '잠시 뒤 다시 눌러 주세요.' }; ck.put(qk, String(n + 1), 3600); } catch (e) {}
+  var clip = function (v) { return String(v == null ? '' : v).replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 40); };
+  var f, folder;
+  try { folder = _rfFolderFor(code); f = folder.createFile(Utilities.newBlob(Utilities.base64Decode(b64), mime, RF_PREP[key] + ' · ' + _gpSafeName(body.name, mime))); }
+  catch (e) { return { ok: false, ecode: 'U4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '파일을 저장하지 못했어요. 다시 눌러 주세요.' }; }
+  var at = fmtKST(new Date()), lock = LockService.getScriptLock();
+  try { lock.waitLock(10000); } catch (e) { lock = null; }
+  try { var props = PropertiesService.getScriptProperties(), m = _rfPrepGet(code); m[key] = { id: f.getId(), name: String(body.name || '').slice(0, 80), at: at, kb: Math.round(bytes / 1024), t: clip(body.t), w: clip(body.w) }; props.setProperty('RFPREP_' + code, JSON.stringify(m)); }
+  finally { if (lock) { try { lock.releaseLock(); } catch (e) {} } }
+  try { _rfMailQueue(code, RF_PREP[key] + ' · ' + f.getName() + ' · ' + Math.round(bytes / 1024) + 'KB', folder.getUrl()); } catch (e) {}
+  return { ok: true, key: key, id: f.getId(), name: String(body.name || '').slice(0, 80), at: at, prep: _rfPrepPub(code) };
+}
+function _rfPrepForget(code, id) { _gsr_();
+  // [PREP_HUB_1123] 지운 파일이 기록의 지금 파일이면 기록에서도 뺀다
+  if (!id) return; var props = PropertiesService.getScriptProperties(), m = _rfPrepGet(code), hit = false;
+  Object.keys(m).forEach(function (k) { if (m[k] && String(m[k].id) === String(id)) { delete m[k]; hit = true; } });
+  if (hit) props.setProperty('RFPREP_' + code, JSON.stringify(m));
+}
 function _rfFolderFor(code) { _gsr_();
   var props = PropertiesService.getScriptProperties(), pk = 'RF_' + code, fid = props.getProperty(pk);
   if (fid) { try { return DriveApp.getFolderById(fid); } catch (e) { fid = ''; } }
@@ -1284,6 +1332,7 @@ function handleRitualFile(body) { _gsr_();
   if (!s.ok) return { ok: false, reason: s.reason, error: _sessionMsg(s.reason) };
   var code = String(s.row.get('개인코드') || '').trim();
   if (!code) return { ok: false, error: '고객 정보를 찾을 수 없습니다.' };
+  if (RF_PREP[String(body.key || '').trim()]) return _rfPrepPut(code, s.row, String(body.key).trim(), body);   // ★[PREP_HUB_1123] «준비할 것» 파일(축가 반주 · 준비한 순서 · 덕담 · 축사 원고)은 목소리 문(VOICE_UP)과 상관없이 · 예식 전날까지
   if (!_voiceUpLive(code)) return { ok: false, closed: true, error: '두 분 목소리 올리기는 아직 준비 중이에요 · 카톡이나 메일로 보내 주세요.' };   // [VOICE_UP_FROM] 문이 닫혀 있으면 받지 않는다
   var key = String(body.key || '').trim();   // [PV_INTRO 2026-10-02] pv(식전 영상 소개)도 받는다 — RF_KEYS 에 넣었다
   // [ENTRY_SONG_UP 2026-10-12] mu(입장 음악 · 두 분이 고른 곡 원본 MP3 · M4A)도 같은 길 — 크기 한도(GP_MAX_FILE_MB)는 같다 · 화면이 넘는 파일은 보내지 않는다
@@ -1514,7 +1563,7 @@ function handleRitualFilePurgeMine(body) { _gsr_();
      업체 · 드라이브가 아직 다 지웠다고 답하지 않은 것이 있으면 pend — 화면은 «지우는 중이에요 · 곧 끝나요» */
   var _vpn = 0; try { _vpn = _vcPurgeNow(code); } catch (e) { return { ok: false, ecode: 'D4', _why: 'vc ' + String(e && e.message || e).slice(0, 180), error: '파일을 다 지우지 못했어요. 다시 눌러 주세요.' }; }
   if (_vpn === -1) return { ok: false, ecode: 'D1', error: VC_DEL_BUSY };   // ★[VC_DEL_LOCKED 2026-10-09 E2-5] 목소리 지우기 잠금을 못 잡았다 — «지웠다»(RFGONE)를 적지 않고 다시 누르게(폴더는 다시 휴지통으로 보내도 탈이 없다)
-  props.setProperty('RFGONE_' + code, today); try { props.deleteProperty('RFSTUDIO_' + code); } catch (e) {}
+  props.setProperty('RFGONE_' + code, today); try { props.deleteProperty('RFSTUDIO_' + code); } catch (e) {} try { props.deleteProperty('RFPREP_' + code); } catch (e) {}   // [PREP_HUB_1123] 받은 파일 기록도
   return { ok: true, gone: today, pend: !!(_vpn && _vpn.pend) };
 }
 /* [REC_UPLOAD] 두 분이 먼저 지우기 — 휴지통으로(드라이브 30일 뒤 완전 삭제) · 그 폴더 안의 파일만 */
@@ -1536,7 +1585,9 @@ function handleRitualFileDel(body) { _gsr_();
      ★[RF_DEL_TQ 2026-10-09 A~Z 점검 2라운드 E2-3] 화면이 «누른 때»(t)를 실어 오면 기준은 그 때다(서버가 받은 때보다 늦을 수 없다 · 지운 파일이 만들어진 때보다 이를 수 없다) —
      지운 파일보다 늦게 저장된 다시 보내기 사본 · «되돌리기»로 버린 AI 테이크 · 지운 파일이 이미 휴지통일 때의 옛 사본도 쓴다. 누른 뒤에 만든 것은 종전대로 둔다 */
   var tq = (+body.t > 0) ? Math.min(+body.t, tr) : 0;
-  if (body.all && RF_KEYS[key] && (f || tq)) { try { var it = _rfFolderFor(code).getFiles(), fid = f ? f.getId() : '', ta = Math.max(f ? f.getDateCreated().getTime() : 0, tq); while (it.hasNext()) { var g = it.next(); if (g.isTrashed() || g.getId() === fid || keep[g.getId()]) continue; var gn = g.getName(); if (_rfKeyOfName(gn) !== key || gn.indexOf(RF_KEYS[key] + ' · 스튜디오 · ') === 0 || g.getDateCreated().getTime() > ta) continue; try { g.setTrashed(true); swept++; } catch (e) {} } } catch (e) {} }
+  var _lb = RF_KEYS[key] || RF_PREP[key];   // [PREP_HUB_1123] «준비할 것» 파일도 같은 지우기
+  if (body.all && _lb && (f || tq)) { try { var it = _rfFolderFor(code).getFiles(), fid = f ? f.getId() : '', ta = Math.max(f ? f.getDateCreated().getTime() : 0, tq); while (it.hasNext()) { var g = it.next(); if (g.isTrashed() || g.getId() === fid || keep[g.getId()]) continue; var gn = g.getName(); if (_rfKeyOfName(gn) !== key || gn.indexOf(_lb + ' · 스튜디오 · ') === 0 || g.getDateCreated().getTime() > ta) continue; try { g.setTrashed(true); swept++; } catch (e) {} } } catch (e) {} }
+  try { _rfPrepForget(code, String(body.id || '').trim()); } catch (e) {}   // [PREP_HUB_1123] 받은 파일 기록에서도
   if (!f) return { ok: true, gone: true, swept: swept };   // 이미 없음 = 지운 것과 같다(멱등)
   try { f.setTrashed(true); } catch (e) { return { ok: false, ecode: 'D4', _why: 'drive ' + String(e && e.message || e).slice(0, 180), error: '지우지 못했어요. 다시 눌러 주세요.' }; }   // [ERR_CODE_GAS]
   /* ★[RF_DEL_SLOT 2026-10-08 목소리 1라운드 57 · 75] 두 분이 줄을 지우면 그 자리의 «더 옛» 파일도 함께 휴지통으로 — 다시 보내기(UP_AGAIN)가 남긴 사본 · 다시 만든 AI 테이크의 옛것.
@@ -1551,16 +1602,16 @@ function handleRitualFileDel(body) { _gsr_();
    · adminRitualFiles(code): 그 예식의 두 분 목소리 파일 목록(자리 · 이름 · 크기 · 올린 때) + «확인 ✓» + D-7 뒤 바뀜
    · adminRitualFileGet(code, id): 파일 한 개(base64) — 콘솔이 식 전에 미리 받아 둔다(식장 인터넷이 끊겨도)
    · adminRitualFileOk(code, key, on): 스튜디오가 D-5 쯤 들어 보고 «확인 ✓» (스크립트 속성 RFOK_<코드> · 시트 열을 늘리지 않는다) */
-function _rfKeyOfName(nm) { _gsr_(); nm = String(nm || ''); for (var k in RF_KEYS) { if (nm.indexOf(RF_KEYS[k] + ' · ') === 0) return k; } return ''; }
+function _rfKeyOfName(nm) { _gsr_(); nm = String(nm || ''); for (var k in RF_KEYS) { if (nm.indexOf(RF_KEYS[k] + ' · ') === 0) return k; } for (var k2 in RF_PREP) { if (nm.indexOf(RF_PREP[k2] + ' · ') === 0) return k2; } return '';   /* [PREP_HUB_1123] «준비할 것» 파일도 자리를 안다 */ }
 function adminRitualFiles(code) {
   _requireAdmin('');   // [REC_ADMIN]
   code = String(code || '').trim(); if (!code) return { ok: false, error: '코드가 없어요.' };
-  var props = PropertiesService.getScriptProperties(), fid = props.getProperty('RF_' + code), okMap = {};
+  var props = PropertiesService.getScriptProperties(), fid = props.getProperty('RF_' + code), okMap = {};   // [PREP_HUB_1123] «준비할 것» 파일도 이름표(RF_PREP)를 단다
   try { okMap = JSON.parse(props.getProperty('RFOK_' + code) || '{}') || {}; } catch (e) { okMap = {}; }
   var cust = (typeof findCustomerByCode === 'function') ? findCustomerByCode(code) : null, wy = cust ? _ymdOf(cust.get('예식일')) : '';
   var late = ''; if (wy) { var d = new Date(wy + 'T00:00:00+09:00'); d.setDate(d.getDate() - 7); late = Utilities.formatDate(d, 'Asia/Seoul', 'yyyy-MM-dd'); }
   var out = []; if (fid) { try { var it = DriveApp.getFolderById(fid).getFiles(); while (it.hasNext()) { var f = it.next(); if (f.isTrashed()) continue; var at = Utilities.formatDate(f.getDateCreated(), 'Asia/Seoul', 'yyyy-MM-dd HH:mm');
-    out.push({ key: _rfKeyOfName(f.getName()), label: RF_KEYS[_rfKeyOfName(f.getName())] || '', id: f.getId(), name: f.getName(), kb: Math.round(f.getSize() / 1024), at: at, late: !!(late && at.slice(0, 10) > late) }); } } catch (e) {} }
+    out.push({ key: _rfKeyOfName(f.getName()), label: RF_KEYS[_rfKeyOfName(f.getName())] || RF_PREP[_rfKeyOfName(f.getName())] || '', id: f.getId(), name: f.getName(), kb: Math.round(f.getSize() / 1024), at: at, late: !!(late && at.slice(0, 10) > late) }); } } catch (e) {} }
   out.sort(function (a, b) { return a.at < b.at ? 1 : -1; });   // 최신이 위 · 같은 자리에 여러 개면 맨 위가 지금 쓰는 것
   var vc = null; try { vc = _vcSlots(); if (vc) { var vst = _vcSt(code); vc.me = { groom: _vcPub(vst.groom, code, vst), bride: _vcPub(vst.bride, code, vst) };
     /* ★[VC_ON_CODE 2026-10-08 목소리 1라운드 86] 칸 정보는 모든 예식이 같이 쓰는 10분 캐시라 on 도 «예식 없이» 잰 값이었다 — 스위치 studio(시험 예식만)면 시험 예식에서도 «스위치 꺼짐».
@@ -2900,7 +2951,8 @@ function buildProductionState(r) { _gsr_();
     snapDraft: draft.snapDraft || null,        // 스냅 사전기획 이어하기·요약·진행바 스텝 상태용
     photoFriendOk: true,                       // [PHOTO_FRIEND] 이 서버는 «친구들과 자유롭게»(photoFriend)를 안다 — 부부 화면은 이 표시가 있을 때만 그 칸을 연다(옛 서버는 버린다)
     snapZoneNoteOk: true,                      // ★[SNAP_ZONE_NOTE] 이 서버는 공간별 «사진작가에게 전할 말»(zones[k].note)을 안다 — 부부 화면은 이 표시가 있을 때만 그 칸을 연다(옛 서버는 버린다)
-    voice: _voicePub(String(r.get('개인코드') || '').trim()),   // ★[VOICE_UP_FROM 2026-09-28] 두 분 목소리 날짜 문 · 시험 예식 · AI 스위치(켜짐 여부만) — 빌더가 새 칸을 보일지 정한다
+    voice: _voicePub(String(r.get('개인코드') || '').trim()),
+    prepFiles: _rfPrepPub(String(r.get('개인코드') || '').trim()),   // ★[PREP_HUB_1123] «준비할 것» — 두 분이 올린 축가 반주 · 준비한 순서 · 덕담 · 축사 원고(열쇠 → 이름 · 때 · 상태) · 없으면(옛 GAS) 화면은 «받음»을 못 그린다   // ★[VOICE_UP_FROM 2026-09-28] 두 분 목소리 날짜 문 · 시험 예식 · AI 스위치(켜짐 여부만) — 빌더가 새 칸을 보일지 정한다
     snapPick: SNAP_V2.pick,                    // ★[SNAP_PICK_ALL] 고르기 상한 — 부부 화면은 min(목록 8, 이 값)을 쓴다 · 이 값이 없는 옛 서버(4)면 화면도 4
     snapV2: _snapV2Live(),                     // ★[SNAP_PICK_V2] 새 기획을 아는 서버 — 부부 화면은 이 표시가 있을 때만 새 기획을 연다(옛 서버는 새 칸을 걸러 버린다) · [SNAP_V2_FROM] 처리방침 시행일 전에는 false
     snapMeta: _snapMetaPublic(draft.snapMeta, r),   // 디렉터 확인·회신·잠금만(폴더·올린 목록·브리프 주소는 안 보낸다)

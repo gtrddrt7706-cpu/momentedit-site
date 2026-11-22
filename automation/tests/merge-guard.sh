@@ -20904,7 +20904,7 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/fab-names.mjs >/dev/
   esac
 fi
 # ★★[DRESS_SCROLL_LOCK · DRESS_LOCK_HOLD 2026-10-31 사장님 제보] 드레스 창 끝에서 더 내리면 뒤 마이페이지가 움직였다 — 창이 떠 있는 동안 다시 그리기(show)가 잠금을 풀었다(목록에 창이 없었다)
-chk "'mp_drViewer','mp_invSample'\];" mypage.html 1                                # [DRESS_LOCK_HOLD] 떠 있는 창 목록(한 곳)
+chk "'mp_drViewer','mp_invSample','mp_prepOverlay'\];" mypage.html 1                                # [DRESS_LOCK_HOLD] 떠 있는 창 목록(한 곳)  · [PREP_HUB_1123] 목록 끝에 «준비할 것» 창이 붙었다(옛 기대 «…mp_invSample];» 은퇴)
 chk "document.documentElement.style.overflow='hidden';   // \[DRESS_SCROLL_LOCK\]" mypage.html 1
 chk "ov.addEventListener('wheel', _stopScroll, {passive:false}); ov.addEventListener('touchmove', _stopScroll, {passive:false});" mypage.html 1
 chk 'html.pk-pop,html.pk-pop body{overscroll-behavior-y:contain}' dress.html 1
@@ -24493,6 +24493,28 @@ chk 'body.mkd .prog{position:sticky;top:-5px;' order-preview.html 1
 # ★[PV_BED_QUIET_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 A] 음악까지 미리듣기 — 예시 음악(@PV) 파일이 없으면 빨간 고장 줄 없이 조용히(PREVIEW_BED 머리말 그대로)
 chk 'PV_BED_QUIET_N06' console.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/pv-bed-quiet.mjs >/dev/null 2>&1; _pb=$?; node scripts/audit/pv-bed-quiet.mjs --selftest >/dev/null 2>&1; _pbs=$?; if [ "$_pb" != 0 ] || [ "$_pbs" != 0 ]; then echo "REVERT? pv-bed-quiet: 미리듣기 예시 음악이 없을 때 빨간 줄이 다시 선다 ($_pb/$_pbs) — node scripts/audit/pv-bed-quiet.mjs"; fail=1; else echo 'ok pv-bed-quiet'; fi; fi
+
+# ★★[PREP_HUB_1123 2026-11-23 사장님 결정] 예식 준비 카드 «준비할 것» 줄(가족 · 친구 스냅 바로 뒤 · 단추 «열기» · 회색 한 줄 «n개 남음 · 다음 마감») + 전체 화면(스튜디오에 보낼 것 · 두 분이 준비할 것 · 보내 주시면 좋은 것)
+#   목록 원천 assets/send-list.js 한 곳([SEND_LIST_SYNC] 원천 ritual-open prepOf 와 맞대기) · 파일 = action ritualFile 새 열쇠 mr · fx · bl · sp(80_production RF_PREP) · 원고 글 = S.tx bless.p · free.p · 체크 = S.mkc
+chk 'PREP_HUB_1123' mypage.html 6
+chk 'PREP_HUB_1123' assets/send-list.js 1
+chk 'PREP_HUB_1123' automation/platform/80_production.gs 8
+chk 'PREP_HUB_1123' automation/platform/70_journey.gs 1
+chk "'mp_invSample','mp_prepOverlay'];" mypage.html 1
+chk '    ,_prhRow   /\*' mypage.html 1
+chk '<script src="/assets/send-list.js?v=' mypage.html 1
+chk "var RF_PREP = { mr: '축가 반주', fx: '준비한 순서 파일', bl: '덕담 원고', sp: '축사 원고' };" automation/platform/80_production.gs 1
+chk 'SEND_LIST_SYNC' assets/send-list.js 2
+if command -v node >/dev/null 2>&1; then node scripts/audit/send-list-sync.mjs >/dev/null 2>&1; _sl=$?; node scripts/audit/send-list-sync.mjs --selftest >/dev/null 2>&1; _sls=$?
+  if [ "$_sl" = 0 ] && [ "$_sls" = 0 ]; then echo 'ok send-list-sync: «준비할 것» 규칙 = 원천 ritual-open prepOf · 깨 보기 빨강'; else echo 'FAIL send-list-sync: «준비할 것» 규칙이 원천과 갈라졌다 — node scripts/audit/send-list-sync.mjs'; fail=1; fi
+fi
+if command -v node >/dev/null 2>&1; then _ph=$(node scripts/audit/prep-hub.mjs 2>&1); _phr=$?
+  case "$_phr" in
+    0) echo 'ok prep-hub: «준비할 것» 줄 · 전체 화면 · 올리기 · 체크 · 원고 · 서버 열쇠' ;;
+    1) echo 'FAIL prep-hub: «준비할 것»이 어긋났다 — node scripts/audit/prep-hub.mjs'; printf '%s\n' "$_ph" | grep -E '^FAIL' | sed 's/^/    | /'; fail=1 ;;
+    *) echo 'ok prep-hub: 화면은 재지 못했습니다(브라우저 없음) — 서버 · 목록은 통과' ;;
+  esac
+fi
 # ★[BOW_LINE_PLAIN_1123 2026-11-23 사장님 «자세 보기가 있으니 팁은 빼고 일반적으로 문구만»] 맞절 줄 머리 «팁 · 사진에 예쁘게 남는 인사예요» 걷음 · 짧은 판 «두 분이 마주 보고 서로에게 인사해요. 자세 보기»
 chk 'BOW_LINE_PLAIN_1123' order-preview.html 1
 nochk '팁 · 사진에 예쁘게 남는 인사' order-preview.html 0
