@@ -13323,7 +13323,7 @@ nochk '한 분 한 분께 인사' order-preview.html
 chk '오늘 함께해 주신 모습이, 사진 속에 그대로 남았습니다.' assets/ritual-data.js 1
 chk 'PHOTO_CAP_40' mypage.html 1
 chk 'PHOTO_CAP_CLAMP' mypage.html 1
-chk 'var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=6, PHOTO_PER=3, PHOTO_ONLINE=2, PHOTO_THANKS=1;' mypage.html 1   # [PHOTO_THANKS 2026-09-26] 감사 인사 1분이 붙었다
+chk 'var PHOTO_DAY=40, PHOTO_PRE=2, PHOTO_ALL=6, PHOTO_PER=3, PHOTO_ONLINE=0, PHOTO_THANKS=1;' mypage.html 1   # [CLOSE_C_GO_1122] 온라인 2 → 0   # [PHOTO_THANKS 2026-09-26] 감사 인사 1분이 붙었다
 # ★[WISH_COUNT · NO_ZERO_SHOT · PHOTO_GO2GO 2026-09-26 코워크 최종판 2-4~2-6] 꼭 담고 싶은 사진은 적은 만큼만 · «구도 0개» 금지 · 사진 est 는 GO→GO(말 포함)
 chk 'WISH_COUNT' mypage.html 3
 chk 'function photoWishN(){ return wishClean(PHOTOFLOW.wish).length; }' mypage.html 1
@@ -15229,7 +15229,7 @@ chk '<ol class="ph-steps" aria-label="본식 뒤 단체 사진 시간의 차례"
 chk "h+=_stepHd('전체 단체 사진'" mypage.html 1   # [B2_MA_66 2026-11-06]
 nochk "h+=_stepHd('감사 인사 · 남아 주실 분 안내'" mypage.html   # ★[END_FLOW_1030 검토 167] 감사 인사 차례는 걷었다(닫는 인사가 맡는다) · 되살리지 말 것
 chk "h+=_stepHd('가족 사진'" mypage.html 1   # [B2_MA_66 2026-11-06]
-chk "if(_dig) h+=_stepHd('온라인 인사'" mypage.html 1
+nochk "_stepHd('온라인 인사'" mypage.html 0   # [CLOSE_C_GO_1122] 은퇴(옛 chk 1) · 사진 차례 온라인 인사 걷음
 chk "h+=_stepHd('추가 촬영'" mypage.html 1   # [POST_FLOW_200] 옛 «남은 분들과 자유롭게»
 nochk '먼저 가실 분들은 이때 식사 자리로 옮겨요.' mypage.html   # ★[END_FLOW_1030] «먼저 가시라» 안내 금지(사장님 10/30)
 nochk "var _flw=\[\['다 함께 한 장'" mypage.html                                    # 흐름 줄(알약) 되살리지 말 것 — 번호 줄이 곧 흐름
@@ -24412,3 +24412,7 @@ nochk "if (_openC && S.digital) cues.push(cue({" assets/ritual-cue.js 0   # ★[
 chk 'CLOSE_C_GO_1122' scripts/splice-close-c-1122.py 1
 chk 'CLOSE_C_GO_1122' docs/rules/나레이션.md 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/close-c-go-1122.mjs >/dev/null 2>&1; _cc=$?; if [ "$_cc" != 0 ]; then echo 'FAIL close-c-go-1122: 온라인 날 폐식 인사(386 ~ 389 · 62 없음 · 송출 종료 자리)가 대표님 11/22 결정과 다릅니다 — node scripts/audit/close-c-go-1122.mjs'; fail=1; else echo 'ok close-c-go-1122'; fi; fi
+# ★[CLOSE_C_GO_1122 화면 몫 · 2026-11-22 대표님 «추천대로»] 폐식 카메라 인사 2분 걷음 — 40분 셈 몫 0 · 미리보기 글 · AI 상담 지식
+chk 'online: 0 };' assets/ritual-open.js 1
+nochk '온라인 인사까지' order-preview.html 0
+nochk '온라인 인사 약 2분' api/_kb.js 0
