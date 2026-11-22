@@ -22126,7 +22126,7 @@ chk '<button type="button" class="mk-status" id="mkStat" data-fk="mkfold" aria-e
 chk 'function _mkStatPaint()' order-preview.html 1
 chk "'본식 '+_bN+'개 순간 중 '+_no+'번째'" order-preview.html 1
 chk "<span class=\"mk-pre\">본식 </span><span class=\"mk-num\"><b>'+_no+'</b>/'+_bN" order-preview.html 1
-chk 'body.mkd .prog{position:sticky;top:-15px' order-preview.html 1
+nochk 'body.mkd .prog{position:sticky;top:-15px' order-preview.html 0   # [HEAD_GAP_1122] 은퇴(옛 chk 1 · −5px 로)
 chk 'body.mkd .op-steps-c{margin:0}' order-preview.html 1
 chk '@media (max-width:408px) and (hover:hover) and (pointer:fine){ body.mkd .prog-top{flex-wrap:wrap' order-preview.html 1
 chk 'body.op4 #obExit{min-width:48px;padding:0 4px}' order-preview.html 1
@@ -24425,3 +24425,6 @@ chk 'if (exRoleWins(S, k)) return false;' assets/ritual-open.js 1
 # ★[TRIBUTE_NOTES_OFF_1122 2026-11-22 사장님 «고르지 않으시면 말로 인사해요 · 신랑분은 원하시면 큰절을 … 굳이 없어도 될 것 같아»] 부모님께 인사 인사말 칩 아래 두 줄을 걷었다 · 돌아오면 빨강
 chk 'TRIBUTE_NOTES_OFF_1122' order-preview.html 2
 nochk '고르지 않으시면 말없이 인사해요' order-preview.html 0
+
+# ★[HEAD_GAP_1122 2026-11-22 사장님 «맨 위 간격이 좁다»] 머리 줄이 붙으면 맨 위에서 10px 띄움(옛 −15px = 딱 붙음)
+chk 'body.mkd .prog{position:sticky;top:-5px;' order-preview.html 1
