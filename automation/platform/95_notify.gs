@@ -622,7 +622,7 @@ function _nfAdminText(event, code, x) { _gsr_();
     case 'admin.resultPicked':   return tag + ' 보정할 사진 선택 완료' + c + ' (' + (x.count || 0) + '컷) / 보정 작업 시작';   // [B2_MA_68 2026-11-06 2차 B2-마68] «보정본 선택»은 완성 결과물을 고른 것처럼 읽혔다 · 결과물 도착 «보정본이 도착했습니다»는 그대로
     case 'admin.extraSignal':    return tag + ' 추가보정 입금신호' + c + ' (입금자 ' + (x.payer || '-') + ') / 확인 필요';
     case 'admin.cancelRefund':   return tag + ' 예약 취소 ' + (x.names || '') + c + (x.card ? ' / 예약금 카드 결제 취소 필요(토스)' : (' / 환불 송금 필요' + (x.acct ? (' (' + x.acct + ')') : '')));   // [DEPOSIT_CARD] 카드 예약금은 송금이 아니라 카드 취소
-    case 'admin.diningConsult':  return tag + ' 애프터 웨딩: 장소 미정' + c + ' / 장소 추천·예약 안내 필요';   // [B2_MA_94 2026-11-06 2차 B2-마94] 고객 화면 이름(애프터 웨딩)과 같게 · 코드 · 수 · 시트명은 그대로
+    case 'admin.diningConsult':  return tag + ' 예식 후 식사: 장소 미정' + c + ' / 장소 추천·예약 안내 필요';   // [B2_MA_94 2026-11-06 2차 B2-마94] 고객 화면 이름(예식 후 식사)와 같게 · 코드 · 수 · 시트명은 그대로   /* [MEAL_NAME_1122] «애프터 웨딩» → «예식 후 식사» */
     case 'admin.finalConfirm':   return tag + ' 예식 최종 확정' + (x.changed ? '(변경·재확인)' : '') + c + ' / 하객 ' + (x.head || '-') + '명'
       /* ADMIN_NOFEE_LINE 2026-09-19 — 초과단가 0(하객 30명까지 추가금 없음)이면 스탠딩이 있어도 청구가 없다.
          종전엔 standing 만 보고 문구를 켜서 26~30명 구간에서 «추가 0원 잔금 합산 청구»가 관리자 메일에 찍혔다

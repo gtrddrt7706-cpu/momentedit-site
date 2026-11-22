@@ -185,7 +185,7 @@ console.log('\n[9] 캡·손상 격리 — 한 트랙 사고가 다른 트랙을 
   const sErr = G._prodSizeError(big, { track: 'seat' });
   ok(!!rErr && rErr.indexOf('입력한 글이 많아 저장하지 못했어요 · 긴 원고를 확인해 주세요') === 0 && rErr.indexOf('서약 · 편지') < 0 && /\(코드 S0\)$/.test(rErr), '초과 트랙은 그 트랙에서 거부 · 식순은 원인 원고를 단정하지 않는다(B2_GEUL_16 · PROD_CAP_WORDS)', rErr.slice(0, 40));
   const dErr = G._prodSizeError({ tracks: {}, diningDraft: { t: 'ㅁ'.repeat(13000) } }, { track: 'dining' });
-  ok(!!dErr && dErr.indexOf('애프터 웨딩') >= 0 && !/[0-9][0-9,]*자/.test(dErr), '다른 트랙도 그 트랙 이름 · 길이 숫자 없음(애프터 웨딩)', dErr.slice(0, 40));
+  ok(!!dErr && dErr.indexOf('예식 후 식사') >= 0 && !/[0-9][0-9,]*자/.test(dErr), '다른 트랙도 그 트랙 이름 · 길이 숫자 없음(예식 후 식사)', dErr.slice(0, 40));
   ok(sErr === '', '★같은 고객의 다른 트랙 저장은 정상(분리의 목적)');
   ok(rErr.indexOf('—') < 0, '캡 안내 문구 전각 줄표 없음');
   // 합산 상한도 살아있다

@@ -1606,7 +1606,7 @@
     return k === 'midvid' ? FREE_SHOT.video : k === 'free' ? FREE_SHOT[FREE_KIND[chipOf('free', S)]] : (CARDS[k] || {}).shot; }   // [SPEECH_SONG_1115]
 
   /* ── 도와주실 분(코워크 5-6) — 두 분 준비 · 마이페이지 준비 칸. [누가, 언제] ──
-     ★«식사 자리로 안내할 분»은 애프터 웨딩을 고른 날만이라 식순만으로는 모른다 — 마이페이지가 덧붙인다(mealGuide). */
+     ★«식사 자리로 안내할 분»은 예식 후 식사를 고른 날만이라 식순만으로는 모른다 — 마이페이지가 덧붙인다(mealGuide). */
   function helpersOf(S, opt) {
     opt = opt || {};
     var out = [];
@@ -1619,8 +1619,8 @@
        카드 이름은 «가족 · 친구 스냅»(#864 · GROUP_TIME_WORD) — 옛 이름 «단체 사진»으로 가리키지 않는다. */
     out.push(['가족사진 때 촬영하실 분들을 불러 모아 주실 분', '필요한 경우에만 · 한 분이 함께 맡아도 돼요 · 마이페이지 «가족' + NB + '·' + NB + '친구' + NB + '스냅»에 적어 두면 디렉터가 먼저 말씀드려요']);   // 카드 이름은 한 덩어리(1280 에서 «친구 / 스냅»으로 갈렸다)
     out.push(['축의 받을 분', '축의금을 받으실 때만 · 두 분이 정해요']);   // [HELPER_WORDS 3-4(f)]
-    /* ★[MEAL_GUIDE_WORD_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정] 식사가 확인된 날(mealFull)만 «식사 자리» · 카페 · 미확인 날은 «애프터 웨딩 자리로 안내할 분» — 촬영 후 안내(319 · 카페 판)가 «식사»를 쓰지 않는 것과 같은 기준(meal 있음 · mealFull 아님) */
-    if (opt.mealGuide) out.push([opt.mealFull === false ? '애프터 웨딩 자리로 안내할 분' : '식사 자리로 안내할 분', '애프터 웨딩을 고른 날']);
+    /* ★[MEAL_GUIDE_WORD_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정] 식사가 확인된 날(mealFull)만 «식사 자리» · 카페 · 미확인 날은 «예식 후 자리로 안내할 분» — 촬영 후 안내(319 · 카페 판)가 «식사»를 쓰지 않는 것과 같은 기준(meal 있음 · mealFull 아님) */
+    if (opt.mealGuide) out.push([opt.mealFull === false ? '예식 후 자리로 안내할 분' : '식사 자리로 안내할 분', '예식 후 식사를 고른 날']);
     return out;
   }
 

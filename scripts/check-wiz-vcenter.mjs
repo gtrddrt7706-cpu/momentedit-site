@@ -32,9 +32,9 @@ try {
     INVFLOW.step = 'method'; renderInvFlow(box); await w(120);
     meas('청첩장 이름(김)', box, box.firstElementChild);
     INVFLOW.active = false; _prodFsSync();
-    // 애프터 웨딩 — 2/2 안내 없이(짧음)
+    // 예식 후 식사 — 2/2 안내 없이(짧음)
     startTrkFlow('dining', { need: 'none', _step: 1 }, {}); await w(200);
-    meas('애프터 웨딩 2/2(짧음)', box, box.firstElementChild);
+    meas('예식 후 식사 2/2(짧음)', box, box.firstElementChild);
     TRKFLOW.active = false; _prodFsSync();
     // 단체 사진 · 스냅 — 자체 오버레이
     startPhotoFlow({ photo: ['양가 가족 전체'], photoWish: [], photoShareUrl: '' }); await w(220);
