@@ -126,7 +126,7 @@ try {
       for (const c of COMBO) { await f.evaluate((c) => { Object.keys(c).forEach((k) => { S.on[k] = c[k]; }); try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, c);
         const ks = await f.evaluate(() => _lRows());
         for (const k of ks) { const x = await f.evaluate((k) => { const st = _lSteps(ENG, [k]), bq = window.BgmForm && BgmForm.flowRow ? BgmForm.flowRow(k, st) : null; if (!bq || (bq.by && bq.by !== 'top')) return null;
-            LP.q = _lpTag(st).filter((x) => !x.quiet || x.txt); LP.q._pm = 0; if (typeof _lPreMark === 'function') _lPreMark(); const li = LP.q.findIndex((x, i) => x._leadHere || (i === 0 && !x._pre)), sl = (x) => x ? (x.slug || x.of || '') : '';
+            LP.q = _lpTag(st).filter((x) => !x.quiet || x.txt); LP.q._pm = 0; if (typeof _lPreMark === 'function') _lPreMark(); const li = LP.q.findIndex((x, i) => x._leadHere || (x._noLead && !x._base) /* [TRIBUTE_GAP_BGM_1122] 뜸 없이 새 곡이 서는 줄(141) */ || (i === 0 && !x._pre)), sl = (x) => x ? (x.slug || x.of || '') : '';
             const r = { k, at: bq.at, scr: sl(st[bq.at]), li, lead: sl(LP.q[li]) }; LP.q = []; return r; }, k);
           if (!x) continue; seen.push(x.k + ':' + x.scr); if (x.scr !== x.lead) bad.push(Object.assign({ c }, x)); }
         await f.evaluate((c) => { Object.keys(c).forEach((k) => { S.on[k] = 1; }); try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} _persist(); render(); }, c); }
