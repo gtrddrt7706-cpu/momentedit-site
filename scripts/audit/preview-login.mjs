@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 const require = createRequire(import.meta.url);
-const pw = require('playwright');
+let pw = null; try { pw = require('playwright'); } catch (e) { console.log('못 쟀다 — playwright 없음(guard 칸) · 브라우저 칸에서 잰다'); process.exit(2); }   /* CANT_LOOK = 2 · 결함 아님 */
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 const SELF = process.argv.includes('--selftest');
 let root = ROOT;
