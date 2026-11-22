@@ -1910,7 +1910,7 @@ chk 'AI 음성으로 미리 제작되며' mypage.html 1                  # 판�
 chk 'AI 음성으로 미리 제작되며' contract/v1-1.html 1
 chk 'CONTRACT_V16' mypage.html 2                              # v1.5→보존본 매핑 + 넷째 줄 주석
 chk "archive/v1-5" mypage.html 1                              # 옛 서명자 열람 경로
-chk "docVersion: 'v1.17'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
+chk "docVersion: 'v1.18'" automation/platform/70_journey.gs 1  # 서명 스냅샷 버전(GAS 재배포 필요) — v1.7=금액 인상[PRICE_2026_08]
 chk '정성껏 고른 목소리로 진행됩니다' assets/ritual-data.js 2   # ★[REVIEW31_1023 검토 157-1] 01 · 02 = G4 표 2 «다정» 판 · ★[SOURCE_FIRST_1016] 자료 글로 옮김 · 옛 핀 «미리 준비한 안내 음성으로 진행…» · 옛 주석 ①하객 맞이 음성(완곡)
 chk 'AI 음성 안내로 진행합니다' admin.html 1                   # ②식순지 인쇄물(명시)
 nochk '식순지엔 AI 음성 안내로 적혀요' order-preview.html      # 빌더 화면에서는 뺀 줄
@@ -2604,7 +2604,7 @@ chk 'archive/v1-4.html' mypage.html 1
 # [CONTRACT_V16 2026-08-13] 계약서 v1.6(AI 음성 안내 확인 줄) · v1.5 서명자는 보존본으로 열람
 chk 'archive/v1-5.html' admin.html 1
 chk 'archive/v1-5.html' mypage.html 1
-chk "docVersion: 'v1.17'" automation/platform/70_journey.gs 1
+chk "docVersion: 'v1.18'" automation/platform/70_journey.gs 1
 
 # [FILE_NO_SOURCE] mp3 번호는 엔진(RitualCue.fileOf = FILES 인덱스+1)에서만 온다.
 #   ★대본 생성기가 1부터 세어 붙이던 시절, 폐지 클립(53 narr-ringwarm-out)이 FILES 에 자리로
@@ -4158,8 +4158,8 @@ fi
 #     240만(8/15 인상 전) · 280/210만(8/14 인상 전). 8/14~8/15 창이 이틀뿐이라 지우기 쉽다.
 chk "'시그니처': { 평일: 2500000, 주말: 3300000 }" automation/platform/70_journey.gs 1
 chk 'value="2400000">평일 · 240만 (8/15 인상 전)' admin.html 1
-chk 'v1\.17' contract/v1-1.html 6   # [CONTRACT_V117 2026-11-22 하객 35명 · 메타 · hero · 예시 · 서명 줄 · 꼬리 · 머리 주석] [CONTRACT_V116 · 머리 주석 포함] [CONTRACT_V115] [CONTRACT_V114] [CONTRACT_V113] [CONTRACT_V111] [CONTRACT_V110] [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
-chk "docVersion: 'v1.17'" automation/platform/70_journey.gs 1
+chk 'v1\.18' contract/v1-1.html 6   # [CONTRACT_V118 2026-11-22 결제 수단 · 메타 · hero · 예시 · 서명 줄 · 꼬리 · 머리 주석] [CONTRACT_V117 2026-11-22 하객 35명 · 메타 · hero · 예시 · 서명 줄 · 꼬리 · 머리 주석] [CONTRACT_V116 · 머리 주석 포함] [CONTRACT_V115] [CONTRACT_V114] [CONTRACT_V113] [CONTRACT_V111] [CONTRACT_V110] [CONTRACT_VER] hero-meta 포함 다섯 자리 — 2026-09-19 전수조사에서 hero 만 v1.3 으로 남아 있었다
+chk "docVersion: 'v1.18'" automation/platform/70_journey.gs 1
 chk "v1-6.html" mypage.html 1
 chk "v1-7.html" mypage.html 1
 # 평일 240만이 적힌 보존본 — 8/14~8/15 이틀 창의 서명자가 여는 문서다
@@ -13357,7 +13357,8 @@ if command -v node >/dev/null 2>&1; then
 fi
 chk 'CONTRACT_VER_ONE' scripts/audit/contract-version.mjs 1
 chk 'CONTRACT_VER_ONE' automation/tests/merge-guard.sh 3
-chk 'Version v1.17' contract/v1-1.html 1   # [CONTRACT_V117]
+chk 'Version v1.18' contract/v1-1.html 1   # [CONTRACT_V118]
+chk 'Version v1.17' contract/archive/v1-17.html 1   # [CONTRACT_V118] v1.17 보존본(결제 계좌이체만)
 chk 'Version v1.16' contract/archive/v1-16.html 1   # [CONTRACT_V117] v1.16 보존본(하객 최대 30명)
 chk 'CONTRACT_V117' contract/v1-1.html 1
 chk 'CONTRACT_V117' automation/platform/70_journey.gs 2
@@ -24401,3 +24402,14 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/tribute-go-1122.mjs 
 # ★[EX_ROLE_HIDE_1122 2026-11-22 사장님 «축가 멘트 눌러도 변경이 없는데?»] «누가»를 고른 축가 · 축사는 멘트 예시 칩을 숨긴다
 chk 'EX_ROLE_HIDE_1122' assets/ritual-open.js 1
 chk 'if (exRoleWins(S, k)) return false;' assets/ritual-open.js 1
+
+# ★★[CONTRACT_V118 2026-11-22 대표님 결정 · 대본 PAY_METHOD_1122] 계약서 v1.18 — 제4조⑥ 결제 수단(예약금 계좌이체만 · 계약금·중도금·잔금 카드(토스) 또는 계좌이체) · ⑦ 카드 납입일.
+#   금액 · 환불 조항 숫자는 그대로(refund-terms-same 이 4조⑧ · 7 · 8 · 9조를 옛 판과 대조) · v1.17 서명자는 보존본으로(contract-version 이 잰다).
+chk 'CONTRACT_V118' contract/v1-1.html 1
+chk 'CONTRACT_V118' automation/platform/70_journey.gs 3
+chk "if(v==='v1.17') return '/contract/archive/v1-17.html';" mypage.html 1
+chk "if(v==='v1.17') return '/contract/archive/v1-17.html';" admin.html 1
+chk "<li>상담 예약금은 '을'이 지정한 계좌로의 계좌이체로 납입한다.</li>" contract/v1-1.html 1
+chk '신용카드 결제(전자지급결제대행사 ㈜토스페이먼츠를 통한 결제) 또는 계좌이체 중에서 선택하여 납입할 수 있으며' contract/v1-1.html 1
+nochk '결제는 계좌이체로 하며' contract/v1-1.html
+chk '결제는 계좌이체로 하며' contract/archive/v1-17.html 1
