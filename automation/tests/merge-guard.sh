@@ -24412,3 +24412,10 @@ chk 'if (exRoleWins(S, k)) return false;' assets/ritual-open.js 1
 # ★[TRIBUTE_NOTES_OFF_1122 2026-11-22 사장님 «고르지 않으시면 말로 인사해요 · 신랑분은 원하시면 큰절을 … 굳이 없어도 될 것 같아»] 부모님께 인사 인사말 칩 아래 두 줄을 걷었다 · 돌아오면 빨강
 chk 'TRIBUTE_NOTES_OFF_1122' order-preview.html 2
 nochk '고르지 않으시면 말없이 인사해요' order-preview.html 0
+
+# ★[N20_SONG_ASK_1119 2026-11-22 대표님 «둘 다 올리기» · NIGHT20 #05 제안 6] 축가 «누가»를 고른 날 할 일 = «○○께 축가 부탁드리기»(안 고르면 «축가 부르실 분 정하기») · 돌아오면 빨강
+chk 'N20_SONG_ASK_1119' assets/ritual-open.js 1
+chk "sgL + '께 축가 부탁드리기'" assets/ritual-open.js 1
+# ★[N20_SPEECH_WHO_ROW_1119 2026-11-22 대표님 «둘 다 올리기» · NIGHT20 #05 제안 16] 축사 흐름 «말씀하실 차례 · 고른 분»(덕담과 같은 꼴) · 돌아오면 빨강
+chk 'N20_SPEECH_WHO_ROW_1119' order-preview.html 1
+chk "'말씀하실 차례 · '+_swName()" order-preview.html 1
