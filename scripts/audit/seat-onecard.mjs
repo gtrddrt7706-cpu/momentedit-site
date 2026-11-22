@@ -277,6 +277,23 @@ try {
   ok(fit.ctl === 0, '테이블 ＋ － ✕ · «+ 테이블» 단추가 없다(배치 고정)', String(fit.ctl));
   await page.screenshot({ path: path.join(OUT, 'seat-5-확정배치-390.png'), fullPage: false });
 
+  /* ★[SEAT_OVERVIEW 2026-11-22 사장님 «처음엔 전체 배치도 · 누르면 확대»] 폰 첫 화면 = 전체 그림(점) · 누르면 그 자리로 확대 · «전체 보기»로 돌아간다 */
+  console.log('\n[전체 보기 · 확대]');
+  await page.evaluate(() => { ME_SEAT_PLAN._zoomed = {}; renderSeat(document.getElementById('mp_production')); });
+  await new Promise((r) => setTimeout(r, 300));
+  const ov = await page.evaluate(() => { const sc = document.querySelector('#mp_production [data-seat-scroll]'); const m = sc.querySelector('.smap').getBoundingClientRect(); const r = sc.getBoundingClientRect();
+    return { ov: sc.classList.contains('smap-ov'), fits: m.width <= r.width + 1, t: sc.querySelectorAll('.smap-t').length, names: [...sc.querySelectorAll('.rs-nm')].filter((e) => e.offsetWidth > 0).length, hint: !document.querySelector('#mp_production .smap-hint').hidden }; });
+  ok(ov.ov && ov.fits && ov.t === 9 && ov.names === 0 && ov.hint, '폰 첫 화면은 테이블 9개 전체가 한 화면 · 자리는 점 · «테이블을 누르면 크게 보여요» [SEAT_OVERVIEW]', JSON.stringify(ov));
+  await page.screenshot({ path: path.join(OUT, 'seat-6-전체보기-390.png'), fullPage: false });
+  { const b = await page.evaluate(() => { const r = document.querySelectorAll('#mp_production .smap-t')[6].getBoundingClientRect(); return { x: r.left, y: r.top, width: r.width, height: r.height }; });   /* 7번 테이블(우측) */ await page.mouse.click(b.x + b.width / 2, b.y + b.height / 2); await new Promise((r) => setTimeout(r, 450)); }
+  const zm = await page.evaluate(() => { const sc = document.querySelector('#mp_production [data-seat-scroll]'); return { ov: sc.classList.contains('smap-ov'), sl: Math.round(sc.scrollLeft), back: !document.querySelector('#mp_production .smap-cue.b').hidden, win: document.querySelectorAll('.seat-drinkbar').length }; });
+  ok(!zm.ov && zm.sl > 100 && zm.back && zm.win === 0, '우측 테이블을 누르면 그쪽으로 확대 · 창은 안 열림 · «전체 보기» 알약 [SEAT_OVERVIEW]', JSON.stringify(zm));
+  await page.screenshot({ path: path.join(OUT, 'seat-7-확대-390.png'), fullPage: false });
+  await tap(page, '#mp_production .smap-cue.b');
+  const bk = await page.evaluate(() => document.querySelector('#mp_production [data-seat-scroll]').classList.contains('smap-ov'));
+  ok(bk, '«전체 보기»를 누르면 다시 전체 그림 [SEAT_OVERVIEW]', String(bk));
+  await page.evaluate(() => { ME_SEAT_PLAN._zoomed = { ed: true, all: true }; });
+
   console.log('\n[문구 · 넘침]');
   const txt = await page.evaluate(() => document.getElementById('mp_production').innerText || '');
   ok(txt.indexOf('—') === -1, '전각 줄표(—) 없음', (txt.match(/.{0,24}—.{0,24}/) || [''])[0]);

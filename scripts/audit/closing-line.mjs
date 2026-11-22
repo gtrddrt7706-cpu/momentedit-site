@@ -51,8 +51,9 @@ export function check(build) {
     if ((cl.slug || '') !== w.slug) out.push(`① ${tag} 판 ${cl.slug || '(없음)'} ≠ ${w.slug || '(없음)'}`);
     if (w.slug && cl.text !== w.text) out.push(`① ${tag} 글이 명세와 다르다 — «${cl.text}»`);
     const mid = q.slice(bow + 1, ic >= 0 ? ic : end + 1).map((c) => c.slug);
-    if (JSON.stringify(mid) !== JSON.stringify(o.digital ? ['narr-online-in'] : [])) out.push(`② ${tag} 닫는 인사와 마무리 사이 ${JSON.stringify(mid)}`);
-    if (ic >= 0 && (cl.fire !== 'manual' || (cl.goLeadMs || 0) !== (o.digital ? 2000 : 0))) out.push(`② ${tag} 마무리 멘트 GO · 간격(${cl.fire} · ${cl.goLeadMs})`);
+    /* ★[CLOSE_C_GO_1122] 옛 기대(디지털 날 닫는 인사 뒤 62 · 마무리 2초 뜸) 은퇴 — 온라인 날도 닫는 인사(386 ~ 389) 바로 뒤 마무리 · GO 에 바로 · 송출 종료는 마무리(liveEnd) */
+    if (JSON.stringify(mid) !== '[]') out.push(`② ${tag} 닫는 인사와 마무리 사이 ${JSON.stringify(mid)}`);
+    if (ic >= 0 && (cl.fire !== 'manual' || (cl.goLeadMs || 0) !== 0 || !!cl.liveEnd !== !!o.digital)) out.push(`② ${tag} 마무리 멘트 GO · 간격 · 송출 종료(${cl.fire} · ${cl.goLeadMs} · ${cl.liveEnd})`);
     const after0 = q.slice(end + 1), ap = after0.find((c) => /^after-photo/.test(c.slug || '')) || {};   /* ★[POST_FLOW_200] 촬영 후 안내 뒤에 추가 촬영(소리 없음) */
     /* ★[AFTER_PHOTO_191 검토 191] 사진 구간 끝 «촬영 후 안내»(after-photo*) — 작가님이 촬영을 마치면 누르는 큐(manual) 하나만 소리가 난다 · 사진 구간 안 나레이션은 여전히 0 */
     if (!/^after-photo/.test(ap.slug || '') || ap.fire !== 'manual') out.push(`③ ${tag} 사진 구간 끝이 촬영 후 안내(manual)가 아니다 — ${ap.slug || ap.actId || '(없음)'} · ${ap.fire}`);
