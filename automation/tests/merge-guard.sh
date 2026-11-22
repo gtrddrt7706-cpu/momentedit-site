@@ -17391,7 +17391,7 @@ chk 'REF_ROW4' scripts/audit/listen-page.mjs 2   # [REF_BEST4_ONLY 2026-10-09] �
 #   «상담 때 안내» 금지 — 식순은 상담을 다 마친 뒤 짓는다
 chk 'TRIB_ONE_SAY' assets/ritual-open.js 1
 chk "tribute: \[\['long', '말로 인사'\], \['none', '말없이'\]\]" assets/ritual-open.js 1
-chk '신랑분은 원하시면 큰절을 올리셔도 돼요' order-preview.html 1
+nochk '신랑분은 원하시면 큰절을 올리셔도 돼요' order-preview.html 0   # [TRIBUTE_NOTES_OFF_1122] 은퇴(옛 chk 1)
 chk 'GROOM_BOW_TIP' assets/ritual-cue.js 1
 nochk "\['bowGroom', '신랑 큰절'\]" assets/ritual-open.js
 chk 'FREE_ETC' assets/ritual-open.js 2
@@ -19461,6 +19461,14 @@ chk 'SEAT_EX_SHOT' mypage.html 2
 chk "_spEx('all')" mypage.html 1
 chk "_spEx('mine')" mypage.html 1
 chk 'SEAT_EX_SHOT' scripts/seat-example-shots.mjs 1
+# ★[SEAT_EX_POLISH 2026-11-22] PC 두 칸 나란히 · 그림 원래 비율 · 아래 · 오른쪽 흐리게 닫기 · 버진로드 띠는 찍을 때 뺀다
+chk 'SEAT_EX_POLISH' mypage.html 1
+chk 'SEAT_EX_POLISH' scripts/seat-example-shots.mjs 1
+chk 'class="sp-opts"' mypage.html 1
+# ★[SEAT_NO_RENAME 2026-11-22 사장님 «테이블번호를 굳이 수정할 필요는 없을 것 같아»] 원은 번호만 · 눌러서 테이블 이름 바꾸기 없음
+chk 'SEAT_NO_RENAME' mypage.html 1
+nochk 'data-si="name"' mypage.html
+nochk '번 테이블 이름 정하기' mypage.html
 if [ -s assets/seat/ex-all.webp ] && [ -s assets/seat/ex-mine.webp ]; then echo 'ok assets/seat: ex-all.webp · ex-mine.webp'; else echo 'REVERT? assets/seat: 하객 화면 예시 그림(ex-all · ex-mine .webp)이 없다 [SEAT_EX_SHOT]'; fail=1; fi
 chk 'IME_QUIET' guide.html 3
 chk 'function bindNameInput(' seat.html 1
@@ -22953,8 +22961,8 @@ chk '마이크를 디렉터에게 돌려주세요. 앞으로 나오셨다면 자
 chk "if(S.tribHug!=='off') L.push('· 안내 음성이 청하면 저희를 안아 주세요" order-preview.html 1   # B2_GEUL_10
 nochk "due+'까지'" order-preview.html 0   # B2_GEUL_21 «까지까지»
 nochk '신부의 첫 문장이 앞말을 이어받고 있어요' order-preview.html 0   # B2_GEUL_07 은퇴 — [VOW_GROOM_FIRST_1122] 신부부터가 없어져 이 알림도 없다
-chk '고르지 않으시면 말없이 인사해요' order-preview.html 1   # B2_GEUL_27
-chk '고르지 않으시면 말로 인사해요' order-preview.html 1
+# [TRIBUTE_NOTES_OFF_1122] 은퇴 — 옛 chk '고르지 않으시면 말없이…' 1 (B2_GEUL_27) · 아래 nochk 로
+nochk '고르지 않으시면 말로 인사해요' order-preview.html 0   # [TRIBUTE_NOTES_OFF_1122] 은퇴(옛 chk 1)
 chk 'g.tipToo&&g.tip' order-preview.html 1
 chk '그리고 내가 제일 좋아하는 우리 매제, 오늘' assets/ritual-ref.js 1   # B2_GEUL_08
 nochk '우리 이 서방' assets/ritual-ref.js 0
@@ -24401,6 +24409,9 @@ if command -v node >/dev/null 2>&1; then node scripts/audit/tribute-go-1122.mjs 
 # ★[EX_ROLE_HIDE_1122 2026-11-22 사장님 «축가 멘트 눌러도 변경이 없는데?»] «누가»를 고른 축가 · 축사는 멘트 예시 칩을 숨긴다
 chk 'EX_ROLE_HIDE_1122' assets/ritual-open.js 1
 chk 'if (exRoleWins(S, k)) return false;' assets/ritual-open.js 1
+# ★[TRIBUTE_NOTES_OFF_1122 2026-11-22 사장님 «고르지 않으시면 말로 인사해요 · 신랑분은 원하시면 큰절을 … 굳이 없어도 될 것 같아»] 부모님께 인사 인사말 칩 아래 두 줄을 걷었다 · 돌아오면 빨강
+chk 'TRIBUTE_NOTES_OFF_1122' order-preview.html 2
+nochk '고르지 않으시면 말없이 인사해요' order-preview.html 0
 # ★★[TRIBUTE_GAP_1122] 248 → 141 음악 뜸 없음 · 말끝 → 1.2초 → 141 · 곡 내림 free — 상세 docs/rules/나레이션.md
 chk '_mn.fadeMs = 3000; } }' assets/ritual-cue.js 1
 chk 'st.free ? 0 : (st.ms || 0)' console.html 1
