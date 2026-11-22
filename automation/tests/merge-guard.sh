@@ -5804,6 +5804,12 @@ chk 'ME_SEAT_PLAN.edgeCue(' seat.html 1
 chk 'ME_SEAT_PLAN.edgeCue(' guide.html 2
 nochk 'data-swipe>옆으로 밀면' guide.html
 nochk 'data-swipe>옆으로 밀면' seat.html
+# ★[SEAT_FAM_FREE 2026-11-22 사장님 «혼주석은 신랑 신부가 정할 수 있게 · 추천 메모만» · «추천대로»] 빈 혼주석 «혼주» 표기를 걷고 자리 창에 추천 메모 한 줄
+chk 'famAt: function(tables, ti, si)' assets/seat-plan.js 1
+chk 'ME_SEAT_PLAN.famAt(s.tables, sel.ti, sel.si)' mypage.html 1
+chk 'SEAT_FAM_FREE' scripts/audit/seat-onecard.mjs 2
+nochk 'class="rs-fam"' mypage.html
+nochk "(fam?'혼주':'·')" admin.html
 nochk '<div class="seat-swipe"' mypage.html
 nochk "R:'레드와인'" guide.html
 chk "Y:'어린이 · 물'" mypage.html 1
@@ -24455,6 +24461,9 @@ nochk '고르지 않으시면 말없이 인사해요' order-preview.html 0
 
 # ★[HEAD_GAP_1122 2026-11-22 사장님 «맨 위 간격이 좁다»] 머리 줄이 붙으면 맨 위에서 10px 띄움(옛 −15px = 딱 붙음)
 chk 'body.mkd .prog{position:sticky;top:-5px;' order-preview.html 1
+# ★[PV_BED_QUIET_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 A] 음악까지 미리듣기 — 예시 음악(@PV) 파일이 없으면 빨간 고장 줄 없이 조용히(PREVIEW_BED 머리말 그대로)
+chk 'PV_BED_QUIET_N06' console.html 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/pv-bed-quiet.mjs >/dev/null 2>&1; _pb=$?; node scripts/audit/pv-bed-quiet.mjs --selftest >/dev/null 2>&1; _pbs=$?; if [ "$_pb" != 0 ] || [ "$_pbs" != 0 ]; then echo "REVERT? pv-bed-quiet: 미리듣기 예시 음악이 없을 때 빨간 줄이 다시 선다 ($_pb/$_pbs) — node scripts/audit/pv-bed-quiet.mjs"; fail=1; else echo 'ok pv-bed-quiet'; fi; fi
 # ★[PREVIEW_LOGIN_1122 2026-11-22 대표님 «로그인해야 확인할 수 있게 · 신랑 신부는 아이디 공유»] 예식 미리 듣기는 로그인한 두 분(또는 관리자)만 · 없으면 마이페이지 로그인 → 돌아오기
 chk 'PREVIEW_LOGIN_1122' console.html 1
 chk 'PREVIEW_LOGIN_1122' mypage.html 5

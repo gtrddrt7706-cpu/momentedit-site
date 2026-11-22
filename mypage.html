@@ -1802,8 +1802,8 @@ input,textarea,select,[contenteditable]:not([contenteditable="false"]){caret-col
     .sdb-gl span{color:var(--label-soft);margin-left:4px;letter-spacing:0}
     .sdb-opts+.sdb-gl{margin-top:12px}
     .dk-chip.dk-chair{min-height:42px}
-    .rs.fam.empty{border-color:#C9A39C;background:#F7EEEC;color:var(--seal)}   /* [SEAT_PLAN_9] 빈 혼주석 — 진사 옅은 톤 */
-    .rs-fam{font-size:10px;letter-spacing:.02em}
+    .rs.fam.empty{border-color:var(--gold-deep)}   /* [SEAT_PLAN_9] · ★[SEAT_FAM_FREE 2026-11-22 사장님 «추천대로»] 혼주석 추천 자리 — 다른 빈자리처럼 ＋ · 점선만 옅은 금색(«혼주» 글자 · 진사 칠 금지: 미리 정해 둔 자리처럼 보인다) */
+    .sdb-rec{font-family:var(--serif-ko);font-size:12px;line-height:1.55;color:var(--gold-deeper);background:var(--gold-bg,#FAF6EF);border-radius:8px;padding:7px 10px;margin:-2px 0 10px;text-align:center;word-break:keep-all;text-wrap:balance}   /* [SEAT_FAM_FREE] 추천 메모 한 줄 */
     .rs-ch{position:absolute;bottom:-5px;left:-5px;min-width:13px;height:13px;border-radius:7px;background:var(--accent);color:#fff;font-style:normal;font-size:8px;line-height:13px;text-align:center;padding:0 2px;border:1.5px solid var(--bg);pointer-events:none}   /* [DRINK_TWO] 유아용 의자 · 휠체어 표시 */
     .sdb-opts.n4,.sdb-opts.n5{grid-template-columns:repeat(2,1fr)}   /* [ALC_ONE]·[KID_CHAIR] 알콜이 정해지면 넷(그 알콜·논알콜·유아·어린이) · 아직이면 다섯 */
     .sdb-opts.n5 .dk-chip:nth-child(5){grid-column:1/-1}   /* 홀수로 남는 마지막 칸은 한 줄 통째로 — 빈 칸을 남기지 않는다 */
@@ -2427,7 +2427,7 @@ button.pvc-poster{cursor:pointer;-webkit-tap-highlight-color:transparent}
      그래서 **캐시 첫 페인트에는 버튼이 없고, 서버 갱신이 끝나 다시 그릴 때 나타났다.**
      망이 느리면 몇 초 동안 없고, 갱신이 실패하면 끝내 안 나온다 — '어쩔 땐'의 정체다.
      ★인라인 스크립트보다 **앞**에 둔다. 뒤로 옮기지 말 것. (head 로도 올리지 말 것 — MPD_E1) -->
-<script src="/assets/seat-plan.js?v=1122b"></script><!-- [SEAT_PLAN_9] 캔들존 확정 배치(9테이블 · 35석) 단일 원천 — 좌석 편집기 · seat · guide · admin 공용 -->
+<script src="/assets/seat-plan.js?v=1122c"></script><!-- [SEAT_PLAN_9] 캔들존 확정 배치(9테이블 · 35석) 단일 원천 — 좌석 편집기 · seat · guide · admin 공용 -->
 <script src="/assets/dining-data.js?v=1105a"></script><!-- [DINE_DATA_NI16] 식당 · 카페 목록 단일 원천(관리자 «당일 콘솔»도 읽는다) -->
 <script src="/assets/ritual-preview-link.js?v=1122t1"></script>
 <script src="/assets/snap-refs.js"></script><!-- [SNAP_REFS] 스냅 기획 레퍼런스 목록(단 하나의 원천) — 인라인 스크립트보다 앞 -->
@@ -13220,15 +13220,17 @@ function renderSeat(box){
   _seatFillDefaults();   // [SEAT_NO_UNDEC] 그리기 전에 한 번 — 이름 있는 자리에 음료가 비어 있는 상태를 화면에 내보내지 않는다(옛 데이터 포함)
   /* ★★[SEAT_PLAN_9 2026-11-22 사장님 «우리가 그린 그림이랑 다르잖아» · «디테일 챙겨»] 배치도 = 오프라인 시안 그대로(assets/seat-plan.js mapHtml).
      테이블 9개를 맞붙인 두 묶음 · 자리는 확정 의자 위치 · 혼주석 · 가운데 버진로드 띠. 종전 «좌우 두 열에 띄엄띄엄 쌓고 지그재그»(--zig · .rt-wrap) 그림은 폐지.
-     ★알약 안 입력칸(rs-edit)으로 되돌리지 말 것([SEAT_ONE_CARD] · 이름은 자리 창에서) · 빈 자리 알약은 ＋ 만([SEAT_ADD_PLUS]) · 빈 혼주석만 «혼주». */
+     ★알약 안 입력칸(rs-edit)으로 되돌리지 말 것([SEAT_ONE_CARD] · 이름은 자리 창에서) · 빈 자리 알약은 ＋ 만([SEAT_ADD_PLUS] · 혼주석 추천 자리도 ＋ [SEAT_FAM_FREE]). */
   function seatEl(t, ti, si, fam){
     var nm=t.seats[si]||'', f=String(nm).trim(), dk=f?((t.drinks&&t.drinks[si])||''):'';
     var dot=(dk==='C'||dk==='R'||dk==='N'||dk==='K'||dk==='Y')?'<i class="rs-dk dk-'+dk+'"></i>':'';   // 색점=자리별 음료(이름 있는 자리만 · [SEAT_NO_UNDEC])
     var _chv=(t.chair&&t.chair[si])||''; if(f&&(_chv==='B'||_chv==='W')) dot+='<i class="rs-ch" aria-hidden="true">'+(_chv==='W'?'휠':'유')+'</i>';   // [DRINK_TWO] 자리 준비 — 음료 점과 다른 모서리
     var _selNow=!!(sel && sel.ti===ti && sel.si===si);   // [SEAT_ONE_CARD] 창을 열어 둔 자리
-    var lab=f?(escapeHtml(f)+' 자리 고치기'):(fam?'혼주 자리에 이름 추가':'이 자리에 이름 추가');
+    /* ★빈 혼주석 «혼주» 글자 · 진사 칠 금지 — 2026-11-22 사용자 지시로 삭제([SEAT_FAM_FREE] 혼주가 한 분이거나 안 계실 수 있다 · 자리는 두 분이 정한다).
+       추천 자리도 ＋ 로 같게 그리고 점선만 옅은 금색 · 추천은 그 자리를 눌렀을 때 창의 메모 한 줄(.sdb-rec)이 말한다. */
+    var lab=f?(escapeHtml(f)+' 자리 고치기'):(fam?'이 자리에 이름 추가 · 혼주석 추천 자리':'이 자리에 이름 추가');
     return '<button type="button" class="rs'+(f?'':' empty')+(fam?' fam':'')+(_selNow?' sel':'')+'" aria-label="'+lab+'" data-seat-edit data-ti="'+ti+'" data-si="'+si+'">'
-      +(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':(fam?'<span class="rs-fam" aria-hidden="true">혼주</span>':'<span class="rs-add" aria-hidden="true">＋</span>'))+dot+'</button>';
+      +(f?'<span class="rs-nm">'+escapeHtml(nm)+'</span>':'<span class="rs-add" aria-hidden="true">＋</span>')+dot+'</button>';
   }
   function tableIn(t, ti, no){
     /* ★테이블 이름 정하기(번호를 누르면 «테이블 1» 입력칸) 금지 — 2026-11-22 사용자 지시로 삭제([SEAT_NO_RENAME] 사장님 «테이블번호를 굳이 수정할 필요는 없을 것 같아»).
@@ -13290,6 +13292,7 @@ function renderSeat(box){
     barHtml='<div class="seat-drinkbar" role="dialog" aria-modal="false" aria-label="'+escapeHtml(_tShow)+' '+(sel.si+1)+'번 자리 이름과 음료">'
       +'<div class="sdb-h"><span class="sdb-label">'+escapeHtml(_tShow)+' · '+(sel.si+1)+'번 자리</span>'
         +'<button type="button" class="sdb-x" data-seat-selclose aria-label="닫기">✕</button></div>'   // [X_ONE 2026-09-27] × → ✕ — 다른 닫기 · 빼기 단추(미리보기 · 사진 빼기 · 담은 곳 빼기)와 같은 글리프
+      +(ME_SEAT_PLAN.famAt(s.tables, sel.ti, sel.si)?'<div class="sdb-rec">혼주석으로 추천하는 자리예요<br>맨 앞 버진로드 옆이라 예식이 가장 잘 보여요</div>':'')   // ★[SEAT_FAM_FREE] 추천 메모 — 정하는 건 두 분(누구를 앉혀도 그대로 저장)
       +'<input class="sdb-nm" data-ed data-edk="'+sel.ti+':'+sel.si+'" value="'+escapeHtml(_edNm)+'" maxlength="24" autocomplete="off" placeholder="하객 성함" aria-label="하객 성함">'
       +opts
       +(alcNote?'<div class="sdb-note">'+alcNote+'</div>':'')

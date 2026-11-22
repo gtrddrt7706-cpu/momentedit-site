@@ -257,14 +257,21 @@ try {
     let clash = 0, who = ''; for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) if (ov(P[i].r, P[j].r) > 0) { clash++; who = P[i].t + '×' + P[j].t; }
     let onT = 0; for (const p of P) for (const t of T) { const cx = t.left + t.width / 2, cy = t.top + t.height / 2, px = p.r.left + p.r.width / 2, py = p.r.top + p.r.height / 2; if (Math.hypot(cx - px, cy - py) < t.width / 2 - 4) onT++; }
     let touch = 0; for (let i = 0; i < T.length - 1; i++) { const a = T[i], b = T[i + 1]; const d = Math.hypot((a.left + a.width / 2) - (b.left + b.width / 2), (a.top + a.height / 2) - (b.top + b.height / 2)); if (Math.abs(d - a.width) <= 3) touch++; }
-    return { n: T.length, seats: P.length, clash, who, onT, touch, fam: document.querySelectorAll('#mp_production .rs.fam').length, caps: document.querySelectorAll('#mp_production .rt-cn').length, rename: document.querySelectorAll('#mp_production [data-si="name"], #mp_production .rt-cbtn').length,
+    return { n: T.length, seats: P.length, clash, who, onT, touch, fam: document.querySelectorAll('#mp_production .rs.fam').length, famTxt: document.querySelectorAll('#mp_production .rs-fam').length + [...document.querySelectorAll('#mp_production .rs.empty')].filter((b) => b.textContent.indexOf('혼주') >= 0).length, caps: document.querySelectorAll('#mp_production .rt-cn').length, rename: document.querySelectorAll('#mp_production [data-si="name"], #mp_production .rt-cbtn').length,
       ctl: document.querySelectorAll('#mp_production .rt-mini,#mp_production .seat-addtbl').length };
   });
   ok(fit.n === 9 && fit.seats === 35, '테이블 9 · 자리 35 [SEAT_PLAN_9]', fit.n + ' · ' + fit.seats);
   ok(fit.touch >= 6, '같은 묶음의 이웃 테이블이 맞닿아 이어진다(시안 그대로)', String(fit.touch));
   ok(fit.clash === 0, '자리 알약끼리 겹치지 않는다', fit.clash + ' ' + fit.who);
   ok(fit.onT === 0, '자리 알약이 테이블 원 안에 들어가지 않는다', String(fit.onT));
-  ok(fit.fam >= 2, '빈 혼주석은 «혼주»로 보인다(맨 앞 테이블 통로 쪽)', String(fit.fam));
+  // ★[SEAT_FAM_FREE 2026-11-22] 옛 기대 «빈 혼주석은 «혼주»로 보인다» 은퇴 — 추천 자리도 ＋ · 추천은 창의 메모 한 줄
+  ok(fit.fam >= 2 && fit.famTxt === 0, '혼주석 추천 자리는 다른 빈자리처럼 ＋ («혼주» 글자 없음) [SEAT_FAM_FREE]', JSON.stringify({ fam: fit.fam, famTxt: fit.famTxt }));
+  const rec = await page.evaluate(async () => {
+    const one = async (b) => { b.click(); await new Promise((r) => setTimeout(r, 250)); const n = document.querySelectorAll('#mp_production .sdb-rec').length; const x = document.querySelector('#mp_production .sdb-x'); if (x) x.click(); await new Promise((r) => setTimeout(r, 200)); return n; };
+    const fam = document.querySelector('#mp_production .rs.fam.empty'); const plain = document.querySelector('#mp_production .rs.empty:not(.fam)');
+    return { fam: fam ? await one(fam) : -1, plain: plain ? await one(document.querySelector('#mp_production .rs.empty:not(.fam)')) : -1 };
+  });
+  ok(rec.fam === 1 && rec.plain === 0, '추천 자리를 누르면 창에 혼주석 추천 메모 한 줄 · 다른 자리는 없음 [SEAT_FAM_FREE]', JSON.stringify(rec));
   // ★[SEAT_NO_RENAME 2026-11-22] 옛 기대 «부부가 붙인 테이블 이름은 원 안에 작게» 은퇴 — 원은 번호만 · 눌러서 이름 바꾸기 없음
   ok(fit.caps === 0 && fit.rename === 0, '테이블 원은 번호만 — 이름 칸 · 이름 바꾸기 단추 없음 [SEAT_NO_RENAME]', JSON.stringify({ caps: fit.caps, rename: fit.rename }));
   ok(fit.ctl === 0, '테이블 ＋ － ✕ · «+ 테이블» 단추가 없다(배치 고정)', String(fit.ctl));
