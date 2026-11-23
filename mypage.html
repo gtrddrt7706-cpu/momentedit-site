@@ -2768,7 +2768,7 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
   function _bkDoneDeep(id,n){ if(!n){ bkDone(id); return; } if(_bkFromPop||!_bkStack.length) return; var top=_bkStack[_bkStack.length-1]; if(top.id!==id){ bkDone(id); return; } _bkStack.pop(); _bkClosing=true; try{ history.go(-(n+1)); }catch(e){ _bkClosing=false; } }
   function done(){ if(_closed) return; _closed=true; clearTimeout(_backT); try{ if(_pmo) _pmo.disconnect(); }catch(e){} _bkDoneDeep(_bkId,_depth); window.removeEventListener('message',onMsg); document.removeEventListener('keydown',onKey); if(ov.parentNode) ov.parentNode.removeChild(ov); _mpUnlock();
     /* ★[MEAL_GO_1102] 식순의 «식사 안내 멘트 › 예식 후 식사» 을 눌러 나갔으면 닫힌 뒤 그 칸을 연다(저장했으면 새로 불러온 뒤) */
-    var _gn=_goNext; _goNext=''; var _goDn=function(){ if(_gn!=='dining') return; var b=$('mp_diningStart'); if(b) b.click(); };
+    var _gn=_goNext; _goNext=''; var _goDn=function(){ if(_gn==='prep'){ var bp=$('mp_prepHub'); if(bp) bp.click(); return; } if(_gn!=='dining') return; var b=$('mp_diningStart'); if(b) b.click(); };   /* ★[MR_TO_PREP_1123] 빌더 축가 «준비할 것 열기» → 닫힌 뒤 «준비할 것» 화면 */
     if(saved){ if(_gn){ _flowBusy(true,'불러오는 중…'); loadMyState({ silent:true, done:function(){ _flowBusy(false); setTimeout(_goDn,0); } }); } else _mpRefresh(); } else if(_gn) setTimeout(_goDn,0); }
   function onKey(e){ if(e.key==='Escape'){ try{ fr.contentWindow.postMessage({type:'momentedit:orderExitReq'},location.origin); }catch(err){ done(); } } }
   /* ★[LATEST_FILL 2026-10-09 A~Z 점검 2라운드 A2-4] 충돌 판에서 «최신 내용 불러오기»를 골랐으면(_revConflict · r._latest) 실패 대신 그 최신본을 빌더로 — 빌더가 그 판으로 내용을 바꾼다 */
@@ -2795,7 +2795,7 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
       var _wd=String(_cb.weddingDate||'').trim(), _ddn=null;
       if(/^\d{4}-\d{2}-\d{2}$/.test(_wd)) _ddn=_kstDdayOf(_wd);   // [KST_TODAY 2026-09-26 · 2라운드 R1] 빌더 AI 에 넘기는 D-day 도 머리와 같은 한국 날짜(기기 날짜로 세면 해외 기기에서 하루 어긋났다)
       var _ci=(p&&p.contractInfo)||{};   // 연락처는 contractInfo에 있음(p.phone은 존재하지 않음) — 인계 카드 회신 채널(기획 v3 §1-2)
-      var _cu={groom:_cb.groomKo||_ci.groom||'', bride:_cb.brideKo||_ci.bride||'', weddingDate:_wd, dday:_ddn, pastD14:(_ddn!=null&&_ddn<14), name:(p&&p.name)||'', code:(p&&p.code)||'', phone:_ci.phone||'', aiToken:(p&&p.aiToken)||'', midUp:!!(((p&&p.production&&p.production.midvideo)||(p&&p.midvideo)||{}).up)};   /* [VIDEO_NAME_1114 · GPT 1-01] 서버가 식중 영상을 받는가 — 빌더 «마이페이지 «식중 영상»에서 준비해요»는 이때만(사이트 · GAS 배포 사이 틈) */   // [AI_WIDGET_HMAC] GAS 서명 토큰 릴레이(미발급이면 빈값)
+      var _cu={groom:_cb.groomKo||_ci.groom||'', bride:_cb.brideKo||_ci.bride||'', weddingDate:_wd, dday:_ddn, pastD14:(_ddn!=null&&_ddn<14), name:(p&&p.name)||'', code:(p&&p.code)||'', phone:_ci.phone||'', aiToken:(p&&p.aiToken)||'', midUp:!!(((p&&p.production&&p.production.midvideo)||(p&&p.midvideo)||{}).up), prepGot:Object.keys(((p&&p.production&&p.production.prepFiles)||(p&&p.prepFiles))||{})};   /* [VIDEO_NAME_1114 · GPT 1-01] 서버가 식중 영상을 받는가 — 빌더 «마이페이지 «식중 영상»에서 준비해요»는 이때만(사이트 · GAS 배포 사이 틈) */   // [AI_WIDGET_HMAC] GAS 서명 토큰 릴레이(미발급이면 빈값)
       try{ var _ls=JSON.parse(localStorage.getItem('me_state_v1')||'null'); var _ld=_ls&&_ls.t===getToken()&&_ls.d; if(_ld){ _cu.name=_cu.name||_ld.name||''; _cu.code=_cu.code||_ld.code||''; if(!_cu.phone){ _cu.phone=(_ld.contractInfo&&_ld.contractInfo.phone)||''; } if(!_cu.aiToken){ _cu.aiToken=_ld.aiToken||''; } } }catch(e2){}   // [TAB_GUARD_FILL] 이 토큰의 상태 캐시만(다른 계정 코드를 싣지 않는다)
       // [PREVIEW_DIGITAL] 디지털 참석 여부 동봉 — 빌더 안 「미리 들어보기」가 배웅 장면을 맞게 고르려면 이 한 칸이 필요하다.
       //   빌더는 청첩장 트랙을 전혀 못 본다(오직 식순 S 만 쥔다). 새 규약을 만들지 않고 이미 있는 orderFill 에 한 칸만 더한다.
@@ -2824,7 +2824,7 @@ function openRitualBuilder(p, inv, opt){   // [PR_FROM_MYPAGE] opt.at='practice'
       if(d.data&&d.data.S) _rdOv={S:d.data.S}; _frameReady=false; _dBase=Math.max(0,d.d|0); _depth=_dBase; var _ru='/order-preview.html?embed=1&t='+Date.now();
       try{ fr.contentWindow.location.replace(_ru); }catch(e){ try{ fr.src=_ru; _dBase++; _depth=_dBase; }catch(e2){} } return; }
     if(d.type==='momentedit:orderDepth'){ _depth=_dBase+Math.max(0,d.d|0); return; }   // [HIST_DEPTH] · [RELOAD_UNWIND] 남은 옛 칸 + 새 문서 칸
-    if(d.type==='momentedit:orderGoTo'){ _goNext=(d.to==='dining')?'dining':''; return; }   // [MEAL_GO_1102]
+    if(d.type==='momentedit:orderGoTo'){ _goNext=(d.to==='dining'||d.to==='prep')?d.to:''; return; }   // [MR_TO_PREP_1123] prep 도   // [MEAL_GO_1102]
     if(d.type==='momentedit:orderExitHold'){ if(!d.on) _goNext=''; clearTimeout(_backT); _backT=null; if(_backPend&&!_closed){ _backPend=false; _bkId=bkOpen(_onBack); } return; }   /* ★[HOLD_RESTACK 2026-10-09 A~Z 점검 2라운드 A2-6] 잡으면 바로 층을 다시 쌓는다 — 종전엔 «머물기»를 고른 뒤에야 쌓아, 판이 뜬 사이 뒤로가기를 한 번 더 누르면 마이페이지를 떠났다(이제 그 뒤로가기는 판을 닫는다 · 빌더 BACK_DISMISS) */   /* ★[EXIT_HOLD 2026-10-09 A-3] 빌더가 묻는 중이면 3초 닫기를 멈춘다 · 머물기로 했으면 뒤로가기로 쓴 층을 다시 쌓는다(다음 뒤로가기가 마이페이지를 떠나지 않게) */
     if(d.type==='momentedit:orderClose'){ done(); return; }   // (구) 단순 닫기 — 하위호환
     if(d.type==='momentedit:orderRelogin'){ var _rc=/^[A-Z]8$/.test(String(d.ecode||''))?String(d.ecode):'S8'; _errGoLogin({ok:false, ecode:_rc}, _rc.charAt(0)); return; }   /* ★[RELOGIN_BTN 2026-10-30 GPT 5차 점검(고객) 5-01 · VC_FIX5_1030] 식순 화면의 «로그인하기» — 겹화면을 닫고 로그인 화면으로(그 줄을 로그인 칸에 · 저장 실패 «로그인하기»와 같은 길) */
