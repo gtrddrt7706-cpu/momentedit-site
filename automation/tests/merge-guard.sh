@@ -24497,6 +24497,10 @@ chk 'body.mkd .prog{position:sticky;top:-5px;' order-preview.html 1
 # ★[PV_BED_QUIET_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 A] 음악까지 미리듣기 — 예시 음악(@PV) 파일이 없으면 빨간 고장 줄 없이 조용히(PREVIEW_BED 머리말 그대로)
 chk 'PV_BED_QUIET_N06' console.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/pv-bed-quiet.mjs >/dev/null 2>&1; _pb=$?; node scripts/audit/pv-bed-quiet.mjs --selftest >/dev/null 2>&1; _pbs=$?; if [ "$_pb" != 0 ] || [ "$_pbs" != 0 ]; then echo "REVERT? pv-bed-quiet: 미리듣기 예시 음악이 없을 때 빨간 줄이 다시 선다 ($_pb/$_pbs) — node scripts/audit/pv-bed-quiet.mjs"; fail=1; else echo 'ok pv-bed-quiet'; fi; fi
+# ★[PREVIEW_BGM2_1122 2026-11-22 대표님 23:02] 예식 미리듣기 배경 음악 = 마이페이지 «전체 듣기» · 당일과 같은 스튜디오 곡 — 바로 연 판은 두 분 로그인으로 직접 받기 · 예시 음악(@PV)으로 내려앉지 않기 · 정말 못 받을 때만 빨간 한 줄
+chk 'function pvsDirect(f)' console.html 1
+chk "if (window.parent === window) { pvsDirect(f); return; }" console.html 1
+nochk "SEGF\['@PV'\] = PREVIEW_BED; BED.seg = id; BED.list = \['@PV'\]" console.html   # 옛 예시 음악 내려앉기 되살리지 말 것
 # ★★[SAY_INLINE_1123 2026-11-23 사장님 «너의 추천대로하고 전부 적용»(3안 · 흐름에서 바로)] «두 분이 할 말» 따로 상자를 걷고 글을 흐름 «신랑 차례 · 신부 차례» 줄 바로 아래에(감사 인사 · 감사문 · 서약 두 판 · 편지 · 부모님께 인사 · 축배)
 #   참고 예시 칩 줄 · 왜 적는지 한 줄은 흐름 위 · 예시 이름 알림 + «n자 · 약 n초» 한 줄 · 4줄 넘으면 접힘 · 떠나면 가라앉고 알림 한 줄 · 저장 자리(S.tx · S.mkc · S.cueSig)는 그대로 · 상자가 돌아오면 빨강
 chk 'SAY_INLINE_1123' order-preview.html 12

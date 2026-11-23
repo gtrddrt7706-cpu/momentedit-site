@@ -62,7 +62,7 @@ async function page() { const ctx = await br.newContext({ viewport: { width: 390
 const conFrame = (pg) => pg.frames().find((x) => /console\.html/.test(x.url()));
 async function walk(cf, ks) { await cf.evaluate(() => { document.getElementById('go').click(); }); await cf.waitForTimeout(2500); const out = {};
   for (const k of ks) { const i = await cf.evaluate((k) => window.__bgmR().findIndex((c) => c.k === k && !/^bridge-/.test(c.slug || '')), k); if (i < 0) { out[k] = null; continue; } await cf.evaluate((i) => window.__bgmGo.fire(i), i); await cf.waitForTimeout(4200);
-    out[k] = await cf.evaluate(() => { const s = window.__seg.st(), e = document.getElementById('gBed'); return { seg: s.seg, id: s.id, plays: s.plays, on: s.on, paused: s.paused[s.on], gbed: e ? e.textContent : '', gon: !!(e && e.classList.contains('on')) }; }); }
+    out[k] = await cf.evaluate(() => { const s = window.__seg.st(), e = document.getElementById('gBed'); return { seg: s.seg, id: s.id, plays: s.plays, on: s.on, paused: s.paused[s.on], gbed: e ? e.textContent : '', gon: !!(e && e.classList.contains('on')), err: (() => { const x = document.getElementById('bedErr'); return x && !x.hidden ? x.textContent : ''; })() }; }); }
   return out; }
 try {
   /* b · d · e — 콘솔을 바로 연 판(마이페이지 «연습 · 준비»와 같은 중계를 시험 판이 한다) */
@@ -72,7 +72,7 @@ try {
     const o = cf ? await walk(cf, ['candle', 'tribute', 'table']) : null;
     if (tag === 'b') { ok('b 미리듣기 — 화촉 B31 · 부모님께 인사 B16(고른 곡 · 예시 음악 아님) · 고지 줄 «두 분이 고른 곡으로 흘러요»', !!o && o.candle && o.candle.id === 'B31' && !o.candle.paused && o.tribute.id === 'B16' && /두 분이 고른 곡으로 흘러요/.test(o.tribute.gbed) && o.tribute.gon, o);
       ok('b 부모님께 인사 → 테이블 — 같은 곡(B16)을 다시 시작하지 않는다(재생 수 · 재생기 그대로)', !!o && o.table && o.table.id === 'B16' && o.table.plays === o.tribute.plays && o.table.on === o.tribute.on, o && { t: o.tribute, tb: o.table }); }
-    if (tag === 'd') ok('d 화촉 곡(B31)을 못 받으면 그 구간만 예시 음악 + «곡을 불러오지 못해 예시 음악이 흘러요» · 부모님께 인사는 고른 곡 B16', !!o && o.candle && o.candle.id === '@PV' && /곡을 불러오지 못해 예시 음악이 흘러요/.test(o.candle.gbed) && o.tribute.id === 'B16' && /두 분이 고른 곡/.test(o.tribute.gbed), o);
+    if (tag === 'd') ok('d 화촉 곡(B31)을 못 받으면 예시 음악으로 내려앉지 않는다 — 빨간 한 줄 «곡을 불러오지 못했어요 (코드 L…)» · 앞 곡이 잇는다 · 부모님께 인사는 고른 곡 B16 [PREVIEW_BGM2_1122]', !!o && o.candle && o.candle.id !== '@PV' && /^곡을 불러오지 못했어요 \(코드 L\d\)$/.test(o.candle.err) && !/예시 음악/.test(o.candle.gbed) && o.tribute.id === 'B16' && /두 분이 고른 곡/.test(o.tribute.gbed), o);
     if (tag === 'e') ok('e 옛 링크(bgm 값 없음) → 기본곡 계획(화촉 B05 · 부모님께 인사 B15 · 예시 한 곡 아님)', !!o && o.candle && o.candle.id === 'B05' && o.tribute.id === 'B15', o);
     ok(`${tag} 쪽 오류 0`, !errs.length, errs.slice(0, 3)); await ctx.close(); }
   /* c — 식순 화면 안에서 연 판 */
@@ -82,6 +82,18 @@ try {
     const cf = conFrame(pg), o = cf ? await walk(cf, ['candle', 'tribute']) : null;
     ok('c 식순 화면 «음악까지 미리듣기» 판 — 식순 화면이 마이페이지로 곡을 받아 이어 준다 · 화촉 B31 · 부모님께 인사 B16', !!o && o.candle && o.candle.id === 'B31' && o.tribute && o.tribute.id === 'B16', o);
     ok('c 쪽 오류 0', !errs.length, errs.slice(0, 3)); await ctx.close(); }
+  /* ★[PREVIEW_BGM2_1122] g · h — 미리듣기를 주소로 바로 연 판(부모 중계 없음) · g 로그인(me_token)이 있으면 서버에서 직접 받아 고른 곡 · h 없으면 받지 않고 빨간 한 줄(L8) · 예시 음악 없음 */
+  for (const [tag, tok] of [['g', 'tok-test'], ['h', '']]) {
+    const ctx = await br.newContext({ viewport: { width: 390, height: 860 } }), pg = await ctx.newPage(), errs = []; pg.on('pageerror', (e) => errs.push(e.message)); const asked = [];
+    await pg.addInitScript((t) => { window.__ME_PREVIEW_GUARD_TEST_OFF = true; try { if (t) localStorage.setItem('me_token', t); else localStorage.removeItem('me_token'); } catch (e) {} }, tok);
+    await pg.route('**/*', (rt) => { const u = rt.request().url(); if (u.startsWith('http://127.0.0.1:' + port)) return rt.continue();
+      if (/script\.google\.com\/macros/.test(u) && rt.request().method() === 'POST') { let b = {}; try { b = JSON.parse(rt.request().postData() || '{}'); } catch (e) {} if (b.action === 'ritualFileGet') { asked.push([b.key, b.id, b.token]); const ok2 = b.token === 'tok-test' && SONG[b.id]; return rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: JSON.stringify(ok2 ? { ok: true, mime: 'audio/wav', data: SONG[b.id] } : { ok: false, ecode: 'L2' }) }); } }
+      return rt.fulfill({ status: 200, headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' }, body: '{"ok":true}' }); });
+    await pg.goto(`http://127.0.0.1:${port}` + L.url(SA, {})); await pg.waitForTimeout(1800);
+    const o = await walk(pg.mainFrame(), ['candle', 'tribute']);
+    if (tag === 'g') ok('g 바로 연 미리듣기 + 로그인 — 서버에서 직접 받아 화촉 B31 · 부모님께 인사 B16 · 빨간 줄 없음 · 받기만(key bed · 두 분 토큰)', !!o && o.candle && o.candle.id === 'B31' && o.tribute && o.tribute.id === 'B16' && !o.candle.err && !o.tribute.err && asked.length > 0 && asked.every((a) => a[0] === 'bed' && a[2] === 'tok-test'), { o, asked: asked.slice(0, 4) });
+    else ok('h 바로 연 미리듣기 · 로그인 없음 — 서버를 부르지 않고 빨간 한 줄 «곡을 불러오지 못했어요 (코드 L8)» · 예시 음악 없음', !!o && o.candle && o.candle.id !== '@PV' && /\(코드 L8\)/.test(o.candle.err) && !asked.length, { o, asked });
+    ok(`${tag} 쪽 오류 0`, !errs.length, errs.slice(0, 3)); await ctx.close(); }
 } catch (e) { ok('검사가 끝까지 돌았다', false, String(e && e.stack || e).slice(0, 600)); }
 await br.close(); srv.close();
 console.log(fail ? `PREVIEW SONGS FAIL ${fail}` : 'PREVIEW SONGS OK');
