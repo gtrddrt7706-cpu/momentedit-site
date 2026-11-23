@@ -129,8 +129,7 @@ const SC = [
   /* ── #42 ── */
   { no: 42, on: PR_ON, async run({ pg, f }) {
     await toPractice(pg, f);
-    await click(f, '[data-fk="prm:ai"]'); await adv(pg, 1500);
-    await click(f, '[data-fk="prall"]'); await adv(pg, 800);
+    await click(f, '[data-fk="prall"]'); await adv(pg, 800);   // [PR_CLEAN_1123] 시작 카드 A «AI 목소리로 먼저 듣기» 한 번 = AI 로 먼저 고르기 + 흐름 보기 시작(준비 중이면 약속)
     const a = await f.evaluate(() => ({ after: !!PT.startAfter, run: !!(PT.prep && PT.prep.run), step: STEPS[idx].k }));
     const r = await click(f, '[data-fk="ops:listen"]'); if (r !== 'ok') await f.evaluate(() => opGoStep('listen'));   // ③ 위 걸음 표시 «하나씩 만들기»
     await adv(pg, 1500); const n0 = await f.evaluate(() => window.__plays.length);
@@ -141,8 +140,7 @@ const SC = [
   } },
   { no: 42, on: PR_ON, async run({ pg, f }) {   // 떠났다가 준비가 끝나기 전에 ③ 으로 돌아오면 — 떠날 때 걷은 약속이 되살아나 저절로 열리지 않는다(누르면 그때 시작)
     await toPractice(pg, f);
-    await click(f, '[data-fk="prm:ai"]'); await adv(pg, 1500);
-    await click(f, '[data-fk="prall"]'); await adv(pg, 800);
+    await click(f, '[data-fk="prall"]'); await adv(pg, 800);   // [PR_CLEAN_1123] 시작 카드 A «AI 목소리로 먼저 듣기» 한 번 = AI 로 먼저 고르기 + 흐름 보기 시작(준비 중이면 약속)
     const r = await click(f, '[data-fk="ops:listen"]'); if (r !== 'ok') await f.evaluate(() => opGoStep('listen'));
     await adv(pg, 1500); await f.evaluate(() => opGoStep('practice')); await adv(pg, 1500);
     const c = await f.evaluate(() => ({ t: ((document.getElementById('prPrep') || {}).textContent || ''), run: !!(PT.prep && PT.prep.run) }));
@@ -226,7 +224,7 @@ const SC = [
   { no: 47, on: PR_ON, async run({ pg, f }) {
     await toPractice(pg, f);
     await pg.evaluate(() => { __SV.faults.push({ op: 'practice', nth: '*', kind: 'busy', lat: 2000, tag: 'down' }); });
-    await click(f, '[data-fk="prm:ai"]'); await adv(pg, 1000);
+    await f.evaluate(() => { prMode('ai'); render(); setTimeout(() => _ptPrep(1), 0); }); await adv(pg, 1000);   // [PR_CLEAN_1123] «AI 로 먼저» 고르기 칸은 시작 카드로 합쳐졌다 — 시작 없이 고르기만 하는 단추가 없어 카드가 부르는 prMode 를 직접(옛 prm:ai 와 같은 일)
     await until(pg, f, () => PT.prep && !PT.prep.run, 300000); await adv(pg, 500);
     const a = await f.evaluate(() => ({ t: _ptPrepTxt(), n: PT.prep.n }));
     await pg.evaluate(() => { __SV.faults = __SV.faults.filter((x) => x.tag !== 'down'); }); await adv(pg, 30000);
@@ -239,7 +237,7 @@ const SC = [
   } },
   /* ── #48 ── */
   { no: 48, on: PR_ON, faults: [{ op: 'practice', nth: '*', kind: 'busy', lat: 2000 }], async run({ pg, f }) {
-    await toPractice(pg, f); await click(f, '[data-fk="prm:ai"]'); await adv(pg, 1000);
+    await toPractice(pg, f); await f.evaluate(() => { prMode('ai'); render(); setTimeout(() => _ptPrep(1), 0); }); await adv(pg, 1000);   // [PR_CLEAN_1123] «AI 로 먼저» 고르기 칸은 시작 카드로 합쳐졌다 — 시작 없이 고르기만 하는 단추가 없어 카드가 부르는 prMode 를 직접(옛 prm:ai 와 같은 일)
     await until(pg, f, () => PT.prep && !PT.prep.run, 300000); await adv(pg, 500);
     const a = await f.evaluate(() => { const i = document.querySelector('#prPrep .pr-bar i'), h = Object.keys(PT.failH)[0]; return { t: _ptPrepTxt(), w: i ? i.style.width : '', small: [...document.querySelectorAll('#prPrep .pr-ps')].map((e) => e.textContent).join('/'), turn: h ? _ptTurnWhy(h) : '' }; });
     await shot(pg, '48-전부실패');
@@ -247,13 +245,13 @@ const SC = [
     ok('#48 못 만든 차례 문구는 «글을 보며 읽어 주세요»를 겹쳐 말하지 않는다(코드는 그대로) [PT_PREP_WORD]', /^이 차례는 AI 목소리를 만들지 못했어요 \(코드 V1\)$/.test(a.turn), a.turn);
   } },
   { no: 48, on: PR_ON, faults: [{ op: 'practice', nth: '*', kind: 'json', lat: 2000, body: { ok: false, limit: true, ecode: 'V0', error: '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요' } }], async run({ pg, f }) {
-    await toPractice(pg, f); await click(f, '[data-fk="prm:ai"]'); await adv(pg, 1000);
+    await toPractice(pg, f); await f.evaluate(() => { prMode('ai'); render(); setTimeout(() => _ptPrep(1), 0); }); await adv(pg, 1000);   // [PR_CLEAN_1123] «AI 로 먼저» 고르기 칸은 시작 카드로 합쳐졌다 — 시작 없이 고르기만 하는 단추가 없어 카드가 부르는 prMode 를 직접(옛 prm:ai 와 같은 일)
     await until(pg, f, () => PT.prep && !PT.prep.run, 300000); await adv(pg, 500);
     const a = await f.evaluate(() => ({ html: (document.getElementById('prPrep') || {}).textContent || '', t: _ptPrepTxt() })); const n = (await prac(pg)).length;
     ok('#48 예산을 다 쓰면 — 한 줄만(실패 수 문장과 겹치지 않음) · 남은 차례를 더 묻지 않는다 [PT_PREP_WORD]', /다 썼어요/.test(a.t) && !/개는 만들지 못해/.test(a.html) && (a.html.match(/다 썼어요/g) || []).length === 1 && n <= 3, JSON.stringify({ a, n }));
   } },
   { no: 48, on: PR_ON, faults: [{ op: 'practice', nth: '*', kind: 'json', lat: 2000, body: { ok: false, reason: 'expired', ecode: 'V8', error: '로그인이 만료됐어요. 다시 로그인해 주세요' } }], async run({ pg, f }) {
-    await toPractice(pg, f); await click(f, '[data-fk="prm:ai"]'); await adv(pg, 1000);
+    await toPractice(pg, f); await f.evaluate(() => { prMode('ai'); render(); setTimeout(() => _ptPrep(1), 0); }); await adv(pg, 1000);   // [PR_CLEAN_1123] «AI 로 먼저» 고르기 칸은 시작 카드로 합쳐졌다 — 시작 없이 고르기만 하는 단추가 없어 카드가 부르는 prMode 를 직접(옛 prm:ai 와 같은 일)
     await until(pg, f, () => PT.prep && !PT.prep.run, 300000); await adv(pg, 500);
     const a = await f.evaluate(() => { const h = Object.keys(PT.failH)[0]; return { t: _ptPrepTxt(), turn: h ? _ptTurnWhy(h) : '' }; }); const n = (await prac(pg)).length;
     ok('#48 로그인이 풀리면 — «마이페이지에서 다시 로그인» 문장(코드 V8) · 차례 문구도 · 남은 차례를 더 묻지 않는다 [PT_PREP_WORD]', /로그인이 풀렸어요/.test(a.t) && /다시 로그인/.test(a.t) && /\(코드 V8\)/.test(a.t) && /다시 로그인/.test(a.turn) && n <= 3, JSON.stringify({ a, n }));
@@ -279,8 +277,8 @@ const SC = [
     const vt = await f.evaluate(() => { const L = _ptList(); const g = L.find((x) => x.k === 'vow' && x.who === '신랑'), b = L.find((x) => x.k === 'vow' && x.who === '신부'); return g && b ? { g: g.txt, b: b.txt, gh: _ptKey(g).h, bh: _ptKey(b).h } : null; });
     if (!vt) { ok('#50 서약 신랑 · 신부 차례가 있다', false); return; }
     await pg.evaluate((t) => { __SV.faults.push({ op: 'practice', text: t, lat: 30000 }); }, vt.g.slice(0, 12));
-    await click(f, '[data-fk="prm:self"]'); await adv(pg, 300); await click(f, '[data-fk="prall"]'); await adv(pg, 2000);
-    await click(f, '#lsFull [data-fk="lfmin"]'); await adv(pg, 1000); await click(f, '[data-fk="prm:ai"]'); await adv(pg, 500);   // 재생 중에 «AI 목소리로 먼저 듣기»로 바꾼다(준비는 뒤에서)
+    await f.evaluate(() => { prMode('self'); render(); prStart('flow'); }); await adv(pg, 2000);   // [PR_CLEAN_1123] 직접 + 흐름 보기(옛 prm:self → prall · 카드 B 는 직접 해보기라 함수를 직접)
+    await click(f, '#lsFull [data-fk="lfmin"]'); await adv(pg, 1000); await f.evaluate(() => { prMode('ai'); render(); setTimeout(() => _ptPrep(1), 0); }); await adv(pg, 500);   // 재생 중에 «AI 목소리로 먼저 듣기»로 바꾼다(준비는 뒤에서)
     await until(pg, f, (h) => !!PT.url[h], 120000, 500, vt.bh);
     await click(f, '#lsMini [data-fk="lmg"]'); await adv(pg, 500);
     for (let k = 0; k < 14; k++) { const s = await f.evaluate(() => (LP.q[LP.i] || {}).k); if (s === 'vow') break; await click(f, '#lsFull [data-fk="lfnext"]'); await adv(pg, 300); }
