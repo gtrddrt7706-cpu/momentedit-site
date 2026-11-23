@@ -22476,7 +22476,7 @@ nochk "S\.guide ?" assets/ritual-cue.js   # 하객 안내 조건은 gOn(S) 하�
 chk 'MEAL_GO_1102' order-preview.html 3
 chk 'MEAL_GO_1102' mypage.html 2
 chk "window.clGo=function(to){ if(!EMBED) return;" order-preview.html 1
-chk "if(d.type==='momentedit:orderGoTo'){ _goNext=(d.to==='dining')?'dining':''; return; }" mypage.html 1
+chk "if(d.type==='momentedit:orderGoTo'){ _goNext=(d.to==='dining'||d.to==='prep')?d.to:''; return; }" mypage.html 1   # [MEAL_GO_1102] · ★[MR_TO_PREP_1123] prep 도 받는다(옛 기대 «dining 만» 은퇴)
 chk "if(d.type==='momentedit:orderExitHold'){ if(!d.on) _goNext='';" mypage.html 1
 # ★[PV_FOOT_MIN_1102 사장님 «여기 부분 미니멀하게 정리가 필요해 보여» → «추천대로»] ① 미리 보기 창 아래 — 장면 사진은 글 고리 · 위 선 없음 · «늘 있는 순간이에요» 없음 · «다시 듣기»는 아래 줄 그대로
 chk 'PV_FOOT_MIN_1102' order-preview.html 3
