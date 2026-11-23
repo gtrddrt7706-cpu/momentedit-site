@@ -85,7 +85,7 @@ try {
     ok('⑤ 쪽 오류 0(앞 낮춤)', !errs.length, errs.slice(0, 2)); await ctx.close(); }
 
   /* ④ 사람 구간 유지 — 축사(무음 −90) · 편지 «음악과 함께»(−20) */
-  for (const [nm, S0, slug, want] of [['축사 무음', O.pairSet(SOF('standard'), 'free') /* ★[SPEECH_SONG_1115] 정석 = 축가만 — 축사 쪽으로 바꿔 잰다(옛 정석은 축사 + 축가) */, 'narr-free-in-speech', -90], ['편지 음악과 함께', SOF('standard', { on: Object.assign({}, SOF('standard').on, { letter: 1 }), bgm: { S6: { m: 'bed' } } }), null, -20]]) {
+  for (const [nm, S0, slug, want] of [['축사 무음', O.pairSet(SOF('standard'), 'free') /* ★[SPEECH_SONG_1115] 정석 = 축가만 — 축사 쪽으로 바꿔 잰다(옛 정석은 축사 + 축가) */, 'narr-free-in-speech', -90], ['편지 음악과 함께', SOF('standard', { on: Object.assign({}, SOF('standard').on, { letter: 1 }), bgm: { S6: { m: 'bed' } } }), null, -23 /* ★[DUCK20_READ_1122] 낭독 아래 −23 */]]) {
     const { ctx, pg, errs } = await open(S0);
     const i0 = slug ? await idx(pg, slug) : await pg.evaluate(() => window.__bgmR().findIndex((c) => c.k === 'letter' && c.live));
     await pg.evaluate((i) => window.__bgmGo.fire(i), i0);

@@ -19951,7 +19951,8 @@ chk "one: '인사드리는 동안 밝고 따뜻한 곡이 흘러요'," assets/bg
 chk "one: '테이블 인사 동안 재즈가 흘러요'," assets/bgm-slots.js 1
 chk "one: '«위하여!»에 맞춰 신나는 곡이 시작돼요'," assets/bgm-slots.js 1   # [BGM_R4_1023]
 chk "cont: '{at}부터 피아노가 조용히 이어져요'" assets/bgm-slots.js 1        # [BGM_R2_1023]
-chk "duckRead: -20," assets/ritual-cue.js 1
+chk "duckRead: -23," assets/ritual-cue.js 1   # ★[DUCK20_READ_1122] 낭독 아래 −20 → −23(말 아래 −20 보다 한 칸 아래)
+nochk "duckRead: -20," assets/ritual-cue.js   # 옛 −20 되살리지 말 것
 chk "duck: (fk === 'speech' && bgmBed(S, 'S5')) ? PARAM.duckRead : fk === 'gift' ? -12 : PARAM.duckOff, self: true," assets/ritual-cue.js 1
 chk "var bed = bgmBed(S, 'S6'), dk = bed ? PARAM.duckRead : PARAM.duckOff;" assets/ritual-cue.js 1
 chk "LIVE\['두 분이 직접 편지 낭독 (음악이 아주 작게)'\] = {" assets/ritual-story.js 1

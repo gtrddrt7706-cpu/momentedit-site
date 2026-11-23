@@ -96,7 +96,7 @@ try {
       ok('E 입장 앞 b7 −15 · 줄 끝 2초에 −90 + 정적 1초', E.b7[0] === -20 /* ★[DUCK20_1122] */ && E.b7[1] === '[{"music":"to","v":-90,"ms":2000},{"wait":1000}]', E.b7);
       /* ★[SEAM_WORD_1107 J06 · 1층 · CI 5개 1층 조건 맞춤 11/10] 맞절 뒤 b8 이음말이 빠지고 350(narr-welcome-in)이 감사 인사 첫 줄 — b8 에 걸던 «다음 줄 6초 앞 −8 뜸»을 감사 인사 첫 줄에서 본다 */
       ok('E 도착 멘트 −90 을 4.5초(멘트와 함께) · 맞절 안내 · 맞절 정적 · b8 없음 → 감사 인사 첫 줄(350) 6초 앞 −8', E.ar.join() === '-90,4500,true' && E.mj.join() === '-90,-90' && E.b8[0] === -1 && E.b8[1] === 'narr-welcome-in' && E.b8[2] >= 6000 && E.b8[3] === -8, E);
-      ok('E 선언 뒤 박수 = 새 곡(newSong · 0.6초 · −8) · 부모님께 걸어가기 −12 · 말하는 차례 −20', E.dl.newSong === true && E.dl.upMs === 600 && E.dl.duck === -8 && E.ti.walkDuck === -12 && E.ti.duck === -20, { dl: E.dl, ti: E.ti }); }
+      ok('E 선언 뒤 박수 = 새 곡(newSong · 0.6초 · −8) · 부모님께 걸어가기 −12 · 말하는 차례 −23', E.dl.newSong === true && E.dl.upMs === 600 && E.dl.duck === -8 && E.ti.walkDuck === -12 && E.ti.duck === -23 /* ★[DUCK20_READ_1122] */, { dl: E.dl, ti: E.ti }); }
     /* P 이어 듣기 */
     await go(f, 'candle');
     const o = await run(f, ['candle', 'entry', 'matjeol', 'welcome', 'vow', 'ring', 'declare', 'bless'], 150000);
@@ -120,7 +120,7 @@ try {
   const Bq = async () => { const { ctx, f, errs } = await prep();
     /* 5 부모님께 걸어가기 */
     await go(f, 'tribute'); const ot = await run(f, ['tribute'], 16000), wk = ot.filter((x) => x.of === 'tribute-in' && x.act && !x.talk && x.on), tk = ot.filter((x) => x.of === 'tribute-in' && x.talk && x.on);
-    ok('P5 부모님께 걸어가는 줄 −12 · 말하는 차례 −20', wk.length > 0 && wk[wk.length - 1].want === -12 && tk.length > 0 && tk[tk.length - 1].want === -20, { wk: [...new Set(wk.map((x) => x.want))], tk: [...new Set(tk.map((x) => x.want))] });
+    ok('P5 부모님께 걸어가는 줄 −12 · 말하는 차례 −23', wk.length > 0 && wk[wk.length - 1].want === -12 && tk.length > 0 && tk[tk.length - 1].want === -23 /* ★[DUCK20_READ_1122] */, { wk: [...new Set(wk.map((x) => x.want))], tk: [...new Set(tk.map((x) => x.want))] });
     /* R 연습 */
     await f.evaluate(async () => { idx = STEPS.findIndex((x) => x.k === 'practice'); render(); await new Promise((x) => setTimeout(x, 600)); prStart('try'); await new Promise((x) => setTimeout(x, 900)); });
     const stay = (pick, ms) => f.evaluate(async ({ pick, ms }) => { const B = BgmBed._t, w = (t) => new Promise((x) => setTimeout(x, t)); const Q = LP.q, j = Q.findIndex((x) => pick === 'vow' ? (x.k === 'vow' && x.talk2 && x.who === '신랑') : (x.k === 'entry' && (x.act || x.quiet) && !x.talk2));
