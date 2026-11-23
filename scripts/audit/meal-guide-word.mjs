@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ★[MEAL_GUIDE_WORD_N06 2026-11-19 NIGHT20 #06 R3] 도와주실 분 «식사 자리로 안내할 분» — 식사가 확인된 날만 «식사 자리» · 카페 · 미확인 날은 «예식 후 자리로 안내할 분».
-   ritual-open.js helpersOf 를 실제로 돌려 세 판(식사 · 카페 · 애프터 없음)을 재고, order-preview 세 곳 · mypage 한 곳이 같은 기준을 넘기는지 본다.
+   ritual-open.js helpersOf 를 실제로 돌려 세 판(식사 · 카페 · 애프터 없음)을 재고, order-preview 두 곳(옛 세 곳 · PRACTICE_ONLY_1123) · mypage 한 곳이 같은 기준을 넘기는지 본다.
    --selftest : 갈래를 지운 판이 빨강이 되는지 깨 본다 */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -18,7 +18,7 @@ const judge = (ro, op, mp) => { let R; try { R = load(ro); } catch (e) { return 
   if (row({ mealGuide: true, mealFull: false }) !== ALT) bad.push('카페 날 ' + row({ mealGuide: true, mealFull: false }));
   if (row({ mealGuide: true }) !== MEAL) bad.push('옛 호출(mealFull 없음) ' + row({ mealGuide: true }));
   if (row({}) !== '') bad.push('애프터 없음 ' + row({}));
-  if ((op.match(/mealFull:\(typeof CUSTMEALF!=='undefined'&&!!CUSTMEALF\)\}\)/g) || []).length !== 3) bad.push('order-preview 세 곳');
+  if ((op.match(/mealFull:\(typeof CUSTMEALF!=='undefined'&&!!CUSTMEALF\)\}\)/g) || []).length !== 2) bad.push('order-preview 두 곳');   /* ★[PRACTICE_ONLY_1123] 연습 화면 «준비할 것» 접이(_prPrepFold)를 걷어 세 곳 → 두 곳 */
   if (!mp.includes("_mgFull=!!RitualPreviewLink.mealFullOf(dd, DN_PLACEHOLDER)") || !mp.includes("[_mgFull?'" + MEAL + "':'" + ALT + "','예식 후 식사를 고른 날']")) bad.push('mypage');
   return bad; };
 if (process.argv.includes('--selftest')) {

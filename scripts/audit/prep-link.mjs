@@ -23,8 +23,8 @@ try {
     const a = await page.evaluate(() => { const pv = document.getElementById('mp_ritualPreview'), st = document.getElementById('mp_ritualStart'), row = st && st.closest('.trk'), nm = row && row.querySelector('.trk-nm');
       const r1 = pv && pv.getBoundingClientRect(), r2 = nm && nm.getBoundingClientRect(), r3 = st && st.getBoundingClientRect();
       return { lab: pv ? pv.textContent.trim() : '', old: !!document.getElementById('mp_ritualPrep') || !!document.getElementById('mp_ritPrepBox'), sameLine: !!(r1 && r2 && Math.abs((r1.top + r1.bottom) / 2 - (r2.top + r2.bottom) / 2) < 10 && Math.abs((r1.top + r1.bottom) / 2 - (r3.top + r3.bottom) / 2) < 10), over: row ? row.scrollWidth > row.clientWidth + 1 : true, sum: /준비할 것 \d+가지/.test(document.body.innerText) }; });
-    ok(a.lab === '연습 · 준비 ›' && !a.old, '보조 단추 «연습 · 준비 ›» 하나 · 옛 «준비할 것» 단추 · 목록 없음 [PR_PREP_ONE]', JSON.stringify(a));
-    ok(a.sameLine && !a.over, '«식순 ✓» · «연습 · 준비 ›» · «완료 · 수정»이 한 줄 · 넘침 없음', JSON.stringify(a));
+    ok(a.lab === '연습 ›' && !a.old, '보조 단추 «연습 ›» 하나 · 옛 «준비할 것» 단추 · 목록 없음 [PR_PREP_ONE · PRACTICE_ONLY_1123]', JSON.stringify(a));
+    ok(a.sameLine && !a.over, '«식순 ✓» · «연습 ›» · «완료 · 수정»이 한 줄 · 넘침 없음', JSON.stringify(a));
     ok(!a.sum, '마이페이지에 «준비할 것 N가지» 요약 줄 없음(PREP_FOLD_OFF)', JSON.stringify(a));
     ok(!errors.length, 'pageerror 0', errors.slice(0, 2).join(' | '));
     await page.close();

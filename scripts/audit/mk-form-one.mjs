@@ -19,7 +19,8 @@ const br = await pw.chromium.launch();
 let fail = 0; const ok = (m, c, d) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}${c || !d ? '' : ' → ' + d}`); if (!c) fail++; };
 const SHOTS = process.env.SHOTS || '';
 /* 칸 차례 — 이름(쪽 안 맨 바깥 자식의 class)으로. 여기에 없는 칸이 나오면 «모르는 칸»으로 실패한다(새 칸을 넣으면 이 표에 자리를 정할 것) */
-const ORDER = [['mk-h', '머리'], ['mk-one', '한 줄'], ['mk-note', '안내 한 줄'], ['mk-vid', '장면'], ['mk-pick', '고르기'], ['mk-flowsec', '흐름'], ['ls-why', '흐름 덧말'], ['mk-ref', '참고 예시'], ['mk-say', '두 분이 할 말'], ['mk-voice', '두 분 목소리'], ['mk-prep', '부탁 · 준비']];
+const ORDER = [['mk-h', '머리'], ['mk-one', '한 줄'], ['mk-note', '안내 한 줄'], ['mk-vid', '장면'], ['mk-pick', '고르기'], ['mk-flowsec', '흐름'], ['ls-why', '흐름 덧말'], ['mk-ref', '참고 예시'], ['mk-voice', '두 분 목소리'], ['mk-prep', '부탁 · 준비']];
+/* ★[SAY_INLINE_1123 2026-11-23 사장님 «추천대로 · 전부 적용»] «두 분이 할 말» 칸(.mk-say)은 없다 — 두 분 글칸은 흐름(.mk-flowsec) 차례 줄 아래 · 그런 순간의 참고 예시도 흐름 안(위) · 흐름이 못 그린 쪽의 대신 그리기(.mk-sayfb)도 «흐름» 자리 */
 const tok = (cls) => { for (let i = 0; i < ORDER.length; i++) if ((' ' + cls + ' ').indexOf(' ' + ORDER[i][0] + ' ') > -1) return i; return -1; };
 
 async function walk(w, course) {
