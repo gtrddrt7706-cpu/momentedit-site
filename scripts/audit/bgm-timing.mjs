@@ -89,8 +89,8 @@ try {
   { const S = { on: { vow: 1, ring: 1, free: 1, letter: 1, tribute: 1, toast: 1, table: 1, welcome: 1, declare: 1 }, freeWhat: 'speech', song: 'family', songBy: 'friend', tributeSay: 'short' }, cs = B(S);
     const S2 = Object.assign({}, S, { on: Object.assign({}, S.on, { song: 1 }) }); delete S2.on.free; const cs2 = B(S2);
     const fi = by(cs, 'narr-free-in-speech'), ri = by(cs, 'narr-ring-in'), ti = by(cs, 'tribute-in'), tt = by(cs, 'toast-toast'), b13 = by(cs, 'bridge-b13-toast-stay'), b10 = by(cs, 'bridge-b10-speech-clap'), se = cs2.find((c) => /^narr-song-end/.test(c.slug || '')) || {}, vi = by(cs, 'narr-vow-in');
-    ok('d 축사 여는 말 −15 · 반지 행동 −12 · 부모님께 고마운 말 −20 · 서약 낭독 −20 · 축배 여는 말 · «위하여» −15 · 잔 나누는 이음말 말 −15 · 잔 나누는 40초 −8(MEANING_R1_1102 12)',
-      fi.duck === -20 && ri.live && ri.live.duck === -12 && ti.live && ti.live.duck === -23 /* ★[DUCK20_READ_1122] */ && vi.live && vi.live.duck === -20 && tt.duck === -20 && tt.live && tt.live.duck === -20 && b13.duck === -20 && b13.live && b13.live.duck === -8,
+    ok('d 축사 여는 말 −15 · 반지 행동 −12 · 부모님께 고마운 말 −23 · 서약 낭독 −23 · 축배 여는 말 · «위하여» −15 · 잔 나누는 이음말 말 −15 · 잔 나누는 40초 −8(MEANING_R1_1102 12)',
+      fi.duck === -20 && ri.live && ri.live.duck === -12 && ti.live && ti.live.duck === -23 /* ★[DUCK20_READ_1122] */ && vi.live && vi.live.duck === -23 && tt.duck === -20 && tt.live && tt.live.duck === -20 && b13.duck === -20 && b13.live && b13.live.duck === -8,
       { fi: fi.duck, ri: ri.live && ri.live.duck, ti: ti.live && ti.live.duck, tt: [tt.duck, tt.live && tt.live.duck], b13: [b13.duck, b13.live && b13.live.duck] });
     ok('c 축사 · 축가 맺는 말 −90(«음악 없이») · 박수도 정적(NO_RELIFT_1102 · 박수 소리가 채운다 · 종전 −8)', b10.duck === -90 && b10.live && b10.live.duck === -90 && se.duck === -90 && se.live && se.live.duck === -90, { b10: [b10.duck, b10.live], se: [se.slug, se.duck, se.live && se.live.upMs] });
     const b10b = by(B(Object.assign({}, S, { bgm: { S5: { m: 'bed' } } })), 'bridge-b10-speech-clap');
@@ -107,7 +107,7 @@ try {
     /* d 줄 크기 */
     { const Q = await f.evaluate(() => { const g = (k) => _lSteps(ENG, [k]).map((x) => ({ slug: x.slug || x.of || '', txt: x.txt || '', dk: x.dk, ldk: x.ldk, q: !!x.quiet, t: !!(x.talk || x.talk2) })); const o = { ring: g('ring'), vow: g('vow'), tribute: g('tribute'), toast: g('toast'), free: g('free') }; const sw = (w) => { RitualOpen.pairSet(S, w); try { opSync(); } catch (e) {} try { buildSteps(); } catch (e) {} }; sw('song'); o.song = g('song'); sw('free'); _persist(); render(); return o; });
       const ringQ = Q.ring.find((x) => x.q), vowQ = Q.vow.find((x) => x.q && /함께 읽어요$/.test(x.txt)), trT = Q.tribute.find((x) => x.t && x.slug === 'tribute-in'), toN = Q.toast.find((x) => x.slug === 'toast-toast' && !x.t), toT = Q.toast.find((x) => x.slug === 'toast-toast' && x.t), frN = Q.free.find((x) => x.slug === 'narr-free-in-speech' && !x.t), b10 = Q.free.find((x) => x.slug === 'bridge-b10-speech-clap'), sE = Q.song.find((x) => /^narr-song-end/.test(x.slug));
-      ok(`${W} d 미리 듣기 줄 크기 — 반지 행동 −12 · 서약 «함께 읽어요» −20 · 부모님 말 −20 · 축배 여는 말 · «위하여» −15 · 축사 여는 말 −15`, ringQ && ringQ.ldk === -12 && vowQ && vowQ.ldk === -20 && trT && trT.ldk === -23 /* ★[DUCK20_READ_1122] */ && toN && toN.dk === -20 && toT && toT.ldk === -20 && frN && frN.dk === -20, { ringQ, vowQ, trT, toN, toT, frN });
+      ok(`${W} d 미리 듣기 줄 크기 — 반지 행동 −12 · 서약 «함께 읽어요» −23 · 부모님 말 −23 · 축배 여는 말 · «위하여» −15 · 축사 여는 말 −15`, ringQ && ringQ.ldk === -12 && vowQ && vowQ.ldk === -23 /* ★[DUCK20_READ_1122] */ && trT && trT.ldk === -23 /* ★[DUCK20_READ_1122] */ && toN && toN.dk === -20 && toT && toT.ldk === -20 && frN && frN.dk === -20, { ringQ, vowQ, trT, toN, toT, frN });
       ok(`${W} c 미리 듣기 맺는 말(축사 b10 · 축가) −90`, b10 && b10.dk === -90 && sE && sE.dk === -90, { b10, sE }); }
     /* a 편지 «음악 없이» — 그 순간만 */
     { await go(f, 'letter'); const r = await trace(f, ['letter'], 6000, false);
