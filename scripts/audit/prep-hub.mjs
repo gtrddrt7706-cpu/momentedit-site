@@ -132,6 +132,11 @@ const rowNames = (pg) => pg.evaluate(() => [...document.querySelectorAll('#mp_pr
   await pg.click('#mp_prepHub'); await wait(400);
   await pg.click('#prh_r_mr .prh-act'); await wait(200);
   await pg.fill('#prh_t_mr', '너의 의미'); await pg.fill('#prh_w_mr', '신랑 친구');
+  /* ★[PRIV_PREP_1123] 보낼 때 그 자리에서 동의 — 칸은 안 눌린 채로 · 동의 없이는 보내지 않는다 */
+  const ag0 = await pg.evaluate(() => { const a = document.getElementById('prh_a_mr'); return a ? { on: a.checked, link: (a.closest('label').querySelector('a') || {}).getAttribute && a.closest('label').querySelector('a').getAttribute('href') } : null; });
+  await pg.setInputFiles('#prh_file_mr', { name: 'mr.mp3', mimeType: 'audio/mpeg', buffer: Buffer.from('ID3abc') }); await wait(600);
+  ok('C 동의 칸은 안 눌린 채 · 처리방침 «예식 준비 파일» 줄로 · 동의 없이 파일을 고르면 보내지 않는다 [PRIV_PREP_1123]', !!ag0 && ag0.on === false && ag0.link === '/privacy.html#prepfile' && !posts.some((p) => p.action === 'ritualFile'), ag0);
+  await pg.check('#prh_a_mr');
   await pg.setInputFiles('#prh_file_mr', { name: 'mr.mp3', mimeType: 'audio/mpeg', buffer: Buffer.from('ID3abc') }); await wait(900);
   const up = posts.find((p) => p.action === 'ritualFile');
   ok('C 파일 올리기 = action ritualFile · 열쇠 mr · 곡 · 부르는 분 · 소리 꼴', !!up && up.key === 'mr' && up.t === '너의 의미' && up.w === '신랑 친구' && up.mime === 'audio/mpeg' && /^data:/.test(up.data || ''), up && { key: up.key, t: up.t, w: up.w, mime: up.mime });
@@ -141,7 +146,9 @@ const rowNames = (pg) => pg.evaluate(() => [...document.querySelectorAll('#mp_pr
   const sv = posts.filter((p) => p.action === 'saveProductionTrack').pop();
   ok('C 반지 체크 = 식순 초안 S.mkc[p:ring:0]=1 · 칸 시각 fAt · done:false · 다른 칸 그대로', !!sv && sv.track === 'ritual' && sv.done === false && sv.draft.S.mkc['p:ring:0'] === 1 && +sv.draft.S.fAt['mkc.p:ring:0'] > 0 && sv.draft.S.songWho === 'gfr', sv && { mkc: sv.draft.S.mkc, fAt: sv.draft.S.fAt });
   await pg.click('#prh_r_bl .prh-act'); await wait(200);
-  await pg.fill('#prh_x_bl', '사랑하는 두 사람에게.\n늘 서로를 아껴 주렴.'); await pg.click('#prh_p_bl [data-prh="savetxt"]'); await wait(700);
+  await pg.fill('#prh_x_bl', '사랑하는 두 사람에게.\n늘 서로를 아껴 주렴.'); const n0 = posts.length; await pg.click('#prh_p_bl [data-prh="savetxt"]'); await wait(400);
+  ok('C 원고도 동의 없이는 보내지 않는다 [PRIV_PREP_1123]', posts.length === n0);
+  await pg.check('#prh_a_bl'); await pg.click('#prh_p_bl [data-prh="savetxt"]'); await wait(700);
   const sv2 = posts.filter((p) => p.action === 'saveProductionTrack').pop();
   ok('C 덕담 원고 붙여 넣기 = S.tx[bless.p] (빌더 «받은 덕담 원고»와 한 칸) · 앞 체크도 남음', !!sv2 && sv2.draft.S.tx['bless.p'] === '사랑하는 두 사람에게.\n늘 서로를 아껴 주렴.' && sv2.draft.S.mkc['p:ring:0'] === 1, sv2 && sv2.draft.S.tx);
   const bl = await pg.evaluate(() => document.getElementById('prh_r_bl').textContent);

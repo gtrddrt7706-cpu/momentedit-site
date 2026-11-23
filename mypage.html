@@ -1312,6 +1312,7 @@ input[type=checkbox]{accent-color:var(--seal,#6B2A24)}   /* 체크 표시 = 진�
 .prh-ov .cc-input:focus-visible{outline:2px solid var(--gold-deep);outline-offset:1px}
 .prh-ta{min-height:150px;resize:vertical;line-height:1.7}
 .prh-btns{display:flex;align-items:center;gap:14px;margin-top:6px}
+.prh-agree{margin:4px 0 10px}.prh-agree a{color:var(--sub);text-decoration:underline;text-underline-offset:2px}   /* ★[PRIV_PREP_1123] 보낼 때 그 자리에서 동의 — 두 분 목소리 · 식전 영상과 같은 .srv-consent 모양 */
 .prh-send{width:auto;flex:0 0 auto;padding:11px 18px}
 .prh-send[disabled]{opacity:.6;cursor:default}
 .prh-link{appearance:none;background:none;border:0;padding:8px 2px;font-family:var(--sans);font-size:12.5px;color:var(--gold-deeper,#7A5F37);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
@@ -8680,6 +8681,7 @@ function _prhPanel(r){
   if(r.id==='mr') h+=fld('prh_t_mr','곡 이름',f.t,'')+fld('prh_w_mr','부르는 분',f.w,'');
   if(r.id==='fx') h+=fld('prh_t_fx','무엇을',f.t||String(S.freeEtc||'').trim(),'')+fld('prh_w_fx','몇 분',f.w||(S.freeLen?String(S.freeLen)+'분':''),'');
   if(r.act==='paste') h+='<label class="prh-f" for="prh_x_'+r.id+'"><span>받은 원고</span><textarea class="cc-input prh-ta" id="prh_x_'+r.id+'" rows="7" maxlength="'+PRH_TXT_MAX+'" placeholder="받은 원고를 붙여 넣어 주세요">'+escapeHtml(r.text||'')+'</textarea></label>';
+  h+='<label class="srv-consent prh-agree" for="prh_a_'+r.id+'"><input type="checkbox" id="prh_a_'+r.id+'"> 예식 준비에만 쓰는 데 동의해요 · <a href="/privacy.html#prepfile" target="_blank" rel="noopener">자세히</a></label>';   /* ★[PRIV_PREP_1123 2026-11-23 대표님 «보수적으로»] 보낼 때 그 자리에서 동의(처리방침 «예식 준비 파일» · 파일은 예식 뒤 30일 삭제) — 눌린 채로 두지 않는다 · 보내기 · 파일 고르기 둘 다 이 칸을 본다 */
   h+='<input type="file" id="prh_file_'+r.id+'" class="prh-file" data-id="'+r.id+'" accept="'+PRH_ACCEPT[r.key]+'" hidden>';
   h+=r.act==='paste'
     ? '<div class="prh-btns"><button type="button" class="cc-btn prh-send" data-prh="savetxt" data-id="'+r.id+'"'+(busy?' disabled':'')+'>보내기</button><button type="button" class="prh-link" data-prh="pick" data-id="'+r.id+'"'+(busy?' disabled':'')+'>파일로 보낼게요</button></div>'
@@ -8709,12 +8711,14 @@ function _prhClick(e){
   if(k==='close'){ _prhClose(); return; }
   if(k==='go'){ _prhGo(b.getAttribute('data-go')); return; }
   if(k==='panel'){ PRHFLOW.panel=(PRHFLOW.panel===id)?'':id; _prhRender(); var t=$(PRHFLOW.panel==='bl'||PRHFLOW.panel==='sp'?'prh_x_'+id:'prh_t_'+id); if(t&&PRHFLOW.panel){ try{ t.focus({preventScroll:false}); }catch(_e){} } return; }
+  if((k==='pick'||k==='savetxt')&&!_prhAgreed(id)) return;   // ★[PRIV_PREP_1123] 동의 칸을 먼저
   if(k==='pick'){ var inp=$('prh_file_'+id); if(inp){ inp.value=''; inp.click(); } return; }
   if(k==='savetxt'){ _prhSaveText(id); return; }
 }
+function _prhAgreed(id){ var a=$('prh_a_'+id); if(!a||a.checked) return true; _miniToast('동의에 체크해 주세요'); try{ a.focus(); }catch(e){} return false; }   /* ★[PRIV_PREP_1123] */
 function _prhChange(e){
   var t=e.target; if(!t) return;
-  if(t.classList&&t.classList.contains('prh-file')){ var f=t.files&&t.files[0]; if(f) _prhUpload(t.getAttribute('data-id'), f); return; }
+  if(t.classList&&t.classList.contains('prh-file')){ var f=t.files&&t.files[0], fid=t.getAttribute('data-id'); if(f&&_prhAgreed(fid)) _prhUpload(fid, f); return; }   // [PRIV_PREP_1123] 파일이 어떤 길로 와도 동의 칸을 본다
   if(t.getAttribute&&t.getAttribute('data-mk')!=null){ _prhCheck(t.getAttribute('data-mk'), !!t.checked, t); }
 }
 function _prhMime(f){ var m=String((f&&f.type)||'').toLowerCase(), ext=String((f&&f.name)||'').split('.').pop().toLowerCase(); return (m&&m!=='application/octet-stream')?m:(PRH_EXT_MIME[ext]||m||''); }
