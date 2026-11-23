@@ -45,7 +45,7 @@ export function check(html, ro) {
     [/return '<div class="lv"'\+_vfy\(v\)\+'><img class="lv-still"[^\n]*data-vk=/, '② 장면(_lVid 누르는 갈래)'],
     [/if\(v\) return '<div class="lv"'\+_vfy\(v\)\+'><img class="lv-still"/, '크게 보기 · 연습 장면(_lVid)'],
     [/return '<div class="mk-vu-img"'\+_vfy\(v\)\+'>'/, '목소리 창(_vcUseBody)'],
-    [/'<span class="pr-hm"'\+_vfy\(_hv\)\+'>'/, '③ 연습 장면(.pr-hm)'],
+    [/'<span class="pr-hm"'\+_vfy\(\w+\)\+'>'/, '③ 연습 장면(.pr-hm)'],   // [PR_CLEAN_1123] 시작 카드 둘이 한 함수(_stCard)에서 그림을 받아 변수 이름이 v 로 바뀜 · 뜻(장면 높이를 싣는다)은 그대로
     [/_fy=_vfyN\(v\); if\(_fy==null\) m\.style\.removeProperty\('--fy'\); else m\.style\.setProperty\('--fy',_fy\+'%'\)/, '① 창(_pvDraw)'],
   ];
   for (const [re, nm] of need) if (!re.test(html)) bad.push(`${nm} 이 장면 높이(--fy)를 싣지 않는다`);
