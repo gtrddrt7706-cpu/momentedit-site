@@ -120,7 +120,7 @@ try {
   const Bq = async () => { const { ctx, f, errs } = await prep();
     /* 5 부모님께 걸어가기 */
     await go(f, 'tribute'); const ot = await run(f, ['tribute'], 16000), wk = ot.filter((x) => x.of === 'tribute-in' && x.act && !x.talk && x.on), tk = ot.filter((x) => x.of === 'tribute-in' && x.talk && x.on);
-    ok('P5 부모님께 걸어가는 줄 −12 · 말하는 차례 −23', wk.length > 0 && wk[wk.length - 1].want === -12 && tk.length > 0 && tk[tk.length - 1].want === -23 /* ★[DUCK20_READ_1122] */, { wk: [...new Set(wk.map((x) => x.want))], tk: [...new Set(tk.map((x) => x.want))] });
+    ok('P5 부모님께 걸어가는 줄 · 말하는 차례 모두 −23(당일 콘솔과 같은 한 구간)', wk.length > 0 && wk[wk.length - 1].want === -23 /* ★[WALK_PREVIEW_MATCH_1123] «말로» 인사 날 걷는 줄 = 당일 콘솔 한 구간 값(낭독 아래) · «말없이»는 −12 그대로 */ && tk.length > 0 && tk[tk.length - 1].want === -23 /* ★[DUCK20_READ_1122] */, { wk: [...new Set(wk.map((x) => x.want))], tk: [...new Set(tk.map((x) => x.want))] });
     /* R 연습 */
     await f.evaluate(async () => { idx = STEPS.findIndex((x) => x.k === 'practice'); render(); await new Promise((x) => setTimeout(x, 600)); prStart('try'); await new Promise((x) => setTimeout(x, 900)); });
     const stay = (pick, ms) => f.evaluate(async ({ pick, ms }) => { const B = BgmBed._t, w = (t) => new Promise((x) => setTimeout(x, t)); const Q = LP.q, j = Q.findIndex((x) => pick === 'vow' ? (x.k === 'vow' && x.talk2 && x.who === '신랑') : (x.k === 'entry' && (x.act || x.quiet) && !x.talk2));

@@ -24590,3 +24590,7 @@ chk 'DUCK20_1122' scripts/audit/entry-nofile-1115.mjs 3   # [DUCK20_1122] lane g
 chk 'DUCK20_1122' scripts/audit/seam-bg.mjs 5   # [DUCK20_1122] lane e — 말 아래 −20 기대
 chk 'DUCK20_1122' scripts/audit/seam-b2.mjs 1   # 음09 · 음10 — 시험만 나레이션 줄을 −15 로 다르게(옮김을 크기로 본다)
 chk 'DUCK20_1122' scripts/audit/no-relift.mjs 2
+# ★★[WALK_PREVIEW_MATCH_1123 2026-11-23 대본 «미리 듣기는 당일과 같아야»] 행동 · 말없이 줄 미리 듣기 크기 = 당일 콘솔 크기 — 걷기 값(walkDuck)은 당일도 걷기 값인 날(doing move)만
+chk 'WALK_PREVIEW_MATCH_1123' assets/bgm-bed.js 1
+chk "if(_lv&&_lv.walkDuck!=null&&_lv.doing==='move') db=_lv.walkDuck;" assets/bgm-bed.js 1
+chk 'walk-preview-match' .github/workflows/merge-guard.yml 1
