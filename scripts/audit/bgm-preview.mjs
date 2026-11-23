@@ -188,7 +188,7 @@ try {
     /* ★[ONE_FLOW_1106] 옛 D2(축사 칸 B13 곡 카드 = 하객 맞이에서 받은 파일)는 축사 곡 칸을 걷어 없다 — 한 파일 규칙은 하객 맞이 B13 카드(위 158행) · bgm-fix A3 · C8 이 지킨다 */
     const b8 = await listen(f, 'free', 9000); const t8a = b8.filter((x) => x.talk && x.src), i8 = t8a.length ? t8a[0].i : 99, t8 = t8a.slice(5), n8 = b8.filter((x) => !x.talk && x.src && x.i < i8);   /* 말씀 줄 첫 0.5초는 곡이 바뀌는 자리(3초 겹침이 시작) */   /* [DETAIL_R2_1101 ①] 여는 말은 본식 곡(M4) · 말씀부터 고른 곡 */
     const f8 = n8.length ? n8[0].f : dk7;   /* [ONE_FLOW_1106] 여는 말에 흐르던 본식 곡이 말씀 동안에도 그대로 */
-    ok(`${W} 6 축사 «음악과 함께» — 여는 말은 본식 곡(${f8}) · 말씀 동안에도 같은 곡 −20(곡이 바뀌지 않는다)`, t8.length && t8.every((x) => x.want === -20 && x.f === f8) && n8.every((x) => x.f === f8), { t8: t8.slice(0, 2), n8: n8.slice(0, 2) });
+    ok(`${W} 6 축사 «음악과 함께» — 여는 말은 본식 곡(${f8}) · 말씀 동안에도 같은 곡 −23(곡이 바뀌지 않는다)`, t8.length && t8.every((x) => x.want === -23 /* ★[DUCK20_READ_1122] */ && x.f === f8) && n8.every((x) => x.f === f8), { t8: t8.slice(0, 2), n8: n8.slice(0, 2) });
     /* D4 [R1-1] 초안이 통째로 바뀌면 칩 기억도 비운다 */
     await f.click('[data-fk="bgm:S5:none"]'); await wait(f, 200); await f.click('[data-fk="bgm:S5:bed"]'); await wait(f, 200);
     await f.evaluate(() => { S = JSON.parse(JSON.stringify(S)); if (S.bgm) { delete S.bgm.S5; delete S.bgm.S6; } render(); }); await go(f, 'free'); await wait(f, 300);
@@ -197,7 +197,7 @@ try {
     await f.click('[data-fk="bgm:S5:bed"]'); await wait(f, 300);
     await go(f, 'letter'); await f.click('[data-fk="bgm:S6:bed"]'); await wait(f, 300);   /* [ONE_FLOW_1106] 편지 곡 고르기 칸은 없다 */
     const b9 = await listen(f, 'letter', 9000); const t9 = b9.filter((x) => x.talk && x.src).slice(5), m4s = await f.evaluate(() => BgmPicks.PICKS.M4.concat((BgmPicks.FILL || {}).M4 || []));   /* [LISTEN_LEN_PV_1114] 본식 목록 = 고객이 보는 3곡 + 본식 배경 곡(REPEAT_RULE_1107 ① · 계획 목록 그대로) — 곡 길이를 등록 값으로 세면 이 검사 판(B11 파일 없음)에서는 편지 자리가 세 번째 곡 B12 다(옛 240초 셈은 우연히 B10) · 재는 것은 «따로 고른 곡이 아니라 본식 흐름 곡»(ONE_FLOW_1106) */
-    ok(`${W} 6 편지 «음악과 함께» — S.bgm.S6 = { m:bed } · 낭독 동안 −20 · 곡은 본식 목록(M4) 곡`, t9.length && t9.every((x) => x.want === -20 && m4s.indexOf(x.f) > -1) && (await f.evaluate(() => S.bgm.S6 && S.bgm.S6.m === 'bed')), t9.slice(0, 2));
+    ok(`${W} 6 편지 «음악과 함께» — S.bgm.S6 = { m:bed } · 낭독 동안 −23 · 곡은 본식 목록(M4) 곡`, t9.length && t9.every((x) => x.want === -23 /* ★[DUCK20_READ_1122] */ && m4s.indexOf(x.f) > -1) && (await f.evaluate(() => S.bgm.S6 && S.bgm.S6.m === 'bed')), t9.slice(0, 2));
     /* 7 곡 없는 구간 */
     await go(f, 'table'); const l10 = await lab(f, 'table'); const b10 = await listen(f, 'table', 11000);   /* [DETAIL_R3_1101 ⑦ 보탬] 맨 뒤 B13 이 흐르므로 첫 줄 앞 뜸(6초 · listen 은 뜸을 세지 않는다) 뒤까지 */
     /* ★[DETAIL_R3_1101 ⑦ 보탬] 테이블 목록은 축사 «음악과 함께» 곡(B13)을 빼면 30분이 안 돼 맨 뒤로 보낸다(종전엔 뺐다) — 이 시험 드라이브엔 테이블 곡 가운데 B13 만 있어 그 곡이 흐른다 */

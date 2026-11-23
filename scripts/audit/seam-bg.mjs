@@ -176,16 +176,16 @@ try {
   if (want('BG02')) {
     const C2 = require(path.join(ROOT, 'assets/ritual-cue.js')), eng = (on, bgm) => { const S = S0of(on); S.bgm = bgm; S.letter = 'each'; return C2.build(S, { mode: 'console' }).cues; };
     const e1 = eng({ song: 1, letter: 1, free: 0 }, { S6: { m: 'bed' } }).find((x) => /^letter-/.test(x.slug || '')) || {}, e3 = eng({ song: 0, letter: 1, free: 0 }, { S6: { m: 'bed' } }).find((x) => /^letter-/.test(x.slug || '')) || {};
-    ok('BG02-T01 엔진 — 축가(정적) 뒤 «음악과 함께» 편지 여는 말 −90(M4 를 되살리지 않는다) · 낭독 −20', e1.duck === -90 && e1.live && e1.live.duck === -20, { duck: e1.duck, live: e1.live && e1.live.duck });
-    ok('BG02-T03 엔진 대조 — 앞 곡이 들리면(덕담 → 편지) 여는 말 −20 · 낭독 −20 그대로(DUCK20_1122)', e3.duck === -20 && e3.live && e3.live.duck === -20, { duck: e3.duck, live: e3.live && e3.live.duck });
+    ok('BG02-T01 엔진 — 축가(정적) 뒤 «음악과 함께» 편지 여는 말 −90(M4 를 되살리지 않는다) · 낭독 −20', e1.duck === -90 && e1.live && e1.live.duck === -23 /* ★[DUCK20_READ_1122] */, { duck: e1.duck, live: e1.live && e1.live.duck });
+    ok('BG02-T03 엔진 대조 — 앞 곡이 들리면(덕담 → 편지) 여는 말 −20 · 낭독 −20 그대로(DUCK20_1122)', e3.duck === -20 && e3.live && e3.live.duck === -23, { duck: e3.duck, live: e3.live && e3.live.duck });
     await setX({ on: { song: 1, letter: 1, free: 0, tribute: 0 }, bgm: { S6: { m: 'bed' } }, letter: 'each' }); await go(f, 'song');
     const o = await runP(['song', 'letter'], 40000), op = o.filter((x) => x.k === 'letter' && !x.talk && x.on && x.s && /^letter-/.test(x.s)), rd = o.filter((x) => x.k === 'letter' && x.talk && x.on);
     const m4 = await f.evaluate(() => BgmPicks.PICKS.M4 || []), first = o.find((x) => x.k === 'letter' && x.on);
     ok('BG02-T01 미리 듣기 — 축가 → 편지 여는 말 동안 음악 0(M4 상승 · 재시작 0)', !op.length, { op: op.slice(0, 3).map((x) => [x.s, x.f, x.want]) });
-    ok('BG02-T02 미리 듣기 — 낭독에서 처음 들리는 곡 = 본식 곡(M4 · ONE_FLOW_1106 · 따로 곡 없음) −20 · 그전엔 소리 0', !!first && first.talk && first.seg === 'M4' && m4.indexOf(first.f) > -1 && rd.some((x) => x.want === -20) && rd.every((x) => x.seg === 'M4'), { first: first && [first.lab, first.f, first.seg, first.want] });
+    ok('BG02-T02 미리 듣기 — 낭독에서 처음 들리는 곡 = 본식 곡(M4 · ONE_FLOW_1106 · 따로 곡 없음) −23 · 그전엔 소리 0', !!first && first.talk && first.seg === 'M4' && m4.indexOf(first.f) > -1 && rd.some((x) => x.want === -23 /* ★[DUCK20_READ_1122] */) && rd.every((x) => x.seg === 'M4'), { first: first && [first.lab, first.f, first.seg, first.want] });
     await setX({ on: { song: 0, letter: 1, free: 0, tribute: 0, bless: 1 }, bgm: { S6: { m: 'bed' } }, letter: 'each' }); await go(f, 'bless');
     const o3 = await runP(['bless', 'letter'], 40000), op3 = o3.filter((x) => x.k === 'letter' && !x.talk && /^letter-/.test(x.s || '') && x.on), rd3 = o3.filter((x) => x.k === 'letter' && x.talk && x.on);
-    ok('BG02-T03 미리 듣기 대조 — 덕담 곡이 흐르면 여는 말 −20(M4 · DUCK20_1122) → 낭독도 같은 본식 곡 −20(ONE_FLOW_1106)', op3.length > 0 && op3[op3.length - 1].seg === 'M4' && op3[op3.length - 1].want === -20 && rd3.length > 0 && rd3[rd3.length - 1].seg === 'M4' && rd3[rd3.length - 1].f === op3[op3.length - 1].f && rd3[rd3.length - 1].want === -20, { op3: op3.length && [op3[op3.length - 1].f, op3[op3.length - 1].seg, op3[op3.length - 1].want], rd3: rd3.length && [rd3[rd3.length - 1].f, rd3[rd3.length - 1].seg] });
+    ok('BG02-T03 미리 듣기 대조 — 덕담 곡이 흐르면 여는 말 −20(M4 · DUCK20_1122) → 낭독도 같은 본식 곡 −23(ONE_FLOW_1106)', op3.length > 0 && op3[op3.length - 1].seg === 'M4' && op3[op3.length - 1].want === -20 && rd3.length > 0 && rd3[rd3.length - 1].seg === 'M4' && rd3[rd3.length - 1].f === op3[op3.length - 1].f && rd3[rd3.length - 1].want === -23 /* ★[DUCK20_READ_1122] */, { op3: op3.length && [op3[op3.length - 1].f, op3[op3.length - 1].seg, op3[op3.length - 1].want], rd3: rd3.length && [rd3[rd3.length - 1].f, rd3[rd3.length - 1].seg] });
   }
   if (want('BG04')) {
     const toL = () => f.evaluate(() => { const i = STEPS.findIndex((x) => x.k === 'listen'); if (i > -1 && STEPS[idx].k !== 'listen') { idx = i; render(); } });
@@ -246,7 +246,7 @@ try {
     { const eng = (lt, bg, on) => { const S = S0of(Object.assign({ song: 0, free: 0, tribute: 0 }, on)); S.letter = lt; S.bgm = bg; return C.build(S, { mode: 'console' }).cues; };
       const a = eng('each', {}, { letter: 1, table: 1, toast: 1 }), b = eng('each', { S6: { m: 'bed' } }, { letter: 1, table: 1, toast: 1 }), le = (R) => R.find((x) => x.slug === 'narr-letter-end') || {}, b8 = (R) => R[R.indexOf(le(R)) + 1] || {};
       /* ★[SEAM_WORD_1107 c · 1층 · CI 5개 1층 조건 맞춤 11/10] 테이블 인사가 다음이면 244 b8 을 뺀다(대본 18:40) — 편지 끝이 바로 테이블로 */
-      ok('BG03-T04 엔진 — b8 없음 · 음악 없이 편지 끝 −90 / «음악과 함께» 편지 끝 −20 · 둘 다 바로 뒤 테이블', le(a).duck === -90 && b8(a).slug === 'narr-table-in' && le(b).duck === -20 && b8(b).slug === 'narr-table-in', { a: [le(a).duck, b8(a).slug, b8(a).duck], b: [le(b).duck, b8(b).slug] }); }
+      ok('BG03-T04 엔진 — b8 없음 · 음악 없이 편지 끝 −90 / «음악과 함께» 편지 끝 −20 · 둘 다 바로 뒤 테이블', le(a).duck === -90 && b8(a).slug === 'narr-table-in' && le(b).duck === -23 /* ★[DUCK20_READ_1122] */ && b8(b).slug === 'narr-table-in', { a: [le(a).duck, b8(a).slug, b8(a).duck], b: [le(b).duck, b8(b).slug] }); }
     /* T05 미리 듣기 — 다음 곡(M8)이 늦게 오는 사이 멈추면 늦은 곡도 옛 곡도 올리지 않는다 */
     { await setX({ on: { song: 0, free: 0, tribute: 0, bless: 1, letter: 1, table: 1, toast: 1 }, bgm: {}, letter: 'parent' }); await go(f, 'letter'); await toListen();
       const r = await f.evaluate(async () => { const H = window.parent.H; const M8 = [BgmBed._t.songAt('table')].filter(Boolean); (M8 || []).forEach((x) => { H.dly[x] = 7000; delete BgmBed._t.BUF[x]; });

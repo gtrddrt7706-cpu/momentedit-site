@@ -106,8 +106,8 @@ const RC = require(RCM || path.join(ROOT, 'assets/ritual-cue.js')), RO = require
   ok('0 엔진 기본(음악 없이) — 축사 사람 구간 −90 · 편지 첫 큐(앞이 축가) · 사람 구간 · 마무리 −90 · 마무리 뒤 2초 정적 → 다음 곡(next)',
     n0.free === -90 && n0g.l0 === -90 && n0.l0live === -90 && n0.le === -90 && n0.lt === '두 분이 직접 편지 낭독' && n0.post === /* [LAYER7_DUCK_1108] 다음 곡 −15 · ★[DUCK20_1122] −20 */ '[{"wait":2000},{"music":"next","v":-20,"ms":4000,"nextMs":3000}]', n0);   /* ★[BGM_TIMING_1101] 정적 뒤 다음 순간 곡을 무음에서 3초(next) · 같은 곡이거나 없으면 종전 4초에 −16 */
   ok('0 엔진 «음악과 함께» — 축사 −20 · 편지 첫 큐 −16(앞 곡 아래) · 사람 구간 · 마무리 −20(duckRead) · 끝은 정적 없이 다음 곡으로 3초 겹침 · 편지 장면 글 판(«음악이 아주 작게») · 축사만 고르면 편지는 그대로',
-    RC.PARAM.duckRead === -20 && nbF.free === -20 && nb.l0 === -90 && nbS.l0 === -20 /* ★[DUCK20_1122] −15 → −20 · ★[LAYER7_DUCK_1108] 말 아래 −16 → −15(옛 −16 기대 은퇴) */ && nb.l0live === -20 && nb.le === -20 && nb.post === '[{"music":"next","v":-20,"ms":4000,"nextMs":3000,"xf":true}]'   /* ★[BGM_TIMING2_1101] 여는 말은 앞 곡(M4) −16 아래 · 낭독 차례 −20 · 끝은 정적 없이 다음 곡으로 3초 겹침 */   /* ★[SEAM_BG02] 앞이 축가(정적 끝)면 여는 말 −90 · 축가가 없으면 −16 */
-    && nb.lt === '두 분이 직접 편지 낭독 (음악이 아주 작게)' && n5.free === -20 && n5g.l0 === -90 && n5.lt === '두 분이 직접 편지 낭독' && n5g.lt === '두 분이 직접 편지 낭독', { nb, nbF, n5, n5g });   /* [SPEECH_SONG_1115] «축사만 고르면 편지는 그대로» — 축사 쪽 n5 · 축가 쪽 n5g(앞이 축가) 둘 다 */
+    RC.PARAM.duckRead === -23 /* ★[DUCK20_READ_1122] */ && nbF.free === -23 && nb.l0 === -90 && nbS.l0 === -20 /* ★[DUCK20_1122] −15 → −20 · ★[LAYER7_DUCK_1108] 말 아래 −16 → −15(옛 −16 기대 은퇴) */ && nb.l0live === -23 && nb.le === -23 && nb.post === '[{"music":"next","v":-20,"ms":4000,"nextMs":3000,"xf":true}]'   /* ★[BGM_TIMING2_1101] 여는 말은 앞 곡(M4) −16 아래 · 낭독 차례 −20 · 끝은 정적 없이 다음 곡으로 3초 겹침 */   /* ★[SEAM_BG02] 앞이 축가(정적 끝)면 여는 말 −90 · 축가가 없으면 −16 */
+    && nb.lt === '두 분이 직접 편지 낭독 (음악이 아주 작게)' && n5.free === -23 && n5g.l0 === -90 && n5.lt === '두 분이 직접 편지 낭독' && n5g.lt === '두 분이 직접 편지 낭독', { nb, nbF, n5, n5g });   /* [SPEECH_SONG_1115] «축사만 고르면 편지는 그대로» — 축사 쪽 n5 · 축가 쪽 n5g(앞이 축가) 둘 다 */
   const same = (a, b) => a.length === b.length && a.every((c, i) => JSON.stringify(c) === JSON.stringify(b[i]));
   const bedCs = bld({ S5: { m: 'bed' }, S6: { m: 'bed' } }), touched = bedCs.filter((c, i) => JSON.stringify(c) !== JSON.stringify(nNone[i])).map((c) => c.slug);
   ok('0 엔진 — 옛 값(own · studio · none · warm)은 기본과 한 글자도 같다 · «음악과 함께»가 바꾸는 큐는 축사(여는 말 · 맺는 말) · 편지 넷뿐(축가 여는 말은 어느 쪽이든 −90 · ONE_FLOW_1106 ⑤)',
@@ -231,16 +231,16 @@ try {
     await go(pg, 'free'); const f0 = await look(pg), e0 = await eng(pg); await shot(pg, W, 'bgm-free-none');
     await pg.click('[data-fk="bgm:S5:bed"]'); await pg.waitForTimeout(300); const f1 = await look(pg), e1 = await eng(pg); await shot(pg, W, 'bgm-free-bed');
     await pg.click('[data-fk="bgm:S5:none"]'); await pg.waitForTimeout(300); const f2 = await look(pg), e2 = await eng(pg);
-    ok(`${W} 2 [BGM_R4_1023] 축사 한 줄 세 상태 — 안 누름 «${NOTE.S5.unset}»(칩 안 눌린 모양) → «음악과 함께» «${NOTE.S5.bed}» · S.bgm.S5 bed · 엔진 −90 → −20 → «음악 없이» «${NOTE.S5.none}» · 지운다 · 엔진 −90 · 칸 높이 그대로`,
-      f0.chips.join() === '음악 없이,음악과 함께' && f0.note === NOTE.S5.unset && e0.free === -90 && f1.chips.join() === '음악 없이,음악과 함께*' && f1.note === NOTE.S5.bed && f1.bgm === '{"S5":{"m":"bed"}}' && e1.free === -20
+    ok(`${W} 2 [BGM_R4_1023] 축사 한 줄 세 상태 — 안 누름 «${NOTE.S5.unset}»(칩 안 눌린 모양) → «음악과 함께» «${NOTE.S5.bed}» · S.bgm.S5 bed · 엔진 −90 → −23 → «음악 없이» «${NOTE.S5.none}» · 지운다 · 엔진 −90 · 칸 높이 그대로`,
+      f0.chips.join() === '음악 없이,음악과 함께' && f0.note === NOTE.S5.unset && e0.free === -90 && f1.chips.join() === '음악 없이,음악과 함께*' && f1.note === NOTE.S5.bed && f1.bgm === '{"S5":{"m":"bed"}}' && e1.free === -23 /* ★[DUCK20_READ_1122] */
       && f2.chips.join() === '음악 없이*,음악과 함께' && f2.note === NOTE.S5.none && f2.bgm === 'null' && e2.free === -90 && Math.abs(f0.rowH - f1.rowH) < 0.6 && Math.abs(f1.rowH - f2.rowH) < 0.6, { f0, f1, f2, e0, e1, e2 });
     ok(`${W} 2 [BGM_R5_1023] 축사 흐름 음악 줄 — 말씀(○) 바로 앞 · 안 누름 «${TALK.none}» → «음악과 함께» «${TALK.bed}» → «음악 없이» 다시 «${TALK.none}» · 한 줄 · 자리 그대로`,
       f0.fq === 1 && f0.ftxt === TALK.none && f1.fq === 1 && f1.ftxt === TALK.bed && f2.fq === 1 && f2.ftxt === TALK.none && f0.fi === f1.fi && f1.fi === f2.fi && /\bt\b/.test(f1.nextCls), { f0: [f0.ftxt, f0.fi, f0.next], f1: [f1.ftxt, f1.fi, f1.next], f2: [f2.ftxt, f2.fi] });
     await go(pg, 'letter'); const l0 = await look(pg);
     await pg.click('[data-fk="bgm:S6:bed"]'); await pg.waitForTimeout(300); const l1 = await look(pg), m1 = await eng(pg); await shot(pg, W, 'bgm-letter-bed');
     await pg.click('[data-fk="bgm:S6:none"]'); await pg.waitForTimeout(300); const l2 = await look(pg); await pg.click('[data-fk="bgm:S6:bed"]'); await pg.waitForTimeout(300);
-    ok(`${W} 2 [BGM_R4_1023] 편지 한 줄 세 상태 — 안 누름 «${NOTE.S6.unset}» · «음악과 함께» «${NOTE.S6.bed}» · S.bgm.S6 bed · 엔진 사람 구간 · 마무리 −20 · 장면 판 · «음악 없이» «${NOTE.S6.none}» · 칸 높이 그대로`,
-      l0.note === NOTE.S6.unset && l2.note === NOTE.S6.none && l2.chips.join() === '음악 없이*,음악과 함께' && l1.chips.join() === '음악 없이,음악과 함께*' && l1.note === NOTE.S6.bed && l1.bgm === '{"S6":{"m":"bed"}}' && m1.l0 === -20 && m1.le === -20 && m1.lt === '두 분이 직접 편지 낭독 (음악이 아주 작게)' && m1.free === -90
+    ok(`${W} 2 [BGM_R4_1023] 편지 한 줄 세 상태 — 안 누름 «${NOTE.S6.unset}» · «음악과 함께» «${NOTE.S6.bed}» · S.bgm.S6 bed · 엔진 사람 구간 · 마무리 −23 · 장면 판 · «음악 없이» «${NOTE.S6.none}» · 칸 높이 그대로`,
+      l0.note === NOTE.S6.unset && l2.note === NOTE.S6.none && l2.chips.join() === '음악 없이*,음악과 함께' && l1.chips.join() === '음악 없이,음악과 함께*' && l1.note === NOTE.S6.bed && l1.bgm === '{"S6":{"m":"bed"}}' && m1.l0 === -23 && m1.le === -23 /* ★[DUCK20_READ_1122] */ && m1.lt === '두 분이 직접 편지 낭독 (음악이 아주 작게)' && m1.free === -90
       && Math.abs(l0.rowH - l1.rowH) < 0.6 && !l1.hz, { l0, l1, m1 });
     ok(`${W} 2 [BGM_R5_1023] 편지 흐름 음악 줄 — 낭독(○) 바로 앞 · 안 누름 · 음악 없이 «${TALK.none}» · 음악과 함께 «${TALK.bed}»`,
       l0.fq === 1 && l0.ftxt === TALK.none && l1.ftxt === TALK.bed && l2.ftxt === TALK.none && /\bt\b/.test(l1.nextCls) && /차례/.test(l1.next) && l0.fi === l1.fi, { l0: [l0.ftxt, l0.fi, l0.next], l1: [l1.ftxt, l1.next], l2: l2.ftxt });

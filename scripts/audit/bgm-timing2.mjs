@@ -93,9 +93,9 @@ try {
     const cbF = B(Object.assign({}, S, { on: Object.assign({}, S.on, { free: 1, song: 0 }), bgm: { S5: { m: 'bed' }, S6: { m: 'bed' } } }));   /* free: 1 을 다시 적는다 — 앞 B() 가 같은 S.on 을 엔진 norm 에 넘겨 축사를 지웠다 */   /* ★[SPEECH_SONG_1115] 축사 값은 축사 쪽 판(축가 끔) — 둘 다 켠 판에서는 엔진이 축사를 걷는다 */
     const fi = by(cbF, 'narr-free-in-speech'), li = cb.find((c) => /^letter-/.test(c.slug || '')) || {}, le = by(cb, 'narr-letter-end'), lin = cn.find((c) => /^letter-/.test(c.slug || '')) || {};
     const fiE = (() => { let j = cbF.findIndex((c) => c.slug === 'narr-free-in-speech'); while (j > -1 && cbF[j + 1] && cbF[j + 1].fire === 'chain' && cbF[j + 1].slug === 'clap-speech') j++; return j > -1 ? cbF[j] : {}; })();   /* ★[ROLE_SHIP_1117] 여는 말 뒤 사슬 박수(381)가 붙은 날은 말씀 차례(live)가 그 박수 줄로 간다 */
-    ok('a 축사 «음악과 함께» — 여는 말 −15(앞 곡 아래) · 말씀 차례 −20', fi.duck === -20 && (fiE.duck == null || fiE.duck === -20) /* ★[DUCK20_1122] */ && fiE.live && fiE.live.duck === -20, [fi.duck, fiE.duck, fiE.live && fiE.live.duck]);
+    ok('a 축사 «음악과 함께» — 여는 말 −15(앞 곡 아래) · 말씀 차례 −23', fi.duck === -20 && (fiE.duck == null || fiE.duck === -20) /* ★[DUCK20_1122] */ && fiE.live && fiE.live.duck === -23 /* ★[DUCK20_READ_1122] */, [fi.duck, fiE.duck, fiE.live && fiE.live.duck]);
     const li0 = B(Object.assign({}, S, { on: Object.assign({}, S.on, { song: 0 }), bgm: { S5: { m: 'bed' }, S6: { m: 'bed' } } })).find((c) => /^letter-/.test(c.slug || '')) || {};   /* ★[SEAM_BG02] 여는 말 −15 은 앞 곡이 들릴 때(축가 없음) · 축가 끝(정적) 뒤면 −90 */
-    ok('b 편지 «음악과 함께» — 여는 말 −15(앞 곡이 들릴 때 · 축가 뒤 정적이면 −90) · 낭독 차례 −20 · 끝 = 정적 없이 다음 곡으로 3초 겹침(xf)', li0.duck === -20 && li.duck === -90 && li.live && li.live.duck === -20 && JSON.stringify(le.post) === JSON.stringify([{ music: 'next', v: -20, ms: 4000, nextMs: 3000, xf: true }]), { li: [li.duck, li.live && li.live.duck], li0: li0.duck, post: le.post });
+    ok('b 편지 «음악과 함께» — 여는 말 −15(앞 곡이 들릴 때 · 축가 뒤 정적이면 −90) · 낭독 차례 −23 · 끝 = 정적 없이 다음 곡으로 3초 겹침(xf)', li0.duck === -20 && li.duck === -90 && li.live && li.live.duck === -23 /* ★[DUCK20_READ_1122] */ && JSON.stringify(le.post) === JSON.stringify([{ music: 'next', v: -20, ms: 4000, nextMs: 3000, xf: true }]), { li: [li.duck, li.live && li.live.duck], li0: li0.duck, post: le.post });
     ok('b 편지 «음악 없이» 여는 말은 그대로 무음', lin.duck <= -60, lin.duck);
     const pa = cn.find((c) => c.actId === 'photo-all') || {}, pf = cn.find((c) => c.actId === 'photo-family') || {}, pr = cn.find((c) => c.actId === 'photo-free') || {};
     ok('d 단체 사진(하객 단체 · 가족 구도) −18 · 자유 사진 −12 그대로', pa.duck === -18 && pf.duck === -18 && (!pa.live || pa.live.duck == null || pa.live.duck === -18) && (!pf.live || pf.live.duck == null || pf.live.duck === -18) && pr.duck === -12, { pa: [pa.duck, pa.live && pa.live.duck], pf: [pf.duck, pf.live && pf.live.duck], pr: pr.duck }); }
@@ -108,7 +108,7 @@ try {
     { await setS(f, { on: { letter: 1, free: 1, song: 0, tribute: 0 }, bgm: { S5: { m: 'bed' } } }); await go(f, 'free');
       const r = await trace(f, ['free', 'letter'], 30000, true), q = r.q, i0 = q.findIndex((x) => x.k === 'free'), iT = q.findIndex((x) => x.k === 'free' && x.lh && x.talk), iS = q.findIndex((x) => x.k === 'letter');
       const open1 = r.o.filter((x) => x.i >= i0 && x.i < iT && !x.lead && loud(x)), L = lead(r, iT), tLe = (r.o.filter((x) => x.i === iT && x.lead).pop() || {}).t, turn = r.o.filter((x) => x.i === iT && !x.lead && loud(x) && tLe != null && x.t > tLe), tS = (r.o.find((x) => x.k === 'song' && x.lead) || {}).t, song = r.o.filter((x) => x.k === 'song' && loud(x) && tS != null && x.t >= tS);   /* 순간이 바뀌는 틈(0.4초 · 큐 사이 −8)은 앞 곡 끝자락 — 축가 뜸(3초 겹침)부터 잰다 */
-      const vT = await f.evaluate((fx) => BgmBed._t.vx(-20, fx), F.m4);
+      const vT = await f.evaluate((fx) => BgmBed._t.vx(-23, fx)   /* ★[DUCK20_READ_1122] 말씀 차례 = 낭독 아래 −23 */, F.m4);
       /* ★[ONE_FLOW_1106] 차례 줄(iT)은 뜸 표시(lh) 없이 talk 만 — iT 를 다시 잡는다 · 말씀 동안 = 같은 본식 곡 −20 · 축가 여는 말 = 줄 시작에서 정적 */
       const iT2 = q.findIndex((x) => x.k === 'free' && x.talk), turn2 = r.o.filter((x) => x.i === iT2 && !x.lead && loud(x)), tS0 = (r.o.find((x) => x.k === 'letter') || {}).t, songL = r.o.filter((x) => x.k === 'letter' && tS0 != null && x.t > tS0 + 2800 && loud(x));
       const open2 = r.o.filter((x) => x.i >= i0 && x.i < iT2 && !x.lead && loud(x));
@@ -190,7 +190,7 @@ try {
     if (iF > 0) { await C1.pg.evaluate((i) => window.__bgmGo.fire(i), iF - 1); await C1.pg.waitForTimeout(3600);
       const o = await sample(C1.pg, iF, 9000), nar = o.filter((x) => x.slug === 'narr-free-in-speech' && x.ph !== 'live' && x.t > 300), live = o.filter((x) => x.ph === 'live'), l0 = live.length ? live[0].t : null;
       /* ★[ONE_FLOW_1106] 말씀(사람 구간)도 같은 본식 곡(M4) −20 · 겹침(곡 바꿈) 0 · 맺는 말 · 박수 · 다음 여는 말까지 M4 · 다음(편지 «음악 없이») 여는 말은 정적 */
-      ok('a 콘솔 축사 여는 말 = M4 · 말씀(사람 구간)도 M4 그대로(곡 바꿈 · 겹침 0) · −20', nar.length > 2 && nar.every((x) => x.seg === 'M4') && live.length > 5 && live.every((x) => x.seg === 'M4') && !xf(live) && live[live.length - 1].want === -20, { nar: nar.slice(0, 2), l0, last: live[live.length - 1] });
+      ok('a 콘솔 축사 여는 말 = M4 · 말씀(사람 구간)도 M4 그대로(곡 바꿈 · 겹침 0) · 말씀 −23', nar.length > 2 && nar.every((x) => x.seg === 'M4') && live.length > 5 && live.every((x) => x.seg === 'M4') && !xf(live) && live[live.length - 1].want === -23 /* ★[DUCK20_READ_1122] */, { nar: nar.slice(0, 2), l0, last: live[live.length - 1] });
       const o2 = await sample(C1.pg, iF + 1, 2500);
       ok('a 콘솔 맺는 말 · 박수 동안 M4 그대로', o2.every((x) => x.seg === 'M4'), [...new Set(o2.map((x) => x.seg))]);
       const o3 = await sample(C1.pg, iS, 6000), late = o3.filter((x) => x.t > 700);
@@ -208,7 +208,7 @@ try {
     ok('콘솔 시험 조건 — 곡 파일 칸(M4 · M5) · 편지 큐 · M4S6 칸 없음', !C2.miss.length && iL > 0 && iE > iL && !(await C2.pg.$('.sg[data-seg="M4S6"]')), { miss: C2.miss, iL, iE });
     if (iL > 0 && iE > iL) { await C2.pg.evaluate((i) => window.__bgmGo.fire(i), iL - 1); await C2.pg.waitForTimeout(3600);
       const o = await sample(C2.pg, iL, 9000), nar = o.filter((x) => /^letter-/.test(x.slug || '') && x.ph !== 'live' && x.t > 300), live = o.filter((x) => x.ph === 'live');
-      ok('b 콘솔 편지 여는 말 = M4 · 낭독(사람 구간)도 M4 그대로(곡 바꿈 · 겹침 0) · −20', nar.length > 2 && nar.every((x) => x.seg === 'M4') && live.length > 5 && live.every((x) => x.seg === 'M4') && !xf(live) && live[live.length - 1].want === -20, { nar: nar.slice(0, 2), last: live[live.length - 1] });   /* [ONE_FLOW_1106] */
+      ok('b 콘솔 편지 여는 말 = M4 · 낭독(사람 구간)도 M4 그대로(곡 바꿈 · 겹침 0) · 낭독 −23', nar.length > 2 && nar.every((x) => x.seg === 'M4') && live.length > 5 && live.every((x) => x.seg === 'M4') && !xf(live) && live[live.length - 1].want === -23 /* ★[DUCK20_READ_1122] */, { nar: nar.slice(0, 2), last: live[live.length - 1] });   /* [ONE_FLOW_1106] */
       const o2 = await sample(C2.pg, iE, 9000), post = o2.filter((x) => x.ph === 'done' || x.seg === 'M5'), j5 = o2.findIndex((x) => x.seg === 'M5');
       ok('b 콘솔 편지 끝 — 정적 없이 다음 순간 곡(M5)으로 3초 겹침 · 그 뒤 M4 재등장 0', o2[o2.length - 1].seg === 'M5' && xf(o2) && j5 > -1 && !o2.slice(j5).some((x) => x.seg === 'M4') && post.every((x) => x.want > -60), { segs: [...new Set(o2.map((x) => x.seg))], quiet: post.filter((x) => x.want <= -60).slice(0, 2) }); }
     ok('콘솔(편지) 쪽 오류 0', !C2.errs.length, C2.errs.slice(0, 3)); await C2.ctx.close(); }
