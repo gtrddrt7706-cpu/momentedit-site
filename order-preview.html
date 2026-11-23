@@ -2067,6 +2067,18 @@ html.mk-dlg-lock{overflow:hidden}   /* [DLG_SCROLL_LOCK] 창이 떠 있는 동�
 .mk-flow li.mk-sayq .mk-vwboth{display:block;margin:4px 0 0}
 .mk-flow li.mk-sayq .mk-vwfix{margin:0;font-size:16px;line-height:1.75;font-weight:400;color:var(--sub)}   /* 고칠 수 없는 끝 문장 = 읽는 글과 같은 크기 · 한 단계 옅게 */
 .mk-flow li.mk-sayq .mk-vwbn{margin:2px 0 0}
+/* ★[SAY_INLINE_VIEW_1123 2026-11-23 사장님 «전부 적용한 거 아니야?»] 보기만 하는 예시(성혼 선언 · 덕담 · 축사) · 받은 원고 = 흐름 차례 줄 아래 상자 없는 읽는 글 — 두 분 글칸과 같은 16px · 같은 세로선 · 접는 단추도 같은 모양(.mk-sayfold) */
+.mk-flow li.mk-sayview .mk-sayv{margin:2px 0 0}
+.mk-flow li.mk-sayview .mk-rw{margin:0 0 8px;font-size:16px;line-height:1.75;color:var(--accent)}
+.mk-flow li.mk-sayview .mk-rw:last-child{margin-bottom:0}
+.mk-flow li.mk-sayview .mk-rw b{display:block;margin:0;font-size:12.5px;line-height:1.6;font-weight:500;color:var(--gold-deeper);letter-spacing:.04em}   /* 예시 속 말하는 분(덕담 · 축사) */
+.mk-flow li.mk-sayview .mk-rclip{max-height:calc(16px*1.75*4 + 20px)}   /* [REF_FOLD] 네 줄 남짓 · 끝이 옅어진다 */
+.mk-flow li.mk-sayview .mk-rclip.open,.mk-flow li.mk-sayview .mk-rclip.fit{max-height:none}
+.mk-flow li.mk-sayview .mk-rmore{margin:-2px 0 -8px;padding:0;font-size:14px;font-weight:400;letter-spacing:0;color:var(--sub);text-decoration-thickness:1px}
+.mk-flow li.mk-sayview .mk-rlen{margin:0 0 4px}
+.mk-flow li.mk-sayview .mk-scrta.ta.grow{margin-top:10px}
+.mk-flow li.mk-sayview .mk-sayv+.mk-cue{margin-top:14px}   /* 예시 글 아래 끝 신호 칸(«원고 없이») — 글자 수 한 줄과 붙지 않게 */
+.mk-saym.mk-scrm:has(>.mk-cnt:empty){display:none}
 @media (prefers-reduced-motion:reduce){.mk-flow .mk-sayta.ta.grow{transition:none}.mk-flow .mk-sayta.saved{animation:none}}
 .mk-whob{min-height:44px;min-width:52px;padding:0 12px;border:0;border-radius:999px;background:none;color:var(--sub);font:inherit;font-size:12.5px;cursor:pointer}
 .mk-whob.on{background:#F3ECDF;color:var(--accent);font-weight:600;box-shadow:inset 0 0 0 1px var(--gold-deep)}   /* [R1-10 SEL_ONE] 고른 것 = 금빛 테 + 옅은 금빛 바탕 + 먹빛 글자(칩 · 예시 · 창 판과 같은 말) */
@@ -5589,9 +5601,54 @@ function _mkSayRows(k,key){ var kind=_mkKinds(k)[0]; if(!kind) return ''; var K=
   ws.forEach(function(w,j){ h+=_mkSayLi(k,kind,w,w[1]+(kind==='toast'?' 한마디':' 차례'),key,j===ws.length-1); });   /* [TOAST_SAY] 축배는 «신랑 한마디 · 신부 한마디» */
   return h; }
 /* [SAY_INLINE_1123] 대신 그리기 — 흐름이 차례 줄을 그리지 못한 쪽(뺀 순간 «다시 넣기» 쪽 · 엔진을 아직 못 받음)만 같은 줄 모양으로. 흐름이 그렸으면 빈 글 */
-function _mkWrite(k){ var ks=_mkKinds(k); if(!ks.length||MK.sayIn===k) return ''; var kind=ks[0], both=(kind==='vow')?_vowBoth():(kind==='welcome'&&_welKind()==='thanks')?THANKSBOTH:null;   /* [THANKS_SWAP_1122] 감사문 판도 «두 분 함께» */
+function _mkWrite(k){ var ks=_mkKinds(k); if(!ks.length) return _mkViewFb(k); if(MK.sayIn===k) return ''; var kind=ks[0], both=(kind==='vow')?_vowBoth():(kind==='welcome'&&_welKind()==='thanks')?THANKSBOTH:null;   /* [THANKS_SWAP_1122] 감사문 판도 «두 분 함께» */
   var top=MK.sayTop===k?'':_mkSayTop(k,_mkRef(k)); MK.sayIn=k;
   return '<section class="mk-sec mk-flowsec mk-sayfb" aria-label="두 분이 할 말">'+top+'<ol class="mk-flow">'+_mkSayRows(k,'')+(both?_qRow('마지막 한 문장은 두 분이 함께 읽어요',null,_vowBothRows(both)):'')+'</ol></section>'; }
+/* ★★[SAY_INLINE_VIEW_1123 2026-11-23 사장님 «여기도 안 들어갔는데? 전부 적용한 거 아니야? 스텝바이스텝으로 전수점검해»] 보기만 하는 예시(성혼 선언 · 덕담 · 축사)도 [SAY_INLINE_1123] 과 같은 3안 —
+   참고 예시 칩 줄은 흐름 위(«이 순간 전체 듣기» 바로 아래) · 고른 예시 글(읽으시는 분 몫)은 흐름의 그분 차례 줄(«신랑 아버님 차례» · «말씀하실 차례 · …») 바로 아래 상자 없는 읽는 글.
+   긴 글은 네 줄 남짓에서 접고 «예시 전체 보기 · 예시 접기»([REF_FOLD] mkRefMore · _refClipFit 그대로) · «n자 · 약 n초»는 글 아래 회색 한 줄(.mk-saym · 예시 속 말하는 분이 둘 이상이면 «모두 …»).
+   덕담 · 축사 «받은 원고» 칸([SPEECH_SCRIPT] S.tx['bless.p'] · ['free.p'] — 마이페이지 «준비할 것»(PREP_HUB_1123 · _prhSaveText)과 한 칸)은 그 차례 줄 아래 같은 글칸(.mk-sayta · 평소 테 없음 · 누르면 금빛 테) ·
+   «원고 없이 … 바로 하실 거예요»는 차례 줄 오른쪽 끝([BLESS_CK_TOP] 과 같은 뜻 · 첫인사 «현장에서 바로 할게요» 자리) · 고르면 끝 신호 칸(_cueBox · CUE_SIG).
+   원고를 붙였으면 그 원고가 이 자리의 글(연습 · 대본도 원고를 읽는다 · REVIEW_166_1030) — 예시 글 · 칩 줄은 두지 않는다 · 안 붙였으면 고른 예시 글 + 그 아래 빈 원고 칸(자리표시 «받은 원고를 여기에 붙여 주세요»가 붙여 넣을 수 있음을 말한다 · 새 안내 줄 없음).
+   흐름이 차례 줄을 못 그린 날(엔진을 아직 못 받음)은 같은 줄 모양으로 대신 그린다(_mkViewFb) · 저장 자리 · 열쇠(S.tx · S.mkc 'site' · S.cueSig)는 그대로 · 검사 scripts/audit/say-inline.mjs */
+function _mkViewSp(k){ var q=_mkItems(k).filter(function(x){ return _askScript(x); })[0], sp=q?_askScript(q):null; return sp?{q:q,sp:sp}:null; }   /* [SPEECH_SCRIPT] 덕담 · 축사(축사 갈래)만 받은 원고 칸이 있다 */
+function _mkViewScr(k){ var v=_mkViewSp(k); if(!v||_mkChk()[v.q.id]==='site') return ''; return String((S.tx||{})[v.sp.id]||'').trim(); }   /* 붙여 둔 원고(«원고 없이»를 고른 날은 숨은 원고라 없는 셈) */
+function _mkViewLab(k){ if(k==='bless') return _blessFirstWho()?'첫 덕담 · '+_blessFirstWho():_bwOrder()?'말씀하실 차례 · '+_bwOrder():'말씀하실 차례';   /* [BLESS_ORDER_SAY_1115] 고른 차례 · 첫 덕담 = 선언하신 분 */
+  if(k==='free') return _swName()?'말씀하실 차례 · '+_swName():'말씀하실 차례';   /* [N20_SPEECH_WHO_ROW_1119] 축사도 고른 분 · [FLOW_ONE_TURN] [R6-02] 예시 인물로 박지 않는다 */
+  if(k==='declare') return _declWho()?_declWho()+' 차례':'읽으실 차례';   /* [DECLARE_BY_PERSON] 고른 분 이름 · 안 골랐으면 «읽으실 차례» */
+  return '말씀하실 차례'; }
+/* 차례 줄 하나 — 이 쪽의 첫 차례 줄에만 예시 글 · 원고 칸을 붙인다(같은 분이 잇달아 말하는 둘째 줄은 이름만) */
+function _mkViewRow(k,key,lab){ if(MK.viewIn===k) return '<li class="t'+_lpRow(key).c+'" data-li="'+esc(key)+'"><b>'+esc(lab)+'</b>'+_vTag(k,{talk:true})+'</li>'; return _mkViewLi(k,key,lab); }
+function _mkViewLi(k,key,lab){ var lr=key?_lpRow(key):{c:''}, v=_mkViewSp(k), c=_mkChk(), site=!!(v&&c[v.q.id]==='site'), raw=v?String((S.tx||{})[v.sp.id]||''):'', use=!site&&!!raw.trim(), hid='mksh_'+k, h='';
+  MK.viewIn=k;
+  h+='<li class="t mk-sayli mk-sayview'+(site?' site':'')+lr.c+'"'+(key?' data-li="'+esc(key)+'"':'')+'><div class="mk-sayh"><b id="'+hid+'">'+esc(lab)+'</b>'+_vTag(k,{talk:true})
+    +(v?'<label class="upchk mk-ck"><input type="checkbox" data-fk="'+v.sp.fk+'"'+(site?' checked':'')+' aria-describedby="'+hid+'" onchange="_fxNext=\'[data-fk=&quot;'+v.sp.fk+'&quot;]\';mkChk(\''+v.q.id+'\',this.checked,\'site\')"><span>'+esc(v.sp.site)+'</span></label>':'')+'</div>';   /* [BLESS_CK_TOP] «원고 없이» = 차례 줄 오른쪽 끝(첫인사 · 서약 · 편지 «현장에서 바로 할게요»와 같은 자리) */
+  if(v&&!site) h+=_txConfBox([v.sp.id]);   /* [B2_NA_10] 부딪힌 원고는 그 줄 안에 */
+  if(!use) h+=_mkRefBody(k);   /* 붙인 원고가 없으면 고른 예시 글 */
+  if(v&&!site) h+=_mkScrTa(v.sp,raw,use);
+  if(site){ h+=_cueBox(v.q.id); if(raw.trim()) h+='<p class="mk-note">붙여 두신 원고는 대본에 넣지 않아요 · 체크를 풀면 다시 보여요</p>'; }   /* [CUE_SIG] 원고 없이면 끝 신호 · [R4-02] 숨은 원고는 대본에서 뺀다 · [R2-35] */
+  return h+'</li>'; }
+/* 고른 예시 글 — 읽는 글(상자 없음) · [REF_FOLD] 네 줄 남짓에서 접힘 · [REF_ONE_COUNT] 같은 분이 잇달아 말하면 이름 한 번 · 성혼 선언은 바로 위 줄이 읽는 분을 말하니 이름을 되풀이하지 않는다 · [B2_NA_70] 화면 읽기 «참고 예시 N» */
+function _mkRefBody(k){ if(!ENG) return ''; var sets=_lRefSets(k); if(!sets.length) return ''; var cur=_refCur(k,sets), set=sets[cur]; if(!set) return '';
+  var h='<div class="mk-sayv"><p class="sr-only">참고 '+esc(_refName(set,cur))+'</p>', _rb='', who='', nm=k!=='declare', ws={}, tot=0, _ro=!!(LS.refOpen&&LS.refOpen[k]===cur), _rid='mkRb_'+k;
+  if(k==='free'&&+RitualOpen.chipOf('freeLen',S)>3) h+='<p class="mk-rl mk-rlen">정한 길이에 맞춰 예시를 다듬어 주세요.</p>';   /* [B2_NA_06] 예시는 3분 판 · 누르기 전에 읽혀야 하는 줄이라 알림이 아니라 글 */
+  set.forEach(function(pt){ tot+=pt.txt.length; ws[pt.who]=1; _rb+='<p class="mk-rw">'+(nm&&pt.who!==who?'<b>'+esc(pt.who)+'</b>':'')+esc(pt.txt)+'</p>'; who=pt.who; });
+  h+='<div class="mk-rbody mk-rclip'+(_ro?' open':'')+'" id="'+_rid+'">'+_rb+'</div><button type="button" class="mk-rmore" aria-expanded="'+(_ro?'true':'false')+'" aria-controls="'+_rid+'" data-fk="mkrm:'+k+'" onclick="mkRefMore(\''+k+'\','+cur+',this)">'+(_ro?'예시 접기':'예시 전체 보기')+'</button>';
+  h+='<p class="mk-saym"><span class="mk-cnt">'+(Object.keys(ws).length>1?'모두 ':'')+_mkCntT(tot,1e9)+'</span></p>';
+  try{ requestAnimationFrame(_refClipFit); }catch(e){}   /* [REF_FOLD] 네 줄 안에 드는 예시는 단추 없이 */
+  return h+'</div>'; }
+/* 받은 원고 칸 — 두 분 글칸(.mk-sayta)과 같은 모양 · 4줄 넘으면 접힘 · [QA_BLESS_CNT] 글자 수 · 초 · 저장 칸 S.tx[sp.id](data-tx = 다른 기기 글 합칠 때 쓰는 칸 · B2_NA_11) */
+function _mkScrTa(sp,v,use){ var fid='mkt_'+sp.id.replace('.','_'), cid='mkc_'+sp.id.replace('.','_');
+  return '<textarea class="ta grow mk-txta mk-sayta mk-scrta" id="'+fid+'" data-tx="'+sp.id+'" data-use="'+(use?1:0)+'" rows="1" maxlength="4000" aria-label="'+sp.nm+'" placeholder="받은 원고를 여기에 붙여 주세요" oninput="mkScr(\''+sp.id+'\',this)" onfocus="mkSayIn(this)" onblur="mkSayOut(this)" onchange="mkSayOut(this,1);mkScrDone(this)">'+esc(v)+'</textarea>'
+    +'<button type="button" class="mk-sayfold" hidden aria-controls="'+fid+'" aria-expanded="false" data-fk="mksayf:'+sp.id+'" onclick="mkSayFold(\''+fid+'\')">펼치기</button>'
+    +'<p class="mk-saym mk-scrm"><span class="mk-cnt" id="'+cid+'">'+(use?_mkCntT(String(v).length,1e9):'')+'</span></p>'; }
+window.mkScr=function(id,t){ if(!S.tx) S.tx={}; S.tx[id]=t.value; _taGrow(t); _saySize1(t); _fAt('tx.'+id); _persist(); _mkStripRepaint(); var c=document.getElementById('mkc_'+id.replace('.','_')); if(c) c.textContent=_mkCntT(t.value.length,1e9); };
+/* 원고를 처음 붙였거나 다 지웠을 때만 다시 그린다(예시 글 ↔ 원고) — 칸이 화면에서 같은 자리에 남게 스크롤을 맞춘다(REF_FOLD 와 같다) */
+window.mkScrDone=function(t){ if(!t) return; var now=!!String(t.value||'').trim(), was=t.getAttribute('data-use')==='1'; if(now===was){ MK.sayFx=null; return; }
+  var id=t.id, y0=t.getBoundingClientRect().top; render(); var n=document.getElementById(id); if(n){ try{ var dy=n.getBoundingClientRect().top-y0; if(dy) window.scrollBy(0,dy); }catch(e){} } };
+/* 대신 그리기 — 흐름이 이 순간의 차례 줄을 못 그린 날만(엔진을 아직 못 받음 등) 같은 줄 모양으로. 받은 원고 칸이 있는 순간(덕담 · 축사)만 · 흐름이 그렸으면 빈 글 */
+function _mkViewFb(k){ if(MK.viewIn===k||!RitualOpen.onOf(S,k)||!_mkViewSp(k)) return ''; var top=_mkViewScr(k)?'':_mkRef(k);
+  return '<section class="mk-sec mk-flowsec mk-sayfb" aria-label="말씀하실 차례">'+top+'<ol class="mk-flow">'+_mkViewLi(k,'',_mkViewLab(k))+'</ol></section>'; }
 /* [SAY_INLINE_1123] 칸에 들어가면 펼치고 · 떠나면 테가 사라지며 가라앉는다(0.35초 · 바탕 한 번) + 아래 알림 한 줄. 저장 단추는 없다(쓰는 대로 이 기기에 남는다 · 마이페이지 저장은 머리 «저장») */
 var SAY_LINES=4;   /* 접힌 글 = 4줄 */
 MK.sayOpen={};   /* 펼친 칸(칸 id) — 이 방문 동안 */
@@ -5625,9 +5682,9 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
   var h='', gn=(R.onOf(S,k)?_lGroups(k):[]).map(function(g){ return (g.unote||'')+' '+(g.tip||''); }).join(' ');   /* [NOTE_TOAST] 덧말(note)은 칩 아래에 없다 — 보이는 줄만 겹침으로 친다 */
   var ups=items.filter(function(q){ return q.up; }); if(ups.length) h+=_mkVoice(k,ups,wed);
   if(pvMy) h+=_pvMyRow(wed); if(mvMy) h+=_pvMyRow(wed, RitualOpen.MID_NAME);   /* [VIDEO_NAME_1114] 식중 영상 — 같은 모양 · 이름 · 기한(예식 7일 전)은 식전 영상과 같다 */   /* ★[PV_MYPAGE_1102] 링크 칸 대신 마이페이지 «식전 영상» 안내 한 덩어리 — 되살리지 말 것 */
-  ['ask','send','bring'].forEach(function(cat){ var qs=items.filter(function(q){ return q.cat===cat&&!q.up; }); if(!qs.length) return;
+  ['ask','send','bring'].forEach(function(cat){ var qs=items.filter(function(q){ return q.cat===cat&&!q.up&&!(_askScript(q)&&c[q.id]==='site'); }); if(!qs.length) return;   /* ★[SAY_INLINE_VIEW_1123] «원고 없이»를 고른 원고 부탁 줄은 이 덩어리에 두지 않는다 — 체크 · 끝 신호 칸은 흐름의 차례 줄 아래(_mkViewLi) · [R8-05] 부탁할 것이 없으면 덩어리째 없다 */
     var hd=(cat==='ask'&&qs.every(function(q){ return q.who==='parents'; }))?'부모님께 부탁드릴 것':cat==='bring'?'당일 챙길 것':MK_CAT[cat];
-    if(cat==='ask'&&qs.every(function(q){ return _askScript(q)&&c[q.id]==='site'; })) hd=_askScript(qs[0]).hd;   // [SPEECH_SCRIPT] 축사도   /* [R8-05] «원고 없이»면 부탁할 것이 없다 — 빈 «부모님께 부탁드릴 것» 아래 체크칸만 남아 무엇이 빠진 화면처럼 읽혔다 */
+    /* [SPEECH_SCRIPT] 축사도 · ★«원고 없이»만 남은 덩어리 머리(«덕담 원고 · 축사 원고») 금지 — 2026-11-23 사용자 지시로 걷음 [SAY_INLINE_VIEW_1123] · 그 덩어리는 이제 그리지 않는다(위 qs) */
     var one=cat==='send'&&qs.length===1&&qs[0].k==='prevideo';   /* ★[PV_SEND_ONE 2026-10-04 사장님 «이 부분을 합쳐서 깔끔하게»] 식전 영상 링크 하나뿐이면 «보낼 것» 머리 · 줄 사이 선을 걷고 이름 · 기한 · 칸을 한 덩어리로 */
     h+='<section class="mk-sec mk-prep'+(one?' mk-send1':'')+'">'+(one?'':'<div class="mk-sech"><h4>'+hd+'</h4>')+''/* ★[ASK_COPY_OFF 2026-10-02 사장님 «화촉 부분에서 부탁 글 복사 삭제 · 굳이 없어도 될 것 같아»] 되살리지 말 것 */+(one?'':'</div>')
       +(cat==='ask'?_mkCopied('ask:'+k):'')+'<ul class="mk-vlist">';
@@ -5639,13 +5696,8 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
       var wt=String(q.what), tl=wt.split(' · ').slice(1).join(' · '); if(cat==='bring'&&tl&&gn.indexOf(tl)>-1) wt=wt.split(' · ')[0];   // [MK_MIN] «케이크 · 크기 · 도착 시각은 상담 때…» — 칩 아래 안내가 이미 말한다
       if(!_bSiteRow) h+='<li class="mk-vr'+(cat!=='bring'&&done?' ok':'')+'"><span class="mk-vt"><span class="mk-vn">'+esc(_ndd(wt))+'</span>'+(due?'<span class="mk-vs">'+esc(_ndd(due))+'</span>':'')+'</span>'+tg+'</li>';   /* [R7-02] */
       if(cat==='send'&&q.k==='song'&&!done) h+='<li class="mk-vsend"><div class="send-how"><p>반주 파일과 곡 이름은 카톡이나 메일로 보내 주세요.</p><span class="send-b"><a class="rowbtn" data-fk="mksongkakao" href="'+SEND_KAKAO+'" target="_blank" rel="noopener">카톡으로 보내기</a><a class="rowbtn" data-fk="mksongmail" href="mailto:'+SEND_MAIL+'?subject='+encodeURIComponent('[예식 파일] 축가 반주(MR)')+'">메일로 보내기</a></span></div></li>';   /* ★[B2_GEUL_13] 축가 «보낼 것»에 보낼 곳이 없었다 — MR 줄 아래 한 줄 + 연락 길(SEND_KAKAO · SEND_MAIL 그대로) · 마감(3일 전)은 위 줄 · «보냈어요»는 두 분 표시(파일 접수 완료 아님) · 보냈어요를 누르면 숨김 */
-      if(_sp){ var bv=(S.tx||{})[_sp.id]||'', _cid='mkc_'+_sp.id.replace('.','_');   // [SPEECH_SCRIPT] 칸 id 만 다르다
-        /* ★★[BLESS_CK_TOP 2026-10-07 사장님 «추천대로»(SAME_PLACE 점검 · 덕담 체크칸)] «원고 없이 … 바로 하실 거예요» 체크는 원고 칸 «위» 머리 줄 오른쪽 — 첫인사 · 서약 · 편지(.mk-txh)와 같은 자리.
-           종전 [R3-03](원고 칸 아래 오른쪽 · 위에 두면 칸이 체크에 딸린 것처럼 읽힌다)은 그때 첫인사 · 서약도 아래였을 때의 맞춤이었다 — CUE_FORM 이 그쪽을 머리 줄로 올리며 덕담 · 축사만 남았다. 아래로 되돌리지 말 것.
-           «원고 없이»를 고르면 원고 칸은 그리지 않는다 · 붙여 둔 원고(S.tx['bless.p'])는 지우지 않아 체크를 풀면 다시 보인다 */
-        var _bSite=c[q.id]==='site';
-        h+='<li class="mk-vx">'+'<div class="mk-txh mk-bsh"><label class="upchk mk-ck"><input type="checkbox" data-fk="'+_sp.fk+'"'+(_bSite?' checked':'')+' onchange="_fxNext=\'[data-fk=&quot;'+_sp.fk+'&quot;]\';mkChk(\''+q.id+'\',this.checked,\'site\')"><span>'+esc(_sp.site)+'</span></label></div>'+(_bSite?'':_txConfBox([_sp.id])+'<textarea class="ta grow" rows="2" maxlength="4000" data-tx="'+_sp.id+'" aria-label="'+_sp.nm+'" placeholder="받은 원고를 여기에 붙여 주세요" oninput="if(!S.tx)S.tx={};S.tx[\''+_sp.id+'\']=this.value;_taGrow(this);_fAt(\'tx.'+_sp.id+'\');_persist();_mkStripRepaint();var _c=document.getElementById(\''+_cid+'\');if(_c)_c.textContent=_mkCntT(this.value.length,1e9)">'+esc(bv)+'</textarea>')
-          +(_bSite?'':'<div class="mk-fl"><span class="mk-cnt" id="'+_cid+'">'+_mkCntT(String(bv).length,1e9)+'</span></div>')   /* ★[QA_BLESS_CNT 2026-10-04 점검] 붙인 원고도 글자 수 · 초 */+(_bSite?_cueBox(q.id):'')+((_bSite&&String(bv).trim())?'<p class="mk-note">붙여 두신 원고는 대본에 넣지 않아요 · 체크를 풀면 다시 보여요</p>':'')+'</li>'; }   /* [R4-02] 숨은 원고가 있으면 대본에서 뺀다는 것을 알린다 */   /* [R2-35] 두 분이 «그렇다»고 고르는 말 */
+      /* ★흐름 밖 «원고 없이 …» 체크 + «받은 원고를 여기에 붙여 주세요» 글칸 + 글자 수(li.mk-vx · .mk-txh.mk-bsh · .mk-fl) 따로 덩어리 금지 — 2026-11-23 사용자 지시로 삭제 · 되살리지 말 것 [SAY_INLINE_VIEW_1123]
+         흐름의 «말씀하실 차례» 줄 아래로 옮겼다(_mkViewLi · _mkScrTa) — 저장 칸(S.tx[_sp.id]) · 체크(S.mkc 'site') · 끝 신호(_cueBox) · 대본 안내(R4-02)는 그대로 · [BLESS_CK_TOP] 체크는 차례 줄 오른쪽 끝 · [QA_BLESS_CNT] 글자 수 · 초는 글칸 아래 회색 한 줄 */
       if(cat==='send'&&q.k==='prevideo'){
         h+='<li class="mk-vx"><input class="tin" type="url" inputmode="url" aria-label="식전 영상 링크" aria-describedby="growHint" value="'+esc(S.growthLink||'')+'" oninput="setv(\'growthLink\',this.value);growHint(this.value);_pvOkTg(this.value);_mkStripRepaint()" onblur="growHint(this.value,true)" placeholder="링크 붙여넣기 · 유튜브 · 드라이브 · MYBOX">'
           +'<div class="wd" id="growHint" role="status" style="margin-top:6px;display:none;color:var(--seal)">주소가 http로 시작하지 않아요 · 영상 페이지에서 복사한 링크 전체를 붙여 주세요.</div>'
@@ -7683,11 +7735,11 @@ function _mkFlow(k,btn,mid){ try{ if(window.BgmBed&&BgmBed.warmK&&_bedOn()) BgmB
     if(x.talk){ var sets=_lRefSets(k), whos=sets.length?sets[0].map(function(p){ return p.who; }):['두 분'], hs=R.partsOf(k,S)[1]||0, each=whos.length?Math.round(hs/whos.length):0;
       if(k==='vow'&&_vowHow()==='alt'&&hs){ var _hm=Math.round(hs); h+='<li class="t'+_lpRow(k+':'+i).c+'" data-li="'+k+':'+i+'"><b>두 분 번갈아 · '+(_vowFirst()==='b'?'신부부터':'신랑부터')+'</b>'+_vTag(k,{talk:true})+'</li>'; return; }   /* [VOW_FIRST] */
       if(k==='vow'&&_vowFirst()==='b') whos=whos.slice().reverse();   /* [VOW_FIRST] 각자 차례로 · 신부부터 */   /* ★[MK_FORM_ONE] 차례 줄 «약 1분 40초» 금지 — 2026-10-03 사용자 지시로 삭제(길이는 순간 머리 한 곳 · LEN_ONE · LINE_NO_SEC) */   /* [VOW_HOW] 번갈아 읽으면 차례가 둘로 나뉘지 않는다 · 한 줄(약 1분 40초) */
-      if(k==='bless'||k==='free'){ h+='<li class="t'+_lpRow(k+':'+i).c+'" data-li="'+k+':'+i+'">'+(k==='bless'&&_blessFirstWho()?'<b>'+esc('첫 덕담 · '+_blessFirstWho())+'</b>':(k==='bless'&&_bwOrder())?'<b>'+esc('말씀하실 차례 · '+_bwOrder())+'</b>':(k==='free'&&_swName())?'<b>'+esc('말씀하실 차례 · '+_swName())+'</b>':'<b>말씀하실 차례</b>')+_vTag(k,{talk:true})+'</li>'; return; }   /* ★[FLOW_ONE_TURN 2026-10-07] 축사도 덕담처럼 — 말할 분을 고르는 칸이 없다([R6-02]) · 예시 인물 «신부 오빠 차례»가 문단마다 네 줄 되풀이됐다 */
-      if(k==='declare'){ h+='<li class="t'+_lpRow(k+':'+i).c+'" data-li="'+k+':'+i+'"><b>'+esc(_declWho()?_declWho()+' 차례':'읽으실 차례')+'</b>'+_vTag(k,{talk:true})+'</li>'; return; }   /* [DECLARE_BY_PERSON] 고른 분 이름 · 안 골랐으면 «읽으실 차례» */   /* [FLOW_ONE_TURN] 가족 낭독 — 읽을 분은 두 분이 부탁하는 가족 한 분(예시의 «신랑 아버지»로 박지 않는다 · 고른 예시가 «양가 나눠 읽기»여도 첫 예시 인물이 떴다) */
+      if(k==='bless'||k==='free'){ h+=_mkViewRow(k,k+':'+i,_mkViewLab(k)); return; }   /* ★[SAY_INLINE_VIEW_1123] 차례 줄 바로 아래 = 고른 예시 글 · 받은 원고 칸(_mkViewRow) · 이름표(첫 덕담 · 고른 차례 · 고른 분)는 _mkViewLab 한 곳 */   /* ★[FLOW_ONE_TURN 2026-10-07] 축사도 덕담처럼 — 말할 분을 고르는 칸이 없다([R6-02]) · 예시 인물 «신부 오빠 차례»가 문단마다 네 줄 되풀이됐다 */
+      if(k==='declare'){ h+=_mkViewRow(k,k+':'+i,_mkViewLab(k)); return; }   /* ★[SAY_INLINE_VIEW_1123] 낭독 줄 바로 아래 = 고른 선언문(읽으시는 분 몫) */   /* [DECLARE_BY_PERSON] 고른 분 이름 · 안 골랐으면 «읽으실 차례» */   /* [FLOW_ONE_TURN] 가족 낭독 — 읽을 분은 두 분이 부탁하는 가족 한 분(예시의 «신랑 아버지»로 박지 않는다 · 고른 예시가 «양가 나눠 읽기»여도 첫 예시 인물이 떴다) */
       if(k==='toast'){ [['g','신랑'],['b','신부']].forEach(function(gw){ if(String((S.tx||{})['toast.'+gw[0]]||'').trim()) h+='<li class="t'+_lpRow(k+':'+i).c+'" data-li="'+k+':'+i+'"><b>'+gw[1]+' 한마디</b>'+_vTag(k,{talk:true})+'</li>'; }); h+=_qRow('두 분의 선창에 하객이 «위하여!»로 답해요.',k+':'+i); return; }   /* [B2_NA_51] 축배 — 적은 분만 «신랑 한마디 · 신부 한마디» · 비워도 차례처럼 보이지 않게 · 뒤에 선창 한 줄 */
       whos=whos.filter(function(w,i){ return !i||w!==whos[i-1]; });   /* [FLOW_ONE_TURN] 같은 분이 잇달아 말하면 한 줄 */   /* ★[MK_FORM_ONE] «· 한 분 약 1분» 금지 — 2026-10-03 사용자 지시로 삭제 */   /* [R6-02] 덕담은 말할 분을 고르는 칸이 없다 — 참고 예시 1의 인물(«신랑 아버지 · 신부 어머니»)을 차례로 박으면 순서가 정해진 것처럼 읽혔다(① «한 분만 하셔도 · 다른 어른이 하셔도») · «부모님 차례»는 앞 표 «부모님»과 겹쳐 쓰지 않는다 */
-      whos.forEach(function(w){ h+='<li class="t'+_lpRow(k+':'+i).c+'" data-li="'+k+':'+i+'"><b>'+esc(w)+' 차례</b>'+(k==='toast'?' · 한마디':'')+_vTag(k,{talk:true})+'</li>'; }); return; }   /* ★[MK_FORM_ONE] 차례 줄 «· 약 n초» 금지 — 2026-10-03 사용자 지시로 삭제 · 축배 «한마디»는 길이가 아니라 말의 꼴이라 둔다 */   /* [R2-30] 축배 차례만 길이가 비었다 */   /* [R4-01] 덕담 · 인사 «1분쯤씩»은 한 분 «약 1분»(_perSec) */   /* [R3-02] 한 분 시간은 ④ 요약과 같은 _sumSec — ②는 분 반올림(R.secTxt) · ④는 10초 단위라 덕담이 «약 1분 + 약 1분» ↔ «약 2분 30초»로 갈렸다 */   /* [R1-31] 차례 카드는 5초 단위 — 첫인사 한 분 13초가 «약 10초»로 내려가 바로 아래 예시(13~14초)와 어긋났다. 원천 TIME 은 명세 고정(open-course 예시 시간)이라 그대로 */
+      whos.forEach(function(w){ h+=_sayK?'<li class="t'+_lpRow(k+':'+i).c+'" data-li="'+k+':'+i+'"><b>'+esc(w)+' 차례</b>'+(k==='toast'?' · 한마디':'')+_vTag(k,{talk:true})+'</li>':_mkViewRow(k,k+':'+i,w+' 차례'); }); return; }   /* [SAY_INLINE_VIEW_1123] 두 분 글칸이 없는 순간은 첫 차례 줄 아래 예시(코스 전체 · COURSE_WIDE) */   /* ★[MK_FORM_ONE] 차례 줄 «· 약 n초» 금지 — 2026-10-03 사용자 지시로 삭제 · 축배 «한마디»는 길이가 아니라 말의 꼴이라 둔다 */   /* [R2-30] 축배 차례만 길이가 비었다 */   /* [R4-01] 덕담 · 인사 «1분쯤씩»은 한 분 «약 1분»(_perSec) */   /* [R3-02] 한 분 시간은 ④ 요약과 같은 _sumSec — ②는 분 반올림(R.secTxt) · ④는 10초 단위라 덕담이 «약 1분 + 약 1분» ↔ «약 2분 30초»로 갈렸다 */   /* [R1-31] 차례 카드는 5초 단위 — 첫인사 한 분 13초가 «약 10초»로 내려가 바로 아래 예시(13~14초)와 어긋났다. 원천 TIME 은 명세 고정(open-course 예시 시간)이라 그대로 */
     if(x.skip){ h+=_qRow(String(x.txt||'').replace(/ · 약 \d+분(?= · |$)/,''),k+':'+i); return; }   /* ★[MK_FORM_ONE] 흐름 줄 «· 약 n분»(마음의 순간 영상 길이) 금지 — 2026-10-03 사용자 지시로 삭제 · 고른 길이는 바로 위 칩이 말한다 · ④ 대본(6701)은 그대로 */
     if(x.am!=null&&_tgA!=null&&Math.abs(x.am-_tgA)>=1) h+='<li class="q-tg" data-tg="'+k+':'+i+'">… 약 '+Math.round(Math.abs(x.am-_tgA))+'분 뒤</li>';   /* ★[TIME_GAP_1102] 실제로 몇 분 떨어진 줄 사이 — 듣기 전에도 시간 간격이 보이게 · 흐르는 동안만 진하게(_lpPaint) */
     if(x.am!=null) _tgA=x.am;
@@ -7757,9 +7809,10 @@ function _mkRef(k){ if(!ENG) return ''; var st=_lSteps(ENG,[k]); if(!st.some(fun
   var _picked=_fill?_onN>=0:true;   /* [EX_ROW] 칸을 채우는 예시는 칸에 들어간 것만 눌린 모양 · 보기만 하는 예시(덕담 · 축배 …)는 아래 펼친 글이 곧 고른 것이라 눌린 모양 */
   var _card=function(set,n,lo){ var on=_picked&&(_fill?n===_onN:n===cur); return '<button type="button" class="op-chip mk-exc'+(on?' on':'')+'" role="radio" aria-checked="'+(on?'true':'false')+'" tabindex="'+((on||(!_picked&&n===lo))?'0':'-1')+'" data-fk="mkrc:'+k+':'+n+'" aria-label="'+esc(_refName(set,n)+' · '+(_tt[n]||_pv[n]))+'" onclick="mkRefPick(\''+k+'\','+n+',1)">'+_chipT(_tt[n]||_pv[n])+'</button>'; };   /* [EX_ROW] 칩 글 = 느낌 이름(«예시 N»은 화면 읽기에만) · [QA_RC_ROVE] 고른 칩만 tabindex 0 */   /* [QA_RC_ROVE] 고른 카드만 tabindex 0 · [REF_TITLE] */
   h+=sets.map(function(set,n){ return _card(set,n,0); }).join('')+'</span></div>';   /* ★참고 예시 카드 줄 아래 머리말(«고르면 아래 칸에 들어가요 · 고쳐 써도 돼요 · 예시 속 이름은 가상 인물이에요» 등) 금지 — 2026-10-08 사용자 지시로 삭제 [NOTE_TOAST] · 카드를 누를 때 아래 알림(_refToast) */
+  if(!_fill) return h+'</section>';   /* ★[SAY_INLINE_VIEW_1123] 보기만 하는 예시(성혼 선언 · 덕담 · 축사)는 칩 줄만 — 고른 예시 글은 흐름의 그분 차례 줄 아래(_mkRefBody) · 흐름 밖 .mk-rsel 덩어리 금지(2026-11-23 사용자 지시로 삭제) */
   var set=sets[cur], who='';
   h+='<div class="mk-rsel'+(_fill&&_mkRefFillable(k,cur)?' mk-rsel0':'')+'">'+(function(){ var sn=_fill?_onN:cur; return sn>=0&&sets[sn]?'<p class="sr-only">참고 '+esc(_refName(sets[sn],sn))+'</p>':''; })();   /* [B2_NA_70] 화면 읽기 문단 = 라디오와 같은 번호(칸에 든 예시) · 고른 예시가 없으면 읽지 않는다 */   /* [R8-14 REF_PILL_OFF] 바로 위 칸에서 «예시 N»이 골라진 모양인데 «참고 예시 N» 알약이 또 붙어(고르는 칩과 같은 꼴) 누르는 것처럼 보였다 — 보이는 알약을 걷고 화면 읽기에는 남긴다 · ③ 연습 카드의 lf-refb 는 그대로 */
-  if(k==='free'&&+RitualOpen.chipOf('freeLen',S)>3) h+='<p class="mk-rl mk-rlen">정한 길이에 맞춰 예시를 다듬어 주세요.</p>';   /* [B2_NA_06] 예시는 3분 판 · 누르기 전에 읽혀야 하는 줄이라 알림이 아니라 글 */
+  /* [B2_NA_06] 축사 «정한 길이에 맞춰 …» 한 줄은 흐름의 차례 줄 아래 예시 글 위로 옮겼다(_mkRefBody · SAY_INLINE_VIEW_1123) */
   /* ★[REF_ONE_COUNT 2026-10-07 사장님 «하나하나 확인해서 개선»] 한 분이 잇달아 말하는 문단(축사 · 한 분 네 문단)은 이름 한 번 · 글자 수 · 초도 끝에 한 번(그분 몫 합) —
      문단마다 «147자 · 약 30초»가 붙어 네 사람이 나눠 읽는 글처럼 보였다. 덕담 · 성혼 선언처럼 분마다 한 문단이면 종전과 같다 */
   /* ★[UX1_1023 REF_FOLD 2026-10-23 사장님 «추천대로 · 너가 판단해서»(BGM 섹션 전달 · GPT 검토 5)] 보기만 하는 예시(축사 · 성혼 선언 · 덕담 …)는 첫 네 줄 남짓만 보이고
@@ -7863,8 +7916,8 @@ function renderMake(){
   /* [R2-27] ② 순간 쪽 설명에서만 «(한 분 1분쯤)»을 뗀다 — 바로 아래 차례 줄이 사람마다 시간을 말한다(① 미리 보기 · ② 첫 쪽 펼침은 그대로)
      ★[R2_SPEECH_LEN_1014] 축사 «(3분 안팎)»도 같다 — 바로 뒤 «약 n분»(길이 칩)과 한 줄에 다른 숫자가 남았다(1분을 고르면 «(3분 안팎). 약 1분») */
   /* ★설명 줄과 그림 사이 «반지는 단상 위에 미리 놓아 둬요» 따로 줄 금지 — 2026-10-07 사용자 지시로 옮김 [SAME_PLACE · RING_STAGE] (사장님 «다른 곳과 형태 · 배치가 다른 것 점검») 그림 위에 안내가 붙은 쪽은 반지뿐이었다 → «당일 챙길 것» 반지 줄 아래 작은 글(다른 쪽 «예식 7일 전까지»와 같은 자리) */
-  MK.sayIn=''; MK.sayTop='';   /* [SAY_INLINE_1123] 이 쪽에서 두 분 글칸 · 흐름 위 안내를 그렸나(흐름이 못 그리면 _mkWrite 가 대신) */
-  var _sayOn=!!_mkKinds(k)[0], _sayRef=_sayOn?_mkRef(k):'';
+  MK.sayIn=''; MK.sayTop=''; MK.viewIn='';   /* [SAY_INLINE_1123] 이 쪽에서 두 분 글칸 · 흐름 위 안내를 그렸나(흐름이 못 그리면 _mkWrite 가 대신) · [SAY_INLINE_VIEW_1123] 보기만 하는 예시 줄도 */
+  var _sayOn=!!_mkKinds(k)[0], _sayRef=(_sayOn||!_mkViewScr(k))?_mkRef(k):'';   /* ★[SAY_INLINE_VIEW_1123] 보기만 하는 예시(성혼 선언 · 덕담 · 축사)도 칩 줄은 흐름 위 · 받은 원고를 붙였으면 그 원고가 이 자리의 글이라 칩 줄을 두지 않는다 */
   if(!off){
     if(_lAnyVid()) h+='<div class="mk-vid">'+_lVid(k,{big:true,tap:true})+'</div>';   /* [VID_AUTO_ONLY] data-vk 가 붙은 ② 장면 — 쪽에 들어올 때 한 번 */   // ★[MK_VID_CHIP 2026-09-27] 고른 판대로(firstVideo) — name:k 는 «케이크만»에도 잔 들기(toast.mp4)를 억지로 띄웠다
     /* ★[MK_PICK_TOP 2026-09-27 사장님 «고르기를 위로 · 선택하고 들어 볼 수 있게 · 선택이 우선»] 고르기 → 흐름 (그 사이 «고른 대로 들어 보기» 단추는 MK_MIN 이 걷었다 · 칩이 곧 듣기) */
@@ -7896,10 +7949,11 @@ function renderMake(){
        두 갈래의 차이는 «나레이션 자세히»(같은 줄 오른쪽) 한 곳이 말하고, 안 골랐을 때는 칩 바로 아래 한 줄(_lChipRow · ls-gnote)만. ★«먼저 골라 주세요» 상자 금지 — 2026-10-06 사용자 지시로 삭제 */
     if(_vpAsk){}
     else { var _scn=(k==='entry'&&window.EntryMusic&&EntryMusic.sceneHtml)?EntryMusic.sceneHtml():''; h+=_scn;   /* ★★[ENTRY_SCENE_1012 2026-10-12 사장님 «일단 전부 올려»] 입장 «음악과 함께 듣기»(그래프 · 긴 알약) = 고르기 칸 바로 아래 · 흐름 위 — 시험실 PLAYER_ORDER · SCENE_FIRST(고르기 → 듣기 → 흐름 → 글) · 이 기기에 올린 곡이 있을 때만 · 아래 흐름 줄은 그대로 한 줄(merge-guard 표식) */
-      h+=_mkFlow(k,(_pn>=2&&!_scn)?lb:'',_sayOn?_sayRef+_mkSayTop(k,_sayRef):'');   /* ★[SAY_INLINE_1123] 두 분이 할 말이 있는 순간 = 참고 예시 칩 줄 · 왜 적는지 한 줄이 «이 순간 전체 듣기» 바로 아래(흐름 위) — 누른 예시 글이 바로 아래 차례 줄에서 바뀐다 */   /* ★[ONE_PLAY_1013 2026-10-13 사장님 «플레이 위아래 두 개» → «a»] 곡을 골라 장면이 서면 «이 순간 전체 듣기»는 장면 알약 하나(음악과 함께 · 다음 줄까지) — 이 알약을 다시 함께 그리지 말 것 */
+      h+=_mkFlow(k,(_pn>=2&&!_scn)?lb:'',_sayOn?_sayRef+_mkSayTop(k,_sayRef):_sayRef);   /* ★[SAY_INLINE_1123] 두 분이 할 말이 있는 순간 = 참고 예시 칩 줄 · 왜 적는지 한 줄이 «이 순간 전체 듣기» 바로 아래(흐름 위) — 누른 예시 글이 바로 아래 차례 줄에서 바뀐다 */   /* ★[ONE_PLAY_1013 2026-10-13 사장님 «플레이 위아래 두 개» → «a»] 곡을 골라 장면이 서면 «이 순간 전체 듣기»는 장면 알약 하나(음악과 함께 · 다음 줄까지) — 이 알약을 다시 함께 그리지 말 것 */
       /* [EX_ROW] 스튜디오 판 하객 맞이 넷(안내 멘트) · 식전 영상 소개 넷(소개 멘트)은 위쪽 칩 줄로 옮겼다 */ }
     if(k==='tribute'&&R.crossTribute(S)) h+='<p class="ls-why">편지를 각자 부모님께 쓰셔서, 인사말은 서로의 부모님께 드려요(신랑 → 장인 · 장모님, 신부 → 시부모님).</p>';
-    if(!_sayOn) h+=_mkRef(k);   /* [SAY_INLINE_1123] 보기만 하는 예시(덕담 · 축사 · 성혼 선언)는 흐름 아래 그대로 — 예시 글이 칩 바로 아래 펼쳐진다 */
+    /* ★흐름 아래 «참고 예시» 따로 덩어리(보기만 하는 예시 · 덕담 · 축사 · 성혼 선언의 칩 줄 + .mk-rsel 예시 글) 금지 — 2026-11-23 사용자 지시로 삭제 · 되살리지 말 것 [SAY_INLINE_VIEW_1123]
+       (사장님 «여기도 안 들어갔는데? 전부 적용한 거 아니야?») 칩 줄은 흐름 위(_sayRef) · 예시 글은 흐름의 그분 차례 줄 아래(_mkViewRow) · 검사 scripts/audit/say-inline.mjs */
   }
   h+=_mkWrite(k)+_mkPrep(k);   /* [SAY_INLINE_1123] _mkWrite = 흐름이 차례 줄을 못 그린 쪽만 대신 그리기 */
   if(!off) h+=_psFold(k);   /* [PHOTO_SCENE_1031] 설정 · 글쓰기 먼저 · 맨 아래 접힌 줄 */

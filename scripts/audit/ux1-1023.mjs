@@ -23,7 +23,7 @@ const open = async (W) => {
   await pg.goto(`http://127.0.0.1:${port}/order-preview.html?embed=1`); await pg.waitForTimeout(700);
   const nx = async () => { if (await pg.isVisible('#next')) await pg.click('#next'); else await pg.click('.pk-go'); await pg.waitForTimeout(450); };
   await nx(); await nx(); await pg.click('[data-fk="opx:standard"]'); await pg.waitForTimeout(300); await nx(); await pg.waitForTimeout(900);
-  await pg.evaluate(() => { S.on = Object.assign({}, S.on, { letter: 1 }); opSync(); });
+  await pg.evaluate(() => { S.on = Object.assign({}, S.on, { letter: 1, declare: 1 }); opSync(); });   /* ★[SAY_INLINE_VIEW_1123] 정석 예시에 성혼 선언이 빠져 ③ 이 재지 못하고 빨강이었다(main 도 같음) — 켜고 잰다 · 예시 글은 이제 흐름의 «읽으실 차례» 줄 아래(mkRb_declare 그대로) */
   return { pg, errs };
 };
 /* ★[SPEECH_SONG_1115] 정석 예시는 이제 축가만(축사 · 축가 한 카드 둘 중 하나) — 축사 쪽을 재는 자리(②)는 축사로 바꿔 담고 연다(옛 정석은 축사를 담고 있었다 · 재는 뜻 그대로) */
