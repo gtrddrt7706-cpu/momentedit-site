@@ -30,9 +30,11 @@ try {
   await nx(); await pg.waitForTimeout(1500); await pg.evaluate(() => { try { engine(); } catch (e) {} }); await pg.waitForTimeout(900);
   const go = async (k) => { await pg.evaluate((x) => { try { lsStop(); } catch (e) {} mkGo(x); }, k); await pg.waitForTimeout(350); };
   const look = (k) => pg.evaluate((k) => { const q = (s) => document.querySelector('.mk-pg ' + s), qa = (s) => [...document.querySelectorAll('.mk-pg ' + s)];
-    return { ref: !!q('.mk-ref'), fill: !!q('.mk-ref .mk-rsel0'), plain: qa('.mk-ref .mk-rw').length, ta: qa('.mk-flow li.mk-sayli textarea').length,   /* ★[SAY_INLINE_1123 2026-11-23] «두 분이 할 말» 칸(.mk-say) → 흐름 차례 줄 아래 글칸 */
-      chips: qa('.mk-ref .mk-exc').map((b) => b.textContent.replace(/\s+/g, ' ').trim()), counts: qa('.mk-ref .mk-rl').length,
-      whos: qa('.mk-ref .mk-rw b').map((b) => b.textContent.trim()), talk: qa('.mk-flow li.t:not(.mk-sayli) b').map((b) => b.textContent.trim()) }; }, k);   /* [SAY_INLINE_1123] 두 분 글칸 줄(li.t.mk-sayli)의 머리는 «차례» 이름표가 아니라 글칸 줄 — 말하실 분 차례 줄만 본다 */
+    /* ★[SAY_INLINE_VIEW_1123 2026-11-23] 보기만 하는 예시(성혼 선언 · 덕담 · 축사) 글은 흐름의 차례 줄 아래(.mk-sayv) · «n자 · 약 n초»는 글 아래 한 줄(.mk-saym) · 그 줄 머리(.mk-sayh b)가 «말씀하실 · 읽으실 차례» */
+    return { ref: !!q('.mk-ref'), fill: !!q('.mk-ref .mk-rsel0'), plain: qa('.mk-ref .mk-rw, .mk-flow .mk-sayv .mk-rw').length, ta: qa('.mk-flow li.mk-sayli:not(.mk-sayview) textarea').length,   /* ★[SAY_INLINE_1123 2026-11-23] «두 분이 할 말» 칸(.mk-say) → 흐름 차례 줄 아래 글칸 */
+      chips: qa('.mk-ref .mk-exc').map((b) => b.textContent.replace(/\s+/g, ' ').trim()), counts: qa('.mk-ref .mk-rl:not(.mk-rlen), .mk-flow .mk-sayv .mk-saym .mk-cnt').length,
+      cntT: qa('.mk-flow .mk-sayv .mk-saym .mk-cnt').map((b) => b.textContent.replace(/\u00a0/g, ' ').trim()),
+      whos: qa('.mk-ref .mk-rw b, .mk-flow .mk-sayv .mk-rw b').map((b) => b.textContent.trim()), talk: qa('.mk-flow li.t:not(.mk-sayli) > b, .mk-flow li.mk-sayview .mk-sayh > b').map((b) => b.textContent.replace(/\u00a0/g, ' ').trim()) }; }, k);   /* [SAY_INLINE_1123] 두 분 글칸 줄(li.t.mk-sayli)의 머리는 «차례» 이름표가 아니라 글칸 줄 — 말하실 분 차례 줄만 본다 */
 
   /* ① 두 분이 직접 말하는 순간 — 예시가 칸을 채운다 */
   for (const k of ['welcome', 'vow', 'tribute', 'letter', 'toast']) {
@@ -66,9 +68,9 @@ try {
   ok('⑤ 축사 흐름 — «말씀하실 차례» 한 줄(예시 인물 · 문단마다 되풀이 없음) [FLOW_ONE_TURN]', fr.talk.length === 1 && fr.talk[0] === '말씀하실 차례', JSON.stringify(fr.talk));
   await go('declare'); const dc = await look('declare');
   ok('⑤ 선언 흐름 — 고른 분 «신랑 아버님 차례» 한 줄 [FLOW_ONE_TURN · DECLARE_BY_PERSON]', dc.talk.length === 1 && dc.talk[0] === '신랑 아버님 차례', JSON.stringify(dc.talk));
-  ok('④ 선언문 예시 — 한 벌 · 고른 분 이름 · 글자 수 한 번 [DECLARE_BY_PERSON]', dc.counts === dc.whos.length && dc.counts === 1 && dc.whos[0] === '신랑 아버님', JSON.stringify(dc));
-  await go('bless'); const bl = await look('bless');
-  ok('④ 덕담 예시 — 분마다 이름 · 글자 수 한 번(종전 그대로)', bl.counts === bl.whos.length && bl.counts === 2 && bl.talk.length === 1 && bl.talk[0] === '말씀하실 차례', JSON.stringify(bl));
+  ok('④ 선언문 예시 — 한 벌 · 고른 분 이름은 바로 위 차례 줄 한 번(«신랑 아버님 차례» · 글 위에 되풀이 없음) · 글자 수 한 번 [DECLARE_BY_PERSON · SAY_INLINE_VIEW_1123]', dc.counts === 1 && dc.whos.length === 0 && dc.talk[0] === '신랑 아버님 차례', JSON.stringify(dc));
+  await go('bless'); await pg.evaluate(() => { const i = _lRefSets('bless').findIndex((x) => new Set(x.map((p) => p.who)).size > 1); if (i > -1) mkRefPick('bless', i, 1); }); await pg.waitForTimeout(300); const bl = await look('bless');   /* [SAY_INLINE_VIEW_1123] 두 분이 나눠 하는 예시를 골라 잰다(첫 예시가 한 분 판이라 main 에서도 재지 못하고 빨강이었다) */
+  ok('④ 덕담 예시 — 분마다 이름 · 글자 수는 글 아래 한 줄(«모두 n자 · 약 n초») [SAY_INLINE_VIEW_1123]', bl.whos.length === 2 && bl.counts === 1 && /^모두 \d+자 · 약 /.test(bl.cntT[0] || '') && bl.talk.length === 1 && bl.talk[0] === '말씀하실 차례', JSON.stringify(bl));
   /* ⑨ 받은 원고 칸 — 덕담 · 축사 같은 꼴 [SPEECH_SCRIPT] */
   await go('bless'); const bk = await pg.evaluate(() => ({ ta: !!document.querySelector('.mk-pg textarea[aria-label="받은 덕담 원고"]'), ck: !!document.querySelector('.mk-pg [data-fk="mkbsite"]') }));
   ok('⑨ 덕담 — 받은 원고 칸 · «원고 없이» 체크(종전 그대로)', bk.ta && bk.ck, JSON.stringify(bk));
@@ -76,10 +78,10 @@ try {
   const sp = await pg.evaluate(() => { const q = _mkItems('free').filter((x) => x.cat === 'ask')[0], ta = document.querySelector('.mk-pg textarea[aria-label="받은 축사 원고"]'), r = { ta: !!ta, ck: !!document.querySelector('.mk-pg [data-fk="mkfsite"]') };
     if (!q || !ta) return r; r.d0 = _mkItemDone(q); ta.value = '하윤아, 결혼 축하한다. 오빠는 언제나 네 편이다.'; ta.dispatchEvent(new Event('input')); r.d1 = _mkItemDone(q); r.sc1 = /축사 원고\(준비하신 분/.test(scriptText());
     r.cnt = ((document.getElementById('mkc_free_p') || {}).textContent || '').trim(); mkChk(q.id, true, 'site'); r.ta2 = !!document.querySelector('.mk-pg textarea[aria-label="받은 축사 원고"]'); r.cue = !!document.querySelector('.mk-pg .mk-cue');
-    r.pl = RitualOpen.prepList(S).some((x) => x.k === 'free' && x.cat === 'ask'); r.sc2 = /축사: 원고 없이 현장에서 바로 하세요/.test(scriptText()); r.hd = /축사 원고/.test(document.querySelector('.mk-pg').textContent);
+    r.pl = RitualOpen.prepList(S).some((x) => x.k === 'free' && x.cat === 'ask'); r.sc2 = /축사: 원고 없이 현장에서 바로 하세요/.test(scriptText()); r.hd = !!document.querySelector('.mk-flow li.mk-sayview .mk-cue') && !document.querySelector('.mk-pg .mk-prep [data-fk="mkfsite"]');   /* ★[SAY_INLINE_VIEW_1123] 옛 기대(«원고 없이»면 준비 덩어리 머리 «축사 원고») 은퇴 — 체크 · 끝 신호 칸은 흐름의 «말씀하실 차례» 줄 안 */
     mkChk(q.id, false); ta && (S.tx['free.p'] = ''); return r; });
   ok('⑨ 축사 — 받은 원고 칸 · 붙이면 부탁 다 됨 · 대본에 «축사 원고» · 글자 수', sp.ta && sp.ck && sp.d0 === false && sp.d1 === true && sp.sc1 && /자 · 약 \d+초/.test(sp.cnt || ''), JSON.stringify(sp));
-  ok('⑨ 축사 «원고 없이» — 칸 접히고 끝 신호 칸 · 준비 목록에서 원고 부탁 빠짐 · 대본 한 줄 · 머리 «축사 원고»', sp.ta2 === false && sp.cue && sp.pl === false && sp.sc2 && sp.hd, JSON.stringify(sp));
+  ok('⑨ 축사 «원고 없이» — 칸 접히고 끝 신호 칸(흐름 «말씀하실 차례» 줄 안) · 준비 목록에서 원고 부탁 빠짐 · 대본 한 줄', sp.ta2 === false && sp.cue && sp.pl === false && sp.sc2 && sp.hd, JSON.stringify(sp));
   const con = fs.readFileSync(path.join(ROOT, 'console.html'), 'utf8');
   ok('⑨ 콘솔 끝 신호 — 축사도 받은 원고 · 끝 신호를 본다', /free: \[\['p:free:0','축사하시는 분','free\.p'\]\]/.test(con));
   /* ⑩ 끝 신호 예시 칩(inline-flex) — 명조로 바꾼 말(«감사합니다») 앞뒤 띄어쓰기가 산다 [GUIL_FLEX_SPACE] */

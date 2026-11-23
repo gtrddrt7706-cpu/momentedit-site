@@ -48,7 +48,8 @@ async function walk(w, course) {
       const seq = kids.map((c) => c.className || c.tagName);
       const lb = [...document.querySelectorAll('[data-fk="mkplay"]')];
       let pn = 0; try { if (ENG) pn = _lSteps(ENG, [k]).filter((x) => !x.quiet && !x.talk && !x.skip && !x.talk2).length; } catch (e) {}
-      const flowT = [...document.querySelectorAll('.mk-pg .mk-flow li, .mk-pg .mk-vs, .mk-pg .mk-vch')].map((e) => e.textContent).filter((t) => /약\s?\d+\s?(초|분)/.test(t));
+      const _noSay = (e) => { const c = e.cloneNode(true); c.querySelectorAll('.mk-saym').forEach((x) => x.remove()); return c.textContent; };   /* ★[SAY_INLINE_VIEW_1123] 차례 줄 아래 글(두 분 글 · 고른 예시 · 받은 원고)의 «n자 · 약 n초» 회색 한 줄(.mk-saym)은 글의 길이 — 줄 머리 길이가 아니다(SAY_INLINE_1123 결정) · 줄 머리 · 줄 카드만 잰다 */
+      const flowT = [...document.querySelectorAll('.mk-pg .mk-flow li, .mk-pg .mk-vs, .mk-pg .mk-vch')].map(_noSay).filter((t) => /약\s?\d+\s?(초|분)/.test(t));
       const cs = (el, ps) => (el ? ps.map((p) => getComputedStyle(el)[p]).join('/') : '');
       const gl = document.querySelector('.mk-pg .mk-pick .ls-cg:not(.cg-vp) .gl');   /* 목소리 준비 줄(.cg-vp)은 좁은 폭에서 라벨이 위로 선다 — 일부러다([R3-06] «어떻게 준비할까요»가 64px 칸에서 두 줄로 깨졌다) · 그 줄은 vpS 로 따로 본다 */
       const vp = document.querySelector('.mk-pg .mk-pick .ls-cg.cg-vp'), vpS = vp ? getComputedStyle(vp).gridTemplateColumns.split(' ').length + '열|' + cs(vp.querySelector('.gl'), ['fontSize']) : '';

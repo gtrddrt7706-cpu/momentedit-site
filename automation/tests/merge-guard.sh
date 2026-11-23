@@ -16316,7 +16316,7 @@ chk 'EDIT_CANCEL_FILES' scripts/audit/edit-cancel-files.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/edit-cancel-files.mjs >/dev/null 2>&1; _ec=$?; [ "$_ec" = 1 ] && { echo 'FAIL edit-cancel-files: ④ «변경» 수정을 취소하면 지운 줄 파일이 되살아납니다 — node scripts/audit/edit-cancel-files.mjs'; fail=1; }; fi
 chk 'VC_TO_NAR' order-preview.html 4
 chk 'function _vcToNar(key)' order-preview.html 1
-chk '<b>말씀하실 차례</b>' order-preview.html 1
+chk "_bwOrder()?'말씀하실 차례 · '+_bwOrder():'말씀하실 차례'" order-preview.html 1   # ★[SAY_INLINE_VIEW_1123 2026-11-23] 옛 기대 '<b>말씀하실 차례</b>' 은퇴 — 차례 줄 이름표는 _mkViewLab 한 곳(그 아래 예시 · 받은 원고)
 chk 'R6-03' order-preview.html 1
 chk 'R6-04' order-preview.html 1
 chk 'R6-06' order-preview.html 1
@@ -17808,7 +17808,8 @@ nochk "<p class=\"mk-note mk-txalt\">보내지 않아도 돼요" order-preview.h
 chk 'if(rows<2&&!nar&&dl) return;   /\* \[CHIP_FULL_1019\]' order-preview.html 1   # ★[CHIP_FULL_1019 2026-10-19 사장님] 폰은 한 줄에 들어가는 넷 미만 줄도 꽉 채운다(종전 «rows<2&&b.length<4 면 그대로»를 걷음) · PC 는 한 줄이면 그대로
 # ★[BLESS_CK_TOP 2026-10-07 사장님 «추천대로»] 덕담 · 축사 «원고 없이» 체크 = 원고 칸 위 머리 줄 오른쪽(첫인사 · 서약 · 편지와 같은 자리)
 chk 'BLESS_CK_TOP' order-preview.html 2
-chk "h+='<li class=\"mk-vx\">'+'<div class=\"mk-txh mk-bsh\"><label class=\"upchk mk-ck\">" order-preview.html 1
+nochk "h+='<li class=\"mk-vx\">'+'<div class=\"mk-txh mk-bsh\">" order-preview.html   # ★[SAY_INLINE_VIEW_1123 2026-11-23] 옛 기대(흐름 밖 원고 칸 머리) 은퇴 — «원고 없이» 체크는 흐름 «말씀하실 차례» 줄 오른쪽 끝(같은 뜻 · 자리만 흐름 안)
+chk "(v?'<label class=\"upchk mk-ck\"><input type=\"checkbox\" data-fk=\"'+v.sp.fk+'\"'" order-preview.html 1
 # ★[VCARD_CALM 2026-10-07 사장님 «추천대로»(카드 시안 ①)] 카드 안 가는 선 셋 걷음 — VSTAT_GUTTER(세로선 옆 16)는 세로선이 없어져 함께 걷었다
 chk 'VCARD_CALM' order-preview.html 3
 chk '.mk-vstat{display:flex;flex-direction:column;gap:10px;margin-top:16px}' order-preview.html 1
@@ -24600,12 +24601,20 @@ chk 'id="prepfile"' privacy.html 1
 chk '2026년 11월 23일 (예식 준비 파일 항목 추가' privacy.html 1
 chk 'PRIV_PREP_1123' mypage.html 5
 chk 'PRIV_PREP_1123' scripts/audit/prep-hub.mjs 2
-
 # ★★[MR_TO_PREP_1123 2026-11-23 사장님 «아직도있는데?»] 빌더 축가 «보낼 것» — 마이페이지 안에서는 «준비할 것»이 받는다(카톡 · 메일 · 손 «보냈어요» 대신 «준비할 것 열기» · 받으면 «받았어요»)
 chk 'MR_TO_PREP_1123' order-preview.html 4
 chk 'mksongprep' order-preview.html 1
 chk "prepGot:Object.keys(" mypage.html 1
 chk "if(_gn==='prep'){ var bp=" mypage.html 1
+# ★★[SAY_INLINE_VIEW_1123 2026-11-23 사장님 «여기도 안 들어갔는데? 전부 적용한 거 아니야? 스텝바이스텝으로 전수점검해»] 보기만 하는 예시(성혼 선언 · 덕담 · 축사)도 SAY_INLINE_1123 3안 —
+#   칩 줄은 흐름 위 · 고른 예시 글은 그분 차례 줄 아래(상자 없음 · 네 줄 남짓에서 접힘) · «n자 · 약 n초» 글 아래 한 줄 · 받은 원고 칸(S.tx bless.p · free.p)과 «원고 없이» 체크 · 끝 신호도 그 줄 안 · 흐름 밖 따로 덩어리가 돌아오면 빨강
+chk 'SAY_INLINE_VIEW_1123' order-preview.html 8
+chk 'SAY_INLINE_VIEW_1123' scripts/audit/say-inline.mjs 3
+chk 'function _mkViewLi(k,key,lab)' order-preview.html 1
+chk 'function _mkRefBody(k)' order-preview.html 1
+chk "if(!_fill) return h+'</section>';" order-preview.html 1
+chk 'data-tx="'"'"'+sp.id+'"'"'"' order-preview.html 1
+nochk 'if(!_sayOn) h+=_mkRef(k);' order-preview.html
 # ★★[PR_CLEAN_1123 2026-11-23 사장님 «여기도 정리가 필요해 보여 · 고객 입장에서 개선해봐»] ③ 연습하기 첫 화면 — 연습 방법 고르기 칸(.pr-mode)과 시작 단추 둘을 시작 카드 둘로 합침
 #   A = «AI 목소리로 먼저 듣기»(_ptOn · AI 로 먼저 + 흐름 보기 · 처음엔 업체 알림과 준비 칸이 A 아래) 아니면 «흐름 보기로 시작» · B = «직접 소리 내어 해보기»(직접 + 직접 해보기)
 #   안내 = 머리 아래 한 줄 + «오늘 흐름» 칩 아래 «집에서는 …» 한 줄 · «재생은 디렉터가 …» 걷음 · «글로 한눈에 보기» · «음악 끄기» 한 줄 · pr-clean 이 390 · 1280 × AI 켬 · 끔 실렌더로 잰다(깨 보고 믿음: 고치기 전 판 = 빨강 7)
