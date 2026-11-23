@@ -1750,23 +1750,26 @@ body.mkd .mk-strip{top:44px;margin:0 -16px 12px;padding:0;border-bottom:0}   /* 
 .mk-badge{display:inline-block;padding:0 8px;border:1px solid var(--border);border-radius:999px;font-size:11px;color:var(--sub)}
 .pr-acts{display:flex;flex-wrap:wrap;gap:8px}
 /* ★[PR_SIMPLE 2026-10-05] ③ 연습하기 — 장면 카드 하나 + 순간 목록 하나. 줄 사이는 선이 아니라 여백으로([ADV_INDEX]) · 줄 높이 52 */
-.pr-hero{display:block;width:100%;margin:6px 0 0;padding:0;border:0;background:none;text-align:left;cursor:pointer;color:inherit;font:inherit;border-radius:8px}
+.pr-sts{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin:6px 0 0}   /* ★[PR_CLEAN_1123 1] 시작 카드 둘(A · B) — 폰은 위아래 · 600 이상은 나란히(알림 · 준비 칸 · 안 적은 곳 한 줄은 두 카드 아래 한 폭) */
+.pr-sts>.pr-ask,.pr-sts>.pr-prep,.pr-sts>.pr-todo{margin:0}
+.pr-st{display:flex;flex-direction:column;width:100%;margin:0;padding:0;border:0;background:none;text-align:left;cursor:pointer;color:inherit;font:inherit;border-radius:8px}
+@media (min-width:600px){ .pr-sts{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 16px} .pr-sts>.pr-hero{grid-column:1;grid-row:1} .pr-sts>.pr-try{grid-column:2;grid-row:1} .pr-sts>.pr-ask,.pr-sts>.pr-prep,.pr-sts>.pr-todo{grid-column:1/-1} .pr-st .pr-hm{aspect-ratio:16/9} }
 .pr-hm{position:relative;display:block;aspect-ratio:2.39/1;border-radius:8px;overflow:hidden;background:var(--bg2);border:1px solid var(--border)}
 .pr-hm img{display:block;width:100%;height:100%;object-fit:cover}   /* ★[HOVER_NO_ZOOM] 마우스를 올리면 장면 그림이 커지던 효과(scale 1.02 · .45s) 금지 — 2026-10-09 사용자 지시로 삭제(사장님 «영상 쪽 마우스 올리면 영상 흔들거리는데 그 효과 삭제») */
 .pr-hp{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;background:rgba(58,45,34,.88);color:#FAFAF8;display:grid;place-items:center}
 .pr-hp svg{width:14px;height:14px}
-.pr-hl{display:flex;flex-direction:column;gap:2px;margin:12px 0 0}
+.pr-hl{display:flex;flex-direction:column;gap:2px;margin:10px 0 0}
 .pr-hl b{font-family:var(--ko-serif);font-size:16px;font-weight:600;color:var(--accent);letter-spacing:-.02em}
-.pr-hl span{font-size:12.5px;color:var(--sub)}
+.pr-hl span{font-size:12.5px;color:var(--sub);word-break:keep-all}
 @media (hover:hover){ .pr-row:hover{background:var(--bg2)} .pr-row:hover .pr-go{color:var(--accent)} }
-.pr-hero:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.pr-st:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .pr-todo{margin:10px 0 0}
 /* [SCRIPT_VIEW_1018] ③ «글로 한눈에 보기» — 단추는 줄 링크 모양(44 높이) · 창 안 글은 순간마다 한 덩어리 · 사람 구간은 회색 */
-.pr-try{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;min-height:56px;margin:12px 0 0;padding:10px 14px;border:1px solid var(--line,#E2D9CC);border-radius:10px;background:#fff;font:inherit;text-align:left;cursor:pointer;color:inherit}
-.pr-try b{font-family:var(--ko-serif);font-size:16px;font-weight:600;color:var(--accent)} .pr-try span{font-size:12.5px;color:var(--sub)}   /* [PR_WAY_198 ①] */
+/* ★[PR_CLEAN_1123] 옛 B 테두리 칸(.pr-try 글 상자) 모양 걷음 — A 와 같은 카드(.pr-st) */
 .pr-fcs{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px} .pr-fc{display:flex;flex-direction:column;padding:6px 10px;border:1px solid var(--line,#E2D9CC);border-radius:8px;background:#fff;font-size:12.5px;line-height:1.45}
-.pr-fc b{font-size:14px;font-weight:600;color:var(--accent)} .pr-fc span{color:var(--ink,#3A2F27)} .pr-fc i{font-style:normal;color:var(--sub)} .pr-role{margin:8px 0 0;font-size:12.5px;color:var(--sub)}   /* [PR_WAY_198 ③] 동선 칩 */
-.pr-sv{display:block;min-height:44px;margin:6px 0 0;padding:0;border:0;background:none;font:inherit;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.pr-fc b{font-size:14px;font-weight:600;color:var(--accent)} .pr-fc span{color:var(--ink,#3A2F27)} .pr-fc i{font-style:normal;color:var(--sub)} .pr-flow .pr-home{margin:8px 0 0;font-size:12.5px;color:var(--sub)}   /* [PR_CLEAN_1123 2] 칩 아래 회색 한 줄 */   /* [PR_WAY_198 ③] 동선 칩 */
+.pr-svs{display:flex;flex-wrap:wrap;align-items:center;gap:0 24px;margin:8px 0 0}   /* [PR_CLEAN_1123 3] «글로 한눈에 보기» · «음악 끄기» 한 줄 */
+.pr-sv{display:block;min-height:44px;margin:0;padding:0;border:0;background:none;font:inherit;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .sv-top{margin:0 0 12px}
 .sv-b{margin:0 0 16px}
 .sv-h{margin:0 0 6px;font-family:var(--ko-serif);font-size:16px;font-weight:600;color:var(--accent);word-break:keep-all}
@@ -1776,13 +1779,7 @@ body.mkd .mk-strip{top:44px;margin:0 -16px 12px;padding:0;border-bottom:0}   /* 
 .sv-q{color:var(--light);font-size:12.5px}
 .sv-fold>summary{cursor:pointer;list-style-position:outside;margin-left:16px}   /* [B2_NA_48] 긴 사람 원고는 접어 둔다 */
 .sv-fold[open]>summary{margin-bottom:6px}
-.pr-mode{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:2px 0 14px}   /* [PR_MODE] 연습 방법 둘 — 고른 쪽은 먹색 테두리 */
-.pr-mo{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:64px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);text-align:left;cursor:pointer;color:inherit;font:inherit}
-.pr-mo b{font-size:14px;font-weight:600;color:var(--accent)}
-.pr-mo span{font-size:12.5px;line-height:1.5;color:var(--sub);word-break:keep-all}
-.pr-mo.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
-@media (max-width:599px){ .pr-mode{grid-template-columns:minmax(0,1fr)} .pr-mo{min-height:0} }   /* ★[PR_MODE_ONE_LINE 2026-10-06 사장님 «한 줄로 적절하게»] 폰에선 두 칸이 나란하면 설명이 두 줄로 꺾인다 → 위아래로 세워 설명을 한 줄에 · AI 쪽은 «연습 전에 전체 흐름을 AI로 들어요»(흐름 파악이 목적) */
-.pr-mo:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* ★[PR_CLEAN_1123] .pr-mode · .pr-mo(연습 방법 고르기 칸 · [PR_MODE_ONE_LINE] 폰 위아래) 모양 걷음 — 2026-11-23 사용자 지시로 삭제 · 되살리지 말 것 */
 .pr-ask{margin:-4px 0 14px}
 .pr-prep{margin:-4px 0 14px;padding:12px 14px;border-radius:8px;background:var(--bg2)}   /* [PT_PREP] · [PT_PREP_SHOW] 진행 막대 칸 */
 .pr-prep:empty{display:none}
@@ -8101,26 +8098,34 @@ function renderPractice(){ var R=RitualOpen;
   var _mins=ENG?Math.max(1,Math.round(_prEstMs(rows)/60000)):0,   /* ★[보충 중7] 실제 연습 줄과 같은 계산(종전 글자 수 합은 정석 8분 → 실측 10분대로 짧았다) */ _hv=RitualOpen.firstVideo('entry',S)||RitualOpen.firstVideo(rows[0]||'entry',S);
   /* ★[R3-12 PRACTICE_TITLE 2026-10-03 사장님 «넣기»] ③ 도 쪽 제목으로 시작한다 — 명조 제목(.mk-h h3) 아래 한 줄은 보조 글 · 큰 h2(stepHead)는 화면 읽기 프로그램에만 */
   h+='<div class="mk-h pr-h"><h3 id="prHead" tabindex="-1">처음부터 끝까지 연습해 봐요</h3></div>';
-  h+='<p class="mk-one">예식 순서 '+n+' · 말하는 차례가 오면 화면이 알려 드려요</p><p class="mk-note pr-home">집에서는 입장 출발점 · 두 분 설 자리 · 부모님 방향만 정해 두세요</p>'+(ENG?'<div class="pr-flow"><b>오늘 흐름</b>'+_fgFlowChips(rows)+'<p class="pr-role">재생은 디렉터가, 촬영은 현장에서 안내해요.</p></div>'   /* ★[PR_WAY_198 ③] 긴 글 → 동선 칩 · 당일 역할 한 줄 */:'');   /* [FLOW_GRASP_1101 1] */   /* [PRACTICE_WALK_1101 15] «담은 순간»은 본식 카운터(6/6)와 다른 수라 «예식 순서» */
+  h+='<p class="mk-one">예식 순서 '+n+' · 말하는 차례가 오면 화면이 알려 드려요</p>'+(ENG?'<div class="pr-flow"><b>오늘 흐름</b>'+_fgFlowChips(rows)+'<p class="pr-home">집에서는 입장 출발점 · 두 분 설 자리 · 부모님 방향만 정해 두세요</p></div>'   /* ★[PR_WAY_198 ③] 긴 글 → 동선 칩 */:'');   /* ★[PR_CLEAN_1123 2] 안내는 머리 아래 한 줄 + «오늘 흐름» 칩 아래 회색 한 줄(«집에서는 …»)만
+     ★당일 역할 한 줄 «재생은 디렉터가, 촬영은 현장에서 안내해요.»(.pr-role) 금지 — 2026-11-23 사용자 지시로 삭제(집에서 연습하는 두 분에게 필요 없는 당일 운영 말) · 되살리지 말 것 */   /* [FLOW_GRASP_1101 1] */   /* [PRACTICE_WALK_1101 15] «담은 순간»은 본식 카운터(6/6)와 다른 수라 «예식 순서» */
   if(!ENG&&ENG_ERR) h+=_engBox();   // [ENG_ONCE] ③ 도 빈 회색 대신 까닭 · 다시 불러오기
-  /* ★★[PR_MODE 2026-10-05 사장님 «연습하기 진행 전에 선택 · 적은 대사를 AI 로 입혀 우선 들어 볼 것인지 아니면 직접 소리 내서 연습할 것인지»] 연습 방법 둘 —
-     AI 연습 읽기가 열린 예식(_ptOn)에서만 고른다 · 아니면 «직접»뿐이라 고르기를 그리지 않는다. 처음 «AI 로 먼저 듣기»를 고를 때 한 번 «글이 업체로 보내져요» 알림 */
-
-  var _modeH=''; if(_ptOn()){ var _md=PT.mode==='ai'&&_ptOk()?'ai':PT.mode==='self'?'self':'';   // [PR_MODE_UNPICKED] 고르기 전엔 ''
-    _modeH='<div class="pr-mode" role="radiogroup" aria-label="연습 방법" onkeydown="prModeKey(event)">'
-      +[['self','직접 소리 내어','말하는 차례에 준비한 글을 읽어요'],['ai','AI 목소리로 먼저 듣기','연습 전에 전체 흐름을 AI로 들어요']].map(function(o){ var on=_md===o[0];
-        return '<button type="button" class="pr-mo'+(on?' on':'')+'" role="radio" aria-checked="'+on+'" tabindex="'+((on||(!_md&&o[0]==='self'))?0:-1)+'" data-fk="prm:'+o[0]+'" onclick="prMode(\''+o[0]+'\')"><b>'+o[1]+'</b><span>'+o[2]+'</span></button>'; }).join('')+'</div>'
-      +(_md==='ai'?'<div class="pr-prep" id="prPrep" role="status" aria-live="polite">'+_ptPrepHtml()+'</div>':'')   /* ★[PT_PREP_SHOW 2026-10-06 사장님 «준비 중이구나 라는 걸 좀 더 드러나게 · 지금은 티가 별로 안 나»] 한 줄 → 진행 막대 칸 */+(PT.askMode?'<div class="pr-ask" role="group" aria-label="AI 목소리 알림"><p class="mk-note">적은 글이 음성 업체(타입캐스트)로 보내져 연습용 소리로 만들어져요 · 예식에서는 나오지 않아요</p><span class="pr-askb"><button type="button" class="rowbtn" data-fk="prmyes" onclick="prMode(\'ai\',true)">AI 목소리로 듣기</button><button type="button" class="pk-link" data-fk="prmno" onclick="PT.askMode=false;render()">그만두기</button></span></div>':''); }
+  /* ★★[PR_MODE 2026-10-05 사장님 «연습하기 진행 전에 선택 · 적은 대사를 AI 로 입혀 우선 들어 볼 것인지 아니면 직접 소리 내서 연습할 것인지»] 의 뜻은 시작 카드 둘이 지킨다 [PR_CLEAN_1123] —
+     ★연습 방법 고르기 칸(.pr-mode «직접 소리 내어» / «AI 목소리로 먼저 듣기» 라디오 · prm:self · prm:ai · prModeKey) 금지 — 2026-11-23 사용자 지시로 삭제(시작 카드 둘로 합침) · 되살리지 말 것.
+       고르기 칸과 «흐름 보기로 시작 / 직접 해보기로 시작» 두 단추가 같은 질문을 두 번 물었다(2×2 로 보여 무엇을 먼저 누를지 몰랐다).
+     ★★[PR_CLEAN_1123 1] 시작 카드 둘 = 같은 모양 · 같은 크기(장면 그림 · 제목 · 설명 · 덧말) · 폰은 위아래 · 600 이상은 나란히
+       A(prall) — AI 연습 읽기가 열린 예식(_ptOn)이면 «AI 목소리로 먼저 듣기»(= AI 로 먼저 고르기 + 흐름 보기) · 처음이면 업체 전송 알림(PT.askMode)과 준비 칸(_ptPrepHtml)이 A 바로 아래
+                 아니면 «흐름 보기로 시작»(두 분 차례는 글로)
+       B(prtry) — «직접 소리 내어 해보기»(= 직접 소리 내어 + 직접 해보기 · 두 분 차례에서 멈춰 기다림)
+       누를 때 고른 방법(PT.mode)은 이 기기에 기억(me_pr_mode) → «골라서 연습하기»(prFrom)가 마지막 고른 방법을 따른다(prPick) */
+  var _ai=_ptOn(), _md=_ai&&PT.mode==='ai'&&_ptOk(), _bv=RitualOpen.videoOf('letter')||_hv;   // [PR_CLEAN_1123] B 그림 = 글을 손에 들고 소리 내어 읽는 장면(편지 낭독) · A(입장)와 한눈에 갈린다   // [PR_MODE_UNPICKED] 들어올 때는 아무 카드도 눌린 모양이 아니다(카드는 고르기가 아니라 시작)
+  var _stCard=function(fk,cls,v,t,d,x){ return '<button type="button" class="pr-st '+cls+'" data-fk="'+fk+'" onclick="prPick(\''+(fk==='prtry'?'try':'flow')+'\')">'
+      +'<span class="pr-hm"'+_vfy(v)+'>'+(v?'<img src="'+esc(v.poster)+'" alt="" loading="lazy" decoding="async">':'')+'<span class="pr-hp" aria-hidden="true">'+ICO_PLAY+'</span></span>'
+      +'<span class="pr-hl"><b>'+t+'</b><span class="pr-hd">'+d+'</span>'+(x?'<span class="pr-hx">'+x+'</span>':'')+'</span></button>'; };
   var _rz=ENG?_prAtGet():null;   /* ★[PR_WAY_198 ⑪] 이어서 연습 — 어디서부터인지 먼저 · 누를 때만 */
-  h+='<div class="pr-grid"><div class="pr-lead">'+_modeH
+  h+='<div class="pr-grid"><div class="pr-lead">'
     +(_rz?_prRzHtml(_rz):'')
-    +'<button type="button" class="pr-hero" data-fk="prall" onclick="prStart(\'flow\')" aria-label="흐름 보기로 시작'+(_mins?' · 약 '+_mins+'분':'')+'">'
-    +'<span class="pr-hm"'+_vfy(_hv)+'>'+(_hv?'<img src="'+esc(_hv.poster)+'" alt="" loading="lazy" decoding="async">':'')+'<span class="pr-hp" aria-hidden="true">'+ICO_PLAY+'</span></span>'
-    +'<span class="pr-hl"><b>흐름 보기로 시작</b>'+(_mins?'<span>연습 약 '+_mins+'분 · <span class="pr-mut">'+(!_prMuOk()?'말 · 나레이션으로 연습':_prMusic()?'음악과 함께':'음악 없이 말과 나레이션만')+'</span></span>'   /* ★[PR_BGM_197 7] 음악이 들어가니 «음악과 함께» · 끄면 옛 말 */:'')   /* [PRACTICE_WALK_R2 7] 연습 시간과 당일 시간을 나눠 말한다 */+'</span></button>'
+    +'<div class="pr-sts">'
+    +_stCard('prall','pr-hero',_hv,_ai?'AI 목소리로 먼저 듣기':'흐름 보기로 시작',_ai?'끝까지 이어서 흘러요 · 두 분 차례도 AI 목소리로':'끝까지 이어서 흘러요 · 두 분 차례는 글로 봐요',
+      _mins?'연습 약 '+_mins+'분 · <span class="pr-mut">'+(!_prMuOk()?'말 · 나레이션으로 연습':_prMusic()?'음악과 함께':'음악 없이 말과 나레이션만')+'</span>':'')   /* ★[PR_BGM_197 7] 음악이 들어가니 «음악과 함께» · 끄면 옛 말 · [PRACTICE_WALK_R2 7] 연습 시간과 당일 시간을 나눠 말한다 */
+    +((_ai&&PT.askMode)?'<div class="pr-ask" role="group" aria-label="AI 목소리 알림"><p class="mk-note">적은 글이 음성 업체(타입캐스트)로 보내져 연습용 소리로 만들어져요 · 예식에서는 나오지 않아요</p><span class="pr-askb"><button type="button" class="rowbtn" data-fk="prmyes" onclick="prPick(\'flow\',true)">AI 목소리로 듣기</button><button type="button" class="pk-link" data-fk="prmno" onclick="PT.askMode=false;render()">그만두기</button></span></div>':'')   /* [PR_MODE] 처음 «AI 로 먼저» 한 번 알림 · [PR_CLEAN_1123] A 바로 아래 */
+    +(_md?'<div class="pr-prep" id="prPrep" role="status" aria-live="polite">'+_ptPrepHtml()+'</div>':'')   /* ★[PT_PREP_SHOW 2026-10-06 사장님 «준비 중이구나 라는 걸 좀 더 드러나게»] 진행 막대 칸 · [PR_CLEAN_1123] A 바로 아래 */
     +(todo?'<p class="mk-note pr-todo">아직 안 적은 '+todo+'곳은 참고 예시 글로 보여 드려요</p>':'')
-    +'<button type="button" class="pr-try" data-fk="prtry" onclick="prStart(\'try\')"><b>직접 해보기로 시작</b><span>두 분 차례에서 멈춰 기다려요 · 걸리는 시간은 두 분이 직접 하는 시간에 따라 달라요</span></button>'   /* ★[PR_WAY_198 ①] B «직접 해보기» */
-    +'<button type="button" class="pr-sv" data-fk="prsv" onclick="prScript()">글로 한눈에 보기</button>'
-    +(!_prMuOk()?'':'<button type="button" class="pr-sv" data-fk="prmu" aria-pressed="'+(_prMusic()?'false':'true')+'" onclick="prMusicTgl()">'+(_prMusic()?'음악 끄기':'음악 켜기')+'</button>')   /* [PR_WAY_198 ⑧] 음악이 날 수 없으면 토글을 그리지 않는다 · ★[PR_BGM_197 8] 작은 토글 · «글로 한눈에 보기»와 같은 모양 */   /* ★[SCRIPT_VIEW_1018 검토 74] ④ «대본 복사 · 파일»과 같은 글(scriptTextOpen)을 읽기만 · 새 쪽은 없다 */
+    +_stCard('prtry','pr-try',_bv,'직접 소리 내어 해보기','두 분 차례에서 멈춰 기다려요','걸리는 시간은 두 분 속도에 따라 달라요')   /* ★[PR_WAY_198 ①] B «직접 해보기» · [PR_CLEAN_1123] + 직접 소리 내어 */
+    +'</div>'
+    +'<div class="pr-svs"><button type="button" class="pr-sv" data-fk="prsv" onclick="prScript()">글로 한눈에 보기</button>'
+    +(!_prMuOk()?'':'<button type="button" class="pr-sv" data-fk="prmu" aria-pressed="'+(_prMusic()?'false':'true')+'" onclick="prMusicTgl()">'+(_prMusic()?'음악 끄기':'음악 켜기')+'</button>')+'</div>'   /* [PR_WAY_198 ⑧] 음악이 날 수 없으면 토글을 그리지 않는다 · ★[PR_BGM_197 8] 작은 토글 · «글로 한눈에 보기»와 같은 모양 · ★[PR_CLEAN_1123 3] 둘은 한 줄 나란히 */   /* ★[SCRIPT_VIEW_1018 검토 74] ④ «대본 복사 · 파일»과 같은 글(scriptTextOpen)을 읽기만 · 새 쪽은 없다 */
     /* ★[PRACTICE_ONLY_1123 사장님 «연습 준비 이것을 좀 덜어내자 · 진짜 연습만»] 장면 카드 아래 «준비할 것» 접이(옛 PR_PREP_FOLD · _prPrepFold)를 걷었다 — 준비 목록은 마이페이지 예식 준비 «준비할 것» 줄(PREP_HUB_1123) 한 곳 · 되살리지 말 것 */
     +(function(){ var rl=ENG?_prRoles():[]; if(!rl.length) return ''; return '<section class="pr-roles" aria-labelledby="prRoleH"><h4 id="prRoleH">역할 전달하기</h4><p class="mk-note">맡아 주실 분께 그분 순서만 보내요</p><ul>'
       +rl.map(function(r){ return '<li><span>'+esc(r.nm)+'</span><button type="button" class="rowbtn" data-fk="prrole:'+r.id+'" onclick="prRole(\''+r.id+'\')">이 역할 전달하기</button></li>'; }).join('')+'</ul></section>'; })()   /* ★[PR_WAY_198 ⑫] */   // [MK_TODO_DOT] → [TODO_NODOT] 미완료 셈은 남긴다(말만 짧게)
@@ -8137,16 +8142,19 @@ function renderPractice(){ var R=RitualOpen;
     +(_afterOn()?POST_KS.map(function(k){ if(k==='_after') return '<li><button type="button" class="pr-row" data-fk="prj:_after" onclick="prFromAfter()"><span class="pr-th" aria-hidden="true"><img src="'+esc(_afterImg())+'" alt="" loading="lazy" decoding="async"></span><span class="pr-nm"><span class="pr-no pre">본식 뒤</span>'+esc(_post(k).n)+'</span><span class="pr-go" aria-hidden="true">›</span></button></li>';
         return '<li><div class="pr-row pr-fix" data-fk="prx:'+k+'"><span class="pr-th" aria-hidden="true"></span><span class="pr-nm"><span class="pr-no pre">본식 뒤</span>'+esc(_post(k).n)+'<span class="pr-min">'+(k==='_photo'?'연습에서는 넘겨요':'연습 끝')+'</span></span></div></li>'; }).join(''):'')   /* ★[POST_FLOW_200 6] 단체 사진 · 추가 촬영은 누를 것 없는 줄(작가님 진행) */   /* ★[보충 중6] 식후 · 촬영 후 안내(본식 순서 수에는 안 더한다 · 기존 촬영 후 안내 줄로) */
     +'</ol></section></div>';
-  /* ★[PR_MODE 2026-10-05 사장님] AI 로 듣기는 연습 시작 전 «연습 방법» 고르기로 돌아왔다(맨 위 pr-mode · 아래 체크박스 모양은 여전히 금지) */
+  /* ★[PR_MODE 2026-10-05 사장님] AI 로 듣기는 연습 시작 전에 고른다 — 2026-11-23 부터 시작 카드 A «AI 목소리로 먼저 듣기»가 그 고르기다([PR_CLEAN_1123] · 아래 체크박스 모양은 여전히 금지) */
   /* ★«내 목소리로 연습»(내 차례 녹음 prrec · 두 분 차례도 AI 로 듣기 ptts · _prSec) 금지 — 2026-10-05 사용자 지시로 삭제 [PR_VOICE_OFF] (사장님 «녹음하는 기능 우리 삭제했잖아» → «추천대로») · 두 분 차례는 글을 보며 따라 읽는다 */
   if(!PR_FROM_MP) h+='<p class="mk-note pr-later">나중에 마이페이지 식순의 «연습»에서 다시 해 볼 수 있어요</p>'   /* ★[B2_GEUL_20] 마이페이지 단추 이름 그대로 · ★[PRACTICE_ONLY_1123] «연습 · 준비» → «연습» */;   // [PR_ORDER] 마이페이지 «연습하기»로 들어온 판에는 «나중에 마이페이지에서»가 맞지 않는다   // [MK_MIN] · [PR_FROM_MYPAGE] 마이페이지 식순 줄의 «연습하기»가 이 화면으로 연다
   return h+'</div>'; }
 /* ★prAct(한 부분만 보기) · prFast(빠르게 훑기) 금지 — 2026-10-05 사용자 지시로 삭제 [PR_SEC_OFF · PR_FAST_OFF] */
 var PR_FROM_MP=false;   // [PR_ORDER] 마이페이지 «연습하기»로 열었나
-window.prModeKey=function(ev){ var k=ev.key, d=(k==='ArrowRight'||k==='ArrowDown')?1:(k==='ArrowLeft'||k==='ArrowUp')?-1:0; if(!d) return; ev.preventDefault();   /* [PR_ORDER] 연습 방법 = 라디오 — 화살표로 옮긴다(고르지 않은 쪽은 tabindex -1) */
-  var cur=(PT.mode==='ai'&&_ptOk())?'ai':PT.mode==='self'?'self':''; prMode(cur?(cur==='ai'?'self':'ai'):(d>0?'self':'ai')); };
-window.prMode=function(m,yes){ if(m==='ai'){ if(yes){ try{ localStorage.setItem('me_ptts_ok','1'); }catch(e){} } if(!_ptOk()){ PT.askMode=true; render(); return; } }
-  PT.askMode=false; PT.mode=m==='ai'?'ai':'self'; try{ localStorage.setItem('me_pr_mode',PT.mode); }catch(e){} if(PT.mode!=='ai'){ PT.prep=null; PT.startAfter=null; } _fxNext='[data-fk="prm:'+PT.mode+'"]'; render(); if(PT.mode==='ai') setTimeout(function(){ _ptPrep(1); },0); };   // [PT_PREP_AGAIN] AI 를 다시 고르면 못 만든 차례를 다시   // [PR_MODE] · [PT_PREP] 직접으로 바꾸면 준비를 멈춘다(받던 것은 받아 둔다)
+/* ★prModeKey(연습 방법 라디오 화살표 · [PR_ORDER]) 금지 — 2026-11-23 사용자 지시로 삭제(고르기 칸을 시작 카드 둘로 합침 · PR_CLEAN_1123) */
+/* [PR_MODE] 연습 방법을 정한다(그리지 않는다 · 시작은 prPick) — AI 는 처음 한 번 알림(돌려주는 값 false = 알림을 띄웠다) */
+window.prMode=function(m,yes){ if(m==='ai'){ if(yes){ try{ localStorage.setItem('me_ptts_ok','1'); }catch(e){} } if(!_ptOk()){ PT.askMode=true; _fxNext='[data-fk="prmyes"]'; render(); return false; } }
+  PT.askMode=false; PT.mode=m==='ai'?'ai':'self'; try{ localStorage.setItem('me_pr_mode',PT.mode); }catch(e){} if(PT.mode!=='ai'){ PT.prep=null; PT.startAfter=null; } return true; };   // [PR_MODE] · [PT_PREP] 직접으로 바꾸면 준비를 멈춘다(받던 것은 받아 둔다)
+/* ★[PR_CLEAN_1123] 시작 카드 — B(try) = 직접 소리 내어 + 직접 해보기 · A(flow) = (_ptOn 이면 AI 로 먼저 +) 흐름 보기. 시작은 prStart → _ptGate(AI 면 준비되면 바로) 그대로 */
+window.prPick=function(w,yes){ if(w==='try'){ prMode('self'); render(); prStart('try'); return; }
+  if(_ptOn()){ if(!prMode('ai',yes)) return; render(); } prStart('flow'); };   // [PT_PREP_AGAIN] AI 로 다시 누르면 _ptGate → _ptPrep(1) 이 못 만든 차례를 다시
 window.prFromAfter=function(){ LP.startAfter=true; prFrom('_close'); };   /* [보충 중6] 닫는 인사 쪽에 붙은 촬영 후 안내 줄부터 */
 window.prFrom=function(k){ var rs=_lRows(); if(rs.indexOf(k)<0) return; if(_ptAi()&&!(arguments[1])){ _ptGate(function(){ prFrom(k,1); }); return; } LP.fast=false; LP.noChips=false; LP.startK=k; _lOpenBig(); _lStart(rs,true); _lFull(); };   // [PR_JUMP] 전체를 세우고 그 순간에서 시작(앞 순간으로도 ⏮)
 
@@ -9157,7 +9165,7 @@ function _ptPrep(){ var again=arguments[0]; if(!_ptAi()) return; var L=_ptList()
 function _ptHave(P){ return (P.hs||[]).filter(function(h){ return !!PT.url[h]; }).length; }   // [PT_PREP_WORD] 준비된 수 = 지금 들고 있는 소리(재생 중 미리 받은 것도 센다)
 function _ptPrepHtml(){ var P=PT.prep; if(!_ptAi()||!P||!P.n) return '';
   var pc=Math.round(100*_ptHave(P)/P.n), slow=P.run&&P.t0&&(Date.now()-P.t0>45000);   /* [PT_PREP_WORD] 막대 = 준비된 수 — 종전엔 끝나면 늘 100%라 하나도 못 만들어도 다 찬 막대였다 */
-  var sub=P.run?(slow?'조금 오래 걸리고 있어요 · 기다리지 않으려면 «직접 소리 내어»로 시작해도 돼요':(PT.startAfter?'준비되면 바로 시작해요':'다 되면 끊김 없이 이어져요')):'';
+  var sub=P.run?(slow?'조금 오래 걸리고 있어요 · 기다리지 않으려면 «직접 소리 내어 해보기»로 시작해도 돼요':(PT.startAfter?'준비되면 바로 시작해요':'다 되면 끊김 없이 이어져요')):'';
   return '<p class="pr-pt">'+esc(_ptPrepTxt())+'</p><span class="pr-bar'+(P.run?' run':'')+'" aria-hidden="true"><i style="width:'+(P.run?Math.max(4,pc):pc)+'%"></i></span>'+(sub?'<p class="pr-ps">'+esc(sub)+'</p>':'')+(!P.run&&PT.sess&&_ptPrepTxt()===PT.sess?'<p class="pr-ps">'+_reloginBtn('pk-link','V8','ptrelogin')+'</p>':''); }   /* [RELOGIN_BTN] 연습 준비가 로그인 풀림으로 멈췄으면 그 줄 아래 «로그인하기» */   /* [PT_PREP_WORD] 예산 · 로그인 풀림은 큰 글 한 줄이 말한다(겹쳐 두 번 말하던 작은 줄 걷음) */
 function _ptPrepTxt(){ var P=PT.prep; if(!_ptAi()||!P||!P.n) return '';
   var ok=_ptHave(P), bad=P.n-ok; if(P.run) return 'AI 목소리 준비 중 · '+ok+' / '+P.n;

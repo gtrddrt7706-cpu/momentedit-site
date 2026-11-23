@@ -15654,7 +15654,7 @@ chk '아직 남은 일이 있어요' order-preview.html 1
 chk '처음부터 다시 만들기' order-preview.html 1
 chk '모두 비우기' order-preview.html 1
 chk '이 식순으로 연습하기' order-preview.html 1   # [PR_WAY_198] 지시문 «실제 화면 보기» 8
-chk '직접 해보기로 시작' order-preview.html 1
+chk '직접 소리 내어 해보기' order-preview.html 2   # [PR_CLEAN_1123 2026-11-23] 옛 B «직접 해보기로 시작» → «직접 소리 내어 해보기»(연습 방법 고르기 칸과 합침)
 chk '«흐름 보기로 시작»(자동으로 흘러요)' docs/handoff/insta-find.md 1
 # ★★[REVIEW5_1018 2026-10-18 인스타 섹션 검토 5판(29 ~ 55) · 사장님 «최소 4개» · «버튼 하나하나 전부»] 감사문 멘트 칩 · 편지(부모님께) 멘트 칩 새로 ·
 #   서약 · 덕담 · 축가 맺는 말 · 선언(친구 · 지인) 여는 말 · 부모님께 인사(걸어가는 말 · 구호 둘) · 화촉 다른 두 분 · 테이블 예시 5 · 참고 예시(선언 셋 · 축사 · 덕담) ·
@@ -16702,8 +16702,8 @@ chk 'G3_NO_MINI' order-preview.html 1   # [G3_NO_MINI 2026-10-05] 하객 맞이 
 # ★[PR_ORDER 2026-10-05 사장님 «형식이나 디자인 등 여러 방면으로 최선이야?»] 연습 점검 다섯 — 재생 카드 «처음부터 시작하기»(제목과 겹말) · 마이페이지에서 들어오면 «나중에 마이페이지에서» 줄 없음 ·
 #   연습 방법 라디오 화살표 · 말하는 차례 «누구 차례 → 할 일 → 글 → 남은 시간 → 글의 출처» · 연습 중 예시 번호 칩 없음
 chk 'PR_ORDER' order-preview.html 6
-chk 'window.prModeKey=function(ev)' order-preview.html 1
-chk '<b>흐름 보기로 시작</b>' order-preview.html 1   # [PR_WAY_198] 옛 «처음부터 시작하기» → A «흐름 보기로 시작»
+nochk 'window.prModeKey=function(ev)' order-preview.html   # [PR_CLEAN_1123 2026-11-23] 연습 방법 라디오(화살표)는 시작 카드 둘로 합쳐 은퇴 · 되살리지 말 것
+chk "_ai?'AI 목소리로 먼저 듣기':'흐름 보기로 시작'" order-preview.html 1   # [PR_WAY_198] 옛 «처음부터 시작하기» → A «흐름 보기로 시작» · [PR_CLEAN_1123] AI 연습 읽기가 열린 예식이면 같은 카드가 «AI 목소리로 먼저 듣기»
 chk 'PR_ORDER' scripts/audit/play-wait-file.mjs 2
 chk 'PR_ORDER' scripts/audit/pr-from-mypage.mjs 1
 # ★[PT_PREP · PT_VOICE_FALLBACK 2026-10-05 사장님 «미리 전부 만들어서 딜레이 없이» · «AI 음성 소리가 안 나는데?»] AI 로 먼저 = 틀기 전에 말하는 차례 소리를 전부(셋씩) · 다 되기 전 재생은 기다렸다 바로 ·
@@ -16801,8 +16801,8 @@ chk 'EXTAG_OWN_LINE' order-preview.html 1
 chk 'VP_ASK_FIRST' order-preview.html 2
 chk 'STALE_BY_PILL' order-preview.html 2
 chk 'CHIP_W_FIX' order-preview.html 2
-chk 'PR_MODE_ONE_LINE' order-preview.html 1
-chk '연습 전에 전체 흐름을 AI로 들어요' order-preview.html 1
+chk 'PR_MODE_ONE_LINE' order-preview.html 1   # [PR_CLEAN_1123] 고르기 칸은 걷었다 · 표식은 삭제 주석에 남는다
+nochk '연습 전에 전체 흐름을 AI로 들어요' order-preview.html   # [PR_CLEAN_1123 2026-11-23] 고르기 칸 설명 줄 은퇴 — A 카드 설명 «끝까지 이어서 흘러요 · 두 분 차례도 AI 목소리로»
 chk 'VP_ASK_FIRST' scripts/audit/vp-ask-first.mjs 1
 # ── [VP_ASK_ONLY 2026-10-13 사장님 «담백하게 눌러져 있는 거 개선»] «어떻게 준비할까요»를 안 골랐으면 그 칸 하나만 — 입장 멘트 칩 줄(EX_CHIP_ON 눌린 모양)은 고른 뒤에
 #   하객 맞이 · 식전 영상 소개의 예시 줄 · 입장 음악 줄과 같게 · vp-ask-first 가 셋 다 잰다(안 고름 = 다른 칩 줄 0 · 입장은 고르면 담백하게 하나만 눌림)
@@ -21918,7 +21918,7 @@ nochk "'narr-closing': \[CL_THX, CL_DAY, CL_CREW\]" assets/ritual-cue.js
 # ── 2026-11-01 [PR_WAY_198 검토 198-1 · 사장님 «추천대로»] ③ 연습하기 두 길 — A 흐름 보기(② 와 같은 엔진 값 · 따로 숫자 없음) · B 직접 해보기(신랑 · 신부 · 두 분 줄만 기다림)
 chk 'PR_WAY_198' order-preview.html 20
 chk "window.prStart=function(w){ PRW=(w==='try'?'try':'flow');" order-preview.html 1
-chk "data-fk=\"prtry\" onclick=\"prStart(.'try.')\"" order-preview.html 1
+chk "(fk==='prtry'?'try':'flow')" order-preview.html 1   # [PR_CLEAN_1123] B 카드 = prPick('try')(직접 소리 내어 + 직접 해보기) · 옛 onclick prStart('try') 은퇴
 chk 'if(st.talk2) return st.both||/^(신랑|신부|두 분)$/.test(who);' order-preview.html 1
 chk 'var _wst=LP.q\[LP.i\]; if(_prWait(_wst)){ LP.wait=_wst;' order-preview.html 1
 chk "'다 했어요 · 다음 순서'):'다 했어요 · 다음 줄'" order-preview.html 1
@@ -22041,7 +22041,7 @@ chk "'양가 부모님 모두께 인사해요 · 집에서는 양쪽 방향을 �
 chk "'두 분이 양가 부모님 모두와 차례로 안아요 · 부모님은 편한 자세로 계셔도 돼요'" order-preview.html 1
 chk "(x.k==='declare'?'선언하시는':'말씀하시는')+' 분이 말하는 자리예요'" order-preview.html 1
 chk "문장 틀은 참고하되 이름 · 관계 · 경험은 " order-preview.html 2
-chk "'<span>연습 약 '+_mins+'분" order-preview.html 1
+chk "_mins?'연습 약 '+_mins+'분" order-preview.html 1   # [PR_CLEAN_1123] 연습 시간은 A 카드 덧말(.pr-hx)
 chk "'당일 '+(k==='table'?'+ ':'')+R.secTxt(sec)" order-preview.html 1   # [TABLE_PLUS_192] «당일 + 약 n분» · [B2_FIX_GEUL_30 2026-11-06] 시간은 ② 와 같은 자(_flowSec · secTxt)
 chk "'당일 예상 · 본식 '+p.body" order-preview.html 1
 chk "txt:'앞쪽 중앙에서 잔을 들고 하객을 바라봐요'" order-preview.html 1
@@ -24606,3 +24606,20 @@ chk 'MR_TO_PREP_1123' order-preview.html 4
 chk 'mksongprep' order-preview.html 1
 chk "prepGot:Object.keys(" mypage.html 1
 chk "if(_gn==='prep'){ var bp=" mypage.html 1
+# ★★[PR_CLEAN_1123 2026-11-23 사장님 «여기도 정리가 필요해 보여 · 고객 입장에서 개선해봐»] ③ 연습하기 첫 화면 — 연습 방법 고르기 칸(.pr-mode)과 시작 단추 둘을 시작 카드 둘로 합침
+#   A = «AI 목소리로 먼저 듣기»(_ptOn · AI 로 먼저 + 흐름 보기 · 처음엔 업체 알림과 준비 칸이 A 아래) 아니면 «흐름 보기로 시작» · B = «직접 소리 내어 해보기»(직접 + 직접 해보기)
+#   안내 = 머리 아래 한 줄 + «오늘 흐름» 칩 아래 «집에서는 …» 한 줄 · «재생은 디렉터가 …» 걷음 · «글로 한눈에 보기» · «음악 끄기» 한 줄 · pr-clean 이 390 · 1280 × AI 켬 · 끔 실렌더로 잰다(깨 보고 믿음: 고치기 전 판 = 빨강 7)
+chk 'PR_CLEAN_1123' order-preview.html 8
+chk "window.prPick=function(w,yes){ if(w==='try'){ prMode('self'); render(); prStart('try'); return; }" order-preview.html 1
+chk "if(_ptOn()){ if(!prMode('ai',yes)) return; render(); } prStart('flow'); };" order-preview.html 1
+chk 'data-fk="prmyes" onclick="prPick(' order-preview.html 1
+nochk 'class="pr-mode"' order-preview.html
+nochk 'data-fk="prm:' order-preview.html
+nochk '<p class="pr-role">' order-preview.html
+nochk '재생은 디렉터가, 촬영은 현장에서 안내해요.<' order-preview.html
+chk '<div class="pr-svs">' order-preview.html 1
+chk 'PR_CLEAN_1123' scripts/audit/pr-clean.mjs 1
+chk 'PR_CLEAN_1123' scripts/audit/play-wait-file.mjs 3
+chk 'PR_CLEAN_1123' scripts/audit/vc-r1-listen.mjs 3
+chk 'pr-clean' .github/workflows/merge-guard.yml 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/pr-clean.mjs >/dev/null 2>&1; _prc=$?; if [ "$_prc" = 1 ]; then echo 'FAIL pr-clean: 연습 첫 화면(시작 카드 둘 · 고르기 칸 없음 · 안내 두 줄 · 작은 단추 한 줄)이 어긋났습니다 — node scripts/audit/pr-clean.mjs'; fail=1; fi; fi

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* ★★[PR_WAY_198 검토 198-1 · 사장님 «추천대로»] ③ 연습하기 두 길 — A «흐름 보기»(자동 · ② 와 같은 엔진 값) · B «직접 해보기»(두 분 차례만 기다림)
-   ① 첫 화면 두 단추 · 동선 칩 · 역할 한 줄 · 끝 화면 «두 분 차례 직접 해보기»
+   ① 첫 화면 두 시작 카드 · 동선 칩 · 칩 아래 한 줄([PR_CLEAN_1123] 당일 역할 한 줄은 걷음) · 끝 화면 «두 분 차례 직접 해보기»
    ② 말하는 차례 큰 글(24 ~ 28px) · «신랑이 읽어요» · 서약 순서 지금 차례 강조 · 장면 영상 접기
    ③ 긴 참고 예시 설명은 첫 참고 예시 줄에서만
    ④ 하단 셋(이전 줄 · 주버튼 · 멈춤 · 44px 이상 · 360 에서 안 넘침) · «n/N · 예식 순서» 목록
@@ -83,9 +83,9 @@ try {
   const s8 = await f.evaluate(() => ({ top: !!document.querySelector('[data-fk="ops:practice"]') }));
   ok('⑧ 코스를 고른 뒤 위 «연습하기»가 눌린다', s8.top, s8);
   await f.evaluate(async () => { idx = STEPS.findIndex((x) => x.k === 'practice'); render(); await new Promise((x) => setTimeout(x, 600)); });
-  const s1 = await f.evaluate(() => ({ flow: ((document.querySelector('[data-fk="prall"] .pr-hl b') || {}).textContent || ''), tr: ((document.querySelector('[data-fk="prtry"] b') || {}).textContent || ''),
-    chips: document.querySelectorAll('.pr-fcs .pr-fc').length, role: ((document.querySelector('.pr-role') || {}).textContent || ''), mu: !!document.querySelector('[data-fk="prmu"]') }));
-  ok('① 첫 화면 두 단추 «흐름 보기로 시작» · «직접 해보기로 시작» · 동선 칩 · 역할 한 줄', s1.flow === '흐름 보기로 시작' && s1.tr === '직접 해보기로 시작' && s1.chips >= 4 && s1.role === '재생은 디렉터가, 촬영은 현장에서 안내해요.' && s1.mu, s1);
+  const s1 = await f.evaluate(() => ({ flow: ((document.querySelector('[data-fk="prall"] .pr-hl b') || {}).textContent || ''), tr: ((document.querySelector('[data-fk="prtry"] .pr-hl b') || {}).textContent || ''),
+    chips: document.querySelectorAll('.pr-fcs .pr-fc').length, role: !!document.querySelector('.pr-role'), home: !!document.querySelector('.pr-flow .pr-home'), mu: !!document.querySelector('[data-fk="prmu"]') }));
+  ok('① 첫 화면 두 시작 카드 «흐름 보기로 시작» · «직접 소리 내어 해보기» · 동선 칩 · 칩 아래 «집에서는 …» 한 줄(당일 역할 한 줄은 걷음 [PR_CLEAN_1123])', s1.flow === '흐름 보기로 시작' && s1.tr === '직접 소리 내어 해보기' && s1.chips >= 4 && !s1.role && s1.home && s1.mu, s1);
   if (SHOT) await pg.screenshot({ path: SHOT.replace(/\.png$/, '') + '-start.png', fullPage: false });
   const q = await f.evaluate(async () => { prStart('try'); await new Promise((x) => setTimeout(x, 900)); const Q = LP.q;
     const cheer = Q.filter((x) => x.k === 'toast' && x.cheer);
