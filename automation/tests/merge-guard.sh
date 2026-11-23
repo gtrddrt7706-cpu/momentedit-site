@@ -22476,7 +22476,7 @@ nochk "S\.guide ?" assets/ritual-cue.js   # 하객 안내 조건은 gOn(S) 하�
 chk 'MEAL_GO_1102' order-preview.html 3
 chk 'MEAL_GO_1102' mypage.html 2
 chk "window.clGo=function(to){ if(!EMBED) return;" order-preview.html 1
-chk "if(d.type==='momentedit:orderGoTo'){ _goNext=(d.to==='dining')?'dining':''; return; }" mypage.html 1
+chk "if(d.type==='momentedit:orderGoTo'){ _goNext=(d.to==='dining'||d.to==='prep')?d.to:''; return; }" mypage.html 1   # [MEAL_GO_1102] · ★[MR_TO_PREP_1123] prep 도 받는다(옛 기대 «dining 만» 은퇴)
 chk "if(d.type==='momentedit:orderExitHold'){ if(!d.on) _goNext='';" mypage.html 1
 # ★[PV_FOOT_MIN_1102 사장님 «여기 부분 미니멀하게 정리가 필요해 보여» → «추천대로»] ① 미리 보기 창 아래 — 장면 사진은 글 고리 · 위 선 없음 · «늘 있는 순간이에요» 없음 · «다시 듣기»는 아래 줄 그대로
 chk 'PV_FOOT_MIN_1102' order-preview.html 3
@@ -23005,7 +23005,7 @@ chk '신부 글만 바꿨어요 · 신랑은 그대로' order-preview.html 1   #
 chk 'function _refOne(sets,i)' order-preview.html 1
 chk "c===3?\['마이크를 열지 못했어요','연결과 앱을 확인해요','연결과 앱을 확인해요'\]" order-preview.html 1   # B2_GEUL_12 M3(까닭 단정 없음 · 360 한 줄)
 nochk ":c===3?\['다른 앱이 마이크를 써요'" order-preview.html 0
-chk "반주 파일과 곡 이름은 카톡이나 메일로 보내 주세요." order-preview.html 1   # B2_GEUL_13
+chk "반주 파일과 곡 이름은 카톡이나 메일로 보내 주세요." order-preview.html 1   # B2_GEUL_13   # [MR_TO_PREP_1123] 마이페이지 밖 미리보기에만 남는다
 chk "data-fk=\\\"mksongkakao\\\"" order-preview.html 1
 chk '흐름을 불러오는 데 오래 걸려요' order-preview.html 2   # B2_GEUL_14
 chk 'var ENG_TO_MS=40000;' order-preview.html 1
@@ -24600,3 +24600,9 @@ chk 'id="prepfile"' privacy.html 1
 chk '2026년 11월 23일 (예식 준비 파일 항목 추가' privacy.html 1
 chk 'PRIV_PREP_1123' mypage.html 5
 chk 'PRIV_PREP_1123' scripts/audit/prep-hub.mjs 2
+
+# ★★[MR_TO_PREP_1123 2026-11-23 사장님 «아직도있는데?»] 빌더 축가 «보낼 것» — 마이페이지 안에서는 «준비할 것»이 받는다(카톡 · 메일 · 손 «보냈어요» 대신 «준비할 것 열기» · 받으면 «받았어요»)
+chk 'MR_TO_PREP_1123' order-preview.html 4
+chk 'mksongprep' order-preview.html 1
+chk "prepGot:Object.keys(" mypage.html 1
+chk "if(_gn==='prep'){ var bp=" mypage.html 1

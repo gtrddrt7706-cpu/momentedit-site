@@ -43,6 +43,26 @@ try {
     ok(errors.length === 0, 'JS 오류 0건', errors.slice(0, 2).join(' | '));
     await page.close();
   }
+  /* ★[MR_TO_PREP_1123] 빌더 축가 «보낼 것» — 마이페이지 안에서는 카톡 · 메일 · 손 «보냈어요» 대신 «준비할 것 열기» · 누르면 저장하고 나가 «준비할 것»이 열린다 · 받은 뒤엔 «받았어요» */
+  for (const got of [false, true]) {
+    const { page, errors } = await eng.newPage({ port: PORT, viewport: { width: 390, height: 844 } });
+    await page.goto(`http://localhost:${PORT}/mypage.html`, { waitUntil: 'load' }); await wait(900);
+    const S1 = JSON.parse(JSON.stringify(S0)); S1.on.song = 1;
+    const st = JSON.parse(JSON.stringify(seed)); st.production.ritualDraft = { _v: 3, S: S1 }; if (got) st.production.prepFiles = { mr: { id: 'F1', name: 'mr.mp3', at: '2026-11-23 10:00' } };
+    await page.evaluate((st) => { window.apiTrackSave = (b) => Promise.resolve({ ok: true, draft: b.draft }); window.loadMyState = (o) => { try { renderMyPage(st); } catch (e) {} if (o && o.done) o.done(); }; window.__msgs = []; window.addEventListener('message', (e) => { try { window.__msgs.push(e.data && e.data.type); } catch (x) {} }); show('mypageView'); renderMyPage(st); openRitualBuilder(st.production, null, { at: 'mk:song' }); }, st);   // 서버 없이 — 저장 성공 · 다시 불러오기만 흉내
+    let r = null; for (let t = 0; t < 40; t++) { await wait(250); r = await page.evaluate(() => { const f = document.getElementById('mp_obFrame'); try { const d = f && f.contentDocument; if (!d || !f.contentWindow._mkRO || f.contentWindow._mkRO().at !== 'song') return null; return { prep: !!d.querySelector('[data-fk="mksongprep"]'), kakao: !!d.querySelector('[data-fk="mksongkakao"]'), sent: /보냈어요/.test(d.body.innerText), recv: /받았어요/.test(d.body.innerText) }; } catch (e) { return { err: String(e) }; } }); if (r) break; }
+    if (process.env.PFM_SHOT) { try { await page.evaluate(() => { const d = document.getElementById('mp_obFrame').contentDocument; const el = d.querySelector('[data-fk="mksongprep"]') || [...d.querySelectorAll('.mk-vt')].find((x) => /반주/.test(x.textContent)); if (el) el.scrollIntoView({ block: 'center' }); }); await wait(300); await page.screenshot({ path: process.env.PFM_SHOT + '-mr-' + (got ? 'got' : 'need') + '.png' }); } catch (e) {} }
+    if (!got) ok(!!r && r.prep && !r.kakao && !r.sent && !r.recv, '빌더 축가 «보낼 것» = «준비할 것 열기» · 카톡 · 메일 · 손 «보냈어요» 없음 [MR_TO_PREP_1123]', JSON.stringify(r));
+    else ok(!!r && !r.prep && !r.kakao && r.recv, '반주를 받았으면 «받았어요» · 올리라는 줄 없음 [MR_TO_PREP_1123]', JSON.stringify(r));
+    if (!got && r && r.prep) {
+      await page.evaluate(() => { const f = document.getElementById('mp_obFrame'); f.contentDocument.querySelector('[data-fk="mksongprep"]').click(); });
+      let ov = false; for (let t = 0; t < 120 && !ov; t++) { await wait(250); ov = await page.evaluate(() => { try { const w = document.getElementById('mp_obFrame'); const d = w && w.contentDocument; const yes = d && [...d.querySelectorAll('button')].find((b) => /^저장하고 나가기$/.test(b.textContent.trim()) && b.offsetParent); if (yes) yes.click(); } catch (e) {} return !!document.getElementById('mp_prepOverlay') && !document.getElementById('mp_obFrame'); }); }   // 바뀐 것이 있으면 «저장하고 나갈까요?» — «저장하고 나가기»를 골라도 «준비할 것»이 열려야 한다
+      const dbg = await page.evaluate(() => ({ msgs: (window.__msgs || []).slice(-8), emb: (() => { try { const w = document.getElementById('mp_obFrame').contentWindow; return [w.EMBED, typeof w.clGo, w._obExiting, w._xBusy, w._autoWait, w._ordOv ? ('ov:' + String(w._ordOv.innerText || '').replace(/\s+/g, ' ').slice(0, 120)) : '', w.courseStarted]; } catch (e) { return String(e); } })(), fr: !!document.getElementById('mp_obFrame'), hub: !!document.getElementById('mp_prepHub'), ov: !!document.getElementById('mp_prepOverlay'), toast: (document.querySelector('.mini-toast,#mpToast,.toast')||{}).textContent||'' }));
+      ok(ov, '«준비할 것 열기» → 빌더를 닫고 마이페이지 «준비할 것»이 열린다 [MR_TO_PREP_1123]', JSON.stringify(dbg));
+    }
+    ok(errors.length === 0, 'JS 오류 0건(축가 보낼 것)', errors.slice(0, 2).join(' | '));
+    await page.close();
+  }
   /* ★[PREP_GO_MK_1123] «준비할 것» 출처 줄 → at:'mk:<순간>' 로 연 빌더는 ② 그 순간 쪽에서 시작 · 없는 순간이면 그 자리(오류 0) */
   { const { page, errors } = await eng.newPage({ port: PORT, viewport: { width: 390, height: 844 } });
     await page.goto(`http://localhost:${PORT}/mypage.html`, { waitUntil: 'load' }); await wait(900);
