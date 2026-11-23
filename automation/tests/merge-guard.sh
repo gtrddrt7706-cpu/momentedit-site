@@ -24615,3 +24615,9 @@ chk 'function _mkRefBody(k)' order-preview.html 1
 chk "if(!_fill) return h+'</section>';" order-preview.html 1
 chk 'data-tx="'"'"'+sp.id+'"'"'"' order-preview.html 1
 nochk 'if(!_sayOn) h+=_mkRef(k);' order-preview.html
+# ★★[REF_WHO_FIRST_1123 2026-11-23 전수점검 «스텝바이스텝»] 덕담 · 축사 기본 예시는 고른 분 몫부터 — 덕담 첫째 분 «신랑 아버님 차례» 아래 «신부 아버지» 예시가 뜨던 어긋남
+#   첫 말하는 분이 같은 예시 → 없으면 그분이 들어 있는 예시 → 없으면 종전 기본 · 두 분이 직접 고른 예시(LS.ref)는 그대로 · 실렌더 검사 scripts/audit/ref-who-first.mjs(CI bgm-sound 칸 f)
+chk 'REF_WHO_FIRST_1123' order-preview.html 1
+chk 'REF_WHO_FIRST_1123' scripts/audit/ref-who-first.mjs 1
+chk "if(v==null&&(k==='bless'||k==='free')){ var _sw='';" order-preview.html 1
+chk 'one-flow walk-preview-match ref-who-first' .github/workflows/merge-guard.yml 1
