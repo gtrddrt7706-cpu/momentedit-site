@@ -1519,7 +1519,7 @@ nochk '예약금 100,000원 송금' api/_kb.js 0
 nochk '예약금 100,000원 송금' assets/advisor-kb.js 0
 chk 'PRIV_REP_EMAIL_1119' privacy.html 2          # [2026-11-19 대표님 «추천대로» · DEC4] 필수 항목 «대표 이메일» · 맨 위 개정일
 nochk '대표 연락처(휴대전화), 신랑·신부 이메일' privacy.html 0
-chk '직전 개정 2026년 11월 14일 (식중 영상 항목 추가' privacy.html 1
+chk '그 전 개정 2026년 11월 14일 (식중 영상 항목 추가' privacy.html 1   # ★[PRIV_PREP_1123] 11/23 개정이 맨 위로 오며 이름표가 한 칸씩 내려갔다(직전 11/19 · 그 전 11/14 · 그보다 전 10/31 · 이전 10/8)
 chk 'CAL_OPEN_FLOOR' inquiry.html 2             # [2026-11-19 NIGHT20 #13 R3 · 대표님 결정 대기] 달력은 오픈일(2027-04-29) 전 날짜를 못 고른다
 chk 'SLOT_SUB_ARRIVE' assets/sequence-modal.js 1 # [2026-11-19 NIGHT20 #13 R3 · 대표님 결정 대기] 시간표 탭 아랫줄은 «도착» 시각
 chk 'KAKAO_LINK_INQ' inquiry.html 4             # [2026-11-19 NIGHT20 #13 R3 · 대표님 결정 대기] «카카오톡으로 문의» 자리에 채널 링크 · 없는 전화 안내 걷음
@@ -24594,3 +24594,9 @@ chk 'DUCK20_1122' scripts/audit/no-relift.mjs 2
 chk 'WALK_PREVIEW_MATCH_1123' assets/bgm-bed.js 1
 chk "if(_lv&&_lv.walkDuck!=null&&_lv.doing==='move') db=_lv.walkDuck;" assets/bgm-bed.js 1
 chk 'walk-preview-match' .github/workflows/merge-guard.yml 1
+# ★★[PRIV_PREP_1123 2026-11-23 대표님 «개인정보처리방침 확인 너가 판단해서 보수적으로»] «준비할 것»(PREP_HUB_1123) 파일 · 원고 — 처리방침 수집 줄(#prepfile) · 이용 목적 · 보관(파일 예식 뒤 30일) · 개정 이력 · 보낼 때 그 자리에서 동의(눌린 채 아님) — 실행 검사 prep-hub C
+chk 'PRIV_PREP_1123' privacy.html 3
+chk 'id="prepfile"' privacy.html 1
+chk '2026년 11월 23일 (예식 준비 파일 항목 추가' privacy.html 1
+chk 'PRIV_PREP_1123' mypage.html 5
+chk 'PRIV_PREP_1123' scripts/audit/prep-hub.mjs 2
