@@ -5247,6 +5247,10 @@ var ASK_SCRIPT={bless:{id:'bless.p',nm:'받은 덕담 원고',fk:'mkbsite',site:
   free:{id:'free.p',nm:'받은 축사 원고',fk:'mkfsite',site:'원고 없이 현장에서 바로 하실 거예요',hd:'축사 원고'}};
 function _askScript(q){ if(!q||q.cat!=='ask') return null; if(q.k==='bless') return ASK_SCRIPT.bless;
   if(q.k==='free'&&RitualOpen.FREE_KIND[RitualOpen.chipOf('free',S)]==='speech') return ASK_SCRIPT.free; return null; }
+/* ★★[MR_TO_PREP_1123 2026-11-23 사장님 «아직도 있는데?» — 빌더 축가 «보낼 것»이 카톡 · 메일 · «보냈어요»(손 표시)로 남아 있었다] 마이페이지 안(EMBED)에서는 «준비할 것»(PREP_HUB_1123)이 반주 파일을 받는다.
+   줄 = 마감 그대로 · 오른쪽은 받았을 때만 «받았어요»(서버가 알린 CUST.prepGot) · 아래 한 줄 «마이페이지 «준비할 것»에서 올려 주세요» + [준비할 것 열기](저장하고 나가 그 화면을 연다) · 마이페이지 밖 미리보기는 옛 카톡 · 메일 그대로(올릴 길이 없다) */
+function _mrHub(q){ return !!q&&q.cat==='send'&&q.k==='song'&&EMBED; }
+function _mrGot(){ return !!(CUST&&(CUST.prepGot||[]).indexOf('mr')>-1); }
 function _mkItemDone(q){ var c=_mkChk(), _sp=_askScript(q);
   if(_sp&&c[q.id]==='site') return !!_cueGet(q.id);   /* ★[SITE_CUE_FIRST_1101 식순 걷기 4라운드 1] «원고 없이 현장에서»면 붙여 둔 원고가 있어도 끝 신호로만 판정 — 원고(숨김)가 있다고 다 됨으로 셌다 */
   if(_sp&&String((S.tx||{})[_sp.id]||'').trim()) return true;   // [R1-01] 받은 원고를 붙였으면 부탁은 끝난 것 · [SPEECH_SCRIPT] 덕담 · 축사
@@ -5255,6 +5259,7 @@ function _mkItemDone(q){ var c=_mkChk(), _sp=_askScript(q);
   if(q.up) return !!(S.up&&S.up[q.up])&&!_upStale(q.up)&&!_rfLost(q.up);   /* [R7-01] 읽는 분이 바뀐 줄도 미완료 */   /* ★[DONE_NOT_GONE 2026-10-30] 없다고 확인된 소리(_rfGone 의 «서버에 없음» · 마이페이지 안에서 «이 기기에도 없음»)는 파일 정보가 남아 있어도 다 됨으로 세지 않는다 — 머리 단추(RF_GONE_REMAKE «목소리 만들기»)와 같은 까닭.
      마이페이지 밖 미리보기(EMBED 아님)의 «이 기기에 없어요»는 받아 올 길이 없는 것이지 없는 것이 아니라 세지 않는다 */   // [R1-02] 글을 고친 AI 줄은 다시 만들 때까지 미완료
   if(q.cat==='send'&&q.k==='prevideo'&&_linkOk(S.growthLink)) return true;
+  if(_mrHub(q)) return _mrGot();   /* ★[MR_TO_PREP_1123] 마이페이지 안에서는 축가 반주를 «준비할 것»이 받는다 — 받은 것(서버 prepFiles.mr)만 다 됨 · 손으로 누르는 «보냈어요»는 걷었다 */
   if(_sp&&c[q.id]==='site') return !!_cueGet(q.id);   // [CUE_SIG] 원고 없이면 끝 신호까지 · [SPEECH_SCRIPT]
   return !!c[q.id]; }
 /* 할 일 — 세는 것만(챙길 것 · 부모님께 인사 칸은 세지 않는다) */
@@ -5692,10 +5697,12 @@ function _mkPrep(k){ var R=RitualOpen, items=_mkItems(k), wed=(CUST&&CUST.weddin
       var _sp=_askScript(q), _bSiteRow=!!_sp&&c[q.id]==='site';   /* [SPEECH_SCRIPT] 덕담 · 축사 */   /* [R7-02] «원고 없이»면 원고 부탁 줄(글 · 마감 · 표시)을 그리지 않는다 — 받지 않을 원고의 마감을 알리고 «✓ 현장에서 하세요»가 아래 체크칸을 되풀이했다.
          [R5-01] 그래서 그동안 «부탁드렸어요» 단추가 같은 칸을 덮어써 체크를 말없이 풀 길도 없다 · 체크를 풀면 줄이 다시 나온다 · 완료 판정은 그대로(_mkItemDone) */
       var tg=cat==='ask'?_mkTg(q.id,c[q.id]==='asked'||c[q.id]===1,'부탁드렸어요','asked')
+        :(cat==='send'&&_mrHub(q))?(_mrGot()?'<span class="mk-tg on auto"><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>받았어요</span>':'')   /* [MR_TO_PREP_1123] */
         :cat==='send'?(q.k==='prevideo'?'<span class="mk-tg on auto" id="mkPvOk"'+(_linkOk(S.growthLink)?'':' style="display:none"')+'><span class="mk-mk" aria-hidden="true">'+ICO_CHECK+'</span>링크 받았어요</span>':_mkTg(q.id,!!c[q.id],'보냈어요')):'';   // [PREVIDEO_FREE] 식전 영상은 링크 칸 하나 — «보냈어요» 손 표시 없음
       var wt=String(q.what), tl=wt.split(' · ').slice(1).join(' · '); if(cat==='bring'&&tl&&gn.indexOf(tl)>-1) wt=wt.split(' · ')[0];   // [MK_MIN] «케이크 · 크기 · 도착 시각은 상담 때…» — 칩 아래 안내가 이미 말한다
       if(!_bSiteRow) h+='<li class="mk-vr'+(cat!=='bring'&&done?' ok':'')+'"><span class="mk-vt"><span class="mk-vn">'+esc(_ndd(wt))+'</span>'+(due?'<span class="mk-vs">'+esc(_ndd(due))+'</span>':'')+'</span>'+tg+'</li>';   /* [R7-02] */
-      if(cat==='send'&&q.k==='song'&&!done) h+='<li class="mk-vsend"><div class="send-how"><p>반주 파일과 곡 이름은 카톡이나 메일로 보내 주세요.</p><span class="send-b"><a class="rowbtn" data-fk="mksongkakao" href="'+SEND_KAKAO+'" target="_blank" rel="noopener">카톡으로 보내기</a><a class="rowbtn" data-fk="mksongmail" href="mailto:'+SEND_MAIL+'?subject='+encodeURIComponent('[예식 파일] 축가 반주(MR)')+'">메일로 보내기</a></span></div></li>';   /* ★[B2_GEUL_13] 축가 «보낼 것»에 보낼 곳이 없었다 — MR 줄 아래 한 줄 + 연락 길(SEND_KAKAO · SEND_MAIL 그대로) · 마감(3일 전)은 위 줄 · «보냈어요»는 두 분 표시(파일 접수 완료 아님) · 보냈어요를 누르면 숨김 */
+      if(cat==='send'&&_mrHub(q)&&!done) h+='<li class="mk-vsend"><div class="send-how"><p>반주 파일은 마이페이지 «준비할 것»에서 올려 주세요.</p><span class="send-b"><button type="button" class="rowbtn" data-fk="mksongprep" onclick="clGo(\'prep\')">준비할 것 열기</button></span></div></li>';   /* ★[MR_TO_PREP_1123] 저장하고 나가 마이페이지 «준비할 것»을 연다(orderGoTo prep) */
+      else if(cat==='send'&&q.k==='song'&&!EMBED&&!done) h+='<li class="mk-vsend"><div class="send-how"><p>반주 파일과 곡 이름은 카톡이나 메일로 보내 주세요.</p><span class="send-b"><a class="rowbtn" data-fk="mksongkakao" href="'+SEND_KAKAO+'" target="_blank" rel="noopener">카톡으로 보내기</a><a class="rowbtn" data-fk="mksongmail" href="mailto:'+SEND_MAIL+'?subject='+encodeURIComponent('[예식 파일] 축가 반주(MR)')+'">메일로 보내기</a></span></div></li>';   /* ★[B2_GEUL_13] 축가 «보낼 것»에 보낼 곳이 없었다 — MR 줄 아래 한 줄 + 연락 길(SEND_KAKAO · SEND_MAIL 그대로) · 마감(3일 전)은 위 줄 · «보냈어요»는 두 분 표시(파일 접수 완료 아님) · 보냈어요를 누르면 숨김 */
       /* ★흐름 밖 «원고 없이 …» 체크 + «받은 원고를 여기에 붙여 주세요» 글칸 + 글자 수(li.mk-vx · .mk-txh.mk-bsh · .mk-fl) 따로 덩어리 금지 — 2026-11-23 사용자 지시로 삭제 · 되살리지 말 것 [SAY_INLINE_VIEW_1123]
          흐름의 «말씀하실 차례» 줄 아래로 옮겼다(_mkViewLi · _mkScrTa) — 저장 칸(S.tx[_sp.id]) · 체크(S.mkc 'site') · 끝 신호(_cueBox) · 대본 안내(R4-02)는 그대로 · [BLESS_CK_TOP] 체크는 차례 줄 오른쪽 끝 · [QA_BLESS_CNT] 글자 수 · 초는 글칸 아래 회색 한 줄 */
       if(cat==='send'&&q.k==='prevideo'){
