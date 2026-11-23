@@ -10432,7 +10432,7 @@ chk 'NOTE_OFF_1003' order-preview.html 4
 nochk "ai:'각자 1분쯤 소리 내어 읽으면" order-preview.html   # ★칩 아래 AI 설명 금지 — 2026-10-03 사용자 지시로 삭제
 nochk "'멘트를 바꾸면 두 분 목소리 입장 인사도 아래에서 다시 만들어 주세요.'" order-preview.html   # ★금지 — 2026-10-03 사용자 지시로 삭제(R8-03 이 같은 말)
 chk 'MK_FORM_ONE' order-preview.html 6
-chk "h+=_mkFlow(k,(_pn>=2&&!_scn)?lb:'');" order-preview.html 1   # [ONE_PLAY_1013] ② 입장에 곡을 골라 장면이 서면 «이 순간 전체 듣기»는 장면 알약 하나(MK_FORM_ONE 의 그 알약 · 음악과 함께)
+chk "h+=_mkFlow(k,(_pn>=2&&!_scn)?lb:''," order-preview.html 1   # [SAY_INLINE_1123] 셋째 인자(흐름 위 참고 예시 · 왜 적는지)가 붙었다 · 알약 자리는 그대로   # [ONE_PLAY_1013] ② 입장에 곡을 골라 장면이 서면 «이 순간 전체 듣기»는 장면 알약 하나(MK_FORM_ONE 의 그 알약 · 음악과 함께)
 nochk "(gs.some(function(g){ return !g.q; })||_pn<2)?'':lb" order-preview.html   # ★«칩이 있으면 들어 보기 숨김» 금지 — 2026-10-03 사용자 지시로 삭제
 nochk "'<b>두 분 번갈아</b> · 약 '" order-preview.html   # ★차례 줄 길이 금지 — 2026-10-03
 chk 'MK_FORM_ONE' scripts/audit/mk-form-one.mjs 4
@@ -16477,7 +16477,7 @@ chk 'PHRASE_NO_DEAD' scripts/audit/phrase-reload.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/phrase-reload.mjs >/dev/null 2>&1; _pr=$?; if [ "$_pr" = 1 ]; then echo 'FAIL phrase-reload: 확인 문장 막다른 길 · 새로고침이 어긋났습니다 — node scripts/audit/phrase-reload.mjs'; fail=1; fi; fi
 # ★[PREP_FOLD_OFF 2026-10-05 사장님 «준비할 것 N가지 · 도와주실 분 N — 일단 여기서는 안 보이게»] 마이페이지 식순 줄 아래 접힘을 잠시 끈다(사장님이 다시 켜라 하기 전까지)
 chk 'var PREP_FOLD_OFF=true;' mypage.html 1
-chk '준비 목록은 «연습 · 준비 ›»가 여는 연습 화면으로 옮겼다' mypage.html 1   # [PR_PREP_ONE 2026-10-07] 줄 아래 준비 목록 → 연습 화면(사장님 «연습 · 준비 하나로»)
+nochk '준비 목록은 «연습 · 준비 ›»가 여는 연습 화면으로 옮겼다' mypage.html 0   # ★[PRACTICE_ONLY_1123] 옛 기대 은퇴 · 준비 목록은 예식 준비 «준비할 것» 줄 한 곳
 # ★[RELOAD_KEEP_AT 2026-10-05 사장님 «두 분 목소리에서 새로고침하면 이전 화면으로 간다»] orderFill(AI 스위치)을 받기 전에는 «두 분 목소리» 자리를 첫 쪽으로 덮어쓰지 않는다
 chk 'RELOAD_KEEP_AT' order-preview.html 3
 chk 'if(!_atWait){ m.at=k; m.seen\[k\]=1; }' order-preview.html 1
@@ -16509,7 +16509,7 @@ chk 'PREP_LINK' mypage.html 6
 chk 'PR_PREP_ONE' mypage.html 2
 nochk "_ritPre2={id:'mp_ritualPrep', label:'준비할 것'" mypage.html
 chk 'PR_PREP_FOLD' order-preview.html 2
-chk 'function _prPrepFold()' order-preview.html 1
+nochk 'function _prPrepFold()' order-preview.html 0   # ★[PRACTICE_ONLY_1123] 연습 화면 «준비할 것» 접이 삭제(사장님 «진짜 연습만»)
 # ★[LINE_CARD 2026-10-05 사장님 «섹션마다 배경으로 구분 · 지금은 구분 없이 정신없다» → «추천대로»] 줄 묶음(적는 칸)만 흰 카드 · 순간 사이 가로선 → 여백
 chk 'LINE_CARD' order-preview.html 3
 chk '^\.mk-slc{background:var(--card);border:1px solid var(--border);border-radius:12px' order-preview.html 1   # [CARD_POLISH] 카드는 줄 + «＋ 줄 더하기»를 함께 감싼다(.mk-slc)
@@ -16610,7 +16610,7 @@ nochk '<h4>어떻게 볼까요</h4>' order-preview.html
 # ★[PR_FROM_MYPAGE 2026-10-05 사장님 «여기서 미리듣기 이것도 연습하기로 바꾸기»] 마이페이지 식순 줄 보조 단추 = «연습하기» → 빌더 ③ 으로 연다
 chk 'PR_FROM_MYPAGE' mypage.html 3
 chk 'PR_FROM_MYPAGE' order-preview.html 2
-chk "_ritPre={id:'mp_ritualPreview', label:'연습 · 준비 ›'};" mypage.html 1   # [PR_PREP_ONE 2026-10-07]
+chk "_ritPre={id:'mp_ritualPreview', label:'연습 ›'};" mypage.html 1   # [PR_PREP_ONE 2026-10-07] · ★[PRACTICE_ONLY_1123] «연습 · 준비 ›» → «연습 ›»
 nochk "_ritPre={id:'mp_ritualPreview', label:'미리듣기'};" mypage.html
 chk 'PR_FROM_MYPAGE' scripts/audit/pr-from-mypage.mjs 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-from-mypage.mjs >/dev/null 2>&1; _pfm=$?; [ "$_pfm" = 1 ] && { echo 'FAIL pr-from-mypage: 마이페이지 «연습하기»가 빌더 ③ 연습하기로 열리지 않습니다 — node scripts/audit/pr-from-mypage.mjs'; fail=1; }; fi
@@ -17686,7 +17686,7 @@ chk 'STAGE_LINES' scripts/audit/stage-lines.mjs 1
 #   깨 보고 믿음: A 없는 화면에 flow-thread 를 돌리면 50건 빨강 · 종료 코드 1
 chk 'FLOW_THREAD' order-preview.html 7
 chk ".mk-flow>li::before{content:'';position:absolute;left:17px;top:0;bottom:0;width:1px" order-preview.html 1
-chk 'function _qRow(t,key)' order-preview.html 1   # [LISTEN_PACE_1031] key = 줄 자리(지금 · 지나감 표시)
+chk 'function _qRow(t,key' order-preview.html 1   # [SAY_INLINE_1123] 셋째 인자 ex(«두 분 함께» 끝 문장)가 붙었다   # [LISTEN_PACE_1031] key = 줄 자리(지금 · 지나감 표시)
 nochk '.mk-flow li.q{color:var(--light);font-size:12.5px' order-preview.html
 nochk "if(x.quiet){ h+='<li class=\"q\">'+esc(x.txt)" order-preview.html
 nochk "h+='<li class=\"t\">'+_vTag(k,{talk:true})+'<b>" order-preview.html
@@ -23021,7 +23021,7 @@ nochk "track === 'ritual' ? '서약 · 편지'" automation/platform/80_productio
 chk '/너무 길어요|글이 많아/.test(_saveErr)' order-preview.html 1
 chk 'var EX_NAMES_SOFT=' order-preview.html 1   # B2_GEUL_17
 chk '예시 이름이 남았는지 확인해 주세요' order-preview.html 1
-chk '나중에 마이페이지 식순의 «연습 · 준비»에서 연습해요' order-preview.html 1   # B2_GEUL_20
+chk '나중에 마이페이지 식순의 «연습»에서 다시 해 볼 수 있어요' order-preview.html 1   # B2_GEUL_20 · [PRACTICE_ONLY_1123]
 nochk '마이페이지 «연습하기»에서 해도 돼요' order-preview.html 0
 chk '응답을 확인하지 못했어요 · 다시 눌러 주세요' order-preview.html 2   # B2_GEUL_28 EC_BASE · VC_DOWN_W
 nochk '서버가 잠깐 멈췄어요' order-preview.html 0
@@ -24497,6 +24497,19 @@ chk 'body.mkd .prog{position:sticky;top:-5px;' order-preview.html 1
 # ★[PV_BED_QUIET_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정 · 안 A] 음악까지 미리듣기 — 예시 음악(@PV) 파일이 없으면 빨간 고장 줄 없이 조용히(PREVIEW_BED 머리말 그대로)
 chk 'PV_BED_QUIET_N06' console.html 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/pv-bed-quiet.mjs >/dev/null 2>&1; _pb=$?; node scripts/audit/pv-bed-quiet.mjs --selftest >/dev/null 2>&1; _pbs=$?; if [ "$_pb" != 0 ] || [ "$_pbs" != 0 ]; then echo "REVERT? pv-bed-quiet: 미리듣기 예시 음악이 없을 때 빨간 줄이 다시 선다 ($_pb/$_pbs) — node scripts/audit/pv-bed-quiet.mjs"; fail=1; else echo 'ok pv-bed-quiet'; fi; fi
+# ★★[SAY_INLINE_1123 2026-11-23 사장님 «너의 추천대로하고 전부 적용»(3안 · 흐름에서 바로)] «두 분이 할 말» 따로 상자를 걷고 글을 흐름 «신랑 차례 · 신부 차례» 줄 바로 아래에(감사 인사 · 감사문 · 서약 두 판 · 편지 · 부모님께 인사 · 축배)
+#   참고 예시 칩 줄 · 왜 적는지 한 줄은 흐름 위 · 예시 이름 알림 + «n자 · 약 n초» 한 줄 · 4줄 넘으면 접힘 · 떠나면 가라앉고 알림 한 줄 · 저장 자리(S.tx · S.mkc · S.cueSig)는 그대로 · 상자가 돌아오면 빨강
+chk 'SAY_INLINE_1123' order-preview.html 12
+chk 'SAY_INLINE_1123' scripts/audit/say-inline.mjs 2
+chk 'function _mkSayRows(k,key)' order-preview.html 1
+chk 'function _mkSayLi(k,kind,w,lab,key,last)' order-preview.html 1
+chk "h+=_mkSayRows(k,k+':'+i);" order-preview.html 1
+chk 'onfocus="mkSayIn(this)" onblur="mkSayOut(this)"' order-preview.html 2
+chk '<p class="mk-saym"><span class="mk-exw" id="mkw_' order-preview.html 2
+nochk 'class="mk-sec mk-say"' order-preview.html
+nochk '<h4 id="mkSay">두 분이 할 말</h4>' order-preview.html
+nochk 'onblur="mkSayOut(this)">.*저장했어요' order-preview.html
+if command -v node >/dev/null 2>&1; then node scripts/audit/say-inline.mjs >/dev/null 2>&1; _si=$?; node scripts/audit/say-inline.mjs --selftest >/dev/null 2>&1; _sis=$?; if [ "$_si" = 1 ] || [ "$_sis" = 1 ]; then echo "REVERT? say-inline: 두 분이 할 말이 흐름 차례 줄 아래가 아니다(검사 $_si · 자기 시험 $_sis) — node scripts/audit/say-inline.mjs [SAY_INLINE_1123]"; fail=1; else echo "ok say-inline ($_si · 자기 시험 $_sis) [SAY_INLINE_1123]"; fi; fi
 # ★[PREVIEW_LOGIN_1122 2026-11-22 대표님 «로그인해야 확인할 수 있게 · 신랑 신부는 아이디 공유»] 예식 미리 듣기는 로그인한 두 분(또는 관리자)만 · 없으면 마이페이지 로그인 → 돌아오기
 chk 'PREVIEW_LOGIN_1122' console.html 1
 chk 'PREVIEW_LOGIN_1122' mypage.html 5
@@ -24561,6 +24574,14 @@ chk 'SONG_PICK_RING_1123' scripts/audit/detail-r1.mjs 2
 # ★[SUB_JOSA_1123] «‹곡›이 대신» → «‹곡› 곡이 대신»(‹Summer›이 처럼 곡 이름 따라 조사가 틀림) — 줄 아래 · 미리 듣기 알림 둘 다
 nochk '›이 대신 흘러요' assets/bgm-bed.js 0
 chk '› 곡이 대신 흘러요' assets/bgm-bed.js 2
+
+# ★★[PRACTICE_ONLY_1123 2026-11-23 사장님 «연습 준비 이것을 좀 덜어내자 · 진짜 연습만»] 마이페이지 식순 줄 «연습 ›» · 연습 화면에 «준비할 것» 접이 없음(준비 목록은 예식 준비 «준비할 것» 줄 PREP_HUB_1123 한 곳)
+nochk '+_prPrepFold()' order-preview.html 0
+nochk "label:'연습 · 준비 ›'" mypage.html 0
+chk 'PRACTICE_ONLY_1123' scripts/audit/pr-from-mypage.mjs 1
+# ★[PREP_GO_MK_1123] «준비할 것» 출처 줄(ritual:<순간>) → 빌더 그 순간 쪽 — mypage _prhGo at:'mk:<k>' · order-preview orderFill 이 받는다
+chk "openRitualBuilder(p, inv, {at:'mk:'+go.slice(7)})" mypage.html 1
+chk 'PREP_GO_MK_1123' order-preview.html 1
 chk 'DUCK20_1122' scripts/audit/entry-nofile-1115.mjs 3   # [DUCK20_1122] lane g — 입장 멘트 아래 말 아래 표준 −20
 chk 'DUCK20_1122' scripts/audit/seam-bg.mjs 5   # [DUCK20_1122] lane e — 말 아래 −20 기대
 chk 'DUCK20_1122' scripts/audit/seam-b2.mjs 1   # 음09 · 음10 — 시험만 나레이션 줄을 −15 로 다르게(옮김을 크기로 본다)
