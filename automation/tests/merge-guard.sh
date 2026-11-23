@@ -24632,4 +24632,4 @@ chk 'PR_CLEAN_1123' scripts/audit/play-wait-file.mjs 3
 chk 'PR_CLEAN_1123' scripts/audit/vc-r1-listen.mjs 3
 chk 'pr-clean' .github/workflows/merge-guard.yml 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-clean.mjs >/dev/null 2>&1; _prc=$?; if [ "$_prc" = 1 ]; then echo 'FAIL pr-clean: 연습 첫 화면(시작 카드 둘 · 고르기 칸 없음 · 안내 두 줄 · 작은 단추 한 줄)이 어긋났습니다 — node scripts/audit/pr-clean.mjs'; fail=1; fi; fi
-chk "var el=document.querySelector('[data-fk=\"prall\"] .pr-hx')||" order-preview.html 1   # [PR_CLEAN_1123] 소리 길이를 받은 뒤 «연습 약 n분» 다시 칠하기 — 새 카드의 분 줄(.pr-hx) · 빠지면 17분 → 실제 13분처럼 처음 값에 멈춘다(pr-way4 중7)
+chk "prall\"] .pr-hx')||document.querySelector(" order-preview.html 1   # [PR_CLEAN_1123] 소리 길이를 받은 뒤 «연습 약 n분» 다시 칠하기 — 새 카드의 분 줄(.pr-hx) · 빠지면 17분 → 실제 13분처럼 처음 값에 멈춘다(pr-way4 중7)
