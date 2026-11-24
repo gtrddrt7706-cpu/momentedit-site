@@ -24712,3 +24712,6 @@ chk '.sumry.op .sumrow{grid-template-columns:44px minmax(0,1fr) auto} .sumry.op 
 #   EX_META_LINE_1125 ① 예시 카드 시간 줄은 늘 이름 아래(«기록»만 밀려 내려가 짜임이 달랐다)
 chk 'EX_META_LINE_1125' order-preview.html 1
 chk '.pk-ex-n{flex-direction:column;align-items:flex-start;row-gap:1px}' order-preview.html 1
+#   PK_TGL_HOLD_1125 ① ＋ · ✓ 누른 칸은 손가락 아래 그대로(위 판이 늘어 186px 밀렸다) · 미리 보기 창에서 담을 때는 건드리지 않는다
+chk 'PK_TGL_HOLD_1125' order-preview.html 1
+chk 'var _t0=window.opPkTgl; window.opPkTgl=function(k){' order-preview.html 1
