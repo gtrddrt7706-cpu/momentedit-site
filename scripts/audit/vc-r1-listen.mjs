@@ -127,7 +127,7 @@ const shot = async (pg, nm) => { if (SHOTS) await pg.screenshot({ path: path.joi
 
 const SC = [
   /* ── #42 ── */
-  { no: 42, on: PR_ON, async run({ pg, f }) {
+  { no: 42, on: PR_ON, retired: 'PR_SIMPLE_1124', async run({ pg, f }) {
     await toPractice(pg, f);
     await click(f, '[data-fk="prall"]'); await adv(pg, 800);   // [PR_CLEAN_1123] 시작 카드 A «AI 목소리로 먼저 듣기» 한 번 = AI 로 먼저 고르기 + 흐름 보기 시작(준비 중이면 약속)
     const a = await f.evaluate(() => ({ after: !!PT.startAfter, run: !!(PT.prep && PT.prep.run), step: STEPS[idx].k }));
@@ -138,7 +138,7 @@ const SC = [
     await shot(pg, '42-떠난뒤준비끝');
     ok('#42 ③ 준비 중 «처음부터» 누르고 ② 로 떠나면 — 준비가 끝나도 크게 보기가 안 열리고 소리 없음 · 약속도 걷힘 [PT_GATE_STAY]', a.after && a.run && b.step === 'listen' && !b.big && !b.after && b.plays === n0 && !b.el, JSON.stringify({ a, b, n0 }));
   } },
-  { no: 42, on: PR_ON, async run({ pg, f }) {   // 떠났다가 준비가 끝나기 전에 ③ 으로 돌아오면 — 떠날 때 걷은 약속이 되살아나 저절로 열리지 않는다(누르면 그때 시작)
+  { no: 42, on: PR_ON, retired: 'PR_SIMPLE_1124', async run({ pg, f }) {   // 떠났다가 준비가 끝나기 전에 ③ 으로 돌아오면 — 떠날 때 걷은 약속이 되살아나 저절로 열리지 않는다(누르면 그때 시작)
     await toPractice(pg, f);
     await click(f, '[data-fk="prall"]'); await adv(pg, 800);   // [PR_CLEAN_1123] 시작 카드 A «AI 목소리로 먼저 듣기» 한 번 = AI 로 먼저 고르기 + 흐름 보기 시작(준비 중이면 약속)
     const r = await click(f, '[data-fk="ops:listen"]'); if (r !== 'ok') await f.evaluate(() => opGoStep('listen'));
@@ -221,7 +221,7 @@ const SC = [
     ok('#46 쪽 머리 줄이 상태를 모를 때 «각자 1분 읽기»(안 만든 분에게 하는 말)로 시작하지 않는다 [VU_ST_UNKNOWN]', !/^각자 1분 읽기/.test(hd) && /아쉬우면 다시 녹음해요/.test(hd), hd);
   } },
   /* ── #47 ── */
-  { no: 47, on: PR_ON, async run({ pg, f }) {
+  { no: 47, on: PR_ON, retired: 'PR_SIMPLE_1124', async run({ pg, f }) {
     await toPractice(pg, f);
     await pg.evaluate(() => { __SV.faults.push({ op: 'practice', nth: '*', kind: 'busy', lat: 2000, tag: 'down' }); });
     await f.evaluate(() => { prMode('ai'); render(); setTimeout(() => _ptPrep(1), 0); }); await adv(pg, 1000);   // [PR_CLEAN_1123] «AI 로 먼저» 고르기 칸은 시작 카드로 합쳐졌다 — 시작 없이 고르기만 하는 단추가 없어 카드가 부르는 prMode 를 직접(옛 prm:ai 와 같은 일)
@@ -236,7 +236,7 @@ const SC = [
     ok('#47 준비가 전부 실패로 끝난 뒤 서버가 돌아오면 «처음부터 시작하기»가 못 만든 차례를 다시 준비하고 · 다 되면 바로 시작 [PT_PREP_AGAIN]', /만들지 못/.test(a.t) && b.run && b.after && n1 > n0 && new RegExp(a.n + '개 준비됐어요').test(c.t) && c.big && !c.failH, JSON.stringify({ a, b, c, n0, n1 }));
   } },
   /* ── #48 ── */
-  { no: 48, on: PR_ON, faults: [{ op: 'practice', nth: '*', kind: 'busy', lat: 2000 }], async run({ pg, f }) {
+  { no: 48, on: PR_ON, retired: 'PR_SIMPLE_1124', faults: [{ op: 'practice', nth: '*', kind: 'busy', lat: 2000 }], async run({ pg, f }) {
     await toPractice(pg, f); await f.evaluate(() => { prMode('ai'); render(); setTimeout(() => _ptPrep(1), 0); }); await adv(pg, 1000);   // [PR_CLEAN_1123] «AI 로 먼저» 고르기 칸은 시작 카드로 합쳐졌다 — 시작 없이 고르기만 하는 단추가 없어 카드가 부르는 prMode 를 직접(옛 prm:ai 와 같은 일)
     await until(pg, f, () => PT.prep && !PT.prep.run, 300000); await adv(pg, 500);
     const a = await f.evaluate(() => { const i = document.querySelector('#prPrep .pr-bar i'), h = Object.keys(PT.failH)[0]; return { t: _ptPrepTxt(), w: i ? i.style.width : '', small: [...document.querySelectorAll('#prPrep .pr-ps')].map((e) => e.textContent).join('/'), turn: h ? _ptTurnWhy(h) : '' }; });
@@ -244,13 +244,13 @@ const SC = [
     ok('#48 전부 실패 — «0개 준비됐어요» 대신 «AI 목소리를 만들지 못했어요 … (코드 V1)» · 막대 0% [PT_PREP_WORD]', /^AI 목소리를 만들지 못했어요/.test(a.t) && /\(코드 V1\)/.test(a.t) && !/0개 준비/.test(a.t) && a.w === '0%', JSON.stringify(a));
     ok('#48 못 만든 차례 문구는 «글을 보며 읽어 주세요»를 겹쳐 말하지 않는다(코드는 그대로) [PT_PREP_WORD]', /^이 차례는 AI 목소리를 만들지 못했어요 \(코드 V1\)$/.test(a.turn), a.turn);
   } },
-  { no: 48, on: PR_ON, faults: [{ op: 'practice', nth: '*', kind: 'json', lat: 2000, body: { ok: false, limit: true, ecode: 'V0', error: '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요' } }], async run({ pg, f }) {
+  { no: 48, on: PR_ON, retired: 'PR_SIMPLE_1124', faults: [{ op: 'practice', nth: '*', kind: 'json', lat: 2000, body: { ok: false, limit: true, ecode: 'V0', error: '이번 예식의 AI 읽기를 다 썼어요. 글을 보며 연습은 계속할 수 있어요' } }], async run({ pg, f }) {
     await toPractice(pg, f); await f.evaluate(() => { prMode('ai'); render(); setTimeout(() => _ptPrep(1), 0); }); await adv(pg, 1000);   // [PR_CLEAN_1123] «AI 로 먼저» 고르기 칸은 시작 카드로 합쳐졌다 — 시작 없이 고르기만 하는 단추가 없어 카드가 부르는 prMode 를 직접(옛 prm:ai 와 같은 일)
     await until(pg, f, () => PT.prep && !PT.prep.run, 300000); await adv(pg, 500);
     const a = await f.evaluate(() => ({ html: (document.getElementById('prPrep') || {}).textContent || '', t: _ptPrepTxt() })); const n = (await prac(pg)).length;
     ok('#48 예산을 다 쓰면 — 한 줄만(실패 수 문장과 겹치지 않음) · 남은 차례를 더 묻지 않는다 [PT_PREP_WORD]', /다 썼어요/.test(a.t) && !/개는 만들지 못해/.test(a.html) && (a.html.match(/다 썼어요/g) || []).length === 1 && n <= 3, JSON.stringify({ a, n }));
   } },
-  { no: 48, on: PR_ON, faults: [{ op: 'practice', nth: '*', kind: 'json', lat: 2000, body: { ok: false, reason: 'expired', ecode: 'V8', error: '로그인이 만료됐어요. 다시 로그인해 주세요' } }], async run({ pg, f }) {
+  { no: 48, on: PR_ON, retired: 'PR_SIMPLE_1124', faults: [{ op: 'practice', nth: '*', kind: 'json', lat: 2000, body: { ok: false, reason: 'expired', ecode: 'V8', error: '로그인이 만료됐어요. 다시 로그인해 주세요' } }], async run({ pg, f }) {
     await toPractice(pg, f); await f.evaluate(() => { prMode('ai'); render(); setTimeout(() => _ptPrep(1), 0); }); await adv(pg, 1000);   // [PR_CLEAN_1123] «AI 로 먼저» 고르기 칸은 시작 카드로 합쳐졌다 — 시작 없이 고르기만 하는 단추가 없어 카드가 부르는 prMode 를 직접(옛 prm:ai 와 같은 일)
     await until(pg, f, () => PT.prep && !PT.prep.run, 300000); await adv(pg, 500);
     const a = await f.evaluate(() => { const h = Object.keys(PT.failH)[0]; return { t: _ptPrepTxt(), turn: h ? _ptTurnWhy(h) : '' }; }); const n = (await prac(pg)).length;
@@ -367,6 +367,7 @@ const SC = [
 SC.forEach((s) => { if (s.no === 56) s.boot = { voice: true }; });
 
 for (const sc of SC) {
+  if (sc.retired) { ok(`#${sc.no} ③ 연습하기 «AI 로 먼저» 장면 은퇴 [${sc.retired}] — 사장님 «ai 목소리 먼저 듣기 이거는 삭제하자» · 연습하기 _ptAi false`, true); continue; }
   if (ONLY.length && !ONLY.includes(String(sc.no))) continue;
   let B = null;
   try {

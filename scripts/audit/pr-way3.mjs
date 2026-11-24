@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 /* ★★[PR_WAY_198 검토 198-3] ⑫ «이 역할 전달하기» — 부모님 · 축사 · 선언하실 분께 그분 몫만
+   ★[PR_SIMPLE_1124 2026-11-24] 역할 전달은 ④ 완성으로 옮김(연습하기는 연습 전담) — ① 은 완성 화면에서 · ④ 는 «연습 크게 보기에 없음»으로 은퇴
    ① 연습 첫 화면 «역할 전달하기» 목록(그 식순에 있는 역할만) ② 복사 글 = 안내 음성 · 읽으실 글 · 하실 일 · 마치면(두 분 · 하객 몫은 빠짐) + 읽기 전용 링크
    ③ 링크(role.html#r=…)를 열면 그분 몫만 · 고칠 칸 없음 · noindex ④ 크게 보기 선언 · 축사 요약 줄에도 같은 단추
    PW_OP = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
@@ -69,12 +70,14 @@ async function open(W, embed, init) {
 
 try {
   const { ctx, pg, f, errs } = await open(390, true);
-  await f.evaluate(async () => { idx = STEPS.findIndex((x) => x.k === 'practice'); render(); await new Promise((x) => setTimeout(x, 700)); });
+  const inPr = await f.evaluate(async () => { idx = STEPS.findIndex((x) => x.k === 'practice'); render(); await new Promise((x) => setTimeout(x, 700)); return !!document.querySelector('.pr-roles'); });
+  ok('① ③ 연습하기에는 «역할 전달하기» 없음 [PR_SIMPLE_1124 사장님 «연습하기 전담»]', !inPr, inPr);
+  await f.evaluate(async () => { idx = STEPS.findIndex((x) => x.k === 'done'); render(); await new Promise((x) => setTimeout(x, 700)); });   /* [PR_SIMPLE_1124] 역할 전달은 ④ 완성 */
   const a = await f.evaluate(async () => { const ids = [...document.querySelectorAll('.pr-roles [data-fk^="prrole:"]')].map((b) => b.getAttribute('data-fk').slice(7));
     let got = ''; const c0 = navigator.clipboard; try { Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: (t) => { got = t; return Promise.resolve(); } } }); } catch (e) {}
     const T = {}; for (const id of ['declare', 'free', 'par']) { got = ''; prRole(id); await new Promise((x) => setTimeout(x, 50)); T[id] = got; }
     return { ids, T }; });
-  ok('① 첫 화면 «역할 전달하기» — 선언 · 축사 · 부모님', ['declare', 'free', 'par'].every((x) => a.ids.includes(x)), a.ids);
+  ok('① ④ 완성 화면 «역할 전달하기» — 선언 · 축사 · 부모님', ['declare', 'free', 'par'].every((x) => a.ids.includes(x)), a.ids);
   const D = a.T.declare, F = a.T.free, P = a.T.par;
   ok('② 선언 — 안내 음성 · 읽으실 글(선언문) · 자리로 돌아가는 안내 · 하객 박수 줄 없음 · 링크', /^\[성혼 선언을 읽어 주실 분께\]/.test(D) && /안내 음성 · 오늘의 성혼 선언은/.test(D) && /읽으실 글[^\n]*\n이제 신랑/.test(D) && /자리로 돌아가셔도/.test(D) && !/하객이 박수/.test(D) && /role\.html#r=/.test(D), D.slice(0, 400));
   ok('② 축사 — 읽으실 글 · 마치면 마이크를 돌려주고 자리로(B2_GEUL_04)', /읽으실 글/.test(F) && /마치면 · 마이크를 디렉터에게 돌려주세요. 앞으로 나오셨다면 자리로 돌아가 앉아 주세요./.test(F), F.slice(0, 300));
@@ -88,8 +91,8 @@ try {
   await pg2.goto(url.replace(/#r=.*/, '#r=xx'), { waitUntil: 'load' }); await pg2.waitForTimeout(200);
   ok('③ 링크가 깨졌으면 한 줄 안내 · 같은 탭에서 바뀌어도 다시 그린다 [ROLE_HASH_REDRAW_1106]', /안내를 열 수 없어요/.test(await pg2.evaluate(() => document.body.textContent)), '');
   /* ④ 크게 보기 */
-  const b = await f.evaluate(async () => { prStart('flow'); await new Promise((x) => setTimeout(x, 800)); const j = LP.q.findIndex((x) => x.k === 'declare' && x.sum); LP.i = j; LP.paused = true; clearTimeout(LP.t); _lFull(); await new Promise((x) => setTimeout(x, 100)); return !!document.querySelector('#lsFull [data-fk="lfrole"]'); });
-  ok('④ 크게 보기 선언 요약 줄에 «이 역할 전달하기»', b, b);
+  const b = await f.evaluate(async () => { idx = STEPS.findIndex((x) => x.k === 'practice'); render(); await new Promise((x) => setTimeout(x, 300)); prStart('flow'); await new Promise((x) => setTimeout(x, 800)); const j = LP.q.findIndex((x) => x.k === 'declare' && x.sum); LP.i = j; LP.paused = true; clearTimeout(LP.t); _lFull(); await new Promise((x) => setTimeout(x, 100)); return !!document.querySelector('#lsFull [data-fk="lfrole"]'); });
+  ok('④ 크게 보기(연습)에는 «이 역할 전달하기» 없음 [PR_SIMPLE_1124 · 옛 기대 = 선언 요약 줄에 단추]', !b, b);
   if (SHOT) await pg.screenshot({ path: SHOT.replace(/\.png$/, '') + '-start.png', fullPage: false });
   ok('페이지 오류 0', !errs.length, errs.slice(0, 3));
   await ctx.close();

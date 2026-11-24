@@ -38,7 +38,7 @@ try {
     ok(!pf.has, '연습 화면에 «준비할 것» 접이가 없다 — 진짜 연습만(옛 PR_PREP_FOLD 기대 은퇴) [PRACTICE_ONLY_1123]', JSON.stringify(pf));
     if (process.env.PFM_SHOT) { await page.evaluate(() => { const f = document.getElementById('mp_obFrame'); const x = f.contentWindow.document.querySelector('.pr-prepf'); if (x) x.scrollIntoView({ block: 'start' }); }); await wait(300); await page.screenshot({ path: process.env.PFM_SHOT + '-' + V.n + '.png' }); }
     ok(await page.evaluate(() => !document.getElementById('mp_rpViewer')), '옛 미리듣기 창(mp_rpViewer)은 열리지 않는다');
-    ok(await page.evaluate(() => { const w = document.getElementById('mp_obFrame').contentWindow; return !!w.document.querySelector('[data-fk="prall"]') && w.document.querySelectorAll('[data-fk^="prj:"]').length > 2; }), '연습 화면에 «처음부터 끝까지» · 순간 목록이 선다');
+    ok(await page.evaluate(() => { const w = document.getElementById('mp_obFrame').contentWindow; return !!w.document.querySelector('[data-fk="prtry"]') && w.document.querySelectorAll('[data-fk^="prj:"]').length > 2; }), '연습 화면에 시작 카드(직접 소리 내어 해보기) · 순간 목록이 선다 [PR_SIMPLE_1124]');
     ok(await page.evaluate(() => { const w = document.getElementById('mp_obFrame').contentWindow; return !w.document.querySelector('.pr-later'); }), '마이페이지에서 들어온 연습엔 «나중에 마이페이지에서» 줄이 없다 [PR_ORDER]');
     ok(errors.length === 0, 'JS 오류 0건', errors.slice(0, 2).join(' | '));
     await page.close();

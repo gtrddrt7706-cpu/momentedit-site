@@ -83,9 +83,9 @@ try {
   const s8 = await f.evaluate(() => ({ top: !!document.querySelector('[data-fk="ops:practice"]') }));
   ok('⑧ 코스를 고른 뒤 위 «연습하기»가 눌린다', s8.top, s8);
   await f.evaluate(async () => { idx = STEPS.findIndex((x) => x.k === 'practice'); render(); await new Promise((x) => setTimeout(x, 600)); });
-  const s1 = await f.evaluate(() => ({ flow: ((document.querySelector('[data-fk="prall"] .pr-hl b') || {}).textContent || ''), tr: ((document.querySelector('[data-fk="prtry"] .pr-hl b') || {}).textContent || ''),
-    chips: document.querySelectorAll('.pr-fcs .pr-fc').length, role: !!document.querySelector('.pr-role'), home: !!document.querySelector('.pr-flow .pr-home'), mu: !!document.querySelector('[data-fk="prmu"]') }));
-  ok('① 첫 화면 두 시작 카드 «흐름 보기로 시작» · «직접 소리 내어 해보기» · 동선 칩 · 칩 아래 «집에서는 …» 한 줄(당일 역할 한 줄은 걷음 [PR_CLEAN_1123])', s1.flow === '흐름 보기로 시작' && s1.tr === '직접 소리 내어 해보기' && s1.chips >= 4 && !s1.role && s1.home && s1.mu, s1);
+  const s1 = await f.evaluate(() => ({ a: !!document.querySelector('[data-fk="prall"]'), tr: ((document.querySelector('[data-fk="prtry"] .pr-hl b') || {}).textContent || ''),
+    flow: !!document.querySelector('.pr-flow, .pr-fcs'), role: !!document.querySelector('.pr-role'), home: /^집에서는 /.test((document.querySelector('.op.pr p.mk-one') || {}).textContent || ''), mu: !!document.querySelector('[data-fk="prmu"]') }));
+  ok('① 첫 화면 시작 카드 하나 «직접 소리 내어 해보기» · 머리 아래 «집에서는 …» 한 줄 · «오늘 흐름» 없음 [PR_SIMPLE_1124 · 옛 기대 = 두 카드 · 동선 칩(PR_CLEAN_1123)]', !s1.a && s1.tr === '직접 소리 내어 해보기' && !s1.flow && !s1.role && s1.home && s1.mu, s1);
   if (SHOT) await pg.screenshot({ path: SHOT.replace(/\.png$/, '') + '-start.png', fullPage: false });
   const q = await f.evaluate(async () => { prStart('try'); await new Promise((x) => setTimeout(x, 900)); const Q = LP.q;
     const cheer = Q.filter((x) => x.k === 'toast' && x.cheer);
@@ -149,7 +149,7 @@ try {
     prStart('try'); await new Promise((x) => setTimeout(x, 900)); LP.paused = true; clearTimeout(LP.t); _lFull(); await new Promise((x) => setTimeout(x, 60));
     const c = document.querySelector('#lsFull .lf-ctl.pr3'), r = c && c.getBoundingClientRect(); o.ctlW = r ? Math.round(r.width) : 0; o.sw = document.documentElement.scrollWidth; o.vw = innerWidth;
     o.bt = [...document.querySelectorAll('#lsFull .lf-ctl.pr3 button')].map((e) => { const q = e.getBoundingClientRect(); return [Math.round(q.left), Math.round(q.right), Math.round(q.height)]; }); return o; });
-  ok('⑧ 그냥 연 미리보기 — «말 · 나레이션으로 연습» · 음악 토글 없음 · 음악 엔진 꺼짐', pv.lab === '말 · 나레이션으로 연습' && !pv.mu && !pv.on, pv);
+  ok('⑧ 그냥 연 미리보기 — 음악 토글 없음 · 음악 엔진 꺼짐([PR_SIMPLE_1124] «말 · 나레이션으로 연습» 덧말은 A 카드와 함께 은퇴)', !pv.mu && !pv.on, pv);
   ok('④ 360 폭 — 하단 셋이 화면 안 · 44px 이상 · 가로 넘침 없음', pv.bt.length === 3 && pv.bt.every((x) => x[0] >= 0 && x[1] <= pv.vw && x[2] >= 44) && pv.sw <= pv.vw, pv);
   if (SHOT) { await P.pg.screenshot({ path: SHOT.replace(/\.png$/, '') + '-360.png' }); }
   ok('페이지 오류 0(미리보기)', !P.errs.length, P.errs.slice(0, 3));
