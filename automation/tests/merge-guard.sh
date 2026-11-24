@@ -22505,7 +22505,7 @@ chk 'INFO_SPLIT_200' scripts/audit/closing-line.mjs 2
 chk "tile:'전체 단체 사진 뒤 흐르는 안내 · 남을 분 · 가실 분'" order-preview.html 1
 nochk '촬영을 마치면 흐르는 마지막 안내' order-preview.html
 chk "var PHOTO_FIX={n:_post('_photo').n,tile:'전체 한 장 · 현장 진행'" order-preview.html 1   # [FIX_FLOW_204 D] «작가님» 표기 없음
-chk "moments/guest-end.webp'+(RitualOpen.VIDEO_V||'')" order-preview.html 1   # 촬영 후 안내 칸 그림 ≠ 가족 사진 · 추가 촬영 칸(close-end)
+chk "moments/post-after.webp'+(RitualOpen.VIDEO_V||'')" order-preview.html 1   # [POST_IMG_1124] 촬영 후 안내 전용 그림(옛 guest-end 빌림 은퇴) · 가족 사진 · 추가 촬영(post-extra) · 전체 단체 사진(post-photo)과 다른 세 장
 chk "\['15~33분쯤','단체 사진','Group Record','전체 단체 사진 → 촬영 후 안내 → 가족 사진 · 추가 촬영' /\* \[B2_GEUL_22\] \*/\],\['20분','정리','Farewell','옷을 갈아입고 하루를 정리해요'\]" order-preview.html 1   # [FIX_FLOW_204 D] 첫 하루 표 기념촬영 행
 nochk "'Farewell','남은 사진을 마치고 옷을 갈아입어요'" order-preview.html
 # ── 2026-11-02 [FAREWELL_NAME_204 검토 204 회신] 고객이 보는 하루 흐름 «마무리 Farewell» → «정리 Farewell»(식순 · 홈 140분 표 · AI 상담 같은 이름) · 계약서는 그대로
@@ -24017,7 +24017,7 @@ chk 'SEG_FIRST_FAIL_1114' scripts/audit/console-bed-1114.mjs 3
 chk 'ARRIVE_SETTLE_PV_1114' assets/bgm-bed.js 4
 chk 'var ARRIVE_LEAD=1000;' assets/bgm-bed.js 1
 chk 'ARRIVE_SETTLE_PV_1114' scripts/audit/pv-fix-1114.mjs 1
-chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115 one-flow walk-preview-match ref-who-first' }" .github/workflows/merge-guard.yml 1   # [PV_FIX_1114] · [CONSOLE_R2_1115] 같은 칸 · [REF_WHO_FIRST_1123] 끝에 ref-who-first
+chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115 one-flow walk-preview-match ref-who-first post-img' }" .github/workflows/merge-guard.yml 1   # [PV_FIX_1114] · [CONSOLE_R2_1115] 같은 칸 · [REF_WHO_FIRST_1123] 끝에 ref-who-first
 chk 'PV_FIX_1114' scripts/audit/pv-fix-1114.mjs 1   # 검사 머리 이름(묶음) — CI bgm-sound f 칸
 # ★★[SONG_OPEN_FADE_PV_1114 2026-11-14 BGM 섹션 · GPT 라운드 1 후보 ⑦] 미리 듣기 · 연습 — 축가 여는 말 뒤 본식 피아노는 줄이 끝난 때부터 1.5초에 걸쳐 정적(엔진 큐 post 값 그대로 · 종전 0.3초 · MEANING_R1_1102 8) · 소리는 pv-fix-1114 ② 가 잰다
 chk 'SONG_OPEN_FADE_PV_1114' assets/bgm-bed.js 2
@@ -24140,7 +24140,7 @@ chk 'CARRY_HEARD_1115' scripts/audit/console-r3-1115.mjs 3
 chk 'RELIFT_XG_1115' scripts/audit/console-relift.mjs 3
 # ★★[PV_R3_1115 2026-11-15 BGM 섹션 · GPT 라운드 3] 미리 듣기 · 연습(bgm-bed) 고침 묶음 검사 — 옛 판 빨강 · 새 판 초록(BP_BED 로 깨 보기) · CI bgm-sound f 칸
 chk 'PV_R3_1115' scripts/audit/pv-r3-1115.mjs 1
-chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115 one-flow walk-preview-match ref-who-first' }" .github/workflows/merge-guard.yml 1
+chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115 one-flow walk-preview-match ref-who-first post-img' }" .github/workflows/merge-guard.yml 1
 # ★[CI_SPLIT_G_1115 2026-11-15] bgm-sound g 칸 — 라운드 3 검사 둘(console-r3-1115 · pv-r3-1115) · f 칸이 20분에 가까워 나눔
 chk 'CI_SPLIT_G_1115' .github/workflows/merge-guard.yml 1
 chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115 rec-sec pr-clean' }" .github/workflows/merge-guard.yml 1
@@ -24639,4 +24639,12 @@ chk "prall\"] .pr-hx')||document.querySelector(" order-preview.html 1   # [PR_CL
 chk 'REF_WHO_FIRST_1123' order-preview.html 1
 chk 'REF_WHO_FIRST_1123' scripts/audit/ref-who-first.mjs 1
 chk "if(v==null&&(k==='bless'||k==='free')){ var _sw='';" order-preview.html 1
-chk 'one-flow walk-preview-match ref-who-first' .github/workflows/merge-guard.yml 1
+chk 'one-flow walk-preview-match ref-who-first post-img' .github/workflows/merge-guard.yml 1
+# ★★[POST_IMG_1124 2026-11-24 사장님 «빈칸에 들어갈 사진 만들자» · «촬영 후 안내도 원래 자리 그림이 아닌데 갖다 붙인 거» · «전체 사진에 테이블이 보이면 안 되지» · «창 없애고 오프라인 디자인 섹션 컨셉으로»]
+#   식후 세 장 전용 그림 = assets/video/moments/post-photo · post-after · post-extra(+ -640) · 오프라인 디자인 섹션 캔들존 컨셉(창 없음 · 흰 석회벽 · 검은 천장 · 비치는 흰 천 배경 · 덩굴 · 촛불 · 원목 바닥) · 실렌더 검사 scripts/audit/post-img.mjs(CI 칸 f)
+chk 'POST_IMG_1124' order-preview.html 3
+chk 'POST_IMG_1124' scripts/audit/post-img.mjs 1
+chk "img:'/assets/video/moments/post-photo.webp'" order-preview.html 1
+chk "img:'/assets/video/moments/post-extra.webp'" order-preview.html 1
+nochk "img:'/assets/video/moments/close.webp'};" order-preview.html 0
+nochk "moments/guest-end.webp'+(RitualOpen.VIDEO_V" order-preview.html 0
