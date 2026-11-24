@@ -24680,3 +24680,13 @@ chk "function _prTag(o){" order-preview.html 1
 chk "st.k===R.peakOf(S)&&!_prIn" order-preview.html 1
 chk 'PR_CLEAR_1124' scripts/audit/pr-way.mjs 3
 chk 'PR_CLEAR_1124' scripts/audit/pr-play.mjs 2
+# ★★[PR_POLISH_1124 2026-11-24 사장님 «추천대로 전부 개선 · 고객 · 디자이너 눈으로 반복 검수 · 심플하게»] ③ 연습 1라운드
+#   PR_FULL_LINK_1124 «예시 선언문 · 축사 · 덕담 전문 보기»는 밑줄 + 펼침 꺾쇠(그냥 글처럼 보였다)
+#   PR_END_1124 연습 끝 화면 = 제목 한 줄(직접 해보기 «끝까지 연습했어요») + 당일 예상 두 줄 · ② 듣기 끝 화면은 그대로
+#   PR_REF_ONCE_1124 같은 순간 두 번째 예시 줄부터는 «참고 예시» 이름표만(설명 한 줄 되풀이 걷음)
+chk 'PR_FULL_LINK_1124' order-preview.html 1
+chk ".lf-full>summary{list-style:none;display:inline-flex" order-preview.html 1
+chk 'PR_END_1124' order-preview.html 1
+chk "(PRW==='try'?'끝까지 연습했어요':'끝까지 보셨어요')" order-preview.html 1
+chk 'PR_REF_ONCE_1124' order-preview.html 1
+chk "q.k===st.k&&q.ref&&!!q.bothRef===!!st.bothRef" order-preview.html 1
