@@ -2308,7 +2308,7 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h3[tabindex="-1"]:focus,h4[tabin
 /* [RIT_SUMMARY_STACK] 한 줄에 순번 · 이름(오른쪽 «변경» 글 단추), 아래에 값 */
 .sumry.op .sumrow{display:grid;grid-template-columns:24px minmax(0,1fr) auto;grid-template-areas:"n l c" ". v v";column-gap:8px;row-gap:0;align-items:center;padding:6px 10px 10px 12px}
 /* ★[RAIL_IGNORE_1019] «순서 요약» 채우기 · 변경 글 단추 — 레일(상담 말풍선) 자리를 비우지 않는다 — 2026-10-19 사장님 «우측버튼레일은 신경쓰지마 무시하고 폭넓게» 지시로 삭제 · 되살리지 말 것(종전 DONE_BUBBLE_1019 의 오른쪽 36px) */
-.sumry.op .sr-n{grid-area:n;flex:none}
+.sumry.op .sr-n{grid-area:n;flex:none} .sumry.op .sumrow{grid-template-columns:44px minmax(0,1fr) auto} .sumry.op .sr-n{white-space:nowrap}   /* ★[SUM_POST_LAB_1125] ④ 순서 요약 첫 칸 24 → 44px — «본식 뒤»가 «본식 / 뒤» 두 줄로 쪼개졌다 · 모든 줄 같은 폭이라 제목 세로선은 그대로 한 줄 */
 .sumry.op .sr-l{grid-area:l;flex:none}
 .sumry.op .sr-v{grid-area:v;min-width:0}
 .sumry.op .sr-c{grid-area:c;min-width:0;min-height:44px;padding:0 6px;border:0;background:none;border-radius:0;color:var(--gold-deeper);font-size:12.5px;text-decoration:underline;text-underline-offset:3px}
