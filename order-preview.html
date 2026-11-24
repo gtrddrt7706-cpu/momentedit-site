@@ -1756,18 +1756,22 @@ body.mkd .mk-strip{top:44px;margin:0 -16px 12px;padding:0;border-bottom:0}   /* 
 @media (min-width:600px){ .pr-sts{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 16px} .pr-sts>.pr-hero{grid-column:1;grid-row:1} .pr-sts>.pr-try{grid-column:2;grid-row:1} .pr-sts>.pr-ask,.pr-sts>.pr-prep,.pr-sts>.pr-todo{grid-column:1/-1} .pr-st .pr-hm{aspect-ratio:16/9} }
 .pr-hm{position:relative;display:block;aspect-ratio:2.39/1;border-radius:8px;overflow:hidden;background:var(--bg2);border:1px solid var(--border)}
 .pr-hm img{display:block;width:100%;height:100%;object-fit:cover}   /* ★[HOVER_NO_ZOOM] 마우스를 올리면 장면 그림이 커지던 효과(scale 1.02 · .45s) 금지 — 2026-10-09 사용자 지시로 삭제(사장님 «영상 쪽 마우스 올리면 영상 흔들거리는데 그 효과 삭제») */
-.pr-hp{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;background:rgba(58,45,34,.88);color:#FAFAF8;display:grid;place-items:center}
-.pr-hp svg{width:14px;height:14px}
+/* ★.pr-hp(그림 위 ▶ 동그라미) 금지 — 2026-11-24 사용자 지시로 삭제 [PR_FLOW_1124] */
 .pr-hl{display:flex;flex-direction:column;gap:2px;margin:10px 0 0}
 .pr-hl b{font-family:var(--ko-serif);font-size:16px;font-weight:600;color:var(--accent);letter-spacing:-.02em}
+.pr-hl b::after{content:'\203A';margin-left:6px;font-weight:400;opacity:.7}   /* [PR_FLOW_1124] 누르면 시작하는 카드 — 제목 끝 › (그림 위 ▶ 대신) */
 .pr-hl span{font-size:12.5px;color:var(--sub);word-break:keep-all}
 @media (hover:hover){ .pr-row:hover{background:var(--bg2)} .pr-row:hover .pr-go{color:var(--accent)} }
 .pr-st:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .pr-todo{margin:10px 0 0}
 /* [SCRIPT_VIEW_1018] ③ «글로 한눈에 보기» — 단추는 줄 링크 모양(44 높이) · 창 안 글은 순간마다 한 덩어리 · 사람 구간은 회색 */
 /* ★[PR_CLEAN_1123] 옛 B 테두리 칸(.pr-try 글 상자) 모양 걷음 — A 와 같은 카드(.pr-st) */
-.pr-fcs{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px} .pr-fc{display:flex;flex-direction:column;padding:6px 10px;border:1px solid var(--line,#E2D9CC);border-radius:8px;background:#fff;font-size:12.5px;line-height:1.45}
-.pr-fc b{font-size:14px;font-weight:600;color:var(--accent)} .pr-fc span{color:var(--ink,#3A2F27)} .pr-fc i{font-style:normal;color:var(--sub)} .pr-flow .pr-home{margin:8px 0 0;font-size:12.5px;color:var(--sub)}   /* [PR_CLEAN_1123 2] 칩 아래 회색 한 줄 */   /* [PR_WAY_198 ③] 동선 칩 */
+.pr-fcs{list-style:none;margin:8px 0 0;padding:0}   /* ★[PR_FLOW_1124 2026-11-24 사장님 «이건 ?»] 오늘 흐름 = 칩 묶음(높이 들쭉날쭉 · 폰에서 지그재그) → 위에서 아래로 한 줄씩 차례 줄(점 · 잇는 선) */
+.pr-fc{position:relative;padding:3px 0 3px 18px;font-size:13px;line-height:1.5}
+.pr-fc::before{content:'';position:absolute;left:3px;top:10px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.pr-fc:not(:last-child)::after{content:'';position:absolute;left:6px;top:17px;bottom:-10px;border-left:1px solid var(--line,#E2D9CC)}   /* 점과 다음 점을 잇는 선 */
+.pr-flow .pr-fc b,.pr-flow .pr-fc span,.pr-flow .pr-fc i{display:inline}   /* 자리 · 순간 · 방향을 한 줄에(넘치면 그 아래로 이어서) */
+.pr-fc b{font-size:14px;font-weight:600;color:var(--accent);margin-right:4px} .pr-fc span{color:var(--ink,#3A2F27)} .pr-fc i{font-style:normal;color:var(--sub)} .pr-flow .pr-home{margin:8px 0 0;font-size:12.5px;color:var(--sub)}   /* [PR_CLEAN_1123 2] 칩 아래 회색 한 줄 */   /* [PR_WAY_198 ③] 동선 칩 */
 .pr-svs{display:flex;flex-wrap:wrap;align-items:center;gap:0 24px;margin:8px 0 0}   /* [PR_CLEAN_1123 3] «글로 한눈에 보기» · «음악 끄기» 한 줄 */
 .pr-sv{display:block;min-height:44px;margin:0;padding:0;border:0;background:none;font:inherit;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .sv-top{margin:0 0 12px}
@@ -8131,8 +8135,8 @@ function _fgFlow(rows){ var g=[]; rows.forEach(function(k){ var p=_fgPos(k), l=g
 function _fgFlowChips(rows){ var g=[]; rows.forEach(function(k){ var p=_fgPos(k), l=g[g.length-1], mv=(p==='parents'||p==='tables');
     if(l&&l.p===p&&!mv) l.ks.push(k); else { if(l&&(l.p==='parents'||l.p==='tables')&&p!=='center') g.push({p:'center',ks:[]}); g.push({p:p,ks:[k]}); } });
   if(_afterOn()) POST_KS.forEach(function(k){ g.push({p:k,ks:[]}); }); else g.push({p:'_photo',ks:[]});   /* [보충 중6] · ★[POST_FLOW_200 6] 단체 사진 → 촬영 후 안내 → 추가 촬영(이름은 POST_FLOW) */
-  return '<ol class="pr-fcs" aria-label="오늘 흐름 · 자리 차례">'+g.map(function(x){ var lab=POST_KS.indexOf(x.p)>-1?_post(x.p).n:x.p==='walk'?'입장':FG_LAB[x.p], fs={}; x.ks.forEach(function(k){ var a=_fgFace(k), b=_fgFaceEnd(k); if(a) fs[a]=1; if(b) fs[b]=1; }); var fk=Object.keys(fs), face=fk.length===1&&fk[0]==='guests'?'하객 쪽을 봐요':fk.length>1&&x.p==='center'?'앞쪽 중앙에서 이어지는 순서예요.':'';   /* [B2_NA_15] 시작 · 끝 방향이 하나일 때만 한 방향 */
-    return '<li class="pr-fc"><b>'+esc(lab)+'</b>'+(x.p!=='walk'&&x.ks.length?'<span>'+esc(x.ks.map(_mkName).join(' · '))+'</span>':'')+(face?'<i>'+face+'</i>':'')+'</li>'; }).join('')+'</ol>'; }
+  return '<ol class="pr-fcs" aria-label="오늘 흐름 · 자리 차례">'+g.map(function(x){ var lab=POST_KS.indexOf(x.p)>-1?_post(x.p).n:x.p==='walk'?'입장':FG_LAB[x.p], fs={}; x.ks.forEach(function(k){ var a=_fgFace(k), b=_fgFaceEnd(k); if(a) fs[a]=1; if(b) fs[b]=1; }); var fk=Object.keys(fs), face=fk.length===1&&fk[0]==='guests'?'하객 쪽을 봐요':'';   /* [B2_NA_15] 시작 · 끝 방향이 하나일 때만 한 방향 · ★섞일 때 «앞쪽 중앙에서 이어지는 순서예요.» 금지 — 2026-11-24 사용자 지시로 삭제(제목 «앞쪽 중앙»을 되풀이 · 개별 순간 안내는 그대로) [PR_FLOW_1124] */
+    return '<li class="pr-fc"><b>'+esc(lab)+'</b> '+(x.p!=='walk'&&x.ks.length?'<span>'+esc(x.ks.map(_mkName).join('\u00a0· '))+'</span>':x.p==='center'?'<span>다시 돌아와요</span>':'')   /* [PR_FLOW_1124] 부모님 앞 · 테이블에서 앞쪽 중앙으로 돌아오는 줄 */+(face?' <i>· '+face+'</i>':'')+'</li>'; }).join('')+'</ol>'; }
 function _fgMin(k){ var R=RitualOpen; if(k==='guest') return ''; var fs=null; try{ fs=_flowSec(k); }catch(e){} if(!fs) return ''; var sec=Math.round((fs.lo+fs.hi)/2); return sec>20?'당일 '+(k==='table'?'+ ':'')+R.secTxt(sec):''; }   /* ★[B2_FIX_GEUL_30 2026-11-06 재검증 재수정] ③ 오늘 흐름 · 목록 시간 = ② 순간 머리와 같은 자(_flowSec 가운데 값 · LEN_ONE) — 종전엔 넉넉 합(hi)만 써서 덕담 ② «약 3분» · ③ «당일 약 4분»으로 갈렸다 */   /* [TABLE_PLUS_192] 테이블 인사는 «당일 + 약 n분»(본식에 더하는 몫) */   /* [EVENT_COUNT_CAP] 테이블 인사는 맞춘 값 그대로(partsOf) · [PRACTICE_WALK_R2 7] «당일» — 연습에서 넘기는 순간(축사 · 축가)이 «4분 연습»으로 읽혔다 */
 function renderPractice(){ var R=RitualOpen;
   _upWarm();   // [PLAY_WAIT_FILE]
@@ -8165,7 +8169,7 @@ function renderPractice(){ var R=RitualOpen;
        누를 때 고른 방법(PT.mode)은 이 기기에 기억(me_pr_mode) → «골라서 연습하기»(prFrom)가 마지막 고른 방법을 따른다(prPick) */
   var _ai=_ptOn(), _md=_ai&&PT.mode==='ai'&&_ptOk(), _bv=RitualOpen.videoOf('letter')||_hv;   // [PR_CLEAN_1123] B 그림 = 글을 손에 들고 소리 내어 읽는 장면(편지 낭독) · A(입장)와 한눈에 갈린다   // [PR_MODE_UNPICKED] 들어올 때는 아무 카드도 눌린 모양이 아니다(카드는 고르기가 아니라 시작)
   var _stCard=function(fk,cls,v,t,d,x){ return '<button type="button" class="pr-st '+cls+'" data-fk="'+fk+'" onclick="prPick(\''+(fk==='prtry'?'try':'flow')+'\')">'
-      +'<span class="pr-hm"'+_vfy(v)+'>'+(v?'<img src="'+esc(v.poster)+'" alt="" loading="lazy" decoding="async">':'')+'<span class="pr-hp" aria-hidden="true">'+ICO_PLAY+'</span></span>'
+      +'<span class="pr-hm"'+_vfy(v)+'>'+(v?'<img src="'+esc(v.poster)+'" alt="" loading="lazy" decoding="async">':'')+'</span>'   /* ★그림 위 ▶ 동그라미(.pr-hp) 금지 — 2026-11-24 사용자 지시로 삭제(사장님 «이건뭐지?» · 영상 미리보기로 읽혔다) · 누를 자리 표시는 제목 끝 › [PR_FLOW_1124] */
       +'<span class="pr-hl"><b>'+t+'</b><span class="pr-hd">'+d+'</span>'+(x?'<span class="pr-hx">'+x+'</span>':'')+'</span></button>'; };
   var _rz=ENG?_prAtGet():null;   /* ★[PR_WAY_198 ⑪] 이어서 연습 — 어디서부터인지 먼저 · 누를 때만 */
   h+='<div class="pr-grid"><div class="pr-lead">'
