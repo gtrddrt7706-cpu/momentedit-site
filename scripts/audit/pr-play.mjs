@@ -5,8 +5,9 @@
    ③ 자리 알약(지금 두 분 · …)과 작은 이름표(하객 입장 때 · 두 분이 앞에 서면)는 한 줄(.lf-meta)
    ④ 여는 멘트 이름표에 제목 «여는 멘트 · »를 다시 쓰지 않는다
    ⑤ 목록 줄에 «당일»을 되풀이하지 않는다 — PC 오른쪽 목록 머리 «당일 기준» 한 번 · 첫 화면 «골라서 연습하기» 덧말에 한 번
-   ⑥ 위에 «불러오는 중» 줄이 있으면 곡 받는 중 줄을 겹쳐 그리지 않는다(실패 알림은 그대로)
+   ⑥ «불러오는 중»은 한 줄 — 곡을 받는 중이면 «음악을 불러오는 중이에요»만(위 «불러오는 중…» 줄 없음 · 실패 알림은 그대로)
    ⑦ 가로 넘침 없음 · 페이지 오류 0
+   ⑧ «흐름 보기 · 직접 해보기» 위아래 간격이 같다(종전 위 24 · 아래 0 — 그림에 붙었다 · 사장님 «버튼 간격이 좀 이상하지 않아?»)
    PW_OP = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -83,7 +84,8 @@ const look = (f) => f.evaluate(() => { const F = document.getElementById('lsFull
   return { k: (LP.q[LP.i] || {}).k, seg: !!q('.lf-seg'), h3t: h3 && h3.top, h3b: h3 && h3.bottom, ont: on && on.top, onb: on && on.bottom, hrow: !!q('.lf-hrow h3') && !!q('.lf-hrow [data-fk="lfonly"]'),
     pos: !!pos, meta: !!meta, metaPos: !!(meta && meta.contains(pos)), metaLab: !!(meta && meta.contains(lab)), posT: pos && r(pos).top, labT: lab && r(lab).top, posB: pos && r(pos).bottom, labB: lab && r(lab).bottom,
     lab: lab && lab.textContent, rails: [...F.querySelectorAll('.lf-rail .lf-rm')].map((e) => e.textContent), rh: (q('.lf-rail .lf-rh') || {}).textContent || '', railVis: !!(q('.lf-rail') && q('.lf-rail').offsetParent),
-    sw: document.documentElement.scrollWidth, vw: innerWidth }; });
+    sw: document.documentElement.scrollWidth, vw: innerWidth,
+    gap: (() => { const h = F.querySelector('.lf-h').getBoundingClientRect(), w = F.querySelector('.lf-way').getBoundingClientRect(), nx = [...F.querySelectorAll('.lf-body > *')].find((e) => e.getBoundingClientRect().height > 0); return nx ? [Math.round(w.top - h.bottom), Math.round(nx.getBoundingClientRect().top - w.bottom)] : null; })() }; });
 try {
   for (const W of [390, 1280]) {
     const { ctx, pg, f, errs } = await open(W, true);
@@ -93,6 +95,7 @@ try {
     await f.click('[data-fk="prtry"]'); await wait(pg, 1000);
     let s = await look(f);
     ok(`${W} ① 진행 막대 없음(하객 맞이)`, !s.seg, s);
+    ok(`${W} ⑧ «흐름 보기 · 직접 해보기» 위아래 간격 같음(그림 있는 줄)`, s.gap && s.gap[0] >= 10 && Math.abs(s.gap[0] - s.gap[1]) <= 2, s.gap);
     ok(`${W} ② «이 순간만 연습» 제목 줄 오른쪽(같은 줄)`, s.hrow && s.ont < s.h3b && s.onb > s.h3t, s);
     ok(`${W} ③ 자리 알약 + «하객 입장 때» 한 줄`, s.pos && s.meta && s.metaPos && s.metaLab && s.lab === '하객 입장 때' && s.posT < s.labB && s.labT < s.posB, s);
     if (W > 1000) ok(`${W} ⑤ 오른쪽 목록 — 머리 «당일 기준» · 줄마다 «당일» 없음`, s.railVis && /당일\s기준/.test(s.rh) && s.rails.length >= 8 && !s.rails.some((m) => /당일/.test(m)), { rh: s.rh, rails: s.rails });
@@ -102,7 +105,9 @@ try {
     ok(`${W} ③ 입장 — 자리 알약 + «두 분이 앞에 서면» 한 줄 · ① 막대 없음`, s.k === 'entry' && s.metaPos && s.metaLab && !s.seg && s.posT < s.labB && s.labT < s.posB, s);
     const d = await f.evaluate(() => { LP.bedNote = '음악을 불러오는 중이에요'; LD.on = 1; LP.paused = false; _lFull(); const F = document.getElementById('lsFull'); const a = { ld: !!F.querySelector('.lf-ld'), bed: !!F.querySelector('.lp-bednote') };
       LP.bedNote = '음악을 불러오지 못했어요 · 나레이션만 들려 드려요 (코드 L6)'; _lFull(); a.fail = !!F.querySelector('.lp-bednote'); LD.on = 0; LP.bedNote = ''; _lFull(); return a; });
-    ok(`${W} ⑥ «불러오는 중» 한 줄 — 곡 받는 중 줄은 겹쳐 그리지 않는다 · 실패 알림은 그대로`, d.ld && !d.bed && d.fail, d);
+    ok(`${W} ⑥ «불러오는 중» 한 줄 — 곡 받는 중이면 «음악을 불러오는 중이에요»만(위 «불러오는 중…» 없음) · 실패 알림은 그대로`, !d.ld && d.bed && d.fail, d);
+    await step(f, pg, 5); const g2 = await look(f);
+    ok(`${W} ⑧ 위아래 간격 같음(그림 없는 말하는 차례 · ${g2.k})`, !!g2.gap && g2.gap[0] >= 10 && Math.abs(g2.gap[0] - g2.gap[1]) <= 2 && g2.k === 'welcome', { k: g2.k, gap: g2.gap });
     ok(`${W} ⑦ 가로 넘침 없음 · 페이지 오류 0`, s.sw <= s.vw && !errs.length, { sw: s.sw, vw: s.vw, errs: errs.slice(0, 3) });
     await ctx.close();
   }
