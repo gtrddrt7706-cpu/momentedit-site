@@ -24718,3 +24718,5 @@ chk 'var _t0=window.opPkTgl; window.opPkTgl=function(k){' order-preview.html 1
 #   DLG_BACK_1125 ② 작은 창(#mkRecDlg)이 떠 있을 때 휴대폰 뒤로 = 창만 닫힘(창은 뜬 채 뒤 화면만 앞 걸음으로 가던 것)
 chk 'DLG_BACK_1125' order-preview.html 1
 chk "if(document.getElementById('mkRecDlg')&&typeof mkDlgClose==='function'){ try{ mkDlgClose(); }catch(e){} _fwdSkip=Date.now();" order-preview.html 1
+#   CHIP_HOLD_1125 ② 누른 칩은 손가락 아래 그대로(위 설명 줄 수가 바뀌어 24px 밀렸다)
+chk 'CHIP_HOLD_1125' order-preview.html 1

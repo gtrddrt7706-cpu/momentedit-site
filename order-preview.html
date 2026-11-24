@@ -8357,8 +8357,10 @@ window.lsChip=function(key,v){
   if((key==='guestVoice'||key==='entryVoice'||key==='pvVoice')&&v==='ai'&&_vsOk()&&!LP.big&&!(S.tipSeen||{}).keep){ MK.keepDlg=key==='guestVoice'?'guest':key==='pvVoice'?'prevideo':'entry'; MK.keepTip=true; }   /* [TIP_ONCE] 고객이 AI 두 분 목소리를 처음 누를 때 한 번(코드가 값을 바꿀 때는 아니다) */
   var hold=_lHold(k);   /* [CHIP_NO_AUTOPLAY] 다시 그리기 전에 잰다 — ③ 연습에서는 render() 가 흐르던 줄을 비운다(2736 · ② 를 떠나면 멈춤) */
   var _cg0=_chgSnap(k);   // [CHIP_CHANGED] 그리기 전 흐름 줄 글
+  var _hs='#stage [data-fk="lsc:'+key+':'+v+'"]', _hb=LP.big?null:document.querySelector(_hs), _hy=_hb?_hb.getBoundingClientRect().top:null;   /* ★[CHIP_HOLD_1125] 누른 칩은 손가락 아래 그대로 — 위 한 줄 설명이 칩에 따라 줄 수가 바뀌어(부모님께 인사 «인사만» 등) 칩이 24px 밀렸다 */
   _lSet(key,v); buildSteps(); LS.msg=''; LS.undo=null;
   render();
+  if(_hy!==null){ var _hn=document.querySelector(_hs); if(_hn&&_hn.offsetParent){ try{ var _dy=_hn.getBoundingClientRect().top-_hy; if(Math.abs(_dy)>=1) window.scrollBy(0,_dy); }catch(e){} } }
   if((key==='guestVoice'||key==='entryVoice'||key==='pvVoice')&&v==='ai'&&_vcOn()){ if(VC.st) _vcFillEmpty(); else _vcStatus(_vcFillEmpty); }   // [FILL_EMPTY] 이미 있는 목소리로 빈 줄을 바로
   if(LP.big) _lFull();
   _lHush(k,hold);
