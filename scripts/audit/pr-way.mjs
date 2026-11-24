@@ -103,7 +103,7 @@ try {
     const ctl = [...document.querySelectorAll('#lsFull .lf-ctl.pr3 button')].map((e) => { const r = e.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height) }; });
     const say = document.querySelector('#lsFull .lf-txt.say'), fs = say ? parseFloat(getComputedStyle(say).fontSize) : 0, lab2 = ((document.querySelector('#lsFull .lf-lab.who') || {}).textContent || ''), vid = !!document.querySelector('#lsFull video, #lsFull .lf-vid');
     main && main.click(); await w(400); return { t, still, paused, src0, want0, want1, lab, ctl, fs, lab2, vid, moved: LP.i > j }; }, (waits.find((x) => x.talk2) || waits[0]).i);
-  ok('B 두 분 줄에서 멈춰 기다림(멈춤 아님) · 주버튼 «다 했어요 · …» · 누르면 다음 줄', b.still && !b.paused && /^다 했어요 · 다음 (줄|순서)$/.test(b.lab) && b.moved, b);
+  ok('B 두 분 줄에서 멈춰 기다림(멈춤 아님) · 주버튼 «다 했어요»([PR_CLEAR_1124 3]) · 누르면 다음 줄', b.still && !b.paused && /^다 했어요$/.test(b.lab) && b.moved, b);
   ok('B 기다리는 동안 음악은 그 줄 크기 그대로(올리거나 끊지 않음)', !b.src0 || b.want0 === b.want1, { src0: b.src0, want0: b.want0, want1: b.want1 });
   ok('④ 하단 셋 · 모두 44px 이상', b.ctl.length === 3 && b.ctl.every((x) => x.h >= 44 && x.w >= 44), b.ctl);
   ok('② 말하는 줄 큰 글 24 ~ 28px · «신랑이 읽어요» 꼴 머리 · 장면 영상 접힘', b.fs >= 20 && b.fs <= 28 && /^(신랑이 읽어요|신부가 읽어요|두 분 함께)$/.test(b.lab2) && !b.vid, { fs: b.fs, lab2: b.lab2, vid: b.vid });
@@ -125,8 +125,8 @@ try {
     const f = document.getElementById('lsFull'); f.scrollTop = 400; LP.paused = true; LP.i = Math.min(LP.i + 1, Q.length - 1); _lFull(); o.top = f.scrollTop;
     return o; });
   ok('② 서약 순서 줄 — 지금 차례 강조', m.vow === m.vowWant && !!m.vow, m);
-  ok('③ 긴 참고 예시 설명은 첫 참고 예시 줄에서만 · 작은 «참고 예시» 표시는 그대로', m.ref0 === true && m.ref1 === false && m.tag1 === true, m);
-  ok('⑤ 선언 · 덕담 요약 칸 고정 높이 없음', m.sumMin === '0px' && m.sumH < 140, m);
+  ok('③ 연습 참고 예시 안내는 한 줄(«참고 예시 · 실제 이름과 이야기로 바꿔 쓰는 글이에요») · 긴 설명(lf-refn) 없음 [PR_CLEAR_1124 5]', m.ref0 === false && m.ref1 === false && m.tag1 === true, m);
+  ok('⑤ 선언 · 덕담 요약 칸 고정 높이 없음 · [PR_CLEAR_1124 4] 연습은 «…말하는 자리예요» 글 자체가 없다', m.sumMin === 'x' || (m.sumMin === '0px' && m.sumH < 140), m);
   ok('④ «n/N · 예식 순서» 누르면 목록 · 고르면 그 순간 · 목록 닫힘', /^(\d+\/\d+|식전|식후|본식 뒤) · 예식 순서/.test(m.listLab) && m.listRows >= 4 && m.goK === true, m);
   ok('⑤ 다음 줄은 맨 위부터', m.top === 0, m);
   /* ⑦ 화면 잠금 */
