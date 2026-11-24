@@ -24690,3 +24690,7 @@ chk 'PR_END_1124' order-preview.html 1
 chk "(PRW==='try'?'끝까지 연습했어요':'끝까지 보셨어요')" order-preview.html 1
 chk 'PR_REF_ONCE_1124' order-preview.html 1
 chk "q.k===st.k&&q.ref&&!!q.bothRef===!!st.bothRef" order-preview.html 1
+#   PR_MINI_LAB_1124 연습 작은 플레이어도 크게 보기와 같은 이름표(«말없이 흐르는 자리» 걷음)  PR_WAY_W_1124 PC «흐름 보기 · 직접 해보기» 가운데 480px
+chk 'PR_MINI_LAB_1124' order-preview.html 1
+chk "st.own?st.txt:(_inPr()&&!st.talk2?_prLab(st):st.lab);" order-preview.html 1
+chk 'PR_WAY_W_1124' order-preview.html 1
