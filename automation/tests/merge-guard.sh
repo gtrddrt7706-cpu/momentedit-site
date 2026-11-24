@@ -24715,3 +24715,6 @@ chk '.pk-ex-n{flex-direction:column;align-items:flex-start;row-gap:1px}' order-p
 #   PK_TGL_HOLD_1125 ① ＋ · ✓ 누른 칸은 손가락 아래 그대로(위 판이 늘어 186px 밀렸다) · 미리 보기 창에서 담을 때는 건드리지 않는다
 chk 'PK_TGL_HOLD_1125' order-preview.html 1
 chk 'var _t0=window.opPkTgl; window.opPkTgl=function(k){' order-preview.html 1
+#   DLG_BACK_1125 ② 작은 창(#mkRecDlg)이 떠 있을 때 휴대폰 뒤로 = 창만 닫힘(창은 뜬 채 뒤 화면만 앞 걸음으로 가던 것)
+chk 'DLG_BACK_1125' order-preview.html 1
+chk "if(document.getElementById('mkRecDlg')&&typeof mkDlgClose==='function'){ try{ mkDlgClose(); }catch(e){} _fwdSkip=Date.now();" order-preview.html 1

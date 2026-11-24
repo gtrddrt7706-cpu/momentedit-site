@@ -3996,6 +3996,7 @@ window.addEventListener('popstate',function(ev){
   _hTell();   /* [HIST_DEPTH] 뒤로 · 앞으로 온 칸의 깊이 */
   if(_parentAsk){ _fwdSkip=Date.now(); try{ history.forward(); }catch(e){ _fwdSkip=0; } return; }   // [PARENT_ASK_HOLD] 마이페이지 판은 뒤로가기를 무시한다 — 걸음을 그대로 두고 칸을 되돌린다
   if(_ordOv&&_ordOv.__ordDismiss){ _ordOv.__ordDismiss(); _fwdSkip=Date.now(); try{ history.forward(); }catch(e){ _fwdSkip=0; } return; }   // [BACK_DISMISS]
+  if(document.getElementById('mkRecDlg')&&typeof mkDlgClose==='function'){ try{ mkDlgClose(); }catch(e){} _fwdSkip=Date.now(); try{ history.forward(); }catch(e){ _fwdSkip=0; } return; }   // ★[DLG_BACK_1125] 작은 창(내 곡 · 녹음 · 목소리)이 떠 있을 때 휴대폰 뒤로 = 창만 닫힘 — 종전엔 창은 그대로 뜬 채 뒤 화면만 앞 걸음(고르기 · 안내)으로 넘어갔다([BACK_DISMISS] 와 같은 길)
   if(!isOpen()) return;
   var st=ev.state||{};
   var _rp=document.getElementById('ob_rpViewer'); if(_rp&&!st.rp&&_rp.__rpClose){ _rp.__rpClose(true); if(st.opIdx===idx) return; }   // [RP_BACK] 음악까지 미리듣기도 뒤로 한 번에 닫힌다
