@@ -22148,7 +22148,8 @@ chk "<span class=\"mk-pre\">본식 </span><span class=\"mk-num\"><b>'+_no+'</b>/
 nochk 'body.mkd .prog{position:sticky;top:-15px' order-preview.html 0   # [HEAD_GAP_1122] 은퇴(옛 chk 1 · −5px 로)
 chk 'body.mkd .op-steps-c{margin:0}' order-preview.html 1
 chk '@media (max-width:408px) and (hover:hover) and (pointer:fine){ body.mkd .prog-top{flex-wrap:wrap' order-preview.html 1
-chk 'body.op4 #obExit{min-width:48px;padding:0 4px}' order-preview.html 1
+chk 'body.op4 #obExit{min-width:56px;padding:0 9px}' order-preview.html 1   # [EXIT_PILL_ROOM_1125] 48 → 56(글이 테에 닿았다)
+chk 'EXIT_PILL_ROOM_1125' order-preview.html 1
 chk '<nav class="mk-sc" id="mkScP" aria-label="진행 순서"' order-preview.html 1
 nochk '<div class="mk-fold">' order-preview.html
 nochk 'class="mk-fbtn"' order-preview.html
