@@ -97,10 +97,10 @@ try {
     ok(`${W} ① 진행 막대 없음(하객 맞이)`, !s.seg, s);
     ok(`${W} ⑧ «흐름 보기 · 직접 해보기» 위아래 간격 같음(그림 있는 줄)`, s.gap && s.gap[0] >= 10 && Math.abs(s.gap[0] - s.gap[1]) <= 2, s.gap);
     ok(`${W} ② «이 순간만 연습» 제목 줄 오른쪽(같은 줄)`, s.hrow && s.ont < s.h3b && s.onb > s.h3t, s);
-    ok(`${W} ③ 자리 알약 + «하객 입장 때» 한 줄`, s.pos && s.meta && s.metaPos && s.metaLab && s.lab === '하객 입장 때' && s.posT < s.labB && s.labT < s.posB, s);
+    ok(`${W} ③ 자리 알약 + «안내 음성 · 하객 입장 때» 한 줄([PR_CLEAR_1124] 이름표)`, s.pos && s.meta && s.metaPos && s.metaLab && s.lab === '안내 음성 · 하객 입장 때' && s.posT < s.labB && s.labT < s.posB, s);
     if (W > 1000) ok(`${W} ⑤ 오른쪽 목록 — 머리 «당일 기준» · 줄마다 «당일» 없음`, s.railVis && /당일\s기준/.test(s.rh) && s.rails.length >= 8 && !s.rails.some((m) => /당일/.test(m)), { rh: s.rh, rails: s.rails });
     await step(f, pg, 4); s = await look(f);
-    ok(`${W} ④ 여는 멘트 이름표 — 제목을 다시 쓰지 않는다(«예식 시작 시각에»)`, s.lab === '예식 시작 시각에' && !s.seg, s);
+    ok(`${W} ④ 여는 멘트 이름표 — 제목을 다시 쓰지 않는다(«안내 음성 · 예식 시작 시각에» · [PR_CLEAR_1124])`, s.lab === '안내 음성 · 예식 시작 시각에' && !s.seg, s);
     await step(f, pg, 13); s = await look(f);
     ok(`${W} ③ 입장 — 자리 알약 + «두 분이 앞에 서면» 한 줄 · ① 막대 없음`, s.k === 'entry' && s.metaPos && s.metaLab && !s.seg && s.posT < s.labB && s.labT < s.posB, s);
     const d = await f.evaluate(() => { LP.bedNote = '음악을 불러오는 중이에요'; LD.on = 1; LP.paused = false; _lFull(); const F = document.getElementById('lsFull'); const a = { ld: !!F.querySelector('.lf-ld'), bed: !!F.querySelector('.lp-bednote') };
