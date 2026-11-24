@@ -24654,6 +24654,17 @@ chk "h+=_doneOpen()+_psLinks()+_prRolesHtml();" order-preview.html 1
 nochk 'class="pr-hp"' order-preview.html 0
 chk "\.pr-hl b::after{content:'\\\\203A'" order-preview.html 1
 chk "var el=document.querySelector('\[data-fk=\"prtry\"\] .pr-hx'), tn=el&&el.firstChild;" order-preview.html 1
-chk 'rec-sec pr-simple' .github/workflows/merge-guard.yml 1
+chk 'rec-sec pr-simple' .github/workflows/merge-guard.yml 1   # [PR_PLAY_1124] 뒤에 pr-play 가 붙어도 한 번
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-simple.mjs >/dev/null 2>&1; _prs=$?; if [ "$_prs" = 1 ]; then echo 'FAIL pr-simple: 연습 첫 화면(시작 카드 하나 · 오늘 흐름 · AI 카드 · 역할 전달 없음)'; fail=1; else echo "ok pr-simple 실행(코드 $_prs)"; fi; fi
 chk 'PR_SIMPLE_1124' scripts/audit/vc-r1-listen.mjs 5
+# ★★[PR_PLAY_1124 2026-11-24 사장님 «(연습 재생 화면) 여기도 디자인적으로 그리고 고객 입장에서 보고 개선하자»] ③ 연습하기 크게 보기(재생 화면) 덜어내기
+#   진행 막대(머리 n / 13 · PC 오른쪽 목록과 겹침) 걷음 · «이 순간만 연습»은 제목 줄 오른쪽 · 자리 알약 + 작은 이름표 한 줄 · 여는 멘트 이름표에 제목 되풀이 없음
+#   목록 줄마다 «당일 약» → «약» · «당일»은 목록 머리 한 번 · 위에 «불러오는 중» 줄이 있으면 곡 받는 중 줄은 겹쳐 그리지 않는다 · 실렌더 검사 scripts/audit/pr-play.mjs(CI bgm-sound 칸 g)
+chk 'PR_PLAY_1124' order-preview.html 9
+chk 'PR_PLAY_1124' scripts/audit/pr-play.mjs 2
+chk "    if(!_prIn) h+='<div class=\"lf-seg\" aria-hidden=\"true\">'+body.map(" order-preview.html 1
+chk "h+=(_hx?'<div class=\"lf-hrow\">'+_h3+_hx+'</div>':_h3)+_hb;" order-preview.html 1
+chk "function _fgMinRow(k){ return _fgMin(k).replace(/^당일 /,''); }" order-preview.html 1
+chk "누른 순간부터 끝까지 이어서 흘러요 · 시간은 당일 기준이에요" order-preview.html 1
+chk '<span class="lf-rhw">당일 기준</span>' order-preview.html 1
+chk 'rec-sec pr-simple pr-play' .github/workflows/merge-guard.yml 1
