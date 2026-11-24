@@ -2,7 +2,7 @@
  * 식후 = 전체 단체 사진(한 장) → 촬영 후 안내(그 직후 · 가족 사진 전) → 가족 사진 · 추가 촬영(원하시는 분들과) — ★[END_FLOW_200 최종 · AFTER_BEFORE_FAMILY_200].
  * 원천은 assets/ritual-open.js POST_FLOW 하나 — 이 검사가 화면 · 엔진 · 마이페이지 · 콘솔 · 브리프가 같은 이름 · 같은 차례인지 잰다.
  *   E  엔진(새 코스 예시 넷) — 전체 하객 → 촬영 후 안내 → 가족 구도 → 추가 촬영 큐 차례 · 추가 촬영 이름 = POST_FLOW
- *   B  식순 화면(order-preview) — 식후 줄이 POST_KS 하나로 그려진다(고르기 칸 · 예식 흐름 · 완성 · 오늘 흐름 칩 · 골라서 연습하기) · 옛 이름 없음
+ *   B  식순 화면(order-preview) — 식후 줄이 POST_KS 하나로 그려진다(고르기 칸 · 예식 흐름 · 완성 · 골라서 연습하기 · [PR_SIMPLE_1124] 오늘 흐름 칩은 걷음) · 옛 이름 없음
  *   M  마이페이지 사진 단계 — 전체 → 촬영 후 안내 → 가족 구도 → 추가 촬영 · 브리프 같은 차례
  *   N  화면 이름 금지어(«사진 촬영(» · «남은 분들과 자유롭게» · «친구들과 자유롭게 ·») — 나레이션 문장은 따로
  * 쓰기: node scripts/audit/post-flow.mjs  (종료 0 통과 · 1 실패 · 스스로 깨 보기가 어긋나도 1) */
@@ -43,7 +43,7 @@ function check(src) {
     ['진행 줄 · 예식 흐름 원천(_fixSteps)', "return [{t:'',n:_post('_photo').n,"],
     ['예식 흐름 사진 · 정리(FIX_FLOW_204 B)', "_fixSteps('post').map(fxRow).join('')"],
     ['완성 식후 세 줄', "if(_afterOn()) POST_KS.forEach(function(k){ var x=_post(k), d=_postDur(k);"],
-    ['오늘 흐름 칩', "if(_afterOn()) POST_KS.forEach(function(k){ g.push({p:k,ks:[]}); });"],
+    /* ['오늘 흐름 칩', …] 은퇴 — 2026-11-24 «오늘 흐름» 자체를 걷음(사장님 «중복 전부 삭제» · PR_SIMPLE_1124) · 식후 줄은 «골라서 연습하기»가 같은 POST_KS 로 그린다 */
     ['골라서 연습하기', "+(_afterOn()?POST_KS.map(function(k){"],
     ['한눈에 보기', "POST_KS.map(function(k){ return _post(k).n; }).join(' → ')"],
     ['② 닫는 인사 끝', "_qRow('다음 · '+_post('_photo').n)"],

@@ -52,7 +52,7 @@ try {
     ok(`${w} C «직접» — 말하는 차례에 «…소리 내어 읽어 …» 안내 · 남은 시간 막대 · AI 안 부름 [PR_CUE]`, /소리 내어/.test(d0.cue) && d0.bar && d0.calls === 0, JSON.stringify(d0));
     ok(`${w} C 말하는 차례 순서 = 누구 차례 → 할 일 → 남은 시간(TBAR_UP) → 글 → 글의 출처 · 연습 중 예시 번호 칩 없음 [PR_ORDER]`, /^lf-lab\.who>lf-cue>lf-tbar>lf-txt(>lf-ref)*$/.test(d0.order) && d0.chips === 0, JSON.stringify(d0));
     await pg.evaluate(() => lsStop()); await wait(300);
-    /* ★[PR_SIMPLE_1124 2026-11-24 사장님 «ai 목소리 먼저 듣기 이거는 삭제하자»] 연습하기의 «AI 로 먼저»(A 카드 · 업체 알림 · 준비 칸 · PT_PREP · PT_TUNE · PT_NO_STALL) 기대 은퇴 —
+    /* ★[PR_SIMPLE_1124 2026-11-24 사장님 «ai 목소리 먼저 듣기 이거는 삭제하자»] (옛 [PR_ORDER] 라디오 기대는 PR_CLEAN_1123 에서 이미 은퇴) 연습하기의 «AI 로 먼저»(A 카드 · 업체 알림 · 준비 칸 · PT_PREP · PT_TUNE · PT_NO_STALL) 기대 은퇴 —
        AI 연습 읽기 스위치(practiceTts)가 켜져 있어도 연습하기에서는 AI 로 읽지 않는다(_ptAi false) · 말하는 차례는 «소리 내어 읽어» 안내 */
     const ai0 = await pg.evaluate(() => { PT.mode = 'ai'; const r = { ai: _ptAi(), a: !!document.querySelector('[data-fk="prall"]'), prep: !!document.getElementById('prPrep') }; PT.mode = 'self'; return r; });
     ok(`${w} C 연습하기 AI 로 먼저 은퇴 — 스위치가 켜져 있어도 _ptAi false · A 카드 · 준비 칸 없음 [PR_SIMPLE_1124]`, ai0.ai === false && !ai0.a && !ai0.prep, JSON.stringify(ai0));
