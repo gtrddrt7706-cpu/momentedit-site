@@ -1,11 +1,14 @@
 #!/usr/bin/env node
-/* ★★[PR_FLOW_1124 2026-11-24 사장님 «이건 ?»(연습 첫 화면 «오늘 흐름» 칩 캡처)] ③ 연습하기 «오늘 흐름» 자리 칩 정리 — 실브라우저(390 · 1280 · 마이페이지 안)
-   ① 칩 묶음(지그재그 · 높이 들쭉날쭉) → 위에서 아래로 한 줄씩 차례 줄 — 모두 같은 왼쪽 · 아래로만 내려간다 · 점 표식
-   ② 자리 이름을 줄 안 글이 되풀이하지 않는다 — «앞쪽 중앙에서 이어지는 순서예요.» 없음 · 줄 글에 마침표 없음 · 앞쪽 중앙으로 돌아오는 줄 = «다시 돌아와요»
-   ③ 줄 글은 «자리 · 그 자리 순간 · 바라보는 쪽» 그대로(순간 이름 · 하객 쪽을 봐요)
-   ⑤ 시작 카드 그림 위 ▶ 동그라미(.pr-hp) 없음 · 제목 끝 ›(사장님 «이건뭐지?» · 영상 미리보기로 읽혔다)
-   ④ 가로 넘침 없음 · 페이지 오류 0
-   SHOT_DIR=디렉터리 → 390 · 1280 «오늘 흐름» 스크린샷  PW_OP = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
+/* ★★[PR_SIMPLE_1124 2026-11-24 사장님 «우측 골라서 연습하기가 같은 역할 아니야? 중복되는 거 전부 삭제 심플하게» · «ai 목소리 먼저 듣기 이거는 삭제하자»(→ «카드 하나만 남기기») ·
+     «역할 전달하기 · 연습하기 페이지랑 분리해서 연습하기 전담으로» · «이건뭐지?»(그림 위 ▶)] ③ 연습하기 첫 화면 — 실브라우저(390 · 1280 · 마이페이지 안) · PR_CLEAN_1123 검사(pr-clean)를 잇는다
+   ① «오늘 흐름»(.pr-flow · 자리 차례) 없음 · 머리 아래 한 줄 = «집에서는 …» · «예식 순서 n · 말하는 차례가 오면 …» 없음
+   ② 시작 카드 하나(«직접 소리 내어 해보기» · prtry) · A(prall «AI 목소리로 먼저 듣기» / «흐름 보기로 시작») · 업체 전송 알림 · AI 준비 칸 없음 · AI 스위치가 켜진 예식이어도 같다
+      덧말 «연습 약 n분 · 두 분 속도에 따라 달라요»(n = 실제 연습 줄 계산) · 폰 · PC 모두 그림 위 글 아래(그림이 왼쪽 칸 폭을 다 쓴다)
+   ③ 그림 위 ▶ 동그라미(.pr-hp) 없음 · 제목 끝 ›
+   ④ 누르면 직접 해보기(PT.mode 'self' · PRW 'try') · 연습하기에서 AI 로 읽기 꺼짐(_ptAi false · PT.mode 'ai' 여도)
+   ⑤ «역할 전달하기»는 연습하기에 없다(재생 중 «이 역할 전달하기» 포함) · ④ 완성 화면에 있다
+   ⑥ «글로 한눈에 보기» · «음악 끄기» 한 줄 · «골라서 연습하기» 목록 그대로 · 가로 넘침 없음 · 페이지 오류 0
+   SHOT_DIR=디렉터리 → 390 · 1280 스크린샷  PW_OP = 깨 보기용 다른 판  종료 코드 0 통과 · 1 실패 · 2 재지 못함 */
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http'; import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
@@ -75,27 +78,47 @@ async function toPractice(f, on) {
     PT.mode = ''; PT.askMode = false; PT.prep = null; PT.startAfter = null; PRW = 'flow';
     idx = STEPS.findIndex((x) => x.k === 'practice'); render(); await new Promise((x) => setTimeout(x, 700)); scrollTo(0, 0); }, on);
 }
-
+const rect = (f, sel) => f.evaluate((sel) => { const e = document.querySelector(sel); if (!e) return null; const r = e.getBoundingClientRect(); return { l: Math.round(r.left), t: Math.round(r.top + scrollY), w: Math.round(r.width), h: Math.round(r.height), b: Math.round(r.bottom + scrollY), r: Math.round(r.right) }; }, sel);
 try {
   for (const W of [390, 1280]) {
     const { ctx, pg, f, errs } = await open(W, true);
-    await toPractice(f, true);
-    const s = await f.evaluate(() => { const L = [...document.querySelectorAll('.pr-fcs > .pr-fc')], R = L.map((e) => e.getBoundingClientRect());
-      const col = R.every((r) => Math.round(r.left) === Math.round(R[0].left)) && R.every((r, i) => !i || r.top >= R[i - 1].bottom - 1);
-      const dot = L.every((e) => getComputedStyle(e, '::before').content !== 'none' && getComputedStyle(e, '::before').borderRadius === '50%');
-      const hp = document.querySelectorAll('.pr-hp').length, cv = [...document.querySelectorAll('[data-fk="prall"] .pr-hl b, [data-fk="prtry"] .pr-hl b')].map((b) => getComputedStyle(b, '::after').content);
-      return { n: L.length, col, dotOk: dot, hp, cv, back: L.some((e) => e.textContent === '앞쪽 중앙 다시 돌아와요'), txt: L.map((e) => e.textContent.trim()), dot: L.some((e) => /\.\s*$/m.test([...e.querySelectorAll('span,i')].map((x) => x.textContent).join('\n'))),
-        dup: /앞쪽 중앙에서 이어지는/.test(document.querySelector('.pr-flow').textContent), sw: document.documentElement.scrollWidth, vw: innerWidth }; });
-    ok(`${W} ① 차례 줄 = 같은 왼쪽 · 위에서 아래로 한 줄씩 · 점 표식`, s.n > 3 && s.col && s.dotOk, { n: s.n, col: s.col, dot: s.dotOk });
-    ok(`${W} ② «앞쪽 중앙에서 이어지는 순서예요.» 없음 · 줄 글 마침표 없음 · 돌아오는 줄 = «다시 돌아와요»`, !s.dup && !s.dot && s.back, s.txt);
-    ok(`${W} ⑤ 시작 카드 그림 위 ▶ 동그라미 없음 · 두 제목 끝 ›`, s.hp === 0 && s.cv.length === 2 && s.cv.every((c) => /›|203A/.test(c)), { hp: s.hp, cv: s.cv });
-    ok(`${W} ③ 줄 글 = 자리 · 순간 · 방향(대기 자리 · 입장 · 앞쪽 중앙 · 하객 쪽을 봐요)`, /^대기 자리/.test(s.txt[0]) && s.txt.some((t) => t === '입장') && s.txt.some((t) => /^앞쪽 중앙.*맞절/.test(t)) && s.txt.some((t) => /하객 쪽을 봐요/.test(t)), s.txt);
-    ok(`${W} ④ 가로 넘침 없음`, s.sw <= s.vw, s);
-    if (SHOT_DIR) { const el = await f.$('.pr-flow'); await el.screenshot({ path: `${SHOT_DIR}/${W}-flow.png` }); }
+    for (const on of [true, false]) {
+      const tag = `${W} AI 스위치 ${on ? '켬' : '끔'}`;
+      await toPractice(f, on);
+      if (SHOT_DIR && on) { await pg.setViewportSize({ width: W, height: W < 1000 ? 2000 : 1000 }); await wait(pg, 400); await pg.screenshot({ path: `${SHOT_DIR}/${W}-practice.png` }); await pg.setViewportSize({ width: W, height: 900 }); await wait(pg, 300); }
+      const s = await f.evaluate(() => { const P = document.querySelector('.op.pr'), t = (sel) => ((document.querySelector(sel) || {}).textContent || '').replace(/ /g, ' ');
+        return { flow: !!document.querySelector('.pr-flow, .pr-fcs'), one: [...P.querySelectorAll('p.mk-one')].map((e) => e.textContent), cnt: /예식 순서 \d+ ·|말하는 차례가 오면 화면이 알려/.test(P.textContent),
+          a: !!document.querySelector('[data-fk="prall"]'), ask: !!document.querySelector('.pr-ask, [data-fk="prmyes"]'), prep: !!document.getElementById('prPrep'), aiTxt: /AI 목소리로 먼저 듣기|흐름 보기로 시작/.test(P.textContent),
+          n: document.querySelectorAll('.pr-sts > .pr-st').length, b: t('[data-fk="prtry"] .pr-hl b'), bx: t('[data-fk="prtry"] .pr-hx'), est: Math.round(_prEstMs(_lRows()) / 60000),
+          hp: document.querySelectorAll('.pr-hp').length, cv: getComputedStyle(document.querySelector('[data-fk="prtry"] .pr-hl b'), '::after').content,
+          roles: !!P.querySelector('.pr-roles, [data-fk^="prrole:"]'), list: document.querySelectorAll('.pr-list [data-fk^="prj:"]').length, sw: document.documentElement.scrollWidth, vw: innerWidth }; });
+      ok(`${tag} ① «오늘 흐름» 없음 · 머리 아래 한 줄 = «집에서는 …» · «예식 순서 n» 줄 없음`, !s.flow && s.one.length === 1 && /^집에서는 입장 출발점/.test(s.one[0]) && !s.cnt, s);
+      ok(`${tag} ② 시작 카드 하나(직접 소리 내어 해보기) · AI 카드 · 알림 · 준비 칸 없음`, !s.a && !s.ask && !s.prep && !s.aiTxt && s.n === 1 && s.b === '직접 소리 내어 해보기', s);
+      ok(`${tag} ② 덧말 «연습 약 n분 · 두 분 속도에 따라 달라요»(실제 계산)`, s.bx === '연습 약 ' + s.est + '분 · 두 분 속도에 따라 달라요', { bx: s.bx, est: s.est });
+      ok(`${tag} ③ 그림 위 ▶ 없음 · 제목 끝 ›`, s.hp === 0 && /›|203A/.test(s.cv), { hp: s.hp, cv: s.cv });
+      ok(`${tag} ⑤ 연습하기에 «역할 전달하기» 없음 · ⑥ «골라서 연습하기» 목록 그대로 · 가로 넘침 없음`, !s.roles && s.list >= 10 && s.sw <= s.vw, s);
+      const im = await rect(f, '[data-fk="prtry"] .pr-hm'), hl = await rect(f, '[data-fk="prtry"] .pr-hl');
+      const ld = await rect(f, '.pr-lead');
+      ok(`${tag} ② 카드 짜임 — 그림 위 · 글 아래 · 그림이 왼쪽 칸 폭을 다 쓴다`, hl.t >= im.b - 1 && (!ld || Math.abs(im.w - ld.w) <= 2), { im, hl, ld });
+      const sv = await rect(f, '[data-fk="prsv"]'), mu = await rect(f, '[data-fk="prmu"]');
+      ok(`${tag} ⑥ «글로 한눈에 보기» · «음악 끄기» 한 줄`, !!sv && !!mu && sv.t === mu.t, { sv, mu });
+      await f.evaluate(() => { PT.mode = 'ai'; });
+      const ai = await f.evaluate(() => _ptAi());
+      ok(`${tag} ④ 연습하기 AI 로 읽기 꺼짐(PT.mode 'ai' 여도 _ptAi false)`, ai === false, ai);
+      await f.click('[data-fk="prtry"]'); await wait(pg, 600);
+      const b1 = await f.evaluate(() => ({ mode: PT.mode, w: PRW, big: !!LP.big, role: !!document.querySelector('[data-fk="lfrole"]') }));
+      ok(`${tag} ④ 누르면 직접 해보기(self · try · 크게 보기) · 재생 중 «이 역할 전달하기» 없음`, b1.mode === 'self' && b1.w === 'try' && b1.big && !b1.role, b1);
+      await f.evaluate(() => { try { lsStop(); } catch (e) {} render(); }); await wait(pg, 300);
+    }
+    /* ⑤ 완성 화면에 역할 전달하기 */
+    await f.evaluate(async () => { try { lsStop(); } catch (e) {} idx = STEPS.findIndex((x) => x.k === 'done'); render(); await new Promise((x) => setTimeout(x, 600)); });
+    const d = await f.evaluate(() => ({ roles: document.querySelectorAll('.pr-roles [data-fk^="prrole:"]').length, h: ((document.querySelector('.pr-roles h4') || {}).textContent || '') }));
+    ok(`${W} ⑤ ④ 완성 화면에 «역할 전달하기»(그분 몫 단추)`, d.roles >= 1 && d.h === '역할 전달하기', d);
+    if (SHOT_DIR) { const el = await f.$('.pr-roles'); if (el) { await el.scrollIntoViewIfNeeded(); await el.screenshot({ path: `${SHOT_DIR}/${W}-done-roles.png` }); } }
     ok(`${W} 페이지 오류 0`, !errs.length, errs.slice(0, 3));
     await ctx.close();
   }
 } catch (e) { console.log('FAIL 예외 ' + (e && e.stack || e)); fail++; }
 await br.close(); srv.close();
-console.log(fail ? `✗ PR_FLOW_1124 실패 ${fail}건` : 'ok pr-flow — 오늘 흐름: 위에서 아래로 차례 줄 · 제목 되풀이 없음 · 시작 카드 ▶ 동그라미 없음 · 제목 끝 ›');
+console.log(fail ? `✗ PR_SIMPLE_1124 실패 ${fail}건` : 'ok pr-simple — 연습 첫 화면: 오늘 흐름 · AI 카드 없음 · 시작 카드 하나(›) · 역할 전달은 완성 화면');
 process.exit(fail ? 1 : 0);

@@ -76,9 +76,9 @@ try {
   const { ctx, pg, f, errs } = await open(390, true);
   await f.evaluate(async () => { idx = STEPS.findIndex((x) => x.k === 'practice'); render(); await new Promise((x) => setTimeout(x, 700)); });
   /* 중6 · 중7 첫 화면 */
-  const s0 = await f.evaluate(() => { const ch = [...document.querySelectorAll('.pr-fcs .pr-fc b')].map((b) => b.textContent); const n = (document.querySelector('.mk-one') || {}).textContent || '';
-    const mins = ((document.querySelector('[data-fk="prall"] .pr-hl .pr-hx') || {}).textContent || '').replace(/\u00a0/g, ' '); return { last: ch.slice(-3), list: !!document.querySelector('[data-fk="prj:_after"]'), n, mins, est: Math.round(_prEstMs(_lRows()) / 60000), tr: ((document.querySelector('[data-fk="prtry"] .pr-hx') || {}).textContent || '').replace(/\u00a0/g, ' ') }; });
-  ok('중6 «오늘 흐름» 끝 = 전체 단체 사진 → 촬영 후 안내 → 가족 사진 · 추가 촬영 [POST_FLOW_200 · AFTER_BEFORE_FAMILY_200] · 목록에 «식후 · 촬영 후 안내»', s0.last.join('>') === '전체 단체 사진>촬영 후 안내>가족 사진 · 추가 촬영' && s0.list, s0);
+  const s0 = await f.evaluate(() => { const ch = [...document.querySelectorAll('.pr-list [data-fk^="prj:"], .pr-list [data-fk^="prx:"]')].map((b) => b.getAttribute('data-fk').slice(4));   /* [PR_SIMPLE_1124] «오늘 흐름» 걷음 → 같은 차례를 오른쪽 «골라서 연습하기» 목록에서 잰다 */ const n = (document.querySelector('.mk-one') || {}).textContent || '';
+    const mins = ((document.querySelector('[data-fk="prtry"] .pr-hx') || {}).textContent || '').replace(/\u00a0/g, ' ');   /* [PR_SIMPLE_1124] 시작 카드 하나 — 연습 시간은 B 덧말 */ return { last: ch.slice(-3), list: !!document.querySelector('[data-fk="prj:_after"]'), n, mins, est: Math.round(_prEstMs(_lRows()) / 60000), tr: ((document.querySelector('[data-fk="prtry"] .pr-hx') || {}).textContent || '').replace(/\u00a0/g, ' ') }; });
+  ok('중6 «골라서 연습하기» 끝 = 전체 단체 사진 → 촬영 후 안내 → 가족 사진 · 추가 촬영 [POST_FLOW_200 · AFTER_BEFORE_FAMILY_200] · 목록에 «식후 · 촬영 후 안내»', s0.last.join('>') === '_photo>_after>_extra' && s0.list, s0);
   ok('중7 «연습 약 n분» = 실제 연습 줄 계산 · B 는 두 분 시간에 따라', new RegExp('연습 약 ' + s0.est + '분').test(s0.mins) && /두 분 속도에 따라 달라요/.test(s0.tr) /* [PR_CLEAN_1123] B 덧말 «걸리는 시간은 두 분 속도에 따라 달라요»(카드 한 줄에 들게) */, s0);
   const q = await f.evaluate(async () => { const pq = _prQ(_lRows()); prStart('try'); await new Promise((x) => setTimeout(x, 900)); LP.paused = true; clearTimeout(LP.t);
     const same = pq.length === LP.q.length && pq.every((x, i) => x.k === LP.q[i].k && x.txt === LP.q[i].txt && x.ms === LP.q[i].ms);

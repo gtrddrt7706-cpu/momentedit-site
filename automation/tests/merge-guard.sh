@@ -16703,7 +16703,7 @@ chk 'G3_NO_MINI' order-preview.html 1   # [G3_NO_MINI 2026-10-05] 하객 맞이 
 #   연습 방법 라디오 화살표 · 말하는 차례 «누구 차례 → 할 일 → 글 → 남은 시간 → 글의 출처» · 연습 중 예시 번호 칩 없음
 chk 'PR_ORDER' order-preview.html 6
 nochk 'window.prModeKey=function(ev)' order-preview.html   # [PR_CLEAN_1123 2026-11-23] 연습 방법 라디오(화살표)는 시작 카드 둘로 합쳐 은퇴 · 되살리지 말 것
-chk "_ai?'AI 목소리로 먼저 듣기':'흐름 보기로 시작'" order-preview.html 1   # [PR_WAY_198] 옛 «처음부터 시작하기» → A «흐름 보기로 시작» · [PR_CLEAN_1123] AI 연습 읽기가 열린 예식이면 같은 카드가 «AI 목소리로 먼저 듣기»
+nochk "_ai?'AI 목소리로 먼저 듣기'" order-preview.html 0   # ★[PR_SIMPLE_1124 2026-11-24] A 카드 은퇴(사장님 «ai 목소리 먼저 듣기 이거는 삭제하자») · 옛 기대   # [PR_WAY_198] 옛 «처음부터 시작하기» → A «흐름 보기로 시작» · [PR_CLEAN_1123] AI 연습 읽기가 열린 예식이면 같은 카드가 «AI 목소리로 먼저 듣기»
 chk 'PR_ORDER' scripts/audit/play-wait-file.mjs 2
 chk 'PR_ORDER' scripts/audit/pr-from-mypage.mjs 1
 # ★[PT_PREP · PT_VOICE_FALLBACK 2026-10-05 사장님 «미리 전부 만들어서 딜레이 없이» · «AI 음성 소리가 안 나는데?»] AI 로 먼저 = 틀기 전에 말하는 차례 소리를 전부(셋씩) · 다 되기 전 재생은 기다렸다 바로 ·
@@ -21943,7 +21943,7 @@ chk 'lpCut:function()' assets/bgm-bed.js 1
 if command -v node >/dev/null 2>&1; then node scripts/audit/pr-way2.mjs >/dev/null 2>&1; _prw2=$?; if [ "$_prw2" = 1 ]; then echo 'FAIL pr-way2: 연습 2단계(이 순간만 · 입장 준비 · 이어서)가 어긋났습니다 — node scripts/audit/pr-way2.mjs'; fail=1; fi; fi
 # ── 2026-11-02 [PR_WAY_198 검토 198-3] ⑫ 이 역할 전달하기 — 부모님 · 축사 · 선언하실 분께 그분 몫만(안내 음성 · 읽으실 글 · 하실 일 · 마치면) 복사 + 읽기 전용 쪽 role.html(# 뒤에만 · noindex)
 chk 'function _prRoleOf(id)' order-preview.html 1
-chk 'data-fk="lfrole"' order-preview.html 1
+nochk 'data-fk="lfrole"' order-preview.html 0   # ★[PR_SIMPLE_1124 2026-11-24] 재생 중 «이 역할 전달하기» 은퇴(연습하기는 연습 전담 · 역할 전달은 ④ 완성)
 chk 'PR_WAY_198 ⑫' role.html 1
 chk 'noindex, nofollow' role.html 1
 nochk 'fetch(' role.html
@@ -21982,7 +21982,7 @@ chk "txt:_post('_photo').n+' · 한 장 · 연습에서는 넘겨요'" order-pre
 chk "'비워 두셔도 돼요 · 지금은 참고 예시'" order-preview.html 1
 chk "txt:'축사하실 분이 말하는 자리예요',full:_ft" order-preview.html 1
 chk '_rf={free:4}\[k\]' order-preview.html 1
-chk "예식 순서 '+n+' · 말하는 차례가 오면 화면이 알려 드려요" order-preview.html 1
+nochk "예식 순서 '+n+' · 말하는 차례가 오면" order-preview.html 0   # [PR_SIMPLE_1124] 머리 줄 은퇴(순서 수는 목록 · 차례 안내는 시작 카드)
 chk 'PRACTICE_WALK_1101' order-preview.html 19
 # ── 2026-11-01 [OPEN_LINE_192 · TABLE_PLUS_192 · TRIB_LAB_192 · REC_ENTRY_CLAP 검토 192 · 연습하기 3라운드] 여는 멘트 칸 · 테이블 인사 «+» · 부모님께 인사 라벨 · 입장 격식 «큰 박수로»(07#0 우성 재녹음)
 chk "lab='여는 멘트 · 예식 시작 시각에'" order-preview.html 1
@@ -24081,7 +24081,7 @@ chk "setAttribute('aria-pressed', String(muted));" console.html 1
 chk 'MUTE_PRESSED_1115' scripts/audit/console-r2-1115.mjs 3
 # ★[CONSOLE_R2_1115 2026-11-15 BGM 섹션 · GPT 라운드 2] 당일 콘솔 · 곡 계획 묶음 검사 — CI bgm-sound f 칸(가장 짧은 칸)에서 돈다
 chk 'CONSOLE_R2_1115' .github/workflows/merge-guard.yml 1
-chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115 rec-sec pr-clean pr-flow-chips' }" .github/workflows/merge-guard.yml 1
+chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115 rec-sec pr-simple' }" .github/workflows/merge-guard.yml 1
 # ★[GEN_ON_OPEN_1115 2026-11-15 BGM 섹션 · GPT 라운드 2 검증 중 찾음] 새 곡이 재생기를 받을 때 세대 번호를 올린다 — 앞 겹침 뒷정리 타이머가 늦게 여는 곡 재생기를 세우지 않게(검사 console-r2-1115 F)
 chk 'GEN_ON_OPEN_1115' console.html 1
 chk '  BED.gen\[nx\] = (BED.gen\[nx\] || 0) + 1;' console.html 1
@@ -24143,7 +24143,7 @@ chk 'PV_R3_1115' scripts/audit/pv-r3-1115.mjs 1
 chk "{ name: f, tests: 'pv-fix-1114 console-r2-1115 one-flow walk-preview-match ref-who-first' }" .github/workflows/merge-guard.yml 1
 # ★[CI_SPLIT_G_1115 2026-11-15] bgm-sound g 칸 — 라운드 3 검사 둘(console-r3-1115 · pv-r3-1115) · f 칸이 20분에 가까워 나눔
 chk 'CI_SPLIT_G_1115' .github/workflows/merge-guard.yml 1
-chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115 rec-sec pr-clean pr-flow-chips' }" .github/workflows/merge-guard.yml 1
+chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115 rec-sec pr-simple' }" .github/workflows/merge-guard.yml 1
 # ★★[ARRIVE_ONCE_VISIT_1115 2026-11-15 BGM 섹션 · GPT 라운드 3 01] 미리 듣기 · 연습 — «이 줄 몫으로 도는 내림» 기록(LPB.arr)은 그 줄의 이번 방문에만 · 다른 줄을 보여 주면 지운다(크게 보기에서 이전 줄 → 다음 줄로 도착 멘트 · MR 자리에 다시 들어와도 내림을 다시 건다)
 chk 'ARRIVE_ONCE_VISIT_1115' assets/bgm-bed.js 2
 chk "function arrLeave(st){ if(LPB.arr&&LPB.arr.st!==st) LPB.arr=null; }" assets/bgm-bed.js 1
@@ -24319,7 +24319,7 @@ chk 'HEARD_XF_1115' scripts/audit/r4-1115.mjs 2
 chk 'DECLARE_PLAYABLE_1115' scripts/audit/r4-1115.mjs 2
 chk 'ENTRY_WAIT_HUSH_1115' scripts/audit/r4-1115.mjs 3
 chk 'R4_1115' .github/workflows/merge-guard.yml 1
-chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115 rec-sec pr-clean pr-flow-chips' }" .github/workflows/merge-guard.yml 1
+chk "{ name: g, tests: 'console-r3-1115 pv-r3-1115 entry-nofile-1115 r4-1115 fill-30-1115 entry-five-1115 rec-sec pr-simple' }" .github/workflows/merge-guard.yml 1
 # ★[WEEKDAY_OLD_OWNER_1116 2026-11-16 대표님 «수정 전이 더 좋은데»] 홈 «A Quiet Choice» 칸은 H4_18(11/06) 전 글 — 다시 바꾸자고 제안하지 않는다
 chk '>왜 평일이 더 자연스러운가</h3>' index.html 1
 chk '35명이 모이는 자리라면 굳이 주말일 이유가 없습니다. 평일은 일정을 맞추기 수월하고, 원하는 날짜를 넉넉히 고를 수 있습니다.</p>' index.html 1
@@ -24622,30 +24622,38 @@ nochk 'if(!_sayOn) h+=_mkRef(k);' order-preview.html
 chk 'PR_CLEAN_1123' order-preview.html 8
 chk "window.prPick=function(w,yes){ if(w==='try'){ prMode('self'); render(); prStart('try'); return; }" order-preview.html 1
 chk "if(_ptOn()){ if(!prMode('ai',yes)) return; render(); } prStart('flow'); };" order-preview.html 1
-chk 'data-fk="prmyes" onclick="prPick(' order-preview.html 1
+nochk 'class="rowbtn" data-fk="prmyes"' order-preview.html 0   # [PR_SIMPLE_1124] 업체 전송 알림(A 카드 아래) 은퇴
 nochk 'class="pr-mode"' order-preview.html
 nochk 'data-fk="prm:' order-preview.html
 nochk '<p class="pr-role">' order-preview.html
 nochk '재생은 디렉터가, 촬영은 현장에서 안내해요.<' order-preview.html
 chk '<div class="pr-svs">' order-preview.html 1
-chk 'PR_CLEAN_1123' scripts/audit/pr-clean.mjs 1
-chk 'PR_CLEAN_1123' scripts/audit/play-wait-file.mjs 3
+chk 'PR_SIMPLE_1124' scripts/audit/play-wait-file.mjs 3   # [PR_SIMPLE_1124] 연습 AI 로 먼저 기대 은퇴(옛 PR_CLEAN_1123 3곳)
 chk 'PR_CLEAN_1123' scripts/audit/vc-r1-listen.mjs 3
-chk 'pr-clean' .github/workflows/merge-guard.yml 1
-if command -v node >/dev/null 2>&1; then node scripts/audit/pr-clean.mjs >/dev/null 2>&1; _prc=$?; if [ "$_prc" = 1 ]; then echo 'FAIL pr-clean: 연습 첫 화면(시작 카드 둘 · 고르기 칸 없음 · 안내 두 줄 · 작은 단추 한 줄)이 어긋났습니다 — node scripts/audit/pr-clean.mjs'; fail=1; fi; fi
-chk "prall\"] .pr-hx')||document.querySelector(" order-preview.html 1   # [PR_CLEAN_1123] 소리 길이를 받은 뒤 «연습 약 n분» 다시 칠하기 — 새 카드의 분 줄(.pr-hx) · 빠지면 17분 → 실제 13분처럼 처음 값에 멈춘다(pr-way4 중7)
+# [PR_SIMPLE_1124] pr-clean 실행 줄 은퇴 — pr-simple 이 잇는다
 # ★★[REF_WHO_FIRST_1123 2026-11-23 전수점검 «스텝바이스텝»] 덕담 · 축사 기본 예시는 고른 분 몫부터 — 덕담 첫째 분 «신랑 아버님 차례» 아래 «신부 아버지» 예시가 뜨던 어긋남
 #   첫 말하는 분이 같은 예시 → 없으면 그분이 들어 있는 예시 → 없으면 종전 기본 · 두 분이 직접 고른 예시(LS.ref)는 그대로 · 실렌더 검사 scripts/audit/ref-who-first.mjs(CI bgm-sound 칸 f)
 chk 'REF_WHO_FIRST_1123' order-preview.html 1
 chk 'REF_WHO_FIRST_1123' scripts/audit/ref-who-first.mjs 1
 chk "if(v==null&&(k==='bless'||k==='free')){ var _sw='';" order-preview.html 1
 chk 'one-flow walk-preview-match ref-who-first' .github/workflows/merge-guard.yml 1
-# ★★[PR_FLOW_1124 2026-11-24 사장님 «이건 ?» · «이건뭐지 ?»] 연습 첫 화면 — «오늘 흐름» 칩 묶음(높이 들쭉날쭉 · 폰 지그재그) → 위에서 아래로 차례 줄 · 시작 카드 그림 위 ▶ 동그라미(영상 미리보기로 읽혔다) → 제목 끝 ›
-#   실렌더 검사 scripts/audit/pr-flow-chips.mjs(CI bgm-sound 칸 g)
-chk 'PR_FLOW_1124' order-preview.html 5
-chk 'PR_FLOW_1124' scripts/audit/pr-flow-chips.mjs 1
-chk ".pr-fc:not(:last-child)::after{content:''" order-preview.html 1
-chk "x.p==='center'?'<span>다시 돌아와요</span>'" order-preview.html 1
-chk "\.pr-hl b::after{content:'\\\\203A'" order-preview.html 1
+# ★★[PR_SIMPLE_1124 2026-11-24 사장님 «이건 ?»(오늘 흐름) · «이건뭐지 ?»(그림 위 ▶) · «우측 골라서 연습하기가 같은 역할 아니야? 중복 전부 삭제 심플하게» · «ai 목소리 먼저 듣기 이거는 삭제하자»(→ «카드 하나만 남기기(추천)») · «역할 전달하기 · 연습하기 페이지랑 분리해서 연습하기 전담으로»]
+#   ③ 연습하기 첫 화면 = 머리 아래 «집에서는 …» 한 줄 + 시작 카드 하나(직접 소리 내어 해보기 ›) + «골라서 연습하기» 목록 · «오늘 흐름» · AI 카드 · 업체 알림 · AI 준비 칸 · 역할 전달 걷음(역할 전달은 ④ 완성)
+#   실렌더 검사 scripts/audit/pr-simple.mjs(CI bgm-sound 칸 g · pr-clean 을 잇는다 · 검사 은퇴 길)
+chk 'PR_SIMPLE_1124' order-preview.html 8
+chk 'PR_SIMPLE_1124' scripts/audit/pr-simple.mjs 1
+chk "h+='<p class=\"mk-one\">집에서는 입장 출발점 · 두 분 설 자리 · 부모님 방향만 정해 두세요</p>';" order-preview.html 1
+nochk '_fgFlowChips(rows)' order-preview.html 0
+nochk 'class="pr-flow"' order-preview.html 0
+nochk "_stCard('prall'" order-preview.html 0
+nochk 'class="pr-ask"' order-preview.html 0
+nochk 'id="prPrep"' order-preview.html 0
+chk "function _ptAi(){ return false; }" order-preview.html 1
+chk "function _prRolesHtml(){" order-preview.html 1
+chk "h+=_doneOpen()+_psLinks()+_prRolesHtml();" order-preview.html 1
 nochk 'class="pr-hp"' order-preview.html 0
-chk 'rec-sec pr-clean pr-flow-chips' .github/workflows/merge-guard.yml 1
+chk "\.pr-hl b::after{content:'\\\\203A'" order-preview.html 1
+chk "var el=document.querySelector('\[data-fk=\"prtry\"\] .pr-hx'), tn=el&&el.firstChild;" order-preview.html 1
+chk 'rec-sec pr-simple' .github/workflows/merge-guard.yml 1
+if command -v node >/dev/null 2>&1; then node scripts/audit/pr-simple.mjs >/dev/null 2>&1; _prs=$?; if [ "$_prs" = 1 ]; then echo 'FAIL pr-simple: 연습 첫 화면(시작 카드 하나 · 오늘 흐름 · AI 카드 · 역할 전달 없음)'; fail=1; else echo "ok pr-simple 실행(코드 $_prs)"; fi; fi
+chk 'PR_SIMPLE_1124' scripts/audit/vc-r1-listen.mjs 5
