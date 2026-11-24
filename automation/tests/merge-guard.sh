@@ -24708,3 +24708,6 @@ chk "st.ms=(each||Math.max(3,_mkSec(pt.txt.length)))\*1000; if(each) st._ea=1; }
 #   SUM_POST_LAB_1125 ④ 순서 요약 첫 칸 44px · 줄바꿈 없음(«본식 뒤»가 «본식 / 뒤»로 쪼개졌다)
 chk 'SUM_POST_LAB_1125' order-preview.html 1
 chk '.sumry.op .sumrow{grid-template-columns:44px minmax(0,1fr) auto} .sumry.op .sr-n{white-space:nowrap}' order-preview.html 1
+#   EX_META_LINE_1125 ① 예시 카드 시간 줄은 늘 이름 아래(«기록»만 밀려 내려가 짜임이 달랐다)
+chk 'EX_META_LINE_1125' order-preview.html 1
+chk '.pk-ex-n{flex-direction:column;align-items:flex-start;row-gap:1px}' order-preview.html 1
