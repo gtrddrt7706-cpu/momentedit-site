@@ -24694,3 +24694,6 @@ chk "q.k===st.k&&q.ref&&!!q.bothRef===!!st.bothRef" order-preview.html 1
 chk 'PR_MINI_LAB_1124' order-preview.html 1
 chk "st.own?st.txt:(_inPr()&&!st.talk2?_prLab(st):st.lab);" order-preview.html 1
 chk 'PR_WAY_W_1124' order-preview.html 1
+#   PR_END_GO_1124 직접 해보기 끝 화면 «다음 · 완성» = 채운 주단추 · 다시 보기 보조
+chk 'PR_END_GO_1124' order-preview.html 1
+chk '.lf-endb.go \[data-fk="lfnextstep"\]{background:var(--accent)' order-preview.html 1
