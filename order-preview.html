@@ -1367,7 +1367,7 @@ body.lsfull{overflow:hidden}
 .lf-lab{font-size:12.5px;color:var(--light);margin-top:2px}
 .lf-hrow{display:flex;align-items:center;justify-content:space-between;gap:12px}.lf-hrow h3{min-width:0}.lf-hrow .lf-only,.lf-hrow .lf-onlytag{flex:none;align-self:center}   /* [PR_PLAY_1124] 제목 줄 오른쪽 «이 순간만 연습» */
 .lf-lab.do{color:var(--accent);font-weight:600}   /* [PR_CLEAR_1124 1] «두 분이 할 일» 이름표는 진하게 — 듣는 줄(안내 음성)과 갈린다 */
-.pr-main.busy{opacity:.55}   /* [PR_CLEAR_1124 3] 넘어가는 0.6초는 같은 글 그대로 흐리게만(옛 «다음 차례를 준비하고 있어요» 회색 깜빡임) */
+.pr-main.busy{opacity:.55}   /* [PR_CLEAR_1124 3] 넘어가는 0.6초는 같은 글 그대로 흐리게만(옛 회색 «준비하고 있어요» 문구 깜빡임) */
 .lf-meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:0 0 6px}.lf-meta .lf-pos{margin:0}.lf-meta .lf-lab{margin:0}   /* [PR_PLAY_1124] 자리 알약 + 작은 이름표 한 줄 */
 .lf-rh{display:flex;justify-content:space-between;gap:8px}.lf-rhw{letter-spacing:0;text-transform:none;padding-right:10px}   /* [PR_PLAY_1124] 오른쪽 목록 «당일 기준» 한 번 */
 .lf-lab.who{margin-top:10px;font-size:16px;font-weight:600;color:var(--accent)}   /* [PR_ORDER] 말하는 차례 = «신랑 차례»가 머리 */
@@ -8988,7 +8988,7 @@ window.prWay=function(w){ w=(w==='try'?'try':'flow'); if(PRW===w) return; PRW=w;
     try{ if(_bedOn()&&window.BgmBed&&BgmBed.lpLevel) BgmBed.lpLevel(st); }catch(e){} }   /* ★[PR_REVIEW_201 중5] 바꾼 그 자리에서 지금 곡 크기도 — 재생 위치 그대로 · 일부러 둔 정적(−60 아래)은 그대로 */
   try{ if(LP.big) _lFull(); }catch(e){} _lPaint(); };
 /* ★[B2_NA_23 2026-11-06 BATCH2 나23] 직접 해보기 «다 했어요»를 빠르게 두 번 누르면 다음 차례를 건너뛰었다 — 한 번 받으면 0.6초 동안 같은 주버튼의 완료 · 다음을 함께 막고,
-     줄 사이 쉼에도 단추를 잠가 «다음 차례를 준비하고 있어요» · 보호 시간이 지나고 다음 카드가 실제로 시작(또는 대기)되면 다시 연다 · 흐름 보기(A)의 다음 줄은 그대로 */
+     줄 사이 쉼에도 단추를 잠가(★[PR_CLEAR_1124 3] 이제 같은 글 흐리게) · 보호 시간이 지나고 다음 카드가 실제로 시작(또는 대기)되면 다시 연다 · 흐름 보기(A)의 다음 줄은 그대로 */
 function _prBusy(){ return PRW==='try'&&(!!LP.gapBusy||Date.now()-(LP.doneAt||0)<600); }
 window.prDone=function(){ var st=LP.wait; if(!st||LP.q[LP.i]!==st||_prBusy()) return; LP.doneAt=Date.now(); LP.gapBusy=1; LP.wait=null; LP.paused=false; _lNext(); try{ if(LP.big&&LP.gapBusy) _lFull(); }catch(e){} };   /* [PR_WAY_198] «다 했어요» — 그 줄을 마치고 _lNext(줄 사이 쉼 · 다음 안내) */
 window.prNext=function(){ if(!LP.q[LP.i]||_prBusy()) return; if(LP.prep){   /* [B2_NA_23] */ var _pst=LP.prep.st; LP.prep=null; LP.prepDone=_pst; clearTimeout(LP.t); LP.paused=false; _lShow(); return; }   /* [PR_WAY_198 ⑩] 준비 중 «다음 줄» = 바로 «입장!» */

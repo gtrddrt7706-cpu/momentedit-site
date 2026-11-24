@@ -90,6 +90,8 @@ try {
   for (const W of [390, 1280]) {
     const { ctx, pg, f, errs } = await open(W, true);
     await toPractice(f, true);
+    const tg = await f.evaluate(() => [...document.querySelectorAll('.pr-list .vk')].map((e) => e.textContent.trim()));
+    ok(`${W} ⑨ [PR_CLEAR_1124 8] 목록 꼬리표 — 말하는 사람이 있는 순간만(두 분 차례 · 선언하실 분 …) · «나레이션» · «당일 직접» 없음`, tg.length >= 3 && tg.includes('두 분 차례') && !tg.some((t) => /나레이션|당일 직접|미리 준비/.test(t)), tg);
     const L = await f.evaluate(() => ({ note: ((document.querySelector('.pr-pick .mk-note') || {}).textContent || ''), mins: [...document.querySelectorAll('.pr-list .pr-min')].map((e) => e.textContent) }));
     ok(`${W} ⑤ 첫 화면 목록 — 줄마다 «당일» 없음 · 덧말에 «당일 기준» 한 번`, L.mins.length >= 8 && !L.mins.some((m) => /당일/.test(m)) && L.mins.some((m) => /^약\s/.test(m)) && /시간은\s당일\s기준이에요/.test(L.note), L);
     await f.click('[data-fk="prtry"]'); await wait(pg, 1000);
@@ -106,6 +108,9 @@ try {
     const d = await f.evaluate(() => { LP.bedNote = '음악을 불러오는 중이에요'; LD.on = 1; LP.paused = false; _lFull(); const F = document.getElementById('lsFull'); const a = { ld: !!F.querySelector('.lf-ld'), bed: !!F.querySelector('.lp-bednote') };
       LP.bedNote = '음악을 불러오지 못했어요 · 나레이션만 들려 드려요 (코드 L6)'; _lFull(); a.fail = !!F.querySelector('.lp-bednote'); LD.on = 0; LP.bedNote = ''; _lFull(); return a; });
     ok(`${W} ⑥ «불러오는 중» 한 줄 — 곡 받는 중이면 «음악을 불러오는 중이에요»만(위 «불러오는 중…» 없음) · 실패 알림은 그대로`, !d.ld && d.bed && d.fail, d);
+    { const q = await f.evaluate(() => { const i = LP.q.findIndex((x, j) => j > LP.i && (x.quiet || x.lab === '말없이 흐르는 자리') && x.who2 === 'couple'); const n = LP.q.findIndex((x, j) => j > LP.i && !x.talk2 && !x.quiet && x.k !== 'guest' && x.lab !== '말없이 흐르는 자리'); const at = (j) => { LP.i = j; LP.paused = true; clearTimeout(LP.t); _lFull(); const F = document.getElementById('lsFull'), lb = F.querySelector('.lf-lab'); return { lab: lb && lb.textContent, doo: !!(lb && lb.classList.contains('do')), box: !!F.querySelector('.lf-txt.talk') }; }; const r = { quiet: at(i), narr: at(n) }; LP.i = LP.q.findIndex((x) => x.k === 'entry' && x.lab === '두 분이 앞에 서면'); _lFull(); return r; });
+      ok(`${W} ⑩ [PR_CLEAR_1124 1 · 2] 이름표 두 갈래 — 움직이는 줄 «두 분이 할 일»(진하게) · 듣는 줄 «안내 음성» · 대본 안쪽 말 없음`, q.quiet.lab === '두 분이 할 일' && q.quiet.doo && q.narr.lab === '안내 음성' && !q.narr.doo, q);
+      ok(`${W} ⑪ [PR_CLEAR_1124 6] 연습 줄에 점선 상자 없음`, !q.quiet.box && !q.narr.box, q); }
     await step(f, pg, 5); const g2 = await look(f);
     ok(`${W} ⑧ 위아래 간격 같음(그림 없는 말하는 차례 · ${g2.k})`, !!g2.gap && g2.gap[0] >= 10 && Math.abs(g2.gap[0] - g2.gap[1]) <= 2 && g2.k === 'welcome', { k: g2.k, gap: g2.gap });
     ok(`${W} ⑦ 가로 넘침 없음 · 페이지 오류 0`, s.sw <= s.vw && !errs.length, { sw: s.sw, vw: s.vw, errs: errs.slice(0, 3) });

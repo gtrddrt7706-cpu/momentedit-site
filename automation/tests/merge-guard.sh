@@ -21922,7 +21922,7 @@ chk "window.prStart=function(w){ PRW=(w==='try'?'try':'flow');" order-preview.ht
 chk "(fk==='prtry'?'try':'flow')" order-preview.html 1   # [PR_CLEAN_1123] B 카드 = prPick('try')(직접 소리 내어 + 직접 해보기) · 옛 onclick prStart('try') 은퇴
 chk 'if(st.talk2) return st.both||/^(신랑|신부|두 분)$/.test(who);' order-preview.html 1
 chk 'var _wst=LP.q\[LP.i\]; if(_prWait(_wst)){ LP.wait=_wst;' order-preview.html 1
-chk "'다 했어요 · 다음 순서'):'다 했어요 · 다음 줄'" order-preview.html 1
+nochk "'다 했어요 · 다음 순서'):'다 했어요 · 다음 줄'" order-preview.html 0   # ★[PR_CLEAR_1124 3] 큰 단추 글은 «다음» · «다 했어요» 둘 · 옛 기대 은퇴
 chk 'class="lf-ctl pr3"' order-preview.html 1
 chk 'function _lLock(on){' order-preview.html 1
 chk "if(x.cheer||x.of){ var _lt=null;" order-preview.html 1   # [PR_WAY_198 ⑥] 축배 GO 는 main [MEANING_R1_1102 13] 과 같은 고침 하나로
@@ -22888,7 +22888,7 @@ nochk "r.replace('<span class=\"cf-t\" aria-hidden=\"true\">예식 전</span>'" 
 chk 'B2_NA_22' assets/ritual-open.js 2   # 현장 · 따로 편지 보관 글은 시간 셈에서 뺀다
 chk '따로 준비한 편지는 길이를 알 수 없어 기본 시간으로 계산해요.' order-preview.html 1
 chk 'function _prBusy()' order-preview.html 1   # [B2_NA_23]
-chk '다음 차례를 준비하고 있어요' order-preview.html 1
+nochk '다음 차례를 준비하고 있어요' order-preview.html 0   # ★[PR_CLEAR_1124 3] 넘어가는 0.6초는 같은 글 흐리게(.pr-main.busy) · 옛 회색 문구 은퇴
 chk "if(k==='welcome'&&St().welcomeKind==='thanks') return '감사문';" assets/bgm-bed.js 1   # [THANKS_SWAP_1122]   # [B2_NA_24]
 chk "if(k==='welcome'&&S.welcomeKind==='thanks') return '감사문';" assets/bgm-form.js 1   # [THANKS_SWAP_1122]
 chk "if (_rc.k === 'welcome' && _rs !== 'bridge-b8-face-guests' && _rp" assets/ritual-cue.js 1   # ★[THANKS_LEAD_FIX_1122] 감사문 날 244 에 곡 뜸이 걸리지 않게(피아노 켜졌다 꺼짐)
@@ -24668,3 +24668,15 @@ chk "function _fgMinRow(k){ return _fgMin(k).replace(/^당일 /,''); }" order-pr
 chk "누른 순간부터 끝까지 이어서 흘러요 · 시간은 당일 기준이에요" order-preview.html 1
 chk '<span class="lf-rhw">당일 기준</span>' order-preview.html 1
 chk 'rec-sec pr-simple pr-play' .github/workflows/merge-guard.yml 1
+# ★★[PR_CLEAR_1124 2026-11-24 사장님 «디자이너 입장에서 개선점 · 최대한 심플하고 고객이 이해 쉽게 연습하기 좋게» → 점검 1 ~ 8 «추천대로»] ③ 연습 크게 보기 · 첫 화면 목록
+#   1 · 2 작은 이름표 = «안내 음성» / «두 분이 할 일»(진하게) / «현장에서» · 대본 안쪽 말(시작할 때 · 이어서 · 말없이 흐르는 자리 …) 걷음 · 하객 맞이 · 여는 멘트는 «안내 음성 · 시각»
+#   3 큰 단추 «다음» · «다 했어요» 둘 · 0.6초 넘김은 흐리게만  4 남의 차례 «…말하는 자리예요» 글 없음  5 참고 예시 안내 한 줄  6 연습 줄의 점선 상자 없음  7 연습 제목에 벅찬 순간 색 없음
+#   8 목록 꼬리표는 말하는 사람이 있는 순간만(두 분 차례 · 선언하실 분 …) · 실렌더 검사 scripts/audit/pr-play.mjs · pr-way.mjs(CI 칸 g · e)
+chk 'PR_CLEAR_1124' order-preview.html 9
+chk "function _prLab(st){" order-preview.html 1
+chk "_ml=LP.onlyEnd?'다음 순간':LP.prep?'바로 «입장!»':_wt?'다 했어요':'다음';" order-preview.html 1
+chk "if(!(_prIn&&st.sum)) h+='<p class=\"lf-txt'" order-preview.html 1
+chk "function _prTag(o){" order-preview.html 1
+chk "st.k===R.peakOf(S)&&!_prIn" order-preview.html 1
+chk 'PR_CLEAR_1124' scripts/audit/pr-way.mjs 3
+chk 'PR_CLEAR_1124' scripts/audit/pr-play.mjs 2
