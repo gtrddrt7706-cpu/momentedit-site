@@ -24697,3 +24697,11 @@ chk 'PR_WAY_W_1124' order-preview.html 1
 #   PR_END_GO_1124 직접 해보기 끝 화면 «다음 · 완성» = 채운 주단추 · 다시 보기 보조
 chk 'PR_END_GO_1124' order-preview.html 1
 chk '.lf-endb.go \[data-fk="lfnextstep"\]{background:var(--accent)' order-preview.html 1
+# ★★[SIKSUN_POLISH_1125 2026-11-25 사장님 «식순도 똑같이 · 추천대로 끝까지»] PK_LONG_TAG_1125 ① 카운터 «긴 순간 n/3»이 세는 칸 이름 옆 «긴 순간»(테이블 인사 «긴 순간 2» · 엔진 CNT_LONG 그대로)
+#   PR_EACH_DAYTIME_1125 연습 흐름 보기 말하는 차례 = 당일 몫 그대로(예시 글 길이로 줄이지 않는다)
+chk 'PK_LONG_TAG_1125' order-preview.html 2
+chk "function _pkLong(k,ek){" order-preview.html 1
+chk '<span class="pk-nr"><span class="pk-n">' order-preview.html 1
+chk "+_pkLong('free','free')" order-preview.html 1
+chk 'PR_EACH_DAYTIME_1125' order-preview.html 1
+chk "st.ms=(each||Math.max(3,_mkSec(pt.txt.length)))\*1000; if(each) st._ea=1; }" order-preview.html 1
