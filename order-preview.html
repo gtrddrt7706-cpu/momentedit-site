@@ -4932,8 +4932,8 @@ var AFTER_SUM='전체 단체 사진을 마치면 · 가족 사진 · 두고 가�
 function _post(k){ return RitualOpen.postOf(k)||{n:'',sub:''}; }
 function _postLine(k){ return RitualOpen.postLine(k); }
 function _postDur(k){ try{ return RitualOpen.postDur(k,S)||''; }catch(e){ return ''; } }
-var PHOTO_FIX={n:_post('_photo').n,tile:'전체 한 장 · 현장 진행',img:'/assets/video/moments/close.webp'};   /* ★[POST_CARD_204 검토 204 2] 전체 한 장만 — 가족 · 추가는 촬영 후 안내 뒤 «가족 사진 · 추가 촬영» 칸 */
-var EXTRA_FIX={n:_post('_extra').n,tile:'원하시는 분들과 · 남은 시간 동안',img:'/assets/video/moments/close-end.webp'};
+var PHOTO_FIX={n:_post('_photo').n,tile:'전체 한 장 · 현장 진행',img:'/assets/video/moments/post-photo.webp'};   /* ★[POST_IMG_1124 2026-11-24 사장님 «빈칸에 들어갈 사진 만들자 · 촬영 후 안내도 원래 자리 그림이 아닌데 갖다 붙인 거» · «전체 사진에 테이블이 보이면 안 되지» · «창 없애고 오프라인 디자인 섹션 컨셉으로»] 식후 세 장 = 우리 캔들존 컨셉(창 없음 · 흰 석회벽 · 검은 천장 · 비치는 흰 천 배경 · 덩굴 · 촛불 · 원목 바닥 · 유화풍) · Runway Gen-4 · 옛 그림 close.webp 를 빌려 쓰던 자리 */   /* ★[POST_CARD_204 검토 204 2] 전체 한 장만 — 가족 · 추가는 촬영 후 안내 뒤 «가족 사진 · 추가 촬영» 칸 */
+var EXTRA_FIX={n:_post('_extra').n,tile:'원하시는 분들과 · 남은 시간 동안',img:'/assets/video/moments/post-extra.webp'};   /* [POST_IMG_1124] 가족 사진 · 추가 촬영 — 옛 close-end.webp(닫는 인사 끝 장면)를 빌려 쓰던 자리 */
 function _photoLine(){ var p=_postDur('_photo'); return _postLine('_photo')+(p?' · '+p:''); }
 var POST_KS=RitualOpen.POST_FLOW.map(function(x){ return x.k; });   /* ['_photo','_after','_extra'] */
 /* ★[POST_FLOW_200 보충 BGM] 닫는 인사 음악 둘째 줄은 BGM 섹션 줄(bgm-slots LINE.last · BgmBed.lastName · [SCREEN_SOUND_1102]) 하나 — 여기서 따로 그리지 않는다 */
@@ -4970,7 +4970,7 @@ var FX_WHO={v:'안내 음성',a:'현장 진행',c:'두 분 동작'};
 /* [FIX_FLOW_204 A] ① 고르기 — 카드 목록 위(식전) · 아래(본식 뒤)의 얇은 진행 줄 · 펼치기 = «진행 보기» · ▶ 없음(듣기는 ② 에서) */
 function _fxFlow(kind){ var pre=kind==='pre';   /* ★★[PICK_FLOW_ONE_1106 대본 11/06 · 사장님 «이거를 왜 여기서 설명하고 있는 거야? 지저분하게»] ① 고르기에서는 한 줄만 — «진행 보기» 펼침 · 차례 목록(현장 진행 · 안내 음성 · 두 분 동작 알약)은 뺐다(되살리지 말 것) · 자세한 차례는 ② 하나씩 만들기 · 전체 순서 · 연습에서 */
   return '<div class="fx-flow fx-one" data-fk="fx:'+kind+'"><span class="fx-k">'+(pre?'식전':'본식 뒤')+'</span><span class="fx-n">'+(pre?'하객 맞이 안내':'사진 · 정리')+'</span><span class="fx-s">늘 포함돼요</span></div>'; }
-function _afterImg(){ return '/assets/video/moments/guest-end.webp'+(RitualOpen.VIDEO_V||''); }   /* ★[POST_CARD_204 검토 204 3] 가족 사진 · 추가 촬영 칸(close-end)과 같은 그림이던 것 — 하객이 함께 선 장면(guest-end)으로 */   /* 닫는 인사 영상 끝 장면(하객이 함께 선 모습) — 칸 · 창 그림 */
+function _afterImg(){ return '/assets/video/moments/post-after.webp'+(RitualOpen.VIDEO_V||''); }   /* [POST_IMG_1124] 촬영 후 안내 전용 그림(옛 guest-end.webp 는 하객 맞이 장면을 빌려 온 것) */   /* ★[POST_CARD_204 검토 204 3] 가족 사진 · 추가 촬영 칸(close-end)과 같은 그림이던 것 — 하객이 함께 선 장면(guest-end)으로 */   /* 닫는 인사 영상 끝 장면(하객이 함께 선 모습) — 칸 · 창 그림 */
 function _afterLine(){ var g=ENG; if(!g||!g.RitualCue||!g.RitualCue.afterPhotoOf) return null; var sl=g.RitualCue.afterPhotoOf(_clS()), f=g.RitualCue.fileOf(sl), t=(g.RitualCue.EXTRA||{})[sl]||''; if(!t) return null;
   var ok=!!(f&&_lHasSound(f,t)); return { text:t, src:ok?(g.RitualCue.PARAM.clipDir+f+'.mp3'):'', stopMs:0, slug:sl, file:f }; }
 function _lSteps0(g,ks){
@@ -8185,8 +8185,8 @@ function renderPractice(){ var R=RitualOpen;
         +'<span class="pr-th" aria-hidden="true">'+(v?'<img src="'+esc(v.poster)+'" alt="" loading="lazy" decoding="async">':'')+'</span>'
         +'<span class="pr-nm">'+(no&&no!=='식전'?'<span class="pr-no">'+esc(no)+'</span>':'<span class="pr-no pre">식전</span>')+esc(_mkName(k))+(function(m){ return m?'<span class="pr-min">'+esc(m)+'</span>':''; })(_fgMin(k))+'</span>'   /* [FLOW_GRASP_1101 5] */
         +'<span class="vk vk-'+o.v+'">'+VK_ICO[o.v]+esc(o.lab)+'</span><span class="pr-go" aria-hidden="true">›</span></button></li>'; }).join('')
-    +(_afterOn()?POST_KS.map(function(k){ if(k==='_after') return '<li><button type="button" class="pr-row" data-fk="prj:_after" onclick="prFromAfter()"><span class="pr-th" aria-hidden="true"><img src="'+esc(_afterImg())+'" alt="" loading="lazy" decoding="async"></span><span class="pr-nm"><span class="pr-no pre">본식 뒤</span>'+esc(_post(k).n)+'</span><span class="pr-go" aria-hidden="true">›</span></button></li>';
-        return '<li><div class="pr-row pr-fix" data-fk="prx:'+k+'"><span class="pr-th" aria-hidden="true"></span><span class="pr-nm"><span class="pr-no pre">본식 뒤</span>'+esc(_post(k).n)+'<span class="pr-min">'+(k==='_photo'?'연습에서는 넘겨요':'연습 끝')+'</span></span></div></li>'; }).join(''):'')   /* ★[POST_FLOW_200 6] 단체 사진 · 추가 촬영은 누를 것 없는 줄(작가님 진행) */   /* ★[보충 중6] 식후 · 촬영 후 안내(본식 순서 수에는 안 더한다 · 기존 촬영 후 안내 줄로) */
+    +(_afterOn()?POST_KS.map(function(k){ if(k==='_after') return '<li><button type="button" class="pr-row" data-fk="prj:_after" onclick="prFromAfter()"><span class="pr-th" aria-hidden="true"><img src="'+esc(_afterImg().replace(/\.webp/,'-640.webp'))+'" alt="" loading="lazy" decoding="async"></span><span class="pr-nm"><span class="pr-no pre">본식 뒤</span>'+esc(_post(k).n)+'</span><span class="pr-go" aria-hidden="true">›</span></button></li>';
+        return '<li><div class="pr-row pr-fix" data-fk="prx:'+k+'"><span class="pr-th" aria-hidden="true"><img src="'+esc((k==='_photo'?PHOTO_FIX:EXTRA_FIX).img.replace(/\.webp$/,'-640.webp'))+'" alt="" loading="lazy" decoding="async"></span><span class="pr-nm"><span class="pr-no pre">본식 뒤</span>'+esc(_post(k).n)+'<span class="pr-min">'+(k==='_photo'?'연습에서는 넘겨요':'연습 끝')+'</span></span></div></li>'; }).join(''):'')   /* ★[POST_FLOW_200 6] 단체 사진 · 추가 촬영은 누를 것 없는 줄(작가님 진행) */   /* ★[보충 중6] 식후 · 촬영 후 안내(본식 순서 수에는 안 더한다 · 기존 촬영 후 안내 줄로) */
     +'</ol></section></div>';
   /* ★[PR_MODE 2026-10-05 사장님] AI 로 듣기는 연습 시작 전에 고른다 — 2026-11-23 부터 시작 카드 A «AI 목소리로 먼저 듣기»가 그 고르기다([PR_CLEAN_1123] · 아래 체크박스 모양은 여전히 금지) */
   /* ★«내 목소리로 연습»(내 차례 녹음 prrec · 두 분 차례도 AI 로 듣기 ptts · _prSec) 금지 — 2026-10-05 사용자 지시로 삭제 [PR_VOICE_OFF] (사장님 «녹음하는 기능 우리 삭제했잖아» → «추천대로») · 두 분 차례는 글을 보며 따라 읽는다 */
