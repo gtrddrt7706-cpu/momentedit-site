@@ -24641,7 +24641,7 @@ chk 'REF_WHO_FIRST_1123' scripts/audit/ref-who-first.mjs 1
 chk "if(v==null&&(k==='bless'||k==='free')){ var _sw='';" order-preview.html 1
 chk 'one-flow walk-preview-match ref-who-first post-img' .github/workflows/merge-guard.yml 1
 # ★★[POST_IMG_1124 2026-11-24 사장님 «빈칸에 들어갈 사진 만들자» · «촬영 후 안내도 원래 자리 그림이 아닌데 갖다 붙인 거» · «전체 사진에 테이블이 보이면 안 되지» · «창 없애고 오프라인 디자인 섹션 컨셉으로»]
-#   식후 세 장 전용 그림 = assets/video/moments/post-photo · post-after · post-extra(+ -640) · 오프라인 디자인 섹션 캔들존 컨셉(창 없음 · 흰 석회벽 · 검은 천장 · 비치는 흰 천 배경 · 덩굴 · 촛불 · 원목 바닥) · 실렌더 검사 scripts/audit/post-img.mjs(CI 칸 f)
+#   식후 세 장 전용 그림 = assets/video/moments/post-photo · post-after · post-extra(+ -640) · 캔들존 컨셉(창 없음 · 어둡고 따뜻한 촛불 · 샴페인 아이보리 주름 천 배경 · 금빛 가지 조형 · 흰 꽃 · 유화풍 · 사장님이 고른 «촬영 후 안내» 느낌에 맞춤) · 실렌더 검사 scripts/audit/post-img.mjs(CI 칸 f)
 chk 'POST_IMG_1124' order-preview.html 3
 chk 'POST_IMG_1124' scripts/audit/post-img.mjs 1
 chk "img:'/assets/video/moments/post-photo.webp'" order-preview.html 1
