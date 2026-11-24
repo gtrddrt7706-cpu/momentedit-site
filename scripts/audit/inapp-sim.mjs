@@ -73,7 +73,7 @@ for (const P of PROFILES) {
   // ② 처음부터 보고 듣기 → 크게 보기 → 몇 줄 넘겨도 멈추지 않는다
   await pg.evaluate(() => { window.__playLog = []; });
   await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'practice') { idx = i; render(); } }); await pg.waitForTimeout(600);   // [FLOW_MAKE] 크게 보기는 ③ 연습하기의 «처음부터 끝까지»
-  await pg.tap('[data-fk="prall"]'); await pg.waitForTimeout(900);
+  await pg.tap('.pr-list [data-fk^="prj:"]');   /* [PR_SIMPLE_1124] A 카드 은퇴 — 처음부터는 «골라서 연습하기» 첫 줄 */ await pg.waitForTimeout(900);
   ok(`${W} 크게 보기 열림 · 화면 꺼짐 방지 없어도 오류 없음`, await pg.evaluate(() => !document.getElementById('lsFull').hidden));
   for (let n = 0; n < 3; n++) { const b = await pg.$('#lsFull [data-fk="lfnext"], #lsFull [onclick*="lsJump(1)"]'); if (b) { await b.tap(); await pg.waitForTimeout(250); } }
   await pg.waitForTimeout(800);

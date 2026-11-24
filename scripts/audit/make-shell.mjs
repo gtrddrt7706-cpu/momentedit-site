@@ -161,7 +161,7 @@ for (const w of [390, 1280]) {
     await shot(pg, `moment-candle-${w}`);
     /* ★[PRACTICE_NO_CHOOSE 2026-10-05 사장님 «연습 공간에서 이 부분은 삭제»] 연습 «이 순간 바꾸기» 단추를 걷었다 — 연습은 듣기만 · 칩은 어느 순간에도 없다 */
     await pg.evaluate(() => { lsStop(); opGoStep('practice'); }); await pg.waitForTimeout(800);
-    await pg.click('[data-fk="prall"]'); await pg.waitForTimeout(500);
+    await pg.click('.pr-list [data-fk^="prj:"]'); await pg.waitForTimeout(500);
     let prSeen = 0, prBad = 0; for (let i = 0; i < 12; i++) { const r = await pg.evaluate(() => ({ btn: !!document.querySelector('#lsFull [data-fk="lfchoose"]'), chips: document.querySelectorAll('#lsFull [data-fk^="lfc:"]').length })); prSeen++; if (r.btn || r.chips) prBad++; await pg.evaluate(() => { try { lsJump(1); } catch (e) {} }); await pg.waitForTimeout(250); }
     ok(`${w} [PRACTICE_NO_CHOOSE] 연습 중 어느 순간에도 «이 순간 바꾸기» · 칩이 없다`, prSeen > 0 && prBad === 0, JSON.stringify({ prSeen, prBad }));
     await shot(pg, `practice-${w}`);

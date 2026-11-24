@@ -171,7 +171,7 @@ for (const w of [390, 1280]) {
   { const g = await pg.evaluate(() => { const a = document.querySelector('.pr-lead').getBoundingClientRect(), b = document.querySelector('.pr-pick').getBoundingClientRect(); return { side: b.left > a.right, wrap: Math.round(document.querySelector('.wrap').getBoundingClientRect().width), pr2: document.body.classList.contains('pr2') }; });
     ok(`${w} ③ ${w >= 1000 ? 'PC 좌우 두 단(넓은 폭)' : '폰 한 단'} [PR_WIDE]`, g.pr2 && (w >= 1000 ? g.side && g.wrap > 900 : !g.side), JSON.stringify(g)); }
   /* [PR_RAIL] 처음부터 끝까지 크게 보기 — PC 는 오른쪽에 예식 순서(지금 순간 표시 · 누르면 그 순간부터) · 폰은 숨김 */
-  { await pg.click('[data-fk="prall"]'); await pg.waitForTimeout(800);
+  { await pg.click('.pr-list [data-fk^="prj:"]'); await pg.waitForTimeout(800);
     const r0 = await pg.evaluate(() => { const r = document.querySelector('#lsFull .lf-rail'); const ks = []; LP.q.forEach((x) => { if (ks.indexOf(x.k) < 0) ks.push(x.k); }); return { vis: !!r && getComputedStyle(r).display !== 'none', n: r ? r.querySelectorAll('.lf-rr').length : 0, ks: ks.length, cur: (r && r.querySelector('[aria-current="step"]') || {}).getAttribute ? r.querySelector('[aria-current="step"]').getAttribute('data-fk') : '', k: (LP.q[LP.i] || {}).k }; });
     if (w >= 1000) {
       ok(`${w} ③ 크게 보기 오른쪽 예식 순서 — 순간마다 한 줄 · 지금 순간 표시 [PR_RAIL]`, r0.vis && r0.n === r0.ks && r0.cur === 'lfk:' + r0.k, JSON.stringify(r0));
@@ -181,7 +181,7 @@ for (const w of [390, 1280]) {
     } else ok(`${w} ③ 폰 크게 보기에는 예식 순서 목록이 안 보인다 [PR_RAIL]`, !r0.vis, JSON.stringify(r0));
     await pg.keyboard.press('Escape'); await pg.waitForTimeout(300); await pg.evaluate(() => lsStop()); await pg.waitForTimeout(300); }
   // 크게 보기 · Esc
-  await pg.click('[data-fk="prall"]'); await pg.waitForTimeout(700);
+  await pg.click('.pr-list [data-fk^="prj:"]'); await pg.waitForTimeout(700);
   ok(`${w} ③ «처음부터 끝까지» → 크게 보기 · 식전 표시 · 본식부터 단추 · 뒤는 inert`, await pg.evaluate(() => { const f = document.getElementById('lsFull'); return !f.hidden && /식전/.test(f.querySelector('.lf-h').textContent) && !!f.querySelector('[data-fk="lfskip"]') && f.querySelector('.lf-txt').textContent.length > 10 && document.querySelector('.wrap').hasAttribute('inert'); }));
   await pg.click('[data-fk="lfskip"]'); await pg.waitForTimeout(400);
   ok(`${w} ③ 본식부터 보기 → «연습 · 1 / N»(PRACTICE_CHOOSE 머리 이름)`, await pg.evaluate(() => /^연습 · 1 \/ \d+$/.test(document.querySelector('#lsFull .lf-h span').textContent.trim())));
@@ -377,7 +377,7 @@ for (const w of [390, 1280]) {
   ok('2-6 선언은 칩 없이 «읽어 주실 분» 칸 · 예시는 칸 안 «예) 아버님 · 친구 · 지인» [DECLARE_ANYONE] (옛 DECLARE_BY_PERSON 칩 셋)', await pg.evaluate(() => !RitualOpen.CHIPS.declare && RitualOpen.DECL_HINT === '예) 아버님 · 친구 · 지인'));
   // 크게 보기 · 끝 화면(③ 연습하기에서)
   await pg.evaluate(() => { for (let i = 0; i < STEPS.length; i++) if (STEPS[i].k === 'practice') { idx = i; render(); } }); await pg.waitForTimeout(800);
-  await pg.click('[data-fk="prall"]'); await pg.waitForTimeout(700);
+  await pg.click('.pr-list [data-fk^="prj:"]'); await pg.waitForTimeout(700);
   ok('3장 크게 보기 동안 상담 말풍선도 잠긴다(inert)', await pg.evaluate(() => { const b = document.getElementById('meAdvStack'); return !b || b.hasAttribute('inert'); }));
   await pg.evaluate(() => { LP.i = LP.q.length; _lShow(); }); await pg.waitForTimeout(300);
   ok('2-10 ③ 끝 화면 = [다시 보기] [다음 · 완성] 둘 · 큰 ↻ 없음 [FLOW_MAKE · STEP_NONUM_OP]', await pg.evaluate(() => { const f = document.getElementById('lsFull'); const n = f.querySelector('[data-fk="lfnextstep"]'); return !!f.querySelector('[data-fk="lfagain"]') && !!n && n.textContent.trim() === '다음 · 완성' && !f.querySelector('[data-fk="lfdone"]') && !f.querySelector('[data-fk="lftog"]'); }));
@@ -426,7 +426,7 @@ for (const w of [390, 1280]) {
   }
   await clickNext(pg); await pg.waitForTimeout(700);
   r = await m(); ok(`${w} C ③ 연습하기 대비 미달 0 · 44px 미만 0`, !r.bad.length && !r.small.length, rep(r));
-  await pg.click('[data-fk="prall"]'); await pg.waitForTimeout(700);
+  await pg.click('.pr-list [data-fk^="prj:"]'); await pg.waitForTimeout(700);
   r = await m('#lsFull'); ok(`${w} C 크게 보기 대비 미달 0 · 44px 미만 0`, !r.bad.length && !r.small.length, rep(r));
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(300); await pg.evaluate(() => lsStop());
   await ctx.close();
