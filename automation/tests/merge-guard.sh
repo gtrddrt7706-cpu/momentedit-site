@@ -24731,6 +24731,7 @@ chk '.sumry.op .sumrow{grid-template-rows:minmax(44px,auto) auto}' order-preview
 # ★[BED_SUB_WRAP_1125] 음악 이름표 옆 안내는 한 덩이 — 넘친 꼬리만 이름표 밑으로 내려가 글이 찢겨 보였다(테이블 인사)
 chk 'BED_SUB_WRAP_1125' order-preview.html 1
 chk '.ls-bed.bed-one .gl{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:10px}' order-preview.html 1
-# ★[PR_RZ_ONE_1125 2026-11-25 사장님 «위에 또 나뉘네 · 이어서 연습하기 이건 뭐야?»] 이어서 연습은 시작 카드 아래 한 줄 — 카드 위 따로 선 상자 되살리지 말 것
-chk 'PR_RZ_ONE_1125' order-preview.html 3
-nochk '<div class="pr-resume"><b>이어서 연습하기</b>' order-preview.html
+# ★[PR_RZ_ASK_1125 2026-11-25 사장님 «이어서 연습하기 이건 뭐야?» → «아래 누르면 이력이 있다면 팝업»] 이어서 연습은 «직접 소리 내어 해보기»를 누를 때 창 하나 — 화면에 상자 · 줄로 두지 않는다
+chk 'PR_RZ_ASK_1125' order-preview.html 2
+chk "ordAsk({title:'지난번 멈춘 곳부터 할까요?',body:_o.d1+(_o.d2?" order-preview.html 1
+nochk "+(_rz?_prRzHtml(_rz):'')" order-preview.html

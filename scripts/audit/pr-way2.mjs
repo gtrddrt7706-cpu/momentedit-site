@@ -96,15 +96,17 @@ try {
     const Q = LP.q; let j = -1, c = 0; for (let i = 0; i < Q.length; i++) { if (Q[i].k === 'vow' && Q[i].talk2 && Q[i].who === '신부') { c++; if (c === 2) { j = i; break; } } }
     LP.i = j; LP.paused = false; _lShow(); await w(200); const sv = JSON.parse(localStorage.getItem(_prAtKey()) || 'null'); const want = { k: Q[j].k, who: Q[j].who, txt: Q[j].txt };
     try { lsStop(); } catch (e) {} lsCloseBig(); await w(300); idx = STEPS.findIndex((x) => x.k === 'practice'); render(); await w(500);
-    const card = { d1: ((document.querySelector('.pr-rz1') || {}).textContent || ''), d2: ((document.querySelector('.pr-rz2') || {}).textContent || ''), btn: !!document.querySelector('[data-fk="prres"]'), playing: !!(LP.q.length && !LP.paused) };
-    prResume(); await w(1200); const st = LP.q[LP.i]; const got = { k: st.k, who: st.who, txt: st.txt, way: PRW };
+    /* [PR_RZ_ASK_1125] 화면엔 상자가 없다 · «직접 소리 내어 해보기»를 누르면 창 하나(제목 · 자리 · 무대 자리 · «여기서 이어서» · «처음부터») */
+    const box = !!document.querySelector('.pr-resume'); prPick('try'); await w(400); const ov = document.querySelector('.ord-ask.on'), d = ov ? ov.querySelector('.oa-d').textContent : '';
+    const card = { box, d1: d.split('\n')[0] || '', d2: d.split('\n')[1] || '', btn: !!(ov && ov.querySelector('.oa-yes').textContent === '여기서 이어서' && ov.querySelector('.oa-no').textContent === '처음부터'), playing: !!(LP.q.length && !LP.paused) };
+    if (ov) ov.querySelector('.oa-yes').click(); await w(1200); const st = LP.q[LP.i]; const got = { k: st.k, who: st.who, txt: st.txt, way: PRW };
     try { lsStop(); } catch (e) {} lsCloseBig(); await w(300);
     const o2 = JSON.parse(localStorage.getItem(_prAtKey())); const rs = o2.rows.split(','); const vi = rs.indexOf('vow'); [rs[0], rs[1]] = [rs[1], rs[0]]; o2.rows = rs.join(','); localStorage.setItem(_prAtKey(), JSON.stringify(o2));
-    idx = STEPS.findIndex((x) => x.k === 'practice'); render(); await w(400); const ch = { d1: ((document.querySelector('.pr-rz1') || {}).textContent || ''), d2: ((document.querySelector('.pr-rz2') || {}).textContent || '') };
+    idx = STEPS.findIndex((x) => x.k === 'practice'); render(); await w(400); const ch = (() => { const o = _prAtGet() || {}; return { d1: o.d1 || '', d2: o.d2 || '' }; })();
     prStart('flow'); await w(600); idx = STEPS.findIndex((x) => x.k === 'practice'); LP.all = true; _lEnd(); await w(100); const gone = localStorage.getItem(_prAtKey()) === null;
     return { sv, want, card, got, ch, gone }; });
   ok('⑪ 문장 자리까지 적음 — «혼인 서약 · 신부 두 번째 문장» · «앞쪽 중앙에서 서로 마주 봐요»', r.sv && r.sv.d1 === '혼인 서약 · 신부 두 번째 문장' && r.sv.d2 === '앞쪽 중앙에서 서로 마주 봐요' && r.sv.way === 'try', r.sv);
-  ok('⑪ 첫 화면에 어디서부터 먼저 · 자동 재생 없음 · 누르면 그 문장부터(같은 방식)', r.card.d1 === r.sv.d1 && r.card.d2 === r.sv.d2 && r.card.btn && !r.card.playing && r.got.k === r.want.k && r.got.who === r.want.who && r.got.txt === r.want.txt && r.got.way === 'try', { card: r.card, got: r.got, want: r.want });
+  ok('⑪ [PR_RZ_ASK_1125] 화면엔 상자 없음 · 누르면 창에 어디서부터 먼저 · 자동 재생 없음 · «여기서 이어서»면 그 문장부터(같은 방식)', !r.card.box && r.card.d1 === r.sv.d1 && r.card.d2 === r.sv.d2 && r.card.btn && !r.card.playing && r.got.k === r.want.k && r.got.who === r.want.who && r.got.txt === r.want.txt && r.got.way === 'try', { card: r.card, got: r.got, want: r.want });
   ok('⑪ 순서가 바뀌면 바뀐 순간부터 · 끝까지 하면 기록 지움', /· 처음부터$/.test(r.ch.d1) && /순서가 바뀌어/.test(r.ch.d2) && r.gone, { ch: r.ch, gone: r.gone });
   ok('페이지 오류 0', !errs.length, errs.slice(0, 3));
   await ctx.close();

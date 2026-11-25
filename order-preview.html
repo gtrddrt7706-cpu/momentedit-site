@@ -1756,9 +1756,9 @@ body.mkd .mk-strip{top:44px;margin:0 -16px 12px;padding:0;border-bottom:0}   /* 
 .pr-acts{display:flex;flex-wrap:wrap;gap:8px}
 /* ★[PR_SIMPLE 2026-10-05] ③ 연습하기 — 장면 카드 하나 + 순간 목록 하나. 줄 사이는 선이 아니라 여백으로([ADV_INDEX]) · 줄 높이 52 */
 .pr-sts{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin:6px 0 0}   /* ★[PR_CLEAN_1123 1] 시작 카드 둘(A · B) — 폰은 위아래 · 600 이상은 나란히(알림 · 준비 칸 · 안 적은 곳 한 줄은 두 카드 아래 한 폭) */
-.pr-sts>.pr-ask,.pr-sts>.pr-prep,.pr-sts>.pr-todo{margin:0} .pr-sts>.pr-resume{margin:0}
+.pr-sts>.pr-ask,.pr-sts>.pr-prep,.pr-sts>.pr-todo{margin:0}
 .pr-st{display:flex;flex-direction:column;width:100%;margin:0;padding:0;border:0;background:none;text-align:left;cursor:pointer;color:inherit;font:inherit;border-radius:8px}
-@media (min-width:600px){ .pr-sts{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 16px} .pr-sts>.pr-try:first-child{grid-column:1/-1}   /* [PR_SIMPLE_1124] 시작 카드 하나 — 왼쪽 칸 폭 그대로 그림 위 · 글 아래(PC 에서 가로로 눕히면 목록 줄처럼 작아지고 아래가 비었다 · 왼쪽 칸은 sticky 라 목록을 내려도 시작 카드가 보인다) */ .pr-sts>.pr-hero{grid-column:1;grid-row:1} .pr-sts>.pr-try{grid-column:2;grid-row:1} .pr-sts>.pr-ask,.pr-sts>.pr-prep,.pr-sts>.pr-todo,.pr-sts>.pr-resume{grid-column:1/-1} .pr-st .pr-hm{aspect-ratio:16/9} }
+@media (min-width:600px){ .pr-sts{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px 16px} .pr-sts>.pr-try:first-child{grid-column:1/-1}   /* [PR_SIMPLE_1124] 시작 카드 하나 — 왼쪽 칸 폭 그대로 그림 위 · 글 아래(PC 에서 가로로 눕히면 목록 줄처럼 작아지고 아래가 비었다 · 왼쪽 칸은 sticky 라 목록을 내려도 시작 카드가 보인다) */ .pr-sts>.pr-hero{grid-column:1;grid-row:1} .pr-sts>.pr-try{grid-column:2;grid-row:1} .pr-sts>.pr-ask,.pr-sts>.pr-prep,.pr-sts>.pr-todo{grid-column:1/-1} .pr-st .pr-hm{aspect-ratio:16/9} }
 .pr-hm{position:relative;display:block;aspect-ratio:2.39/1;border-radius:8px;overflow:hidden;background:var(--bg2);border:1px solid var(--border)}
 .pr-hm img{display:block;width:100%;height:100%;object-fit:cover}   /* ★[HOVER_NO_ZOOM] 마우스를 올리면 장면 그림이 커지던 효과(scale 1.02 · .45s) 금지 — 2026-10-09 사용자 지시로 삭제(사장님 «영상 쪽 마우스 올리면 영상 흔들거리는데 그 효과 삭제») */
 /* ★.pr-hp(그림 위 ▶ 동그라미) 금지 — 2026-11-24 사용자 지시로 삭제 [PR_FLOW_1124] */
@@ -2274,7 +2274,7 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h3[tabindex="-1"]:focus,h4[tabin
 .lf-onlyend{margin:12px 0;padding:14px;border:1px solid var(--border);border-radius:10px;background:var(--card)} .lf-onlyend p{margin:0 0 10px;font-size:14px;color:var(--accent)} .lf-onlyend .rowbtn{min-height:44px}
 .lf-prep{margin:12px 0;padding:16px;border:1px solid var(--border);border-radius:10px;background:var(--card);text-align:center} .lf-prepn{margin:0;font-family:var(--ko-serif);font-size:48px;line-height:1.1;color:#6B2A24} .lf-prept{margin:8px 0 0;font-size:16px;color:var(--accent)} .lf-preps{margin:4px 0 0;font-size:12.5px;color:var(--sub)}   /* [PR_WAY_198 ⑨ ⑩] */
 .pr-roles{margin:16px 0 0} .pr-roles h4{font-size:14px;font-weight:600;color:var(--accent);margin:0} .pr-roles ul{list-style:none;margin:6px 0 0;padding:0} .pr-roles li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--border);font-size:14px} .pr-roles .rowbtn{min-height:44px;flex:0 0 auto}   /* [PR_WAY_198 ⑫] */
-.pr-resume{display:flex;align-items:center;gap:12px;margin:10px 0 0;padding:10px 0 0;border-top:1px solid var(--border)} .pr-rzt{flex:1 1 auto;min-width:0} .pr-rzh{display:block;font-size:12.5px;color:var(--sub);line-height:1.5} .pr-resume .pr-rz1{margin:0;font-size:14px;color:var(--accent);line-height:1.5} .pr-resume .pr-rz2{margin:2px 0 0;font-size:12.5px;color:var(--sub);line-height:1.5} .pr-rzb{flex:none;min-height:44px;white-space:nowrap}   /* [PR_RZ_ONE_1125] 따로 선 상자(테 · 카드 바탕 · 세리프 제목) → 시작 카드 아래 머리카락 선 한 줄 */ .pr-rz1{margin:4px 0 0;font-size:14px;color:var(--accent)} .pr-rz2{margin:2px 0 8px;font-size:12.5px;color:var(--sub)} .pr-resume .rowbtn{min-height:44px}   /* [PR_WAY_198 ⑪] */
+.pr-resume{margin:0 0 12px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--card)} .pr-resume b{font-family:var(--ko-serif);font-size:16px;color:var(--accent)} .pr-rz1{margin:4px 0 0;font-size:14px;color:var(--accent)} .pr-rz2{margin:2px 0 8px;font-size:12.5px;color:var(--sub)} .pr-resume .rowbtn{min-height:44px}   /* [PR_WAY_198 ⑪] */
 .lf-trytip{margin:14px 0 6px;font-size:12.5px;color:var(--sub)} .lf-trygo{min-height:48px;width:100%;max-width:320px;background:var(--accent);color:#fff;border-color:var(--accent);justify-content:center}   /* ★[TRYGO_CENTER_N20_04X_1119 R3X2 #04] 연습 끝 «두 분 차례 직접 해보기» 글자를 가운데로 — .rowbtn 이 inline-flex(왼쪽 붙음)라 넓은 단추에서 글만 왼쪽에 붙어 위아래 가운데 줄(안내 · 다시 보기 · 다음 · 완성)과 어긋났다 */
 .mk-prgo{margin:10px 0 4px} .mk-prgo .rowbtn{min-height:44px}
 .lf-ord b.on{color:var(--accent);font-weight:700;text-decoration:underline;text-underline-offset:3px} .lf-full{scroll-margin-top:12px;scroll-margin-bottom:96px} .lf-full>summary{list-style:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;cursor:pointer;font-size:14px;color:var(--accent);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px} .lf-full>summary::-webkit-details-marker{display:none} .lf-full>summary::after{content:'';width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin:-3px 0 0 2px} .lf-full[open]>summary::after{transform:rotate(-135deg);margin-top:3px}   /* ★[PR_FULL_LINK_1124] 연습 «예시 선언문 · 축사 · 덕담 전문 보기» — 그냥 글처럼 보여 누를 수 있는 줄인지 몰랐다 · 밑줄 + 펼침 꺾쇠(PV_WHO_FOLD 와 같은 모양) */ .lf-ctl.pr3 .pr-main{flex:1;width:auto;min-width:0;height:52px;border-radius:26px;background:var(--accent);color:#fff;border-color:var(--accent);font:inherit;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center} .lf-ctl.pr3 .pr-main.wait{background:#6B2A24;border-color:#6B2A24} .lf-ctl.pr3 .ln{flex:0 0 48px}   /* [PR_WAY_198 ④] */
@@ -8174,13 +8174,13 @@ function renderPractice(){ var R=RitualOpen;
   var _stCard=function(fk,cls,v,t,d,x){ return '<button type="button" class="pr-st '+cls+'" data-fk="'+fk+'" onclick="prPick(\''+(fk==='prtry'?'try':'flow')+'\')">'
       +'<span class="pr-hm"'+_vfy(v)+'>'+(v?'<img src="'+esc(v.poster)+'" alt="" loading="lazy" decoding="async">':'')+'</span>'   /* ★그림 위 ▶ 동그라미(.pr-hp) 금지 — 2026-11-24 사용자 지시로 삭제(사장님 «이건뭐지?» · 영상 미리보기로 읽혔다) · 누를 자리 표시는 제목 끝 › [PR_FLOW_1124] */
       +'<span class="pr-hl"><b>'+t+'</b><span class="pr-hd">'+d+'</span>'+(x?'<span class="pr-hx">'+x+'</span>':'')+'</span></button>'; };
-  var _rz=ENG?_prAtGet():null;   /* ★[PR_WAY_198 ⑪] 이어서 연습 — 어디서부터인지 먼저 · 누를 때만 */
+  /* ★★[PR_RZ_ASK_1125 2026-11-25 사장님 «위에 또 나뉘네 · 이어서 연습하기 이건 뭐야?» → «아래 누르면 만약 이력이 있다면 팝업이 나오게 하는 건?»] 이어서 연습은 화면에 늘 두지 않는다 —
+     «직접 소리 내어 해보기»를 누를 때 멈춘 기록이 있으면 작은 창 하나(«여기서 이어서» · «처음부터») · 화면 위 따로 상자(.pr-resume) 되살리지 말 것(카드 하나 [PR_SIMPLE_1124]) */
   h+='<div class="pr-grid"><div class="pr-lead">'
     +'<div class="pr-sts">'
     /* ★시작 카드 A(prall «AI 목소리로 먼저 듣기» / «흐름 보기로 시작») · 업체 전송 알림(.pr-ask) · AI 준비 칸(#prPrep) 금지 — 2026-11-24 사용자 지시로 삭제 [PR_SIMPLE_1124]
        (사장님 «ai 목소리 먼저 듣기 이거는 삭제하자» → «카드 하나만 남기기(추천)») · 처음부터 듣기는 오른쪽 «골라서 연습하기» 첫 줄이 같은 일을 한다 · 연습하기에서 AI 로 읽기(_ptAi)도 꺼 둔다 */
     +_stCard('prtry','pr-try',_bv,'직접 소리 내어 해보기','두 분 차례에서 멈춰 기다려요',_mins?'연습 약 '+_mins+'분 · 두 분 속도에 따라 달라요':'걸리는 시간은 두 분 속도에 따라 달라요')   /* [PR_SIMPLE_1124] 연습 시간은 이 카드 덧말 · [PRACTICE_WALK_R2 7] 연습 시간과 당일 시간을 나눠 말한다 */   /* ★[PR_WAY_198 ①] B «직접 해보기» · [PR_CLEAN_1123] + 직접 소리 내어 */
-    +(_rz?_prRzHtml(_rz):'')   /* [PR_RZ_ONE_1125] 시작 카드 바로 아래 한 줄 */
     +(todo?'<p class="mk-note pr-todo">아직 안 적은 '+todo+'곳은 참고 예시 글로 보여 드려요</p>':'')
     +'</div>'
     +'<div class="pr-svs"><button type="button" class="pr-sv" data-fk="prsv" onclick="prScript()">글로 한눈에 보기</button>'
@@ -8211,7 +8211,9 @@ var PR_FROM_MP=false;   // [PR_ORDER] 마이페이지 «연습하기»로 열었
 window.prMode=function(m,yes){ if(m==='ai'){ if(yes){ try{ localStorage.setItem('me_ptts_ok','1'); }catch(e){} } if(!_ptOk()){ PT.askMode=true; _fxNext='[data-fk="prmyes"]'; render(); return false; } }
   PT.askMode=false; PT.mode=m==='ai'?'ai':'self'; try{ localStorage.setItem('me_pr_mode',PT.mode); }catch(e){} if(PT.mode!=='ai'){ PT.prep=null; PT.startAfter=null; } return true; };   // [PR_MODE] · [PT_PREP] 직접으로 바꾸면 준비를 멈춘다(받던 것은 받아 둔다)
 /* ★[PR_CLEAN_1123] 시작 카드 — B(try) = 직접 소리 내어 + 직접 해보기 · A(flow) = (_ptOn 이면 AI 로 먼저 +) 흐름 보기. 시작은 prStart → _ptGate(AI 면 준비되면 바로) 그대로 */
-window.prPick=function(w,yes){ if(w==='try'){ prMode('self'); render(); prStart('try'); return; }
+window.prPick=function(w,yes){ if(w==='try'){ var _o=(!yes&&ENG)?_prAtGet():null;
+    if(_o){ ordAsk({title:'지난번 멈춘 곳부터 할까요?',body:_o.d1+(_o.d2?'\n'+_o.d2:''),yes:'여기서 이어서',no:'처음부터',dismissNull:true}).then(function(ok){ if(ok===true) prResume(); else if(ok===false){ _prAtClear(); prPick('try',1); } }); return; }   /* [PR_RZ_ASK_1125] 창을 닫으면(바깥 · Esc) 아무것도 하지 않는다 */
+    prMode('self'); render(); prStart('try'); return; }
   if(_ptOn()){ if(!prMode('ai',yes)) return; render(); } prStart('flow'); };   // [PT_PREP_AGAIN] AI 로 다시 누르면 _ptGate → _ptPrep(1) 이 못 만든 차례를 다시
 window.prFromAfter=function(){ LP.startAfter=true; prFrom('_close'); };   /* [보충 중6] 닫는 인사 쪽에 붙은 촬영 후 안내 줄부터 */
 window.prFrom=function(k){ var rs=_lRows(); if(rs.indexOf(k)<0) return; if(_ptAi()&&!(arguments[1])){ _ptGate(function(){ prFrom(k,1); }); return; } LP.fast=false; LP.noChips=false; LP.startK=k; _lOpenBig(); _lStart(rs,true); _lFull(); };   // [PR_JUMP] 전체를 세우고 그 순간에서 시작(앞 순간으로도 ⏮)
@@ -9036,7 +9038,7 @@ function _prAtSave(){ try{ var st=LP.q[LP.i]; if(!st||!_inPr()||!LP.all||LP.fast
 function _prAtClear(){ try{ var _pk=_prAtKey(); if(_pk) localStorage.removeItem(_pk); }catch(e){} _prRzSync(); }   /* [B5_PN02] 다른 칸(공개 · 다른 계정) 기록은 지우지 않는다 */
 /* ★[B2_NA_18 2026-11-06 BATCH2 나18] «이어서 연습하기» 카드는 지금 이어 할 자리와 함께 산다 — 끝까지 한 뒤 작게 보기에 옛 카드가 남고 단추가 아무 일도 안 했다 ·
      기록이 바뀌면(저장 · 끝 · 크게 보기 닫음 · 누를 때 자리가 없음) 그 카드만 고쳐 그린다(화면 전체를 다시 그려 작은 재생을 끊지 않는다) · 기록이 없으면 카드째 걷는다 */
-function _prRzHtml(_rz){ return '<div class="pr-resume"><div class="pr-rzt"><span class="pr-rzh">지난번 멈춘 곳</span><p class="pr-rz1">'+esc(_rz.d1)+'</p>'+(_rz.d2?'<p class="pr-rz2">'+esc(_rz.d2)+'</p>':'')+'</div><button type="button" class="pk-link pr-rzb" data-fk="prres" onclick="prResume()">여기서 이어서</button></div>'; }   /* ★[PR_RZ_ONE_1125 2026-11-25 사장님 «위에 또 나뉘네 · 이어서 연습하기 이건 뭐야?»] 이어서 연습은 시작 카드 위 따로 선 상자가 아니라 시작 카드 바로 아래 한 줄(테 없음 · 왼쪽 «지난번 멈춘 곳 · 자리» · 오른쪽 «여기서 이어서») — 카드 하나만 남긴 [PR_SIMPLE_1124] 를 다시 둘로 쪼개지 않는다 · 따로 상자 되살리지 말 것 */
+function _prRzHtml(_rz){ return '<div class="pr-resume"><b>이어서 연습하기</b><p class="pr-rz1">'+esc(_rz.d1)+'</p>'+(_rz.d2?'<p class="pr-rz2">'+esc(_rz.d2)+'</p>':'')+'<button type="button" class="rowbtn" data-fk="prres" onclick="prResume()">여기서 이어서</button></div>'; }
 function _prRzSync(){ try{ var el=document.querySelector('.pr-resume'); if(!el) return; var o=ENG?_prAtGet():null; if(!o){ el.remove(); return; } var t=document.createElement('div'); t.innerHTML=_prRzHtml(o); el.parentNode.replaceChild(t.firstChild,el); }catch(e){} }
 function _prAtGet(){ var o=null, _pk=_prAtKey(); if(!_pk) return null; try{ o=JSON.parse(localStorage.getItem(_pk)||'null'); }catch(e){ o=null; } if(!o||!o.k) return null;   /* [B5_PN02] */
   var now=_lRows(), old=String(o.rows||'').split(','), at=now.indexOf(o.k), ch=-1;
