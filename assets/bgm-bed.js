@@ -86,7 +86,7 @@
     if(MIN.key!==key){ MIN.key=key; MIN.v={}; } if(MIN.v[sg]!=null) return MIN.v[sg]; var sec=0;
     try{ (g.RitualCue.build(St(),{mode:'console'}).cues||[]).forEach(function(c){ if(L.ks.indexOf(c.k)<0) return; sec+=(+c.est||0)+((c.live&&(+(c.live.fullEst||c.live.est)||0))||0); }); }catch(x){ sec=0; }
     return (MIN.v[sg]=sec>0?Math.max(1,Math.round(sec/60)):0); }
-  function longLine(sg){ var L=LONG[sg]; if(!L) return ''; var m=minOf(sg); return '<p class="bgm-note bed-long">'+e(picked(sg)?L.t:'여러 연주곡이 차례로 이어져요')+(m?' · 약 '+m+'분':'')+'</p>'; }   /* ★[GPT_R1_LONG] 고르지 않은 기본 상태(1순위부터)에도 여러 곡이 이어진다는 한 줄 */
+  function longLine(sg){ var L=LONG[sg]; if(!L) return ''; var m=minOf(sg); return '<p class="bgm-note bed-long">'+e(picked(sg)?L.t:(sg==='M6'?'사진 찍는 동안까지 ':'')+'여러 연주곡이 차례로 이어져요')+(m?' · 약 '+m+'분':'')+'</p>'; }   /* ★[GPT_R1_LONG] 고르지 않은 기본 상태(1순위부터)에도 여러 곡이 이어진다는 한 줄 */   /* ★[M6_LONG_WHERE_1125] 닫는 인사(1분) 칸에 «약 14분»만 있으면 고객이 «인사가 14분?»으로 읽었다 — 고르지 않은 줄도 고른 줄(«사진 찍는 동안…»)처럼 어디까지인지 말한다 */
   /* ★[DETAIL_R1_1101 ①] 고른 곡(없으면 1순위) 파일이 아직 없어 다음 곡이 대신 흐르면 — 줄 아래 · 미리 듣기 한 줄 «준비 중이라 지금은 ‹곡› 곡이 대신 흘러요»(★[SUB_JOSA_1123] ‹Summer›이 처럼 곡 이름에 따라 조사가 틀려 «곡이»로 붙인다) */
   function subOf(sg){ if(!emb()||AV.st!=='ok'||!sg) return ''; var f=eff(sg), h=effHas(sg); if(!f||!h||h===f||has(f)) return ''; var p=P.byF(h); return p?p.t:''; }
   function subLine(sg,cls){ var t=subOf(sg); return t?'<'+(cls||'p')+' class="bgm-note bed-sub-note">준비 중이라 지금은 ‹'+e(t)+'› 곡이 대신 흘러요</'+(cls||'p')+'>':''; }

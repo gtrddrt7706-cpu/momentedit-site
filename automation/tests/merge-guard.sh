@@ -24720,3 +24720,14 @@ chk 'DLG_BACK_1125' order-preview.html 1
 chk "if(document.getElementById('mkRecDlg')&&typeof mkDlgClose==='function'){ try{ mkDlgClose(); }catch(e){} _fwdSkip=Date.now();" order-preview.html 1
 #   CHIP_HOLD_1125 ② 누른 칩은 손가락 아래 그대로(위 설명 줄 수가 바뀌어 24px 밀렸다)
 chk 'CHIP_HOLD_1125' order-preview.html 1
+# ★[M6_LONG_WHERE_1125 식순 고객 점검] 닫는 인사 음악 — 고르지 않은 줄도 «사진 찍는 동안까지 …»(1분 순간에 «약 14분»만 있어 헷갈렸다)
+chk 'M6_LONG_WHERE_1125' assets/bgm-bed.js 1
+chk "(sg==='M6'?'사진 찍는 동안까지 ':'')+'여러 연주곡이 차례로 이어져요'" assets/bgm-bed.js 1
+# ★[SUM_NO_LEFT_1125 · SUM_ROW_EVEN_1125 식순 고객 · 디자이너 점검] 한눈에 보기 머리에 «빠뜨린 n» 떼기(아래 «남은 할 일 n가지»와 숫자가 갈렸다) · ④ 순서 요약 줄 간격 고르게
+chk 'SUM_NO_LEFT_1125' order-preview.html 1
+chk "left:cur==='_sum'?0:_left" order-preview.html 1
+chk 'SUM_ROW_EVEN_1125' order-preview.html 1
+chk '.sumry.op .sumrow{grid-template-rows:minmax(44px,auto) auto}' order-preview.html 1
+# ★[BED_SUB_WRAP_1125] 음악 이름표 옆 안내는 한 덩이 — 넘친 꼬리만 이름표 밑으로 내려가 글이 찢겨 보였다(테이블 인사)
+chk 'BED_SUB_WRAP_1125' order-preview.html 1
+chk '.ls-bed.bed-one .gl{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:10px}' order-preview.html 1
