@@ -24728,3 +24728,6 @@ chk 'SUM_NO_LEFT_1125' order-preview.html 1
 chk "left:cur==='_sum'?0:_left" order-preview.html 1
 chk 'SUM_ROW_EVEN_1125' order-preview.html 1
 chk '.sumry.op .sumrow{grid-template-rows:minmax(44px,auto) auto}' order-preview.html 1
+# ★[BED_SUB_WRAP_1125] 음악 이름표 옆 안내는 한 덩이 — 넘친 꼬리만 이름표 밑으로 내려가 글이 찢겨 보였다(테이블 인사)
+chk 'BED_SUB_WRAP_1125' order-preview.html 1
+chk '.ls-bed.bed-one .gl{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:10px}' order-preview.html 1
