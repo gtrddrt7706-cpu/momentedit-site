@@ -24736,3 +24736,6 @@ chk '.ls-bed.bed-one .gl{display:flex;flex-wrap:wrap;align-items:baseline;column
 chk 'PR_RZ_ASK_1125' order-preview.html 2
 chk "ordAsk({title:'지난번 멈춘 곳부터 할까요?',body:_o.d1+(_o.d2?" order-preview.html 1
 nochk "+(_rz?_prRzHtml(_rz):'')" order-preview.html
+# ★[LEAVE_BACK_ASK_1125 2026-11-25 사장님 «추천대로»] «아직 남은 일» 창 — 부탁드릴 것만 남았으면 «돌아가기»(채울 칸이 없다) · 적을 칸 · 올릴 것이 있으면 «돌아가서 채우기»
+chk 'LEAVE_BACK_ASK_1125' order-preview.html 1
+chk "return _t.length&&_t.every(function(x){ return x.kind==='ask'; })?'돌아가기':'돌아가서 채우기';" order-preview.html 1
