@@ -9305,7 +9305,8 @@ function _ldPaint(){ var on=!!LD.on;
   document.querySelectorAll('.mk-flow li.lp-ld,.ls-row.lp-ld').forEach(function(x){ if(!on||!x.classList.contains('lp-now')&&!x.classList.contains('now')) x.classList.remove('lp-ld'); });
   document.querySelectorAll('.lp-ldnote').forEach(function(x){ x.remove(); });
   if(on){ var li=document.querySelector('.mk-flow li.lp-now'); if(li) li.classList.add('lp-ld'); var rw=document.querySelector('.ls-row.now'); if(rw) rw.classList.add('lp-ld');
-    if(LD.slow){ var box=li&&(li.querySelector(':scope>span:last-of-type')||li); if(box){ var p=document.createElement('span'); p.className='bgm-note bed-load lp-ldnote'; p.setAttribute('role','status'); p.textContent=LD_SLOW_TXT; box.appendChild(p); } } }
+    if(LD.slow&&!LP.big&&li&&!_ldPaint.said){ _ldPaint.said=1; try{ _lsToast(LD_SLOW_TXT); }catch(e){} } }   /* ★[LF_STX_1125 ②] 10초 넘게 느리면 — 줄 아래 끼우던 한 줄(아래 줄을 밀었다) 대신 떠 있는 알림 한 번 */
+  if(!on) _ldPaint.said=0;
   try{ _mpPaint(true); }catch(e){} try{ if(LP.big) _lFull(); }catch(e){} try{ var m=document.querySelector('.ls-mini .lm-p'); if(m){ m.classList.toggle('lp-ldb',on); if(on) m.setAttribute('aria-label',LD_TXT); } }catch(e){} }
 function _ldLab(t){ return '<span class="em-lab-tg" data-w="'+LD_TXT+'"><span>'+t+'</span></span>'; }   /* [LOAD_SHOW_1106] «멈춤» ↔ «불러오는 중…» 같은 폭 */
 function _lPaint(){

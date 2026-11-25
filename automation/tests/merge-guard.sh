@@ -24757,6 +24757,7 @@ nochk "yes:'기다리지 않고 시작'" order-preview.html
 chk 'LF_STX_1125' order-preview.html 5
 chk ".lf-vwrap{position:relative} .lf-stx{position:absolute;" order-preview.html 1
 nochk "p.className='bgm-note bed-load lp-bednote'+" order-preview.html
+nochk "p.className='bgm-note bed-load lp-ldnote'" order-preview.html
 # ★[PR_END_CENTER_1125 2026-11-25 사장님 «여긴 센터가 아닌 것 같아»] 연습 끝 화면 — 목록 칸을 걷고 가운데
 chk 'PR_END_CENTER_1125' order-preview.html 1
 chk ".lf-in.lf-endv .lf-cols{justify-content:center}" order-preview.html 1
