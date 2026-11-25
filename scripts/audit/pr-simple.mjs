@@ -106,6 +106,7 @@ try {
       const ai = await f.evaluate(() => _ptAi());
       ok(`${tag} ④ 연습하기 AI 로 읽기 꺼짐(PT.mode 'ai' 여도 _ptAi false)`, ai === false, ai);
       await f.click('[data-fk="prtry"]'); await wait(pg, 600);
+      if (await f.$('.ord-ask.on')) { await f.click('.ord-ask.on .oa-no'); await wait(pg, 600); }   /* [PR_RZ_ASK_1125] 앞 바퀴에 멈춘 기록이 있으면 «이어서» 창 — «처음부터» */
       const b1 = await f.evaluate(() => ({ mode: PT.mode, w: PRW, big: !!LP.big, role: !!document.querySelector('[data-fk="lfrole"]') }));
       ok(`${tag} ④ 누르면 직접 해보기(self · try · 크게 보기) · 재생 중 «이 역할 전달하기» 없음`, b1.mode === 'self' && b1.w === 'try' && b1.big && !b1.role, b1);
       await f.evaluate(() => { try { lsStop(); } catch (e) {} render(); }); await wait(pg, 300);

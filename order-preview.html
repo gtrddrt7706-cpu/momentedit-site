@@ -8174,9 +8174,9 @@ function renderPractice(){ var R=RitualOpen;
   var _stCard=function(fk,cls,v,t,d,x){ return '<button type="button" class="pr-st '+cls+'" data-fk="'+fk+'" onclick="prPick(\''+(fk==='prtry'?'try':'flow')+'\')">'
       +'<span class="pr-hm"'+_vfy(v)+'>'+(v?'<img src="'+esc(v.poster)+'" alt="" loading="lazy" decoding="async">':'')+'</span>'   /* ★그림 위 ▶ 동그라미(.pr-hp) 금지 — 2026-11-24 사용자 지시로 삭제(사장님 «이건뭐지?» · 영상 미리보기로 읽혔다) · 누를 자리 표시는 제목 끝 › [PR_FLOW_1124] */
       +'<span class="pr-hl"><b>'+t+'</b><span class="pr-hd">'+d+'</span>'+(x?'<span class="pr-hx">'+x+'</span>':'')+'</span></button>'; };
-  var _rz=ENG?_prAtGet():null;   /* ★[PR_WAY_198 ⑪] 이어서 연습 — 어디서부터인지 먼저 · 누를 때만 */
+  /* ★★[PR_RZ_ASK_1125 2026-11-25 사장님 «위에 또 나뉘네 · 이어서 연습하기 이건 뭐야?» → «아래 누르면 만약 이력이 있다면 팝업이 나오게 하는 건?»] 이어서 연습은 화면에 늘 두지 않는다 —
+     «직접 소리 내어 해보기»를 누를 때 멈춘 기록이 있으면 작은 창 하나(«여기서 이어서» · «처음부터») · 화면 위 따로 상자(.pr-resume) 되살리지 말 것(카드 하나 [PR_SIMPLE_1124]) */
   h+='<div class="pr-grid"><div class="pr-lead">'
-    +(_rz?_prRzHtml(_rz):'')
     +'<div class="pr-sts">'
     /* ★시작 카드 A(prall «AI 목소리로 먼저 듣기» / «흐름 보기로 시작») · 업체 전송 알림(.pr-ask) · AI 준비 칸(#prPrep) 금지 — 2026-11-24 사용자 지시로 삭제 [PR_SIMPLE_1124]
        (사장님 «ai 목소리 먼저 듣기 이거는 삭제하자» → «카드 하나만 남기기(추천)») · 처음부터 듣기는 오른쪽 «골라서 연습하기» 첫 줄이 같은 일을 한다 · 연습하기에서 AI 로 읽기(_ptAi)도 꺼 둔다 */
@@ -8211,7 +8211,9 @@ var PR_FROM_MP=false;   // [PR_ORDER] 마이페이지 «연습하기»로 열었
 window.prMode=function(m,yes){ if(m==='ai'){ if(yes){ try{ localStorage.setItem('me_ptts_ok','1'); }catch(e){} } if(!_ptOk()){ PT.askMode=true; _fxNext='[data-fk="prmyes"]'; render(); return false; } }
   PT.askMode=false; PT.mode=m==='ai'?'ai':'self'; try{ localStorage.setItem('me_pr_mode',PT.mode); }catch(e){} if(PT.mode!=='ai'){ PT.prep=null; PT.startAfter=null; } return true; };   // [PR_MODE] · [PT_PREP] 직접으로 바꾸면 준비를 멈춘다(받던 것은 받아 둔다)
 /* ★[PR_CLEAN_1123] 시작 카드 — B(try) = 직접 소리 내어 + 직접 해보기 · A(flow) = (_ptOn 이면 AI 로 먼저 +) 흐름 보기. 시작은 prStart → _ptGate(AI 면 준비되면 바로) 그대로 */
-window.prPick=function(w,yes){ if(w==='try'){ prMode('self'); render(); prStart('try'); return; }
+window.prPick=function(w,yes){ if(w==='try'){ var _o=(!yes&&ENG)?_prAtGet():null;
+    if(_o){ ordAsk({title:'지난번 멈춘 곳부터 할까요?',body:_o.d1+(_o.d2?'\n'+_o.d2:''),yes:'여기서 이어서',no:'처음부터',dismissNull:true}).then(function(ok){ if(ok===true) prResume(); else if(ok===false){ _prAtClear(); prPick('try',1); } }); return; }   /* [PR_RZ_ASK_1125] 창을 닫으면(바깥 · Esc) 아무것도 하지 않는다 */
+    prMode('self'); render(); prStart('try'); return; }
   if(_ptOn()){ if(!prMode('ai',yes)) return; render(); } prStart('flow'); };   // [PT_PREP_AGAIN] AI 로 다시 누르면 _ptGate → _ptPrep(1) 이 못 만든 차례를 다시
 window.prFromAfter=function(){ LP.startAfter=true; prFrom('_close'); };   /* [보충 중6] 닫는 인사 쪽에 붙은 촬영 후 안내 줄부터 */
 window.prFrom=function(k){ var rs=_lRows(); if(rs.indexOf(k)<0) return; if(_ptAi()&&!(arguments[1])){ _ptGate(function(){ prFrom(k,1); }); return; } LP.fast=false; LP.noChips=false; LP.startK=k; _lOpenBig(); _lStart(rs,true); _lFull(); };   // [PR_JUMP] 전체를 세우고 그 순간에서 시작(앞 순간으로도 ⏮)

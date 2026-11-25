@@ -24621,7 +24621,8 @@ nochk 'if(!_sayOn) h+=_mkRef(k);' order-preview.html
 #   A = «AI 목소리로 먼저 듣기»(_ptOn · AI 로 먼저 + 흐름 보기 · 처음엔 업체 알림과 준비 칸이 A 아래) 아니면 «흐름 보기로 시작» · B = «직접 소리 내어 해보기»(직접 + 직접 해보기)
 #   안내 = 머리 아래 한 줄 + «오늘 흐름» 칩 아래 «집에서는 …» 한 줄 · «재생은 디렉터가 …» 걷음 · «글로 한눈에 보기» · «음악 끄기» 한 줄 · pr-clean 이 390 · 1280 × AI 켬 · 끔 실렌더로 잰다(깨 보고 믿음: 고치기 전 판 = 빨강 7)
 chk 'PR_CLEAN_1123' order-preview.html 8
-chk "window.prPick=function(w,yes){ if(w==='try'){ prMode('self'); render(); prStart('try'); return; }" order-preview.html 1
+chk "window.prPick=function(w,yes){ if(w==='try'){" order-preview.html 1   # [PR_RZ_ASK_1125] 앞에 «이어서» 창이 끼었다 — 직접 해보기 = self · prStart('try') 는 아래 줄로
+chk "    prMode('self'); render(); prStart('try'); return; }" order-preview.html 1
 chk "if(_ptOn()){ if(!prMode('ai',yes)) return; render(); } prStart('flow'); };" order-preview.html 1
 nochk 'class="rowbtn" data-fk="prmyes"' order-preview.html 0   # [PR_SIMPLE_1124] 업체 전송 알림(A 카드 아래) 은퇴
 nochk 'class="pr-mode"' order-preview.html
@@ -24731,3 +24732,7 @@ chk '.sumry.op .sumrow{grid-template-rows:minmax(44px,auto) auto}' order-preview
 # ★[BED_SUB_WRAP_1125] 음악 이름표 옆 안내는 한 덩이 — 넘친 꼬리만 이름표 밑으로 내려가 글이 찢겨 보였다(테이블 인사)
 chk 'BED_SUB_WRAP_1125' order-preview.html 1
 chk '.ls-bed.bed-one .gl{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:10px}' order-preview.html 1
+# ★[PR_RZ_ASK_1125 2026-11-25 사장님 «이어서 연습하기 이건 뭐야?» → «아래 누르면 이력이 있다면 팝업»] 이어서 연습은 «직접 소리 내어 해보기»를 누를 때 창 하나 — 화면에 상자 · 줄로 두지 않는다
+chk 'PR_RZ_ASK_1125' order-preview.html 2
+chk "ordAsk({title:'지난번 멈춘 곳부터 할까요?',body:_o.d1+(_o.d2?" order-preview.html 1
+nochk "+(_rz?_prRzHtml(_rz):'')" order-preview.html
