@@ -22148,7 +22148,8 @@ chk "<span class=\"mk-pre\">본식 </span><span class=\"mk-num\"><b>'+_no+'</b>/
 nochk 'body.mkd .prog{position:sticky;top:-15px' order-preview.html 0   # [HEAD_GAP_1122] 은퇴(옛 chk 1 · −5px 로)
 chk 'body.mkd .op-steps-c{margin:0}' order-preview.html 1
 chk '@media (max-width:408px) and (hover:hover) and (pointer:fine){ body.mkd .prog-top{flex-wrap:wrap' order-preview.html 1
-chk 'body.op4 #obExit{min-width:48px;padding:0 4px}' order-preview.html 1
+chk 'body.op4 #obExit{min-width:56px;padding:0 9px}' order-preview.html 1   # [EXIT_PILL_ROOM_1125] 48 → 56(글이 테에 닿았다)
+chk 'EXIT_PILL_ROOM_1125' order-preview.html 1
 chk '<nav class="mk-sc" id="mkScP" aria-label="진행 순서"' order-preview.html 1
 nochk '<div class="mk-fold">' order-preview.html
 nochk 'class="mk-fbtn"' order-preview.html
@@ -24697,3 +24698,25 @@ chk 'PR_WAY_W_1124' order-preview.html 1
 #   PR_END_GO_1124 직접 해보기 끝 화면 «다음 · 완성» = 채운 주단추 · 다시 보기 보조
 chk 'PR_END_GO_1124' order-preview.html 1
 chk '.lf-endb.go \[data-fk="lfnextstep"\]{background:var(--accent)' order-preview.html 1
+# ★★[SIKSUN_POLISH_1125 2026-11-25 사장님 «식순도 똑같이 · 추천대로 끝까지»] PK_LONG_TAG_1125 ① 카운터 «긴 순간 n/3»이 세는 칸 이름 옆 «긴 순간»(테이블 인사 «긴 순간 2» · 엔진 CNT_LONG 그대로)
+#   PR_EACH_DAYTIME_1125 연습 흐름 보기 말하는 차례 = 당일 몫 그대로(예시 글 길이로 줄이지 않는다)
+chk 'PK_LONG_TAG_1125' order-preview.html 2
+chk "function _pkLong(k,ek){" order-preview.html 1
+chk '<span class="pk-nr"><span class="pk-n">' order-preview.html 1
+chk "+_pkLong('free','free')" order-preview.html 1
+chk 'PR_EACH_DAYTIME_1125' order-preview.html 1
+chk "st.ms=(each||Math.max(3,_mkSec(pt.txt.length)))\*1000; if(each) st._ea=1; }" order-preview.html 1
+#   SUM_POST_LAB_1125 ④ 순서 요약 첫 칸 44px · 줄바꿈 없음(«본식 뒤»가 «본식 / 뒤»로 쪼개졌다)
+chk 'SUM_POST_LAB_1125' order-preview.html 1
+chk '.sumry.op .sumrow{grid-template-columns:44px minmax(0,1fr) auto} .sumry.op .sr-n{white-space:nowrap}' order-preview.html 1
+#   EX_META_LINE_1125 ① 예시 카드 시간 줄은 늘 이름 아래(«기록»만 밀려 내려가 짜임이 달랐다)
+chk 'EX_META_LINE_1125' order-preview.html 1
+chk '.pk-ex-n{flex-direction:column;align-items:flex-start;row-gap:1px}' order-preview.html 1
+#   PK_TGL_HOLD_1125 ① ＋ · ✓ 누른 칸은 손가락 아래 그대로(위 판이 늘어 186px 밀렸다) · 미리 보기 창에서 담을 때는 건드리지 않는다
+chk 'PK_TGL_HOLD_1125' order-preview.html 1
+chk 'var _t0=window.opPkTgl; window.opPkTgl=function(k){' order-preview.html 1
+#   DLG_BACK_1125 ② 작은 창(#mkRecDlg)이 떠 있을 때 휴대폰 뒤로 = 창만 닫힘(창은 뜬 채 뒤 화면만 앞 걸음으로 가던 것)
+chk 'DLG_BACK_1125' order-preview.html 1
+chk "if(document.getElementById('mkRecDlg')&&typeof mkDlgClose==='function'){ try{ mkDlgClose(); }catch(e){} _fwdSkip=Date.now();" order-preview.html 1
+#   CHIP_HOLD_1125 ② 누른 칩은 손가락 아래 그대로(위 설명 줄 수가 바뀌어 24px 밀렸다)
+chk 'CHIP_HOLD_1125' order-preview.html 1

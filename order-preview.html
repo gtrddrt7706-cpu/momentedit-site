@@ -596,7 +596,7 @@ body.op4 .prog-top{min-height:0;justify-content:flex-end}   /* [OP4_EXIT_RIGHT] 
 @media (hover:hover){ .ob-exit:hover{border-color:var(--gold-deep);color:var(--gold-deep)} }   /* [TOUCH_HOVER_GATE_N20_11] */
 /* ★[MK_HEAD_D 1101] 폰(560 이하) 머리 알약 사이 4 · 나가기 48(문구 · 44 높이 · 바로 보임은 그대로) — 360 에서 상태 단추가 한 줄 두 층(140px)에 든다.
    ① · ③ · ④ 도 같은 폭이라 걸음을 옮겨도 «⋯ · 저장 · 나가기»가 한 픽셀도 안 움직인다(HEAD_PILLS 의 나가기 약 61 → 48 은 이것으로 대체) */
-@media (max-width:560px){ body.op4 #obExitSlot{gap:4px} body.op4 #obExit{min-width:48px;padding:0 4px} }
+@media (max-width:560px){ body.op4 #obExitSlot{gap:4px} body.op4 #obExit{min-width:56px;padding:0 9px} }   /* ★[EXIT_PILL_ROOM_1125] 나가기 48 → 56 — 48 은 «나가기» 글(35px)이 테에 닿아 잘린 알약처럼 보였다 · 360 에서도 상태 단추 «5/13»은 한 줄 그대로(130px · 실측) */
 body.mkd .prog{position:sticky;top:-5px;z-index:4;background:transparent;pointer-events:none}   /* [MK_HEAD_D] ② 순간 쪽은 머리 줄(상태 · 도구)이 붙는다 · 위 5px 만 스크롤된다(붙으면 맨 위에서 10px 띄움 · ★[HEAD_GAP_1122 2026-11-22 사장님 «맨 위 간격이 좁다»] 옛 −15px = 딱 붙음) · 네 칸 선은 자연스럽게 스크롤 */
 body.mkd .prog-top,body.mkd #obExitSlot{pointer-events:none}body.mkd .prog button,body.mkd .prog a,body.mkd .prog .ob-menu{pointer-events:auto}body.mkd .prog-top .mk-status,body.mkd #obExitSlot>button,body.mkd #obExitSlot .ob-exit{box-shadow:0 2px 10px rgba(58,44,36,.14)}   /* ★★[HEAD_FLOAT_1122 2026-11-22 사장님 «배경을 없애고 버튼만 남기기» → 시안 B «추천대로»] 머리 줄 띠 배경을 걷고 단추만 띄운다 — 단추는 불투명(var(--card)) + 옅은 그림자 · 빈틈은 눌림이 아래 본문으로 지나간다(pointer-events) · 투명도(시안 C)는 글씨가 흐려지고 글래스모피즘 금지에 걸려 쓰지 않는다 · 옛 띠 아래 번짐(HEAD_EDGE_FADE_1122)은 은퇴 · 띠 배경 되살리기 금지 */
 body.mkd .prog-top{justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:0}
@@ -915,7 +915,7 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .pk-ex-n{display:flex;align-items:baseline;flex-wrap:wrap;column-gap:8px;font-size:14px;line-height:1.45}
 .pk-ex-n b{font-weight:600}
 .pk-ex-m{font-size:12.5px;color:var(--sub);white-space:nowrap}
-.pk-ex-tm{white-space:nowrap}
+.pk-ex-tm{white-space:nowrap} .pk-ex-n{flex-direction:column;align-items:flex-start;row-gap:1px}   /* ★[EX_META_LINE_1125] 예시 카드 시간 줄은 늘 이름 아래 한 줄 — «기록»만 시간이 길어(테이블 인사 약 9분) 이름 옆에서 밀려 내려가 네 카드 짜임이 달랐다 */
 @media (max-width:389px){ .pk-ex-m{white-space:normal;min-width:0} }   /* [B2_FIX_NA_50_375] 375(아이폰 SE · mini)에서도 겹쳤다 — 390 미만은 접는다(검토 되돌림) */   /* ★[B2_FIX_NA_50 2026-11-06 재검증 재수정] 360 폭 기록 카드 «본식 약 10~13분 · 테이블 인사 약 9분»이 오른쪽 곡선 칸(112px)과 22px 겹쳤다 — 좁은 폭에서만 « · » 자리에서 접는다(«테이블 인사 약 n분»은 한 덩어리 .pk-ex-tm) · 390 이상은 한 줄 그대로 */
 .pk-ex-f{display:block;font-size:12.5px;line-height:1.5;color:var(--sub);margin-top:2px}
 .pk-ex-g{display:block;min-width:0}
@@ -1697,7 +1697,7 @@ body.mkd .mk-strip{top:44px;margin:0 -16px 12px;padding:0;border-bottom:0}   /* 
 .mk-qt{margin-left:8px;font-size:11px;font-weight:400;letter-spacing:.02em;color:var(--light);white-space:nowrap;vertical-align:1px}   /* [FLOW_THREAD] «말 없이» · «미리 듣기에서는 넘겨요» = 줄 끝 작은 표(나레이션 · 당일 직접 표와 같은 크기) */
 .mk-flow li.n{display:flex;gap:8px;align-items:flex-start;font-size:16px;line-height:1.75;color:var(--accent)}   /* ★[FLOW_LINE_TYPE 2026-10-02 사장님 «재생 버튼 메시지 글꼴과 스타일을 하객 맞이 카드랑 통일»] 나레이션 글 = 줄 카드 글(.mk-vtx 16 · 1.75 · accent) */
 .mk-ltx1{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}   /* [VP_FLOW_CLAMP] 두 분 목소리 줄 — 전문은 아래 줄 카드에 */
-.pk-cnt{margin:2px 0 10px;font-size:12.5px;line-height:1.5;color:var(--sub);word-break:keep-all}.pk-cnt b{font-weight:600;color:var(--accent)}.mk-sc .pk-cnt{display:block;flex:0 0 auto;line-height:44px;margin:0 8px 0 2px;white-space:nowrap}   /* [EVENT_COUNT_CAP] 카운터 · ★[CNT_ROW_ALIGN_1102 사장님 «라인이 안 맞는데»] 진행 줄 글자(.mk-it · 높이 44 가운데)와 같은 줄 높이 · 가운데 — 종전엔 위 여백 4px 로 붙어 한 줄 위로 떠 보였다 */
+.pk-cnt{margin:2px 0 10px;font-size:12.5px;line-height:1.5;color:var(--sub);word-break:keep-all} .pk-nr{display:flex;align-items:baseline;flex-wrap:wrap;min-width:0} .pk-nr .pk-n{min-width:0} .pk-long{display:inline-block;margin-left:6px;font-size:12.5px;font-weight:400;color:var(--sub);white-space:nowrap} .pk-pairtx>.pk-long{display:block;margin:6px 0 0}   /* [PK_LONG_TAG_1125] */.pk-cnt b{font-weight:600;color:var(--accent)}.mk-sc .pk-cnt{display:block;flex:0 0 auto;line-height:44px;margin:0 8px 0 2px;white-space:nowrap}   /* [EVENT_COUNT_CAP] 카운터 · ★[CNT_ROW_ALIGN_1102 사장님 «라인이 안 맞는데»] 진행 줄 글자(.mk-it · 높이 44 가운데)와 같은 줄 높이 · 가운데 — 종전엔 위 여백 4px 로 붙어 한 줄 위로 떠 보였다 */
 @media (min-width:1000px){ .mk-sc .pk-cnt{margin-left:10px} }   /* ★[CNT_COL_ALIGN 2026-11-18 NIGHT20 #11] PC 는 진행 줄이 두 줄로 접히는데(MK_STRIP_WRAP) 첫 줄 카운터 «고른 본식 순간 6/6 · 긴 순간 3/3»만 본문 왼쪽 선보다 8px 바깥(290 · 본문 298)에 앉았다 — 둘째 줄 순간 글(✓ 298) · 아래 «한눈에 보기»(298)와 한 세로선 · 폰(한 줄 넘기기)은 그대로 */
 .mk-alt{display:block;margin-top:5px;font-size:14px;color:var(--ink-soft,#6b625a);line-height:1.6}   /* [CLOSING_SRC_1031 검토 179] 길어지면 바뀌는 말 — 본 줄보다 옅게 */
 .mk-flow li.q,.mk-flow li.t{padding-left:47px;font-size:16px;line-height:1.6;color:var(--accent)}   /* ★[FLOW_THREAD] 행동 · 차례 줄 = 나레이션 글과 같은 세로선(47) · 같은 16px. 종전 «말 없는 줄 = 옅게 12.5px»(QUIET_LINES · MK_ROWS 42)는 이 결정으로 바뀌었다 */
@@ -2308,7 +2308,7 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h3[tabindex="-1"]:focus,h4[tabin
 /* [RIT_SUMMARY_STACK] 한 줄에 순번 · 이름(오른쪽 «변경» 글 단추), 아래에 값 */
 .sumry.op .sumrow{display:grid;grid-template-columns:24px minmax(0,1fr) auto;grid-template-areas:"n l c" ". v v";column-gap:8px;row-gap:0;align-items:center;padding:6px 10px 10px 12px}
 /* ★[RAIL_IGNORE_1019] «순서 요약» 채우기 · 변경 글 단추 — 레일(상담 말풍선) 자리를 비우지 않는다 — 2026-10-19 사장님 «우측버튼레일은 신경쓰지마 무시하고 폭넓게» 지시로 삭제 · 되살리지 말 것(종전 DONE_BUBBLE_1019 의 오른쪽 36px) */
-.sumry.op .sr-n{grid-area:n;flex:none}
+.sumry.op .sr-n{grid-area:n;flex:none} .sumry.op .sumrow{grid-template-columns:44px minmax(0,1fr) auto} .sumry.op .sr-n{white-space:nowrap}   /* ★[SUM_POST_LAB_1125] ④ 순서 요약 첫 칸 24 → 44px — «본식 뒤»가 «본식 / 뒤» 두 줄로 쪼개졌다 · 모든 줄 같은 폭이라 제목 세로선은 그대로 한 줄 */
 .sumry.op .sr-l{grid-area:l;flex:none}
 .sumry.op .sr-v{grid-area:v;min-width:0}
 .sumry.op .sr-c{grid-area:c;min-width:0;min-height:44px;padding:0 6px;border:0;background:none;border-radius:0;color:var(--gold-deeper);font-size:12.5px;text-decoration:underline;text-underline-offset:3px}
@@ -3996,6 +3996,7 @@ window.addEventListener('popstate',function(ev){
   _hTell();   /* [HIST_DEPTH] 뒤로 · 앞으로 온 칸의 깊이 */
   if(_parentAsk){ _fwdSkip=Date.now(); try{ history.forward(); }catch(e){ _fwdSkip=0; } return; }   // [PARENT_ASK_HOLD] 마이페이지 판은 뒤로가기를 무시한다 — 걸음을 그대로 두고 칸을 되돌린다
   if(_ordOv&&_ordOv.__ordDismiss){ _ordOv.__ordDismiss(); _fwdSkip=Date.now(); try{ history.forward(); }catch(e){ _fwdSkip=0; } return; }   // [BACK_DISMISS]
+  if(document.getElementById('mkRecDlg')&&typeof mkDlgClose==='function'){ try{ mkDlgClose(); }catch(e){} _fwdSkip=Date.now(); try{ history.forward(); }catch(e){ _fwdSkip=0; } return; }   // ★[DLG_BACK_1125] 작은 창(내 곡 · 녹음 · 목소리)이 떠 있을 때 휴대폰 뒤로 = 창만 닫힘 — 종전엔 창은 그대로 뜬 채 뒤 화면만 앞 걸음(고르기 · 안내)으로 넘어갔다([BACK_DISMISS] 와 같은 길)
   if(!isOpen()) return;
   var st=ev.state||{};
   var _rp=document.getElementById('ob_rpViewer'); if(_rp&&!st.rp&&_rp.__rpClose){ _rp.__rpClose(true); if(st.opIdx===idx) return; }   // [RP_BACK] 음악까지 미리듣기도 뒤로 한 번에 닫힌다
@@ -4522,6 +4523,10 @@ function _midAt(){
   setTimeout(function(){ var b=document.querySelector('[data-fk="pto:'+MIDV+'"]'), t=b&&b.closest('.pk-tile'); if(!t) return;
     try{ t.scrollIntoView({block:'center',behavior:_rm()?'auto':'smooth'}); }catch(e){} t.classList.remove('pk-flash'); void t.offsetWidth; t.classList.add('pk-flash'); setTimeout(function(){ t.classList.remove('pk-flash'); },1600); },120); }
 window.opPkTgl=function(k){ var R=RitualOpen; if(k===MIDV){ opTgl('midvid',1); return; } if(k==='welcome'&&isOpen()&&!R.onOf(S,'welcome')){ opPv('welcome'); return; }   /* [THANKS_SWAP_1122] 고른 게 없을 때 ＋ = 창(감사 인사 담기 · 감사문 담기) */ if(k==='free'&&isOpen()){ var w=R.pairOf(S); if(!w){ opPv('free'); return; } opTgl(w,1); return; }   /* ★[PAIR_PLUS_PV_1115 GPT 검토 1라운드] 고른 게 없을 때 ＋ = 창(축사 담기 · 축가 담기) — 저희가 축사를 미리 골라 담지 않는다(BOSS_STYLE 1) */ opTgl(k,1); };   /* ★[SPEECH_SONG_1115] 식중 영상 = 따로 · 축사 · 축가 카드의 ＋ 는 축사(대표님 «카드 미리 보기는 축사») · ✓ 는 담긴 쪽 빼기 */
+/* ★[PK_TGL_HOLD_1125] ＋ · ✓ 를 누른 칸은 손가락 아래 그대로 — 위 판(감동 흐름 알림 · 셈 줄)이 늘고 줄어 누른 칸이 29 ~ 186px 밀려났다(390 «혼인 서약» 담기 실측 186) · 다시 누르려던 손이 다른 칸을 누른다. 그린 뒤 그 단추의 화면 위치를 누르기 전으로 되돌린다(같은 길: 5655 · 7846) */
+(function(){ var _t0=window.opPkTgl; window.opPkTgl=function(k){ var s='.pk-sel[data-fk="opt:'+k+'"]', b=document.querySelector(s), y0=b?b.getBoundingClientRect().top:null; _t0(k); if(y0===null||(typeof PV!=="undefined"&&PV.k)) return;   /* 미리 보기 창에서 담을 때(창이 떠 있다)는 뒤 화면을 건드리지 않는다 */
+  var hold=function(){ var n=document.querySelector(s); if(!n||!n.offsetParent) return; try{ var dy=n.getBoundingClientRect().top-y0; if(Math.abs(dy)>=1) window.scrollBy(0,dy); }catch(e){} };
+  hold(); try{ requestAnimationFrame(hold); }catch(e){} }; })();
 /* 카드 안 고르기 — 담기 전이면 누른 쪽을 담고(눌린 모양은 담은 뒤에만 · 기본값을 눌린 모양으로 두지 않는다) · 담겨 있으면 그쪽으로 바꾼다(개수 그대로 · 시간만 다시 잰다) */
 window.opPair=function(w){ var R=RitualOpen, cur=R.pairOf(S); if(R.PAIR.indexOf(w)<0) return; if(cur===w) return; if(!cur){ if(PV.k==='free') PV.pv=w; opTgl(w,1); if(PV.k==='free') _pvDraw(); return; }
   if(_capNo(function(t){ R.pairSet(t,w); },true,w)) return; _opPrev=_pkSnap(); R.pairSet(S,w); if(cur) _mkForget([cur]); var msg=cur?(PN[cur]+' 대신 '+PN_O[w]+' 담았어요'):(PN_O[w]+' 담았어요'); _pkMsg=msg+' · '+R.spanText(S); opSync(); if(PV.k==='free'&&PV.pv!==w){ PV.pv=w; _pvStop(); _pvDraw(); _pvPlay(); } else if(PV.k) _pvActs(); _pkUndo(msg); };   /* [PAIR_VIEW_1115] 바꾼 쪽을 보여 준다 */
@@ -8352,8 +8357,10 @@ window.lsChip=function(key,v){
   if((key==='guestVoice'||key==='entryVoice'||key==='pvVoice')&&v==='ai'&&_vsOk()&&!LP.big&&!(S.tipSeen||{}).keep){ MK.keepDlg=key==='guestVoice'?'guest':key==='pvVoice'?'prevideo':'entry'; MK.keepTip=true; }   /* [TIP_ONCE] 고객이 AI 두 분 목소리를 처음 누를 때 한 번(코드가 값을 바꿀 때는 아니다) */
   var hold=_lHold(k);   /* [CHIP_NO_AUTOPLAY] 다시 그리기 전에 잰다 — ③ 연습에서는 render() 가 흐르던 줄을 비운다(2736 · ② 를 떠나면 멈춤) */
   var _cg0=_chgSnap(k);   // [CHIP_CHANGED] 그리기 전 흐름 줄 글
+  var _hs='#stage [data-fk="lsc:'+key+':'+v+'"]', _hb=LP.big?null:document.querySelector(_hs), _hy=_hb?_hb.getBoundingClientRect().top:null;   /* ★[CHIP_HOLD_1125] 누른 칩은 손가락 아래 그대로 — 위 한 줄 설명이 칩에 따라 줄 수가 바뀌어(부모님께 인사 «인사만» 등) 칩이 24px 밀렸다 */
   _lSet(key,v); buildSteps(); LS.msg=''; LS.undo=null;
   render();
+  if(_hy!==null){ var _hn=document.querySelector(_hs); if(_hn&&_hn.offsetParent){ try{ var _dy=_hn.getBoundingClientRect().top-_hy; if(Math.abs(_dy)>=1) window.scrollBy(0,_dy); }catch(e){} } }
   if((key==='guestVoice'||key==='entryVoice'||key==='pvVoice')&&v==='ai'&&_vcOn()){ if(VC.st) _vcFillEmpty(); else _vcStatus(_vcFillEmpty); }   // [FILL_EMPTY] 이미 있는 목소리로 빈 줄을 바로
   if(LP.big) _lFull();
   _lHush(k,hold);
@@ -8571,7 +8578,7 @@ function _lRefExpand(q){
       var st={k:x.k,lab:pt.who+' 차례',who:pt.who,src:null,pending:true,talk2:true,talkTxt:x.txt,refPar:!!pt.parent,ldk:x.ldk};   /* [BGM_PREVIEW_1024] 사람 구간 음악 크기 */
       if(mine){ st.txt=mine; st.mine=true; st.ms=_mkSec(mine.length)*1000; }
       else if(site){ st.txt=kind==='letter'?'따로 써 온 편지를 읽는 차례예요':'떠오르는 대로 말해 보세요'; st.site=true; if(kind==='letter') st.siteLetter=true; st.ms=(each||20)*1000; if(each) st._ea=1; }   /* ★[LETTER_SITE_PRACT_1031 식순 걷기 2라운드 8] 편지 «따로 써서 가져올게요»는 즉석 말이 아니다 */
-      else { st.txt=pt.txt; st.ref=true; st.kyeol=pt.kyeol; st.refN=n; st.refOf=sets.length; st.refSit=_refSit(set); st.refDay=(x.k==='tribute'&&_inPr())?'비워 두셔도 돼요 · 지금은 참고 예시':_lRefDay(x.k,set); st.ms=(each||Math.max(3,_mkSec(pt.txt.length)))*1000; if(each) st._ea=1; }   /* [PRACTICE_WALK_1101 12] 부모님께 드릴 말은 선택 */
+      else { st.txt=pt.txt; st.ref=true; st.kyeol=pt.kyeol; st.refN=n; st.refOf=sets.length; st.refSit=_refSit(set); st.refDay=(x.k==='tribute'&&_inPr())?'비워 두셔도 돼요 · 지금은 참고 예시':_lRefDay(x.k,set); st.ms=(each||Math.max(3,_mkSec(pt.txt.length)))*1000; if(each) st._ea=1; }   /* ★[PR_EACH_DAYTIME_1125 2026-11-25 사장님 «추천대로»] 연습 흐름 보기의 말하는 차례는 당일 몫(each · 부모님께 인사 한 분 69초 등) 그대로 — 예시 글 길이로 줄이지 않는다(흐름 보기 = 당일 길이를 미리 느끼는 자리 · 넘기려면 «다음») */   /* [PRACTICE_WALK_1101 12] 부모님께 드릴 말은 선택 */
       if(wk) st.wk=wk; grp.push(st); });
     /* ★[REVIEW_166_1030 검토 166 B1] 고른 참고 예시가 한 사람 판(편지 예시 3 · 4 신부만 · 교차 인사 예시 1 · 4 신랑만)이어도 두 분이 적은 글은 다 차례에 넣는다 — 종전엔 예시에 없는 분의 글이 연습 · 흐름에서 빠졌다 */
     if(kind) [['g','신랑'],['b','신부']].forEach(function(gw){ if(grp.some(function(q){ return q.wk===gw[0]; })) return; var _st2s=_txSite(kind,c,kind+'.'+gw[0]);
@@ -9798,6 +9805,8 @@ function _pkPanel(){
     +'</div>'+_noteHtml()+'</section>';   /* ★[NOTE_UNDER 2026-10-07 사장님 «추천대로»] 단추가 있는 알림은 판 맨 끝 — PC 는 왼쪽 그림 바로 아래(오른쪽만 길어져 그림 아래가 비던 것) · 폰은 판 맨 아래 */
 }
 /* [FIX_MARK_O] 늘 있는 순간 표 — 누르는 단추가 아니다(그림 · 이름은 화면 읽기에) · 담김 ✓(먹빛 꽉 찬 동그라미)과 같은 26px 동그라미 · 속은 비고 가운데 점 */
+/* ★[PK_LONG_TAG_1125 2026-11-25 식순 다듬기 «고객이 처음 봤을 때»] ① 위 카운터 «긴 순간 n/3»이 무엇을 세는지 칸에 없었다 — 세는 칸 이름 옆에 작게 «긴 순간»(테이블 인사는 둘로 세니 «긴 순간 2») · 셈은 엔진 CNT_LONG 그대로 */
+function _pkLong(k,ek){ var R=RitualOpen; if(!isOpen()||!R||!R.CNT_LONG) return ''; var w=R.CNT_LONG[k]||R.CNT_LONG[ek]||0; return w?'<span class="pk-long">긴 순간'+(w>1?' '+w:'')+'</span>':''; }
 function _fixMk(cls){ return '<span class="'+cls+'" role="img" aria-label="늘 있는 순간 · 빼지 않아요"><i class="fixmk" aria-hidden="true"></i></span>'; }
 /* ★[CAKE_OFF_1013 2026-10-13 사장님 «케익은 빼자»] 새로 담지 않는 순간(RitualOpen.RETIRED · 케이크 커팅)은 담겨 있을 때만 칸을 보인다 —
    옛 초안이 담아 둔 케이크는 보이고 뺄 수 있다. 이 쪽을 연 동안 한 번 보인 칸은 빼도 자리에 남는다(누르자마자 칸이 사라져 줄이 흔들리지 않게 · 잘못 뺐으면 다시 담는다).
@@ -9819,7 +9828,7 @@ function _pairTile(k,vw){ var R=RitualOpen, w=vw.pair, ek=vw.k, v=R.firstVideo(e
   var chip=function(x,nm){ var sel=w===x; return '<button type="button" class="pk-pc'+(sel?' on':'')+'" role="radio" aria-checked="'+(sel?'true':'false')+'" data-fk="pair:'+x+'" onclick="opPair(\''+x+'\')"><span>'+nm+'</span></button>'; };
   return '<div class="pk-tile pk-pairt'+(on?' on':'')+'">'
     +'<button type="button" class="pk-open" data-fk="pto:'+k+'" onclick="opPv(\''+k+'\')" aria-label="'+esc(PAIR_NAME)+' · 장면과 대표 나레이션 미리 보기"><span class="pk-media">'+media+'<span class="pk-play" aria-hidden="true">'+ICO_PLAY+'</span></span></button>'
-    +'<div class="pk-txt pk-pairtx"><span class="pk-pair" role="radiogroup" aria-label="축사 또는 축가 · 둘 중 하나">'+chip('free','축사')+chip('song','축가')+'</span>'   /* [NO_SHOW_1116] */
+    +'<div class="pk-txt pk-pairtx"><span class="pk-pair" role="radiogroup" aria-label="축사 또는 축가 · 둘 중 하나">'+chip('free','축사')+chip('song','축가')+'</span>'+_pkLong('free','free')   /* [NO_SHOW_1116] */
     +'<span class="pk-s" aria-hidden="true" onclick="opPv(\''+k+'\')">'+esc(_n2(_nd(w?PICK_COPY.tileOn[w]:PICK_COPY.tile.free)))+'</span></div>'   /* ★[PAIR_TILE_ON_1115 GPT 2라운드] 담은 뒤에는 고른 쪽 한 줄(«골라 담아요»가 남지 않게) */
     +'<button type="button" class="pk-sel'+(on?' on':'')+'" data-fk="opt:'+k+'" aria-pressed="'+(on?'true':'false')+'" aria-label="'+esc(on?PN[w]+' 담기':'축사 또는 축가 담기')+'" onclick="opPkTgl(\''+k+'\')"><i aria-hidden="true">'+(on?'✓':'+')+'</i></button>'   /* ★[PAIR_ARIA_N06 2026-11-19 NIGHT20 #06 R3 · 대기 · 대표님 결정] 읽어 주는 이름 — 다른 칸(«○○ 담기» + 눌림)과 같은 꼴 · 종전 «축가 빼기»는 aria-pressed(눌림)와 겹쳐 «축가 빼기, 눌림»으로 읽혔다 */
     +'</div>'; }
@@ -9841,7 +9850,7 @@ function _pkTile(k){
   return '<div class="pk-tile'+(always?' fix':(on?' on':''))+'">'
     +'<button type="button" class="pk-open" data-fk="pto:'+k+'" onclick="opPv(\''+k+'\')" aria-label="'+esc(nm)+' · 장면과 대표 나레이션 미리 보기">'   /* [D7] */
     +'<span class="pk-media">'+media+'<span class="pk-play" aria-hidden="true">'+ICO_PLAY+'</span></span>'   /* ★칸 구석 «AI» 금지 — 2026-10-03 사용자 지시로 삭제 [AI_LABEL_OFF] */
-    +'<span class="pk-txt"><span class="pk-n">'+esc(nm)+'</span><span class="pk-s">'+esc(_n2(_nd(_af?AFTER_CARD.tile:((isOpen()&&PICK_COPY.tile[k])||R.tileOf(ek,vw.S)))))+'</span></span></button>'
+    +'<span class="pk-txt">'+(function(t){ return t?'<span class="pk-nr"><span class="pk-n">'+esc(nm)+'</span>'+t+'</span>':'<span class="pk-n">'+esc(nm)+'</span>'; })(_pkLong(k,ek))+'<span class="pk-s">'+esc(_n2(_nd(_af?AFTER_CARD.tile:((isOpen()&&PICK_COPY.tile[k])||R.tileOf(ek,vw.S)))))+'</span></span></button>'
     +(always?_fixMk('pk-fixmk')   /* [FIX_MARK_O] ① 칸도 같은 표 */
       :'<button type="button" class="pk-sel'+(on?' on':'')+'" data-fk="opt:'+k+'" aria-pressed="'+(on?'true':'false')+'" aria-label="'+esc(nm)+' 담기" onclick="opPkTgl(\''+k+'\')"><i aria-hidden="true">'+(on?'✓':'+')+'</i></button>')
     +'</div>';
