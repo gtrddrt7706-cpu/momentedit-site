@@ -16711,7 +16711,7 @@ chk 'PR_ORDER' scripts/audit/pr-from-mypage.mjs 1
 chk 'PT_PREP' order-preview.html 7
 chk 'function _ptPrep()' order-preview.html 1
 chk 'function _ptGate(f)' order-preview.html 1
-chk "window.prStart=function(w){ PRW=(w==='try'?'try':'flow'); LP.listOpen=false; _ptGate(lsPlayAll); };" order-preview.html 1   # [PR_WAY_198] 두 시작 단추 모두 _ptGate 를 지난다
+chk "window.prStart=function(w){ PRW=(w==='try'?'try':'flow'); LP.listOpen=false; _ptGate(function(){ _prMusWarm(lsPlayAll); }); };" order-preview.html 1   # [PR_WAY_198] 두 시작 단추 모두 _ptGate 를 지난다
 chk 'PT_VOICE_FALLBACK' automation/platform/80_production.gs 1
 chk 'PT_VOICE_FALLBACK' scripts/audit/vc-par.mjs 1
 chk 'PT_PREP' scripts/audit/play-wait-file.mjs 2
@@ -24739,3 +24739,10 @@ nochk "+(_rz?_prRzHtml(_rz):'')" order-preview.html
 # ★[LEAVE_BACK_ASK_1125 2026-11-25 사장님 «추천대로»] «아직 남은 일» 창 — 부탁드릴 것만 남았으면 «돌아가기»(채울 칸이 없다) · 적을 칸 · 올릴 것이 있으면 «돌아가서 채우기»
 chk 'LEAVE_BACK_ASK_1125' order-preview.html 1
 chk "return _t.length&&_t.every(function(x){ return x.kind==='ask'; })?'돌아가기':'돌아가서 채우기';" order-preview.html 1
+
+# ★★[PR_MUSIC_ONCE_1125 2026-11-25 사장님 «처음 클릭하면 전체 로딩 · 넘길 때마다 로딩 없게»] 연습 세 길(처음부터 · 골라서 · 이어서)은 먼저 그 흐름 곡을 한꺼번에(받은 파일 그대로 RAW) · 넘길 땐 RAW 에서 바로 푼다
+chk 'PR_MUSIC_ONCE_1125' order-preview.html 4
+chk 'PR_MUSIC_ONCE_1125' assets/bgm-bed.js 5
+chk 'function _prMusWarm(go){' order-preview.html 1
+chk 'rawDecode(f,o); return; }' assets/bgm-bed.js 1
+chk 'prefetch:prefetch, prefetchNeed:prefetchNeed,' assets/bgm-bed.js 1
