@@ -24744,5 +24744,5 @@ chk "return _t.length&&_t.every(function(x){ return x.kind==='ask'; })?'돌아�
 chk 'PR_MUSIC_ONCE_1125' order-preview.html 4
 chk 'PR_MUSIC_ONCE_1125' assets/bgm-bed.js 5
 chk 'function _prMusWarm(go){' order-preview.html 1
-chk 'if(RAW[f]){ rawDecode(f,o); return; }' assets/bgm-bed.js 1
+chk 'rawDecode(f,o); return; }' assets/bgm-bed.js 1
 chk 'prefetch:prefetch, prefetchNeed:prefetchNeed,' assets/bgm-bed.js 1
