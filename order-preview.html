@@ -867,7 +867,8 @@ h3.sec-l.wr-top{margin:26px 0 0;font-size:16px;line-height:1.3;letter-spacing:0;
 .op-steps-c span.done{background:var(--gold-deep)}
 .op-band.thin .op-bar,.op-band.thin .op-leg{display:none}
 .op-band.thin .op-mf{margin-top:4px}
-.lv{position:relative;display:block;aspect-ratio:2.39/1;border-radius:8px;overflow:hidden;background:var(--bg2);border:1px solid var(--border)}   /* [CINE_SCOPE] */
+.lv{position:relative;display:block;aspect-ratio:2.39/1;border-radius:8px;overflow:hidden;background:var(--bg2);border:1px solid var(--border)}
+.lf-vwrap{position:relative} .lf-stx{position:absolute;left:10px;right:10px;bottom:10px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;pointer-events:none;z-index:2} .lf-stx p{margin:0!important;padding:5px 11px;border-radius:999px;background:rgba(28,27,25,.62);color:#fff!important;font-size:12.5px;line-height:1.45;max-width:100%}   /* ★[LF_STX_1125] 크게 보기 상태 줄은 장면 그림 아래쪽 위에 — 글이 오르내리지 않는다 · 흐림(blur) 없음 */   /* [CINE_SCOPE] */
 .lv video{display:block;width:100%;height:100%;object-fit:cover}
 /* ★★[CINE_SCOPE 2026-10-11 사장님 «여기 영상 비율 너무 큰 거 같은데 와이드로 · 디자인 스킬 사용해서 느낌 있는 비율» → «짤려도 되니깐 시네마 느낌 나게 비율을 감각 있게 바꿔 봐»]
    장면 영상 = 영화관 비율 2.39 : 1(시네마스코프) — 16 : 9 그림의 위아래를 자른다. ② 하나씩 만들기 · ① 창 · 목소리 창 · ③ 연습 장면 · 크게 보기가 같은 비율.
@@ -1358,7 +1359,7 @@ body.lsfull{overflow:hidden}
 @media (min-width:1000px){
   .lf-in.lf-wide{max-width:min(1120px,calc(100vw - 96px));padding-left:32px;padding-right:32px}
   .lf-wide .lf-cols{flex-direction:row;align-items:stretch;gap:56px}
-  .lf-wide .lf-main{max-width:720px}
+  .lf-wide .lf-main{max-width:720px} .lf-in.lf-endv .lf-cols{justify-content:center} .lf-in.lf-endv .lf-rail{display:none} .lf-in.lf-endv .lf-h{width:100%;max-width:720px;margin-left:auto;margin-right:auto}   /* ★[PR_END_CENTER_1125 2026-11-25 사장님 «여긴 센터가 아닌 것 같아»] 끝 화면은 오른쪽 목록 칸이 비어 장면 · 글이 왼쪽 칸에 쏠렸다 — 끝나면 목록 칸을 걷고 가운데로 */
   .lf-wide .lf-list{display:none} .lf-wide .lf-listb{pointer-events:none;border-color:transparent;background:none} .lf-wide .lf-listb span{display:none}   /* [PR_WAY_198 ④] 넓은 화면은 오른쪽 목록이 늘 있다 */
   .lf-wide .lf-rail{display:block;flex:0 0 248px;align-self:flex-start;position:sticky;top:76px;max-height:calc(100dvh - 96px);overflow:auto;padding:4px 0 24px}
 }
@@ -8865,8 +8866,11 @@ function _lStart(ks,all,hold){   /* hold = [CHIP_NO_AUTOPLAY] 줄은 새로 세�
    ③ ④ 작은 플레이어면 화면 알림(toast). 종전엔 MK.toast(② 맨 위에만 그려진다)라 크게 보기 · ③ · ④ 에선 안 보이고, 남았다가 ② 로 돌아오면 엉뚱한 때 떴다 */
 /* ★[BED_LOAD_1101 ②③] 이 순간 전체 듣기 곡 받기 한 줄(«음악을 불러오는 중이에요» · «음악을 불러오지 못했어요 · 나레이션만 들려 드려요 (코드 …)») — 지금 줄 아래 · 곡 카드와 같은 꼴(bgm-note bed-load) · 그 순간 듣기 동안 */
 function _lBedNote(t){ LP.bedNote=t||''; _lBedNotePlace(); if(LP.big){ try{ _lFull(); }catch(e){} } }
-function _lBedNotePlace(){ document.querySelectorAll('.mk-flow .lp-bednote').forEach(function(x){ x.remove(); }); var t=LP.bedNote; if(!t) return; var li=document.querySelector('.mk-flow li.lp-now'); if(!li) return; var box=li.querySelector(':scope>span:last-of-type')||li;   /* 줄 글 칸 안(단추 옆이 아니라 글 아래) */
-  var p=document.createElement('span'); p.className='bgm-note bed-load lp-bednote'+(/\(코드 [A-Z]\d/.test(t)?' bad':''); p.setAttribute('role','status'); p.textContent=t; box.appendChild(p); }
+function _lBedNotePlace(){ document.querySelectorAll('.mk-flow .lp-bednote').forEach(function(x){ x.remove(); }); var t=LP.bedNote; if(!t||LP.big) return;
+  /* ★[LF_STX_1125 ②] 하나씩 만들기 쪽 — 지금 줄 글 아래에 끼워 넣던 곡 받기 한 줄이 아래 줄들을 20 ~ 44px 밀었다 내렸다 했다 · 떠 있는 알림 한 번으로(자리를 차지하지 않는다) ·
+     «준비 중이라 지금은 ‹곡›이 대신 흘러요»는 곡 칸 아래에 늘 있는 말이라 다시 띄우지 않는다 · 같은 말은 6초 안에 두 번 띄우지 않는다 */
+  if(/^준비 중이라/.test(t)) return; var _bn=_lBedNotePlace; if(_bn.last===t&&Date.now()-(_bn.at||0)<6000) return; _bn.last=t; _bn.at=Date.now();
+  try{ if(_ecHas(t)) toast(t,6000,true); else _lsToast(t); }catch(e){} }
 function _lNote(st,t){ if(!t) return; if(LP.big){ LP.note={st:st,t:t}; try{ _lFull(); }catch(e){} return; } try{ toast(t,6000,_ecHas(t)); }catch(e){ MK.toast=t; } }   /* ★[PLAY_FAIL_BOTTOM 2026-10-09 A~Z 점검 2라운드 A2-13] ② 에서도 아래 알림으로 한 번 — 종전엔 쪽 맨 위 줄(MK.toast)에 써서 내려서 누르면 까닭이 화면 밖(top −128)에 떴다(④ 에서 고친 것과 같은 병) */
 /* [PLAY_WAIT_FILE] 파일을 받으면 그 줄을 «두 분 목소리»로 고쳐 세운다 · 기다리는 동안 다른 줄로 옮기면(⏭ · 멈춤) 버린다 */
 function _lUpOn(st,u){ st.src=u; st.couple=true; st.pending=false; st.pfail=''; st.pwhy=''; st.lab=String(st.lab||'').replace(/^두 분이 녹음하실 글\(예시\)/,'두 분 목소리'); if(st.up) _rfLineOff(st.up); }   // [RF_LINE_CLEAR] 받았으면 그 줄 아래 앞 실패 글을 걷는다
@@ -9391,7 +9395,7 @@ function _lFull(){
   var f=document.getElementById('lsFull');
   if(!f){ f=document.createElement('div'); f.id='lsFull'; f.className='ls-full'; f.setAttribute('role','dialog'); f.setAttribute('aria-modal','true'); f.setAttribute('aria-label','연습 · 크게 보기'); document.body.appendChild(f); }
   var ae=document.activeElement, fk=(ae&&f.contains(ae)&&ae.getAttribute)?ae.getAttribute('data-fk'):null, chipFocus=!!(fk&&fk.indexOf('lfc:')===0);
-  var st=LP.q[LP.i], R=RitualOpen, single=!!(LP.range&&LP.range.ks.length<2), practice=!!(LP.all&&!single), _rail=practice&&!LP.fast, _prIn=!!(st&&practice&&_inPr()), _hideV=!!(_prIn&&st.talk2), h='<div class="lf-in'+((_lAnyVid()&&!_hideV)?'':' nv')+(_rail?' lf-wide':'')+(_prIn?' pr':'')+'">';   // [PR_RAIL] 처음부터 끝까지 흐를 때 PC 는 오른쪽에 순간 목록   // [RIT_NO_EMPTY_THUMB] 장면 영상이 없으면 글을 세로 가운데로(종전엔 아래 60%가 빈 칸)
+  var st=LP.q[LP.i], R=RitualOpen, single=!!(LP.range&&LP.range.ks.length<2), practice=!!(LP.all&&!single), _rail=practice&&!LP.fast, _prIn=!!(st&&practice&&_inPr()), _hideV=!!(_prIn&&st.talk2), h='<div class="lf-in'+((_lAnyVid()&&!_hideV)?'':' nv')+(_rail?' lf-wide'+((!st&&LP.ended)?' lf-endv':''):'')+(_prIn?' pr':'')+'">';   // [PR_RAIL] 처음부터 끝까지 흐를 때 PC 는 오른쪽에 순간 목록   // [RIT_NO_EMPTY_THUMB] 장면 영상이 없으면 글을 세로 가운데로(종전엔 아래 60%가 빈 칸)
   var pre=st&&(st.k==='guest'||R.PRE[st.k]);
   h+='<div class="lf-h"><button type="button" class="lf-min" data-fk="lfmin" onclick="lsCloseBig()" aria-label="작게 보기">'+ICO_DOWN+'</button>'+((st&&_inPr()&&practice&&!LP.choose&&!LP.fast)?'<button type="button" class="lf-mode lf-listb" data-fk="lflist" aria-expanded="'+(LP.listOpen?'true':'false')+'" onclick="prList()">'+esc(_stNo(st)+' · 예식 순서')+' <span aria-hidden="true">'+(LP.listOpen?'▴':'▾')+'</span></button>'   /* ★[PR_WAY_198 ④] «5/9 · 예식 순서» 누르면 목록 */
       :'<span class="lf-mode">'+(st?esc((practice?(LP.choose===st.k?'고르는 중 · ':LP.fast?'빠르게 훑기 · ':'연습 · '):'')+_stNo(st)):'')+'</span>')   /* ★[B5_NI11 2026-11-06 5차 P v2 NI11 · P10] 머리도 제목 · 목록 · 알림과 같은 stage 판정(_stNo) — 촬영 후 안내 중 «9 / 9 · 예식 순서»가 아니라 «본식 뒤 · 예식 순서» */
@@ -9401,7 +9405,8 @@ function _lFull(){
   if(_rail) h+='<div class="lf-cols"><div class="lf-main">';   // [PR_RAIL]
   h+='<div class="lf-body">';   // [RIT_NO_EMPTY_THUMB] 가운데 덩어리
   if(st){
-    if(_lAnyVid()&&!_hideV) h+=_lVid(st.k,{big:true,name:_lSceneName(st)});   // [NO_EMPTY_BOX] · ★[PR_WAY_198 ②] 연습에서 두 분 · 그분이 말하는 차례엔 장면 영상을 접는다(글이 주인공)
+    var _stx='', _vOn=_lAnyVid()&&!_hideV;   /* ★[LF_STX_1125 2026-11-25 사장님 «안내 음성 부분이 처음 시작할 때 부자연스러운 움직임 · 발견하면 다른 곳도 전수 검토»] 잠깐 떴다 사라지는 상태 줄(«불러오는 중…» · 곡 받기 한 줄 · 두 분 목소리 받기)이 «안내 음성» 줄과 글 사이에 끼었다 빠지며 글이 24px 오르내렸다 — 장면 그림이 있으면 그림 아래쪽 위에 겹쳐 띄운다(자리를 차지하지 않는다) · 그림이 없는 차례(두 분이 말하는 카드)는 종전처럼 줄로 */
+    if(_vOn) h+='<div class="lf-vwrap">'+_lVid(st.k,{big:true,name:_lSceneName(st)})+'\u0001STX\u0001</div>';   // [NO_EMPTY_BOX] · ★[PR_WAY_198 ②] 연습에서 두 분 · 그분이 말하는 차례엔 장면 영상을 접는다(글이 주인공)
     var ks=[]; LP.q.forEach(function(x){ if(ks.indexOf(x.k)<0) ks.push(x.k); });
     var body=R.bodySeq(S), pos=body.indexOf(st.k);
     if(!_prIn) h+='<div class="lf-seg" aria-hidden="true">'+body.map(function(k,i){ return '<span class="'+(pos>-1&&i<pos?'done':i===pos?'on':'')+'"></span>'; }).join('')+'</div>';   /* ★연습(③ 크게 보기)의 진행 막대(.lf-seg) 금지 — 2026-11-24 사용자 지시로 삭제(머리 «n / 13 · 예식 순서» · PC 오른쪽 목록과 겹쳤다) [PR_PLAY_1124] · ② 듣기 크게 보기는 그대로 */
@@ -9415,8 +9420,9 @@ function _lFull(){
     if(!st.act&&(_vTag(st.k,st)||st.own&&(st.couple||st.src))) h+='<div class="lf-vk">'+_vTag(st.k,st)+(st.own?'<span class="vk-note">'+esc(st.couple?(((S.up||{})[st.up]||{}).src==='rec'?'두 분이 녹음한 목소리':((S.up||{})[st.up]||{}).src==='ai'?'AI로 만든 두 분 목소리':'두 분이 올린 파일'):st.src?'예시 목소리 · 두 분이 준비하면 그 목소리로 바뀌어요':'')+'</span>':'')+'</div>';   // [VOICE_KIND · REC_UPLOAD] 크게 보기에도 갈래 · 두 분 목소리면 녹음 / 예시
     /* ★«AI 연습 소리 · 예식에서는 나오지 않아요» 배지 금지 — 2026-10-05 사용자 지시로 삭제 [PT_TEMP] (사장님 «임시라는 걸 강조해 문구 만들어 노출») · 말하는 차례 안내 한 줄(lf-cue)이 «연습용으로만 잠깐 … 예식 당일엔 직접 말해요»로 말한다 */   // [PRACTICE_READ_0928] 배지 «AI 연습 소리»   // [VOICE_CLONE 4-2]
     if(st.talk2&&PR.cur&&PR.cur.k===st.k&&PR.cur.who===st.who) h+='<p class="lf-rec" role="status"><i aria-hidden="true"></i>내 목소리 녹음 중 · 이 휴대폰에만 남아요</p>';   // [PRACTICE_VOICE]
-    if(LP.loadSt===st&&!LP.loadAi) h+='<p class="lf-state" role="status">두 분 목소리를 불러오는 중이에요</p>';
-    else if(LD.on&&!LP.paused&&!/불러오는 중/.test(LP.bedNote||'')) h+='<p class="lf-state lf-ld" role="status">'+(LD.slow?LD_SLOW_TXT:LD_TXT)+'</p>';   /* [LOAD_SHOW_1106] 크게 보기 — 받는 동안 · 10초 넘으면 «연결이 느려요 · 잠시만요» */   // [PLAY_WAIT_FILE] · [PT_TURN_LOAD]
+    if(LP.loadSt===st&&!LP.loadAi) _stx+='<p class="lf-state" role="status">두 분 목소리를 불러오는 중이에요</p>';
+    else if(LD.on&&!LP.paused&&!/불러오는 중/.test(LP.bedNote||'')) _stx+='<p class="lf-state lf-ld" role="status">'+(LD.slow?LD_SLOW_TXT:LD_TXT)+'</p>';   /* [LF_STX_1125] */
+    if(!_vOn){ h+=_stx; _stx=''; }   /* [LOAD_SHOW_1106] 크게 보기 — 받는 동안 · 10초 넘으면 «연결이 느려요 · 잠시만요» */   // [PLAY_WAIT_FILE] · [PT_TURN_LOAD]
     var _posH='';   /* [PR_PLAY_1124] 자리 알약은 아래 작은 이름표와 한 줄(lf-meta) */
     if(practice&&st){ var _pv=LP.q[LP.i-1], _first=!_pv||_pv.k!==st.k, _cp=_fgCardPos(LP.q,LP.i);   /* [FLOW_GRASP_1101 3 · 4] */
       if(_first&&st.k==='entry') h+='<p class="lf-turn">여기부터 두 분 차례예요</p>';
@@ -9424,7 +9430,7 @@ function _lFull(){
     h+=(_posH&&!st.talk2?'<div class="lf-meta">'+_posH:_posH)+'<div class="lf-lab'+(st.talk2?' who':'')+((_prIn&&!st.talk2&&_prLab(st)==='두 분이 할 일')?' do':'')+'">'+esc((_prIn&&!st.talk2)?_prLab(st):st.both?'두 분 함께':(_prIn&&st.talk2&&/^(신랑|신부)$/.test(st.who||''))?st.who+_josa(st.who,'이','가')+' 읽어요':(_prIn&&st.talk2&&st.who==='두 분')?'두 분 함께':st.talk2||st.ref?st.who+' 차례':(function(l){ var _sn=st.stage?_stName(st)+' · ':/^narr-open/.test(st.slug||'')?'여는 멘트 · ':''; return _sn&&String(l||'').indexOf(_sn)===0?String(l).slice(_sn.length):l; })(st.lab))   /* ★[N20_AFTER_LAB_1119 NIGHT20 #05] 큰 화면 제목이 이미 단계 이름(«촬영 후 안내»)이면 작은 줄 앞의 같은 이름을 뺀다 — «촬영 후 안내 / 촬영 후 안내 · 전체 단체 사진을 마치면 재생» 두 번 → «전체 단체 사진을 마치면 재생» · 흐름 · 대본 줄(lab · slab)은 그대로 */   /* [PR_WAY_198 ②] «신랑이 읽어요 / 신부가 읽어요 / 두 분 함께» */+(st.pending&&!st.talk2?' · <span class="ls-new">'+esc(_pendT(st))+'</span>':'')+'</div>'+(_posH&&!st.talk2?'</div>':'');   /* [CAST_TEXT_ONLY] 두 분 차례는 녹음할 것이 아니다 — «녹음 전» 꼬리표를 달지 않는다 */   /* [G8 2026-09-26] «하객 입장 때 글로 먼저…»가 한 문장으로 읽혔다 — 이름표와 녹음 전 표시 사이에 가운뎃점 */
     if(LP.pace&&(st.act||st.said)){ var _lfe=_lpEstT(st.est); if(_lfe) h+='<p class="lf-state lf-est">실제로는 '+esc(_lfe)+'</p>'; }   /* [LEAD_LONGER_1031] 크게 보기에도 «실제로는 약 …»(행동 · 말하는 차례 줄이 흐를 때만) */
     if(LP.note&&LP.note.st===st) h+='<p class="'+(_ecHas(LP.note.t)?'mk-exw':'lf-state')+' lf-note" role="status">'+esc(LP.note.t)+'</p>';
-    if(LP.bedNote&&!(/불러오는 중/.test(LP.bedNote)&&LP.loadSt===st&&!LP.loadAi)) h+='<p class="bgm-note bed-load lp-bednote" role="status">'+esc(LP.bedNote)+'</p>';   // [BED_LOAD_1101] 곡 받기 한 줄(크게 보기)   /* ★[PR_PLAY_1124] «불러오는 중»은 한 줄 — 곡을 받는 중이면 더 구체적인 «음악을 불러오는 중이에요»만(위 «불러오는 중…» 줄을 그리지 않는다 · BED_LOAD_1101 검사 그대로) · 두 분 목소리를 받는 줄이 있으면 그 줄만 · 실패 알림은 그대로 */   // [LISTEN_NOTE] 그 줄 알림 — 실패(코드)는 진사 · 오래 걸림은 옅은 글 · 다음 줄로 가면 사라진다
+    if(LP.bedNote&&!(/불러오는 중/.test(LP.bedNote)&&LP.loadSt===st&&!LP.loadAi)){ var _bn='<p class="bgm-note bed-load lp-bednote" role="status">'+esc(LP.bedNote)+'</p>'; if(_vOn) _stx+=_bn; else h+=_bn; }   /* [LF_STX_1125] */   // [BED_LOAD_1101] 곡 받기 한 줄(크게 보기)   /* ★[PR_PLAY_1124] «불러오는 중»은 한 줄 — 곡을 받는 중이면 더 구체적인 «음악을 불러오는 중이에요»만(위 «불러오는 중…» 줄을 그리지 않는다 · BED_LOAD_1101 검사 그대로) · 두 분 목소리를 받는 줄이 있으면 그 줄만 · 실패 알림은 그대로 */   // [LISTEN_NOTE] 그 줄 알림 — 실패(코드)는 진사 · 오래 걸림은 옅은 글 · 다음 줄로 가면 사라진다
     var _rh=''; if(st.mine||st.site) _rh+='<p class="lf-ref"><span class="lf-refb">'+(st.mine?'두 분이 적은 글':'현장에서')+'</span>'+(st.mine?esc(st.txt.length+'자 · '+_mkSecW(st.txt.length)):'당일엔 직접 말해요')+'</p>';   // [CAST_TEXT_ONLY] 차례 카드 — 누구의 글인가
     if(st.ref&&_prIn) _rh+='<p class="lf-ref"><span class="lf-refb">'+(st.bothRef?'함께 읽는 문장':'참고 예시')+'</span>'+(LP.q.some(function(q,j){ return j<LP.i&&q.k===st.k&&q.ref&&!!q.bothRef===!!st.bothRef; })?'':'<span class="lf-refd">'+(st.bothRef?'미리 넣어 둔 문장이에요':'실제 이름과 이야기로 바꿔 쓰는 글이에요')+'</span>')+'</p>';   /* ★[PR_REF_ONCE_1124] 같은 순간 안 두 번째 예시 줄부터는 이름표만(서약 · 편지 · 감사 인사 · 축배는 줄마다 같은 설명 한 줄이 되풀이됐다 · BOSS_WAY 3) */   /* ★[PR_CLEAR_1124 5] 연습 — 예시 안내 세 줄(번호 알약 · 당일 안내 · 바꿔 쓰기 설명)을 한 줄로 · 당일 직접 말한다는 건 위 할 일 줄이 말한다 */
     else if(st.ref) _rh+='<p class="lf-ref"><span class="lf-refb">'+(st.bothRef?'함께 읽는 문장':'참고 예시')+(st.bothRef?'':(st.refOf>1?' '+(st.refN+1):''))+(st.refSit?' · '+esc(REF_SIT[st.refSit]||st.refSit):'')+'</span><span class="lf-refd">'+esc(st.refDay||'당일엔 두 분이 직접 말해요')+'</span></p>';   /* [PRACTICE_WALK_1101 7] 이름표와 당일 안내를 두 줄로(붙어 읽혔다) */
@@ -9502,6 +9508,7 @@ function _lFull(){
      종전엔 그때마다 새 <video>(preload none)가 생겨 한 순간 안에서도 줄마다 처음 장면으로 돌아가고, 폰은 받다 말고 다시 받았다(줄이 짧은 축배 · 케이크는 거의 안 움직였다).
      같은 영상이면 돌던 요소를 그대로 옮겨 끼운다(이어서 돈다). */
   var _ov=f.querySelector('video'), _os=_ov?_ov.getAttribute('src'):'';
+  h=h.replace('\u0001STX\u0001',(typeof _stx==='string'&&_stx)?'<div class="lf-stx">'+_stx+'</div>':'');   /* [LF_STX_1125] 그림 위 상태 자리 */
   f.innerHTML=h;
   if(_ov){ var _nv=f.querySelector('video'); if(_nv&&_nv.getAttribute('src')===_os&&_nv.parentNode) _vidKeep(_ov,_nv); }   // [VID_REST_THUMB] 칸째(썸네일 사진 + 영상)
   _nbWrap(f); f.hidden=false; document.body.classList.add('lsfull');   // [RIT_WRAP]
