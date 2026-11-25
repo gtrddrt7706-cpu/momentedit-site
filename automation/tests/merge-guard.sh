@@ -24746,3 +24746,18 @@ chk 'PR_MUSIC_ONCE_1125' assets/bgm-bed.js 5
 chk 'function _prMusWarm(go){' order-preview.html 1
 chk 'rawDecode(f,o); return; }' assets/bgm-bed.js 1
 chk 'prefetch:prefetch, prefetchNeed:prefetchNeed,' assets/bgm-bed.js 1
+# ★[PR_STICK_1125 · PR_FIX_THUMB_1125 · PR_LOAD_CARD_1125 2026-11-25 사장님 «스크롤 내리면 위쪽 부자연» · «기다리지 않고 시작 없애자 · 로딩 디자인»]
+#   PC 연습 첫 화면 — 오른쪽 머리 붙음 · 왼쪽 카드 같은 높이(24) · «나중에 …» 한 줄은 왼쪽 칸 끝 · 누를 것 없는 줄도 그림 · 음악 준비는 단추 없는 카드(진행 막대 · n / m)
+chk 'PR_STICK_1125' order-preview.html 4
+chk '.pr-pkh{position:sticky;top:0;z-index:2;' order-preview.html 1
+chk 'PR_FIX_THUMB_1125' order-preview.html 1
+chk 'PR_LOAD_CARD_1125' order-preview.html 2
+nochk "yes:'기다리지 않고 시작'" order-preview.html
+# ★[LF_STX_1125 2026-11-25 사장님 «안내 음성 부분이 처음 시작할 때 부자연스러운 움직임 · 다른 곳도 전수»] 잠깐 뜨는 상태 줄은 자리를 차지하지 않는다 — 크게 보기 = 장면 그림 위 · ② 쪽 = 떠 있는 알림
+chk 'LF_STX_1125' order-preview.html 5
+chk ".lf-vwrap{position:relative} .lf-stx{position:absolute;" order-preview.html 1
+nochk "p.className='bgm-note bed-load lp-bednote'+" order-preview.html
+nochk "p.className='bgm-note bed-load lp-ldnote'" order-preview.html
+# ★[PR_END_CENTER_1125 2026-11-25 사장님 «여긴 센터가 아닌 것 같아»] 연습 끝 화면 — 목록 칸을 걷고 가운데
+chk 'PR_END_CENTER_1125' order-preview.html 1
+chk ".lf-in.lf-endv .lf-cols{justify-content:center}" order-preview.html 1

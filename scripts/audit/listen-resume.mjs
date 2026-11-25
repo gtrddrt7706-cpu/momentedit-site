@@ -149,7 +149,7 @@ const shot = async (pg, n) => { if (!SHOT) return; try { fs.mkdirSync(SHOT, { re
 /* 지금 상태 — 지금 줄 · 뜸 · 멘트 소리가 흐르는가 · 알약 글 · 돌기 */
 const now = (f, k) => f.evaluate((k) => { const st = LP.q[LP.i], a = LP.el, b = document.querySelector('.mk-hbtn[data-mp="' + k + '"]');
   return { i: LP.i, n: LP.q.length, k: st && st.k, src: !!(st && st.src), lead: !!(LP.leadSt && LP.leadSt === st), paused: !!LP.paused, talk: !!(a && st && st.src && a.getAttribute('src') === st.src && !a.paused && a.readyState >= 3 && !a._lead),
-    pill: b ? b.textContent.trim() : '', pw: b ? Math.round(b.getBoundingClientRect().width) : 0, spin: !!document.querySelector('.mk-flow li.lp-now.lp-ld'), pspin: !!(b && b.querySelector('.ldsp')), note: ((document.querySelector('.lp-ldnote') || {}).textContent || ''), ld: LD.on, slow: LD.slow }; }, k);
+    pill: b ? b.textContent.trim() : '', pw: b ? Math.round(b.getBoundingClientRect().width) : 0, spin: !!document.querySelector('.mk-flow li.lp-now.lp-ld'), pspin: !!(b && b.querySelector('.ldsp')), note: (((document.getElementById('lsToast') && !document.getElementById('lsToast').hidden) ? document.getElementById('lsToast') : {}).textContent || '').trim(), ld: LD.on, slow: LD.slow }; }, k);
 const until = async (f, fn, ms, step = 50) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { if (await f.evaluate(fn)) return Date.now() - t0; await wait(f, step); } return -1; };
 try {
   const VW = +process.env.LR_W || 390;   /* LR_W=1280 = PC 폭으로 한 번 더 */
@@ -226,7 +226,7 @@ try {
     NET.narDelay = 12500; await go(f, 'declare');
     await f.evaluate(() => lsPlay('declare')); await until(f, () => !!LD.on, 12000, 50);
     const tSl = await until(f, () => !!LD.slow, 12000, 100); await wait(f, 100); const c = await now(f, 'declare'); await shot(pg, VW + '-slow');
-    ok(`4 10초가 넘으면 지금 줄 아래 «연결이 느려요 · 잠시만요»(알약은 «불러오는 중…» 그대로)`, tSl > -1 && c.note === '연결이 느려요 · 잠시만요' && c.pill === '불러오는 중…' && c.spin, c);
+    ok(`4 10초가 넘으면 떠 있는 알림 «연결이 느려요 · 잠시만요»(줄 아래 끼우지 않는다 [LF_STX_1125] · 알약은 «불러오는 중…» 그대로)`, tSl > -1 && c.note === '연결이 느려요 · 잠시만요' && c.pill === '불러오는 중…' && c.spin, c);
     await f.evaluate(() => lsStop()); await wait(f, 400);
     /* 4d 크게 보기 */
     NET.narDelay = 2500; await go(f, 'candle');
