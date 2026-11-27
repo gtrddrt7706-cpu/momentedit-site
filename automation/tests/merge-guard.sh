@@ -20123,6 +20123,7 @@ nochk '두 분의 가까운 분들만을 위해' live.html                      
 nochk '가까운 분들만 모신 자리라' assets/ritual-data.js
 nochk '가까운 분들만 모신 자리라' order-preview.html
 chk 'BALL_BOW_TIP_1013' assets/ritual-story.js 1
+chk 'MATJEOL_HEAD_TIP_1127' assets/ritual-story.js 1
 # ── 2026-10-13 밤 멘트 한 줄씩 검토 2묶음 — 닫는 순간 · 약속 · 마음의 순간 글만 [HUG_WORDS_1013 · TRIB_PICK_CHIP_1013 · CLOSE_LAST_1013 · SONG_ANYONE_WORDS_1013 · SPEECH_WORDS_1013 · TOAST_SAY_TALK_1013 · BRIDGE_BY_PICK_1013 · KB_MATCH_SCREEN_1013 · THANKS_WORD_1013 · FLOWER_OFF_OLD_1013]
 #   부모님께 인사: 동작 말은 «안아 드려요» 하나 · 말로 인사 날 ② 차례는 말 → 인사 → 포옹(자료 FF 2-1 · S · G · T4 · O) · 배지는 칩 이름만 · 글자 세기 1분쯤 = 300자
 #   닫는 순간: 26(사진 안내)은 그날 마지막 순간 끝(② · ④ · 처음부터 끝까지 보기가 축배 · 테이블 인사보다 먼저 실었다) · 줄 이름 «본식을 마치며 · 시작할 때» · 26 이름 «단체 사진 안내»
