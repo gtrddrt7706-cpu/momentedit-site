@@ -24762,6 +24762,7 @@ nochk "p.className='bgm-note bed-load lp-ldnote'" order-preview.html
 # ★[PR_END_CENTER_1125 2026-11-25 사장님 «여긴 센터가 아닌 것 같아»] 연습 끝 화면 — 목록 칸을 걷고 가운데
 chk 'PR_END_CENTER_1125' order-preview.html 1
 chk ".lf-in.lf-endv .lf-cols{justify-content:center}" order-preview.html 1
+<<<<<<< HEAD
 # ★[MR_LAB_1128 2026-11-28 대표님 «추천대로» · 입장곡 가사 빼기 방] 가사 빼기 시험실(내부용 · noindex · 링크 없음) — 모델은 커밋 고정 주소 + sha256 확인 · 곡은 기기 밖으로 안 나간다
 #   브라우저 결과 = 파이썬 정답판(같은 입력 8초)과 상대 오차 ① 0 · ② 4.2e-7 · ③ 1.0e-6(허용 1e-3) — 숫자를 바꾸면 다시 대조한다(섹션 방 기록 docs operations/plans/입장곡_가사빼기_결정_1128.md)
 chk 'MR_LAB_1128' mrlab-c41f.html 1
@@ -24771,3 +24772,20 @@ chk 'resolve/929e057b81aa49bc2e6490bef8671f47b2c120f6/models/MDXNet/' assets/mrl
 chk "sha: 'e02220e80d8253f4c2209f8924298b2b686bbdf2868b788ff5500fb9bd94aadc'" assets/mrlab-c41f-worker.js 1
 chk "sha: '317554b07fe1ea5279a77f2b1520a41ea4b93432560c4ffd08792c30fddf9adc'" assets/mrlab-c41f-worker.js 1
 chk 'onnxruntime-web@1.22.0/dist/' assets/mrlab-c41f-worker.js 2
+=======
+# ★[UP_FILE_HOWTO_1128 · UP_KEEP_LINE_1128 · WALK_WHY_1128 · MU_FILE_NAME_1128 · INAPP_FILE_1128 2026-11-28 대표님 «추천대로»(입장곡 가사 빼기 방 작은 일)]
+#   곡 올리기 안내 창 1번에 파일 구하는 법 · 요약에 «예식 뒤 30일에 지워요» · «걷는 중에 곡이 끝나요»에 남은 초 · 스튜디오 파일 이름 = 곡 제목 - 가수 · 안드로이드 카톡 · 인스타 앱 안이면 파일 창 전에 안내 창(실행 검사 scripts/audit/entry-upload-1128.mjs)
+chk 'UP_FILE_HOWTO_1128' assets/entry-music.js 1
+chk '음악 앱 안의 곡은 올릴 수 없어요' assets/entry-music.js 1
+chk 'UP_KEEP_LINE_1128' assets/entry-music.js 1
+chk '올린 곡은 스튜디오가 당일 진행에만 쓰고, 예식 뒤 30일에 지워요' assets/entry-music.js 1
+chk 'WALK_WHY_1128' assets/entry-music.js 1
+chk "초만 남아요'" assets/entry-music.js 1
+chk 'MU_FILE_NAME_1128' assets/entry-music.js 1
+chk 'name:svName(f),' assets/entry-music.js 1
+nochk "name:String(f.name||'내 곡').slice(0,80)" assets/entry-music.js
+chk 'INAPP_FILE_1128' assets/entry-music.js 1
+chk 'INAPP_FILE_1128' order-preview.html 4
+chk "return /Android/i.test(ua)&&/KAKAOTALK|Instagram/i.test(ua); }" order-preview.html 1
+chk "if(INAPP_MIC.kind==='file') INAPP_MIC.okFile=true; else INAPP_MIC.ok=true;" order-preview.html 1
+>>>>>>> origin/main

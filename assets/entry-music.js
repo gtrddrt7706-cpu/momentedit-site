@@ -87,7 +87,7 @@
   function upMark(u){ if(!u||!u.cands||!u.cands.length) return false; var need=upNeed(); if(need===undefined) return false;
     var L=u.cands.slice().sort(function(a,b){ return (a.sc||0)-(b.sc||0); }), r=upRecOf(L,need), ch=false;
     u.cands.forEach(function(c){ var on=c===r; if(!!c.rec!==on){ c.rec=on; ch=true; } }); return ch; }
-  function upNote(c){ return (c.rec?'추천 · ':c.own?'직접 적은 자리 · ':'')+(c.after<UP_WALK?'걷는 중에 곡이 끝나요':'걷는 동안 곡이 이어져요'); }
+  function upNote(c){ return (c.rec?'추천 · ':c.own?'직접 적은 자리 · ':'')+(c.after<UP_WALK?'걷는 중에 곡이 끝나요 · 커진 뒤 '+Math.max(0,Math.floor(c.after))+'초만 남아요':'걷는 동안 곡이 이어져요'); }   /* ★[WALK_WHY_1128 대표님 11/28 «추천대로»] 경고에 이유 한 줄 — 파일에서 잰 «커진 뒤 남은 초»만 적는다(걷는 시간 어림 숫자는 약속처럼 읽혀 적지 않는다) */
   function upName(f){ var x=String(f||'').replace(/\.[a-z0-9]{2,5}$/i,'').replace(/[_]+/g,' ').replace(/\s+/g,' ').trim(); return x.slice(0,40)||'내 곡'; }
   /* 곡 이름 · 가수 — MP3(ID3v2 TIT2 · TPE1) · FLAC(TITLE · ARTIST) · 없으면 파일 이름 */
   function upTags(ab){ var out={}; try{ var u=new Uint8Array(ab), td=function(enc,b){ try{ return new TextDecoder(enc).decode(b); }catch(x){ return ''; } }, cl=function(x){ return String(x||'').replace(/\u0000/g,' ').replace(/\s+/g,' ').trim().slice(0,60); };
@@ -122,9 +122,14 @@
     if(f.size>SRV_MAX){ SV.tk++; SV.st='big'; SV.sid=mu.sid; SV.err=''; SV.file=null; redraw(); return; }
     var tk=++SV.tk; SV.st='up'; SV.sid=mu.sid; SV.err=''; SV.file=f; redraw();
     var rd=new FileReader();
-    rd.onload=function(){ if(SV.tk!==tk) return; if(!post('momentedit:ritualFile',{key:'mu',tk:tk,name:String(f.name||'내 곡').slice(0,80),mime:mimeOf(f),src:'up',data:String(rd.result)})){ SV.st='fail'; SV.err='U6'; redraw(); } };
+    rd.onload=function(){ if(SV.tk!==tk) return; if(!post('momentedit:ritualFile',{key:'mu',tk:tk,name:svName(f),mime:mimeOf(f),src:'up',data:String(rd.result)})){ SV.st='fail'; SV.err='U6'; redraw(); } };
     rd.onerror=function(){ if(SV.tk!==tk) return; SV.st='fail'; SV.err='M6'; redraw(); };   /* 이 기기가 파일을 못 읽었다(M = 기기) */
     rd.readAsDataURL(f); }
+  /* ★[MU_FILE_NAME_1128 대표님 11/28 «추천대로» · 스튜디오 드라이브 파일 이름 규칙] 드라이브 이름 = 서버가 붙이는 «입장 음악 · 날짜_» + 여기 이름.
+     여기 이름 = 곡 제목 - 가수(MP3 · FLAC 꼬리표) · 꼬리표가 없으면 파일 이름 · 확장자는 원래 것 — 카톡으로 받은 곡은 파일 이름이 «AUD-2026…»라 디렉터가 알아보지 못했다.
+     입장 초는 넣지 않는다: 올린 뒤에도 자리를 바꿀 수 있어(파일은 그대로) 이름이 틀리게 남는다 · 당일 콘솔이 지금 고른 초를 따로 보여 준다(«0:38 하이라이트») */
+  function svName(f){ var raw=String(f&&f.name||''), x=/\.[a-z0-9]{2,5}$/i.exec(raw), ext=x?x[0].toLowerCase():'', u=upCur(), m=u&&u.meta, base=(m&&m.t)?(m.t+(m.a?' - '+m.a:'')):upName(raw);
+    base=String(base||'내 곡').replace(/[\\\/:*?"<>|\u0000-\u001f]/g,' ').replace(/\s+/g,' ').trim()||'내 곡'; return base.slice(0,80-ext.length)+ext; }
   function srvDel(id){ if(emb()&&id) post('momentedit:ritualFileDel',{key:'mu',id:id}); }
   function srvGet(mu){ if(!emb()||!mu||!mu.fid) return; SG.id=mu.fid; SG.err=''; UPS={busy:true,dl:true,name:mu.t||mu.name||'내 곡',prev:null}; redraw();
     clearTimeout(SG.timer); SG.timer=setTimeout(function(){ if(SG.id!==mu.fid||!(UPS&&UPS.dl)) return; SG.id=''; SG.err='L5'; UPS=null; RESTORE=2; redraw(); },200000);   /* 마이페이지가 180초 기다린다 — 그보다 조금 더 */
@@ -485,12 +490,13 @@
   /* [UP_GUIDE] 안내 창 — 빌더 «확정하면 이렇게 돼요»(KEEP_DLG) 틀 · 빌더 창(_dlgModel · #mkRecDlg)에서 그린다 · [GUIDE_OK] 아래 단추는 «알겠어요» 하나(창만 닫는다) */
   function guideBody(){ var kp=function(t,tag,on){ return '<span class="mk-kp'+(on?' on':'')+'">'+(on?ico('check'):'')+t+(tag?' '+tag:'')+'</span>'; };
     return '<ol class="mk-rd-steps">'
-      +'<li><span class="mk-rd-n" aria-hidden="true">1</span><p><b>곡 파일을 올려요</b>MP3 · M4A 파일을 고르면 바로 곡을 살펴봐요'+(IOS_DEV?' · '+IOS_DEV+' ‹파일 선택›에서 골라요':'')+'</p></li>'
+      +'<li><span class="mk-rd-n" aria-hidden="true">1</span><p><b>곡 파일을 올려요</b>MP3 · M4A 파일을 고르면 바로 곡을 살펴봐요'+(IOS_DEV?' · '+IOS_DEV+' ‹파일 선택›에서 골라요':'')
+        +'. 카톡&nbsp;·&nbsp;드라이브로 받은 곡은 먼저 '+(IOS_DEV?'‹파일에 저장›해':'휴대폰에 저장해')+' 주세요&nbsp;· 음악 앱 안의 곡은 올릴 수 없어요</p></li>'   /* ★[UP_FILE_HOWTO_1128 입장곡 가사 빼기 방 · 대표님 11/28 «추천대로»] 파일 구하는 법 한 줄 — 카톡 · 드라이브 곡은 저장부터(아이폰은 ‹파일에 저장›) · 스트리밍 앱 곡은 파일이 아니다 */
       +'<li><span class="mk-rd-n" aria-hidden="true">2</span><p><b>곡이 커지는 자리를 찾아 드려요</b>후보 몇 곳 중 걷는 동안 곡이 이어지는 자리를 추천해요<span class="mu-gd-c" aria-hidden="true">'+kp('0:38','추천',true)+kp('1:28')+kp('2:24')+'</span></p></li>'
       +'<li><span class="mk-rd-n" aria-hidden="true">3</span><p><b>들어 보고 골라요</b>자리마다 ▶ 를 누르면 그 앞뒤를 들려 드려요</p></li>'
       +'<li><span class="mk-rd-n" aria-hidden="true">4</span><p><b>원하는 자리가 없으면 직접 적어요</b>곡에서 원하는 때를 분:초로 적으면 그 자리에 맞춰요<span class="mu-gd-in" aria-hidden="true">1:05</span></p></li></ol>'
       +(function(){ var st=vNow(), nar=!!(st&&st.nar);   /* [ENTRY_SCENE_1012] 스튜디오 나레이션 판은 마지막 말이 나레이션의 «입장!»이다 — «두 분의 마지막 말»은 AI 판만 */
-        return '<p class="mk-note mk-rd-sum"><span>고른 자리는 '+(nar?'«입장!»이':'두 분의 마지막 말이')+' 끝나는 순간 크게 올라와요.</span>'+(EM.scene?'<span><b>이 순간 전체 듣기</b>로 '+(nar?'멘트':'인사')+'부터 입장까지 음악과 함께 들어 보세요.</span>':'')+'</p>'; })()
+        return '<p class="mk-note mk-rd-sum"><span>고른 자리는 '+(nar?'«입장!»이':'두 분의 마지막 말이')+' 끝나는 순간 크게 올라와요.</span>'+(EM.scene?'<span><b>이 순간 전체 듣기</b>로 '+(nar?'멘트':'인사')+'부터 입장까지 음악과 함께 들어 보세요.</span>':'')+'<span>올린 곡은 스튜디오가 당일 진행에만 쓰고, 예식 뒤 30일에 지워요.</span></p>'; })()   /* ★[UP_KEEP_LINE_1128 대표님 11/28 «추천대로»] 곡을 넘기기 직전에 어디로 가고 언제 지워지는지 — 근거: 곡(자리 mu)은 두 분 목소리 파일과 같은 폴더라 _pgVoiceFiles_(70_journey · 예식 뒤 30일 · PURGE_LIVE)가 함께 지운다 */
       +'<button type="button" class="mk-dlg-go" data-fk="muguideok" onclick="mkDlgClose()">알겠어요</button>'; }
   function guideOpen(){ try{ if(typeof _tipSeen==='function') _tipSeen('mu'); MK.muGuide=true; }catch(x){} hush(); renderAll(); }   /* 창은 빌더 render 끝(_recDlgPaint)이 그린다 */
   function seen(){ var t=St().tipSeen; return !!(t&&t.mu); }
@@ -759,7 +765,7 @@
     if(a==='carpick'){ var pm=REC.ls&&REC.ls[carIdx()]; if(pm) recPick(pm.k); return; }
     if(a==='fold'){ if(recOn()){ var L5=REC.ls||[], mk=St().mu.k; for(var q=0;q<L5.length;q++) if(L5[q].k===mk) CAR_I=q; } var fh=boxH(); MU_OPEN=true; recListAuto(); redraw(); boxAnim(fh); var fp=D.querySelector('.ls-mu [data-fk="mucarpick"]')||D.querySelector('.ls-mu .mu-car0 .mu-wt'); if(fp) try{ if(!fp.matches('button')) fp.setAttribute('tabindex','-1'); fp.focus({preventScroll:true}); }catch(x){} return; }   /* [MU_FOLD] 펼치면 고른 곡 카드에서 · 초점은 ✓ 로 */
     if(a==='upuse'){ var uu=upCur(); if(!uu||upOn()) return; hush(); keep(uu); redraw(); var ut=String(uu.meta&&uu.meta.t||''); toast(ut.length<=9?'‹'+ut+'› 곡으로 들어가요':'이 곡으로 들어가요'); var ub=D.querySelector('.ls-mu [data-fk="musong"]'); if(ub) try{ ub.focus({preventScroll:true}); }catch(x){} return; }   /* 비켜 둔 올린 곡을 다시 고른다(서버 파일 · 자리 그대로) */
-    if(a==='upopen'){ if(!seen()){ guideOpen(); return; } upPick(); return; }   /* [UP_GUIDE] 처음 한 번은 안내 창부터 · 다음부터 바로 파일 창 */
+    if(a==='upopen'){ if(!seen()){ guideOpen(); return; } if(typeof window._fileAsk==='function') window._fileAsk(upPick); else upPick(); return; }   /* [INAPP_FILE_1128] 안드로이드 카톡 · 인스타 앱 안이면 빌더 앱 안 안내 창부터(«여기서 해 볼게요» → 파일 창 · 누른 손길 그대로라 막히지 않는다) */   /* [UP_GUIDE] 처음 한 번은 안내 창부터 · 다음부터 바로 파일 창 */
     if(a==='updel'){ upDel(); return; }
     /* [ENTRY_SONG_UP] 못 보낸 곡 다시 보내기 · 못 받은 곡 다시 불러오기 */
     if(a==='svagain'){ if(SV.file){ srvUp(SV.file); return; } fGet().then(function(b){ var mu=St().mu; if(!b||!mu) return; var f=b; try{ if(!(b instanceof File)) f=new File([b],(mu.name||'내 곡')+'.mp3',{type:b.type||'audio/mpeg'}); }catch(x){} srvUp(f); }); return; }
@@ -806,7 +812,7 @@
 
   EM.carry=carry; EM.carryHas=carryHas; EM.carrySig=carrySig;   /* [ENTRY_CARRY_1101] */
   EM.rowHtml=rowHtml; EM.sceneHtml=sceneHtml; EM.guideBody=guideBody; EM.after=after; EM.whole=whole; EM.paint=paintPill;   /* [ONE_PLAY_1013] 빌더 «이 순간 전체 듣기» 입구 · 빌더 재생 상태가 바뀔 때(_lPaint) 알약만 다시 */ EM.hush=function(o){ if(hush()) redraw(); if(RUN&&RUN===HAND){ if(o&&o.inner) return; scStop(); HAND=null; scPaint(); return; } scHalt(); };   /* ★[DETAIL_R4_1101 ②] 넘긴 장면을 끝까지 잦아들게 두는 것은 안에서 넘겨줄 때(lsRest)뿐 — 고객이 옮기기 · ■ · 다른 ▶ 를 누르면 장면까지 멈춘다(ENTRY_UNDER 회귀 · [DETAIL_R5_1101 규칙 7 ①②]) */   /* [ENTRY_UNDER_1101] 넘긴 장면은 잦아듦을 끝까지(빌더 곡이 겹쳐 받는다) */   /* 빌더가 제 소리를 틀 때(_stopMk) — 이 칸 ▶ 만 되돌리고 장면은 그 자리에 멈춘다(쪽 전체를 다시 그리지 않는다) */
-  EM._t={openAt:openAt,openMark:openMark,recClean:recClean,REC_FIX:REC_FIX,lyHtml:lyHtml,lyOrig:lyOrig,ups:function(){ return UPS; },upParse:upParse,upSnap:upSnap,upCands:upCands,prev:function(){ return PREV&&PREV.key; },restore:function(){ return RESTORE; },
+  EM._t={svName:svName /* [MU_FILE_NAME_1128] 시험용 */,openAt:openAt,openMark:openMark,recClean:recClean,REC_FIX:REC_FIX,lyHtml:lyHtml,lyOrig:lyOrig,ups:function(){ return UPS; },upParse:upParse,upSnap:upSnap,upCands:upCands,prev:function(){ return PREV&&PREV.key; },restore:function(){ return RESTORE; },
     pv:function(){ return PREV?{key:PREV.key,x0:PREV.x0,d:PREV.d,H:PREV.H}:null; },car:function(){ return {pre:CAR_PRE,len:CAR_LEN}; },   /* [PREV_12_60_1013] 점검용 — 지금 미리 듣기가 원곡 몇 초부터 몇 초 동안인가 */
     scene:function(){ var P2=scenePlan(); return {hand:!!(RUN&&RUN===HAND),run:!!RUN,pend:PEND,pause:PAUSE?PAUSE.x:null,ended:ENDED,x:RUN?tau(RUN):null,plan:P2?{open:openAt(P2.PL),tv:P2.PL.tv,tm:P2.PL.tm,off:P2.PL.off,th:P2.PL.th,tend:P2.PL.tend,V:P2.PL.V,n:P2.PL.n,tdip:P2.PL.tdip,H:P2.PL.H}:null,pieces:P2?P2.V0.pieces.length:0,
       cut:P2&&P2.V0.cut?{at:P2.V0.cut.at,add:P2.V0.cut.add,was:P2.V0.cut.was}:null,vsn:RUN?RUN.vsn:null}; },   /* [ENTRY_CALL_PAUSE_1013] 점검용 — 끊은 자리 · 늘린 초 · 지금 걸린 목소리 마디 수 */
