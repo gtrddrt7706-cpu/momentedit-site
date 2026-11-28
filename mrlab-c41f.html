@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>가사 빼기 시험실 · 내부용</title>
+<!-- ★★[MR_LAB_1128 2026-11-28 대표님 «추천대로» · 입장곡 가사 빼기 방] 가사 빼기 시험실(내부용 · 어디에도 링크 없음 · noindex).
+     고른 곡은 이 기기 안에서만 쓴다(서버로 보내지 않는다). 방법 셋을 같은 구간으로 만들어 걸린 시간 · 실시간 대비 배율을 적고, 귀로 비교한다.
+     일꾼: assets/mrlab-c41f-worker.js · 모델은 Hugging Face 커밋 고정 주소에서 처음 한 번 받아 Cache Storage(me-mr-lab-v1)에 둔다(정식 판은 /assets/vendor/ · 대표님 결정 5). -->
+<style>
+:root{--bg:#FAFAF8;--card:#FFFFFF;--accent:#3A2D22;--sub:#5A554C;--light:#6E6959;--gold:#B89A75;--gold-deep:#9A7B4F;--gold-bg:#F4EEE6;--seal:#6B2A24;--border:#E6DED2}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--accent);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;-webkit-text-size-adjust:100%}
+main{max-width:720px;margin:0 auto;padding:20px 16px 80px}
+h1{font-size:20px;margin:4px 0 2px;font-weight:600}
+h2{font-size:15px;margin:0 0 8px;font-weight:600}
+.sub{color:var(--sub);font-size:13px;margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin:0 0 12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,.pick{min-height:44px;padding:8px 16px;border:1px solid var(--gold);border-radius:999px;background:var(--card);color:var(--accent);font:inherit;font-size:14px;cursor:pointer}
+button.go{background:var(--accent);border-color:var(--accent);color:#FAFAF8;font-weight:600}
+button.on{background:var(--gold-bg);border-color:var(--gold-deep);font-weight:600}
+button:disabled{opacity:.45;cursor:default}
+label.ck{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 4px;font-size:14px}
+input[type=text],input[type=number]{min-height:44px;width:96px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:16px;background:var(--card);color:var(--accent)}
+.note{color:var(--sub);font-size:13px;margin:6px 0 0}
+.err{color:var(--seal);font-size:13px;margin:6px 0 0}
+.bar{height:6px;border-radius:3px;background:var(--border);overflow:hidden;margin:10px 0 4px}
+.bar i{display:block;height:100%;width:0;background:var(--gold-deep);transition:width .2s linear}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--sub);font-weight:500}
+td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+.ok{color:#2F5D3A;font-weight:600}.no{color:var(--seal);font-weight:600}
+.res{border-top:1px solid var(--border);padding-top:10px;margin-top:10px}
+.res h3{font-size:14px;margin:0 0 6px}
+pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--gold-bg);border-radius:8px;padding:10px;max-height:240px;overflow:auto}
+</style>
+</head>
+<body>
+<main>
+<h1>가사 빼기 시험실</h1>
+<p class="sub">내부용 · 고른 곡은 이 기기 안에서만 써요(어디에도 보내지 않아요) · 방법 셋을 같은 구간으로 만들어 시간과 소리를 비교해요</p>
+
+<section class="card" aria-labelledby="h1a">
+  <h2 id="h1a">1. 곡과 구간</h2>
+  <div class="row"><label class="pick" for="file">곡 파일 고르기</label><input id="file" type="file" accept=".mp3,.m4a,.aac,.wav,.flac" style="position:absolute;left:-9999px"><span id="fname" class="note"></span></div>
+  <div class="row" style="margin-top:10px">
+    <label for="hl">하이라이트(분:초)</label><input id="hl" type="text" inputmode="numeric" value="1:00" autocomplete="off">
+    <label for="len">그 앞 몇 초</label><input id="len" type="number" min="5" max="60" step="1" value="25">
+  </div>
+  <p class="note">멘트가 흐르는 구간 = 하이라이트 앞 N초. 실제 식순은 앞뒤 2초를 더 만들어요(여기서도 같게 만들어요).</p>
+</section>
+
+<section class="card" aria-labelledby="h1b">
+  <h2 id="h1b">2. 방법</h2>
+  <div class="row">
+    <label class="ck"><input type="checkbox" id="mC" checked> ① 가운데 소리 지우기(AI 없음 · 모노)</label>
+    <label class="ck"><input type="checkbox" id="m9" checked> ② AI 가벼운 모델(약 30MB)</label>
+    <label class="ck"><input type="checkbox" id="mH"> ③ AI 고급 모델(약 67MB · 약 3배 느림)</label>
+  </div>
+  <div class="row"><label class="ck"><input type="checkbox" id="gpu" checked> 그래픽 칩(WebGPU)을 먼저 써 보기</label></div>
+  <p class="note" id="dev"></p>
+  <div class="row" style="margin-top:8px"><button type="button" class="go" id="run" disabled>만들기</button><button type="button" id="stop" disabled>그만두기</button><button type="button" id="wipe">저장한 AI 모델 지우기</button></div>
+  <div class="bar" aria-hidden="true"><i id="barI"></i></div>
+  <p class="note" id="st" role="status"></p>
+</section>
+
+<section class="card" aria-labelledby="h1c">
+  <h2 id="h1c">3. 기록</h2>
+  <table><thead><tr><th>방법</th><th>엔진</th><th>받기</th><th>준비</th><th>만들기</th><th>배율</th><th>누른 뒤</th><th>30초 안</th></tr></thead><tbody id="log"></tbody></table>
+  <p class="note">배율 = 만들기 시간 ÷ 구간 길이(작을수록 빠름). 누른 뒤 = 처음 받기를 뺀, 누르고 다 될 때까지.</p>
+  <div class="row" style="margin-top:8px"><button type="button" id="copy">기록 복사</button></div>
+  <pre id="raw" hidden></pre>
+</section>
+
+<section class="card" aria-labelledby="h1d">
+  <h2 id="h1d">4. 들어 보기</h2>
+  <p class="note">«멘트 구간처럼»은 반주로 흐르다 하이라이트 0.3초 전부터 원곡으로 넘어가요(실제 식순과 같은 이음). 번갈아 듣기는 같은 자리에서 원곡 ↔ 반주를 바꿔요.</p>
+  <div id="ears"></div>
+</section>
+</main>
+<script>
+(function(){
+'use strict';
+var D=document, $=function(id){ return D.getElementById(id); };
+var SR=44100, PAD=2, XF=0.3, SONG=null, NAME='', LOG=[], RES={}, AC=null, PLAY=null, WK=null, RUNNING=false, SEQ=0;
+var LABEL={center:'① 가운데 지우기',m9662:'② AI 가벼운(30MB)',hq3:'③ AI 고급(67MB)'};
+function dev(){ var n=navigator, gpu=!!n.gpu; return {ua:n.userAgent, cores:n.hardwareConcurrency||0, mem:n.deviceMemory||0, webgpu:gpu, coi:!!self.crossOriginIsolated}; }
+$('dev').textContent=(function(d){ return '이 기기: 코어 '+(d.cores||'?')+' · 메모리 '+(d.mem?d.mem+'GB':'?')+' · 그래픽 칩 '+(d.webgpu?'있음':'없음')+' · 스레드 '+(d.coi?'여러 개 가능':'1개(헤더 없음)'); })(dev());
+if(!navigator.gpu){ $('gpu').checked=false; $('gpu').disabled=true; }
+function worker(){ if(!WK){ WK=new Worker('/assets/mrlab-c41f-worker.js',{type:'module'}); } return WK; }
+function ask(msg,onProg,transfer){ return new Promise(function(ok,no){ var id=++SEQ, w=worker(); msg.id=id;
+  var h=function(ev){ var d=ev.data||{}; if(d.id!==id) return; if(d.type==='prog'){ onProg&&onProg(d); return; } w.removeEventListener('message',h); if(d.type==='err') no(new Error(d.msg)); else ok(d); };
+  w.addEventListener('message',h); w.postMessage(msg,transfer||[]); }); }
+function parseT(s){ s=String(s||'').trim().replace('：',':'); var m=/^(\d{1,3})[:.](\d{1,2}(?:\.\d+)?)$/.exec(s); if(m) return (+m[1])*60+(+m[2]); if(/^\d+(\.\d+)?$/.test(s)) return +s; return NaN; }
+function fmt(s){ if(!(s>=0)) return '-'; var m=Math.floor(s/60), x=s-m*60; return m+':'+(x<10?'0':'')+x.toFixed(1); }
+function ms(v){ return v>=1000?(v/1000).toFixed(1)+'초':Math.round(v)+'ms'; }
+function say(t,err){ var e=$('st'); e.textContent=t; e.className=err?'err':'note'; }
+function bar(p){ $('barI').style.width=Math.max(0,Math.min(100,p*100)).toFixed(1)+'%'; }
+$('file').addEventListener('change',function(){ var f=this.files&&this.files[0]; if(!f) return; NAME=f.name; $('fname').textContent='‹'+f.name+'› 푸는 중이에요'; SONG=null; $('run').disabled=true;
+  f.arrayBuffer().then(function(ab){ var oc=new OfflineAudioContext(2,SR,SR); return oc.decodeAudioData(ab); }).then(function(b){
+    var L=b.getChannelData(0), R=b.numberOfChannels>1?b.getChannelData(1):L; if(b.sampleRate!==SR){ /* decodeAudioData 는 컨텍스트 표본율(44.1k)로 맞춰 준다 */ }
+    SONG={L:new Float32Array(L),R:new Float32Array(R),dur:b.duration,ch:b.numberOfChannels}; $('fname').textContent='‹'+f.name+'› · '+fmt(b.duration)+' · '+(b.numberOfChannels>1?'스테레오':'모노(가운데 지우기는 소리가 사라져요)'); $('run').disabled=false; })
+  .catch(function(){ $('fname').textContent='이 파일은 풀지 못했어요 · MP3 · M4A 로 골라 주세요'; }); });
+function seg(){ var hl=parseT($('hl').value), len=Math.max(5,Math.min(60,+$('len').value||25)); if(!SONG||!(hl>0)) return null;
+  hl=Math.min(hl,SONG.dur-1); var a=Math.max(0,hl-len-PAD), b=Math.min(SONG.dur,hl+PAD), s0=Math.floor(a*SR), s1=Math.floor(b*SR);
+  return {hl:hl,len:len,a:a,b:b,L:SONG.L.slice(s0,s1),R:SONG.R.slice(s0,s1),sec:(s1-s0)/SR}; }
+var wl=null; function wake(on){ try{ if(on&&navigator.wakeLock&&!wl) navigator.wakeLock.request('screen').then(function(x){ wl=x; },function(){}); if(!on&&wl){ wl.release(); wl=null; } }catch(e){} }
+$('run').addEventListener('click',function(){ if(RUNNING) return; var S=seg(); if(!S){ say('곡을 고르고 하이라이트를 분:초로 적어 주세요',true); return; }
+  var list=[]; if($('mC').checked) list.push('center'); if($('m9').checked) list.push('m9662'); if($('mH').checked) list.push('hq3'); if(!list.length){ say('방법을 하나 이상 골라 주세요',true); return; }
+  RUNNING=true; $('run').disabled=true; $('stop').disabled=false; wake(true); RES={}; $('ears').innerHTML=''; stopPlay();
+  var i=0; (function next(){ if(i>=list.length){ done(); return; } var k=list[i++], t0=performance.now(), dlMs=0, sawDl=false; say(LABEL[k]+' · 준비하는 중이에요'); bar(0);
+    ask({type:'run',method:k,L:S.L.slice(),R:S.R.slice(),ep:$('gpu').checked?'webgpu':'wasm'},function(p){
+      if(p.phase==='dl'){ sawDl=true; say(LABEL[k]+' · AI 모델 받는 중 '+(p.got/1048576).toFixed(1)+' / '+(p.total/1048576).toFixed(1)+'MB (처음 한 번만)'); bar(p.got/p.total); }
+      else if(p.phase==='prep'){ say(LABEL[k]+' · 준비하는 중이에요'); }
+      else if(p.phase==='run'){ say(LABEL[k]+' · 가사를 빼는 중 '+p.done+' / '+p.total); bar(p.done/p.total); } })
+    .then(function(d){ var wall=performance.now()-t0, m=d.m, after=wall-(m.cached?0:m.dl); RES[k]={L:d.L,R:d.R,S:S};
+      var row={method:k, ep:m.ep, threads:m.threads, why:m.why, dl:m.cached?0:m.dl, cached:m.cached, prep:m.prep, proc:m.proc, model:m.model, dsp:m.dsp, chunks:m.chunks, seg:+S.sec.toFixed(2), rtf:+(m.proc/1000/S.sec).toFixed(3), afterPress:+(after/1000).toFixed(2), pass30:after<=30000, at:new Date().toISOString(), file:NAME, hl:S.hl, len:S.len};
+      LOG.push(row); paintLog(); ear(k); next(); })
+    .catch(function(e){ if(e.message==='STOP'){ say('그만뒀어요'); done(); return; } say(LABEL[k]+' · 만들지 못했어요 · '+e.message,true); LOG.push({method:k,error:e.message,at:new Date().toISOString()}); paintLog(); next(); }); })();
+  function done(){ RUNNING=false; $('run').disabled=!SONG; $('stop').disabled=true; wake(false); bar(1); if(!/만들지 못했|그만뒀/.test($('st').textContent)) say('다 됐어요 · 목소리가 조금 남을 수 있어요. 아래에서 들어 보세요'); } });
+$('stop').addEventListener('click',function(){ if(!WK) return; WK.terminate(); WK=null; RUNNING=false; $('run').disabled=!SONG; $('stop').disabled=true; wake(false); say('그만뒀어요'); bar(0); });
+$('wipe').addEventListener('click',function(){ ask({type:'wipe'}).then(function(d){ say('저장한 AI 모델을 지웠어요('+d.n+'개) · 다음에 AI 방법을 쓰면 다시 받아요'); }); });
+function paintLog(){ $('log').innerHTML=LOG.map(function(r){ if(r.error) return '<tr><td>'+LABEL[r.method]+'</td><td colspan="7" class="no">'+esc(r.error)+'</td></tr>';
+  return '<tr><td>'+LABEL[r.method]+'</td><td class="n">'+r.ep+(r.ep==='wasm'?' ×'+r.threads:'')+'</td><td class="n">'+(r.cached?'저장본':ms(r.dl))+'</td><td class="n">'+ms(r.prep)+'</td><td class="n">'+ms(r.proc)+'</td><td class="n">'+r.rtf+'</td><td class="n">'+r.afterPress+'초</td><td class="'+(r.pass30?'ok':'no')+'">'+(r.pass30?'예':'아니요')+'</td></tr>'; }).join('');
+  $('raw').textContent=JSON.stringify({device:dev(),runs:LOG},null,1); }
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+$('copy').addEventListener('click',function(){ var t=$('raw').textContent||JSON.stringify({device:dev(),runs:LOG}); var pr=$('raw');
+  try{ navigator.clipboard.writeText(t).then(function(){ say('기록을 복사했어요'); },function(){ pr.hidden=false; say('복사하지 못했어요 · 아래 글을 길게 눌러 복사해 주세요',true); }); }catch(e){ pr.hidden=false; } });
+/* ── 들어 보기 ── */
+function ac(){ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)({sampleRate:SR}); if(AC.state==='suspended') AC.resume(); return AC; }
+function buf(L,R){ var a=ac(), b=a.createBuffer(2,L.length,SR); b.getChannelData(0).set(L); b.getChannelData(1).set(R); return b; }
+function stopPlay(){ if(!PLAY) return; PLAY.srcs.forEach(function(s){ try{ s.stop(); }catch(e){} }); PLAY=null; D.querySelectorAll('#ears button.on').forEach(function(b){ b.classList.remove('on'); }); }
+function ear(k){ var r=RES[k], el=D.createElement('div'); el.className='res'; el.innerHTML='<h3>'+LABEL[k]+'</h3><div class="row"><button type="button" data-m="ment">멘트 구간처럼</button><button type="button" data-m="mr">반주만</button><button type="button" data-m="ab">번갈아 듣기</button><button type="button" data-m="orig">원곡</button></div>';
+  el.addEventListener('click',function(ev){ var b=ev.target.closest('button'); if(!b) return; var m=b.getAttribute('data-m');
+    if(m==='ab'&&PLAY&&PLAY.k===k&&PLAY.m==='ab'){ PLAY.flip(); b.textContent=PLAY.on?'번갈아 듣기 · 지금 반주':'번갈아 듣기 · 지금 원곡'; return; }
+    var same=PLAY&&PLAY.k===k&&PLAY.m===m; stopPlay(); if(same) return; play(k,m,b); }); $('ears').appendChild(el); }
+function play(k,m,btn){ var r=RES[k], S=r.S, a=ac(), t=a.currentTime+0.08, srcs=[], g1, g2;
+  var orig=buf(S.L,S.R), mr=buf(r.L,r.R), off=Math.max(0,S.hl-S.len-S.a), hlAt=S.hl-S.a;   /* 구간 안 시각 — 앞 2초 덧댄 만큼 건너뛰고 멘트 구간부터 */
+  if(m==='orig'||m==='mr'){ var s=a.createBufferSource(); s.buffer=m==='mr'?mr:orig; s.connect(a.destination); s.start(t,off); srcs.push(s); }
+  else if(m==='ment'){ /* 반주 → 하이라이트 0.3초 전부터 원곡(같은 자리) · 하이라이트 뒤 8초까지 */
+    var dur=(hlAt-off)+8, s1=a.createBufferSource(), s2=a.createBufferSource(); g1=a.createGain(); g2=a.createGain(); s1.buffer=mr; s2.buffer=fullOrig(S); s1.connect(g1); g1.connect(a.destination); s2.connect(g2); g2.connect(a.destination);
+    var xf0=t+(hlAt-off)-XF, n=32, up=new Float32Array(n), dn=new Float32Array(n); for(var i=0;i<n;i++){ var x=i/(n-1); up[i]=Math.sin(x*Math.PI/2); dn[i]=Math.cos(x*Math.PI/2); }
+    g1.gain.setValueAtTime(1,t); g2.gain.setValueAtTime(0,t); try{ g1.gain.setValueCurveAtTime(dn,xf0,XF); g2.gain.setValueCurveAtTime(up,xf0,XF); }catch(e){ g1.gain.setValueAtTime(0,xf0+XF); g2.gain.setValueAtTime(1,xf0+XF); }
+    s1.start(t,off,(hlAt-off)); s2.start(t,S.a+off,dur); srcs.push(s1,s2); }
+  else { var s3=a.createBufferSource(), s4=a.createBufferSource(); g1=a.createGain(); g2=a.createGain(); s3.buffer=orig; s4.buffer=mr; s3.connect(g1); g1.connect(a.destination); s4.connect(g2); g2.connect(a.destination); g1.gain.value=0; g2.gain.value=1; s3.start(t,off); s4.start(t,off); srcs.push(s3,s4); }
+  btn.classList.add('on'); if(m==='ab') btn.textContent='번갈아 듣기 · 지금 반주';
+  PLAY={k:k,m:m,srcs:srcs,on:true,flip:function(){ this.on=!this.on; var now=a.currentTime; g2.gain.setTargetAtTime(this.on?1:0,now,0.01); g1.gain.setTargetAtTime(this.on?0:1,now,0.01); }};
+  srcs[srcs.length-1].onended=function(){ if(PLAY&&PLAY.srcs===srcs){ PLAY=null; btn.classList.remove('on'); if(m==='ab') btn.textContent='번갈아 듣기'; } }; }
+var FULL=null; function fullOrig(){ if(!FULL||FULL.L!==SONG.L){ FULL={L:SONG.L,b:buf(SONG.L,SONG.R)}; } return FULL.b; }
+/* 시험 손잡이(헤드리스 대조 · 사람 화면에는 없다) */
+window.__mrLab={ask:ask, setSong:function(L,R){ SONG={L:L,R:R,dur:L.length/SR,ch:2}; FULL=null; $('run').disabled=false; }};
+})();
+</script>
+</body>
+</html>

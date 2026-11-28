@@ -11,7 +11,7 @@ import fs from 'node:fs'; import path from 'node:path';
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..');
 const rd = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const INTERNAL = ['script-review.html', 'order-audit.html', 'audio-review.html', 'audio-review-tone.html', 'flow-7c2e.html', 'pair-7c2e.html',
-  'listen-abb5d829.html', 'pick-396ca38a.html', 'pick-final.html', 'brief.html', 'admin.html', 'console.html'];
+  'listen-abb5d829.html', 'pick-396ca38a.html', 'pick-final.html', 'brief.html', 'admin.html', 'console.html', 'mrlab-c41f.html' /* [MR_LAB_1128] 가사 빼기 시험실 */];
 const ARCH = fs.readdirSync(path.join(ROOT, 'contract/archive')).filter((f) => f.endsWith('.html')).map((f) => 'contract/archive/' + f);
 const noidx = (h) => /<meta name="robots" content="[^"]*noindex/i.test(h);
 const vis = (h) => h.replace(/<!--[\s\S]*?-->/g, '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');

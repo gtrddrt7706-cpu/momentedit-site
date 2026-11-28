@@ -24777,3 +24777,12 @@ chk 'INAPP_FILE_1128' assets/entry-music.js 1
 chk 'INAPP_FILE_1128' order-preview.html 4
 chk "return /Android/i.test(ua)&&/KAKAOTALK|Instagram/i.test(ua); }" order-preview.html 1
 chk "if(INAPP_MIC.kind==='file') INAPP_MIC.okFile=true; else INAPP_MIC.ok=true;" order-preview.html 1
+# ★[MR_LAB_1128 2026-11-28 대표님 «추천대로» · 입장곡 가사 빼기 방] 가사 빼기 시험실(내부용 · noindex · 링크 없음) — 모델은 커밋 고정 주소 + sha256 확인 · 곡은 기기 밖으로 안 나간다
+#   브라우저 결과 = 파이썬 정답판(같은 입력 8초)과 상대 오차 ① 0 · ② 4.2e-7 · ③ 1.0e-6(허용 1e-3) — 숫자를 바꾸면 다시 대조한다(섹션 방 기록 docs operations/plans/입장곡_가사빼기_결정_1128.md)
+chk 'MR_LAB_1128' mrlab-c41f.html 1
+chk '<meta name="robots" content="noindex,nofollow">' mrlab-c41f.html 1
+chk 'MR_LAB_1128' assets/mrlab-c41f-worker.js 1
+chk 'resolve/929e057b81aa49bc2e6490bef8671f47b2c120f6/models/MDXNet/' assets/mrlab-c41f-worker.js 1
+chk "sha: 'e02220e80d8253f4c2209f8924298b2b686bbdf2868b788ff5500fb9bd94aadc'" assets/mrlab-c41f-worker.js 1
+chk "sha: '317554b07fe1ea5279a77f2b1520a41ea4b93432560c4ffd08792c30fddf9adc'" assets/mrlab-c41f-worker.js 1
+chk 'onnxruntime-web@1.22.0/dist/' assets/mrlab-c41f-worker.js 2
